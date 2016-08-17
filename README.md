@@ -13,14 +13,14 @@ Branch      | Build status
 master      | [![Build Status][travis-private-repo-icon-master]][travis-private-repo-page]
 development | [![Build Status][travis-private-repo-icon-development]][travis-private-repo-page]
 
-[travis-private-repo-page]: https://travis-ci.com/xively/libxively-v3
-[travis-private-repo-icon-master]: https://travis-ci.com/xively/libxively-v3.svg?token=yxBj5sT6chuKx6ED3u9B&branch=master
-[travis-private-repo-icon-development]: https://travis-ci.com/xively/libxively-v3.svg?token=yxBj5sT6chuKx6ED3u9B&branch=development
+[travis-private-repo-page]: https://travis-ci.com/xively/xively-client-c
+[travis-private-repo-icon-master]: https://travis-ci.com/xively/xively-client-c.svg?token=missing&branch=master
+[travis-private-repo-icon-development]: https://travis-ci.com/xively/xively-client-c.svg?token=missing&branch=development
 
 ## How to get the sources?
 Sources can be obtained by pulling from the master branch at our Xively Client github repository:
 
-[https://github.com/xively/libxively-v3](https://github.com/xively/libxively-v3)
+[https://github.com/xively/xively-client-c](https://github.com/xively/xively-client-c)
 
 ## Directory structure
 
