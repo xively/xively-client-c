@@ -1,0 +1,290 @@
+\documentclass{beamer}
+
+\mode<presentation>
+{
+  \usetheme{default}      % or try Darmstadt, Madrid, Warsaw, ...
+  \usecolortheme{default} % or try albatross, beaver, crane, ...
+  \usefonttheme{default}  % or try serif, structurebold, ...
+  \setbeamertemplate{navigation symbols}{}
+  \setbeamertemplate{caption}[numbered]
+} 
+
+\usepackage[english]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage{wasysym}
+
+\title{Connected Embedded Systems}
+\subtitle{A Quick Guide to the Three Key Enablers}
+\author{Ilya Dmitrichenko}
+\date{\today}
+
+\begin{document}
+
+\begin{frame}
+        \titlepage
+\end{frame}
+
+\begin{frame}{Brief Outline}
+        \tableofcontents
+\end{frame}
+
+\begin{frame}{Overview (recap)}
+
+\begin{table}\centering\begin{tabular}{l|r|r|r}
+Device type & RAM & Flash & CPU clock \\\hline
+Small & 16-96 kB & 32-128 kB & 12-150 MHz \\
+Large & 128MB-2GB & 32MB-512MB & 400MHz-1.2GHz \\
+\end{tabular}\end{table}
+
+\vskip 1cm
+
+\begin{block}{Examples}
+\begin{itemize}
+  \item[S] coffee maker, door lock, heater, light switch,\\ industrial system component
+  \item[L] domestic appliance with touch screen,\\ industrial system controller
+  %% may be give current customer example
+\end{itemize}
+\end{block}
+
+\end{frame}
+
+\section{Hardware Enablers}
+\subsection{Device Classification}
+
+\begin{frame}{Classification}
+
+%% This can get pretty blured and hairy, mostly due to the fact that silicon
+%% vednors do not always agree between marketing and engineering teams.
+%% 
+%% Having picked simple terms on the privious slide, we already might want to
+%% consider applying familiar classes, e.g. XXL and M\dots
+%% 
+%% It's best to avoid this and that's why I picked the simplest approach and
+%% separate it all into two buckets.
+
+\begin{itemize}
+  \item Keep it simple
+  \item Only two classes - it's either small or large
+  \begin{itemize}
+    \item[Small] more like a Microcontroller, aka MCU
+    \item[Large] more of an Application System-on-Chip, aka SoC
+  \end{itemize}
+  \item Hybrid chips are an interesting topic (let's avoid it)
+\end{itemize}
+
+\end{frame}
+
+\subsection{Large processor cores}
+
+\begin{frame}{Large processor cores}
+\begin{itemize}
+  \item General split is around word size (32-bit vs 64-bit)
+  \item Embedded systems rarely use 64-bit CPUs
+  \item Most common architectures are:
+  \begin{itemize}
+    \item ARMv7-A (Cortex-A)
+    \item ARMv9 and other legacy ARM cores
+    \item IBM PowerPC
+    \item MIPS
+    \item AVR32
+    \item Toshiba Supper-H
+  \end{itemize}
+  \item There are more esoteric architectures that we could dig up\dots
+  \item FPGAs and soft-cores are another subject that I'll avoid \frownie
+\end{itemize}
+\end{frame}
+
+\subsection{Small processor cores}
+
+\begin{frame}{Small processor cores}
+\begin{itemize}
+  \item Generally they may be 8-, 16-, 24- or 32-bit
+  \item ARM dominates the market with ARMv7 and ARMv6 (Cortex-M)
+  \item Most vendors publicize which devices use ARM cores
+  \item They often add branding of their own, but it's usually clear
+  \item Other common architectures:
+  \begin{itemize}
+    \item Intel 8051
+    \item Atmel AVR
+    \item Texas Instruments MSP430
+    \item Microchip PIC16, PIC24 \& PIC32
+    \item Motorolla HCS08 and FreeScale ColdFire
+  \end{itemize}
+  \item There many other, but those are less common these days
+\end{itemize}
+\end{frame}
+
+\subsection{Internet and local wireless connectivity}
+
+\begin{frame}{Wireless Evolution}
+\begin{itemize}
+  \item Free ISM 2.4GHz band worldwide has brought many standards
+  \item Most countries allow unlicensed use of various Sub-GHz bands
+  \item Sub-GHz radio has better in- and out-door range
+  \item New, longer range protocols emerge as UHF TV goes away
+  \item A lot of buzz around this, Weightless is an interesting one
+  \item Digital RF silicon becomes a commodity
+  \item Low-power single-chip solutions are a deal breaker
+  \item Energy harvesting is the top tier
+  \item Some technologies are more equal then others
+  \item Alliances have their own politics and some fail earlier or later 
+  \item In the late 80s and early 90s we didn't have Ethernet/IP\dots
+\end{itemize}
+\end{frame}
+\begin{frame}{Wireless Evolution - WTF}
+\begin{itemize}
+  \item WiMax has already failed
+  \item Z-wave has limited success in Europe
+  \item WirelessHeart had limited success in industrial applications
+  \item ZigBee has numerous issues:
+  \begin{itemize}
+    \item IEEE 802.15.14 by itself does not guarantee interop
+    \item Too many profiles for one to understand
+    \item Not all devices on a network are thought to be equal
+    \item Non-trivial to bridge with the Internet
+    \item Same ZigBee firmware cannot have all profiles
+    \item ZigBee/IP solves it to certain extend
+    \item ZigBee/IP is only defined for "smart energy" applications
+  \end{itemize}
+  \item Some customers use proprietary RF procols avoiding compexity
+  \item In most cases there are limitation on network size
+\end{itemize}
+\end{frame}
+\begin{frame}{Wireless Evolution - FTW}
+\begin{itemize}
+  \item Sub-GHz WiFi (802.11ah) is most likely to kill ZigBee
+  \item Super-WiFi (802.11af) will likely supersede cellular M2M
+  \item Ultra-narrow band is still quite new, we shall see!
+  \item Bluetooth LE and NFC are great, but a little less relevant
+  \item Mesh or star networks with Bluetooth are non-standard
+\end{itemize}
+\end{frame}
+
+\section{Tooling Enablers}
+\subsection{Compilers and Operating Systems}
+
+\begin{frame}{Background Facts}
+\begin{itemize}
+  \item LMI quiz: what was Mike's job when dinosaurs where little?
+  \item It's only in the last decade when C gained popularity on MCUs
+  \item \dots and C$^{++}$ isn't quite there yet for most people \frownie
+  \item There used to be proprietary compilers and operating systems
+  \item Open-source software and hardware is now most talked about
+  \item Linux, GCC and LLVM are leading the game
+  \item Many commercial offerings exist around embedded Linux
+  \begin{itemize}
+    \item GUI toolkits: Qt
+    \item Enterprise-grade build systems: Mentor Graphics, Wind River
+    \item Cryptographic libraries: Wolf SSL
+    \item LLVM-based compilers: Apple, AMD (OpenCL), Qualcomm (DSP), ARM (upcoming)
+    \item Toolchain bundles easy to install: Mentor Graphics, Red Hat
+  \end{itemize}
+  \item Dual-licensing models are quite popular (GPL+commercial)
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Background Facts (cont.)}
+\begin{itemize}
+  \item Real-time Linux is hard
+  \item Hybrid solutions are common (e.g. Sato)
+  \item For small chips, there are still a few commercial vendors
+  \item Most live of legacy licensees, only few innovate
+  \item Only in the last few years GCC became easier to setup
+  \item FreeRTOS is becoming quite popular among silicon vendors
+  \item Two TCP/IP stacks are industry standard
+  \item Very few other good quality TCP/IP stacks exist
+  \item ARM mbed is a great example thought leadership
+\end{itemize}
+\end{frame}
+
+%% On compilers:
+%%
+%% If you are using IAR or Rowley or something else of that sort,
+%% that means your boss bought a liceses back in a day when GCC
+%% was a bit of pain in the ass to get up and running and he was
+%% also told that commercial toolchain opimizes a lot better...
+
+\subsection{Languages}
+
+\begin{frame}{Languages - Large devices}
+\begin{itemize}
+  \item High-level low-footprint runtime is great
+  \item Python is already quite popular
+  \item Lua and Go are getting great traction
+  \item Google is probably giving Java a better push then Oracle does
+  \item Java ME has made appearance a while ago\dots
+  \item There is now Java Embedded, which is Java 8\dots
+  \item The greatest thing is that choices range form shell to Erlang
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Languages - Small devices}
+% Make IoT easy for the masses with JavaScript and Python etc
+\begin{itemize}
+  \item A number of higher level languages already available
+  \begin{itemize}
+    \item eLua: \url{https://github.com/elua/elua}
+    \item uPy: \url{https://github.com/micropython/micropython}
+    \item Espruino: \url{https://github.com/espruino/Espruino}
+    \item \href{http://www.oracle.com/technetwork/java/embedded}{Oracle Java Embedded}
+  \end{itemize}
+  \item Would probably require one to use not the smallest device
+  \item Might have a slight performance penalty
+  \item Great for defining business logic on top of generic client
+  \item IoT blast will happen if development is eased
+  \item Other interesting option might be to implement Go (R\&D)
+  \item Work with ARM to bind languages to SDK APIs
+\end{itemize}
+\end{frame}
+
+\section{Cloud Enablers}
+\subsection{Background}
+
+\begin{frame}{General Trends}
+\begin{itemize}
+  \item Cloud becomes a commodity 
+  \item Some are able to leverage off-the-shelf platforms (AWS, GCE)
+  \item Some find it difficult to grasp the requirements
+  \item Some have more difficulties connecting their product
+  \item Some are able to build a half-baked prototype
+  \item Most Xively customers need professional services
+  \item Protocol stack will become a commodity (ARM SensiNode)
+  \item Usable open-source protocol stacks will be there in a few years
+\end{itemize}
+\end{frame}
+
+\subsection{Outlook}
+
+\begin{frame}{Upcoming Xively Messaging Platform}
+\begin{itemize}
+  \item MQTT might not be the swiss army knife, BUT
+  \item The paradigm is easy to understand
+  \item Payload-agnostic, efficient compute and bandwidth
+  \item Many applications only need simple messaging
+  \item More advanced uses would need an RPC\footnote{\href{https://wiki.3amlabs.net/display/XIV/Proposed+RPC+schema+for+RescueX}{wiki.3amlabs.net/display/XIV/Proposed+RPC+schema+for+RescueX}}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Future plans and pointers}
+\begin{itemize}
+  \item Our strategy is to be protocol-agnostic\footnote{\href{http://blog.xively.com/protocol-standardization-aka-iot-red-herring/}{blog.xively.com/protocol-standardization-aka-iot-red-herring/}}
+  \item Describing each protocol would take me another day
+  \item Here are some links for you to learn more:
+  \begin{itemize}
+    \item \href{http://youtu.be/4bSr5x5gKvA}{CoAP and LWM2M tutorial}
+    \item \href{https://wiki.allseenalliance.org/training}{AllJoyn training}
+    \item \href{http://wiki.xmpp.org/web/InternetOfThings}{XMPP}
+    \item \href{http://daniel.haxx.se/http2/}{HTTP/2}
+  \end{itemize}
+  \item Only few of these are currently with \emph{proper} standard bodies
+  \begin{itemize}
+    \item CoAP - IETF, LWM2M OMA
+    \item AllJoyn - Linux Foundation's AllSeen Alliance (still forming)
+    \item HTTP/2 - IETF
+    \item XMPP - IEEE
+    \item MQTT - OASIS (not quite proper)
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+\end{document}

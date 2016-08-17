@@ -1,0 +1,46 @@
+// Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.
+
+#ifndef __XI_ITEST_MOCK_LAYER_MQTTLOGIC_NEXT_H__
+#define __XI_ITEST_MOCK_LAYER_MQTTLOGIC_NEXT_H__
+
+#include "xi_layer_interface.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+xi_state_t xi_mock_layer_mqttlogic_next_push(
+      void* context
+    , void* data
+    , xi_state_t state );
+
+xi_state_t xi_mock_layer_mqttlogic_next_pull(
+      void* context
+    , void* data
+    , xi_state_t state );
+
+xi_state_t xi_mock_layer_mqttlogic_next_close(
+      void* context
+    , void* data
+    , xi_state_t state );
+
+xi_state_t xi_mock_layer_mqttlogic_next_close_externally(
+      void* context
+    , void* data
+    , xi_state_t state );
+
+xi_state_t xi_mock_layer_mqttlogic_next_init(
+      void* context
+    , void* data
+    , xi_state_t state );
+
+xi_state_t xi_mock_layer_mqttlogic_next_connect(
+      void* context
+    , void* data
+    , xi_state_t state );
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // __XI_ITEST_MOCK_LAYER_MQTTLOGIC_NEXT_H__

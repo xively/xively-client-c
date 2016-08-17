@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<iarUserArgVars>
+  <group active="true" name="PATH_VARS">
+    <variable>
+      <name>XI_TOPDIR</name>
+      <value>$PROJ_DIR$\..\..\..\..</value>
+    </variable>
+    <variable>
+      <name>CUBE_TOPDIR</name>
+      <value>$PROJ_DIR$\..\..\..\..\..\xi_target_proj</value>
+    </variable>
+    <variable>
+      <name>APP_PROJ_INC</name>
+      <value>$PROJ_DIR$\..\..\..\..\..\xi_target_proj\Projects\STM324xG_EVAL\Applications\ITestWrapper\ITestWrapper\Inc</value>
+    </variable>
+  </group>
+</iarUserArgVars>
+
+

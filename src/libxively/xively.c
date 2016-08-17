@@ -1,0 +1,1177 @@
+/* Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.
+ * This is part of Xively C library. */
+
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "xi_version.h"
+#include "xi_allocator.h"
+#include "xively.h"
+#include "xi_macros.h"
+#include "xi_debug.h"
+#include "xi_helpers.h"
+#include "xi_err.h"
+#include "xi_globals.h"
+#include "xi_internals.h"
+#include "xi_common.h"
+#include "xi_layer_api.h"
+#include "xi_layer_interface.h"
+#include "xi_layer_chain.h"
+#include "xi_layer_factory.h"
+#include "xi_layer_macros.h"
+#include "xi_layer_default_allocators.h"
+#include "xi_connection_data.h"
+#include "xi_static_vector.h"
+#include "xi_backoff_status_api.h"
+#include "xi_backoff_lut_config.h"
+#include "xi_handle.h"
+#include "xi_timed_task.h"
+#include "xi_event_loop.h"
+
+#include "xi_layer_stack.h"
+
+#include "xi_mqtt_host_accessor.h"
+
+#include "xi_thread_threadpool.h"
+
+#include "xi_user_sub_call_wrapper.h"
+
+#ifdef XI_BSP
+#include "xi_bsp_rng.h"
+#else
+#define xi_bsp_rng_init()
+#define xi_bsp_rng_shutdown()
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+static char* str_device_credentials_file_absolute_path = NULL;
+static char* str_device_credentials_username           = NULL;
+static char* str_device_credentials_password           = NULL;
+
+/*
+ * CONSTANTS
+ */
+
+/* maximum length of a csv element as dictated by the TimeSeries team */
+const size_t xi_max_csv_element_chars = 1024;
+
+#ifndef XI_MAX_NUM_CONTEXTS
+#define XI_MAX_NUM_CONTEXTS 10
+#endif
+
+const uint16_t xi_major    = XI_MAJOR;
+const uint16_t xi_minor    = XI_MINOR;
+const uint16_t xi_revision = XI_REVISION;
+
+#define STR_HELPER( x ) #x
+#define STR( x ) STR_HELPER( x )
+
+const char xi_cilent_version_str[] = "Xively C Client Version: " STR( XI_MAJOR ) "." STR(
+    XI_MINOR ) "." STR( XI_REVISION );
+
+
+/*
+ * INTERNAL FUNCTIONS
+ */
+
+/*
+ * HELPER FUNCTIONS
+ */
+void xi_set_network_timeout( uint32_t timeout )
+{
+    xi_globals.network_timeout = timeout;
+}
+
+uint32_t xi_get_network_timeout( void )
+{
+    return xi_globals.network_timeout;
+}
+
+/* indentifies characters that would break the
+ * csv format, ie {,\n\r}.  Also checks the length of the string
+ * to ensure that it's within the acceptible bounds of the Timeseries
+ * parser. */
+xi_state_t check_csv_entry( const char* in_string, int* out_num_chars )
+{
+    if ( NULL == in_string || NULL == out_num_chars )
+    {
+        return XI_INTERNAL_ERROR;
+    }
+
+    static char illegal_chars[] = {',', '\r', '\n'};
+    const int num_illegal_chars = sizeof( illegal_chars ) / sizeof( char );
+
+    size_t index = 0;
+    /* for each character, make sure it's not an illegal character */
+    for ( ; index < xi_max_csv_element_chars; index++ )
+    {
+        if ( in_string[index] == '\0' )
+        {
+            break;
+        }
+
+        int illegal_char_index = 0;
+        for ( ; illegal_char_index < num_illegal_chars; illegal_char_index++ )
+        {
+            if ( in_string[index] == illegal_chars[illegal_char_index] )
+            {
+                return XI_SERIALIZATION_ERROR;
+            }
+        }
+    }
+
+    /* safeguard against non terminated strings,
+     * and/or strings too long for the service */
+    if ( xi_max_csv_element_chars == index )
+    {
+        return XI_SERIALIZATION_ERROR;
+    }
+
+    *out_num_chars = index;
+
+    /* string checks out. Let's do this, kid! */
+    return XI_STATE_OK;
+}
+
+/*
+ * MAIN LIBRARY FUNCTIONS
+ */
+xi_state_t xi_initialize( const char* account_id,
+                          const char* device_unique_id,
+                          const char* device_credentials_file_absolute_path )
+{
+    xi_bsp_rng_init();
+
+    if ( NULL != xi_globals.str_account_id || NULL != xi_globals.str_device_unique_id )
+    {
+        return XI_ALREADY_INITIALIZED;
+    }
+    else if ( NULL == account_id || NULL == device_unique_id )
+    {
+        return XI_INVALID_PARAMETER;
+    }
+
+    xi_globals.str_account_id       = xi_str_dup( account_id );
+    xi_globals.str_device_unique_id = xi_str_dup( device_unique_id );
+
+    if ( NULL != device_credentials_file_absolute_path )
+    {
+        str_device_credentials_file_absolute_path =
+            xi_str_dup( device_credentials_file_absolute_path );
+    }
+
+    if ( NULL == xi_globals.str_device_unique_id || NULL == xi_globals.str_account_id )
+    {
+        return XI_FAILED_INITIALIZATION;
+    }
+
+    return XI_STATE_OK;
+}
+
+xi_state_t xi_shutdown()
+{
+    XI_SAFE_FREE( xi_globals.str_account_id );
+    XI_SAFE_FREE( xi_globals.str_device_unique_id );
+    XI_SAFE_FREE( str_device_credentials_file_absolute_path );
+    XI_SAFE_FREE( str_device_credentials_username );
+    XI_SAFE_FREE( str_device_credentials_password );
+
+    xi_bsp_rng_shutdown();
+
+    return XI_STATE_OK;
+}
+
+xi_state_t xi_create_context_with_custom_layers_and_evtd(
+    xi_context_t** context,
+    xi_layer_type_t layer_config[],
+    xi_layer_type_id_t layer_chain[],
+    size_t layer_chain_size,
+    xi_evtd_instance_t* event_dispatcher ) /* PLEASE NOTE: Event dispatcher's ownership is
+                                            * not taken here! */
+{
+    xi_state_t state = XI_STATE_OK;
+
+    if ( NULL == context )
+    {
+        return XI_INVALID_PARAMETER;
+    }
+
+    if ( NULL == xi_globals.str_account_id || NULL == xi_globals.str_device_unique_id )
+    {
+        return XI_NOT_INITIALIZED;
+    }
+
+    *context = NULL;
+    xi_globals.globals_ref_count += 1;
+
+    if ( 1 == xi_globals.globals_ref_count )
+    {
+        xi_globals.evtd_instance = xi_evtd_create_instance();
+
+        XI_CHECK_STATE( xi_backoff_configure_using_data(
+            ( xi_static_vector_elem_t* )XI_BACKOFF_LUT,
+            ( xi_static_vector_elem_t* )XI_DECAY_LUT, XI_ARRAYSIZE( XI_BACKOFF_LUT ),
+            XI_MEMORY_TYPE_UNMANAGED ) );
+
+        XI_CHECK_MEMORY( xi_globals.evtd_instance, state );
+
+        /* note: this is NULL if thread module is disabled */
+        xi_globals.main_threadpool = xi_threadpool_create_instance( 1 );
+
+        xi_globals.context_handles_vector = xi_vector_create();
+        xi_globals.timed_tasks_container  = xi_make_timed_task_container();
+    }
+
+    /* allocate the structure to store new context */
+    XI_ALLOC_AT( xi_context_t, *context, state );
+
+    /* create io timeout vector */
+    ( *context )->context_data.io_timeouts = xi_vector_create();
+
+    XI_CHECK_MEMORY( ( *context )->context_data.io_timeouts, state );
+    /* set the event dispatcher to the global one, if none is provided */
+    ( *context )->context_data.evtd_instance =
+        ( NULL == event_dispatcher ) ? xi_globals.evtd_instance : event_dispatcher;
+
+    /* copy given numeric parameters as is */
+    ( *context )->protocol = XI_MQTT;
+
+    ( *context )->layer_chain = xi_layer_chain_create(
+        layer_chain, layer_chain_size, &( *context )->context_data, layer_config );
+
+    XI_CHECK_STATE( state =
+                        xi_register_handle_for_object( xi_globals.context_handles_vector,
+                                                       XI_MAX_NUM_CONTEXTS, *context ) );
+
+    return XI_STATE_OK;
+
+err_handling:
+    /* @TODO release any allocated buffers (In v2 it was the API KEY) */
+    XI_SAFE_FREE( *context );
+    return state;
+}
+
+xi_state_t xi_create_context_with_custom_layers( xi_context_t** context,
+                                                 xi_layer_type_t layer_config[],
+                                                 xi_layer_type_id_t layer_chain[],
+                                                 size_t layer_chain_size )
+{
+    return xi_create_context_with_custom_layers_and_evtd(
+        context, layer_config, layer_chain, layer_chain_size, NULL );
+}
+
+xi_context_handle_t xi_create_context()
+{
+    xi_context_t* context;
+    xi_state_t state = XI_STATE_OK;
+
+    XI_CHECK_STATE( state = xi_create_context_with_custom_layers(
+                        &context, xi_layer_types_g, XI_LAYER_CHAIN_DEFAULT,
+                        XI_LAYER_CHAIN_DEFAULTSIZE_SUFFIX ) );
+
+    xi_context_handle_t context_handle;
+    XI_CHECK_STATE( state = xi_find_handle_for_object( xi_globals.context_handles_vector,
+                                                       context, &context_handle ) );
+
+    goto end;
+err_handling:
+    return -state;
+end:
+    return context_handle;
+}
+
+xi_state_t xi_set_device_unique_id( const char* unique_id )
+{
+    if ( NULL == unique_id )
+    {
+        return XI_INVALID_PARAMETER;
+    }
+    else if ( NULL != xi_globals.str_device_unique_id )
+    {
+        return XI_ALREADY_INITIALIZED;
+    }
+
+    int len                         = strlen( unique_id );
+    xi_globals.str_device_unique_id = xi_alloc( len );
+
+    if ( NULL == xi_globals.str_device_unique_id )
+    {
+        return XI_OUT_OF_MEMORY;
+    }
+
+    strcpy( xi_globals.str_device_unique_id, unique_id );
+
+    return XI_STATE_OK;
+}
+
+const char* xi_get_device_id()
+{
+    return xi_globals.str_device_unique_id;
+}
+
+/**
+ * @brief helper function used to clean and free the protocol specific in-context data
+ **/
+static void xi_free_context_data( xi_context_t* context )
+{
+    assert( NULL != context );
+
+    xi_context_data_t* context_data = ( xi_context_data_t* )&context->context_data;
+
+    assert( NULL != context_data );
+
+    /* destroy timeout */
+    xi_vector_destroy( context_data->io_timeouts );
+
+    /* see comment in xi_types.h */
+    if ( context_data->copy_of_handlers_for_topics )
+    {
+        xi_vector_for_each( context_data->copy_of_handlers_for_topics,
+                            &xi_mqtt_task_spec_data_free_subscribe_data_vec );
+
+        context_data->copy_of_handlers_for_topics =
+            xi_vector_destroy( context_data->copy_of_handlers_for_topics );
+    }
+
+    if ( context_data->copy_of_q12_unacked_messages_queue )
+    {
+        /* this pointer must be present otherwise we are not going to be able to release
+         * mqtt specific data */
+        assert( NULL != context_data->copy_of_q12_unacked_messages_queue_dtor_ptr );
+        context_data->copy_of_q12_unacked_messages_queue_dtor_ptr(
+            &context_data->copy_of_q12_unacked_messages_queue );
+    }
+
+    xi_free_connection_data( &context_data->connection_data );
+
+    /* remember, event dispatcher ownership is not taken, this is why we don't delete
+     * it. */
+    context_data->evtd_instance = NULL;
+}
+
+xi_state_t xi_delete_context_with_custom_layers( xi_context_t** context,
+                                                 xi_layer_type_t layer_config[],
+                                                 size_t layer_chain_size )
+{
+    if ( NULL == *context )
+    {
+        return XI_INVALID_PARAMETER;
+    }
+
+    xi_state_t state = XI_STATE_OK;
+
+    state = xi_delete_handle_for_object( xi_globals.context_handles_vector, *context );
+
+    if ( XI_STATE_OK != state )
+    {
+        return XI_ELEMENT_NOT_FOUND;
+    }
+
+    xi_layer_chain_delete( &( ( *context )->layer_chain ), layer_chain_size,
+                           layer_config );
+
+    xi_free_context_data( *context );
+
+    XI_SAFE_FREE( *context );
+
+    xi_globals.globals_ref_count -= 1;
+
+    if ( 0 == xi_globals.globals_ref_count )
+    {
+        xi_cancel_backoff_event();
+        xi_backoff_release();
+        xi_evtd_destroy_instance( xi_globals.evtd_instance );
+        xi_globals.evtd_instance = NULL;
+        xi_threadpool_destroy_instance( &xi_globals.main_threadpool );
+
+        xi_vector_destroy( xi_globals.context_handles_vector );
+        xi_globals.context_handles_vector = NULL;
+
+        xi_destroy_timed_task_container( xi_globals.timed_tasks_container );
+        xi_globals.timed_tasks_container = NULL;
+    }
+
+    return XI_STATE_OK;
+}
+
+xi_state_t xi_delete_context( xi_context_handle_t context_handle )
+{
+    xi_context_t* context =
+        xi_object_for_handle( xi_globals.context_handles_vector, context_handle );
+    assert( context != NULL );
+
+    return xi_delete_context_with_custom_layers(
+        &context, xi_layer_types_g,
+        XI_LAYER_CHAIN_SCHEME_LENGTH( XI_LAYER_CHAIN_DEFAULT ) );
+}
+
+void xi_default_client_callback( xi_context_handle_t in_context_handle,
+                                       void* data,
+                                       xi_state_t state )
+{
+    XI_UNUSED( in_context_handle );
+    XI_UNUSED( data );
+    XI_UNUSED( state );
+}
+
+
+xi_state_t xi_user_callback_wrapper( void* context,
+                                     void* data,
+                                     xi_state_t in_state,
+                                     void* client_callback )
+{
+    assert( NULL != client_callback );
+    assert( NULL != context );
+
+    xi_state_t state = XI_STATE_OK;
+    xi_context_handle_t context_handle;
+    XI_CHECK_STATE( state = xi_find_handle_for_object( xi_globals.context_handles_vector,
+                                                       context, &context_handle ) );
+
+    ( ( xi_user_callback_t* )( client_callback ) )( context_handle, data, in_state );
+
+err_handling:
+    return state;
+}
+
+
+
+void xi_events_stop()
+{
+    xi_evtd_stop( xi_globals.evtd_instance );
+}
+
+void xi_events_process_blocking()
+{
+    xi_event_loop_with_evtds( 0, &xi_globals.evtd_instance, 1 );
+}
+
+xi_state_t xi_events_process_tick()
+{
+    if ( xi_evtd_dispatcher_continue( xi_globals.evtd_instance ) == 1 )
+    {
+        xi_event_loop_with_evtds( 0, &xi_globals.evtd_instance, 1 );
+        return XI_STATE_OK;
+    }
+
+    return XI_EVENT_PROCESS_STOPPED;
+}
+
+xi_state_t xi_connect_with_lastwill_to_impl( xi_context_handle_t xih,
+                                             const char* host,
+                                             uint16_t port,
+                                             const char* username,
+                                             const char* password,
+                                             uint16_t connection_timeout,
+                                             uint16_t keepalive_timeout,
+                                             xi_session_type_t session_type,
+                                             const char* will_topic,
+                                             const char* will_message,
+                                             xi_mqtt_qos_t will_qos,
+                                             xi_mqtt_retain_t will_retain,
+                                             xi_user_callback_t* client_callback )
+{
+    xi_state_t state = XI_STATE_OK;
+
+    XI_CHECK_CND_DBGMESSAGE( NULL == host, XI_NULL_HOST, state,
+                             "ERROR: NULL host provided" );
+
+    XI_CHECK_CND_DBGMESSAGE( XI_INVALID_CONTEXT_HANDLE >= xih, XI_NULL_CONTEXT, state,
+                             "ERROR: invalid context handle provided" );
+
+    xi_context_t* xi = xi_object_for_handle( xi_globals.context_handles_vector, xih );
+
+    XI_CHECK_CND_DBGMESSAGE( NULL == xi, XI_NULL_CONTEXT, state,
+                             "ERROR: NULL context provided" );
+
+    assert( NULL != client_callback );
+
+    xi_event_handle_t event_handle =
+        xi_make_threaded_handle( XI_THREADID_THREAD_0, &xi_user_callback_wrapper, xi,
+                                 NULL, XI_STATE_OK, ( void* )client_callback );
+
+    xi_state_t local_state = XI_STATE_OK;
+    XI_UNUSED( local_state );
+
+    /* guard against adding two connection requests */
+    if ( NULL != xi->context_data.connect_handler )
+    {
+        return XI_ALREADY_INITIALIZED;
+    }
+
+    xi_debug_format( "connecting with username = \"%s\"", username );
+
+    xi_layer_t* input_layer = xi->layer_chain.top;
+
+    xi->protocol = XI_MQTT;
+
+    if ( NULL != xi->context_data.connection_data )
+    {
+        XI_CHECK_STATE( local_state = xi_connection_data_update_lastwill(
+                            xi->context_data.connection_data,
+                            host, port,
+                            username, password,
+                            connection_timeout, keepalive_timeout, session_type,
+                            will_topic, will_message, will_qos, will_retain ) );
+    }
+    else
+    {
+        xi->context_data.connection_data = xi_alloc_connection_data_lastwill(
+            host, port,
+            username, password,
+            connection_timeout, keepalive_timeout, session_type, will_topic, will_message,
+            will_qos, will_retain );
+
+        XI_CHECK_MEMORY( xi->context_data.connection_data, state );
+    }
+
+    xi_debug_format( "New host:port [%s]:[%hu]", xi->context_data.connection_data->host,
+                     xi->context_data.connection_data->port );
+
+    /* reset the connection state */
+    xi->context_data.connection_data->connection_state =
+        XI_CONNECTION_STATE_UNINITIALIZED;
+
+    /* set the connection callback */
+    xi->context_data.connection_callback = event_handle;
+
+    const uint32_t new_backoff = xi_get_backoff_penalty();
+
+    xi_debug_format( "new backoff value: %d", new_backoff );
+
+    /* register the execution in next init */
+    xi->context_data.connect_handler = xi_evtd_execute_in(
+        xi->context_data.evtd_instance,
+        xi_make_handle( input_layer->layer_connection.self->layer_funcs->init,
+                        &input_layer->layer_connection, xi->context_data.connection_data,
+                        XI_STATE_OK ),
+        new_backoff );
+
+    return XI_STATE_OK;
+
+err_handling:
+    return state;
+}
+
+xi_state_t xi_connect( xi_context_handle_t xih,
+                       const char* username,
+                       const char* password,
+                       uint16_t connection_timeout,
+                       uint16_t keepalive_timeout,
+                       xi_session_type_t session_type,
+                       xi_user_callback_t* client_callback )
+{
+    return xi_connect_with_lastwill_to_impl(
+        xih,
+        XI_MQTT_HOST_ACCESSOR.name,
+        XI_MQTT_HOST_ACCESSOR.port,
+        username, password,
+        connection_timeout,
+        keepalive_timeout,
+        session_type,
+        NULL,   /* will_topic */
+        NULL,   /* will_message */
+        0,      /* will_qos */
+        0,      /* will_retain */
+        client_callback );
+}
+
+xi_state_t xi_connect_to( xi_context_handle_t xih,
+                          const char* host,
+                          uint16_t port,
+                          const char* username,
+                          const char* password,
+                          uint16_t connection_timeout,
+                          uint16_t keepalive_timeout,
+                          xi_session_type_t session_type,
+                          xi_user_callback_t* client_callback )
+{
+    return xi_connect_with_lastwill_to_impl(
+        xih,
+        host, port,
+        username, password,
+        connection_timeout,
+        keepalive_timeout,
+        session_type,
+        NULL,   /* will_topic */
+        NULL,   /* will_message */
+        0,      /* will_qos */
+        0,      /* will_retain */
+        client_callback );
+}
+
+xi_state_t xi_connect_with_lastwill( xi_context_handle_t xih,
+                                     const char* username,
+                                     const char* password,
+                                     uint16_t connection_timeout,
+                                     uint16_t keepalive_timeout,
+                                     xi_session_type_t session_type,
+                                     const char* will_topic,
+                                     const char* will_message,
+                                     xi_mqtt_qos_t will_qos,
+                                     xi_mqtt_retain_t will_retain,
+                                     xi_user_callback_t* client_callback )
+{
+    /* will_topic is required. */
+    if ( NULL == will_topic )
+    {
+        return XI_NULL_WILL_TOPIC;
+    }
+
+    /* will_message is required. */
+    if ( NULL == will_message )
+    {
+        return XI_NULL_WILL_MESSAGE;
+    }
+
+    return xi_connect_with_lastwill_to_impl(
+        xih,
+        XI_MQTT_HOST_ACCESSOR.name,
+        XI_MQTT_HOST_ACCESSOR.port,
+        username,
+        password,
+        connection_timeout,
+        keepalive_timeout,
+        session_type,
+        will_topic,
+        will_message,
+        will_qos,
+        will_retain,
+        client_callback );
+}
+
+xi_state_t xi_connect_with_lastwill_to( xi_context_handle_t xih,
+                                        const char* host,
+                                        uint16_t port,
+                                        const char* username,
+                                        const char* password,
+                                        uint16_t connection_timeout,
+                                        uint16_t keepalive_timeout,
+                                        xi_session_type_t session_type,
+                                        const char* will_topic,
+                                        const char* will_message,
+                                        xi_mqtt_qos_t will_qos,
+                                        xi_mqtt_retain_t will_retain,
+                                        xi_user_callback_t* client_callback )
+{
+    /* will_topic is required. */
+    if ( NULL == will_topic )
+    {
+        return XI_NULL_WILL_TOPIC;
+    }
+
+    /* will_message is required. */
+    if ( NULL == will_message )
+    {
+        return XI_NULL_WILL_MESSAGE;
+    }
+
+    return xi_connect_with_lastwill_to_impl(
+        xih,
+        host, port,
+        username, password,
+        connection_timeout,
+        keepalive_timeout,
+        session_type,
+        will_topic,
+        will_message,
+        will_qos,
+        will_retain,
+        client_callback );
+}
+
+xi_state_t xi_publish_data_impl( xi_context_handle_t xih,
+                                 const char* topic,
+                                 xi_data_desc_t* data,
+                                 const xi_mqtt_qos_t qos,
+                                 const xi_mqtt_retain_t retain,
+                                 xi_user_callback_t* callback,
+                                 void* user_data )
+{
+    /* PRE-CONDITIONS */
+    assert( XI_INVALID_CONTEXT_HANDLE < xih );
+    xi_context_t* xi =
+        ( xi_context_t* )xi_object_for_handle( xi_globals.context_handles_vector, xih );
+    assert( NULL != xi );
+
+    if ( NULL == callback )
+    {
+        callback  = &xi_default_client_callback;
+        user_data = NULL;
+    }
+
+    xi_event_handle_t event_handle =
+        xi_make_threaded_handle( XI_THREADID_THREAD_0, &xi_user_callback_wrapper, xi,
+                                 user_data, XI_STATE_OK, ( void* )callback );
+
+    assert( XI_EVENT_HANDLE_ARGC4 == event_handle.handle_type ||
+            XI_EVENT_HANDLE_UNSET == event_handle.handle_type );
+
+    if ( XI_BACKOFF_CLASS_NONE != xi_globals.backoff_status.backoff_class )
+    {
+        xi_free_desc( &data );
+        return XI_BACKOFF_TERMINAL;
+    }
+
+    xi_mqtt_qos_t effective_qos = qos;
+
+    xi_mqtt_logic_task_t* task = NULL;
+    xi_state_t state           = XI_STATE_OK;
+    xi_layer_t* input_layer    = xi->layer_chain.top;
+    char* internal_topic       = NULL;
+
+    xi_mqtt_logic_layer_data_t* layer_data =
+        ( xi_mqtt_logic_layer_data_t* )input_layer->user_data;
+
+    XI_UNUSED( layer_data );
+
+    internal_topic = xi_str_dup( topic );
+
+    XI_CHECK_MEMORY( internal_topic, state );
+
+    task = xi_mqtt_logic_make_publish_task( internal_topic, data, effective_qos, retain,
+                                            event_handle );
+
+    XI_CHECK_MEMORY( task, state );
+
+    return XI_PROCESS_PUSH_ON_THIS_LAYER( &input_layer->layer_connection, task,
+                                          XI_STATE_OK );
+
+err_handling:
+    if ( task )
+    {
+        xi_mqtt_logic_free_task( &task );
+    }
+    XI_SAFE_FREE( internal_topic );
+
+    return state;
+}
+
+xi_state_t xi_publish( xi_context_handle_t xih,
+                       const char* topic,
+                       const char* msg,
+                       const xi_mqtt_qos_t qos,
+                       const xi_mqtt_retain_t retain,
+                       xi_user_callback_t* callback,
+                       void* user_data )
+{
+    /* PRE-CONDITIONS */
+    assert( NULL != topic );
+    assert( NULL != msg );
+
+    xi_state_t state = XI_STATE_OK;
+
+    xi_data_desc_t* data_desc = xi_make_desc_from_string_copy( msg );
+
+    XI_CHECK_MEMORY( data_desc, state );
+
+    return xi_publish_data_impl( xih, topic, data_desc, qos, retain, callback,
+                                 user_data );
+
+err_handling:
+    return state;
+}
+
+xi_state_t xi_publish_timeseries( xi_context_handle_t xih,
+                                  const char* topic,
+                                  const float value,
+                                  const xi_mqtt_qos_t qos,
+                                  xi_user_callback_t* callback,
+                                  void* user_data )
+{
+    assert( NULL != topic );
+
+    xi_data_desc_t* data_desc = xi_make_desc_from_float_copy( value );
+
+    xi_state_t state = XI_STATE_OK;
+
+    XI_CHECK_MEMORY( data_desc, state );
+
+    return xi_publish_data_impl( xih, topic, data_desc, qos, XI_MQTT_RETAIN_FALSE,
+                                 callback, user_data );
+
+err_handling:
+    return state;
+}
+
+xi_state_t xi_publish_formatted_timeseries( xi_context_handle_t xih,
+                                            const char* topic,
+                                            const uint32_t* time,
+                                            char* in_category,
+                                            char* in_string_value,
+                                            const float* in_numeric_value,
+                                            const xi_mqtt_qos_t qos,
+                                            xi_user_callback_t* callback,
+                                            void* user_data )
+{
+    if ( NULL == topic )
+    {
+        return XI_INVALID_PARAMETER;
+    }
+
+    xi_state_t state = XI_STATE_OK;
+
+    char compute_size_buf[1] = {'\0'};
+
+    /* sizes */
+    int num_chars_time          = 0;
+    int num_chars_category      = 0;
+    int num_chars_numeric_value = 0;
+    int num_chars_string_value  = 0;
+
+    static const char* empty_string = "";
+
+    /* used to format the time into a string */
+    char* time_string        = NULL;
+    char* numeric_string     = NULL;
+    const char* string_value = NULL;
+    const char* category     = NULL;
+
+    /* points to the string that we will eventually format using snprintf */
+    char* final_buffer = NULL;
+
+    /* points to the memory that we'll provide to the Client
+     * for publication */
+    xi_data_desc_t* data_desc = NULL;
+
+    /* timestamp is optional */
+    if ( NULL == time )
+    {
+        XI_ALLOC_BUFFER_AT( char, time_string, 1, state );
+        time_string[0] = '\0';
+        num_chars_time = 0;
+    }
+    else
+    {
+        num_chars_time = snprintf( compute_size_buf, 1, "%u", *time );
+        XI_CHECK_CND_DBGMESSAGE( num_chars_time <= 0, XI_SERIALIZATION_ERROR, state,
+                                 "ERROR: snprintf returned error for sizing time" );
+
+        /* allocate +1 becuase snprintf size computation
+         * doesn't include null termiantor */
+        XI_ALLOC_BUFFER_AT( char, time_string, num_chars_time + 1, state );
+
+        int num_formatted_chars =
+            snprintf( time_string, num_chars_time + 1, "%u", *time );
+        XI_CHECK_CND_DBGMESSAGE( num_formatted_chars != num_chars_time,
+                                 XI_SERIALIZATION_ERROR, state,
+                                 "ERROR: Final Size / Computed Size Mismatch" );
+    }
+
+    /* string value is optional */
+    if ( NULL == in_string_value )
+    {
+        string_value           = empty_string;
+        num_chars_string_value = 0;
+    }
+    else
+    {
+        /* ensure that our string value is formatted correctly
+         * and compute its size. */
+        state = check_csv_entry( in_string_value, &num_chars_string_value );
+        XI_CHECK_STATE( state );
+        string_value = in_string_value;
+    }
+
+    /* numeric_value is optional */
+    if ( NULL == in_category )
+    {
+        category           = empty_string;
+        num_chars_category = 0;
+    }
+    else
+    {
+        /* ensure that our category string is formatted correctly
+         * and compute its size. */
+        state = check_csv_entry( in_category, &num_chars_category );
+        XI_CHECK_STATE( state );
+        category = in_category;
+    }
+
+    if ( NULL == in_numeric_value )
+    {
+        XI_ALLOC_BUFFER_AT( char, numeric_string, 1, state );
+        numeric_string[0] = '\0';
+        num_chars_time    = 0;
+    }
+    else
+    {
+        num_chars_numeric_value =
+            snprintf( compute_size_buf, 1, "%g", *in_numeric_value );
+        XI_CHECK_CND_DBGMESSAGE(
+            num_chars_numeric_value <= 0, XI_SERIALIZATION_ERROR, state,
+            "ERROR: snprintf returned error for sizing numeric_value" );
+
+        /* allocate +1 because snprintf size computation
+         * doesn't include null termiantor */
+        XI_ALLOC_BUFFER_AT( char, numeric_string, num_chars_numeric_value + 1, state );
+
+        int num_formatted_numeric_chars = snprintf(
+            numeric_string, num_chars_numeric_value + 1, "%g", *in_numeric_value );
+        XI_CHECK_CND_DBGMESSAGE( num_formatted_numeric_chars != num_chars_numeric_value,
+                                 XI_SERIALIZATION_ERROR, state,
+                                 "ERROR: Final Size / Computed Size Mismatch" );
+    }
+
+    /* all of these are optional but we need at least one! */
+    XI_CHECK_CND_DBGMESSAGE(
+        ( 0 == num_chars_category ) && ( 0 == num_chars_string_value ) &&
+            ( 0 == num_chars_numeric_value ),
+        XI_INVALID_PARAMETER, state,
+        "ERROR: Need at least one of category, string value, or numeric_value" );
+
+    const int num_control_chars = 5; /* 3x Commas
+                                      , 1x New Line
+                                      , 1x Null Terminator */
+
+    const int total_size = num_chars_time + num_chars_category + num_chars_string_value +
+                           num_chars_numeric_value + num_control_chars;
+
+    XI_ALLOC_BUFFER_AT( char, final_buffer, total_size, state );
+
+    /* format the result */
+    static const char* format_template = "%s,%s,%s,%s\n";
+    const int final_size =
+        snprintf( final_buffer, total_size, format_template, time_string, category,
+                  numeric_string, string_value );
+
+    XI_CHECK_CND_DBGMESSAGE( final_size == total_size, XI_SERIALIZATION_ERROR, state,
+                             "ERROR: Final Size / Computed Size Mismatch" );
+
+    data_desc = xi_make_desc_from_string_copy( final_buffer );
+
+    XI_CHECK_MEMORY( data_desc, state );
+
+    state = xi_publish_data_impl( xih, topic, data_desc, qos, XI_MQTT_RETAIN_FALSE,
+                                  callback, user_data );
+
+err_handling:
+
+    XI_SAFE_FREE( time_string );
+    XI_SAFE_FREE( numeric_string );
+    XI_SAFE_FREE( final_buffer );
+
+    return state;
+}
+
+xi_state_t xi_publish_data( xi_context_handle_t xih,
+                            const char* topic,
+                            const uint8_t* data,
+                            size_t data_len,
+                            const xi_mqtt_qos_t qos,
+                            const xi_mqtt_retain_t retain,
+                            xi_user_callback_t* callback,
+                            void* user_data )
+{
+    /* PRE-CONDITIONS */
+    assert( NULL != topic );
+    assert( NULL != data );
+    assert( 0 != data_len );
+
+    xi_state_t state = XI_STATE_OK;
+
+    xi_data_desc_t* data_desc = xi_make_desc_from_buffer_copy( data, data_len );
+
+    XI_CHECK_MEMORY( data_desc, state );
+
+    return xi_publish_data_impl( xih, topic, data_desc, qos, retain, callback,
+                                 user_data );
+
+err_handling:
+    return state;
+}
+
+xi_state_t xi_subscribe( xi_context_handle_t xih,
+                         const char* topic,
+                         const xi_mqtt_qos_t qos,
+                         xi_user_subscription_callback_t* callback,
+                         void* user_data )
+{
+    if ( ( XI_INVALID_CONTEXT_HANDLE == xih ) || ( NULL == topic ) ||
+         ( NULL == callback ) )
+    {
+        return XI_INVALID_PARAMETER;
+    }
+
+    xi_state_t state           = XI_STATE_OK;
+    xi_mqtt_logic_task_t* task = NULL;
+    char* internal_topic       = NULL;
+
+    xi_context_t* xi =
+        ( xi_context_t* )xi_object_for_handle( xi_globals.context_handles_vector, xih );
+
+    XI_CHECK_MEMORY( xi, state );
+
+    xi_event_handle_t event_handle = xi_make_threaded_handle(
+        XI_THREADID_THREAD_0, &xi_user_sub_call_wrapper, xi, NULL, XI_STATE_OK,
+        ( void* )callback, ( void* )user_data, ( void* )NULL );
+
+    if ( XI_BACKOFF_CLASS_NONE != xi_globals.backoff_status.backoff_class )
+    {
+        return XI_BACKOFF_TERMINAL;
+    }
+
+    /* copy the topic memory */
+    /* Olgierd: I'm not sure whether it should be copied or not ? Ususally people will do
+     * the const char* const topic_name = "topic_name"; in such cases copying doesn't make
+     * any sense, in other cases like our test driver we will use dynamically allocted
+     * memory for topic. */
+    internal_topic = xi_str_dup( topic );
+
+    XI_CHECK_MEMORY( internal_topic, state );
+
+    xi_layer_t* input_layer = xi->layer_chain.top;
+
+    event_handle.handlers.h6.a1 = xi;
+
+    task = xi_mqtt_logic_make_subscribe_task( internal_topic, qos, event_handle );
+    XI_CHECK_MEMORY( task, state );
+
+    /* pass the partial ownership of the task data to the handler ( in case of
+     * subscription failure it will release the memory ) */
+    task->data.data_u->subscribe.handler.handlers.h6.a6 = task->data.data_u;
+
+    return XI_PROCESS_PUSH_ON_THIS_LAYER( &input_layer->layer_connection, task,
+                                          XI_STATE_OK );
+
+err_handling:
+    if ( task )
+    {
+        xi_mqtt_logic_free_task( &task );
+    }
+
+    XI_SAFE_FREE( internal_topic );
+
+    return state;
+}
+
+xi_state_t xi_shutdown_connection( xi_context_handle_t xih )
+{
+    assert( XI_INVALID_CONTEXT_HANDLE < xih );
+    xi_context_t* xi = xi_object_for_handle( xi_globals.context_handles_vector, xih );
+    assert( NULL != xi );
+
+    /* this means that the connection attempt has not even been requested
+     * or the connection has been shutdown for this context */
+    if ( NULL == xi->context_data.connect_handler )
+    {
+        return XI_SOCKET_NO_ACTIVE_CONNECTION_ERROR;
+    }
+
+    /* this means that we've started the connection */
+    if ( XI_CONNECTION_STATE_UNINITIALIZED ==
+         xi->context_data.connection_data->connection_state )
+    {
+        xi->context_data.connect_handler = xi_evtd_cancel(
+            xi->context_data.evtd_instance, xi->context_data.connect_handler );
+
+        return XI_STATE_OK;
+    }
+
+    xi_layer_t* input_layer    = xi->layer_chain.top;
+    xi_state_t state           = XI_STATE_OK;
+    xi_mqtt_logic_task_t* task = NULL;
+
+    task = xi_mqtt_logic_make_shutdown_task();
+
+    XI_CHECK_MEMORY( task, state );
+
+    return XI_PROCESS_PUSH_ON_THIS_LAYER( &input_layer->layer_connection, task,
+                                          XI_STATE_OK );
+
+err_handling:
+    if ( task )
+    {
+        xi_mqtt_logic_free_task( &task );
+    }
+    return state;
+}
+
+xi_timed_task_handle_t xi_schedule_timed_task( xi_context_handle_t xih,
+                                               xi_user_task_callback_t* callback,
+                                               const xi_time_t seconds_from_now,
+                                               const uint8_t repeats_forever,
+                                               void* data )
+{
+    return xi_add_timed_task( xi_globals.timed_tasks_container, xi_globals.evtd_instance,
+                              xih, callback, seconds_from_now, repeats_forever, data );
+}
+
+void xi_cancel_timed_task( xi_timed_task_handle_t timed_task_handle )
+{
+    xi_remove_timed_task( xi_globals.timed_tasks_container, timed_task_handle );
+}
+
+xi_state_t xi_set_maximum_heap_usage( const size_t max_bytes )
+{
+#ifndef XI_MEMORY_LIMITER_ENABLED
+    XI_UNUSED( max_bytes );
+    return XI_NOT_SUPPORTED;
+#else
+    return xi_memory_limiter_set_limit( max_bytes );
+#endif
+}
+
+xi_state_t xi_get_heap_usage( size_t* const heap_usage )
+{
+#ifndef XI_MEMORY_LIMITER_ENABLED
+    XI_UNUSED( heap_usage );
+    return XI_NOT_SUPPORTED;
+#else
+    if ( NULL == heap_usage )
+    {
+        return XI_INVALID_PARAMETER;
+    }
+
+    *heap_usage = xi_memory_limiter_get_allocated_space();
+    return XI_STATE_OK;
+#endif
+}
+
+
+#ifdef XI_EXPOSE_FS
+xi_state_t xi_set_fs_functions( const xi_fs_functions_t fs_functions )
+{
+    /* check the size of the passed structure */
+    if ( sizeof( xi_fs_functions_t ) != fs_functions.fs_functions_size )
+    {
+        return XI_INTERNAL_ERROR;
+    }
+
+    /* check if any of function pointer is NULL */
+    if ( NULL == fs_functions.stat_resource )
+    {
+        return XI_INVALID_PARAMETER;
+    }
+    else if ( NULL == fs_functions.open_resource )
+    {
+        return XI_INVALID_PARAMETER;
+    }
+    else if ( NULL == fs_functions.read_resource )
+    {
+        return XI_INVALID_PARAMETER;
+    }
+    else if ( NULL == fs_functions.write_resource )
+    {
+        return XI_INVALID_PARAMETER;
+    }
+    else if ( NULL == fs_functions.remove_resource )
+    {
+        return XI_INVALID_PARAMETER;
+    }
+
+    /* discuss this as this may be potentially dangerous */
+    memcpy( &xi_internals.fs_functions, &fs_functions, sizeof( xi_fs_functions_t ) );
+
+    return XI_STATE_OK;
+}
+
+#endif /* XI_EXPOSE_FS */
+
+#ifdef __cplusplus
+}
+#endif
