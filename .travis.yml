@@ -45,7 +45,7 @@ before_script:
   - "if [[ $CC == *'clang'* ]]; then export CC='clang-3.8'; fi"
 script:
   - "set -e"
-  - "cd $HOME/build/xively/libxively-v3/xi_client_c"
+  - "cd $HOME/build/xively/xively-client-c/"
   - "make PRESET=$PRESET XI_DEBUG_OUTPUT=0"
   - "if [ ! $CC == 'gcc' ]; then
         make -C examples/mqtt_logic_example  XI_CLIENT_LIB_PATH=../../obj/linux XI_BSP_TLS=$XI_BSP_TLS;
