@@ -1,0 +1,2 @@
+#min	hour	mday	month	wday	command
+*/5    *	*	*	*	cd /Users/atigyi/git/libxively/libxively-v3/bin/osx/tests; ./xi_utests -l1 &> xi_utest_l1_cron.log;

@@ -1,0 +1,7 @@
+*.dep
+settings
+!*.eww
+!*.ewp
+!*.custom_argvars
+/debug-dummy-dummy/
+/debug-lwip-newlib/
