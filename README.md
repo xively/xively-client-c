@@ -14,8 +14,8 @@ master      | [![Build Status][travis-private-repo-icon-master]][travis-private-
 development | [![Build Status][travis-private-repo-icon-development]][travis-private-repo-page]
 
 [travis-private-repo-page]: https://travis-ci.com/xively/xively-client-c
-[travis-private-repo-icon-master]: https://travis-ci.com/xively/xively-client-c.svg?token=missing&branch=master
-[travis-private-repo-icon-development]: https://travis-ci.com/xively/xively-client-c.svg?token=missing&branch=development
+[travis-private-repo-icon-master]: https://travis-ci.com/xively/xively-client-c.svg?token=HazV3LTmDbqtLdnDxZX2&branch=master
+[travis-private-repo-icon-development]: https://travis-ci.com/xively/xively-client-c.svg?token=HazV3LTmDbqtLdnDxZX2&branch=development
 
 ## How to get the sources?
 Sources can be obtained by pulling from the master branch at our Xively Client github repository:
