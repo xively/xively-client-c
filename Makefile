@@ -116,13 +116,13 @@ $(XI_OBJDIR)/%.o : $(LIBXIVELY)/src/%.c $(XI_BUILD_PRECONDITIONS)
 	@-mkdir -p $(dir $@)
 	$(info [$(CC)] $@)
 	$(MD) $(CC) $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) -c $< -o $@
-	@$(CC) $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) -MM $< -MT $@ -MF $(@:.o=.d)
+	$(XI_POST_COMPILE_ACTION)
 
 $(XI_OBJDIR)/bsp/platform/$(BSP_FOUND)/%.o : $(XI_BSP_DIR)/platform/$(BSP_FOUND)/%.c $(XI_BUILD_PRECONDITIONS)
 	@-mkdir -p $(dir $@)
 	$(info [$(CC)] $@)
 	$(MD) $(CC) $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) -c $< -o $@
-	@$(CC) $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) -MM $< -MT $@ -MF $(@:.o=.d)
+	$(XI_POST_COMPILE_ACTION)
 
 # gather all of the binary directories
 XI_BIN_DIRS := $(XI_EXAMPLE_BINDIR) $(XI_EXAMPLE_BINDIR)/internal $(XI_TEST_BINDIR) $(XI_TEST_TOOLS_BINDIR)

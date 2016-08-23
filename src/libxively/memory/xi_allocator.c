@@ -1,6 +1,7 @@
-#include <memory.h>
 #include "xi_allocator.h"
 #include "xi_bsp_mem.h"
+
+extern void * memset ( void * ptr, int value, size_t num );
 
 void* __xi_alloc( size_t byte_count )
 {
