@@ -1,0 +1,8 @@
+src/debug.h
+src/list.c
+src/list.h
+src/main.c
+src/stack_allocator.h
+src/stack_allocator.c
+src/stack_allocator_debug.h
+src/stack_allocator_debug.c
