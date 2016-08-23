@@ -7,7 +7,7 @@ env:
   global:
     - XI_BSP_TLS=wolfssl
   matrix:
-    - PRESET=ARM_REL_MAX
+    - PRESET=ARM_REL
     - PRESET=ARM_REL_MIN
 
     - PRESET=POSIX_NONBSP_DEV
@@ -40,7 +40,7 @@ matrix:
     - compiler: clang
       env: PRESET=ARM_REL_MIN
     - compiler: clang
-      env: PRESET=ARM_REL_MAX
+      env: PRESET=ARM_REL
 before_script:
   - "if [[ $CC == *'clang'* ]]; then export CC='clang-3.8'; fi"
 script:
