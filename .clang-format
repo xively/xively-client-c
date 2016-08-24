@@ -1,0 +1,34 @@
+---
+Language:        Cpp
+BasedOnStyle: llvm
+AlignEscapedNewlinesLeft: false
+AlignTrailingComments: true
+AllowAllParametersOfDeclarationOnNextLine: true
+AlignConsecutiveAssignments: true
+AllowShortBlocksOnASingleLine: false
+AllowShortFunctionsOnASingleLine: false
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+AlwaysBreakBeforeMultilineStrings: false
+BinPackParameters: false
+BreakBeforeBinaryOperators: false
+BreakBeforeBraces: Allman
+BreakBeforeTernaryOperators: true
+ColumnLimit: 90
+ContinuationIndentWidth: 4
+IndentCaseLabels: true
+IndentFunctionDeclarationAfterType: false
+IndentWidth: 4
+KeepEmptyLinesAtTheStartOfBlocks: false
+Language: Cpp
+MaxEmptyLinesToKeep: 2
+PenaltyBreakComment: 100
+PenaltyReturnTypeOnItsOwnLine: 0
+PointerAlignment: Left
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeParens: ControlStatements
+SpacesInAngles: true
+SpacesInCStyleCastParentheses: true
+SpacesInParentheses: true
+UseTab: Never
+...
