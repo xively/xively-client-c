@@ -458,3 +458,7 @@
 ../../src/bsp/platform/posix
 ../../src/bsp/tls/wolfssl
 ../../src/bsp/tls/mbedtls
+../../src/experimental/heap_allocator
+../../src/bsp/platform/cc3200
+../../src/experimental/heap_allocator/src
+../../src/models/heap_allocator
