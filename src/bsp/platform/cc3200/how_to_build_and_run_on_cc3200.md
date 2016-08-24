@@ -1,8 +1,8 @@
 # How to build and run Xively C Client on TI CC3200
 
-This document describes a method which includes compilation and linkage of Xively C Client sources resulting in a CC3200 compatible static library which can be linked agains a Texas Instruments Code Composer Studio (CCS) example application. The result can be uploaded to the RAM and executed with the help of the CCS.
+This document describes a method which includes compilation and linkage of Xively C Client sources resulting in a CC3200 compatible static library which can be linked agains a Texas Instruments Code Composer Studio (CCS) example application. The result can be uploaded to the RAM and executed and debugged with the help of the CCS. If everything goes well the result is capable to connect to Xively Services from a CC3200 board.
 
-This method requires OSX as development platform although Windows version should be very similar.
+This method requires OSX development platform although Windows and Linux methods should be very similar.
 
 #### Prerequisites:
 
@@ -30,13 +30,81 @@ cleans the output of the previous build.
 
 *under construction notes*:
 
+- currently auto-tests and Xively Client examples are not buildable for CC3200 thus in Makefile leave only $(XI) in the target *all*
+- add XI_COMPILER_FLAGS += -DNO_OCSP line to file mt-cc3200
+- since current time implementation is very "artificial" the scheduling of events seems not to work as it should. Thus in xively.c in function xi_connect the xi_evtd_execute_in scheduled execution should be changed to xi_evtd_execute immediate execution. This latter does not need the last "delay" parameter and its return value differs as well.
+
 ## Building the wolfSSL library
 
 The wolfSSL supports TI-RTOS builds. Follow the steps written on [Using wolfSSL with TI-RTOS](http://processors.wiki.ti.com/index.php/Using_wolfSSL_with_TI-RTOS) to generate wolfSSL static library for CC3200.
 
 The following customizations were made for a Xively C Client wolfSSL build:
 
+In file wolfcrypt/settings.h find the WOLFSSL_TIRTOS section and update as follows:
 
+    #ifdef WOLFSSL_TIRTOS
+
+        #define SINGLE_THREADED
+
+        #define NO_OCSP
+        #define NO_DES3
+        #define NO_OLD_TLS
+        #define NO_PSK
+        #define NO_PWDBASED
+        #define CUSTOM_RAND_GENERATE xively_ssl_rand_generate
+        #define CUSTOM_XTIME xively_ssl_time
+        #define HAVE_SNI
+
+        // #define HAVE_OCSP
+        // #define HAVE_CERTIFICATE_STATUS_REQUEST
+
+        #define SMALL_SESSION_CACHE
+        #define NO_CLIENT_CACHE
+        #define WOLFSSL_SMALL_STACK
+        #define WOLFSSL_USER_IO
+        #define TARGET_IS_CC3200
+
+        #define NO_RABBIT
+        #define NO_MD4
+        #define NO_RC4
+        #define NO_DH
+        #define NO_DSA
+        #define NO_SHA
+        #define NO_HC128
+
+        #define SIZEOF_LONG_LONG 8
+        #define NO_WRITEV
+        #define NO_WOLFSSL_DIR
+        #define USE_FAST_MATH
+        #define TFM_TIMING_RESISTANT
+        #define NO_DEV_RANDOM
+        #define NO_FILESYSTEM
+        #define USE_CERT_BUFFERS_2048
+        #define NO_ERROR_STRINGS
+        #define USER_TIME
+        #define HAVE_ECC
+        // #define HAVE_ALPN
+        #define HAVE_TLS_EXTENSIONS
+        #define HAVE_AESGCM
+        // #define HAVE_SUPPORTED_CURVES
+        #define ALT_ECC_SIZE
+
+        #ifdef __IAR_SYSTEMS_ICC__
+            #pragma diag_suppress=Pa089
+        #elif !defined(__GNUC__)
+            /* Suppress the sslpro warning */
+            #pragma diag_suppress=11
+        #endif
+
+        #include <ti/sysbios/hal/Seconds.h>
+
+    #endif
+
+In file wolfcrypt/random.c find the WOLFSSL_TIRTOS section and comment it out to let force wolfSSL to use custom random function
+
+    #elif defined(CUSTOM_RAND_GENERATE)
+
+section.
 
 ## Building CC3200 application: CCS ent_wlan example
 
