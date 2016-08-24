@@ -116,6 +116,7 @@ xi_state_t xi_mqtt_codec_layer_push( void* context, void* data, xi_state_t in_ou
     msg_contents_size -= publish_payload_len;
 
     data_desc = xi_make_empty_desc_alloc( msg_contents_size );
+
     XI_CHECK_MEMORY( data_desc, in_out_state );
 
     /* if it's publish then the payload is sent separately
@@ -293,7 +294,7 @@ xi_state_t xi_mqtt_codec_layer_pull( void* context, void* data, xi_state_t in_ou
     xi_debug_mqtt_message_dump( layer_data->msg );
 
     xi_mqtt_message_t* recvd = layer_data->msg;
-    layer_data->msg          = 0;
+    layer_data->msg          = NULL;
 
     /* register next stage of processing */
     XI_PROCESS_PULL_ON_NEXT_LAYER( context, recvd, layer_data->local_state );
