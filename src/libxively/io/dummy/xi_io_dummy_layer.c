@@ -48,7 +48,7 @@ xi_io_dummy_layer_close_externally( void* context, void* data, xi_state_t in_out
     XI_UNUSED( data );
     XI_UNUSED( in_out_state );
 
-    return XI_STATE_OK;
+    return XI_PROCESS_CLOSE_EXTERNALLY_ON_NEXT_LAYER( context, data, in_out_state );
 }
 
 xi_state_t xi_io_dummy_layer_init( void* context, void* data, xi_state_t in_out_state )
