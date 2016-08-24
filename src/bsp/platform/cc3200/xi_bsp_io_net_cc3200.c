@@ -8,6 +8,7 @@
          Other solution is to rename the member, the former was chosen. */
 
 #include <xi_bsp_io_net.h>
+#include <stdio.h>
 
 #ifndef MAX
 #define MAX( a, b ) ( ( ( a ) > ( b ) ) ? ( a ) : ( b ) )
@@ -28,11 +29,14 @@ xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
         return XI_BSP_IO_NET_STATE_ERROR;
     }
 
-    /* This is where we WANT to set nonblocking, however, Revision 0.5.3
-     * has some issues. If we enable nonblocking here, write() returns -1
-     * Check this again if you are using a newer revision of SimpleLink */
+    int sl_nonblockingOption = 1;
+    int flags = sl_SetSockOpt( *xi_socket, SOL_SOCKET, SL_SO_NONBLOCKING,
+                               &sl_nonblockingOption, sizeof( sl_nonblockingOption ) );
 
-    /* Enable nonblocking mode for the SimpleLink socket AFTER the connect() call */
+    if ( flags < 0 )
+    {
+        return XI_BSP_IO_NET_STATE_ERROR;
+    }
 
     return XI_BSP_IO_NET_STATE_OK;
 }
@@ -68,25 +72,15 @@ xi_bsp_io_net_connect( xi_bsp_socket_t* xi_socket, const char* host, uint16_t po
         return XI_BSP_IO_NET_STATE_ERROR;
     }
 
-    /* Enable nonblocking mode for the SimpleLink socket AFTER the connect() call */
-    SlSockNonblocking_t sl_nonblockingOption;
-    sl_nonblockingOption.NonblockingEnabled = 1;
-
-    int flags = sl_SetSockOpt( *xi_socket, SOL_SOCKET, SL_SO_NONBLOCKING,
-                               &sl_nonblockingOption, sizeof( sl_nonblockingOption ) );
-
-    if ( flags < 0 )
-    {
-        return XI_BSP_IO_NET_STATE_ERROR;
-    }
-
     return XI_BSP_IO_NET_STATE_OK;
 }
 
-xi_bsp_io_net_state_t xi_bsp_io_net_connection_check( xi_bsp_socket_t xi_socket )
+xi_bsp_io_net_state_t xi_bsp_io_net_connection_check(
+    xi_bsp_socket_t xi_socket,
+    const char* host,
+    uint16_t port )
 {
-    (void)xi_socket;
-    return XI_BSP_IO_NET_STATE_OK;
+    return xi_bsp_io_net_connect( &xi_socket, host, port );
 }
 
 xi_bsp_io_net_state_t xi_bsp_io_net_write( xi_bsp_socket_t xi_socket,
@@ -101,7 +95,7 @@ xi_bsp_io_net_state_t xi_bsp_io_net_write( xi_bsp_socket_t xi_socket,
 
     *out_written_count = sl_Send( xi_socket, buf, count, 0);
 
-    // printf( "out_written_count: %d, asked count: %lu\n", *out_written_count, count );
+    printf( "out_written_count: %d, asked count: %lu\n", *out_written_count, count );
 
     /* TI's SimpleLink write() returns errors in the return value */
     if ( SL_EAGAIN == *out_written_count )
@@ -157,10 +151,6 @@ xi_bsp_io_net_state_t xi_bsp_io_net_select( xi_bsp_socket_events_t* socket_event
                                             size_t socket_events_array_size,
                                             long timeout_sec )
 {
-    //printf( "--- %s\n", __FUNCTION__ );
-
-    //return XI_BSP_IO_NET_STATE_OK;
-
     fd_set rfds;
     fd_set wfds;
     fd_set efds;
