@@ -12,10 +12,16 @@ This method requires OSX development platform although Windows and Linux methods
 - [TI Code Composer Studio](http://www.ti.com/tool/ccstudio) installed on OSX
 - [TI CC3200 SDK](http://www.ti.com/tool/cc3200sdk)
     - note: the SDK is downloadable in a Windows .exe compressed package format.
-    - after extracting it on a Windows machine you should place it somewhere in your directory structure, e.g. to ~/ti/CC3200SDK
+    - after extracting it on a Windows machine you should place it somewhere in your OSX directory structure, e.g. to ~/ti/CC3200SDK
 
 
 ## Building the Xively C Client library
+
+:exclamation: **Under construction notes**:
+
+- currently auto-tests and Xively Client examples are not buildable for CC3200 thus in Makefile leave only $(XI) in the target *all*
+- add XI_COMPILER_FLAGS += -DNO_OCSP line to file mt-cc3200, some problems were not solved with OCSP
+- since current time implementation is very "artificial" the scheduling of events seems not to work as it should. Thus in xively.c in function xi_connect the xi_evtd_execute_in scheduled execution should be changed to xi_evtd_execute immediate execution. This latter does not need the last "delay" parameter and its return value differs as well.
 
 This step results in a static library suitable for CC3200. The command
 
@@ -28,17 +34,11 @@ This preset includes TLS connection. To disable TLS edit the preset in file mt-p
 
 cleans the output of the previous build.
 
-*under construction notes*:
-
-- currently auto-tests and Xively Client examples are not buildable for CC3200 thus in Makefile leave only $(XI) in the target *all*
-- add XI_COMPILER_FLAGS += -DNO_OCSP line to file mt-cc3200
-- since current time implementation is very "artificial" the scheduling of events seems not to work as it should. Thus in xively.c in function xi_connect the xi_evtd_execute_in scheduled execution should be changed to xi_evtd_execute immediate execution. This latter does not need the last "delay" parameter and its return value differs as well.
-
 ## Building the wolfSSL library
 
 The wolfSSL supports TI-RTOS builds. Follow the steps written on [Using wolfSSL with TI-RTOS](http://processors.wiki.ti.com/index.php/Using_wolfSSL_with_TI-RTOS) to generate wolfSSL static library for CC3200.
 
-The following customizations were made for a Xively C Client wolfSSL build:
+Before starting apply the following customizations made for a custom wolfSSL build:
 
 In file wolfcrypt/settings.h find the WOLFSSL_TIRTOS section and update as follows:
 
@@ -100,7 +100,9 @@ In file wolfcrypt/settings.h find the WOLFSSL_TIRTOS section and update as follo
 
     #endif
 
-In file wolfcrypt/random.c find the WOLFSSL_TIRTOS section and comment it out to let force wolfSSL to use custom random function
+This will disable a bunch of features in wolfSSL seemingly not required for a Xively connection but drastically deflate size of the result static library.
+
+In file wolfcrypt/random.c find the WOLFSSL_TIRTOS section and comment it out to force wolfSSL to use custom random function in the
 
     #elif defined(CUSTOM_RAND_GENERATE)
 
