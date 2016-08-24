@@ -50,7 +50,7 @@ xi_state_t xi_mock_layer_tls_next_close(
 
     check_expected( in_out_state );
 
-    return XI_STATE_OK;
+    return XI_PROCESS_CLOSE_ON_PREV_LAYER( context, data, in_out_state );
 }
 
 xi_state_t xi_mock_layer_tls_next_close_externally(

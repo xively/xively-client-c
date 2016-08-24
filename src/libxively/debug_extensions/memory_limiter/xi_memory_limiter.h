@@ -12,6 +12,10 @@
 extern "C" {
 #endif
 
+#if XI_PLATFORM_BASE_POSIX
+#define MAX_BACKTRACE_SYMBOLS 16
+#endif
+
 /**
  * internal structure for keeping the mapping between
  * the address of the allocated memory and the amount of the
@@ -23,6 +27,10 @@ typedef struct xi_memory_limiter_entry_s
     struct xi_memory_limiter_entry_s* next;
     struct xi_memory_limiter_entry_s* prev;
     const char* allocation_origin_file_name;
+#ifdef XI_PLATFORM_BASE_POSIX
+    void* backtrace_symbols_buffer[MAX_BACKTRACE_SYMBOLS];
+    int backtrace_symbols_buffer_size;
+#endif
     size_t allocation_origin_line_number;
 #endif
     size_t size;
