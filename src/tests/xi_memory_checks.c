@@ -38,8 +38,8 @@ void xi_memory_checks_log_memory_leak( const xi_memory_limiter_entry_t* entry )
     fprintf( stderr, "\x1b[33m\t\tbacktrace:\x1b[0m\r\n" );
     char** human_readable_symbols = backtrace_symbols(
         entry->backtrace_symbols_buffer, entry->backtrace_symbols_buffer_size );
-
-    for ( int i = 0; i < entry->backtrace_symbols_buffer_size; ++i )
+    int i = 0;
+    for ( ; i < entry->backtrace_symbols_buffer_size; ++i )
     {
         fprintf( stderr, "\t\t\t\x1b[33m%s\x1b[0m\r\n", human_readable_symbols[i] );
     }
