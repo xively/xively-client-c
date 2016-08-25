@@ -16,7 +16,7 @@ This method requires OSX development platform although Windows and Linux methods
 
 ## Table of Contents
 1. [Building the Xively C Client library](#building-the-xively-c-client-library)
-2. [Building the wolfSSL library](#building-the-wolfSSL-library)
+2. [Building the wolfSSL library](#building-the-wolfssl-library)
 3. [Building CC3200 application: CCS ent_wlan example](#building-CC3200-application-CCS-ent_wlan-example)
 
 
