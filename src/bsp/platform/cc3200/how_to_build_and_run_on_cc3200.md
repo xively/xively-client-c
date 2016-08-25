@@ -14,6 +14,11 @@ This method requires OSX development platform although Windows and Linux methods
     - note: the SDK is downloadable in a Windows .exe compressed package format.
     - after extracting it on a Windows machine you should place it somewhere in your OSX directory structure, e.g. to ~/ti/CC3200SDK
 
+## Table of Contents
+1. [Building the Xively C Client library](#building-the-xively-c-client-library)
+2. [Building the wolfSSL library](#building-the-wolfSSL-library)
+3. [Building CC3200 application: CCS ent_wlan example](#building-CC3200-application-CCS-ent_wlan-example)
+
 
 ## Building the Xively C Client library
 
@@ -131,6 +136,10 @@ Steps to take:
     - include xively.h
     - link CC3200 static library: xively-client-c/obj/cc3200/libxively.a
     - link the wolfSSL static library: xively-client-c/src/import/tls/wolfssl/tirtos/packages/ti/net/wolfssl/lib/wolfssl.aem4f
+    - and implement two functions
 
+The functions are:
 
+    uint_least32_t ti_sysbios_hal_Seconds_get__E( void );
 
+    uint32_t xively_ssl_rand_generate();
