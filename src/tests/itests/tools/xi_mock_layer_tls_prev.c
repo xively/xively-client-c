@@ -13,13 +13,15 @@ extern "C" {
 extern xi_context_t *xi_context;            // Xivley Client context
 extern xi_context_t *xi_context_mockbroker; // test mock broker context
 
-
 xi_state_t xi_mock_layer_tls_prev_push(
       void* context
     , void* data
     , xi_state_t in_out_state )
 {
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
+
+    XI_UNUSED( itest_mock_broker_codec_layer_chain );
+    XI_UNUSED( XI_LAYER_CHAIN_MOCK_BROKER_CODECSIZE_SUFFIX );
 
     check_expected( in_out_state );
     const xi_mock_layer_tls_prev_control_t mock_control_directive =
