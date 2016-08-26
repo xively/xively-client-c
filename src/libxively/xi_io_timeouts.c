@@ -60,7 +60,7 @@ extern void xi_io_timeouts_restart( xi_evtd_instance_t* event_dispatcher,
     assert( event_dispatcher != NULL );
     assert( io_timeouts != NULL );
 
-    xi_static_vector_index_type_t index = 0;
+    xi_vector_index_type_t index = 0;
 
     for ( index = 0; index < io_timeouts->elem_no; ++index )
     {
