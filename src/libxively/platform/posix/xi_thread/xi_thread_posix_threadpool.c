@@ -16,10 +16,15 @@ xi_threadpool_t* xi_threadpool_create_instance( uint8_t num_of_threads )
     XI_CHECK_CND_DBGMESSAGE( threadpool->threadpool_evtd == NULL, XI_OUT_OF_MEMORY, state,
                              "could not create event dispatcher for threadpool" );
 
-    threadpool->workerthreads = xi_static_vector_create( num_of_threads );
+    threadpool->workerthreads = xi_vector_create();
 
     XI_CHECK_CND_DBGMESSAGE( threadpool->workerthreads == NULL, XI_OUT_OF_MEMORY, state,
-                             "could not instantiate static vector for workerthreads" );
+                             "could not instantiate vector for workerthreads" );
+
+    int8_t result = xi_vector_reserve( threadpool->workerthreads, num_of_threads );
+
+    XI_CHECK_CND_DBGMESSAGE( result == 0, XI_OUT_OF_MEMORY, state,
+                             "could not reserve enough space in vector for workerthreads" );
 
     uint8_t counter_workerthread = 0;
     for ( ; counter_workerthread < num_of_threads; ++counter_workerthread )
@@ -30,9 +35,9 @@ xi_threadpool_t* xi_threadpool_create_instance( uint8_t num_of_threads )
         XI_CHECK_CND_DBGMESSAGE( new_workerthread == NULL, XI_OUT_OF_MEMORY, state,
                                  "could not allocate a workerthread" );
 
-        xi_static_vector_push(
+        xi_vector_push(
             threadpool->workerthreads,
-            XI_SVEC_CONST_VALUE_PARAM( XI_SVEC_VALUE_PTR( new_workerthread ) ) );
+            XI_VEC_CONST_VALUE_PARAM( XI_VEC_VALUE_PTR( new_workerthread ) ) );
     }
 
     return threadpool;
@@ -56,9 +61,9 @@ void xi_threadpool_destroy_instance( xi_threadpool_t** threadpool )
         for ( ; counter_workerthread < threadpool_ptr->workerthreads->elem_no;
               ++counter_workerthread )
         {
-            xi_evtd_stop( ( ( xi_workerthread_t* )
-                                threadpool_ptr->workerthreads->array[counter_workerthread]
-                                    .selector_t.ptr_value )
+            xi_evtd_stop( ( ( xi_workerthread_t* )threadpool_ptr->workerthreads
+                                ->array[counter_workerthread]
+                                .selector_t.ptr_value )
                               ->thread_evtd );
         }
 
@@ -78,7 +83,7 @@ void xi_threadpool_destroy_instance( xi_threadpool_t** threadpool )
             xi_evtd_step( threadpool_ptr->threadpool_evtd, time( 0 ) );
         }
 
-        xi_static_vector_destroy( threadpool_ptr->workerthreads );
+        xi_vector_destroy( threadpool_ptr->workerthreads );
     }
 
     xi_evtd_destroy_instance( threadpool_ptr->threadpool_evtd );
