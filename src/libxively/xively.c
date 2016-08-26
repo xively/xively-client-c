@@ -22,7 +22,6 @@
 #include "xi_layer_macros.h"
 #include "xi_layer_default_allocators.h"
 #include "xi_connection_data.h"
-#include "xi_static_vector.h"
 #include "xi_backoff_status_api.h"
 #include "xi_backoff_lut_config.h"
 #include "xi_handle.h"
