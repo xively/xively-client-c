@@ -587,6 +587,77 @@ XI_TT_TESTCASE( test_vector_reserve_upsize, {
 end:;
 } )
 
+XI_TT_TESTCASE(
+    xi_utest__vector_create_from__valid_data__return_vector,
+    {
+        xi_vector_elem_t v_data[]
+            = {XI_VEC_ELEM( XI_VEC_VALUE_UI32( 1 ) ), XI_VEC_ELEM( XI_VEC_VALUE_UI32( 3 ) ),
+               XI_VEC_ELEM( XI_VEC_VALUE_UI32( 0xFFFFFFFF ) )};
+        xi_vector_t* sv = xi_vector_create_from(
+            ( xi_vector_elem_t* )v_data, 3, XI_MEMORY_TYPE_UNMANAGED );
+
+        tt_assert( sv != 0 );
+        tt_assert( sv->array != 0 );
+        tt_assert( sv->capacity == 3 );
+        tt_assert( sv->elem_no == 3 );
+        tt_assert( XI_MEMORY_TYPE_UNMANAGED == sv->memory_type );
+
+        size_t i = 0;
+        for ( ; i < 3; ++i )
+        {
+            tt_want_uint_op( sv->array[ i ].selector_t.ui32_value, ==,
+                             v_data[ i ].selector_t.ui32_value );
+        }
+
+        xi_vector_destroy( sv );
+
+        tt_want_int_op( xi_is_whole_memory_deallocated(), >, 0 );
+    end:
+        ;
+    } )
+
+XI_TT_TESTCASE(
+    xi_utest__xi_vector_create_from__valid_dynamic_data__return_vector,
+    {
+        xi_state_t local_state = XI_STATE_OK;
+
+        const int data_size = 16;
+        const int capacity = sizeof( xi_vector_elem_t ) * data_size;
+
+        XI_ALLOC_BUFFER( xi_vector_elem_t, v_data, capacity,
+                         local_state );
+
+        int i = 0;
+        for ( ; i < data_size; ++i )
+        {
+            v_data[ i ].selector_t.i32_value = i;
+        }
+
+        xi_vector_t* sv
+            = xi_vector_create_from( ( xi_vector_elem_t* )v_data,
+                                            data_size, XI_MEMORY_TYPE_MANAGED );
+
+        tt_assert( sv != 0 );
+        tt_assert( sv->array != 0 );
+        tt_assert( sv->capacity == data_size );
+        tt_assert( sv->elem_no == data_size );
+        tt_assert( XI_MEMORY_TYPE_MANAGED == sv->memory_type );
+
+        i = 0;
+        for ( ; i < data_size; ++i )
+        {
+            tt_want_uint_op( sv->array[ i ].selector_t.ui32_value, ==,
+                             v_data[ i ].selector_t.ui32_value );
+        }
+
+        xi_vector_destroy( sv );
+        tt_want_int_op( xi_is_whole_memory_deallocated(), >, 0 );
+    err_handling:
+    end:
+        ;
+    } )
+
+
 XI_TT_TESTCASE( test_vector_reserve_downsize, {
     xi_vector_t* sv = xi_vector_create();
 

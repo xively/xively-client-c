@@ -33,6 +33,7 @@ typedef struct
     xi_vector_elem_t* array;
     xi_vector_index_type_t elem_no;
     xi_vector_index_type_t capacity;
+    xi_memory_type_t memory_type;
 } xi_vector_t;
 
 typedef void( xi_vector_for_t )( union xi_vector_selector_u* );
@@ -70,6 +71,24 @@ typedef int8_t( xi_vector_cmp_t )( const union xi_vector_selector_u* e0,
 typedef int8_t( xi_vector_pred_t )( union xi_vector_selector_u* e0 );
 
 extern xi_vector_t* xi_vector_create();
+
+/**
+ * @brief xi_vector_create_from
+ *
+ * In the vector implementation it is possible to create vector from the chunk of already
+ * allocated memory.
+ *
+ * returns new vector created on given memory or NULL if there is not enough memory to
+ * create the vector structure
+ *
+ * @param array
+ * @param len
+ * @param memory_type
+ * @return xi_vector_t*
+ */
+extern xi_vector_t* xi_vector_create_from( xi_vector_elem_t* array,
+                                           size_t len,
+                                           xi_memory_type_t memory_type );
 
 /**
  * @brief xi_vector_assign
