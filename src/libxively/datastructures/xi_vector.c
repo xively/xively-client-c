@@ -12,6 +12,12 @@ static int8_t xi_vector_realloc( xi_vector_t* vector, xi_vector_index_type_t new
 {
     assert( new_size != 0 && new_size != vector->capacity );
 
+    /* do not allow to reallocate unmanaged memory blocks */
+    if( vector->memory_type != XI_MEMORY_TYPE_MANAGED )
+    {
+        return 0;
+    }
+
     xi_state_t state  = XI_STATE_OK;
     size_t elems_size = new_size * sizeof( xi_vector_elem_t );
 
@@ -39,6 +45,8 @@ xi_vector_t* xi_vector_create()
 
     XI_ALLOC( xi_vector_t, ret, state );
 
+    ret->memory_type = XI_MEMORY_TYPE_MANAGED;
+
     XI_CHECK_MEMORY( xi_vector_realloc( ret, XI_VECTOR_DEFAULT_CAPACITY ), state );
 
     return ret;
@@ -49,6 +57,32 @@ err_handling:
         XI_SAFE_FREE( ret->array );
     }
     XI_SAFE_FREE( ret );
+    return NULL;
+}
+
+xi_vector_t* xi_vector_create_from( xi_vector_elem_t* array,
+                                    size_t len,
+                                    xi_memory_type_t memory_type )
+{
+    assert( array != 0 );
+    assert( len > 0 );
+
+    xi_state_t state = XI_STATE_OK;
+
+    XI_ALLOC( xi_vector_t, ret, state );
+
+    ret->array       = array;
+    ret->memory_type = memory_type;
+    ret->capacity    = len;
+    ret->elem_no     = len;
+
+    return ret;
+
+err_handling:
+    if ( ret )
+    {
+        xi_vector_destroy( ret );
+    }
     return NULL;
 }
 
@@ -110,7 +144,12 @@ xi_vector_t* xi_vector_destroy( xi_vector_t* vector )
     assert( NULL != vector );
     assert( NULL != vector->array );
 
-    XI_SAFE_FREE( vector->array );
+    /* only managed type memory can be released by the vector who owns it */
+    if( XI_MEMORY_TYPE_MANAGED == vector->memory_type )
+    {
+        XI_SAFE_FREE( vector->array );
+    }
+
     XI_SAFE_FREE( vector );
 
     return NULL;
