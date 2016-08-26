@@ -6,8 +6,8 @@
 
 #include <stdint.h>
 
-#include "xi_debug.h"
 #include "xi_allocator.h"
+#include "xi_debug.h"
 #include "xi_macros.h"
 
 #ifdef __cplusplus
@@ -16,8 +16,7 @@ extern "C" {
 
 typedef int8_t xi_vector_index_type_t;
 
-union xi_vector_selector_u
-{
+union xi_vector_selector_u {
     void* ptr_value;
     intptr_t iptr_value;
     int32_t i32_value;
@@ -71,6 +70,32 @@ typedef int8_t( xi_vector_cmp_t )( const union xi_vector_selector_u* e0,
 typedef int8_t( xi_vector_pred_t )( union xi_vector_selector_u* e0 );
 
 extern xi_vector_t* xi_vector_create();
+
+/**
+ * @brief xi_vector_assign
+ *
+ * Assigns new elements described by value to the vector and tries to allocate space
+ * needed for n new elements of type value. Returns 0 if success 1  if failed.
+ *
+ * @param n
+ * @param value
+ * @return int8_t
+ */
+extern int8_t xi_vector_assign( xi_vector_t* vector,
+                                xi_vector_index_type_t n,
+                                union xi_vector_selector_u value );
+
+/**
+ * @brief xi_vector_reserve
+ *
+ * Changes the capacity of the vector. If the capacity is lower than the previous one
+ * elements at the end will be lost. Function returns 0 on error and 1 on success.
+ *
+ * @param vector
+ * @param n
+ * @return int8_t
+ */
+extern int8_t xi_vector_reserve( xi_vector_t* vector, xi_vector_index_type_t n );
 
 extern xi_vector_t* xi_vector_destroy( xi_vector_t* vector );
 

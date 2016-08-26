@@ -85,7 +85,7 @@ xi_static_vector_push( xi_static_vector_t* vector,
         return &vector->array[vector->elem_no - 1];
     }
 
-    return 0;
+    return NULL;
 }
 
 void xi_static_vector_swap_elems( xi_static_vector_t* vector,
