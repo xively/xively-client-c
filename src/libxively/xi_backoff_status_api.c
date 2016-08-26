@@ -103,18 +103,18 @@ static void xi_backoff_release_luts( void )
     if ( xi_globals.backoff_status.backoff_lut != NULL )
     {
         xi_globals.backoff_status.backoff_lut =
-            xi_static_vector_destroy( xi_globals.backoff_status.backoff_lut );
+            xi_vector_destroy( xi_globals.backoff_status.backoff_lut );
     }
 
     if ( xi_globals.backoff_status.decay_lut != NULL )
     {
         xi_globals.backoff_status.decay_lut =
-            xi_static_vector_destroy( xi_globals.backoff_status.decay_lut );
+            xi_vector_destroy( xi_globals.backoff_status.decay_lut );
     }
 }
 
-xi_state_t xi_backoff_configure_using_data( xi_static_vector_elem_t* backoff_lut,
-                                            xi_static_vector_elem_t* decay_lut,
+xi_state_t xi_backoff_configure_using_data( xi_vector_elem_t* backoff_lut,
+                                            xi_vector_elem_t* decay_lut,
                                             size_t len,
                                             xi_memory_type_t memory_type )
 {
@@ -128,12 +128,12 @@ xi_state_t xi_backoff_configure_using_data( xi_static_vector_elem_t* backoff_lut
     xi_backoff_release_luts();
 
     xi_globals.backoff_status.backoff_lut =
-        xi_static_vector_create_from( backoff_lut, len, memory_type );
+        xi_vector_create_from( backoff_lut, len, memory_type );
 
     XI_CHECK_MEMORY( xi_globals.backoff_status.backoff_lut, local_state );
 
     xi_globals.backoff_status.decay_lut =
-        xi_static_vector_create_from( decay_lut, len, memory_type );
+        xi_vector_create_from( decay_lut, len, memory_type );
 
     XI_CHECK_MEMORY( xi_globals.backoff_status.decay_lut, local_state );
 
