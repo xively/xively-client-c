@@ -7,7 +7,6 @@
 #include "xi_layer_chain.h"
 #include "xi_connection_data.h"
 #include "xi_vector.h"
-#include "xi_static_vector.h"
 #include "xi_event_dispatcher_api.h"
 #include <xively_types.h>
 
