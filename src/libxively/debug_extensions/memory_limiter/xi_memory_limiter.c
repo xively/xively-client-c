@@ -9,10 +9,6 @@
 #include "xi_macros.h"
 #include "xi_memory_limiter.h"
 
-#ifdef XI_PLATFORM_BASE_POSIX
-#include <execinfo.h>
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -25,8 +21,8 @@ extern "C" {
 
 #define get_ptr_from_entry_const(e) (intptr_t) get_ptr_from_entry(e)
 
-#define get_entry_from_ptr_const(p)                                            \
-  (xi_memory_limiter_entry_t *)get_entry_from_ptr(p)
+#define get_entry_from_ptr_const( p )                                                    \
+    ( xi_memory_limiter_entry_t* )get_entry_from_ptr( p )
 
 #if XI_DEBUG_EXTRA_INFO
 static xi_memory_limiter_entry_t *xi_memory_limiter_entry_list_head;
@@ -157,8 +153,8 @@ void *xi_memory_limiter_alloc(xi_memory_limiter_allocation_type_t limit_type,
   memset(entry, 0, sizeof(xi_memory_limiter_entry_t));
 
 #if XI_DEBUG_EXTRA_INFO
-  entry->allocation_origin_file_name = file;
-  entry->allocation_origin_line_number = line;
+    entry->allocation_origin_file_name   = file;
+    entry->allocation_origin_line_number = line;
 
 #ifdef XI_PLATFORM_BASE_POSIX
   int no_of_backtraces = backtrace(entry->backtrace_symbols_buffer, MAX_BACKTRACE_SYMBOLS);
@@ -185,11 +181,20 @@ end:
   return ptr_to_ret;
 }
 
-void *xi_memory_limiter_calloc(xi_memory_limiter_allocation_type_t limit_type,
-                               size_t num, size_t size_to_alloc,
-                               const char *file, size_t line) {
-  const size_t allocation_size = num * size_to_alloc;
-  void *ret = xi_memory_limiter_alloc(limit_type, allocation_size, file, line);
+void* xi_memory_limiter_calloc( xi_memory_limiter_allocation_type_t limit_type,
+                                size_t num,
+                                size_t size_to_alloc,
+                                const char* file,
+                                size_t line )
+{
+    const size_t allocation_size = num * size_to_alloc;
+    void* ret = xi_memory_limiter_alloc( limit_type, allocation_size, file, line );
+
+    /* it's unspecified if memset works with NULL pointer */
+    if ( NULL != ret )
+    {
+        memset( ret, 0, allocation_size );
+    }
 
   /* it's unspecified if memset works with NULL pointer */
   if (NULL != ret) {
@@ -255,16 +260,19 @@ void *xi_memory_limiter_realloc(xi_memory_limiter_allocation_type_t limit_type,
   entry = (xi_memory_limiter_entry_t *)r_ptr;
 
 #if XI_DEBUG_EXTRA_INFO
-  entry->allocation_origin_file_name = file;
-  entry->allocation_origin_line_number = line;
+    entry->allocation_origin_file_name   = file;
+    entry->allocation_origin_line_number = line;
 
-  if (NULL == xi_memory_limiter_entry_list_head) {
-    xi_memory_limiter_entry_list_head = entry;
-  } else {
-    entry->next = xi_memory_limiter_entry_list_head;
-    xi_memory_limiter_entry_list_head->prev = entry;
-    xi_memory_limiter_entry_list_head = entry;
-  }
+    if ( NULL == xi_memory_limiter_entry_list_head )
+    {
+        xi_memory_limiter_entry_list_head = entry;
+    }
+    else
+    {
+        entry->next                             = xi_memory_limiter_entry_list_head;
+        xi_memory_limiter_entry_list_head->prev = entry;
+        xi_memory_limiter_entry_list_head       = entry;
+    }
 #else
   XI_UNUSED(file);
   XI_UNUSED(line);
