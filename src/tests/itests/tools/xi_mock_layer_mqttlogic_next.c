@@ -99,10 +99,9 @@ xi_state_t xi_mock_layer_mqttlogic_next_connect(
 
     if( XI_STATE_OK == in_out_state )
     {
-        XI_PROCESS_POST_CONNECT_ON_PREV_LAYER( context, NULL, in_out_state );
+        return XI_PROCESS_POST_CONNECT_ON_PREV_LAYER( context, NULL, in_out_state );
     }
-
-    if ( in_out_state != XI_STATE_OK )
+    else
     {
         return XI_PROCESS_CLOSE_ON_PREV_LAYER( context, NULL, in_out_state );
     }
