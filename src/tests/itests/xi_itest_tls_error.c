@@ -299,10 +299,10 @@ void xi_itest_tls_error__tls_pull_PUBACK_errors__graceful_error_handling(
             expect_value( xi_mock_broker_layer_pull, recvd_msg_type,
                           XI_MQTT_TYPE_SUBSCRIBE );
 #ifdef XI_CONTROL_TOPIC_ENABLED
-            expect_string( xi_mock_broker_layer_pull, subsribe_topic_name,
+            expect_string( xi_mock_broker_layer_pull, subscribe_topic_name,
                            fixture->control_topic_name );
 #else
-            expect_any( xi_mock_broker_layer_pull, subsribe_topic_name );
+            expect_any( xi_mock_broker_layer_pull, subscribe_topic_name );
 #endif
 
 
@@ -413,10 +413,10 @@ void xi_itest_tls_error__tls_pull_SUBACK_errors__graceful_error_handling(
             const xi_itest_tls_error__test_fixture_t* const fixture =
                 ( xi_itest_tls_error__test_fixture_t* )*fixture_void;
 
-            expect_string( xi_mock_broker_layer_pull, subsribe_topic_name,
+            expect_string( xi_mock_broker_layer_pull, subscribe_topic_name,
                            fixture->control_topic_name );
 #else
-            expect_any( xi_mock_broker_layer_pull, subsribe_topic_name );
+            expect_any( xi_mock_broker_layer_pull, subscribe_topic_name );
 #endif
 
             /* SUBACK receive error*/
@@ -692,10 +692,10 @@ void xi_itest_tls_error__tls_push_SUBSCRIBE_errors__graceful_error_handling(
             expect_value( xi_mock_broker_layer_pull, recvd_msg_type,
                           XI_MQTT_TYPE_SUBSCRIBE );
 #ifdef XI_CONTROL_TOPIC_ENABLED
-            expect_string( xi_mock_broker_layer_pull, subsribe_topic_name,
+            expect_string( xi_mock_broker_layer_pull, subscribe_topic_name,
                            fixture->control_topic_name );
 #else
-            expect_any( xi_mock_broker_layer_pull, subsribe_topic_name );
+            expect_any( xi_mock_broker_layer_pull, subscribe_topic_name );
 #endif
 
             /* SUBACK sent*/
@@ -778,10 +778,10 @@ void xi_itest_tls_error__tls_push_PUBLISH_errors__graceful_error_handling(
             expect_value( xi_mock_broker_layer_pull, recvd_msg_type,
                           XI_MQTT_TYPE_SUBSCRIBE );
 #ifdef XI_CONTROL_TOPIC_ENABLED
-            expect_string( xi_mock_broker_layer_pull, subsribe_topic_name,
+            expect_string( xi_mock_broker_layer_pull, subscribe_topic_name,
                            fixture->control_topic_name );
 #else
-            expect_any( xi_mock_broker_layer_pull, subsribe_topic_name );
+            expect_any( xi_mock_broker_layer_pull, subscribe_topic_name );
 #endif
             expect_value( xi_mock_layer_tls_prev_push, in_out_state, XI_STATE_OK );
 
@@ -942,10 +942,10 @@ void xi_itest_tls_error__connection_flow__basic_checks( void** fixture_void )
     expect_value( xi_mock_broker_layer_pull, in_out_state, XI_STATE_OK );
     expect_value( xi_mock_broker_layer_pull, recvd_msg_type, XI_MQTT_TYPE_SUBSCRIBE );
 #ifdef XI_CONTROL_TOPIC_ENABLED
-    expect_string( xi_mock_broker_layer_pull, subsribe_topic_name,
+    expect_string( xi_mock_broker_layer_pull, subscribe_topic_name,
                    fixture->control_topic_name );
 #else
-    expect_any( xi_mock_broker_layer_pull, subsribe_topic_name );
+    expect_any( xi_mock_broker_layer_pull, subscribe_topic_name );
 #endif
 
     /* SUBACK sent*/
