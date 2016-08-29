@@ -4,7 +4,7 @@
 1. [Target Audience](#target-audience)
 2. [Xively Client versions](#xively-client-versions)
 3. [Supported Platforms](#supported-platforms)
-4. [Board Support Package](#board-support-package)
+4. [Board Support Package (BSP)](#board-support-package-bsp)
 5. [Porting the C Client](#porting-the-c-client)
     - [Preceding Step - A Native Build](#preceding-step---a-native-build)
     - [The Porting Step](#the-porting-step)
@@ -12,7 +12,7 @@
 
 
 ## Target Audience
-This document is intended for Developers who have access to the source code of the Xively Python Client and to the Xively C Client. Developers who want to port the Xively C to a particular platform will find this to be the main guide for that endeavor.
+This document is intended for Developers who have access to the source code of the Xively C Client. Developers who want to port the Xively C to a particular platform will find this to be the main guide for that endeavor.
 
 Details of build, config flags and the location of platform-specific code are included in this document.
 
@@ -22,7 +22,7 @@ Details of build, config flags and the location of platform-specific code are in
 
 The C Client is designed for low resources platforms. The single threaded implementation is non-blocking, which allows it to operate on NoOs platforms. It also unlocks the ability for processing outgoing and incoming messages concurrently.
 
-An event system is included and can be used by client applications to scheduled publications at regular intervals without any platform-specific timers or tasks.
+An event system is included and can be used by client applications to schedule publications at regular intervals without any platform-specific timers or tasks.
 
 The client provides this functionality while remaining small enough to reside on low resource MCUs, consumes minimal memory, processor power and energy consumption.
 
@@ -55,13 +55,13 @@ Platforms above are officially supported and tested.
 
 Porting the Xively C Client to new platforms is accelerated by the Board Support Package (BSP). The BSP implements a series of abstract platform dependencies abstracts the platform specific implementations required by the of Xively C Client logic to a well separated space to ease the focus on porting.
 
-## Board Support Package
+## Board Support Package (BSP)
 
 The Board Support Package (BSP) is the set of functions that must be tailored to a platform's specific secure networking, memory, random, and time implementations. All of these platform-specific function calls are channeled into a few files that reside under a single directory. It is this directory (xi\_client\_c/src/bsp) that you may focus your attention when compiling the client for your particular device or platform.
 
 The BSP was designed to minimize the time it takes to make a port of the library. With it an engineer can ignore the MQTT codec or the non-blocking / asynchronous engine that resides in the main library source.
 
-All of the BSP function declarations can be found under the _xi\_client\_c/include/bsp_
+All of the BSP **function declarations** can be found under the _xi\_client\_c/include/bsp_
 directory. It is here where you can find the doxygen documentation for each of the function calls that you will need to implement.
 
 Functions are broken down by logical subsystem as follows:
@@ -76,7 +76,7 @@ Functions are broken down by logical subsystem as follows:
 
 ### Reference implementations
 
-Reference implementations are separated into two directories: *platform* and *tls*. The *platform* directory contains networking, memory, random and time implementations, the *tls* directory contains reference implementations for *wolfSSL* and *mbedTLS*.
+Reference **function implementations** are separated into two directories: *platform* and *tls*. The *platform* directory contains networking, memory, random and time implementations, the *tls* directory contains reference implementations for *wolfSSL* and *mbedTLS*.
 
 #### BSP Platforms
 
@@ -104,14 +104,14 @@ If neither wolfSSL nor mbedTLS fits your target platform the build system is ope
 
 To create a new BSP TLS solution:
 
-- implement of the all BSP TLS API function found in *include/bsp/xi_bsp_tls.h*. As a template to follow it is adviced to check at least one of the wolfSSL or mbedTLS implementations.
+- implement all of the BSP TLS API functions found in *include/bsp/xi_bsp_tls.h*. As a template to follow it is advised to check at least one of the wolfSSL or mbedTLS implementations.
 - put this implementation into directory *src/bsp/tls/[NEW_TLS_LIBRARY_NAME]*
 - copy file *make/mt-config/mt-tls-wolfssl.mk* to *make/mt-config/mt-tls-[NEW_TLS_LIBRARY_NAME].mk* and set the path variables inside according to the new TLS library's internal directory structure
 - call `make` with parameter `XI_BSP_TLS=[NEW_TLS_LIBRARY_NAME]`
 
-#### Chosing both: platform and TLS
+#### Customising both: platform and TLS
 
-Although a bare call on `make` defaults to `make XI_BSP_PLATFORM=posix XI_BSP_TLS=wolfssl` which is fine for MacOSX woth wolfSSL builds most probably during a porting process cross-compilation selecting both at the same time are required. For instance:
+Although a bare call on `make` defaults to `make XI_BSP_PLATFORM=posix XI_BSP_TLS=wolfssl` which is fine for MacOSX with wolfSSL builds most probably during a cross-compilation selecting both at the same time are required. For instance:
 
 `make XI_BSP_PLATFORM=cc3200 XI_BSP_TLS=microSSL`
 
@@ -120,8 +120,8 @@ This command assumes directory *src/bsp/platform/cc3200* containing networking, 
 
 ## Porting the C Client
 
-Building a Xively C Client consists of building the Xively C Client _library_ and linking
-it to the actual _application_. Obviously both of these steps need to be tailored to the target platform.
+Building a Xively C Client consists of building the Xively C Client *library*, the TLS library and linking
+them to the actual *application*. Obviously these steps need to be tailored to the target platform.
 
 ### Preceding Step - A Native Build
 
@@ -129,10 +129,10 @@ We recommend building the Xively Client on OSX or Linux before attempting to cro
 
 #### Build System: make
 
-The Xively C Client uses _make_ to build the executable for OSX and Linux. The main makefile is xi\_client\_c/Makefile. Internal and more detailed configurations can be found under directory xi\_client\_c/make which contains numerous make target (mt) files. There you can find the anchor mt files mt-config (processing the CONFIG
+The Xively C Client uses _make_ to build for OSX and Linux. The main makefile is xi\_client\_c/Makefile. Internal and more detailed configurations can be found under directory xi\_client\_c/make which contains numerous make target (mt) files. There you can find the anchor mt files mt-config (processing the CONFIG
 flags) and the mt-os files (processing the TARGET flags).
 
-More informatoin about CONFIG and TARGET flags can be found in the espective sections below.
+More informatoin about CONFIG and TARGET flags can be found in the respective sections below.
 
 #### Build System: IDE Builds
 
@@ -181,7 +181,7 @@ here if previously library was built with mbedTLS setting the XI_BSP_TLS variabl
 
 #### Build dependencies
 
-- autotools: autoconf, automake, libtool
+- autotools: autoconf, automake, libtool are needed by wolfSSL
 - cmake is needed by the integration test framework _cmocka_
 
 On OSX these are available through _brew_:
@@ -205,7 +205,7 @@ The TARGET and CONFIG flags are enumerated below, and can be mixed and matched i
 
 A typical TARGET flag looks like this:
 
-_osx-static-debug_
+    osx-static-debug
 
 ###### Platform flag
 
@@ -223,7 +223,7 @@ _osx-static-debug_
 
 A typical CONFIG flag:
 
-_posix\_io-posix\_fs-thread\_module-posix\_platform-xrm-tls-senml-control\_topic-memory\_limiter
+    posix_io-posix_fs-thread_module-posix_platform-xrm-tls-senml-control_topic-memory_limiter
 
 ###### Xively Client Feature flags
 
@@ -316,10 +316,10 @@ the existing makefile structure to a new toolchain consists of:
   This can be done in a new _mt-PLATFORM_ file under directory _make/mt-os_. A new
   platform shall extend the available TARGET flags. This new flag is picked up by the
   file _make/mt-os/mt-os_ which needs this adaptation, too.
-- providing all BSP module API sources by picking from existing reference BSP implementations or
+- providing all BSP module API implementations by picking from existing reference BSP implementations or
   by writing new ones. These implementations may reside in new directory
-  _src/bsp/platforms/PLATFORM_.
-- adding these BSP sources to the build can be done with a _XI_BSP_PLATFORM_ Makefile flag.
+  *src/bsp/platforms/PLATFORM*.
+- adding these BSP sources to the build can be done with a **XI_BSP_PLATFORM=PLATFORM** Makefile flag.
 
 There are two existing cross-compilation examples in the make build system which may
 serve as template for a new one.
@@ -366,9 +366,6 @@ platforms. In order to provide TLSv1.2 secure communication with Xively servers 
 Xively Client exposes BSP TLS with reference implementations against [WolfSSL's TLS](https://www.wolfssl.com/wolfSSL/Home.html) and [mbed TLS](https://tls.mbed.org/) libraries.
 
 If you do not have a Xively Client compiled for you by Xively Professional Services, then you will need to compile a TLS implementation yourself.
-
-You can obtain the WolfSSL sources here:  https://www.wolfssl.com/wolfSSL/Home.html
-mbed TLS sources can be downloaded from here: https://tls.mbed.org/
 
 #### Back-off logic
 
