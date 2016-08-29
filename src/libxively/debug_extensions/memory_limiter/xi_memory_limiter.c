@@ -2,12 +2,12 @@
  * This is part of Xively C library. */
 #include <stdint.h>
 
-#include "xi_critical_section_def.h"
 #include "xi_critical_section.h"
-#include "xi_memory_limiter.h"
+#include "xi_critical_section_def.h"
 #include "xi_debug.h"
-#include "xi_macros.h"
 #include "xi_helpers.h"
+#include "xi_macros.h"
+#include "xi_memory_limiter.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -22,7 +22,7 @@ extern "C" {
 #define get_ptr_from_entry_const( e ) ( intptr_t ) get_ptr_from_entry( e )
 
 #define get_entry_from_ptr_const( p )                                                    \
-    ( xi_memory_limiter_entry_t* ) get_entry_from_ptr( p )
+    ( xi_memory_limiter_entry_t* )get_entry_from_ptr( p )
 
 #if XI_DEBUG_EXTRA_INFO
 static xi_memory_limiter_entry_t* xi_memory_limiter_entry_list_head;
@@ -168,7 +168,7 @@ void* xi_memory_limiter_alloc( xi_memory_limiter_allocation_type_t limit_type,
     memset( entry, 0, sizeof( xi_memory_limiter_entry_t ) );
 
 #if XI_DEBUG_EXTRA_INFO
-    entry->allocation_origin_file_name = file;
+    entry->allocation_origin_file_name   = file;
     entry->allocation_origin_line_number = line;
 
     if ( NULL == xi_memory_limiter_entry_list_head )
@@ -195,15 +195,16 @@ end:
 }
 
 void* xi_memory_limiter_calloc( xi_memory_limiter_allocation_type_t limit_type,
-                               size_t num, size_t size_to_alloc,
-                               const char* file,
-                               size_t line )
+                                size_t num,
+                                size_t size_to_alloc,
+                                const char* file,
+                                size_t line )
 {
     const size_t allocation_size = num * size_to_alloc;
     void* ret = xi_memory_limiter_alloc( limit_type, allocation_size, file, line );
 
     /* it's unspecified if memset works with NULL pointer */
-    if( NULL != ret )
+    if ( NULL != ret )
     {
         memset( ret, 0, allocation_size );
     }
@@ -277,7 +278,7 @@ void* xi_memory_limiter_realloc( xi_memory_limiter_allocation_type_t limit_type,
     entry = ( xi_memory_limiter_entry_t* )r_ptr;
 
 #if XI_DEBUG_EXTRA_INFO
-    entry->allocation_origin_file_name = file;
+    entry->allocation_origin_file_name   = file;
     entry->allocation_origin_line_number = line;
 
     if ( NULL == xi_memory_limiter_entry_list_head )
