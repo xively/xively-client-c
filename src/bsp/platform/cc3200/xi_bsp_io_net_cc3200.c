@@ -95,7 +95,7 @@ xi_bsp_io_net_state_t xi_bsp_io_net_write( xi_bsp_socket_t xi_socket,
 
     *out_written_count = sl_Send( xi_socket, buf, count, 0);
 
-    printf( "out_written_count: %d, asked count: %lu\n", *out_written_count, count );
+    //printf( "out_written_count: %d, asked count: %lu\n", *out_written_count, count );
 
     /* TI's SimpleLink write() returns errors in the return value */
     if ( SL_EAGAIN == *out_written_count )
