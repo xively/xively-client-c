@@ -1,4 +1,4 @@
-// Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.
+/* Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.*/
 
 #include "xi_backoff_status_api.h"
 #include "xi_globals.h"
@@ -74,9 +74,8 @@ xi_itest_tls_error__test_fixture_t* xi_itest_tls_error__generate_fixture()
                                       "xi_itest_tls_error_device_id/test/topic/name" );
     fixture->control_topic_name = ( "xi/ctrl/v1/xi_itest_tls_error_device_id/clt" );
 
-// control_topic_auto_subscribe is 2 because control topic subscription happens
-// in the 3rd loop, this is precise timed simulation, some test cases are
-// sensitive for timing
+/* control_topic_auto_subscribe is 2 because control topic subscription happens in the 3rd
+ * loop, this is precise timed simulation, some test cases are sensitive for timing*/
 #ifdef XI_CONTROL_TOPIC_ENABLED
     fixture->loop_id__control_topic_auto_subscribe = 2;
 #else
@@ -240,8 +239,8 @@ static void xi_itest_tls_error__act( void** fixture_void,
 uint8_t xi_itest_tls_error__load_level_filter_PUSH( uint8_t xi_state_error_code )
 {
     return ( 0 < xi_test_load_level ||
-             // here probable error codes are collected to reduce runtime for rapid
-             // testing
+             /* here probable error codes are collected to reduce runtime for rapid*/
+             /* testing*/
              xi_state_error_code == XI_STATE_FAILED_WRITING ||
              xi_state_error_code == XI_CONNECTION_RESET_BY_PEER_ERROR ||
              xi_state_error_code == XI_SOCKET_WRITE_ERROR )
@@ -266,7 +265,7 @@ void xi_itest_tls_error__tls_pull_PUBACK_errors__graceful_error_handling(
             const xi_itest_tls_error__test_fixture_t* const fixture =
                 ( xi_itest_tls_error__test_fixture_t* )*fixture_void;
 
-            // one call for mock broker layer chain init
+            /* one call for mock broker layer chain init*/
             expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_layer_tls_prev_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_layer_tls_prev_connect, in_out_state, XI_STATE_OK );
@@ -274,28 +273,28 @@ void xi_itest_tls_error__tls_pull_PUBACK_errors__graceful_error_handling(
             expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_broker_layer_connect, in_out_state, XI_STATE_OK );
 
-            // no problem during CONNECT
+            /* no problem during CONNECT*/
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
             expect_value( xi_mock_layer_tls_prev_push, in_out_state, XI_STATE_OK );
 
-            // CONNECT message arrives at mock broker
+            /* CONNECT message arrives at mock broker*/
             expect_value( xi_mock_broker_layer_pull, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_broker_layer_pull, recvd_msg_type,
                           XI_MQTT_TYPE_CONNECT );
 
-            // CONNACK sent
+            /* CONNACK sent*/
             expect_value( xi_mock_broker_secondary_layer_push, in_out_state,
                           XI_STATE_OK );
             will_return( xi_mock_broker_secondary_layer_push, CONTROL_CONTINUE );
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
 
-            // second message (probably SUBSCRIBE on a control topic)
+            /* second message (probably SUBSCRIBE on a control topic)*/
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
             expect_value( xi_mock_layer_tls_prev_push, in_out_state, XI_STATE_OK );
 
-            // SUBSCRIBE message arrives at mock broker
+            /* SUBSCRIBE message arrives at mock broker*/
             expect_value( xi_mock_broker_layer_pull, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_broker_layer_pull, recvd_msg_type,
                           XI_MQTT_TYPE_SUBSCRIBE );
@@ -307,23 +306,23 @@ void xi_itest_tls_error__tls_pull_PUBACK_errors__graceful_error_handling(
 #endif
 
 
-            // SUBACK sent
+            /* SUBACK sent*/
             expect_value( xi_mock_broker_secondary_layer_push, in_out_state,
                           XI_STATE_OK );
             will_return( xi_mock_broker_secondary_layer_push, CONTROL_CONTINUE );
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
 
-            // PUBLISH HEADER
+            /* PUBLISH HEADER*/
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
             expect_value( xi_mock_layer_tls_prev_push, in_out_state, XI_STATE_OK );
 
-            // PUBLISH PAYLOAD
+            /* PUBLISH PAYLOAD*/
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
             expect_value( xi_mock_layer_tls_prev_push, in_out_state, XI_STATE_OK );
 
-            // PUBLISH message arrives at mock broker
+            /* PUBLISH message arrives at mock broker*/
             expect_value( xi_mock_broker_layer_pull, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_broker_layer_pull, recvd_msg_type,
                           XI_MQTT_TYPE_PUBLISH );
@@ -339,13 +338,13 @@ void xi_itest_tls_error__tls_pull_PUBACK_errors__graceful_error_handling(
             expect_string( xi_mock_broker_layer_pull, publish_topic_name,
                            test_topic_name );
 
-            // PUBACK sent
+            /* PUBACK sent*/
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
 
-            // PUBACK receive error
+            /* PUBACK receive error*/
             expect_value( xi_mock_broker_secondary_layer_push, in_out_state,
                           XI_STATE_OK );
-            // --- ERROR --- HERE --- ERROR --- HERE --- ERROR ---
+            /* --- ERROR --- HERE --- ERROR --- HERE --- ERROR ---*/
             will_return( xi_mock_broker_secondary_layer_push, CONTROL_ERROR );
             will_return( xi_mock_broker_secondary_layer_push, xi_state_error_code );
 
@@ -358,7 +357,7 @@ void xi_itest_tls_error__tls_pull_PUBACK_errors__graceful_error_handling(
 
             xi_itest_tls_error__act( fixture_void, 1, 1 );
 
-            // artificially reset test case
+            /* artificially reset test case*/
             xi_itest_tls_error_teardown( fixture_void );
             xi_itest_tls_error_setup( fixture_void );
         }
@@ -376,7 +375,7 @@ void xi_itest_tls_error__tls_pull_SUBACK_errors__graceful_error_handling(
              xi_state_error_code != XI_MQTT_UNKNOWN_MESSAGE_ID &&
              xi_itest_tls_error__load_level_filter_PUSH( xi_state_error_code ) )
         {
-            // one call for mock broker layer chain init
+            /* one call for mock broker layer chain init*/
             expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_layer_tls_prev_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_layer_tls_prev_connect, in_out_state, XI_STATE_OK );
@@ -384,28 +383,28 @@ void xi_itest_tls_error__tls_pull_SUBACK_errors__graceful_error_handling(
             expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_broker_layer_connect, in_out_state, XI_STATE_OK );
 
-            // no problem during CONNECT
+            /* no problem during CONNECT*/
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
             expect_value( xi_mock_layer_tls_prev_push, in_out_state, XI_STATE_OK );
 
-            // CONNECT message arrives at mock broker
+            /* CONNECT message arrives at mock broker*/
             expect_value( xi_mock_broker_layer_pull, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_broker_layer_pull, recvd_msg_type,
                           XI_MQTT_TYPE_CONNECT );
 
-            // CONNACK sent
+            /* CONNACK sent*/
             expect_value( xi_mock_broker_secondary_layer_push, in_out_state,
                           XI_STATE_OK );
             will_return( xi_mock_broker_secondary_layer_push, CONTROL_CONTINUE );
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
 
-            // second message (probably SUBSCRIBE on a control topic)
+            /* second message (probably SUBSCRIBE on a control topic)*/
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
             expect_value( xi_mock_layer_tls_prev_push, in_out_state, XI_STATE_OK );
 
-            // SUBSCRIBE message arrives at mock broker
+            /* SUBSCRIBE message arrives at mock broker*/
             expect_value( xi_mock_broker_layer_pull, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_broker_layer_pull, recvd_msg_type,
                           XI_MQTT_TYPE_SUBSCRIBE );
@@ -420,13 +419,13 @@ void xi_itest_tls_error__tls_pull_SUBACK_errors__graceful_error_handling(
             expect_any( xi_mock_broker_layer_pull, subsribe_topic_name );
 #endif
 
-            // SUBACK receive error
+            /* SUBACK receive error*/
             expect_value( xi_mock_broker_secondary_layer_push, in_out_state,
                           XI_STATE_OK );
-            // --- ERROR --- HERE --- ERROR --- HERE --- ERROR ---
+            /* --- ERROR --- HERE --- ERROR --- HERE --- ERROR ---*/
             will_return( xi_mock_broker_secondary_layer_push, CONTROL_ERROR );
             will_return( xi_mock_broker_secondary_layer_push, xi_state_error_code );
-            // SUBACK sent
+            /* SUBACK sent*/
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
             will_return( xi_mock_broker_layer_push, CONTROL_CONTINUE );
 
@@ -439,7 +438,7 @@ void xi_itest_tls_error__tls_pull_SUBACK_errors__graceful_error_handling(
 
             xi_itest_tls_error__act( fixture_void, 0, 1 );
 
-            // artificially reset test case
+            /* artificially reset test case*/
             xi_itest_tls_error_teardown( fixture_void );
             xi_itest_tls_error_setup( fixture_void );
         }
@@ -459,7 +458,7 @@ void xi_itest_tls_error__tls_pull_CONNACK_errors__graceful_error_handling(
              xi_state_error_code != XI_MQTT_UNKNOWN_MESSAGE_ID &&
              xi_itest_tls_error__load_level_filter_PUSH( xi_state_error_code ) )
         {
-            // one call for mock broker layer chain init
+            /* one call for mock broker layer chain init*/
             expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_layer_tls_prev_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_layer_tls_prev_connect, in_out_state, XI_STATE_OK );
@@ -467,23 +466,23 @@ void xi_itest_tls_error__tls_pull_CONNACK_errors__graceful_error_handling(
             expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_broker_layer_connect, in_out_state, XI_STATE_OK );
 
-            // no problem during CONNECT
+            /* no problem during CONNECT*/
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
             expect_value( xi_mock_layer_tls_prev_push, in_out_state, XI_STATE_OK );
 
-            // CONNECT message arrives at mock broker
+            /* CONNECT message arrives at mock broker*/
             expect_value( xi_mock_broker_layer_pull, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_broker_layer_pull, recvd_msg_type,
                           XI_MQTT_TYPE_CONNECT );
 
-            // CONNACK receive error
+            /* CONNACK receive error*/
             expect_value( xi_mock_broker_secondary_layer_push, in_out_state,
                           XI_STATE_OK );
-            // --- ERROR --- HERE --- ERROR --- HERE --- ERROR ---
+            /* --- ERROR --- HERE --- ERROR --- HERE --- ERROR ---*/
             will_return( xi_mock_broker_secondary_layer_push, CONTROL_ERROR );
             will_return( xi_mock_broker_secondary_layer_push, xi_state_error_code );
-            // CONNACK sent
+            /* CONNACK sent*/
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
             will_return( xi_mock_broker_layer_push, CONTROL_CONTINUE );
 
@@ -496,7 +495,7 @@ void xi_itest_tls_error__tls_pull_CONNACK_errors__graceful_error_handling(
 
             xi_itest_tls_error__act( fixture_void, 0, 1 );
 
-            // artificially reset test case
+            /* artificially reset test case*/
             xi_itest_tls_error_teardown( fixture_void );
             xi_itest_tls_error_setup( fixture_void );
         }
@@ -511,13 +510,12 @@ void xi_itest_tls_error__tls_push_CONNECT_errors__graceful_error_handling(
     uint8_t xi_state_error_code = XI_STATE_OK + 1;
     for ( ; xi_state_error_code < XI_ERROR_COUNT; ++xi_state_error_code )
     {
-        // noteatigyi: this restriction is because mqtt codec layer push function is not
-        // robust enough
-        //             it only handles XI_STATE_FAILED_WRITING error, otherwise it makes
-        //             an assert
+        /* noteatigyi: this restriction is because mqtt codec layer push function is not
+         * robust enough it only handles XI_STATE_FAILED_WRITING error, otherwise it makes
+         * an assert */
         if ( xi_state_error_code == XI_STATE_FAILED_WRITING )
         {
-            // one call for mock broker layer chain init
+            /* one call for mock broker layer chain init*/
             expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_layer_tls_prev_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_layer_tls_prev_connect, in_out_state, XI_STATE_OK );
@@ -525,9 +523,9 @@ void xi_itest_tls_error__tls_push_CONNECT_errors__graceful_error_handling(
             expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_broker_layer_connect, in_out_state, XI_STATE_OK );
 
-            // error during CONNECT
+            /* error during CONNECT*/
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_OK );
-            // --- ERROR --- HERE --- ERROR --- HERE --- ERROR ---
+            /* --- ERROR --- HERE --- ERROR --- HERE --- ERROR ---*/
             will_return( xi_mock_broker_layer_push, CONTROL_ERROR );
             will_return( xi_mock_broker_layer_push__ERROR_CHANNEL, xi_state_error_code );
 
@@ -541,7 +539,7 @@ void xi_itest_tls_error__tls_push_CONNECT_errors__graceful_error_handling(
 
             xi_itest_tls_error__act( fixture_void, 0, 0 );
 
-            // artificially reset test case
+            /* artificially reset test case*/
             xi_itest_tls_error_teardown( fixture_void );
             xi_itest_tls_error_setup( fixture_void );
         }
@@ -554,16 +552,15 @@ void xi_itest_tls_error__tls_push_infinite_SUBSCRIBE_errors__reSUBSCRIBE_occurs_
     uint8_t xi_state_error_code = XI_STATE_OK + 1;
     for ( ; xi_state_error_code < XI_ERROR_COUNT; ++xi_state_error_code )
     {
-        // noteatigyi: this restriction is because mqtt codec layer push function is not
-        // robust enough
-        //             it only handles XI_STATE_FAILED_WRITING error, otherwise it makes
-        //             an assert
+        /* noteatigyi: this restriction is because mqtt codec layer push function is not
+         * robust enough it only handles XI_STATE_FAILED_WRITING error, otherwise it makes
+         * an assert */
         if ( xi_state_error_code == XI_STATE_FAILED_WRITING )
         {
             const xi_itest_tls_error__test_fixture_t* const fixture =
                 ( xi_itest_tls_error__test_fixture_t* )*fixture_void;
 
-            // one call for mock broker layer chain init
+            /* one call for mock broker layer chain init*/
             expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_layer_tls_prev_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_layer_tls_prev_connect, in_out_state, XI_STATE_OK );
@@ -571,25 +568,25 @@ void xi_itest_tls_error__tls_push_infinite_SUBSCRIBE_errors__reSUBSCRIBE_occurs_
             expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_broker_layer_connect, in_out_state, XI_STATE_OK );
 
-            // no problem during CONNECT
+            /* no problem during CONNECT*/
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_OK );
             will_return_count( xi_mock_broker_layer_push, CONTROL_CONTINUE, 2 );
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
             expect_value( xi_mock_layer_tls_prev_push, in_out_state, XI_STATE_OK );
 
-            // CONNECT message arrives at mock broker
+            /* CONNECT message arrives at mock broker*/
             expect_value( xi_mock_broker_layer_pull, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_broker_layer_pull, recvd_msg_type,
                           XI_MQTT_TYPE_CONNECT );
 
-            // CONNACK sent
+            /* CONNACK sent*/
             expect_value( xi_mock_broker_secondary_layer_push, in_out_state,
                           XI_STATE_OK );
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
             will_return( xi_mock_broker_layer_push, CONTROL_CONTINUE );
 
-            // ERROR HERE: always drive mock TLS layer to report error upon each SUBSCRIBE
-            // send
+            /* ERROR HERE: always drive mock TLS layer to report error upon each SUBSCRIBE
+             * send*/
             will_return_always( xi_mock_broker_layer_push, CONTROL_ERROR );
             will_return_always( xi_mock_broker_layer_push__ERROR_CHANNEL,
                                 xi_state_error_code );
@@ -602,7 +599,7 @@ void xi_itest_tls_error__tls_push_infinite_SUBSCRIBE_errors__reSUBSCRIBE_occurs_
                                                                        subscribe at the
                                                                        same time )*/
 
-            // expecting only a certain number of message sends
+            /* expecting only a certain number of message sends*/
             expect_value_count( xi_mock_broker_layer_push, in_out_state, XI_STATE_OK,
                                 expected_number_of_PUSHEs );
 
@@ -612,7 +609,7 @@ void xi_itest_tls_error__tls_push_infinite_SUBSCRIBE_errors__reSUBSCRIBE_occurs_
             expect_value( xi_mock_layer_tls_prev_close_externally, in_out_state,
                           XI_STATE_OK );
 
-            // This suppresses warning messages, helps debugging these test cases.
+            /* This suppresses warning messages, helps debugging these test cases.*/
             /*will_return( xi_mock_broker_layer_init, CONTROL_CONTINUE );
             will_return( xi_mock_broker_layer_init, CONTROL_CONTINUE );
             will_return( xi_mock_layer_tls_prev_push, CONTROL_CONTINUE );
@@ -620,7 +617,7 @@ void xi_itest_tls_error__tls_push_infinite_SUBSCRIBE_errors__reSUBSCRIBE_occurs_
 
             xi_itest_tls_error__act( fixture_void, 0, 1 );
 
-            // artificially reset test case
+            /* artificially reset test case*/
             xi_itest_tls_error_teardown( fixture_void );
             xi_itest_tls_error_setup( fixture_void );
         }
@@ -633,16 +630,15 @@ void xi_itest_tls_error__tls_push_SUBSCRIBE_errors__graceful_error_handling(
     uint8_t xi_state_error_code = XI_STATE_OK + 1;
     for ( ; xi_state_error_code < XI_ERROR_COUNT; ++xi_state_error_code )
     {
-        // noteatigyi: this restriction is because mqtt codec layer push function is not
-        // robust enough
-        //             it only handles XI_STATE_FAILED_WRITING error, otherwise it makes
-        //             an assert
+        /* noteatigyi: this restriction is because mqtt codec layer push function is not
+         * robust enough it only handles XI_STATE_FAILED_WRITING error, otherwise it makes
+         * an assert */
         if ( xi_state_error_code == XI_STATE_FAILED_WRITING )
         {
             const xi_itest_tls_error__test_fixture_t* const fixture =
                 ( xi_itest_tls_error__test_fixture_t* )*fixture_void;
 
-            // one call for mock broker layer chain init
+            /* one call for mock broker layer chain init*/
             expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_layer_tls_prev_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_layer_tls_prev_connect, in_out_state, XI_STATE_OK );
@@ -650,18 +646,18 @@ void xi_itest_tls_error__tls_push_SUBSCRIBE_errors__graceful_error_handling(
             expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_broker_layer_connect, in_out_state, XI_STATE_OK );
 
-            // no problem during CONNECT
+            /* no problem during CONNECT*/
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_OK );
             will_return_count( xi_mock_broker_layer_push, CONTROL_CONTINUE, 2 );
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
             expect_value( xi_mock_layer_tls_prev_push, in_out_state, XI_STATE_OK );
 
-            // CONNECT message arrives at mock broker
+            /* CONNECT message arrives at mock broker*/
             expect_value( xi_mock_broker_layer_pull, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_broker_layer_pull, recvd_msg_type,
                           XI_MQTT_TYPE_CONNECT );
 
-            // CONNACK sent
+            /* CONNACK sent*/
             expect_value( xi_mock_broker_secondary_layer_push, in_out_state,
                           XI_STATE_OK );
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
@@ -669,29 +665,29 @@ void xi_itest_tls_error__tls_push_SUBSCRIBE_errors__graceful_error_handling(
 
             const uint8_t expected_number_of_SUBSCRIBE_errors =
                 fixture->loop_id__manual_disconnect -
-                1 // -1: DISCONNECT happens before SUBSCRIBE
+                1 /* -1: DISCONNECT happens before SUBSCRIBE */
                 - fixture->loop_id__control_topic_auto_subscribe -
-                1; // -1: the last SUBSCRIBE succeeds
+                1; /* -1: the last SUBSCRIBE succeeds */
 
             assert_in_range( expected_number_of_SUBSCRIBE_errors, 1,
                              fixture->max_loop_count );
 
-            // error during SUBSCRIBE
+            /* error during SUBSCRIBE */
             expect_value_count( xi_mock_broker_layer_push, in_out_state, XI_STATE_OK,
                                 expected_number_of_SUBSCRIBE_errors );
-            // --- ERROR --- HERE --- ERROR --- HERE --- ERROR ---
+            /* --- ERROR --- HERE --- ERROR --- HERE --- ERROR --- */
             will_return_count( xi_mock_broker_layer_push, CONTROL_ERROR,
                                expected_number_of_SUBSCRIBE_errors );
             will_return_count( xi_mock_broker_layer_push__ERROR_CHANNEL,
                                xi_state_error_code, expected_number_of_SUBSCRIBE_errors );
 
-            // SUBSCRIBE success
+            /* SUBSCRIBE success */
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_OK );
             will_return_count( xi_mock_broker_layer_push, CONTROL_CONTINUE, 2 );
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
             expect_value( xi_mock_layer_tls_prev_push, in_out_state, XI_STATE_OK );
 
-            // SUBSCRIBE message arrives at mock broker
+            /* SUBSCRIBE message arrives at mock broker */
             expect_value( xi_mock_broker_layer_pull, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_broker_layer_pull, recvd_msg_type,
                           XI_MQTT_TYPE_SUBSCRIBE );
@@ -702,19 +698,19 @@ void xi_itest_tls_error__tls_push_SUBSCRIBE_errors__graceful_error_handling(
             expect_any( xi_mock_broker_layer_pull, subsribe_topic_name );
 #endif
 
-            // SUBACK sent
+            /* SUBACK sent*/
             expect_value( xi_mock_broker_secondary_layer_push, in_out_state,
                           XI_STATE_OK );
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
             will_return( xi_mock_broker_layer_push, CONTROL_CONTINUE );
 
-            // third message (probably DISCONNECT on a control topic)
+            /* third message (probably DISCONNECT on a control topic)*/
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_OK );
             will_return_count( xi_mock_broker_layer_push, CONTROL_CONTINUE, 2 );
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
             expect_value( xi_mock_layer_tls_prev_push, in_out_state, XI_STATE_OK );
 
-            // DISCONNECT message arrives at mock broker
+            /* DISCONNECT message arrives at mock broker*/
             expect_value( xi_mock_broker_layer_pull, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_broker_layer_pull, recvd_msg_type,
                           XI_MQTT_TYPE_DISCONNECT );
@@ -727,7 +723,7 @@ void xi_itest_tls_error__tls_push_SUBSCRIBE_errors__graceful_error_handling(
 
             xi_itest_tls_error__act( fixture_void, 0, 1 );
 
-            // artificially reset test case
+            /* artificially reset test case*/
             xi_itest_tls_error_teardown( fixture_void );
             xi_itest_tls_error_setup( fixture_void );
         }
@@ -740,16 +736,15 @@ void xi_itest_tls_error__tls_push_PUBLISH_errors__graceful_error_handling(
     uint8_t xi_state_error_code = XI_STATE_OK + 1;
     for ( ; xi_state_error_code < XI_ERROR_COUNT; ++xi_state_error_code )
     {
-        // noteatigyi: this restriction is because mqtt codec layer push function is not
-        // robust enough
-        //             it only handles XI_STATE_FAILED_WRITING error, otherwise it makes
-        //             an assert
+        /* noteatigyi: this restriction is because mqtt codec layer push function is not
+         * robust enough it only handles XI_STATE_FAILED_WRITING error, otherwise it makes
+         * an assert */
         if ( xi_state_error_code == XI_STATE_FAILED_WRITING )
         {
             const xi_itest_tls_error__test_fixture_t* const fixture =
                 ( xi_itest_tls_error__test_fixture_t* )*fixture_void;
 
-            // one call for mock broker layer chain init
+            /* one call for mock broker layer chain init*/
             expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_layer_tls_prev_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_layer_tls_prev_connect, in_out_state, XI_STATE_OK );
@@ -757,18 +752,18 @@ void xi_itest_tls_error__tls_push_PUBLISH_errors__graceful_error_handling(
             expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_broker_layer_connect, in_out_state, XI_STATE_OK );
 
-            // no problem during CONNECT
+            /* no problem during CONNECT*/
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_OK );
             will_return_count( xi_mock_broker_layer_push, CONTROL_CONTINUE, 2 );
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
             expect_value( xi_mock_layer_tls_prev_push, in_out_state, XI_STATE_OK );
 
-            // CONNECT message arrives at mock broker
+            /* CONNECT message arrives at mock broker*/
             expect_value( xi_mock_broker_layer_pull, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_broker_layer_pull, recvd_msg_type,
                           XI_MQTT_TYPE_CONNECT );
 
-            // CONNACK sent
+            /* CONNACK sent*/
             expect_value( xi_mock_broker_secondary_layer_push, in_out_state,
                           XI_STATE_OK );
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
@@ -778,7 +773,7 @@ void xi_itest_tls_error__tls_push_PUBLISH_errors__graceful_error_handling(
             will_return_count( xi_mock_broker_layer_push, CONTROL_CONTINUE, 2 );
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
 
-            // SUBSCRIBE message arrives at mock broker
+            /* SUBSCRIBE message arrives at mock broker*/
             expect_value( xi_mock_broker_layer_pull, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_broker_layer_pull, recvd_msg_type,
                           XI_MQTT_TYPE_SUBSCRIBE );
@@ -790,20 +785,20 @@ void xi_itest_tls_error__tls_push_PUBLISH_errors__graceful_error_handling(
 #endif
             expect_value( xi_mock_layer_tls_prev_push, in_out_state, XI_STATE_OK );
 
-            // SUBACK sent
+            /* SUBACK sent*/
             expect_value( xi_mock_broker_secondary_layer_push, in_out_state,
                           XI_STATE_OK );
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
             will_return( xi_mock_broker_layer_push, CONTROL_CONTINUE );
 
-            // noteatigyi: this blocks while PUBLISH fails, this is bad I guess
-            //             blocks means: does not return to client application
+            /* noteatigyi: this blocks while PUBLISH fails, this is bad I guess blocks
+             * means: does not return to client application*/
             size_t loop_count = 0;
             for ( ; loop_count < 100; ++loop_count )
             {
-                // error during PUBLISH
+                /* error during PUBLISH*/
                 expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_OK );
-                // --- ERROR --- HERE --- ERROR --- HERE --- ERROR ---
+                /* --- ERROR --- HERE --- ERROR --- HERE --- ERROR ---*/
                 will_return( xi_mock_broker_layer_push, CONTROL_ERROR );
                 will_return( xi_mock_broker_layer_push__ERROR_CHANNEL,
                              xi_state_error_code );
@@ -819,7 +814,7 @@ void xi_itest_tls_error__tls_push_PUBLISH_errors__graceful_error_handling(
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
             expect_value( xi_mock_layer_tls_prev_push, in_out_state, XI_STATE_OK );
 
-            // PUBLISH message arrives at mock broker
+            /* PUBLISH message arrives at mock broker*/
             expect_value( xi_mock_broker_layer_pull, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_broker_layer_pull, recvd_msg_type,
                           XI_MQTT_TYPE_PUBLISH );
@@ -831,13 +826,13 @@ void xi_itest_tls_error__tls_push_PUBLISH_errors__graceful_error_handling(
                            fixture->test_topic_name );
 #endif
 
-            // sending PUBACK
+            /* sending PUBACK*/
             expect_value( xi_mock_broker_secondary_layer_push, in_out_state,
                           XI_STATE_OK );
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
             will_return( xi_mock_broker_layer_push, CONTROL_CONTINUE );
 
-            // third message (probably DISCONNECT on a control topic)
+            /* third message (probably DISCONNECT on a control topic)*/
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_OK );
             will_return_count( xi_mock_broker_layer_push, CONTROL_CONTINUE, 2 );
             expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
@@ -849,14 +844,14 @@ void xi_itest_tls_error__tls_push_PUBLISH_errors__graceful_error_handling(
             expect_value( xi_mock_layer_tls_prev_close_externally, in_out_state,
                           XI_STATE_OK );
 
-            // DISCONNECT message arrives at mock broker
+            /* DISCONNECT message arrives at mock broker*/
             expect_value( xi_mock_broker_layer_pull, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_broker_layer_pull, recvd_msg_type,
                           XI_MQTT_TYPE_DISCONNECT );
 
             xi_itest_tls_error__act( fixture_void, 1, 1 );
 
-            // artificially reset test case
+            /* artificially reset test case*/
             xi_itest_tls_error_teardown( fixture_void );
             xi_itest_tls_error_setup( fixture_void );
         }
@@ -872,8 +867,8 @@ void xi_itest_tls_error__tls_init_and_connect_errors__graceful_error_handling(
     for ( ; xi_state_error_code < XI_ERROR_COUNT; ++xi_state_error_code )
     {
         if ( 0 < xi_test_load_level ||
-             // here probable error codes are collected to reduce runtime for rapid
-             // testing
+             /* here probable error codes are collected to reduce runtime for rapid*/
+             /* testing*/
              xi_state_error_code == XI_TLS_INITALIZATION_ERROR ||
              xi_state_error_code == XI_TLS_FAILED_LOADING_CERTIFICATE ||
              xi_state_error_code == XI_TLS_CONNECT_ERROR ||
@@ -882,12 +877,12 @@ void xi_itest_tls_error__tls_init_and_connect_errors__graceful_error_handling(
              xi_state_error_code == XI_SOCKET_GETSOCKOPT_ERROR ||
              xi_state_error_code == XI_SOCKET_CONNECTION_ERROR )
         {
-            // one call for mock broker layer chain init
+            /* one call for mock broker layer chain init*/
             expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
             will_return( xi_mock_broker_layer_init, CONTROL_CONTINUE );
 
             expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
-            // --- ERROR --- HERE --- ERROR --- HERE --- ERROR ---
+            /* --- ERROR --- HERE --- ERROR --- HERE --- ERROR ---*/
             will_return( xi_mock_broker_layer_init, CONTROL_ERROR );
             will_return( xi_mock_broker_layer_init, xi_state_error_code );
 
@@ -903,7 +898,7 @@ void xi_itest_tls_error__tls_init_and_connect_errors__graceful_error_handling(
 
             xi_itest_tls_error__act( fixture_void, 0, 0 );
 
-            // artificially reset test case
+            /* artificially reset test case*/
             xi_itest_tls_error_teardown( fixture_void );
             xi_itest_tls_error_setup( fixture_void );
         }
@@ -915,35 +910,35 @@ void xi_itest_tls_error__connection_flow__basic_checks( void** fixture_void )
     const xi_itest_tls_error__test_fixture_t* const fixture =
         ( xi_itest_tls_error__test_fixture_t* )*fixture_void;
 
-    // one call for mock broker layer chain init
+    /* one call for mock broker layer chain init*/
     expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
     expect_value( xi_mock_layer_tls_prev_init, in_out_state, XI_STATE_OK );
     expect_value( xi_mock_layer_tls_prev_connect, in_out_state, XI_STATE_OK );
 
-    // expected activity of the libxively's control topci + mqtt logic + mqtt codec layer
-    // stack
+    /* expected activity of the libxively's control topci + mqtt logic + mqtt codec layer
+     * stack*/
     expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
     expect_value( xi_mock_broker_layer_connect, in_out_state, XI_STATE_OK );
 
-    // first message (probably CONNECT)
+    /* first message (probably CONNECT)*/
     expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_OK );
     expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
     expect_value( xi_mock_layer_tls_prev_push, in_out_state, XI_STATE_OK );
 
-    // CONNECT message arrives at mock broker
+    /* CONNECT message arrives at mock broker*/
     expect_value( xi_mock_broker_layer_pull, in_out_state, XI_STATE_OK );
     expect_value( xi_mock_broker_layer_pull, recvd_msg_type, XI_MQTT_TYPE_CONNECT );
 
-    // CONNACK sent
+    /* CONNACK sent*/
     expect_value( xi_mock_broker_secondary_layer_push, in_out_state, XI_STATE_OK );
     expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
 
-    // second message (probably SUBSCRIBE on a control topic)
+    /* second message (probably SUBSCRIBE on a control topic)*/
     expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_OK );
     expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
     expect_value( xi_mock_layer_tls_prev_push, in_out_state, XI_STATE_OK );
 
-    // SUBSCRIBE message arrives at mock broker
+    /* SUBSCRIBE message arrives at mock broker*/
     expect_value( xi_mock_broker_layer_pull, in_out_state, XI_STATE_OK );
     expect_value( xi_mock_broker_layer_pull, recvd_msg_type, XI_MQTT_TYPE_SUBSCRIBE );
 #ifdef XI_CONTROL_TOPIC_ENABLED
@@ -953,21 +948,21 @@ void xi_itest_tls_error__connection_flow__basic_checks( void** fixture_void )
     expect_any( xi_mock_broker_layer_pull, subsribe_topic_name );
 #endif
 
-    // SUBACK sent
+    /* SUBACK sent*/
     expect_value( xi_mock_broker_secondary_layer_push, in_out_state, XI_STATE_OK );
     expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
 
-    // PUBLISH
+    /* PUBLISH*/
     expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_OK );
     expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
     expect_value( xi_mock_layer_tls_prev_push, in_out_state, XI_STATE_OK );
 
-    // PUBLISH PAYLOAD
+    /* PUBLISH PAYLOAD*/
     expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_OK );
     expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
     expect_value( xi_mock_layer_tls_prev_push, in_out_state, XI_STATE_OK );
 
-    // PUBLISH message arrives at mock broker
+    /* PUBLISH message arrives at mock broker*/
     expect_value( xi_mock_broker_layer_pull, in_out_state, XI_STATE_OK );
     expect_value( xi_mock_broker_layer_pull, recvd_msg_type, XI_MQTT_TYPE_PUBLISH );
 #ifdef XI_MANGLE_TOPIC
@@ -978,11 +973,11 @@ void xi_itest_tls_error__connection_flow__basic_checks( void** fixture_void )
                    fixture->test_topic_name );
 #endif
 
-    // sending PUBACK
+    /* sending PUBACK*/
     expect_value( xi_mock_broker_secondary_layer_push, in_out_state, XI_STATE_OK );
     expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
 
-    // third message (probably DISCONNECT on a control topic)
+    /* third message (probably DISCONNECT on a control topic)*/
     expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_OK );
     expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
     expect_value( xi_mock_layer_tls_prev_push, in_out_state, XI_STATE_OK );
@@ -992,7 +987,7 @@ void xi_itest_tls_error__connection_flow__basic_checks( void** fixture_void )
     expect_value( xi_mock_layer_tls_prev_close, in_out_state, XI_STATE_OK );
     expect_value( xi_mock_layer_tls_prev_close_externally, in_out_state, XI_STATE_OK );
 
-    // DISCONNECT message arrives at mock broker
+    /* DISCONNECT message arrives at mock broker*/
     expect_value( xi_mock_broker_layer_pull, in_out_state, XI_STATE_OK );
     expect_value( xi_mock_broker_layer_pull, recvd_msg_type, XI_MQTT_TYPE_DISCONNECT );
 
