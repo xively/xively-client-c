@@ -43,6 +43,7 @@ void xi_memory_checks_log_memory_leak( const xi_memory_limiter_entry_t* entry )
     {
         fprintf( stderr, "\t\t\t\x1b[33m%s\x1b[0m\r\n", human_readable_symbols[i] );
     }
+    free( human_readable_symbols );
 #endif
 
     fflush( stderr );
