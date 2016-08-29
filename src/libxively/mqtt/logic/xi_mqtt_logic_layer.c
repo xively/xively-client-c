@@ -533,8 +533,8 @@ xi_mqtt_logic_layer_close_externally( void* context, void* data, xi_state_t in_o
 
     xi_layer_state_t layer_state = XI_THIS_LAYER_STATE( context );
 
-    if ( in_out_state != XI_STATE_OK &&
-         layer_state == XI_LAYER_STATE_CONNECTING )
+    if ( XI_STATE_OK != in_out_state &&
+         XI_LAYER_STATE_CONNECTING == layer_state )
     {
         /* error handling */
         return XI_PROCESS_CONNECT_ON_THIS_LAYER( context, data, in_out_state );
