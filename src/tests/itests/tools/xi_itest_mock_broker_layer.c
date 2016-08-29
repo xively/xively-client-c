@@ -257,22 +257,22 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
 
             case XI_MQTT_TYPE_SUBSCRIBE:
             {
-                const char* subsribe_topic_name =
+                const char* subscribe_topic_name =
                     ( const char* )recvd_msg->subscribe.topics->name->data_ptr;
 
-                xi_debug_format( "subsribe arrived on topic `%s`", subsribe_topic_name );
+                xi_debug_format( "subscribe arrived on topic `%s`",
+                                 subscribe_topic_name );
 
-                check_expected( subsribe_topic_name );
+                check_expected( subscribe_topic_name );
 
                 XI_ALLOC( xi_mqtt_message_t, msg_suback, in_out_state );
                 // note: fill subscribe can be used for fill subsck only because the
-                // memory map of the
-                //       two structs are identical since unions are used
+                // memory map of the two structs are identical since unions are used
                 XI_CHECK_STATE(
                     in_out_state = fill_with_subscribe_data(
                         msg_suback,
                         "unused topic name", // topic name is not used in SUBACK, so this
-                                             // string is unrelevant
+                                             // string is irrelevant
                         recvd_msg->subscribe.message_id,
                         recvd_msg->subscribe.topics->xi_mqtt_topic_pair_payload_u.qos,
                         XI_MQTT_DUP_FALSE ) );
