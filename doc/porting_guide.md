@@ -307,6 +307,91 @@ The examples are command line applications libxively links against. They require
 
 ### The Porting Step
 
+#### Porting Checklist
+
+To cross-compile the Xively C Client on MacOS or Linux to platform *np2000* the following command should be enough
+
+        make PRESET=np2000
+
+To mop up generated files type
+
+        make PRESET=np2000 clean
+
+But before - to make this possible - the following steps have to be taken.
+
+Let's assume the new platform's name is np2000. And an early advise: as a rule of thumb if you are stuck examine and try to get help from already existing MCU config files like: *mt-cc3200*, *mt-wmsdk*, *mt-microchip*
+
+- [ ] create a new file *make/mt-os/mt-np2000*
+    - include the common *mt* file
+
+            include make/mt-os/mt-os-common
+
+    - add lines
+
+            XI ?= $(XI_OBJDIR)/libxively.a
+            XI_COMPILER_FLAGS += -DNO_WRITEV // optional this turns off a wolfssl feature which is not available on micro platforms
+
+    - define CC and AR pointing to target platform's compiler and archiver executables, e.g.:
+
+            CC = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/ti-cgt-arm_15.12.1.LTS/bin/armcl
+            AR = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/ti-cgt-arm_15.12.1.LTS/bin/armar
+
+    - to add compiler flags append those to variable XI_COMPILER_FLAGS, like this:
+
+            XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_SDK)/simplelink/include
+
+    - to add archiver flags append those to variable XI_ARFLAGS, like this:
+
+            XI_ARFLAGS := r $(XI)
+
+- [ ] extend *mt-presets.mk* with the followings:
+
+    - define a Xively Client feature and target configurations which will be used in this same file afterwards
+
+            CONFIG_NP2000_MIN = bsp_np2000-memory_fs-tls
+            TARGET_NP2000_REL = -static-release
+
+    - define make system variables for PRESET *np2000*
+
+            else ifeq ($(PRESET), np2000)
+                CONFIG = $(CONFIG_NP2000_MIN)
+                TARGET = $(TARGET_NP2000_REL)
+                XI_BSP_PLATFORM = np2000
+                XI_TARGET_PLATFORM = np2000
+
+- [ ] extend *mt-os* to let the build system pick up the *mt-np2000* config file
+
+        XI_CONST_PLATFORM_NP2000 := np2000
+
+        ifneq (,$(findstring $(XI_CONST_PLATFORM_NP2000),$(TARGET)))
+            XI_CONST_PLATFORM_CURRENT := $(XI_CONST_PLATFORM_NP2000)
+        endif
+
+- [ ] provide BSP implementations for all modules: networking, memory, time, random, into new files:
+    - src/bsp/np2000/xi_bsp_io_net_np2000.c
+    - src/bsp/np2000/xi_bsp_mem_np2000.c
+    - src/bsp/np2000/xi_bsp_rng_np2000.c
+    - src/bsp/np2000/xi_bsp_time_np2000.c
+
+    Hint: to reach successful build just create the files and implement all the BSP API functions with **empty body**.
+
+- [ ] select TLS implementation
+    - default is wolfssl, if wolfssl fits the needs then nothing to do here
+    - to select a different TLS lib add
+
+            XI_BSP_TLS=mbedtls
+
+        or
+
+            XI_BSP_TLS=myTLSlibrary
+
+        to the make commandline like this:
+
+            make PRESET=np2000 XI_BSP_TLS=myTLSlibrary
+
+    - create file *make/mt-config/mt-tls-myTLSlibrary.mk* and fill in with content similar to *mt-tls-wolfssl.mk* or *mt-tls-mbedtls.mk*. This lets know the build system the include directoy, the binary directory, the static libraries to link against and config flags of the custom TLS library.
+    - you have to also provide a script *xively-client-c/src/import/tls/download_and_compile_myTLSlibrary.sh* which downloads the source of the custom TLS library and builds it. As a sample to follow look at the two already existing solutions: *download_and_compile_wolfssl.sh* and *download_and_compile_mbedtls.sh* in the same directory.
+
 #### Cross-compilation with the _make_ build system
 
 The Xively C Client's makefile structure supports toolchain customization. Adapting
