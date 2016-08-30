@@ -367,12 +367,18 @@ Let's assume the new platform's name is np2000. And an early advise: as a rule o
             XI_CONST_PLATFORM_CURRENT := $(XI_CONST_PLATFORM_NP2000)
         endif
 
-- [x] provide BSP implementations for all modules: networking, memory, time, random, into new files:
+- [x] provide BSP implementations for all modules:
+    **networking** (*include/bsp/xi_bsp_io_net.h*),
+    **memory** (*include/bsp/xi_bsp_mem.h*),
+    **time**, (*include/bsp/xi_bsp_time.h*)
+    **random** (*include/bsp/xi_bsp_rng.h*),
+    into new files:
     - src/bsp/np2000/xi_bsp_io_net_np2000.c
     - src/bsp/np2000/xi_bsp_mem_np2000.c
     - src/bsp/np2000/xi_bsp_rng_np2000.c
     - src/bsp/np2000/xi_bsp_time_np2000.c
 
+    These files should contain all implementations for function declarations in files
     Hint: to reach successful build just create the files and implement all the BSP API functions with **empty body**.
 
 - [x] select TLS implementation
@@ -389,6 +395,10 @@ Let's assume the new platform's name is np2000. And an early advise: as a rule o
 
             make PRESET=np2000 XI_BSP_TLS=myTLSlibrary
 
+    - for wolfssl and mbedtls the BSP TLS implementations are available in files: *src/bsp/tls/wolfssl/xi_bsp_tls_wolfssl.c* and *src/bsp/tls/mbedtls/xi_bsp_tls_mbedtls.c*
+    - if you chose a third one: *myTLSlibrary* then you have to write your own implementation
+        - create a file *src/bsp/tls/myTLSlibrary/xi_bsp_tls_myTLSlibrary.c* and implement all function declared in file *include/bsp/xi_bsp_tls.h*
+        - as samples you can follow the two existing implementations: wolfssl and mbedtls
     - create file *make/mt-config/mt-tls-myTLSlibrary.mk* and fill in with content similar to *mt-tls-wolfssl.mk* or *mt-tls-mbedtls.mk*. This lets know the build system the include directoy, the binary directory, the static libraries to link against and config flags of the custom TLS library.
     - you have to also provide a script *xively-client-c/src/import/tls/download_and_compile_myTLSlibrary.sh* which downloads the source of the custom TLS library and builds it. As a sample to follow look at the two already existing solutions: *download_and_compile_wolfssl.sh* and *download_and_compile_mbedtls.sh* in the same directory.
 
