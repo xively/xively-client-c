@@ -321,7 +321,7 @@ But before - to make this possible - the following steps have to be taken.
 
 Let's assume the new platform's name is np2000. And an early advise: as a rule of thumb if you are stuck examine and try to get help from already existing MCU config files like: *mt-cc3200*, *mt-wmsdk*, *mt-microchip*
 
-- [ ] create a new file *make/mt-os/mt-np2000*
+- [x] create a new file *make/mt-os/mt-np2000*
     - include the common *mt* file
 
             include make/mt-os/mt-os-common
@@ -344,7 +344,7 @@ Let's assume the new platform's name is np2000. And an early advise: as a rule o
 
             XI_ARFLAGS := r $(XI)
 
-- [ ] extend *mt-presets.mk* with the followings:
+- [x] extend *mt-presets.mk* with the followings:
 
     - define a Xively Client feature and target configurations which will be used in this same file afterwards
 
@@ -359,7 +359,7 @@ Let's assume the new platform's name is np2000. And an early advise: as a rule o
                 XI_BSP_PLATFORM = np2000
                 XI_TARGET_PLATFORM = np2000
 
-- [ ] extend *mt-os* to let the build system pick up the *mt-np2000* config file
+- [x] extend *mt-os* to let the build system pick up the *mt-np2000* config file
 
         XI_CONST_PLATFORM_NP2000 := np2000
 
@@ -367,7 +367,7 @@ Let's assume the new platform's name is np2000. And an early advise: as a rule o
             XI_CONST_PLATFORM_CURRENT := $(XI_CONST_PLATFORM_NP2000)
         endif
 
-- [ ] provide BSP implementations for all modules: networking, memory, time, random, into new files:
+- [x] provide BSP implementations for all modules: networking, memory, time, random, into new files:
     - src/bsp/np2000/xi_bsp_io_net_np2000.c
     - src/bsp/np2000/xi_bsp_mem_np2000.c
     - src/bsp/np2000/xi_bsp_rng_np2000.c
@@ -375,7 +375,7 @@ Let's assume the new platform's name is np2000. And an early advise: as a rule o
 
     Hint: to reach successful build just create the files and implement all the BSP API functions with **empty body**.
 
-- [ ] select TLS implementation
+- [x] select TLS implementation
     - default is wolfssl, if wolfssl fits the needs then nothing to do here
     - to select a different TLS lib add
 
