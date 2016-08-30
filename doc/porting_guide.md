@@ -275,7 +275,7 @@ A typical CONFIG flag:
 By executing a simple 'make' under directory xi\_client\_c should be sufficient on OSX
 and Linux. This will result using the default flags:
 
-    - CONFIG: posix_io-posix_fs-posix_platform-xrm-tls-senml-control_topic-memory_limiter
+    - CONFIG: posix_io-posix_fs-posix_platform-tls-senml-control_topic-memory_limiter
     - TARGET: osx-static-debug
 
 The result will be a development version Xively C Client static library with debug outputs,
@@ -284,7 +284,7 @@ turned on and with SENML support for timeseries formatting.
 
 The release version flags without SENML and memory limits may look like this:
 
-    - CONFIG=posix_io-posix_fs-posix_platform-xrm-tls
+    - CONFIG=posix_io-posix_fs-posix_platform-tls
     - TARGET=osx-static-release
 
 For CI configurations please look at the file [.travis.yml](../../.travis.yml).
@@ -306,7 +306,7 @@ The examples are command line applications libxively links against. They require
 
 ### The Porting Step
 
-#### Porting Checklist
+#### Cross-compilation with the _make_ build system
 
 To cross-compile the Xively C Client on MacOS or Linux to platform *np2000* the following command should be enough
 
@@ -319,6 +319,8 @@ To mop up generated files type
 But before - to make this possible - the following steps have to be taken.
 
 Let's assume the new platform's name is np2000. And an early advise: as a rule of thumb if you are stuck examine and try to get help from already existing MCU config files like: *mt-cc3200*, *mt-wmsdk*, *mt-microchip*
+
+#### Porting Checklist
 
 - [x] create a new file *make/mt-os/mt-np2000*
     - include the common *mt* file
@@ -401,34 +403,9 @@ Let's assume the new platform's name is np2000. And an early advise: as a rule o
     - create file *make/mt-config/mt-tls-myTLSlibrary.mk* and fill in with content similar to *mt-tls-wolfssl.mk* or *mt-tls-mbedtls.mk*. This lets know the build system the include directoy, the binary directory, the static libraries to link against and config flags of the custom TLS library.
     - you have to also provide a script *xively-client-c/src/import/tls/download_and_compile_myTLSlibrary.sh* which downloads the source of the custom TLS library and builds it. As a sample to follow look at the two already existing solutions: *download_and_compile_wolfssl.sh* and *download_and_compile_mbedtls.sh* in the same directory.
 
-#### Cross-compilation with the _make_ build system
-
-The Xively C Client's makefile structure supports toolchain customization. Adapting
-the existing makefile structure to a new toolchain consists of:
-
-- assigning the cross-compiler, linker, archiver executables to certain variables.
-  This can be done in a new _mt-PLATFORM_ file under directory _make/mt-os_. A new
-  platform shall extend the available TARGET flags. This new flag is picked up by the
-  file _make/mt-os/mt-os_ which needs this adaptation, too.
-- providing all BSP module API implementations by picking from existing reference BSP implementations or
-  by writing new ones. These implementations may reside in new directory
-  *src/bsp/platforms/PLATFORM*.
-- adding these BSP sources to the build can be done with a **XI_BSP_PLATFORM=PLATFORM** Makefile flag.
-
-There are two existing cross-compilation examples in the make build system which may
-serve as template for a new one.
-
-- WMSDK cross-compilation is defined in file _make/mt-os/mt-wmsdk_. Its corresponding
-  TARGET flag is 'wmsdk'
-- arm-linux cross-compilation is defined in file _make/mt-os/mt-arm-linux_ with TARGET
-  flag 'arm-linux'
-
-Both WMSDK and arm-linux cross-compilation targets are for OSX and linux.
-
 #### Using the toolchain's build system
 
-In the case that the _make_ build system is not supported by your platform toolchain then the source base and the compiler flags that you
-set must  be transferred to the platform's own build system. This consists of
+In the case that the _make_ build system is not supported by your platform toolchain then the source base and the compiler flags that you set must be transferred to the platform's own build system. This consists of
 the following steps:
 
 - populating all of the Xively C Client platform independent source and BSP functions in the
