@@ -44,12 +44,12 @@ The development version of the Xively Python Client is in this repository under 
 
 ## Supported Platforms
 
-The Xively Client has been deployed on many different devices already shipping in the IoT space running the various following platform stacks:
+The Xively Client has been deployed on many different devices already shipping in the IoT space running the following platform stacks:
 
   - POSIX
   - Microchip
   - WMSDK
-  - SimpleLink
+  - Texas Instruments CC3200
 
 Platforms above are officially supported and tested.
 
