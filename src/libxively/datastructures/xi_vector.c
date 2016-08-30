@@ -96,7 +96,7 @@ int8_t xi_vector_assign( xi_vector_t* vector,
 
     int8_t result = xi_vector_realloc( vector, n );
 
-    if ( result == 0 )
+    if ( 0 == result )
     {
         return 0;
     }
