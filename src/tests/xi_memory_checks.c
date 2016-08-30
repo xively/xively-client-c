@@ -2,6 +2,7 @@
 #include <stdio.h>
 
 #ifdef XI_PLATFORM_BASE_POSIX
+#include <stdlib.h>
 #include <execinfo.h>
 #endif
 
