@@ -223,7 +223,7 @@ A typical TARGET flag looks like this:
 
 A typical CONFIG flag:
 
-    posix_io-posix_fs-thread_module-posix_platform-xrm-tls-senml-control_topic-memory_limiter
+    posix_io-posix_fs-thread_module-posix_platform-tls-senml-control_topic-memory_limiter
 
 ###### Xively Client Feature flags
 
@@ -234,7 +234,6 @@ A typical CONFIG flag:
     - threading         - turns on threading: application callbacks will be called on separate thread.
                           Not having this flag set application callbacks are called on the sole main
                           thread of the Xively C Client. Only POSIX implementation is available.
-    - xrm               - obsolete, target Xively Server selector, must be always ON
 
 ###### File System flags
 
