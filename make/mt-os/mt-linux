@@ -8,7 +8,7 @@ include make/mt-os/mt-os-common
 
 ifdef XI_SHARED
   AR = gcc
-  XI ?= $(XI_OBJDIR)/libxively.so
+  XI ?= $(XI_BINDIR)/libxively.so
   XI_ARFLAGS += -fPIC -DXI_SHARED -shared -o $(XI)
   XI_LIBTLS_EXAMPLE_LIB = $(XI_LIBTLS_SHARED)
 else
