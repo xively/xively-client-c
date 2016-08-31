@@ -339,6 +339,7 @@ Let's assume the new platform's name is np2000. And an early advise: as a rule o
     - to add compiler flags append those to variable XI_COMPILER_FLAGS, like this:
 
             XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_SDK)/simplelink/include
+            XI_COMPILER_FLAGS += -mv7M4
 
     - to add archiver flags append those to variable XI_ARFLAGS, like this:
 
