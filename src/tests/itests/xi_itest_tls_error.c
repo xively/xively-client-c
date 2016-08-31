@@ -44,6 +44,8 @@ xi_context_t* xi_context_mockbroker   = NULL;
  * The horizontal layer chain's MB and TLSPREV is "programmed" to mimic errors at
  * various stages of functioning.
  *
+ * NOTE: The xi_mock_broker_layer is instantiated twice. That's why we expect to see two
+ * invocations of xi_mock_broker_layer_close function. One per each layer chain.
  */
 
 /*********************************************************************************
@@ -348,6 +350,7 @@ void xi_itest_tls_error__tls_pull_PUBACK_errors__graceful_error_handling(
             will_return( xi_mock_broker_secondary_layer_push, CONTROL_ERROR );
             will_return( xi_mock_broker_secondary_layer_push, xi_state_error_code );
 
+            /* First close is called upon  */
             expect_value( xi_mock_broker_layer_close, in_out_state, xi_state_error_code );
             expect_value( xi_mock_broker_layer_close, in_out_state, xi_state_error_code );
             expect_value( xi_mock_layer_tls_prev_close, in_out_state,
@@ -591,13 +594,21 @@ void xi_itest_tls_error__tls_push_infinite_SUBSCRIBE_errors__reSUBSCRIBE_occurs_
             will_return_always( xi_mock_broker_layer_push__ERROR_CHANNEL,
                                 xi_state_error_code );
 
+            /* EXPECTATION: here we calculate how many times we expect the
+             * xi_mock_blocker_layer_push is going to be called. This value depends on how
+             * often the Xively will try to send data. In this test we are taking into
+             * account the number of SUBSCRIBES plus the number of DISCONNECTS. Number of
+             * SUBSCRIBES depends on the number of loops in which Xively logic will try to
+             * send and re-send SUBSCRIBES. Quantity of loops depends on the test setup.
+             * In our case it is the difference between the loop number described by
+             * fixture->loop_id__manual_disconnect and
+             * fixture->loop_id__control_topic_auto_subscribe. This difference however
+             * does not take into account the additional DISCONNECT message and one
+             * additional re-SUBSCRIBE that will be sent in that last loop iteration
+             * that's why we have to increase this value by 2.*/
             const uint8_t expected_number_of_PUSHES =
                 fixture->loop_id__manual_disconnect -
-                fixture->loop_id__control_topic_auto_subscribe + 2; /* +2 stands for
-                                                                       disconnect ( and
-                                                                       one additional
-                                                                       subscribe at the
-                                                                       same time )*/
+                fixture->loop_id__control_topic_auto_subscribe + 2;
 
             /* expecting only a certain number of message sends*/
             expect_value_count( xi_mock_broker_layer_push, in_out_state, XI_STATE_OK,
@@ -615,6 +626,9 @@ void xi_itest_tls_error__tls_push_infinite_SUBSCRIBE_errors__reSUBSCRIBE_occurs_
             will_return( xi_mock_layer_tls_prev_push, CONTROL_CONTINUE );
             will_return( xi_mock_broker_secondary_layer_push, CONTROL_CONTINUE );*/
 
+            /* In order to release the whole allocated memory we have make the test to
+             * start close process on each layer that's why the manual disconnect flag is
+             * set */
             xi_itest_tls_error__act( fixture_void, 0, 1 );
 
             /* artificially reset test case*/
