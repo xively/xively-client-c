@@ -111,7 +111,7 @@ To create a new BSP TLS solution:
 
 #### Customising both: platform and TLS
 
-Although a bare call on `make` defaults to `make XI_BSP_PLATFORM=posix XI_BSP_TLS=wolfssl` which is fine for MacOSX with wolfSSL builds most probably during a cross-compilation selecting both at the same time are required. For instance:
+Although a bare call on `make` defaults to `make XI_BSP_PLATFORM=posix XI_BSP_TLS=wolfssl` which is fine for OSX or Linux/Unix with wolfSSL builds most probably during a cross-compilation selecting both at the same time are required. For instance:
 
 `make XI_BSP_PLATFORM=cc3200 XI_BSP_TLS=microSSL`
 
@@ -125,24 +125,24 @@ them to the actual *application*. Obviously these steps need to be tailored to t
 
 ### Preceding Step - A Native Build
 
-We recommend building the Xively Client on OSX or Linux before attempting to cross compile the sources to another target platform. This process could serve as an introduction to the basic architecture, tools and steps which will come handy during the final build onto the target platform.
+We recommend building the Xively Client on OSX or Linux/Unix before attempting to cross compile the sources to another target platform. This process could serve as an introduction to the basic architecture, tools and steps which will come handy during the final build onto the target platform.
 
 #### Build System: make
 
-The Xively C Client uses _make_ to build for OSX and Linux. The main makefile is xi\_client\_c/Makefile. Internal and more detailed configurations can be found under directory xi\_client\_c/make which contains numerous make target (mt) files. There you can find the anchor mt files mt-config (processing the CONFIG
+The Xively C Client uses _make_ to build for OSX or Linux/Unix. The main makefile is xi\_client\_c/Makefile. Internal and more detailed configurations can be found under directory xi\_client\_c/make which contains numerous make target (mt) files. There you can find the anchor mt files mt-config (processing the CONFIG
 flags) and the mt-os files (processing the TARGET flags).
 
 More informatoin about CONFIG and TARGET flags can be found in the respective sections below.
 
 #### Build System: IDE Builds
 
-Although the _make_ build system is suitable for OSX and Linux builds, some MCU platforms may not support it and prefer their own build Integrated Development Environment. For instance, the IAR toolchain uses their own graphical IDE.
+Although the _make_ build system is suitable for OSX or Linux/Unix builds, some MCU platforms may not support it and prefer their own build Integrated Development Environment. For instance, the IAR toolchain uses their own graphical IDE.
 
 The key to building the Xively Client with an IDE is to ensure that you have the correct Preprocessor Definitions defined and to import the correct set of files.
 
 ##### Preprocessor Definitions
 
-Executing a makefile build on OSX or Linux with your desired config flags (see below) and then examining the make output is highly recommended.  By calling make with attribute 'MD=' you can reveal compiler and linker parameters, showing you which Preprocessor Definitions need to be migrated to your IDE environment.
+Executing a makefile build on OSX or Linux/Unix with your desired config flags (see below) and then examining the make output is highly recommended.  By calling make with attribute 'MD=' you can reveal compiler and linker parameters, showing you which Preprocessor Definitions need to be migrated to your IDE environment.
 
 Importing these definitions in an IDE varies considerably by IDE.  Some IDEs let you define these in a source or configuration file. Others require you to enter them as fields in a project configuration window.
 
@@ -150,7 +150,7 @@ Importing these definitions in an IDE varies considerably by IDE.  Some IDEs let
 
 A vast majority of the sources in the Xively Client Library are applicable to all platforms, some source files might not be needed depending on your configuration choices.  Once again, like the preprocessor flags, we recommend running a make build with your desired configuration to determine which source files need to be added to your IDE builds, and which includes paths should be set.
 
-#### First Build on MacOSX / Linux
+#### First Build on OSX or Linux/Unix
 
 Firing a bare `make` should be enough for an OSX build. It defaults to *posix* platform and to wolfSSL for a TLS solution. It also includes the download (from github repo) and build of the wolfSSL library.
 
@@ -272,8 +272,7 @@ A typical CONFIG flag:
 
 #### Example make command
 
-By executing a simple 'make' under directory xi\_client\_c should be sufficient on OSX
-and Linux. This will result using the default flags:
+By executing a simple 'make' under directory xi\_client\_c should be sufficient on OSX or Linux/Unix. This will result using the default flags:
 
     - CONFIG: posix_io-posix_fs-posix_platform-tls-senml-control_topic-memory_limiter
     - TARGET: osx-static-debug
@@ -308,7 +307,7 @@ The examples are command line applications libxively links against. They require
 
 #### Cross-compilation with the _make_ build system
 
-To cross-compile the Xively C Client on MacOS or Linux to platform *np2000* the following command should be enough
+To cross-compile the Xively C Client on OSX or Linux/Unix to platform *np2000* the following command should be enough
 
         make PRESET=np2000
 
