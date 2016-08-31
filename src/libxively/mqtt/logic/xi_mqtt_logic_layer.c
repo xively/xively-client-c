@@ -531,8 +531,10 @@ xi_mqtt_logic_layer_close_externally( void* context, void* data, xi_state_t in_o
     xi_context_data_t* context_data      = XI_CONTEXT_DATA( context );
     xi_evtd_instance_t* event_dispatcher = context_data->evtd_instance;
 
-    if ( in_out_state != XI_STATE_OK &&
-         XI_THIS_LAYER_STATE( context ) == XI_LAYER_STATE_CONNECTING )
+    xi_layer_state_t layer_state = XI_THIS_LAYER_STATE( context );
+
+    if ( XI_STATE_OK != in_out_state &&
+         XI_LAYER_STATE_CONNECTING == layer_state )
     {
         /* error handling */
         return XI_PROCESS_CONNECT_ON_THIS_LAYER( context, data, in_out_state );
