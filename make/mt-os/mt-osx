@@ -14,7 +14,7 @@ ifdef XI_SHARED
   XI_COMPILER_FLAGS += -fPIC
   XI_CONFIG_FLAGS += -DXI_SHARED
 else
-  XI ?= $(XI_OBJDIR)/libxively.a
+  XI ?= $(XI_BINDIR)/libxively.a
   XI_ARFLAGS += -rs -c $(XI)
 endif
 
