@@ -26,8 +26,8 @@ extern void xi_cancel_backoff_event();
 extern void xi_reset_backoff_penalty();
 #endif
 
-extern xi_state_t xi_backoff_configure_using_data( xi_static_vector_elem_t* backoff_lut,
-                                                   xi_static_vector_elem_t* decay_lut,
+extern xi_state_t xi_backoff_configure_using_data( xi_vector_elem_t* backoff_lut,
+                                                   xi_vector_elem_t* decay_lut,
                                                    size_t len,
                                                    xi_memory_type_t memory_type );
 

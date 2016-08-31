@@ -142,7 +142,7 @@ int8_t xi_evtd_continue_when_evt_on_socket( xi_evtd_instance_t* instance,
 
     xi_lock_critical_section( instance->cs );
 
-    xi_static_vector_index_type_t id = xi_vector_find(
+    xi_vector_index_type_t id = xi_vector_find(
         instance->handles_and_socket_fd,
         XI_VEC_CONST_VALUE_PARAM( XI_VEC_VALUE_IPTR( fd ) ), &xi_evtd_cmp_fd );
 
@@ -472,7 +472,7 @@ xi_state_t xi_evtd_update_event_on_fd( xi_evtd_instance_t* instance,
     assert( instance != 0 );
     xi_lock_critical_section( instance->cs );
 
-    xi_static_vector_index_type_t id = xi_vector_find(
+    xi_vector_index_type_t id = xi_vector_find(
         container, XI_VEC_CONST_VALUE_PARAM( XI_VEC_VALUE_IPTR( fd ) ), &xi_evtd_cmp_fd );
 
     if ( id != -1 )
