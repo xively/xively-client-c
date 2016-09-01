@@ -307,7 +307,7 @@ The examples are command line applications libxively links against. They require
 
 #### Cross-compilation with the _make_ build system
 
-To cross-compile the Xively C Client on OSX or Linux/Unix to platform *np2000* the following command should be enough
+To cross-compile the Xively C Client on OSX or Linux/Unix to a new fictitious platform *np2000* the following command should be enough
 
         make PRESET=np2000
 
