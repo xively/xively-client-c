@@ -62,7 +62,7 @@ all: $(XI)
 
 tests: $(XI) $(XI_TESTS_TARGETS)
 
-internal_examples: $(XI) $(XI_EXAMPLES)
+internal_examples: $(XI) $(XI_INTERNAL_EXAMPLES)
 
 linux:
 	make CONFIG=$(CONFIG) TARGET=$(subst osx,linux,$(TARGET))
