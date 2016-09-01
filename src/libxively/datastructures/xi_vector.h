@@ -39,7 +39,7 @@ typedef struct
     xi_memory_type_t memory_type;
 } xi_vector_t;
 
-typedef void( xi_vector_for_t )( union xi_vector_selector_u* );
+typedef void( xi_vector_for_t )( union xi_vector_selector_u*, void* arg );
 
 /* helpers for vector data initialization */
 #define XI_VEC_VALUE_UI32( v )                                                           \
@@ -136,7 +136,15 @@ extern xi_vector_index_type_t xi_vector_find( xi_vector_t* vector,
                                               const union xi_vector_selector_u value,
                                               xi_vector_cmp_t* fun_cmp );
 
-extern void xi_vector_for_each( xi_vector_t* vector, xi_vector_for_t* fun_for );
+extern const xi_vector_elem_t*
+xi_vector_insert_at( xi_vector_t* vector,
+                     const union xi_vector_selector_u value,
+                     xi_vector_index_type_t index );
+
+extern void xi_vector_for_each( xi_vector_t* vector,
+                                xi_vector_for_t* fun_for,
+                                void* arg,
+                                xi_vector_index_type_t offset );
 
 extern void* xi_vector_get( xi_vector_t* vector, xi_vector_index_type_t index );
 

@@ -249,15 +249,18 @@ xi_vector_index_type_t xi_vector_find( xi_vector_t* vector,
     return -1;
 }
 
-void xi_vector_for_each( xi_vector_t* vector, xi_vector_for_t* fun_for )
+void xi_vector_for_each( xi_vector_t* vector,
+                         xi_vector_for_t* fun_for,
+                         void* arg,
+                         xi_vector_index_type_t offset )
 {
     assert( NULL != vector );
 
     xi_vector_index_type_t i = 0;
 
-    for ( i = 0; i < vector->elem_no; ++i )
+    for ( i = offset; i < vector->elem_no; ++i )
     {
-        ( *fun_for )( &vector->array[i].selector_t );
+        ( *fun_for )( &vector->array[i].selector_t, arg );
     }
 }
 
