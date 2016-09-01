@@ -58,7 +58,11 @@ ifneq ($(XI_CONST_PLATFORM_CURRENT),$(XI_CONST_PLATFORM_ARM))
 	XI_TESTS_TARGETS += $(XI_ITESTS)
 endif
 
-all: $(XI) $(XI_EXAMPLES) $(XI_TESTS_TARGETS)
+all: $(XI)
+
+tests: $(XI) $(XI_TESTS_TARGETS)
+
+internal_examples: $(XI) $(XI_INTERNAL_EXAMPLES)
 
 linux:
 	make CONFIG=$(CONFIG) TARGET=$(subst osx,linux,$(TARGET))
