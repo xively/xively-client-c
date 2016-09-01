@@ -28,11 +28,11 @@ void xi_event_loop_with_evtds( uint32_t num_iterations,
     {
         ++loops_processed;
 
-        xi_static_vector_index_type_t i = 0;
-        int max_fd_read                 = 0;
-        int max_fd_write                = 0;
-        int max_fd_error                = 0;
-        uint8_t was_file_updated        = 0;
+        xi_vector_index_type_t i = 0;
+        int max_fd_read          = 0;
+        int max_fd_write         = 0;
+        int max_fd_error         = 0;
+        uint8_t was_file_updated = 0;
 
         tv.tv_sec  = 1;
         tv.tv_usec = 0;

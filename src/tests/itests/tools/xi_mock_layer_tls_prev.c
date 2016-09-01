@@ -3,11 +3,15 @@
 #include "xi_mock_layer_tls_prev.h"
 #include "xi_layer_macros.h"
 #include "xi_itest_helpers.h"
-
+#include "xi_itest_mock_broker_layerchain.h"
+#include "xi_globals.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+extern xi_context_t *xi_context;            // Xivley Client context
+extern xi_context_t *xi_context_mockbroker; // test mock broker context
 
 xi_state_t xi_mock_layer_tls_prev_push(
       void* context
@@ -16,11 +20,15 @@ xi_state_t xi_mock_layer_tls_prev_push(
 {
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
 
-    XI_UNUSED( data );
+    XI_UNUSED( itest_mock_broker_codec_layer_chain );
+    XI_UNUSED( XI_LAYER_CHAIN_MOCK_BROKER_CODECSIZE_SUFFIX );
 
     check_expected( in_out_state );
     const xi_mock_layer_tls_prev_control_t mock_control_directive =
         mock_type( xi_mock_layer_tls_prev_control_t );
+
+    xi_data_desc_t* data_desc = ( xi_data_desc_t* ) data;
+    xi_free_desc( &data_desc );
 
     switch ( mock_control_directive )
     {
@@ -69,6 +77,20 @@ xi_state_t xi_mock_layer_tls_prev_close(
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
 
     check_expected( in_out_state );
+
+    /* Call close on the mockbroker chain */
+    if( NULL != xi_context_mockbroker )
+    {
+        xi_evtd_execute_in(
+            xi_globals.evtd_instance,
+            xi_make_handle(
+                xi_itest_find_layer(xi_context_mockbroker, XI_LAYER_TYPE_MOCKBROKER_TOP)
+                    ->layer_funcs->close,
+                &xi_itest_find_layer(xi_context_mockbroker, XI_LAYER_TYPE_MOCKBROKER_TOP)
+                     ->layer_connection,
+                data, in_out_state),
+            1);
+    }
 
     return XI_PROCESS_CLOSE_EXTERNALLY_ON_THIS_LAYER( context, data
         , in_out_state );

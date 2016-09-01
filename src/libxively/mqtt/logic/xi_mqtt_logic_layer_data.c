@@ -116,13 +116,6 @@ void xi_mqtt_task_spec_data_free_subscribe_data( xi_mqtt_task_specific_data_t** 
     XI_SAFE_FREE( ( *data ) );
 }
 
-void xi_mqtt_task_spec_data_free_publish_data_vec(
-    union xi_static_vector_selector_u* data )
-{
-    xi_mqtt_task_spec_data_free_publish_data(
-        ( xi_mqtt_task_specific_data_t** )&data->ptr_value );
-}
-
 void xi_mqtt_task_spec_data_free_subscribe_data_vec( union xi_vector_selector_u* data )
 {
     xi_mqtt_task_spec_data_free_subscribe_data(

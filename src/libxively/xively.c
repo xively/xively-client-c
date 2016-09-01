@@ -22,7 +22,6 @@
 #include "xi_layer_macros.h"
 #include "xi_layer_default_allocators.h"
 #include "xi_connection_data.h"
-#include "xi_static_vector.h"
 #include "xi_backoff_status_api.h"
 #include "xi_backoff_lut_config.h"
 #include "xi_handle.h"
@@ -213,8 +212,8 @@ xi_state_t xi_create_context_with_custom_layers_and_evtd(
         xi_globals.evtd_instance = xi_evtd_create_instance();
 
         XI_CHECK_STATE( xi_backoff_configure_using_data(
-            ( xi_static_vector_elem_t* )XI_BACKOFF_LUT,
-            ( xi_static_vector_elem_t* )XI_DECAY_LUT, XI_ARRAYSIZE( XI_BACKOFF_LUT ),
+            ( xi_vector_elem_t* )XI_BACKOFF_LUT,
+            ( xi_vector_elem_t* )XI_DECAY_LUT, XI_ARRAYSIZE( XI_BACKOFF_LUT ),
             XI_MEMORY_TYPE_UNMANAGED ) );
 
         XI_CHECK_MEMORY( xi_globals.evtd_instance, state );

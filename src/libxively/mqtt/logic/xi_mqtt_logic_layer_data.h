@@ -122,9 +122,6 @@ extern void
 xi_mqtt_task_spec_data_free_subscribe_data( xi_mqtt_task_specific_data_t** data );
 
 extern void
-xi_mqtt_task_spec_data_free_publish_data_vec( union xi_static_vector_selector_u* data );
-
-extern void
 xi_mqtt_task_spec_data_free_subscribe_data_vec( union xi_vector_selector_u* data );
 
 extern xi_mqtt_logic_task_t* xi_mqtt_logic_make_shutdown_task( void );
