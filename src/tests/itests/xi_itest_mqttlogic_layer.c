@@ -1,12 +1,12 @@
 // Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.
 
-#include "xi_handle.h"
 #include "xi_globals.h"
-#include "xi_mqtt_logic_layer_data_helpers.h"
-#include "xi_itest_mqttlogic_layer.h"
-#include "xi_itest_layerchain_mqttlogic.h"
+#include "xi_handle.h"
 #include "xi_itest_helpers.h"
+#include "xi_itest_layerchain_mqttlogic.h"
+#include "xi_itest_mqttlogic_layer.h"
 #include "xi_memory_checks.h"
+#include "xi_mqtt_logic_layer_data_helpers.h"
 
 #include <time.h>
 
@@ -16,8 +16,7 @@ const xi_state_t xi_itest_mqttlogic__backoff_terminal_class_errors[] = {
     XI_MQTT_IDENTIFIER_REJECTED, XI_MQTT_BAD_USERNAME_OR_PASSWORD,
     XI_MQTT_NOT_AUTHORIZED};
 
-typedef enum
-{
+typedef enum {
     XI_MQTT_QOS_0 = 0,
     XI_MQTT_QOS_1 = 1,
     XI_MQTT_QOS_TEST_LEVELS_COUNT
@@ -194,9 +193,7 @@ void xi_itest_mqttlogic_init_layer( xi_layer_t* top_layer )
 
     xi_context__itest_mqttlogic_layer->context_data.connection_data =
         xi_alloc_connection_data(
-            "target.broker.com",
-            8883,
-            "mqttlogic_layer_itest_username",
+            "target.broker.com", 8883, "mqttlogic_layer_itest_username",
             "mqttlogic_layer_itest_password", 0, 0, XI_SESSION_CLEAN );
 
     XI_PROCESS_INIT_ON_PREV_LAYER( &top_layer->layer_connection, NULL, XI_STATE_OK );
@@ -225,9 +222,7 @@ void xi_itest_mqttlogic_prepare_init_and_connect_layer( xi_layer_t* top_layer,
 
     xi_context__itest_mqttlogic_layer->context_data.connection_data =
         xi_alloc_connection_data(
-            "target.broker.com",
-            8883,
-            "mqttlogic_layer_itest_username",
+            "target.broker.com", 8883, "mqttlogic_layer_itest_username",
             "mqttlogic_layer_itest_password", keepalive_timeout, 0, session_type );
 
     XI_PROCESS_INIT_ON_PREV_LAYER( &top_layer->layer_connection, NULL, XI_STATE_OK );
@@ -318,6 +313,13 @@ void xi_itest_mqttlogic_layer__backoff_class_error_PUSH__layerchain_closure_is_e
         expect_value( xi_mock_layer_mqttlogic_next_connect, in_out_state,
                       XI_BACKOFF_TERMINAL );
 
+        expect_value( xi_mock_layer_mqttlogic_prev_close, in_out_state,
+                      XI_BACKOFF_TERMINAL );
+        expect_value( xi_mock_layer_mqttlogic_prev_close_externally, in_out_state,
+                      XI_BACKOFF_TERMINAL );
+        expect_value( xi_mock_layer_mqttlogic_next_close_externally, in_out_state,
+                      XI_BACKOFF_TERMINAL );
+
         // FAILURE HERE: error occurs during PUSH
         XI_PROCESS_PUSH_ON_PREV_LAYER( &top_layer->layer_connection, NULL,
                                        error_under_test );
@@ -353,6 +355,13 @@ void xi_itest_mqttlogic_layer__backoff_class_error_PULL__layerchain_closure_is_e
         // libxively believes error occurred during connection process thus
         // it returns connect layer function with proper error
         expect_value( xi_mock_layer_mqttlogic_next_connect, in_out_state,
+                      XI_BACKOFF_TERMINAL );
+
+        expect_value( xi_mock_layer_mqttlogic_prev_close, in_out_state,
+                      XI_BACKOFF_TERMINAL );
+        expect_value( xi_mock_layer_mqttlogic_prev_close_externally, in_out_state,
+                      XI_BACKOFF_TERMINAL );
+        expect_value( xi_mock_layer_mqttlogic_next_close_externally, in_out_state,
                       XI_BACKOFF_TERMINAL );
 
         // FAILURE HERE: error occurs during PULL
@@ -429,7 +438,7 @@ void xi_itest_mqtt_logic_layer__subscribe_success__success_suback_callback_invoc
         /* let's send suback message */
         XI_ALLOC_AT( xi_mqtt_message_t, suback, local_state );
         suback->common.common_u.common_bits.type = XI_MQTT_TYPE_SUBACK;
-        suback->suback.message_id = 1;
+        suback->suback.message_id                = 1;
         XI_ALLOC_AT( xi_mqtt_topicpair_t, suback->suback.topics, local_state );
         suback->suback.topics->xi_mqtt_topic_pair_payload_u.qos    = 0;
         suback->suback.topics->xi_mqtt_topic_pair_payload_u.status = it_qos_level;
@@ -502,7 +511,7 @@ void xi_itest_mqtt_logic_layer__subscribe_failure__failed_suback_callback_invoca
         /* let's send suback message */
         XI_ALLOC_AT( xi_mqtt_message_t, suback, local_state );
         suback->common.common_u.common_bits.type = XI_MQTT_TYPE_SUBACK;
-        suback->suback.message_id = 1;
+        suback->suback.message_id                = 1;
         XI_ALLOC_AT( xi_mqtt_topicpair_t, suback->suback.topics, local_state );
         suback->suback.topics->xi_mqtt_topic_pair_payload_u.qos = 0;
         suback->suback.topics->xi_mqtt_topic_pair_payload_u.status =
@@ -575,7 +584,7 @@ void xi_itest_mqtt_logic_layer__subscribe_success__success_message_callback_invo
         /* let's send suback message */
         XI_ALLOC_AT( xi_mqtt_message_t, suback, local_state );
         suback->common.common_u.common_bits.type = XI_MQTT_TYPE_SUBACK;
-        suback->suback.message_id = 1;
+        suback->suback.message_id                = 1;
         XI_ALLOC_AT( xi_mqtt_topicpair_t, suback->suback.topics, local_state );
         suback->suback.topics->xi_mqtt_topic_pair_payload_u.qos    = 0;
         suback->suback.topics->xi_mqtt_topic_pair_payload_u.status = it_qos_level;

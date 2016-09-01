@@ -7,13 +7,14 @@
 
 /**
  * \brief reserve new block of memory, copy data and release the one previously used
+ * \return 1 in case of success 0 otherwise
  */
 static int8_t xi_vector_realloc( xi_vector_t* vector, xi_vector_index_type_t new_size )
 {
     assert( new_size != 0 && new_size != vector->capacity );
 
     /* do not allow to reallocate unmanaged memory blocks */
-    if( vector->memory_type != XI_MEMORY_TYPE_MANAGED )
+    if( XI_MEMORY_TYPE_MANAGED != vector->memory_type )
     {
         return 0;
     }
@@ -95,7 +96,7 @@ int8_t xi_vector_assign( xi_vector_t* vector,
 
     int8_t result = xi_vector_realloc( vector, n );
 
-    if ( result == 0 )
+    if ( 0 == result )
     {
         return 0;
     }
