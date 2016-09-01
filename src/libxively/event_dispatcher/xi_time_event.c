@@ -36,9 +36,9 @@ static int8_t first_not_greater_than( const union xi_vector_selector_u* e0,
 
 static void xi_fun_update_position( union xi_vector_selector_u* e0, void* arg )
 {
-    xi_vector_index_type_t* index = ( xi_vector_index_type_t* ) arg;
-    xi_time_event_t* time_event = ( xi_time_event_t* ) e0->ptr_value;
-    time_event->position = *index;
+    xi_vector_index_type_t* index = ( xi_vector_index_type_t* )arg;
+    xi_time_event_t* time_event   = ( xi_time_event_t* )e0->ptr_value;
+    time_event->position          = *index;
     *index += 1;
 }
 
@@ -73,7 +73,11 @@ xi_time_event_execute_handle_in( xi_vector_t* vector,
     }
     else
     {
-        const xi_vector_elem_t* elem = xi_vector_insert_at( vector, XI_VEC_CONST_VALUE_PARAM( XI_VEC_VALUE_PTR( ( void* )time_event_to_cmp ) ), result );
+        const xi_vector_elem_t* elem = xi_vector_insert_at(
+            vector,
+            XI_VEC_CONST_VALUE_PARAM( XI_VEC_VALUE_PTR( ( void* )time_event_to_cmp ) ),
+            result );
+
         XI_CHECK_MEMORY( elem, out_state );
 
         xi_vector_index_type_t index = result;
