@@ -4,32 +4,32 @@
  * it is licensed under the BSD 3-Clause license.
  */
 
-#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-#include "xi_version.h"
 #include "xi_allocator.h"
-#include "xively.h"
-#include "xi_macros.h"
-#include "xi_debug.h"
-#include "xi_helpers.h"
-#include "xi_err.h"
-#include "xi_globals.h"
-#include "xi_internals.h"
-#include "xi_common.h"
-#include "xi_layer_api.h"
-#include "xi_layer_interface.h"
-#include "xi_layer_chain.h"
-#include "xi_layer_factory.h"
-#include "xi_layer_macros.h"
-#include "xi_layer_default_allocators.h"
-#include "xi_connection_data.h"
-#include "xi_backoff_status_api.h"
 #include "xi_backoff_lut_config.h"
-#include "xi_handle.h"
-#include "xi_timed_task.h"
+#include "xi_backoff_status_api.h"
+#include "xi_common.h"
+#include "xi_connection_data.h"
+#include "xi_debug.h"
+#include "xi_err.h"
 #include "xi_event_loop.h"
+#include "xi_globals.h"
+#include "xi_handle.h"
+#include "xi_helpers.h"
+#include "xi_internals.h"
+#include "xi_layer_api.h"
+#include "xi_layer_chain.h"
+#include "xi_layer_default_allocators.h"
+#include "xi_layer_factory.h"
+#include "xi_layer_interface.h"
+#include "xi_layer_macros.h"
+#include "xi_macros.h"
+#include "xi_timed_task.h"
+#include "xi_version.h"
+#include "xively.h"
 
 #include "xi_layer_stack.h"
 
@@ -335,7 +335,7 @@ static void xi_free_context_data( xi_context_t* context )
     if ( context_data->copy_of_handlers_for_topics )
     {
         xi_vector_for_each( context_data->copy_of_handlers_for_topics,
-                            &xi_mqtt_task_spec_data_free_subscribe_data_vec );
+                            &xi_mqtt_task_spec_data_free_subscribe_data_vec, NULL, 0 );
 
         context_data->copy_of_handlers_for_topics =
             xi_vector_destroy( context_data->copy_of_handlers_for_topics );

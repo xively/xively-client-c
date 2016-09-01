@@ -7,10 +7,10 @@
 #ifndef __XI_MQTT_LOGIC_LAYER_DATA_H__
 #define __XI_MQTT_LOGIC_LAYER_DATA_H__
 
-#include "xi_event_dispatcher_api.h"
-#include "xi_mqtt_message.h"
 #include "xi_connection_data.h"
 #include "xi_data_desc.h"
+#include "xi_event_dispatcher_api.h"
+#include "xi_mqtt_message.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -121,7 +121,8 @@ extern void
 xi_mqtt_task_spec_data_free_subscribe_data( xi_mqtt_task_specific_data_t** data );
 
 extern void
-xi_mqtt_task_spec_data_free_subscribe_data_vec( union xi_vector_selector_u* data );
+xi_mqtt_task_spec_data_free_subscribe_data_vec( union xi_vector_selector_u* data,
+                                                void* arg );
 
 extern xi_mqtt_logic_task_t* xi_mqtt_logic_make_shutdown_task( void );
 
