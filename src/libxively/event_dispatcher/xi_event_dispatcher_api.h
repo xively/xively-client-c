@@ -15,7 +15,6 @@
 #include "xi_macros.h"
 #include "xi_event_handle.h"
 #include "xi_heap.h"
-#include "xi_static_vector.h"
 #include "xi_event_handle_queue.h"
 
 #include "xi_critical_section.h"
