@@ -14,7 +14,7 @@ static int8_t xi_vector_realloc( xi_vector_t* vector, xi_vector_index_type_t new
     assert( new_size != 0 && new_size != vector->capacity );
 
     /* do not allow to reallocate unmanaged memory blocks */
-    if( XI_MEMORY_TYPE_MANAGED != vector->memory_type )
+    if ( XI_MEMORY_TYPE_MANAGED != vector->memory_type )
     {
         return 0;
     }
@@ -61,9 +61,8 @@ err_handling:
     return NULL;
 }
 
-xi_vector_t* xi_vector_create_from( xi_vector_elem_t* array,
-                                    size_t len,
-                                    xi_memory_type_t memory_type )
+xi_vector_t*
+xi_vector_create_from( xi_vector_elem_t* array, size_t len, xi_memory_type_t memory_type )
 {
     assert( array != 0 );
     assert( len > 0 );
@@ -102,7 +101,7 @@ int8_t xi_vector_assign( xi_vector_t* vector,
     }
 
     xi_vector_index_type_t i = 0;
-    for ( ;i < n; ++i )
+    for ( ; i < n; ++i )
     {
         vector->array[i].selector_t = value;
     }
@@ -118,20 +117,20 @@ int8_t xi_vector_reserve( xi_vector_t* vector, xi_vector_index_type_t n )
     assert( n > 0 );
 
     /* don't reserve if capacity is already set */
-    if( n == vector->capacity )
+    if ( n == vector->capacity )
     {
         return 1;
     }
 
     /* trim the number of elements to the new size */
-    if( vector->elem_no > n )
+    if ( vector->elem_no > n )
     {
         vector->elem_no = n;
     }
 
     int8_t result = xi_vector_realloc( vector, n );
 
-    if( result == 0 )
+    if ( result == 0 )
     {
         return 0;
     }
@@ -146,7 +145,7 @@ xi_vector_t* xi_vector_destroy( xi_vector_t* vector )
     assert( NULL != vector->array );
 
     /* only managed type memory can be released by the vector who owns it */
-    if( XI_MEMORY_TYPE_MANAGED == vector->memory_type )
+    if ( XI_MEMORY_TYPE_MANAGED == vector->memory_type )
     {
         XI_SAFE_FREE( vector->array );
     }
@@ -247,15 +246,18 @@ xi_vector_index_type_t xi_vector_find( xi_vector_t* vector,
     return -1;
 }
 
-void xi_vector_for_each( xi_vector_t* vector, xi_vector_for_t* fun_for )
+void xi_vector_for_each( xi_vector_t* vector,
+                         xi_vector_for_t* fun_for,
+                         void* arg,
+                         xi_vector_index_type_t offset )
 {
     assert( NULL != vector );
 
     xi_vector_index_type_t i = 0;
 
-    for ( i = 0; i < vector->elem_no; ++i )
+    for ( i = offset; i < vector->elem_no; ++i )
     {
-        ( *fun_for )( &vector->array[i].selector_t );
+        ( *fun_for )( &vector->array[i].selector_t, arg );
     }
 }
 

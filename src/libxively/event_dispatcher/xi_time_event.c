@@ -24,14 +24,22 @@ static int8_t first_not_greater_than( const union xi_vector_selector_u* e0,
                                       const union xi_vector_selector_u* e1 )
 {
     xi_time_event_t* from_vector = e0->ptr_value;
-    xi_time_event_t* arg = e1->ptr_value;
+    xi_time_event_t* arg         = e1->ptr_value;
 
-    if( arg->time_of_execution < from_vector->time_of_execution )
+    if ( arg->time_of_execution < from_vector->time_of_execution )
     {
         return 0;
     }
 
     return -1;
+}
+
+static void xi_fun_update_position( union xi_vector_selector_u* e0, void* arg )
+{
+    xi_vector_index_type_t* index = ( xi_vector_index_type_t* ) arg;
+    xi_time_event_t* time_event = ( xi_time_event_t* ) e0->ptr_value;
+    time_event->position = *index;
+    *index += 1;
 }
 
 xi_state_t
@@ -54,13 +62,25 @@ xi_time_event_execute_handle_in( xi_vector_t* vector,
     /* there is no such element */
     if ( result != 0 )
     {
-        xi_vector_push( vector, XI_VEC_CONST_VALUE_PARAM(
-                                    XI_VEC_VALUE_PTR( ( void* )time_event_to_cmp ) ) );
+        const xi_vector_elem_t* elem = xi_vector_push(
+            vector,
+            XI_VEC_CONST_VALUE_PARAM( XI_VEC_VALUE_PTR( ( void* )time_event_to_cmp ) ) );
+
+        XI_CHECK_MEMORY( elem, out_state );
+
         /* because the element has been added at the end */
         time_event_to_cmp->position = vector->elem_no - 1;
     }
+    else
+    {
+        const xi_vector_elem_t* elem = xi_vector_insert_at( vector, XI_VEC_CONST_VALUE_PARAM( XI_VEC_VALUE_PTR( ( void* )time_event_to_cmp ) ), result );
+        XI_CHECK_MEMORY( elem, out_state );
 
-    // xi_vector_insert_at( );
+        xi_vector_index_type_t index = result;
+
+        /* fix information about the position in all elements behind */
+        xi_vector_for_each( vector, xi_fun_update_position, &index, result );
+    }
 
     return out_state;
 
