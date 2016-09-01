@@ -9,7 +9,7 @@ ifdef XI_TLS_BSP
 	XI_EXAMPLE_SOURCES += mqtt_logic_example_tls_bsp.c
 endif
 
-XI_EXAMPLES = $(addprefix $(XI_EXAMPLE_BINDIR)/,$(XI_EXAMPLE_SOURCES:.c=))
+XI_INTERNAL_EXAMPLES = $(addprefix $(XI_EXAMPLE_BINDIR)/,$(XI_EXAMPLE_SOURCES:.c=))
 
 ifneq ($(XI_IO_LAYER), posix)
     $(warning "Examples currently are only for POSIX I/O layer")
