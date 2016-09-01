@@ -51,7 +51,7 @@ endif
 XI_BIN_DIRS := $(XI_BIN_DIR) $(XI_EXAMPLE_BINDIR) $(XI_EXAMPLE_BINDIR)/internal $(XI_TEST_BINDIR) $(XI_TEST_TOOLS_BINDIR)
 
 #default test target always present cause tiny test cross-compiles
-XI_TESTS_TARGETS := $(XI_UTESTS) $(XI_TEST_TOOLS) $(XI_TEST_TOOLS_OBJS)
+XI_TESTS_TARGETS := $(XI_UTESTS) $(XI_TEST_TOOLS_OBJS) $(XI_TEST_TOOLS)
 
 ifneq ($(XI_CONST_PLATFORM_CURRENT),$(XI_CONST_PLATFORM_ARM))
 #the integration tests does not cross-compile atm
