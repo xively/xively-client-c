@@ -13,8 +13,7 @@
 extern "C" {
 #endif
 
-typedef enum
-{
+typedef enum {
     XI_BACKOFF_CLASS_NONE = 0,
     XI_BACKOFF_CLASS_RECOVERABLE,
     XI_BACKOFF_CLASS_TERMINAL

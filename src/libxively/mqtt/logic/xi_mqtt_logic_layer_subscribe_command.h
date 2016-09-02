@@ -112,7 +112,7 @@ do_mqtt_subscribe( void* ctx, void* data, xi_state_t state, void* msg )
             cancel_task_timeout( task, context );
         }
 
-        if( XI_STATE_RESEND == state )
+        if ( XI_STATE_RESEND == state )
         {
             xi_debug_format( "[m.id[%d]]subscribe resend", task->msg_id );
         }

@@ -8,24 +8,24 @@ char xi_test_load_level = 0;
 #include <unistd.h>
 #endif /* not XI_EMBEDDED_TESTS */
 
-void xi_test_init( int argc, char const *argv[] )
+void xi_test_init( int argc, char const* argv[] )
 {
 #ifndef XI_EMBEDDED_TESTS
     int result_getopt = 0;
 
     /* this is platform specific code */
     opterr = 0;
-    while ( ( result_getopt = getopt( argc, (char *const *) argv, "l:" ) ) != -1 )
+    while ( ( result_getopt = getopt( argc, ( char* const* )argv, "l:" ) ) != -1 )
     {
         switch ( result_getopt )
         {
             case 'l':
                 xi_test_load_level = *optarg - '0';
-            break;
+                break;
         }
     }
 
-    //printf("*** xi_test_load_level = %d\n", xi_test_load_level);
+// printf("*** xi_test_load_level = %d\n", xi_test_load_level);
 #endif /* not XI_EMBEDDED_TESTS */
 }
 

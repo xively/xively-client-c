@@ -14,28 +14,24 @@ extern "C" {
 
 #ifdef XI_BUILD_OSX
 
-static const char XI_TEST_RESULT_COMMAND_TEMPLATE[] = "open -g \"unittest-notifier://xi.unittest/{"
-"\\\"id\\\":\\\"%s\\\","
-"\\\"initiale\\\":\\\"%s\\\","
-"\\\"testdetailsfile\\\":\\\"none\\\","
-"\\\"running\\\":\\\"%s\\\","
-"\\\"passed\\\":\\\"%s\\\"}\"";
+static const char XI_TEST_RESULT_COMMAND_TEMPLATE[] =
+    "open -g \"unittest-notifier://xi.unittest/{"
+    "\\\"id\\\":\\\"%s\\\","
+    "\\\"initiale\\\":\\\"%s\\\","
+    "\\\"testdetailsfile\\\":\\\"none\\\","
+    "\\\"running\\\":\\\"%s\\\","
+    "\\\"passed\\\":\\\"%s\\\"}\"";
 
-void xi_test_report_result(
-      const char* const test_id
-    , const char* const initiale
-    , const uint8_t running
-    , uint8_t failed )
+void xi_test_report_result( const char* const test_id,
+                            const char* const initiale,
+                            const uint8_t running,
+                            uint8_t failed )
 {
-    char test_result_command_buffer[ 1000 ] = { 0 };
+    char test_result_command_buffer[1000] = {0};
 
-    snprintf( test_result_command_buffer
-        , sizeof( test_result_command_buffer )
-        , XI_TEST_RESULT_COMMAND_TEMPLATE
-        , test_id
-        , initiale
-        , running ? "true" : "false"
-        , failed ? "false" : "true" );
+    snprintf( test_result_command_buffer, sizeof( test_result_command_buffer ),
+              XI_TEST_RESULT_COMMAND_TEMPLATE, test_id, initiale,
+              running ? "true" : "false", failed ? "false" : "true" );
 
     system( test_result_command_buffer );
 }

@@ -9,35 +9,18 @@
 extern "C" {
 #endif
 
-xi_state_t xi_mock_layer_tls_next_push(
-      void* context
-    , void* data
-    , xi_state_t state );
+xi_state_t xi_mock_layer_tls_next_push( void* context, void* data, xi_state_t state );
 
-xi_state_t xi_mock_layer_tls_next_pull(
-      void* context
-    , void* data
-    , xi_state_t state );
+xi_state_t xi_mock_layer_tls_next_pull( void* context, void* data, xi_state_t state );
 
-xi_state_t xi_mock_layer_tls_next_close(
-      void* context
-    , void* data
-    , xi_state_t state );
+xi_state_t xi_mock_layer_tls_next_close( void* context, void* data, xi_state_t state );
 
-xi_state_t xi_mock_layer_tls_next_close_externally(
-      void* context
-    , void* data
-    , xi_state_t state );
+xi_state_t
+xi_mock_layer_tls_next_close_externally( void* context, void* data, xi_state_t state );
 
-xi_state_t xi_mock_layer_tls_next_init(
-      void* context
-    , void* data
-    , xi_state_t state );
+xi_state_t xi_mock_layer_tls_next_init( void* context, void* data, xi_state_t state );
 
-xi_state_t xi_mock_layer_tls_next_connect(
-      void* context
-    , void* data
-    , xi_state_t state );
+xi_state_t xi_mock_layer_tls_next_connect( void* context, void* data, xi_state_t state );
 
 #ifdef __cplusplus
 }

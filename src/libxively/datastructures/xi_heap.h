@@ -24,8 +24,7 @@ typedef xi_event_handle_t xi_heap_value_type_t;
 
 typedef struct xi_heap_element_s
 {
-    union
-    {
+    union {
         xi_heap_value_type_t type_value;
         void* void_value;
     } heap_value;

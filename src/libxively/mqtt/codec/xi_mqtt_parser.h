@@ -16,8 +16,7 @@
 extern "C" {
 #endif
 
-typedef enum xi_mqtt_parser_rc_e
-{
+typedef enum xi_mqtt_parser_rc_e {
     XI_MQTT_PARSER_RC_ERROR,
     XI_MQTT_PARSER_RC_CONTINUE,
     XI_MQTT_PARSER_RC_INCOMPLETE,
