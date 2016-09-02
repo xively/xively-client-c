@@ -256,12 +256,43 @@ void xi_vector_for_each( xi_vector_t* vector,
 {
     assert( NULL != vector );
 
-    xi_vector_index_type_t i = 0;
+    xi_vector_index_type_t i = offset;
 
-    for ( i = offset; i < vector->elem_no; ++i )
+    for ( ; i < vector->elem_no; ++i )
     {
         ( *fun_for )( &vector->array[i].selector_t, arg );
     }
+}
+
+extern const xi_vector_elem_t*
+xi_vector_insert_at( xi_vector_t* vector,
+                     const union xi_vector_selector_u value,
+                     xi_vector_index_type_t index )
+{
+    assert( NULL != vector );
+
+    xi_state_t local_state = XI_STATE_OK;
+
+    /* std capacity check and reallocation */
+    if ( vector->elem_no + 1 > vector->capacity )
+    {
+        XI_CHECK_MEMORY( xi_vector_realloc( vector, vector->capacity * 2 ), local_state );
+    }
+
+    vector->elem_no += 1;
+
+    xi_vector_index_type_t i = vector->elem_no - 1;
+    for ( ; i != index; --i )
+    {
+        xi_vector_swap_elems( vector, i - 1, i );
+    }
+
+    vector->array[index].selector_t = value;
+
+    return &vector->array[index];
+
+err_handling:
+    return NULL;
 }
 
 void* xi_vector_get( xi_vector_t* vector, xi_vector_index_type_t index )

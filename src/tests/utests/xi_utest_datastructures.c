@@ -15,10 +15,10 @@
 #include "xi_memory_checks.h"
 #include "xi_rng.h"
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 #include <time.h>
 
 #ifndef XI_TT_TESTCASE_ENUMERATION__SECONDPREPROCESSORRUN
@@ -427,6 +427,97 @@ XI_TT_TESTCASE( test_vector_push_all, {
                                             XI_VEC_VALUE_PTR( ( void* )123 ) ) ) );
 
     tt_assert( sv->elem_no == 5 );
+end:;
+    xi_vector_destroy( sv );
+    tt_want_int_op( xi_is_whole_memory_deallocated(), >, 0 );
+} )
+
+XI_TT_TESTCASE( test_vector_insert_at__in_the_middle, {
+    xi_vector_t* sv = xi_vector_create();
+
+    int32_t i = 0;
+    for ( ; i < 3; ++i )
+    {
+        const xi_vector_elem_t* e =
+            xi_vector_push( sv, XI_VEC_CONST_VALUE_PARAM( XI_VEC_VALUE_I32( i ) ) );
+        tt_assert( e != NULL );
+    }
+
+    tt_assert( sv->elem_no == 3 );
+    tt_assert( sv->capacity == 4 );
+
+    const xi_vector_elem_t* ret =
+        xi_vector_insert_at( sv, XI_VEC_CONST_VALUE_PARAM( XI_VEC_VALUE_I32( 9 ) ), 2 );
+
+    tt_assert( ret != NULL );
+    tt_assert( sv->elem_no == 4 );
+
+    tt_assert( sv->array[0].selector_t.i32_value == 0 );
+    tt_assert( sv->array[1].selector_t.i32_value == 1 );
+    tt_assert( sv->array[2].selector_t.i32_value == 9 );
+    tt_assert( sv->array[3].selector_t.i32_value == 2 );
+
+end:;
+    xi_vector_destroy( sv );
+    tt_want_int_op( xi_is_whole_memory_deallocated(), >, 0 );
+} )
+
+
+XI_TT_TESTCASE( test_vector_insert_at__in_the_beginning, {
+    xi_vector_t* sv = xi_vector_create();
+
+    int32_t i = 0;
+    for ( ; i < 3; ++i )
+    {
+        const xi_vector_elem_t* e =
+            xi_vector_push( sv, XI_VEC_CONST_VALUE_PARAM( XI_VEC_VALUE_I32( i ) ) );
+        tt_assert( e != NULL );
+    }
+
+    tt_assert( sv->elem_no == 3 );
+    tt_assert( sv->capacity == 4 );
+
+    const xi_vector_elem_t* ret =
+        xi_vector_insert_at( sv, XI_VEC_CONST_VALUE_PARAM( XI_VEC_VALUE_I32( 9 ) ), 0 );
+
+    tt_assert( ret != NULL );
+    tt_assert( sv->elem_no == 4 );
+
+    tt_assert( sv->array[0].selector_t.i32_value == 9 );
+    tt_assert( sv->array[1].selector_t.i32_value == 0 );
+    tt_assert( sv->array[2].selector_t.i32_value == 1 );
+    tt_assert( sv->array[3].selector_t.i32_value == 2 );
+
+end:;
+    xi_vector_destroy( sv );
+    tt_want_int_op( xi_is_whole_memory_deallocated(), >, 0 );
+} )
+
+XI_TT_TESTCASE( test_vector_insert_at__in_the_end, {
+    xi_vector_t* sv = xi_vector_create();
+
+    int32_t i = 0;
+    for ( ; i < 3; ++i )
+    {
+        const xi_vector_elem_t* e =
+            xi_vector_push( sv, XI_VEC_CONST_VALUE_PARAM( XI_VEC_VALUE_I32( i ) ) );
+        tt_assert( e != NULL );
+    }
+
+    tt_assert( sv->elem_no == 3 );
+    tt_assert( sv->capacity == 4 );
+
+    const xi_vector_elem_t* ret =
+        xi_vector_insert_at( sv, XI_VEC_CONST_VALUE_PARAM( XI_VEC_VALUE_I32( 9 ) ), 3 );
+
+    tt_assert( ret != NULL );
+    tt_assert( sv->elem_no == 4 );
+
+    tt_assert( sv->array[0].selector_t.i32_value == 0 );
+    tt_assert( sv->array[1].selector_t.i32_value == 1 );
+    tt_assert( sv->array[2].selector_t.i32_value == 2 );
+    tt_assert( sv->array[3].selector_t.i32_value == 9 );
+
 end:;
     xi_vector_destroy( sv );
     tt_want_int_op( xi_is_whole_memory_deallocated(), >, 0 );

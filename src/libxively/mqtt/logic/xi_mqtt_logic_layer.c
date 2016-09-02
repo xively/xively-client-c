@@ -411,7 +411,7 @@ xi_state_t xi_mqtt_logic_layer_init( void* context, void* data, xi_state_t in_ou
         {
             xi_vector_for_each(
                 XI_THIS_LAYER( context )->context_data->copy_of_handlers_for_topics,
-                &xi_mqtt_task_spec_data_free_subscribe_data_vec );
+                &xi_mqtt_task_spec_data_free_subscribe_data_vec, NULL, 0 );
 
             XI_THIS_LAYER( context )->context_data->copy_of_handlers_for_topics =
                 xi_vector_destroy(
@@ -603,7 +603,7 @@ xi_mqtt_logic_layer_close_externally( void* context, void* data, xi_state_t in_o
     if ( layer_data->handlers_for_topics != NULL )
     {
         xi_vector_for_each( layer_data->handlers_for_topics,
-                            &xi_mqtt_task_spec_data_free_subscribe_data_vec );
+                            &xi_mqtt_task_spec_data_free_subscribe_data_vec, NULL, 0 );
         xi_vector_destroy( layer_data->handlers_for_topics );
     }
 
