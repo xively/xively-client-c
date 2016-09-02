@@ -17,4 +17,3 @@ xi_state_t xi_user_sub_call_wrapper( void* context,
                                      void* task_data );
 
 #endif /* __XI_USER_SUB_CALL_WRAPPER_H__ */
-

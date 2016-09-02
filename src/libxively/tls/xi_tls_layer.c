@@ -159,8 +159,8 @@ static xi_state_t connect_handler( void* context, void* data, xi_state_t in_out_
         if ( XI_BSP_TLS_STATE_OK != bsp_tls_state )
         {
             in_out_state = XI_BSP_TLS_STATE_CERT_ERROR == bsp_tls_state
-                ? XI_TLS_FAILED_CERT_ERROR
-                : XI_TLS_CONNECT_ERROR;
+                               ? XI_TLS_FAILED_CERT_ERROR
+                               : XI_TLS_CONNECT_ERROR;
             goto err_handling;
         }
     } while ( bsp_tls_state != XI_BSP_TLS_STATE_OK );
@@ -537,7 +537,7 @@ xi_state_t xi_tls_layer_init( void* context, void* data, xi_state_t in_out_state
         init_params.fp_xively_free             = xi_free_ptr;
         init_params.fp_xively_realloc          = xi_realloc_ptr;
         init_params.domain_name                = connection_data->host;
-        init_params.ca_cert_pem_buf        = layer_data->rm_context->data_buffer->data_ptr;
+        init_params.ca_cert_pem_buf = layer_data->rm_context->data_buffer->data_ptr;
         init_params.ca_cert_pem_buf_length = layer_data->rm_context->data_buffer->length;
 
         /* bsp init function call */

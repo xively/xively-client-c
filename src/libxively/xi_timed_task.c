@@ -6,12 +6,7 @@
 
 #define XI_MAX_TIMED_EVENT 64
 
-typedef enum
-{
-    XI_TTS_SCHEDULED,
-    XI_TTS_RUNNING,
-    XI_TTS_DELETABLE
-} xi_timed_task_state_e;
+typedef enum { XI_TTS_SCHEDULED, XI_TTS_RUNNING, XI_TTS_DELETABLE } xi_timed_task_state_e;
 
 typedef struct xi_timed_task_data_s
 {

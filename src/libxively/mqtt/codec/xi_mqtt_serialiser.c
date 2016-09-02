@@ -91,7 +91,7 @@ xi_state_t xi_mqtt_serialiser_size( size_t* msg_len,
 
         *msg_len += 2; /* size of client id length */
 
-        if( NULL != message->connect.client_id )
+        if ( NULL != message->connect.client_id )
         {
             *msg_len += message->connect.client_id->length;
         }

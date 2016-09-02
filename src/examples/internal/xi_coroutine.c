@@ -56,8 +56,7 @@ typedef struct crc_coroutine_s
     const size_t buf_len; /* length of the buffer with data */
 } crc_coroutine_t;
 
-typedef enum crc_coroutine_result
-{
+typedef enum crc_coroutine_result {
     CRC_COROUTINE_FINISHED = 0,
     CRC_COROUTINE_WANTS_TO_CONTINUE,
     CRC_COROUTINE_ERROR
@@ -141,19 +140,19 @@ int main( const int argc, const char* argv[] )
     uint8_t buffer1[1024] = {'a'};
     uint8_t buffer2[512]  = {'b'};
 
-    crc_coroutine_t task1 = {.cr_state = 0,
+    crc_coroutine_t task1 = {.cr_state    = 0,
                              .crc         = 0,
                              .current_pos = 0,
                              .buf         = buffer1,
                              .buf_len     = sizeof( buffer1 )};
-    crc_coroutine_result_t task1_result   = CRC_COROUTINE_WANTS_TO_CONTINUE;
+    crc_coroutine_result_t task1_result = CRC_COROUTINE_WANTS_TO_CONTINUE;
 
-    crc_coroutine_t task2 = {.cr_state = 0,
+    crc_coroutine_t task2 = {.cr_state    = 0,
                              .crc         = 0,
                              .current_pos = 0,
                              .buf         = buffer2,
                              .buf_len     = sizeof( buffer2 )};
-    crc_coroutine_result_t task2_result   = CRC_COROUTINE_WANTS_TO_CONTINUE;
+    crc_coroutine_result_t task2_result = CRC_COROUTINE_WANTS_TO_CONTINUE;
 
     do
     {

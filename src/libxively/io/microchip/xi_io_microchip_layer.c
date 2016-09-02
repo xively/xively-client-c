@@ -300,7 +300,7 @@ xi_io_microchip_layer_connect( void* context, void* data, xi_state_t in_out_stat
     XI_UNUSED( in_out_state );
 
     xi_connection_data_t* connection_data = ( xi_connection_data_t* )data;
-    xi_layer_t* layer = ( xi_layer_t* )XI_THIS_LAYER( context );
+    xi_layer_t* layer                     = ( xi_layer_t* )XI_THIS_LAYER( context );
     xi_io_microchip_layer_state_t* layer_data =
         ( xi_io_microchip_layer_state_t* )layer->user_data;
     xi_evtd_instance_t* event_dispatcher = XI_CONTEXT_DATA( context )->evtd_instance;
