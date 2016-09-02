@@ -18,8 +18,7 @@ extern "C" {
  * TYPES AND STRUCTURES
  * ----------------------------------------------------------------------- */
 
-typedef enum xi_protocol_e
-{
+typedef enum xi_protocol_e {
     XI_MQTT,
 } xi_protocol_t;
 
@@ -37,7 +36,8 @@ typedef struct xi_context_data_s
  * let's use that simplified form */
 #if 1 /* MQTT context part */
     xi_vector_t* copy_of_handlers_for_topics;
-    void* copy_of_q12_unacked_messages_queue; /* we have to use void* cause we don't want to
+    void* copy_of_q12_unacked_messages_queue; /* we have to use void* cause we don't want
+                                              to
                                               create mqtt logic layer dependency */
     void ( *copy_of_q12_unacked_messages_queue_dtor_ptr )(
         void** ); /* this is dstr for unacked messages, just a very simplified

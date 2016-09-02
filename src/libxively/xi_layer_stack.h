@@ -53,7 +53,7 @@ XI_LAYER_TYPES_ADD( XI_LAYER_TYPE_IO,
                     &xi_io_posix_layer_close_externally,
                     &xi_io_posix_layer_init,
                     &xi_io_posix_layer_connect,
-                    &xi_layer_default_post_connect)
+                    &xi_layer_default_post_connect )
 #ifndef XI_DEBUG_NO_TLS
 , XI_LAYER_TYPES_ADD( XI_LAYER_TYPE_TLS,
                       &xi_tls_layer_push,
@@ -62,7 +62,7 @@ XI_LAYER_TYPES_ADD( XI_LAYER_TYPE_IO,
                       &xi_tls_layer_close_externally,
                       &xi_tls_layer_init,
                       &xi_tls_layer_connect,
-                      &xi_layer_default_post_connect)
+                      &xi_layer_default_post_connect )
 #endif
       ,
     XI_LAYER_TYPES_ADD( XI_LAYER_TYPE_MQTT_CODEC,
@@ -72,7 +72,7 @@ XI_LAYER_TYPES_ADD( XI_LAYER_TYPE_IO,
                         &xi_mqtt_codec_layer_close_externally,
                         &xi_mqtt_codec_layer_init,
                         &xi_mqtt_codec_layer_connect,
-                        &xi_layer_default_post_connect),
+                        &xi_layer_default_post_connect ),
     XI_LAYER_TYPES_ADD( XI_LAYER_TYPE_MQTT_LOGIC,
                         &xi_mqtt_logic_layer_push,
                         &xi_mqtt_logic_layer_pull,

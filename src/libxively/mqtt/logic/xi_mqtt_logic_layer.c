@@ -410,9 +410,9 @@ xi_state_t xi_mqtt_logic_layer_init( void* context, void* data, xi_state_t in_ou
                 XI_THIS_LAYER( context )->context_data->copy_of_handlers_for_topics,
                 &xi_mqtt_task_spec_data_free_subscribe_data_vec, NULL, 0 );
 
-            XI_THIS_LAYER( context )
-                ->context_data->copy_of_handlers_for_topics = xi_vector_destroy(
-                XI_THIS_LAYER( context )->context_data->copy_of_handlers_for_topics );
+            XI_THIS_LAYER( context )->context_data->copy_of_handlers_for_topics =
+                xi_vector_destroy(
+                    XI_THIS_LAYER( context )->context_data->copy_of_handlers_for_topics );
         }
 
         /* clean the unsent QoS12 unacked tasks */
@@ -431,8 +431,8 @@ xi_state_t xi_mqtt_logic_layer_init( void* context, void* data, xi_state_t in_ou
         XI_CHECK_MEMORY( layer_data->handlers_for_topics, in_out_state );
     }
 
-    XI_CONTEXT_DATA( context )
-        ->connection_data->connection_state = XI_CONNECTION_STATE_OPENING;
+    XI_CONTEXT_DATA( context )->connection_data->connection_state =
+        XI_CONNECTION_STATE_OPENING;
 
     return XI_PROCESS_INIT_ON_PREV_LAYER( context, data, in_out_state );
 
@@ -533,8 +533,7 @@ xi_mqtt_logic_layer_close_externally( void* context, void* data, xi_state_t in_o
 
     xi_layer_state_t layer_state = XI_THIS_LAYER_STATE( context );
 
-    if ( XI_STATE_OK != in_out_state &&
-         XI_LAYER_STATE_CONNECTING == layer_state )
+    if ( XI_STATE_OK != in_out_state && XI_LAYER_STATE_CONNECTING == layer_state )
     {
         /* error handling */
         return XI_PROCESS_CONNECT_ON_THIS_LAYER( context, data, in_out_state );
@@ -563,8 +562,8 @@ xi_mqtt_logic_layer_close_externally( void* context, void* data, xi_state_t in_o
     if ( XI_SESSION_CONTINUE == context_data->connection_data->session_type )
     {
         /* this sets the copy of last_msg_id */
-        XI_THIS_LAYER( context )
-            ->context_data->copy_of_last_msg_id = layer_data->last_msg_id;
+        XI_THIS_LAYER( context )->context_data->copy_of_last_msg_id =
+            layer_data->last_msg_id;
 
         /* this will copy the handlers for topics */
         if ( layer_data->handlers_for_topics != NULL &&
@@ -574,8 +573,7 @@ xi_mqtt_logic_layer_close_externally( void* context, void* data, xi_state_t in_o
             assert( XI_THIS_LAYER( context )->context_data->copy_of_handlers_for_topics ==
                     NULL );
 
-            XI_THIS_LAYER( context )
-                ->context_data->copy_of_handlers_for_topics =
+            XI_THIS_LAYER( context )->context_data->copy_of_handlers_for_topics =
                 layer_data->handlers_for_topics;
 
             layer_data->handlers_for_topics = NULL;
@@ -590,8 +588,8 @@ xi_mqtt_logic_layer_close_externally( void* context, void* data, xi_state_t in_o
                          xi_mqtt_logic_layer_task_should_be_stored_predicate, context,
                          unacked_list );
 
-        XI_THIS_LAYER( context )
-            ->context_data->copy_of_q12_unacked_messages_queue = unacked_list;
+        XI_THIS_LAYER( context )->context_data->copy_of_q12_unacked_messages_queue =
+            unacked_list;
 
         XI_LIST_FOREACH( xi_mqtt_logic_task_t, unacked_list,
                          xi_mqtt_logic_layer_task_make_context_null );

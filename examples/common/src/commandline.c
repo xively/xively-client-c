@@ -6,11 +6,11 @@
 #include "xively.h"
 #include "commandline.h"
 #include <assert.h>
-#include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #ifndef XI_CROSS_TARGET
+#include <getopt.h>
 #define XI_EXAMPLE_DEFAULT_QOS XI_MQTT_QOS_AT_LEAST_ONCE
 #else
 #define XI_EXAMPLE_DEFAULT_QOS XI_MQTT_QOS_AT_MOST_ONCE

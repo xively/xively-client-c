@@ -1,7 +1,7 @@
 #include "xi_allocator.h"
 #include "xi_bsp_mem.h"
 
-extern void * memset ( void * ptr, int value, size_t num );
+extern void* memset( void* ptr, int value, size_t num );
 
 void* __xi_alloc( size_t byte_count )
 {
@@ -11,10 +11,10 @@ void* __xi_alloc( size_t byte_count )
 void* __xi_calloc( size_t num, size_t byte_count )
 {
     const size_t size_to_allocate = num * byte_count;
-    void* ret = xi_bsp_mem_alloc( size_to_allocate );
+    void* ret                     = xi_bsp_mem_alloc( size_to_allocate );
 
     /* it's unspecified if memset works with NULL pointer */
-    if( NULL != ret )
+    if ( NULL != ret )
     {
         memset( ret, 0, size_to_allocate );
     }

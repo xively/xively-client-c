@@ -211,29 +211,29 @@ XI_TT_TESTCASE_WITH_SETUP(
     xi_utest_teardown_basic,
     NULL,
     {
-            xi_utest_list_t* test_list    = xi_utest_make_test_list( 13 );
-            xi_utest_list_t* more_10_list = NULL;
+        xi_utest_list_t* test_list    = xi_utest_make_test_list( 13 );
+        xi_utest_list_t* more_10_list = NULL;
 
-            tt_ptr_op( test_list, !=, NULL );
+        tt_ptr_op( test_list, !=, NULL );
 
-            XI_LIST_SPLIT_I( xi_utest_list_t, test_list,
-                             xi_utest_list_number_more_than_10_predicate, NULL,
-                             more_10_list );
+        XI_LIST_SPLIT_I( xi_utest_list_t, test_list,
+                         xi_utest_list_number_more_than_10_predicate, NULL,
+                         more_10_list );
 
-            tt_ptr_op( test_list, !=, NULL );
-            tt_ptr_op( more_10_list, !=, NULL );
+        tt_ptr_op( test_list, !=, NULL );
+        tt_ptr_op( more_10_list, !=, NULL );
 
-            tt_int_op( xi_utest_list_verificator(
-                           test_list, &xi_utest_list_number_less_than_10_predicate ),
-                       ==, 10 );
+        tt_int_op( xi_utest_list_verificator(
+                       test_list, &xi_utest_list_number_less_than_10_predicate ),
+                   ==, 10 );
 
-            tt_int_op( xi_utest_list_verificator(
-                           more_10_list, &xi_utest_list_number_more_than_10_predicate ),
-                       ==, 3 );
+        tt_int_op( xi_utest_list_verificator(
+                       more_10_list, &xi_utest_list_number_more_than_10_predicate ),
+                   ==, 3 );
 
-        end:
-            xi_utest_destroy_list( test_list );
-            xi_utest_destroy_list( more_10_list );
+    end:
+        xi_utest_destroy_list( test_list );
+        xi_utest_destroy_list( more_10_list );
     } )
 
 XI_TT_TESTGROUP_END

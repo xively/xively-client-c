@@ -67,47 +67,43 @@ static xi_state_t failed_subscribe_handler( xi_context_handle_t in_context_handl
 
 XI_TT_TESTGROUP_BEGIN( utest_mqtt_logic_layer_subscribe )
 
-XI_TT_TESTCASE(
-    utest__cmp_topics__valid_data__cmp_topics_should_return_0,
-    {
-        xi_event_handle_t handle = xi_make_empty_handle();
+XI_TT_TESTCASE( utest__cmp_topics__valid_data__cmp_topics_should_return_0, {
+    xi_event_handle_t handle = xi_make_empty_handle();
 
-        char* string1 = "test_string";
-        char* string2 = "test_string";
+    char* string1 = "test_string";
+    char* string2 = "test_string";
 
-        size_t string_len = strlen( string1 );
+    size_t string_len = strlen( string1 );
 
-        xi_mqtt_task_specific_data_t spd = {.subscribe = {string2, handle, 0}};
-        xi_data_desc_t data = {
-            ( unsigned char* )string1, NULL, string_len, string_len, string_len,
-            XI_MEMORY_TYPE_UNMANAGED};
+    xi_mqtt_task_specific_data_t spd = {.subscribe = {string2, handle, 0}};
+    xi_data_desc_t data = {
+        ( unsigned char* )string1, NULL, string_len, string_len, string_len,
+        XI_MEMORY_TYPE_UNMANAGED};
 
-        union xi_vector_selector_u a = {&spd};
-        union xi_vector_selector_u b = {&data};
+    union xi_vector_selector_u a = {&spd};
+    union xi_vector_selector_u b = {&data};
 
-        tt_want_int_op( cmp_topics( &a, &b ), ==, 0 );
-    } )
+    tt_want_int_op( cmp_topics( &a, &b ), ==, 0 );
+} )
 
-XI_TT_TESTCASE(
-    utest__cmp_topics__valid_data__cmp_topics_should_return_1,
-    {
-        xi_event_handle_t handle = xi_make_empty_handle();
+XI_TT_TESTCASE( utest__cmp_topics__valid_data__cmp_topics_should_return_1, {
+    xi_event_handle_t handle = xi_make_empty_handle();
 
-        char* string1 = "test_string1";
-        char* string2 = "test_string2";
+    char* string1 = "test_string1";
+    char* string2 = "test_string2";
 
-        size_t string_len = strlen( string1 );
+    size_t string_len = strlen( string1 );
 
-        xi_mqtt_task_specific_data_t spd = {.subscribe = {string2, handle, 0}};
-        xi_data_desc_t data = {
-            ( unsigned char* )string1, NULL, string_len, string_len, string_len,
-            XI_MEMORY_TYPE_UNMANAGED};
+    xi_mqtt_task_specific_data_t spd = {.subscribe = {string2, handle, 0}};
+    xi_data_desc_t data = {
+        ( unsigned char* )string1, NULL, string_len, string_len, string_len,
+        XI_MEMORY_TYPE_UNMANAGED};
 
-        union xi_vector_selector_u a = {&spd};
-        union xi_vector_selector_u b = {&data};
+    union xi_vector_selector_u a = {&spd};
+    union xi_vector_selector_u b = {&data};
 
-        tt_want_int_op( cmp_topics( &a, &b ), ==, 1 );
-    } )
+    tt_want_int_op( cmp_topics( &a, &b ), ==, 1 );
+} )
 
 XI_TT_TESTCASE_WITH_SETUP(
     utest__do_mqtt_subscribe__valid_data__subscription_handler_registered_with_success,

@@ -14,14 +14,9 @@ xi_connection_data_t* xi_alloc_connection_data( const char* host,
                                                 uint16_t keepalive_timeout,
                                                 xi_session_type_t session_type )
 {
-    return xi_alloc_connection_data_lastwill(
-        host, port,
-        username, password,
-        connection_timeout,
-        keepalive_timeout,
-        session_type,
-        NULL, NULL,
-        0, 0 );
+    return xi_alloc_connection_data_lastwill( host, port, username, password,
+                                              connection_timeout, keepalive_timeout,
+                                              session_type, NULL, NULL, 0, 0 );
 }
 
 xi_connection_data_t* xi_alloc_connection_data_lastwill( const char* host,
@@ -101,15 +96,9 @@ xi_state_t xi_connection_data_update( xi_connection_data_t* conn_data,
                                       uint16_t keepalive_timeout,
                                       xi_session_type_t session_type )
 {
-    return xi_connection_data_update_lastwill(
-        conn_data,
-        host, port,
-        username, password,
-        connection_timeout,
-        keepalive_timeout,
-        session_type,
-        NULL, NULL,
-        0, 0 );
+    return xi_connection_data_update_lastwill( conn_data, host, port, username, password,
+                                               connection_timeout, keepalive_timeout,
+                                               session_type, NULL, NULL, 0, 0 );
 }
 
 xi_state_t xi_connection_data_update_lastwill( xi_connection_data_t* conn_data,

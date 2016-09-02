@@ -20,8 +20,7 @@ typedef intptr_t xi_fs_resource_handle_t;
  * types were created in order to differenciate types based on their security
  * class
  */
-typedef enum
-{
+typedef enum {
     XI_FS_CERTIFICATE = 0,
     XI_FS_CREDENTIALS,
     XI_FS_CONFIG_DATA
@@ -30,8 +29,7 @@ typedef enum
 /**
  * @enum xi_fs_open_flags_t
  */
-typedef enum
-{
+typedef enum {
     XI_FS_OPEN_READ   = 1 << 0,
     XI_FS_OPEN_WRITE  = 1 << 1,
     XI_FS_OPEN_APPEND = 1 << 2,

@@ -197,8 +197,7 @@ xi_state_t xi_control_topic_connection_state_changed( void* context, xi_state_t 
 {
     xi_debug_logger( "xi_control_topic_connection_state_changed" );
 
-    XI_CONTEXT_DATA( context )
-        ->connection_callback.handlers.h3.a2 =
+    XI_CONTEXT_DATA( context )->connection_callback.handlers.h3.a2 =
         XI_CONTEXT_DATA( context )->connection_data;
 
     XI_CONTEXT_DATA( context )->connection_callback.handlers.h3.a3 = state;
@@ -327,8 +326,8 @@ xi_control_topic_layer_close( void* context, void* data, xi_state_t in_out_state
     XI_UNUSED( data );
 
     /* perform complete shutdown */
-    XI_CONTEXT_DATA( context )
-        ->connection_data->connection_state = XI_CONNECTION_STATE_CLOSING;
+    XI_CONTEXT_DATA( context )->connection_data->connection_state =
+        XI_CONNECTION_STATE_CLOSING;
 
     return XI_PROCESS_CLOSE_ON_PREV_LAYER( context, data, in_out_state );
 }
@@ -344,13 +343,13 @@ xi_state_t xi_control_topic_layer_close_externally( void* context,
     if ( XI_CONTEXT_DATA( context )->connection_data->connection_state ==
          XI_CONNECTION_STATE_OPENING )
     {
-        XI_CONTEXT_DATA( context )
-            ->connection_data->connection_state = XI_CONNECTION_STATE_OPEN_FAILED;
+        XI_CONTEXT_DATA( context )->connection_data->connection_state =
+            XI_CONNECTION_STATE_OPEN_FAILED;
     }
     else
     {
-        XI_CONTEXT_DATA( context )
-            ->connection_data->connection_state = XI_CONNECTION_STATE_CLOSED;
+        XI_CONTEXT_DATA( context )->connection_data->connection_state =
+            XI_CONNECTION_STATE_CLOSED;
     }
 
 #ifdef XI_CONTROL_TOPIC_ENABLED

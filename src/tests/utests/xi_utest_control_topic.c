@@ -26,7 +26,8 @@
 #define CONTROL_TOPIC_VERSION_ID "v1"
 #define CONTROL_TOPIC_DEVICE_ID "device-id-is-missing"
 #define CONTROL_TOPIC_DEVICE_ID2 "434234-234234-234234-2234234-23423423"
-#define CONTROL_TOPIC_DEVICE_ID3 "some-very-long-1232343-mixed-with-23423423-numbers-device-id-$$$$$"
+#define CONTROL_TOPIC_DEVICE_ID3                                                         \
+    "some-very-long-1232343-mixed-with-23423423-numbers-device-id-$$$$$"
 #define CONTROL_TOPIC_CHANNEL_NAME_PUBLISH "svc"
 #define CONTROL_TOPIC_CHANNEL_NAME_SUBSCRIBE "clt"
 
@@ -47,13 +48,21 @@ struct utest_control_topic_topic_name_s
 
 /* this is the array that contains all the topic names ingridients to be tested
     against control topic name generation */
-const struct utest_control_topic_topic_name_s topic_names[]
-    = {{0, CTID S CONTROL_TOPIC_SERVICE_ID S CONTROL_TOPIC_VERSION_ID S CONTROL_TOPIC_DEVICE_ID S CONTROL_TOPIC_CHANNEL_NAME_SUBSCRIBE,
-        CTID S CONTROL_TOPIC_SERVICE_ID S CONTROL_TOPIC_VERSION_ID S CONTROL_TOPIC_DEVICE_ID S CONTROL_TOPIC_CHANNEL_NAME_PUBLISH },
-       {CONTROL_TOPIC_DEVICE_ID2, CTID S CONTROL_TOPIC_SERVICE_ID S CONTROL_TOPIC_VERSION_ID S CONTROL_TOPIC_DEVICE_ID2 S CONTROL_TOPIC_CHANNEL_NAME_SUBSCRIBE,
-        CTID S CONTROL_TOPIC_SERVICE_ID S CONTROL_TOPIC_VERSION_ID S CONTROL_TOPIC_DEVICE_ID2 S CONTROL_TOPIC_CHANNEL_NAME_PUBLISH },
-        {CONTROL_TOPIC_DEVICE_ID3, CTID S CONTROL_TOPIC_SERVICE_ID S CONTROL_TOPIC_VERSION_ID S CONTROL_TOPIC_DEVICE_ID3 S CONTROL_TOPIC_CHANNEL_NAME_SUBSCRIBE,
-        CTID S CONTROL_TOPIC_SERVICE_ID S CONTROL_TOPIC_VERSION_ID S CONTROL_TOPIC_DEVICE_ID3 S CONTROL_TOPIC_CHANNEL_NAME_PUBLISH }};
+const struct utest_control_topic_topic_name_s topic_names[] = {
+    {0, CTID S CONTROL_TOPIC_SERVICE_ID S CONTROL_TOPIC_VERSION_ID S
+            CONTROL_TOPIC_DEVICE_ID S CONTROL_TOPIC_CHANNEL_NAME_SUBSCRIBE,
+     CTID S CONTROL_TOPIC_SERVICE_ID S CONTROL_TOPIC_VERSION_ID S CONTROL_TOPIC_DEVICE_ID
+         S CONTROL_TOPIC_CHANNEL_NAME_PUBLISH},
+    {CONTROL_TOPIC_DEVICE_ID2,
+     CTID S CONTROL_TOPIC_SERVICE_ID S CONTROL_TOPIC_VERSION_ID S CONTROL_TOPIC_DEVICE_ID2
+         S CONTROL_TOPIC_CHANNEL_NAME_SUBSCRIBE,
+     CTID S CONTROL_TOPIC_SERVICE_ID S CONTROL_TOPIC_VERSION_ID S CONTROL_TOPIC_DEVICE_ID2
+         S CONTROL_TOPIC_CHANNEL_NAME_PUBLISH},
+    {CONTROL_TOPIC_DEVICE_ID3,
+     CTID S CONTROL_TOPIC_SERVICE_ID S CONTROL_TOPIC_VERSION_ID S CONTROL_TOPIC_DEVICE_ID3
+         S CONTROL_TOPIC_CHANNEL_NAME_SUBSCRIBE,
+     CTID S CONTROL_TOPIC_SERVICE_ID S CONTROL_TOPIC_VERSION_ID S CONTROL_TOPIC_DEVICE_ID3
+         S CONTROL_TOPIC_CHANNEL_NAME_PUBLISH}};
 
 /**
  * @brief utest__control_topic_test_topic_name
@@ -77,32 +86,30 @@ void utest__control_topic_test_topic_name( const char* const topic_name,
 XI_TT_TESTGROUP_BEGIN( utest_control_topic )
 
 XI_TT_TESTCASE(
-    utest__xi_control_topic_create_topic_name__correct_data__create_topic_name,
-    {
+    utest__xi_control_topic_create_topic_name__correct_data__create_topic_name, {
         size_t i = 0;
         for ( ; i < XI_ARRAYSIZE( topic_names ); ++i )
         {
             char* sub_topic_name = NULL;
             char* pub_topic_name = NULL;
 
-            if( topic_names[ i ].device_id != NULL )
+            if ( topic_names[i].device_id != NULL )
             {
                 tt_int_op( xi_initialize( "", topic_names[i].device_id, "" ), ==,
                            XI_STATE_OK );
             }
 
-            xi_state_t state = xi_control_topic_create_topic_name(
-                &sub_topic_name, &pub_topic_name );
+            xi_state_t state =
+                xi_control_topic_create_topic_name( &sub_topic_name, &pub_topic_name );
 
             tt_int_op( state, ==, XI_STATE_OK );
 
             utest__control_topic_test_topic_name(
-                sub_topic_name,
-                topic_names[ i ].expected_subscribe_topic_name );
+                sub_topic_name, topic_names[i].expected_subscribe_topic_name );
             utest__control_topic_test_topic_name(
-                pub_topic_name, topic_names[ i ].expected_publish_topic_name );
+                pub_topic_name, topic_names[i].expected_publish_topic_name );
 
-            if( topic_names[ i ].device_id != NULL )
+            if ( topic_names[i].device_id != NULL )
             {
                 tt_int_op( xi_shutdown(), ==, XI_STATE_OK );
             }
@@ -112,8 +119,7 @@ XI_TT_TESTCASE(
         }
 
         tt_int_op( xi_is_whole_memory_deallocated(), >, 0 );
-    end:
-        ;
+    end:;
     } )
 
 XI_TT_TESTCASE(
@@ -122,13 +128,12 @@ XI_TT_TESTCASE(
         char* sub_topic_name = "NULL";
         char* pub_topic_name = NULL;
 
-        xi_state_t state = xi_control_topic_create_topic_name(
-            &sub_topic_name, &pub_topic_name );
+        xi_state_t state =
+            xi_control_topic_create_topic_name( &sub_topic_name, &pub_topic_name );
 
         tt_want_int_op( state, ==, XI_INVALID_PARAMETER );
         tt_int_op( xi_is_whole_memory_deallocated(), >, 0 );
-            end:
-            ;
+    end:;
     } )
 
 XI_TT_TESTCASE(
@@ -137,13 +142,12 @@ XI_TT_TESTCASE(
         char* sub_topic_name = NULL;
         char* pub_topic_name = "NULL";
 
-        xi_state_t state = xi_control_topic_create_topic_name(
-            &sub_topic_name, &pub_topic_name );
+        xi_state_t state =
+            xi_control_topic_create_topic_name( &sub_topic_name, &pub_topic_name );
 
         tt_want_int_op( state, ==, XI_INVALID_PARAMETER );
         tt_int_op( xi_is_whole_memory_deallocated(), >, 0 );
-        end:
-            ;
+    end:;
     } )
 
 XI_TT_TESTCASE(
@@ -151,13 +155,11 @@ XI_TT_TESTCASE(
     {
         char* pub_topic_name = NULL;
 
-        xi_state_t state = xi_control_topic_create_topic_name(
-            NULL, &pub_topic_name );
+        xi_state_t state = xi_control_topic_create_topic_name( NULL, &pub_topic_name );
 
         tt_want_int_op( state, ==, XI_INVALID_PARAMETER );
         tt_int_op( xi_is_whole_memory_deallocated(), >, 0 );
-        end:
-            ;
+    end:;
     } )
 
 XI_TT_TESTCASE(
@@ -165,14 +167,12 @@ XI_TT_TESTCASE(
     {
         char* sub_topic_name = NULL;
 
-        xi_state_t state = xi_control_topic_create_topic_name(
-            &sub_topic_name, NULL );
+        xi_state_t state = xi_control_topic_create_topic_name( &sub_topic_name, NULL );
 
         tt_want_int_op( state, ==, XI_INVALID_PARAMETER );
         tt_int_op( xi_is_whole_memory_deallocated(), >, 0 );
-        end:
-            ;
-             })
+    end:;
+    } )
 
 XI_TT_TESTGROUP_END
 

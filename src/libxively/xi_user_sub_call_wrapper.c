@@ -27,7 +27,7 @@ xi_state_t xi_user_sub_call_wrapper( void* context,
     xi_mqtt_task_specific_data_t* sub_data = ( xi_mqtt_task_specific_data_t* )task_data;
 
     /* only if the library context is not null */
-    if( NULL != context )
+    if ( NULL != context )
     {
         state = xi_find_handle_for_object( xi_globals.context_handles_vector, context,
                                            &context_handle );
@@ -65,7 +65,7 @@ xi_state_t xi_user_sub_call_wrapper( void* context,
 
             params.message.temporary_payload_data        = msg->publish.content->data_ptr;
             params.message.temporary_payload_data_length = msg->publish.content->length;
-            params.message.topic                         = ( const char* )sub_data->subscribe.topic;
+            params.message.topic = ( const char* )sub_data->subscribe.topic;
 
             in_state = xi_mqtt_convert_to_qos( msg->common.common_u.common_bits.qos,
                                                &params.message.qos );
@@ -100,4 +100,3 @@ err_handling:
 
     return state;
 }
-
