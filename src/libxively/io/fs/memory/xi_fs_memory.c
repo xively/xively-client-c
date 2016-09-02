@@ -24,8 +24,7 @@ typedef xi_state_t( xi_fs_memory_stat_t )( const xi_fs_resource_handle_t resourc
 /* local open handler function type defined per resource id */
 typedef xi_state_t( xi_fs_memory_open_t )( const xi_fs_resource_handle_t resource_id );
 
-typedef enum xi_fs_memory_resource_state_e
-{
+typedef enum xi_fs_memory_resource_state_e {
     XI_FS_MEMORY_RESOURCE_STATE_CLOSED = 0,
     XI_FS_MEMORY_RESOURCE_STATE_OPEN
 } xi_fs_memory_resource_state_t;

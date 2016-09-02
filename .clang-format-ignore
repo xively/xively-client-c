@@ -1,3 +1,5 @@
 control_topic.pb-c.c
 control_topic.pb-c.h
+xi_control_channel_protocol.pb-c.c
+xi_control_channel_protocol.pb-c.h
 import

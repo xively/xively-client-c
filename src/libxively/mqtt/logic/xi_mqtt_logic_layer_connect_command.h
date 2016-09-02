@@ -162,8 +162,8 @@ do_mqtt_connect( void* ctx /* should be the context of the logic layer */
             }
 
             /* now the layer is fully connected to the server */
-            XI_CONTEXT_DATA( context )
-                ->connection_data->connection_state = XI_CONNECTION_STATE_OPENED;
+            XI_CONTEXT_DATA( context )->connection_data->connection_state =
+                XI_CONNECTION_STATE_OPENED;
 
             /* inform the next layer about a state change */
             XI_PROCESS_CONNECT_ON_NEXT_LAYER( context, data, state );

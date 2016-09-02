@@ -19,7 +19,8 @@ xi_state_t xi_mqtt_logic_layer_init( void* context, void* data, xi_state_t state
 
 xi_state_t xi_mqtt_logic_layer_connect( void* context, void* data, xi_state_t state );
 
-xi_state_t xi_mqtt_logic_layer_post_connect( void* context, void* data, xi_state_t state );
+xi_state_t
+xi_mqtt_logic_layer_post_connect( void* context, void* data, xi_state_t state );
 
 xi_state_t xi_mqtt_logic_layer_close( void* context, void* data, xi_state_t state );
 

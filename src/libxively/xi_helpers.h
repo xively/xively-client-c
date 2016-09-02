@@ -41,9 +41,9 @@ char* xi_replace_with( char p, char r, char* buffer, size_t max_chars );
 
 uint32_t xi_highest_bit_filter( uint32_t value );
 
-#if 0 /* if you need debugging rockets here it is - you can later on use
-    addr2line -e bin/linux/tests/tools/xi_libxively_driver -f address
-    in order to see which line of code t was*/
+#if 0 /* if you need debugging rockets here it is - you can later on use                 \
+    addr2line -e bin/linux/tests/tools/xi_libxively_driver -f address                    \
+    in order to see which line of code it was*/
 void get_stack_trace();
 #endif
 
