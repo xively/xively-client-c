@@ -38,7 +38,7 @@ def findFiles( startDir, fileExt, recLevel, currLevel = 0 ):
         files_to_ignore = [x.strip('\n') for x in f.readlines()]
 
     files   = [ x for x in contents if os.path.isfile( os.path.join( startDir, x ) ) and x.endswith( fileExt ) and x not in files_to_ignore ]
-    dirs    = [ x for x in contents if os.path.isdir( os.path.join( startDir, x ) ) and x[ 0 ] != '.' ]
+    dirs    = [ x for x in contents if os.path.isdir( os.path.join( startDir, x ) ) and x[ 0 ] != '.' and x not in files_to_ignore ]
 
     for f in files:
         filename = os.path.join( startDir, f )
@@ -50,21 +50,17 @@ def findFiles( startDir, fileExt, recLevel, currLevel = 0 ):
             findFiles( os.path.join( startDir, d ), fileExt, recLevel,
                     currLevel + 1 )
 
-
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser( description='Source code formatter' )
     parser.add_argument( '-r', dest='recursive', type=int, default=100,
                        help='recursive mode, default 1, set 0 if you want to enable unlimited recursion')
+    parser.add_argument( '-d', dest='directory', default='src/', help='start directory, default src/')
 
     args        = parser.parse_args()
 
-    startDir    = "src/libxively"
+    startDir    = args.directory
     recursive   = args.recursive
 
-    findFiles( startDir, ".h", recursive )
-    findFiles( startDir, ".c", recursive )
-
-    startDir    = "src/examples"
     findFiles( startDir, ".h", recursive )
     findFiles( startDir, ".c", recursive )
