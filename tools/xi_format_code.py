@@ -2,9 +2,6 @@
 
 import os
 import argparse
-import string
-import re
-import mmap
 import uuid
 import subprocess
 import shlex
@@ -12,8 +9,8 @@ import shlex
 CLANG_FORMAT = "clang-format -style=file"
 
 def clangFormatFile( filename ):
-    oldFilePath         = filename + '.old'
-    switchFiles         = False
+    #oldFilePath         = filename + '.old'
+    #switchFiles         = False
 
     args = shlex.split( CLANG_FORMAT )
     args += [ "-i", filename ]
@@ -21,14 +18,14 @@ def clangFormatFile( filename ):
     print( args )
 
     p = subprocess.Popen( args )
-    p.wait()
+    #p.wait()
 
     # switch files f1->tmp, f2->f1, tmp->f2
-    if switchFiles:
-        tmpFileName = os.path.join( startDir, str( uuid.uuid1() ) )
-        os.rename( originalFilePath, tmpFileName )
-        os.rename( oldFilePath, originalFilePath )
-        os.rename( tmpFileName, oldFilePath )
+    #if switchFiles:
+    #    tmpFileName = os.path.join( startDir, str( uuid.uuid1() ) )
+    #    os.rename( originalFilePath, tmpFileName )
+    #    os.rename( oldFilePath, originalFilePath )
+    #    os.rename( tmpFileName, oldFilePath )
 
 
 def findFiles( startDir, fileExt, recLevel, currLevel = 0 ):
@@ -43,7 +40,6 @@ def findFiles( startDir, fileExt, recLevel, currLevel = 0 ):
     for f in files:
         filename = os.path.join( startDir, f )
         clangFormatFile( filename )
-
 
     if recLevel == 0 or ( recLevel > 0 and currLevel < recLevel ):
         for d in dirs:
