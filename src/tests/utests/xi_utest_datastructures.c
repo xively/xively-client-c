@@ -553,7 +553,7 @@ XI_TT_TESTCASE( test_vector_del, {
         xi_vector_del( sv, 0 );
     }
 
-    tt_assert( sv->capacity == 1 );
+    tt_assert( sv->capacity == 16 );
 
 end:;
     xi_vector_destroy( sv );
