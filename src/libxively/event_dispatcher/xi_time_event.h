@@ -23,14 +23,32 @@
 typedef struct xi_time_event_handle_s
 {
     xi_vector_index_type_t* position;
-}xi_time_event_handle_t;
+} xi_time_event_handle_t;
+
+typedef struct xi_time_event_s
+{
+    xi_event_handle_t event_handle;
+    xi_time_t time_of_execution;
+    xi_vector_index_type_t position;
+} xi_time_event_t;
+
+#define xi_make_empty_time_event_handle()                                                \
+    {                                                                                    \
+        NULL                                                                             \
+    }
+
+#define xi_make_empty_time_event()                                                       \
+    {                                                                                    \
+        xi_make_empty_event_handle(), 0, 0                                               \
+    }
 
 /* API */
 xi_state_t
-xi_time_event_execute_handle_in( xi_vector_t* vector,
-                                 xi_event_handle_t event_handle,
-                                 xi_time_t time,
+xi_time_event_add( xi_vector_t* vector,
+                                 xi_time_event_t* time_event,
                                  xi_time_event_handle_t* ret_time_event_handle );
+
+xi_time_event_t* xi_time_event_get_top( xi_vector_t* vector );
 
 xi_state_t
 xi_time_event_restart( xi_vector_t* vector, xi_time_event_handle_t* time_event_handle );

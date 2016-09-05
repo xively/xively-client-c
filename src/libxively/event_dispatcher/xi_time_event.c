@@ -11,151 +11,177 @@
 #define RIGHT( i ) ( ( ( ( i + 1 ) << 1 ) + 1 ) - 1 )
 #define PARENT( i ) ( ( ( i + 1 ) >> 1 ) - 1 )
 
-
-typedef struct xi_time_event_s
+static void xi_vector_heap_swap_time_events( xi_vector_t* vector,
+                                             xi_vector_index_type_t fi,
+                                             xi_vector_index_type_t li )
 {
-    xi_event_handle_t event_handle;
-    xi_time_t time_of_execution;
-    xi_vector_index_type_t position;
-} xi_time_event_t;
+    xi_time_event_t* fte = ( xi_time_event_t* )vector->array[fi].selector_t.ptr_value;
+    xi_time_event_t* lte = ( xi_time_event_t* )vector->array[li].selector_t.ptr_value;
 
-/**
- * @brief first_not_greater_than
- *
- * Function used in order to find the element in the vector that is first not greater than
- * the element we compare with.
- *
- * @param e0
- * @param e1
- * @return
- */
-static int8_t first_not_greater_than( const union xi_vector_selector_u* e0,
-                                      const union xi_vector_selector_u* e1 )
-{
-    xi_time_event_t* from_vector = e0->ptr_value;
-    xi_time_event_t* arg         = e1->ptr_value;
+    xi_vector_swap_elems( vector, fi, li );
 
-    if ( arg->time_of_execution < from_vector->time_of_execution )
-    {
-        return 0;
-    }
-
-    return -1;
+    fte->position = li;
+    lte->position = fi;
 }
 
-/**
- * @brief xi_fun_update_position
- *
- * Local helper function that updates the position value of given time event.
- *
- * @param e0 - time event from the vector
- * @param arg - extra argument passed through the vector for each
- */
-static void xi_fun_update_position( union xi_vector_selector_u* e0, void* arg )
+static xi_vector_index_type_t
+xi_vector_heap_fix_order_up( xi_vector_t* vector, xi_vector_index_type_t index )
 {
-    xi_vector_index_type_t* index = ( xi_vector_index_type_t* )arg;
-    xi_time_event_t* time_event   = ( xi_time_event_t* )e0->ptr_value;
-    time_event->position          = *index;
-    *index += 1;
-}
+    xi_vector_index_type_t ret_index = index;
 
-
-static void xi_vector_heap_fix_order_up( xi_vector_t* vector, xi_vector_index_type_t index )
-{
     while ( index != 0 )
     {
-        xi_vector_index_type_t parent_index = PARENT(index);
+        xi_vector_index_type_t parent_index = PARENT( index );
 
         xi_time_event_t* e = vector->array[index].selector_t.ptr_value;
         xi_time_event_t* p = vector->array[parent_index].selector_t.ptr_value;
-        da
-                sdf
 
-
-
-        if( e->time_of_execution < p->time_of_execution )
+        if ( e->time_of_execution < p->time_of_execution )
         {
-            xi_vector_swap_elems( vector, index, parent_index );
-
-            /* update internal positions */
-            e->position = parent_index;
-            p->position = index;
+            xi_vector_heap_swap_time_events( vector, index, parent_index );
+            ret_index = parent_index;
+        }
+        else /* we don't need to go to the very top */
+        {
+            break;
         }
 
-        index = PARENT( index );
+        index = parent_index;
     }
+
+    return ret_index;
+}
+
+#define GET_LEFT_SIBLING_INDEX( index, last_elem_index )                                 \
+    ( LEFT( ( index ) ) > ( last_elem_index ) ) ? ( ( index ) ) : LEFT( ( index ) )
+
+#define GET_RIGHT_SIBLING_INDEX( index, last_elem_index )                                \
+    ( RIGHT( ( index ) ) > ( last_elem_index ) ) ? ( ( index ) ) : RIGHT( ( index ) )
+
+static void
+xi_vector_heap_fix_order_down( xi_vector_t* vector, xi_vector_index_type_t index )
+{
+    xi_vector_index_type_t left_sibling_index =
+        GET_LEFT_SIBLING_INDEX( index, ( vector->elem_no - 1 ) );
+    xi_vector_index_type_t right_sibling_index =
+        GET_RIGHT_SIBLING_INDEX( index, ( vector->elem_no - 1 ) );
+
+    do
+    {
+        xi_time_event_t* left_time_event =
+            ( xi_time_event_t* )vector->array[left_sibling_index].selector_t.ptr_value;
+        xi_time_event_t* right_time_event =
+            ( xi_time_event_t* )vector->array[right_sibling_index].selector_t.ptr_value;
+        xi_time_event_t* current_time_event =
+            ( xi_time_event_t* )vector->array[index].selector_t.ptr_value;
+
+        xi_vector_index_type_t index_to_cmp = index;
+        xi_time_event_t* time_event_to_cmp  = NULL;
+
+        /* pick up the sibling with lower key to cmp with */
+        if ( left_time_event->time_of_execution < right_time_event->time_of_execution )
+        {
+            index_to_cmp      = left_sibling_index;
+            time_event_to_cmp = left_time_event;
+        }
+        else
+        {
+            index_to_cmp      = right_sibling_index;
+            time_event_to_cmp = right_time_event;
+        }
+
+        /* if the order is not correct fix it */
+        if ( time_event_to_cmp->time_of_execution <
+             current_time_event->time_of_execution )
+        {
+            xi_vector_heap_swap_time_events( vector, index, index_to_cmp );
+            index = index_to_cmp;
+        }
+        else
+        {
+            return;
+        }
+
+        left_sibling_index  = GET_LEFT_SIBLING_INDEX( index, vector->elem_no - 1 );
+        right_sibling_index = GET_RIGHT_SIBLING_INDEX( index, vector->elem_no - 1 );
+
+    } while ( index != left_sibling_index && index != right_sibling_index );
 }
 
 static const xi_vector_elem_t*
-xi_vector_heap_element_add_event_handle( xi_vector_t* vector,
-                                         xi_time_t time,
-                                         xi_event_handle_t event_handle )
+xi_vector_heap_add_time_event( xi_vector_t* vector, xi_time_event_t* time_event )
 {
     xi_state_t out_state = XI_STATE_OK;
 
-    XI_ALLOC( xi_time_event_t, time_event_to_cmp, out_state );
-
-    time_event_to_cmp->event_handle      = event_handle;
-    time_event_to_cmp->time_of_execution = time;
+    time_event->position = vector->elem_no;
 
     /* stage first let's add it to the end of the heap */
     const xi_vector_elem_t* elem = xi_vector_push(
-        vector,
-        XI_VEC_CONST_VALUE_PARAM( XI_VEC_VALUE_PTR( ( void* )time_event_to_cmp ) ) );
+        vector, XI_VEC_CONST_VALUE_PARAM( XI_VEC_VALUE_PTR( ( void* )time_event ) ) );
 
     XI_CHECK_MEMORY( elem, out_state );
 
     /* 2nd stage now let's fix the heap from bottom to the top */
-    xi_vector_heap_fix_order_up( vector, vector->elem_no - 1 );
+    xi_vector_index_type_t element_position =
+        xi_vector_heap_fix_order_up( vector, vector->elem_no - 1 );
 
-    return vector[]
+    /* return the element of the vector that points to the new time event*/
+    return &vector->array[element_position];
 
 err_handling:
-    XI_SAFE_FREE( time_event_to_cmp );
     return NULL;
 }
 
-xi_state_t
-xi_time_event_execute_handle_in( xi_vector_t* vector,
-                                 xi_event_handle_t event_handle,
-                                 xi_time_t time,
-                                 xi_time_event_handle_t* ret_time_event_handle )
+xi_state_t xi_time_event_add( xi_vector_t* vector,
+                              xi_time_event_t* time_event,
+                              xi_time_event_handle_t* ret_time_event_handle )
 {
     xi_state_t out_state = XI_STATE_OK;
 
-    XI_ALLOC( xi_time_event_t, time_event_to_cmp, out_state );
-
-    time_event_to_cmp->event_handle      = event_handle;
-    time_event_to_cmp->time_of_execution = time;
-
-    const xi_vector_index_type_t result = xi_vector_find(
-        vector,
-        XI_VEC_CONST_VALUE_PARAM( XI_VEC_VALUE_PTR( ( void* )time_event_to_cmp ) ),
-        &first_not_greater_than );
-
-    /* if it's -1 it means the correct place for new element is at the end */
-    xi_vector_index_type_t index = result == -1 ? vector->elem_no : result;
-
     /* call the insert at function it will place the new element at the correct place */
-    const xi_vector_elem_t* elem = xi_vector_insert_at(
-        vector,
-        XI_VEC_CONST_VALUE_PARAM( XI_VEC_VALUE_PTR( ( void* )time_event_to_cmp ) ),
-        index );
+    const xi_vector_elem_t* elem = xi_vector_heap_add_time_event( vector, time_event );
 
     /* if there is a problem with the memory go to err_handling */
     XI_CHECK_MEMORY( elem, out_state );
 
-    /* fix information about the position in all elements after index including index
-     * element */
-    xi_vector_for_each( vector, xi_fun_update_position, &index, result );
+    /* extract the element */
+    xi_time_event_t* added_time_event = ( xi_time_event_t* )elem->selector_t.ptr_value;
+
+    /* sanity checks */
+    assert( added_time_event == time_event );
 
     /* update the return value with the pointer to the position in the vector */
-    ret_time_event_handle->position = &time_event_to_cmp->position;
+    ret_time_event_handle->position = &added_time_event->position;
 
     /* exit with out_state value */
     return out_state;
 
 err_handling:
-    XI_SAFE_FREE( time_event_to_cmp );
     return out_state;
+}
+
+xi_time_event_t* xi_time_event_get_top( xi_vector_t* vector )
+{
+    if ( 0 == vector->elem_no )
+    {
+        return NULL;
+    }
+
+    xi_time_event_t* top_one = ( xi_time_event_t* )vector->array[0].selector_t.ptr_value;
+
+    /* the trick is to swap the first element with the last one and to proceed bottom
+     * direction fix of heap */
+
+    if ( vector->elem_no > 1 )
+    {
+        xi_vector_swap_elems( vector, 0, vector->elem_no - 1 );
+        xi_vector_del( vector, vector->elem_no - 1 );
+        xi_vector_heap_fix_order_down( vector, 0 );
+    }
+    else
+    {
+        xi_vector_del( vector, vector->elem_no - 1 );
+    }
+
+    return top_one;
 }
