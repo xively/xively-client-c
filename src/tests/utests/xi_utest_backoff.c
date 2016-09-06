@@ -21,28 +21,28 @@
 
 #ifndef XI_TT_TESTCASE_ENUMERATION__SECONDPREPROCESSORRUN
 
-static const xi_static_vector_elem_t xi_utest_backoff_lut_test_1[]
-    = {XI_SVEC_ELEM( XI_SVEC_VALUE_UI32( 1 ) )};
+static const xi_vector_elem_t xi_utest_backoff_lut_test_1[]
+    = {XI_VEC_ELEM( XI_VEC_VALUE_UI32( 1 ) )};
 
-static const xi_static_vector_elem_t xi_utest_decay_lut_test_1[]
-    = {XI_SVEC_ELEM( XI_SVEC_VALUE_UI32( 123 ) )};
+static const xi_vector_elem_t xi_utest_decay_lut_test_1[]
+    = {XI_VEC_ELEM( XI_VEC_VALUE_UI32( 123 ) )};
 
-static const xi_static_vector_elem_t xi_utest_backoff_lut_test_2[]
-    = {XI_SVEC_ELEM( XI_SVEC_VALUE_UI32( 2 ) ),
-       XI_SVEC_ELEM( XI_SVEC_VALUE_UI32( 4 ) ),
-       XI_SVEC_ELEM( XI_SVEC_VALUE_UI32( 8 ) ),
-       XI_SVEC_ELEM( XI_SVEC_VALUE_UI32( 16 ) )};
+static const xi_vector_elem_t xi_utest_backoff_lut_test_2[]
+    = {XI_VEC_ELEM( XI_VEC_VALUE_UI32( 2 ) ),
+       XI_VEC_ELEM( XI_VEC_VALUE_UI32( 4 ) ),
+       XI_VEC_ELEM( XI_VEC_VALUE_UI32( 8 ) ),
+       XI_VEC_ELEM( XI_VEC_VALUE_UI32( 16 ) )};
 
-static const xi_static_vector_elem_t xi_utest_decay_lut_test_2[]
-    = {XI_SVEC_ELEM( XI_SVEC_VALUE_UI32( 2 ) ),
-       XI_SVEC_ELEM( XI_SVEC_VALUE_UI32( 4 ) ),
-       XI_SVEC_ELEM( XI_SVEC_VALUE_UI32( 8 ) ),
-       XI_SVEC_ELEM( XI_SVEC_VALUE_UI32( 30 ) )};
+static const xi_vector_elem_t xi_utest_decay_lut_test_2[]
+    = {XI_VEC_ELEM( XI_VEC_VALUE_UI32( 2 ) ),
+       XI_VEC_ELEM( XI_VEC_VALUE_UI32( 4 ) ),
+       XI_VEC_ELEM( XI_VEC_VALUE_UI32( 8 ) ),
+       XI_VEC_ELEM( XI_VEC_VALUE_UI32( 30 ) )};
 
 typedef struct xi_utest_backoff_data_test_case_s
 {
-    const xi_static_vector_elem_t* backoff_data;
-    const xi_static_vector_elem_t* decay_data;
+    const xi_vector_elem_t* backoff_data;
+    const xi_vector_elem_t* decay_data;
     size_t data_len;
 } xi_utest_backoff_data_test_case_t;
 
@@ -90,8 +90,8 @@ XI_TT_TESTCASE(
                     [ i ];
 
             xi_backoff_configure_using_data(
-                ( xi_static_vector_elem_t* )curr_test_case->backoff_data,
-                ( xi_static_vector_elem_t* )curr_test_case->decay_data,
+                ( xi_vector_elem_t* )curr_test_case->backoff_data,
+                ( xi_vector_elem_t* )curr_test_case->decay_data,
                 curr_test_case->data_len, XI_MEMORY_TYPE_UNMANAGED );
 
             tt_ptr_op( xi_globals.backoff_status.backoff_lut->array, !=, NULL );
@@ -128,8 +128,8 @@ XI_TT_TESTCASE_WITH_SETUP(
                     [ i ];
 
             xi_backoff_configure_using_data(
-                ( xi_static_vector_elem_t* )curr_test_case->backoff_data,
-                ( xi_static_vector_elem_t* )curr_test_case->decay_data,
+                ( xi_vector_elem_t* )curr_test_case->backoff_data,
+                ( xi_vector_elem_t* )curr_test_case->decay_data,
                 curr_test_case->data_len, XI_MEMORY_TYPE_UNMANAGED );
 
             tt_want_int_op( xi_globals.backoff_status.next_update, ==, 0 );
@@ -194,8 +194,8 @@ XI_TT_TESTCASE_WITH_SETUP(
                     [ i ];
 
             xi_backoff_configure_using_data(
-                ( xi_static_vector_elem_t* )curr_test_case->backoff_data,
-                ( xi_static_vector_elem_t* )curr_test_case->decay_data,
+                ( xi_vector_elem_t* )curr_test_case->backoff_data,
+                ( xi_vector_elem_t* )curr_test_case->decay_data,
                 curr_test_case->data_len, XI_MEMORY_TYPE_UNMANAGED );
 
             size_t last_index = XI_ARRAYSIZE( xi_utest_backoff_lut_test_2 ) - 1;
@@ -242,8 +242,8 @@ XI_TT_TESTCASE_WITH_SETUP(
                     [ i ];
 
             xi_backoff_configure_using_data(
-                ( xi_static_vector_elem_t* )curr_test_case->backoff_data,
-                ( xi_static_vector_elem_t* )curr_test_case->decay_data,
+                ( xi_vector_elem_t* )curr_test_case->backoff_data,
+                ( xi_vector_elem_t* )curr_test_case->decay_data,
                 curr_test_case->data_len, XI_MEMORY_TYPE_UNMANAGED );
 
             size_t j = 0;
@@ -303,8 +303,8 @@ XI_TT_TESTCASE_WITH_SETUP(
                     [ i ];
 
             xi_backoff_configure_using_data(
-                ( xi_static_vector_elem_t* )curr_test_case->backoff_data,
-                ( xi_static_vector_elem_t* )curr_test_case->decay_data,
+                ( xi_vector_elem_t* )curr_test_case->backoff_data,
+                ( xi_vector_elem_t* )curr_test_case->decay_data,
                 curr_test_case->data_len, XI_MEMORY_TYPE_UNMANAGED );
 
             xi_globals.backoff_status.backoff_lut_i = 5;
@@ -386,8 +386,8 @@ XI_TT_TESTCASE_WITH_SETUP(
                     [ i ];
 
             xi_backoff_configure_using_data(
-                ( xi_static_vector_elem_t* )curr_test_case->backoff_data,
-                ( xi_static_vector_elem_t* )curr_test_case->decay_data,
+                ( xi_vector_elem_t* )curr_test_case->backoff_data,
+                ( xi_vector_elem_t* )curr_test_case->decay_data,
                 curr_test_case->data_len, XI_MEMORY_TYPE_UNMANAGED );
 
             xi_backoff_lut_index_t curr_index
@@ -441,8 +441,8 @@ XI_TT_TESTCASE_WITH_SETUP(
                     [ i ];
 
             xi_backoff_configure_using_data(
-                ( xi_static_vector_elem_t* )curr_test_case->backoff_data,
-                ( xi_static_vector_elem_t* )curr_test_case->decay_data,
+                ( xi_vector_elem_t* )curr_test_case->backoff_data,
+                ( xi_vector_elem_t* )curr_test_case->decay_data,
                 curr_test_case->data_len, XI_MEMORY_TYPE_UNMANAGED );
 
             xi_backoff_lut_index_t curr_index
@@ -496,8 +496,8 @@ XI_TT_TESTCASE_WITH_SETUP(
                     [ i ];
 
             xi_backoff_configure_using_data(
-                ( xi_static_vector_elem_t* )curr_test_case->backoff_data,
-                ( xi_static_vector_elem_t* )curr_test_case->decay_data,
+                ( xi_vector_elem_t* )curr_test_case->backoff_data,
+                ( xi_vector_elem_t* )curr_test_case->decay_data,
                 curr_test_case->data_len, XI_MEMORY_TYPE_UNMANAGED );
 
             xi_backoff_lut_index_t curr_index
@@ -541,8 +541,8 @@ XI_TT_TESTCASE_WITH_SETUP(
                     [ i ];
 
             xi_backoff_configure_using_data(
-                ( xi_static_vector_elem_t* )curr_test_case->backoff_data,
-                ( xi_static_vector_elem_t* )curr_test_case->decay_data,
+                ( xi_vector_elem_t* )curr_test_case->backoff_data,
+                ( xi_vector_elem_t* )curr_test_case->decay_data,
                 curr_test_case->data_len, XI_MEMORY_TYPE_UNMANAGED );
 
             tt_want_ptr_op( xi_globals.backoff_status.next_update, ==, 0 );
@@ -591,8 +591,8 @@ XI_TT_TESTCASE_WITH_SETUP(
                     [ i ];
 
             xi_backoff_configure_using_data(
-                ( xi_static_vector_elem_t* )curr_test_case->backoff_data,
-                ( xi_static_vector_elem_t* )curr_test_case->decay_data,
+                ( xi_vector_elem_t* )curr_test_case->backoff_data,
+                ( xi_vector_elem_t* )curr_test_case->decay_data,
                 curr_test_case->data_len, XI_MEMORY_TYPE_UNMANAGED );
 
             xi_inc_backoff_penalty();
@@ -657,8 +657,8 @@ XI_TT_TESTCASE_WITH_SETUP(
                     [ i ];
 
             xi_backoff_configure_using_data(
-                ( xi_static_vector_elem_t* )curr_test_case->backoff_data,
-                ( xi_static_vector_elem_t* )curr_test_case->decay_data,
+                ( xi_vector_elem_t* )curr_test_case->backoff_data,
+                ( xi_vector_elem_t* )curr_test_case->decay_data,
                 curr_test_case->data_len, XI_MEMORY_TYPE_UNMANAGED );
 
             xi_inc_backoff_penalty();

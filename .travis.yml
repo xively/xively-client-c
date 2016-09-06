@@ -46,15 +46,15 @@ before_script:
 script:
   - "set -e"
   - "cd $HOME/build/xively/xively-client-c/"
-  - "make PRESET=$PRESET XI_DEBUG_OUTPUT=0"
+  - "make PRESET=$PRESET XI_DEBUG_OUTPUT=0 tests"
   - "if [ ! $CC == 'gcc' ]; then
-        make -C examples/mqtt_logic_example  XI_CLIENT_LIB_PATH=../../obj/linux XI_BSP_TLS=$XI_BSP_TLS;
-        make -C examples/mqtt_logic_producer XI_CLIENT_LIB_PATH=../../obj/linux XI_BSP_TLS=$XI_BSP_TLS;
-        make -C examples/mqtt_logic_consumer XI_CLIENT_LIB_PATH=../../obj/linux XI_BSP_TLS=$XI_BSP_TLS;
-        make -C examples/mqtt_logic_example_two_contexts XI_CLIENT_LIB_PATH=../../obj/linux XI_BSP_TLS=$XI_BSP_TLS;
-        make -C examples/mqtt_last_will       XI_CLIENT_LIB_PATH=../../obj/linux XI_BSP_TLS=$XI_BSP_TLS;
+        make -C examples/mqtt_logic_example  XI_CLIENT_LIB_PATH=../../bin/linux XI_BSP_TLS=$XI_BSP_TLS;
+        make -C examples/mqtt_logic_producer XI_CLIENT_LIB_PATH=../../bin/linux XI_BSP_TLS=$XI_BSP_TLS;
+        make -C examples/mqtt_logic_consumer XI_CLIENT_LIB_PATH=../../bin/linux XI_BSP_TLS=$XI_BSP_TLS;
+        make -C examples/mqtt_logic_example_two_contexts XI_CLIENT_LIB_PATH=../../bin/linux XI_BSP_TLS=$XI_BSP_TLS;
+        make -C examples/mqtt_last_will       XI_CLIENT_LIB_PATH=../../bin/linux XI_BSP_TLS=$XI_BSP_TLS;
 
         if [ $CONFIG == senml ]; then
-            make -C examples/senml_serializer XI_CLIENT_LIB_PATH=../../obj/linux XI_BSP_TLS=$XI_BSP_TLS;
+            make -C examples/senml_serializer XI_CLIENT_LIB_PATH=../../bin/linux XI_BSP_TLS=$XI_BSP_TLS;
         fi;
     fi;"

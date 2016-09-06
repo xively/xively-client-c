@@ -73,8 +73,14 @@ xi_bsp_io_net_connect( xi_bsp_socket_t* xi_socket, const char* host, uint16_t po
     return XI_BSP_IO_NET_STATE_ERROR;
 }
 
-xi_bsp_io_net_state_t xi_bsp_io_net_connection_check( xi_bsp_socket_t xi_socket )
+xi_bsp_io_net_state_t xi_bsp_io_net_connection_check(
+    xi_bsp_socket_t xi_socket,
+    const char* host,
+    uint16_t port )
 {
+    ( void )host;
+    ( void )port;
+
     int valopt    = 0;
     socklen_t lon = sizeof( int );
 

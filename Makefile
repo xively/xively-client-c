@@ -47,6 +47,9 @@ $(info -EXAMPLES- $$XI_EXAMPLES is [${XI_EXAMPLES}])
 $(info ----- )
 endif
 
+#gather all binary directories
+XI_BIN_DIRS := $(XI_BIN_DIR) $(XI_EXAMPLE_BINDIR) $(XI_EXAMPLE_BINDIR)/internal $(XI_TEST_BINDIR) $(XI_TEST_TOOLS_BINDIR)
+
 #default test target always present cause tiny test cross-compiles
 XI_TESTS_TARGETS := $(XI_UTESTS) $(XI_TEST_TOOLS_OBJS) $(XI_TEST_TOOLS)
 
@@ -55,7 +58,11 @@ ifneq ($(XI_CONST_PLATFORM_CURRENT),$(XI_CONST_PLATFORM_ARM))
 	XI_TESTS_TARGETS += $(XI_ITESTS)
 endif
 
-all: $(XI) $(XI_EXAMPLES) $(XI_TESTS_TARGETS)
+all: $(XI)
+
+tests: $(XI) $(XI_TESTS_TARGETS)
+
+internal_examples: $(XI) $(XI_INTERNAL_EXAMPLES)
 
 linux:
 	make CONFIG=$(CONFIG) TARGET=$(subst osx,linux,$(TARGET))
@@ -80,7 +87,7 @@ clean_all: clean
 
 libxively: $(XI)
 
-$(XI): $(TLS_LIB_PATH) $(XI_PROTOFILES_C) $(XI_OBJS)
+$(XI): $(TLS_LIB_PATH) $(XI_PROTOFILES_C) $(XI_OBJS) | $(XI_BIN_DIRS)
 	$(info [$(AR)] $@ )
 	$(MD) $(AR) $(XI_ARFLAGS) $(XI_OBJS) $(XI_EXTRA_ARFLAGS)
 
@@ -125,7 +132,6 @@ $(XI_OBJDIR)/bsp/platform/$(BSP_FOUND)/%.o : $(XI_BSP_DIR)/platform/$(BSP_FOUND)
 	$(XI_POST_COMPILE_ACTION)
 
 # gather all of the binary directories
-XI_BIN_DIRS := $(XI_EXAMPLE_BINDIR) $(XI_EXAMPLE_BINDIR)/internal $(XI_TEST_BINDIR) $(XI_TEST_TOOLS_BINDIR)
 XI_RESOURCE_FILES := $(LIBXIVELY)/res/trusted_RootCA_certs/xi_RootCA_list.pem
 
 ifneq (,$(findstring posix_fs,$(CONFIG)))
@@ -137,10 +143,10 @@ endif
 ###
 -include $(XI_EXAMPLE_OBJDIR)/*.d
 
-$(XI_EXAMPLE_BINDIR)/internal/%: $(XI) | $(XI_BIN_DIRS)
+$(XI_EXAMPLE_BINDIR)/internal/%: $(XI)
 	$(info [$(CC)] $@)
 	@-mkdir -p $(XI_EXAMPLE_OBJDIR)/$(subst $(XI_EXAMPLE_BINDIR)/,,$(dir $@))
-	$(MD) $(CC) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) -L$(XI_OBJDIR) $(XI) $(LIBXIVELY)/examples/common/src/commandline.c $(XI_EXAMPLE_DIR)/$(subst $(XI_EXAMPLE_BINDIR),,$@).c $(XI_LIB_FLAGS) -o $@
+	$(MD) $(CC) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) -L$(XI_BINDIR) $(XI) $(LIBXIVELY)/examples/common/src/commandline.c $(XI_EXAMPLE_DIR)/$(subst $(XI_EXAMPLE_BINDIR),,$@).c $(XI_LIB_FLAGS) -o $@
 	@$(CC) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) -MM $(XI_EXAMPLE_DIR)/$(subst $(XI_EXAMPLE_BINDIR),,$@).c -MT $@ -MF $(XI_EXAMPLE_OBJDIR)/$(subst $(XI_EXAMPLE_BINDIR)/,,$@).d
 
 ###
@@ -148,9 +154,9 @@ $(XI_EXAMPLE_BINDIR)/internal/%: $(XI) | $(XI_BIN_DIRS)
 ###
 -include $(XI_TEST_TOOLS_OBJDIR)/*.d
 
-$(XI_TEST_TOOLS_BINDIR)/%: $(XI) $(XI_TEST_TOOLS_OBJS) | $(XI_BIN_DIRS)
+$(XI_TEST_TOOLS_BINDIR)/%: $(XI) $(XI_TEST_TOOLS_OBJS)
 	$(info [$(CC)] $@)
-	$(MD) $(CC) $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) -L$(XI_OBJDIR) $(XI_TEST_TOOLS_OBJS) $(XI_TEST_TOOLS_SRCDIR)/$(notdir $@)/$(notdir $@).c $(XI_LIB_FLAGS) -o $@
+	$(MD) $(CC) $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) -L$(XI_BINDIR) $(XI_TEST_TOOLS_OBJS) $(XI_TEST_TOOLS_SRCDIR)/$(notdir $@)/$(notdir $@).c $(XI_LIB_FLAGS) -o $@
 	@-mkdir -p $(XI_TEST_TOOLS_OBJDIR)
 	@$(CC) $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) -MM $(XI_TEST_TOOLS_SRCDIR)/$(notdir $@)/$(notdir $@).c -MT $@ -MF $(XI_TEST_TOOLS_OBJDIR)/$(notdir $@).d
 	@#$@
@@ -162,9 +168,9 @@ $(XI_TEST_TOOLS_BINDIR)/%: $(XI) $(XI_TEST_TOOLS_OBJS) | $(XI_BIN_DIRS)
 XI_UTESTS_DEPENDENCIES_FILE = $(XI_UTEST_OBJDIR)/$(notdir $(XI_UTESTS)).d
 -include $(XI_UTESTS_DEPENDENCIES_FILE)
 
-$(XI_UTESTS): $(XI) $(XI_UTEST_OBJS) $(TINY_TEST_OBJ) | $(XI_BIN_DIRS)
+$(XI_UTESTS): $(XI) $(XI_UTEST_OBJS) $(TINY_TEST_OBJ)
 	$(info [$(CC)] $@)
-	$(MD) $(CC)  $(XI_UTEST_CONFIG_FLAGS) $(XI_UTEST_INCLUDE_FLAGS) -L$(XI_OBJDIR) $(XI_UTEST_SUITE_SOURCE) $(XI_UTEST_OBJS) $(TINY_TEST_OBJ) $(XI_LIB_FLAGS) -o $@
+	$(MD) $(CC)  $(XI_UTEST_CONFIG_FLAGS) $(XI_UTEST_INCLUDE_FLAGS) -L$(XI_BINDIR) $(XI_UTEST_SUITE_SOURCE) $(XI_UTEST_OBJS) $(TINY_TEST_OBJ) $(XI_LIB_FLAGS) -o $@
 	@-mkdir -p $(XI_UTEST_OBJDIR)
 	@$(CC) $(XI_UTEST_CONFIG_FLAGS) $(XI_UTEST_INCLUDE_FLAGS) -MM $(XI_UTEST_SUITE_SOURCE) -MT $@ -MF $(XI_UTESTS_DEPENDENCIES_FILE)
 	$(XI_RUN_UTESTS)
@@ -174,9 +180,9 @@ ifneq ($(XI_CONST_PLATFORM_CURRENT),$(XI_CONST_PLATFORM_ARM))
 
 -include $(XI_ITEST_OBJS:.o=.d)
 
-$(XI_ITESTS): $(XI) $(CMOCKA_LIBRARY_DEPS) $(XI_ITEST_OBJS) | $(XI_BIN_DIRS)
+$(XI_ITESTS): $(XI) $(CMOCKA_LIBRARY_DEPS) $(XI_ITEST_OBJS)
 	$(info [$(CC)] $@)
-	$(MD) $(CC) $(XI_ITEST_OBJS) -L$(XI_OBJDIR) $(XI_LIB_FLAGS) $(CMOCKA_LIBRARY) -o $@
+	$(MD) $(CC) $(XI_ITEST_OBJS) -L$(XI_BINDIR) $(XI_LIB_FLAGS) $(CMOCKA_LIBRARY) -o $@
 	$(XI_RUN_ITESTS)
 
 endif
@@ -201,7 +207,7 @@ wmsdk_examples: libxively
 	@# until further decisions made of how we should maintain
 	@# cross platform compilation of tests and examples I will
 	@# use this extra rule in order to build examples binaries that's wmsdk specific
-	@export EXTRALIBS=$(XI_OBJDIR)/libxively.a; \
+	@export EXTRALIBS=$(XI_BINDIR)/libxively.a; \
 	export XI_OBJDIR_BASE=$(XI_OBJDIR_BASE)/$(XI_CONST_PLATFORM_CURRENT)/; \
 	export XI_BINDIR=$(XI_BINDIR); \
 	export "XI_INCLUDE_FLAGS=$(XI_INCLUDE_FLAGS)"; \
