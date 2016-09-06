@@ -31,7 +31,6 @@
 #define XI_TT_PUBLISH                           ( XI_TT_MQTT_CODEC_LAYER_DATA << 1 )
 #define XI_TT_FS                                ( XI_TT_PUBLISH << 1 )
 #define XI_TT_RESOURCE_MANAGER                  ( XI_TT_FS << 1 )
-#define XI_TT_IO_LAYER                          ( XI_TT_RESOURCE_MANAGER << 1 )
 
 // clang-format on
 
@@ -100,10 +99,6 @@ XI_TT_TESTCASE_PREDECLARATION( utest_fs_dummy );
 
 #ifdef XI_FS_POSIX
 XI_TT_TESTCASE_PREDECLARATION( utest_fs_posix );
-#endif
-
-#if ( XI_IO_LAYER == XI_IO_POSIX )
-#include "xi_utest_io_posix_layer.h"
 #endif
 
 #include "xi_test_utils.h"
@@ -240,13 +235,7 @@ struct testgroup_t groups[] = {
     {"utest_resource_manager - ", utest_resource_manager},
 #endif
 
-#if ( XI_IO_LAYER == XI_IO_POSIX )
-#if ( XI_TT_TEST_SET & XI_TT_IO_LAYER )
-    {"utest_io_posix_layer - ", utest_io_posix_layer},
-#endif
-#endif
-
-    {"utest_rng - ", utest_rng},
+    { "utest_rng - ", utest_rng },
 
     END_OF_GROUPS};
 
