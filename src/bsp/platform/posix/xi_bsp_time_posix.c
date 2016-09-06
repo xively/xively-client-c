@@ -6,6 +6,11 @@
 #include <stddef.h>
 #include <sys/time.h>
 
+void xi_bsp_time_init( )
+{
+    /* empty */
+}
+
 xi_time_t xi_bsp_time_getcurrenttime_milliseconds()
 {
     struct timeval current_time;
