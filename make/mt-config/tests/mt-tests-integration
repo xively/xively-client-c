@@ -36,6 +36,8 @@ XI_ITESTS := $(XI_TEST_BINDIR)/$(XI_ITESTS_SUITE)
 # ADD INTEGRATION TEST CASE FILES
 XI_ITESTS_SOURCES += $(wildcard $(XI_ITESTS_SOURCE_DIR)/xi_itest_*.c)
 XI_ITESTS_SOURCES += $(wildcard $(XI_ITESTS_SOURCE_DIR)/tools/xi_*.c)
+XI_ITESTS_SOURCES += $(wildcard $(XI_ITESTS_SOURCE_DIR)/tools/dummy/*.c)
+XI_ITESTS_SOURCES += $(wildcard $(XI_ITESTS_SOURCE_DIR)/tools/posix/*.c)
 XI_ITESTS_SOURCES += $(wildcard $(XI_TEST_DIR)/*.c)
 
 # ADD dummy io layer
@@ -55,7 +57,8 @@ XI_ITESTS_INCLUDE_FLAGS += -I$(XI_TEST_DIR)
 XI_ITESTS_INCLUDE_FLAGS += -I$(XI_TEST_DIR)/tools
 XI_ITESTS_INCLUDE_FLAGS += -I$(XI_TEST_DIR)/itests
 XI_ITESTS_INCLUDE_FLAGS += -I$(XI_TEST_DIR)/itests/tools
-XI_ITESTS_INCLUDE_FLAGS += -I$(LIBXIVELY)/src/libxively/io/dummy
+XI_ITESTS_INCLUDE_FLAGS += -I$(XI_TEST_DIR)/itests/tools/dummy
+XI_ITESTS_INCLUDE_FLAGS += -I$(XI_TEST_DIR)/itests/tools/posix
 XI_ITESTS_INCLUDE_FLAGS += -I$(LIBXIVELY)/src/libxively
 XI_ITESTS_INCLUDE_FLAGS += $(foreach platformdep,$(XI_PLATFORM_MODULES) \
 	,-I$(XI_ITESTS_SOURCE_DIR)/platform/$(XI_PLATFORM_BASE)/$(platformdep))
