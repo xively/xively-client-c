@@ -10,6 +10,7 @@ This method requires OSX development platform although Windows and Linux methods
 - a [TI CC3200](http://www.ti.com/tool/cc3200-launchxl?keyMatch=launchpad%20cc3200&tisearch=Search-EN-Everything) board
 - to download the Code Composer Studio and the SDK you'll need to create a TI account, then these tools are free to download.
 - [TI Code Composer Studio](http://www.ti.com/tool/ccstudio) installed on OSX
+- Install the TI-RTOS CC32xx add-on from the CCS App Center (View-->CCS App Center)
 - [TI CC3200 SDK](http://www.ti.com/tool/cc3200sdk)
     - note: the SDK is downloadable in a Windows .exe compressed package format.
     - after extracting it on a Windows machine you should place it somewhere in your OSX directory structure, e.g. to ~/ti/CC3200SDK
@@ -24,9 +25,7 @@ This method requires OSX development platform although Windows and Linux methods
 
 :exclamation: **Under construction notes**:
 
-- currently auto-tests and Xively Client examples are not buildable for CC3200 thus in Makefile leave only $(XI) in the target *all*
 - add XI_COMPILER_FLAGS += -DNO_OCSP line to file mt-cc3200, some problems were not solved with OCSP
-- since current time implementation is very "artificial" the scheduling of events seems not to work as it should. Thus in xively.c in function xi_connect the xi_evtd_execute_in scheduled execution should be changed to xi_evtd_execute immediate execution. This latter does not need the last "delay" parameter and its return value differs as well.
 
 This step results in a static library suitable for CC3200. The command
 
@@ -43,11 +42,11 @@ cleans the output of the previous build.
 
 The wolfSSL supports TI-RTOS builds. Follow the steps written on [Using wolfSSL with TI-RTOS](http://processors.wiki.ti.com/index.php/Using_wolfSSL_with_TI-RTOS) to generate wolfSSL static library for CC3200.
 
-Before starting apply the following customizations made for a custom wolfSSL build:
+Before starting apply the following customizations made for a Xively wolfSSL build:
 
-In file wolfcrypt/settings.h find the WOLFSSL_TIRTOS section and update as follows:
+In file wolfcrypt/settings.h add a new platform macro WOLFSSL_NOOS_XIVELY with content:
 
-    #ifdef WOLFSSL_TIRTOS
+    #ifdef WOLFSSL_NOOS_XIVELY
 
         #define SINGLE_THREADED
 
@@ -101,17 +100,19 @@ In file wolfcrypt/settings.h find the WOLFSSL_TIRTOS section and update as follo
             #pragma diag_suppress=11
         #endif
 
-        #include <ti/sysbios/hal/Seconds.h>
-
     #endif
 
 This will disable a bunch of features in wolfSSL seemingly not required for a Xively connection but drastically deflate size of the result static library.
 
-In file wolfcrypt/random.c find the WOLFSSL_TIRTOS section and comment it out to force wolfSSL to use custom random function in the
+To compile in the above settings replace the
 
-    #elif defined(CUSTOM_RAND_GENERATE)
+    -DWOLFSSL_TIRTOS
 
-section.
+to
+
+    -DWOLFSSL_NOOS_XIVELY
+
+in file `wolfssl/tirtos/wolfssl.bld.
 
 ## Building CC3200 application: CCS ent_wlan example
 
@@ -131,7 +132,35 @@ Steps to take:
 #### Adding Xively Client code to the ent_wlan example:
 
 - locate the successful wifi connection point in the main.c of the ent_wlan example (comment: "wait for few moments")
-- copy Xively C Client initialize code from one of the examples in from the Client repo
+- call Xively C Client initialize code taken from one of the examples in from the Client repo, e.g.
+
+        void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t state ) { }
+
+        void ConnectToXively()
+        {
+            xi_initialize( "account_id", "xi_username", 0 );
+
+            xi_context_handle_t xi_context = xi_create_context();
+
+            if ( XI_INVALID_CONTEXT_HANDLE >= xi_context )
+            {
+                printf( " xi failed to create context, error: %d\n", -xi_context );
+            }
+
+            xi_state_t connect_result = xi_connect_to(
+                    xi_context,
+                    "broker.xively.com", 8883,
+                    "35f9a1ba-2f71-4084-9b68-995eac71ef6b", "9Xusd8+jjTghQcggpvEPhu5AFY1GlVnuV9WYwxp8ZT8=",
+                    10, 20,
+                    XI_SESSION_CLEAN, &on_connected );
+
+            xi_events_process_blocking();
+
+            xi_delete_context( xi_context );
+
+            xi_shutdown();
+        }
+
 - to make it build you'll need to
     - include xively.h
     - link CC3200 static library: xively-client-c/obj/cc3200/libxively.a
@@ -140,6 +169,6 @@ Steps to take:
 
 The functions are:
 
-    uint_least32_t ti_sysbios_hal_Seconds_get__E( void );
+    time_t XTIME(time_t * timer);
 
     uint32_t xively_ssl_rand_generate();
