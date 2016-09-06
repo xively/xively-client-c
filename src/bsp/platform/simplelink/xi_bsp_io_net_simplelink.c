@@ -103,9 +103,13 @@ xi_bsp_io_net_state_t xi_bsp_io_net_connect( xi_bsp_socket_t* xi_socket,
     return XI_BSP_IO_NET_STATE_OK;
 }
 
-xi_bsp_io_net_state_t xi_bsp_io_net_connection_check( xi_bsp_socket_t xi_socket )
+xi_bsp_io_net_state_t xi_bsp_io_net_connection_check( xi_bsp_socket_t xi_socket,
+                                                      const char* host,
+                                                      uint16_t port )
 {
-    (void)xi_socket;
+    ( void )xi_socket;
+    ( void )host;
+    ( void )port;
 
     /* no-operation is needed here for simplelink */
 

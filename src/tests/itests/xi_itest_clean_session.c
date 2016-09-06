@@ -255,6 +255,10 @@ static void xi_itest_clean_session_act( enum xi_session_type_e session_type )
     xi_connect( xi_context_handle, "test", "test", 10, 20, session_type, &clean_session_on_connection_state_changed );
     xi_evtd_step( xi_context->context_data.evtd_instance, xi_getcurrenttime_seconds() + 1 );
 
+    XI_PROCESS_CLOSE_EXTERNALLY_ON_THIS_LAYER( &xi_context->layer_chain.bottom, NULL, XI_STATE_OK );
+
+    xi_evtd_step( xi_context->context_data.evtd_instance, xi_getcurrenttime_seconds() + 1 );
+
     return;
 }
 
