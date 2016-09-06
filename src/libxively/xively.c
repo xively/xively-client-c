@@ -36,6 +36,7 @@
 
 #include "xi_user_sub_call_wrapper.h"
 
+#include <xi_bsp_time.h>
 #ifdef XI_BSP
 #include "xi_bsp_rng.h"
 #else
@@ -143,6 +144,7 @@ xi_state_t xi_initialize( const char* account_id,
                           const char* device_unique_id,
                           const char* device_credentials_file_absolute_path )
 {
+    xi_bsp_time_init();
     xi_bsp_rng_init();
 
     if ( NULL != xi_globals.str_account_id || NULL != xi_globals.str_device_unique_id )

@@ -22,6 +22,8 @@
 extern "C" {
 #endif
 
+void xi_bsp_time_init();
+
 /**
  * @function
  * @brief Returns elapsed milliseconds since Epoch.
