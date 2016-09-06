@@ -22,6 +22,14 @@
 extern "C" {
 #endif
 
+/**
+ * @function
+ * @brief Initialization of BSP TIME module.
+ *
+ * This function should contain initialization code to fire up time functionality on a
+ * certain platform. For POSIX systems usually this remains an empty function. For
+ * microcontrollers NTP and time-step code may reside here.
+ */
 void xi_bsp_time_init();
 
 /**
