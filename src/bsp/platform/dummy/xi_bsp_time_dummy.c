@@ -3,6 +3,11 @@
 
 #include <xi_bsp_time.h>
 
+void xi_bsp_time_init()
+{
+    /* empty */
+}
+
 xi_time_t xi_bsp_time_getcurrenttime_milliseconds()
 {
     return 1;
