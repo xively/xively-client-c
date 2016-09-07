@@ -12,8 +12,8 @@ CONFIG_POSIX_MIN			=bsp_posix-posix_fs-posix_platform-tls
 CONFIG_DUMMY_MAX			=bsp_dummy-memory_fs-memory_limiter-control_topic-senml
 CONFIG_DUMMY_MIN			=bsp_dummy-memory_fs
 
-CONFIG_CC3200_MAX			=bsp_cc3200-memory_fs-cc3200-platform-tls-senml-control_topic-memory_limiter
-CONFIG_CC3200_MIN			=bsp_cc3200-memory_fs-cc3200-platform-tls
+CONFIG_CC3200_MAX			=bsp_cc3200-memory_fs-tls-senml-control_topic-memory_limiter
+CONFIG_CC3200_MIN			=bsp_cc3200-memory_fs-tls
 
 # TARGET presets
 TARGET_STATIC_DEV			=-static-debug
