@@ -5,9 +5,8 @@
 #include <wmtime.h>
 #include <wm_os.h>
 
-void xi_bsp_time_init( )
+void xi_bsp_time_init()
 {
-
 }
 
 xi_time_t xi_bsp_time_getcurrenttime_milliseconds()
