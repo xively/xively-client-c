@@ -4,6 +4,11 @@
 #include <xi_bsp_time.h>
 #include <time.h>
 
+void xi_bsp_time_init( )
+{
+
+}
+
 xi_time_t xi_bsp_time_getcurrenttime_milliseconds()
 {
     return ( xi_time_t )TickConvertToMilliseconds( TickGet() );
