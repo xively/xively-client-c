@@ -6,7 +6,7 @@
 #include <stddef.h>
 #include <sys/time.h>
 
-void xi_bsp_time_init( )
+void xi_bsp_time_init()
 {
     /* empty */
 }
