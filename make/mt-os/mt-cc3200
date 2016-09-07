@@ -39,24 +39,20 @@ XI_COMPILER_FLAGS += --output_file=$@
 # currently only used by examples
 XI_COMPILER_FLAGS += -DXI_CROSS_TARGET
 XI_COMPILER_FLAGS += -DXI_EMBEDDED_TESTS
+XI_COMPILER_FLAGS += -DNO_OCSP
 
 XI_COMPILER_FLAGS += -DNO_WRITEV
 
-#XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_SDK)/driverlib
-#XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_SDK)/inc
-#XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_SDK)/example/common
+XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_SDK)/driverlib
+XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_SDK)/inc
+XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_SDK)/example/common
 XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_SDK)/simplelink/include
 XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_SDK)/simplelink_extlib/provisioninglib
-
-XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_SDK)/third_party/FreeRTOS/source/include
-XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_SDK)/third_party/FreeRTOS/source
-XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_SDK)/third_party/FreeRTOS/source/portable/CCS/ARM_CM3
 
 XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_CCS_TOOLS)/compiler/ti-cgt-arm_15.12.1.LTS/include
 XI_COMPILER_FLAGS += -i"$(XI_CC3200_PATH_CCS_TOOLS)/compiler/ti-cgt-arm_15.12.1.LTS/lib"
 
 XI_ARFLAGS := r $(XI)
-#XI_LIB_FLAGS := -l$(XI:.a=.lib)
 XI_LIB_FLAGS := -llibxively.a
 
 XI_POST_COMPILE_ACTION =
