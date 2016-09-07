@@ -6,10 +6,6 @@
 
 #ifdef __MBED__
 #include "xi_config_mbed.h"
-#ifndef XI_IO_LAYER
-#define XI_IO_LAYER XI_IO_POSIX
-#define XI_IO_LAYER_POSIX_COMPAT 1
-#endif
 #endif
 
 #ifndef XI_IO_BUFFER_SIZE
