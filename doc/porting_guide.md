@@ -244,13 +244,6 @@ A typical CONFIG flag:
     - expose_fs         - adds a new Xively C Client API function which allows external definition
                           of File System calls
 
-###### Networking flags
-
-    - posix_io          - POSIX implementation of Networking calls
-    - microchip_io      - turns on Microchip Networking solution
-    - mbed_io           - turns on an Mbed Networking solution
-    - dummy_io          - empty implementation of Networking calls
-
 ###### Development flags
 
     - memory_limiter    - turns on memory limiting and monitoring functionality. The purpose of this configuration
@@ -411,9 +404,10 @@ the following steps:
 - populating all of the Xively C Client platform independent source and BSP functions in the
   platform specific build system. These are almost all files under directory
   _src/libxively_. Exceptions are the multiple implementations of the BSP functions for
-  different platforms. E.g. _src/libxively/memory_ has the BSP stub
-  right in the first level, but non-BSP platform specific implementations of the
-  same function reside under subdirectories. The BSP source should be fed to the build system, but the non-BSP should not.
+  different platforms. E.g. _src/libxively/io/net/_ has the BSP generic implementation
+  while the platform specific implementations are located in _src/bsp/platform/_.
+  The BSP source should be fed to the build system so one of platform's specific
+  implementations should be added to the workspace.
 - collecting the proper BSP module API implementations covering all BSP modules
   (NET, MEM, RNG, TIME) into a directory and feeding this to build system as well
     - this might require you to "only" cherry-pick the proper implementations from the directory
