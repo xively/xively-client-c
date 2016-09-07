@@ -233,7 +233,7 @@ ca.pem:
 			-outform pem
 
 update_builtin_cert: ca.pem
-	./create_buffer.py \
+	./tools/create_buffer.py \
 		--file_name ./ca.pem \
 		--array_name xi_ca \
 		--out_path ./src/libxively/tls/ \
