@@ -19,12 +19,6 @@ static void timer_int_handler( )
 {
     MAP_TimerIntClear (TIMERA0_BASE, MAP_TimerIntStatus(TIMERA0_BASE, true));
     uptime ++;
-
-    if ( 0 == uptime % 10 )
-    {
-        printf( "uptime: %ds, start_time_ntp: %lu, %lu\n",
-            uptime, sntp_time_posix(), sntp_time_ntp() );
-    }
 }
 
 void xi_bsp_time_init( )
