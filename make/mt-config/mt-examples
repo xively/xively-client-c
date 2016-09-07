@@ -11,8 +11,4 @@ endif
 
 XI_INTERNAL_EXAMPLES = $(addprefix $(XI_EXAMPLE_BINDIR)/,$(XI_EXAMPLE_SOURCES:.c=))
 
-ifneq ($(XI_IO_LAYER), posix)
-    $(warning "Examples currently are only for POSIX I/O layer")
-endif
-
 XI_EXAMPLE_INCLUDE_FLAGS := $(foreach d, $(LIBXIVELY_INTERFACE_INCLUDE_DIRS), -I$d)
