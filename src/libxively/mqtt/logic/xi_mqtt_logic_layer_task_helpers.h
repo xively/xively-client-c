@@ -124,10 +124,11 @@ run_task( xi_layer_connectivity_t* context, xi_mqtt_logic_task_t* task )
 
 #ifdef XI_DEBUG_EXTRA_INFO
         xi_mqtt_logic_task_t* needle = NULL;
-        XI_LIST_FIND( xi_mqtt_logic_task_t, layer_data->q12_tasks_queue, CMP_TASK_MSG_ID,
-                      task->msg_id, /* this can be optimized through
-                              * the structure optimization */
-                      needle );
+        XI_LIST_FIND(
+            xi_mqtt_logic_task_t, layer_data->q12_tasks_queue, CMP_TASK_MSG_ID,
+            task->msg_id, /* this is linear search so we have O(n) complexity it can be
+                             optimized but for the small n it is acceptable complexity */
+            needle );
         assert( NULL == needle && "task with the same id already exist" );
 #endif
 
