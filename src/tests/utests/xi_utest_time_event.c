@@ -24,8 +24,8 @@ void test_time_event()
     {
         time_events[i].time_of_execution = ( xi_time_t )rand() % 1000;
 
-        xi_state_t ret_state = xi_time_event_add( vector, &time_events[i],
-                                                                &time_event_handles[i] );
+        xi_state_t ret_state =
+            xi_time_event_add( vector, &time_events[i], &time_event_handles[i] );
 
         tt_assert( ret_state == XI_STATE_OK );
         tt_assert( time_event_handles[i].position != NULL );
@@ -66,8 +66,7 @@ XI_TT_TESTCASE( utest__xi_time_event_execute_handle_in__time_event_added, {
     xi_time_event_t time_event               = xi_make_empty_time_event();
     xi_time_event_handle_t time_event_handle = xi_make_empty_time_event_handle();
 
-    xi_state_t ret_state =
-        xi_time_event_add( vector, &time_event, &time_event_handle );
+    xi_state_t ret_state = xi_time_event_add( vector, &time_event, &time_event_handle );
 
     tt_assert( ret_state == XI_STATE_OK );
     tt_assert( time_event_handle.position != NULL );
