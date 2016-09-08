@@ -290,7 +290,7 @@ The examples are command line applications libxively links against. They require
 
 ##### _XI_BSP_PLATFORM_
 
-    - [ posix | microchip | wmsdk | ... ] - selects the bsp implementation from the available implementations, by default this flag is set to posix platform
+    - [ posix | cc3200 | ... ] - selects the bsp implementation from the available implementations, by default this flag is set to posix platform
 
 ##### _XI_BSP_TLS_
 
@@ -310,7 +310,7 @@ To mop up generated files type
 
 But before - to make this possible - the following steps have to be taken.
 
-Let's assume the new platform's name is np2000. And an early advise: as a rule of thumb if you are stuck examine and try to get help from already existing MCU config files like: *mt-cc3200*, *mt-wmsdk*, *mt-microchip*
+Let's assume the new platform's name is np2000. And an early advise: as a rule of thumb if you are stuck examine and try to get help from already existing MCU config files like: *mt-cc3200*, *mt-linux*, etc
 
 #### Porting Checklist
 
@@ -403,11 +403,11 @@ Xively C Client build environment to your platform's own development environment
 While we cannot completely predict how this process would work for every IDE and toolchain, here are some 
 suggested steps to follow when working through this process:
 
-- import all of the Xively C Client source files in the src/libxively directory. This is where all of the Xively Client's platform independant code resides.
+- import all of the Xively C Client source files in the src/libxively directory. This is where all of the Xively Client's platform independent code resides.
 - import all of the source files in one of the subdirectories of src/bsp/platform.  
-  The Xively C Client BSPs contain all of the missing hooks which tie the platform independant 
+  The Xively C Client BSPs contain all of the missing hooks which tie the platform independent 
   code to a particular device. Complete implementations should include a source file for each
-  of the BSP subysstems (networking, memory, time, etc).
+  of the BSP subsystems (networking, memory, time, etc).
 	- NOTE: The Xively C Client contains reference BSP implementations for POSIX and CC3200. We also have partial implementations for specific networking APIs. 
     Modules from these 'incomplete' BSP implementations could be used as substitutes. For instance, on devices that mirror POSIX completely except for networking, like Simplelink, the networking module from src/bsp/platform/posix could be ovewritten with the one from src/bsp/platform/simplelink_incomplete. 
 - import one of the BSP TLS implementations in src/bsp/tls.  Currently we provide two different TLS BSP implementations: WolfSSL or mbedTLS.
