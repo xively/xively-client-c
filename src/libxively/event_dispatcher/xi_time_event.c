@@ -237,6 +237,23 @@ xi_state_t xi_time_event_restart( xi_vector_t* vector,
     /* the element can be found with O(1) complexity cause we've been updating each
      * element's position during every operation that could've break it */
 
+    xi_vector_index_type_t index = time_event_handle->position;
+
+    /* check for the correctness of the time_event_handle */
+    if( index >= vector->elem_no )
+    {
+        return XI_ELEMENT_NOT_FOUND;
+    }
+
+    /* let's update the key of this element */
+    xi_time_event_t* time_event = ( xi_time_event_t* ) vector->array[index].selector_t.ptr_value;
+
+    time_event->time_of_execution = new_time;
+
+    /* now we have to restore the order in the vector */
+    xi_vector_heap_fix_order_up( vector, index );
+    xi_vector_heap_fix_order_down( vector, index );
+
     return XI_STATE_OK;
 }
 
