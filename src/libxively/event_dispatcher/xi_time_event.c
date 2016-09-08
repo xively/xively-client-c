@@ -270,15 +270,14 @@ xi_time_event_cancel( xi_vector_t* vector, xi_time_event_handle_t* time_event_ha
 
     xi_vector_index_type_t index = *time_event_handle->position;
 
-    if( index >= vector->elem_no || index < 0 )
+    if ( index >= vector->elem_no || index < 0 )
     {
         return XI_ELEMENT_NOT_FOUND;
     }
 
     /* if it's somwhere else than the end, let's put it there */
-    if( index < vector->elem_no - 1 )
+    if ( index < vector->elem_no - 1 )
     {
-
     }
 
     return XI_STATE_OK;
