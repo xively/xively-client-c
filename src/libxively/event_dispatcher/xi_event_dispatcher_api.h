@@ -27,8 +27,7 @@ typedef intptr_t xi_fd_t;
 struct xi_heap_s;
 struct xi_heap_element_s;
 
-typedef enum xi_evtd_fd_type_e
-{
+typedef enum xi_evtd_fd_type_e {
     XI_EVTD_FD_TYPE_SOCKET = 0,
     XI_EVTD_FD_TYPE_FILE
 } xi_evtd_fd_type_t;

@@ -41,7 +41,7 @@ xi_state_t xi_io_posix_layer_push( void* context, void* data, xi_state_t in_out_
         ( xi_io_posix_layer_state_t* )XI_THIS_LAYER( context )->user_data;
 
     xi_data_desc_t* buffer = ( xi_data_desc_t* )data;
-    int errval = 0;
+    int errval             = 0;
     XI_UNUSED( errval );
 #if ( XI_IO_LAYER_POSIX_COMPAT != 2 )
     /* SimpleLink does not have or need this */

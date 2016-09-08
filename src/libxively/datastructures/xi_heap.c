@@ -108,8 +108,8 @@ void xi_heap_elements_swap( xi_heap_element_t** a, xi_heap_element_t** b )
 
     /* swap indexes */
     xi_heap_index_type_t tmp_index = ( **a ).index;
-    ( **a ).index = ( **b ).index;
-    ( **b ).index = tmp_index;
+    ( **a ).index                  = ( **b ).index;
+    ( **b ).index                  = tmp_index;
 }
 
 void xi_heap_fix_order_up( xi_heap_t* xi_heap, xi_heap_index_type_t index )

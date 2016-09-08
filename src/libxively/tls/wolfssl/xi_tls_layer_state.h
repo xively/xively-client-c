@@ -15,8 +15,7 @@
 extern "C" {
 #endif
 
-typedef enum xi_tls_layer_data_write_state_e
-{
+typedef enum xi_tls_layer_data_write_state_e {
     XI_TLS_LAYER_DATA_NONE = 0,
     XI_TLS_LAYER_DATA_WRITING,
     XI_TLS_LAYER_DATA_WRITTEN,

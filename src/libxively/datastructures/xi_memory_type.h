@@ -23,8 +23,7 @@ extern "C" {
  * XI_MEMORY_TYPE_UNMANAGED - buffer memory is not managed by the entity.
  * Therefore the buffer will not be freed whenever destroy is called.
  **/
-typedef enum
-{
+typedef enum {
     XI_MEMORY_TYPE_UNKNOWN,
     XI_MEMORY_TYPE_MANAGED,
     XI_MEMORY_TYPE_UNMANAGED

@@ -31,22 +31,19 @@ void test()
     const size_t realloc_size          = 0xAF;
     const size_t alloc_size_difference = realloc_size - original_alloc_size;
 
-    void* ptr =
-        xi_memory_limiter_alloc( XI_MEMORY_LIMITER_ALLOCATION_TYPE_APPLICATION,
-                                 original_alloc_size, __FILE__, __LINE__ );
+    void* ptr = xi_memory_limiter_alloc( XI_MEMORY_LIMITER_ALLOCATION_TYPE_APPLICATION,
+                                         original_alloc_size, __FILE__, __LINE__ );
     tt_assert( NULL != ptr );
 
-    const size_t application_capacity_after_alloc =
-        xi_memory_limiter_get_current_limit(
-            XI_MEMORY_LIMITER_ALLOCATION_TYPE_APPLICATION );
+    const size_t application_capacity_after_alloc = xi_memory_limiter_get_current_limit(
+        XI_MEMORY_LIMITER_ALLOCATION_TYPE_APPLICATION );
 
     memset( ptr, 0xCA, original_alloc_size );
     unsigned char* matrix[0xAA];
     memset( matrix, 0xCA, sizeof( matrix ) );
 
-    void* realloc_ptr =
-        xi_memory_limiter_realloc( XI_MEMORY_LIMITER_ALLOCATION_TYPE_APPLICATION, ptr,
-                                   0xAF, __FILE__, __LINE__ );
+    void* realloc_ptr = xi_memory_limiter_realloc(
+        XI_MEMORY_LIMITER_ALLOCATION_TYPE_APPLICATION, ptr, 0xAF, __FILE__, __LINE__ );
     tt_assert( NULL != realloc_ptr );
 
     const size_t capacity_difference =
@@ -71,8 +68,7 @@ end:;
 XI_TT_TESTGROUP_BEGIN( utest_memory_limiter )
 
 XI_TT_TESTCASE(
-    utest__xi_memory_limiter_set_limit__valid_data_application__new_limit_set,
-    {
+    utest__xi_memory_limiter_set_limit__valid_data_application__new_limit_set, {
         size_t i = 0;
 
         for ( ; i < XI_ARRAYSIZE( utest_memory_limiter_generic_test_samples ); ++i )
@@ -222,8 +218,7 @@ XI_TT_TESTCASE(
 
 
 XI_TT_TESTCASE(
-    utest__xi_memory_limiter_allocate_memory__wrong_data__return_invalid_parameter,
-    {
+    utest__xi_memory_limiter_allocate_memory__wrong_data__return_invalid_parameter, {
         void* ptr = xi_memory_limiter_alloc(
             XI_MEMORY_LIMITER_ALLOCATION_TYPE_APPLICATION, 0, __FILE__, __LINE__ );
         tt_assert( NULL != ptr );
@@ -234,9 +229,7 @@ XI_TT_TESTCASE(
 
 XI_TT_TESTCASE(
     utest__xi_memory_limiter_allocate_memory__valid_data_realloc_more__realloc_previously_allocated_memory,
-    {
-        test();
-    } )
+    { test(); } )
 
 
 XI_TT_TESTCASE(
@@ -342,16 +335,13 @@ XI_TT_TESTCASE(
     end:;
     } )
 
-XI_TT_TESTCASE( utest__xi_memory_limiter_reset_the_limiter,
-                {
-                    xi_memory_limiter_set_limit(
-                        XI_MEMORY_LIMITER_APPLICATION_MEMORY_LIMIT +
-                        XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT + 1 );
-                    tt_want_int_op( xi_is_whole_memory_deallocated(), >, 0 );
-                    xi_memory_limiter_set_limit(
-                        XI_MEMORY_LIMITER_APPLICATION_MEMORY_LIMIT +
-                        XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT );
-                } )
+XI_TT_TESTCASE( utest__xi_memory_limiter_reset_the_limiter, {
+    xi_memory_limiter_set_limit( XI_MEMORY_LIMITER_APPLICATION_MEMORY_LIMIT +
+                                 XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT + 1 );
+    tt_want_int_op( xi_is_whole_memory_deallocated(), >, 0 );
+    xi_memory_limiter_set_limit( XI_MEMORY_LIMITER_APPLICATION_MEMORY_LIMIT +
+                                 XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT );
+} )
 
 XI_TT_TESTCASE(
     utest__xi_memory_limiter_allocate_memory__vald_data_proper_capacities__return_proper_capacity,

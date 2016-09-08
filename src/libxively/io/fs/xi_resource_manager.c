@@ -11,9 +11,10 @@
 /* counter for unique filedescriptors required before calling open on resource */
 static volatile xi_fd_t xi_resource_manager_counter = -1;
 
-static xi_state_t xi_resource_manager_get_callback_state( xi_event_handle_t* event_handle )
+static xi_state_t
+xi_resource_manager_get_callback_state( xi_event_handle_t* event_handle )
 {
-    switch( event_handle->handle_type )
+    switch ( event_handle->handle_type )
     {
         case XI_EVENT_HANDLE_ARGC3:
             return event_handle->handlers.h3.a3;

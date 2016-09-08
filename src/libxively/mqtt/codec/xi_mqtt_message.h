@@ -14,8 +14,7 @@
 extern "C" {
 #endif
 
-typedef enum xi_mqtt_type_e
-{
+typedef enum xi_mqtt_type_e {
     XI_MQTT_TYPE_NONE        = 0,
     XI_MQTT_TYPE_CONNECT     = 1,
     XI_MQTT_TYPE_CONNACK     = 2,
@@ -33,8 +32,7 @@ typedef enum xi_mqtt_type_e
     XI_MQTT_TYPE_DISCONNECT  = 14,
 } xi_mqtt_type_t;
 
-typedef enum
-{
+typedef enum {
     XI_MQTT_MESSAGE_CLASS_UNKNOWN = 0,
     XI_MQTT_MESSAGE_CLASS_TO_SERVER,
     XI_MQTT_MESSAGE_CLASS_FROM_SERVER
@@ -50,19 +48,16 @@ typedef struct xi_mqtt_topicpair_s
 {
     struct xi_mqtt_topicpair_s* next;
     xi_data_desc_t* name;
-    union
-    {
+    union {
         xi_mqtt_suback_status_t status;
         xi_mqtt_qos_t qos;
     } xi_mqtt_topic_pair_payload_u;
 } xi_mqtt_topicpair_t;
 
-typedef union xi_mqtt_message_u
-{
+typedef union xi_mqtt_message_u {
     struct common_s
     {
-        union
-        {
+        union {
             struct
             {
                 unsigned int retain : 1;
@@ -82,8 +77,7 @@ typedef union xi_mqtt_message_u
         xi_data_desc_t* protocol_name;
         uint8_t protocol_version;
 
-        union
-        {
+        union {
             struct
             {
                 unsigned int reserverd : 1;

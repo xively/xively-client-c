@@ -38,7 +38,7 @@ char* xi_str_dup( const char* s )
     assert( s != 0 );
 
     const size_t len = strlen( s );
-    char* ret = xi_alloc( len + 1 );
+    char* ret        = xi_alloc( len + 1 );
     if ( ret == 0 )
     {
         return 0;
@@ -54,7 +54,7 @@ char* xi_str_cat( const char* s1, const char* s2 )
 
     size_t len1 = strlen( s1 );
     size_t len2 = strlen( s2 );
-    char* ret = xi_alloc( len1 + len2 + 1 );
+    char* ret   = xi_alloc( len1 + len2 + 1 );
     if ( ret == 0 )
     {
         return 0;
@@ -170,7 +170,7 @@ uint32_t xi_highest_bit_filter( uint32_t value )
 void get_stack_trace()
 {
     int j, nptrs;
-    #define SIZE 100
+#define SIZE 100
     void *buffer[100];
     char **strings;
 
