@@ -258,12 +258,14 @@ xi_state_t xi_time_event_restart( xi_vector_t* vector,
     return XI_STATE_OK;
 }
 
-xi_state_t
-xi_time_event_cancel( xi_vector_t* vector, xi_time_event_handle_t* time_event_handle )
+xi_state_t xi_time_event_cancel( xi_vector_t* vector,
+                                 xi_time_event_handle_t* time_event_handle,
+                                 xi_time_event_t** cancelled_time_event )
 {
     /* PRE-CONDITIONS */
     assert( NULL != vector );
     assert( NULL != time_event_handle );
+    assert( NULL != cancelled_time_event );
 
     /* the element we would like to remove should be at position described by the
      * time_event_handle */
@@ -275,10 +277,22 @@ xi_time_event_cancel( xi_vector_t* vector, xi_time_event_handle_t* time_event_ha
         return XI_ELEMENT_NOT_FOUND;
     }
 
-    /* if it's somwhere else than the end, let's put it there */
+    /* if it's somwhere else than the end, let's swap it with the last element */
     if ( index < vector->elem_no - 1 )
     {
+        xi_vector_heap_swap_time_events( vector, index, vector->elem_no - 1 );
     }
+
+    /* let's update the return parameter */
+    *cancelled_time_event =
+        ( xi_time_event_t* )vector->array[vector->elem_no - 1].selector_t.ptr_value;
+
+    /* now we can remove that element from the vector */
+    xi_vector_del( vector, vector->elem_no - 1 );
+
+    /* restore the heap order in the vector for that element */
+    xi_vector_heap_fix_order_down( vector, index );
+    xi_vector_heap_fix_order_up( vector, index );
 
     return XI_STATE_OK;
 }
