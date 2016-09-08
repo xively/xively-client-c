@@ -88,7 +88,7 @@
 #define XI_LIST_FOREACH( type, list, fun )                                               \
     {                                                                                    \
         type* curr = list;                                                               \
-        type* tmp = NULL;                                                                \
+        type* tmp  = NULL;                                                               \
         while ( NULL != curr )                                                           \
         {                                                                                \
             tmp = curr->__next;                                                          \
@@ -100,7 +100,7 @@
 #define XI_LIST_FOREACH_WITH_ARG( type, list, fun, arg )                                 \
     {                                                                                    \
         type* curr = list;                                                               \
-        type* tmp = NULL;                                                                \
+        type* tmp  = NULL;                                                               \
         while ( NULL != curr )                                                           \
         {                                                                                \
             tmp = curr->__next;                                                          \
@@ -112,7 +112,7 @@
 #define XI_LIST_NTH( type, list, n, out )                                                \
     {                                                                                    \
         type* curr = list;                                                               \
-        size_t i = 0;                                                                    \
+        size_t i   = 0;                                                                  \
         while ( NULL != curr )                                                           \
         {                                                                                \
             if ( i++ == n )                                                              \
@@ -127,7 +127,7 @@
 #define XI_LIST_FIND_I( type, list, pred, pred_params, out )                             \
     {                                                                                    \
         type* curr = list;                                                               \
-        size_t i = 0;                                                                    \
+        size_t i   = 0;                                                                  \
         XI_UNUSED( i );                                                                  \
         while ( NULL != curr )                                                           \
         {                                                                                \
@@ -146,7 +146,7 @@
         type* out_curr = out;                                                            \
         type* prev     = NULL;                                                           \
         type* tmp      = NULL;                                                           \
-        size_t i = 0;                                                                    \
+        size_t i       = 0;                                                              \
         XI_UNUSED( i );                                                                  \
         while ( NULL != curr )                                                           \
         {                                                                                \

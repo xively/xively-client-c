@@ -251,7 +251,7 @@ int xi_mqtt_logic_cont_sess_example_main( int argc, char* argv[] )
     char* local_shutdown_topic        = "shutdown_topic";
     const uint16_t connection_timeout = 10;
     const uint16_t keepalive_timeout  = 20;
-    char options[] = "hu:P:t:";
+    char options[]                    = "hu:P:t:";
     printf( "\n%s\nMajor = %d Minor = %d Revision = %d\n", xi_cilent_version_str,
             xi_major, xi_minor, xi_revision );
 

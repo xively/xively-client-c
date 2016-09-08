@@ -19,7 +19,7 @@ typedef struct xi_static_host_desc_s
     uint16_t port;
 } xi_static_host_desc_t;
 
-#define XI_MQTT_HOST_ACCESSOR ((xi_static_host_desc_t)XI_MQTT_HOST)
+#define XI_MQTT_HOST_ACCESSOR ( ( xi_static_host_desc_t )XI_MQTT_HOST )
 
 #ifdef __cplusplus
 }

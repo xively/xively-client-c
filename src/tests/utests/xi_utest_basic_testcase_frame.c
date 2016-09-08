@@ -25,5 +25,5 @@ int xi_utest_teardown_basic( const struct testcase_t* testcase, void* fixture )
 
     xi_memory_limiter_teardown();
 
-    return 1; //OK
+    return 1; // OK
 }

@@ -17,9 +17,7 @@
 XI_TT_TESTGROUP_BEGIN( utest_rng )
 
 XI_TT_TESTCASE_WITH_SETUP(
-    xi_utest_rand,
-    xi_utest_setup_basic, xi_utest_teardown_basic, NULL,
-    {
+    xi_utest_rand, xi_utest_setup_basic, xi_utest_teardown_basic, NULL, {
         const uint32_t r1 = xi_rand();
         const uint32_t r2 = xi_rand();
 

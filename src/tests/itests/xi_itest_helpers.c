@@ -7,10 +7,10 @@ int cmocka_run_test_groups( const struct CMGroupTest* const tgroups )
     int ret = 0;
 
     int i = 0;
-    while ( tgroups[ i ].tests )
+    while ( tgroups[i].tests )
     {
-        ret = _cmocka_run_group_tests( tgroups[ i ].name, tgroups[ i ].tests,
-                                       tgroups[ i ].len, NULL, NULL );
+        ret = _cmocka_run_group_tests( tgroups[i].name, tgroups[i].tests, tgroups[i].len,
+                                       NULL, NULL );
 
         if ( ret != 0 )
         {
@@ -53,17 +53,20 @@ xi_layer_t* xi_itest_find_layer( xi_context_t* xi_context, int layer_id )
     return root;
 }
 
-#define xi_itest_inject_wrap( layer, wrap_name, wrap )                         \
-    if ( wrap )                                                                \
-    {                                                                          \
-        layer->layer_funcs->wrap_name = wrap;                                  \
+#define xi_itest_inject_wrap( layer, wrap_name, wrap )                                   \
+    if ( wrap )                                                                          \
+    {                                                                                    \
+        layer->layer_funcs->wrap_name = wrap;                                            \
     }
 
-void xi_itest_inject_wraps( xi_context_t* xi_context, int layer_id,
-                            xi_layer_func_t* push, xi_layer_func_t* pull,
+void xi_itest_inject_wraps( xi_context_t* xi_context,
+                            int layer_id,
+                            xi_layer_func_t* push,
+                            xi_layer_func_t* pull,
                             xi_layer_func_t* close,
                             xi_layer_func_t* close_externally,
-                            xi_layer_func_t* init, xi_layer_func_t* connect )
+                            xi_layer_func_t* init,
+                            xi_layer_func_t* connect )
 {
     // first find proper layer
     xi_layer_t* layer = xi_itest_find_layer( xi_context, layer_id );

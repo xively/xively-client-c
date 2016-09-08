@@ -8,8 +8,7 @@
 extern "C" {
 #endif
 
-typedef enum xi_mqtt_error_e
-{
+typedef enum xi_mqtt_error_e {
     XI_MQTT_ERROR_NONE                            = 0,
     XI_MQTT_ERROR_PARSER_INVALID_STATE            = 1,
     XI_MQTT_ERROR_PARSER_INVALID_REMAINING_LENGTH = 2,

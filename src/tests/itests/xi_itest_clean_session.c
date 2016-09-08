@@ -18,99 +18,113 @@
 
 /*-----------------------------------------------------------------------*/
 #ifndef XI_DEBUG_NO_TLS
-#define XI_DEFAULT_LAYER_CHAIN \
-      XI_LAYER_TYPE_IO \
-    , XI_LAYER_TYPE_TLS \
-    , XI_LAYER_TYPE_MQTT_CODEC \
-    , XI_LAYER_TYPE_MQTT_LOGIC \
-    , XI_LAYER_TYPE_CONTROL_TOPIC
+#define XI_DEFAULT_LAYER_CHAIN                                                           \
+    XI_LAYER_TYPE_IO                                                                     \
+    , XI_LAYER_TYPE_TLS, XI_LAYER_TYPE_MQTT_CODEC, XI_LAYER_TYPE_MQTT_LOGIC,             \
+        XI_LAYER_TYPE_CONTROL_TOPIC
 #else
-#define XI_DEFAULT_LAYER_CHAIN \
-      XI_LAYER_TYPE_IO \
-    , XI_LAYER_TYPE_MQTT_CODEC \
-    , XI_LAYER_TYPE_MQTT_LOGIC \
-    , XI_LAYER_TYPE_CONTROL_TOPIC
+#define XI_DEFAULT_LAYER_CHAIN                                                           \
+    XI_LAYER_TYPE_IO                                                                     \
+    , XI_LAYER_TYPE_MQTT_CODEC, XI_LAYER_TYPE_MQTT_LOGIC, XI_LAYER_TYPE_CONTROL_TOPIC
 #endif
 
 XI_DECLARE_LAYER_CHAIN_SCHEME( XI_LAYER_CHAIN_DEFAULT, XI_DEFAULT_LAYER_CHAIN );
 
 // some helpers
-xi_mqtt_task_specific_data_t handlers_b[]
-    = {{.subscribe = {"test",
-                      {XI_EVENT_HANDLE_UNSET, .handlers.h0 = {0}, 0},
-                      XI_MQTT_QOS_AT_LEAST_ONCE}},
-       {.subscribe = {"test2",
-                      {XI_EVENT_HANDLE_UNSET, .handlers.h0 = {0}, 0},
-                      XI_MQTT_QOS_AT_LEAST_ONCE}},
-       {.subscribe = {NULL,
-                      {XI_EVENT_HANDLE_UNSET, .handlers.h0 = {0}, 0},
-                      XI_MQTT_QOS_AT_MOST_ONCE}}};
+xi_mqtt_task_specific_data_t handlers_b[] = {
+    {.subscribe = {"test",
+                   {XI_EVENT_HANDLE_UNSET, .handlers.h0 = {0}, 0},
+                   XI_MQTT_QOS_AT_LEAST_ONCE}},
+    {.subscribe = {"test2",
+                   {XI_EVENT_HANDLE_UNSET, .handlers.h0 = {0}, 0},
+                   XI_MQTT_QOS_AT_LEAST_ONCE}},
+    {.subscribe = {NULL,
+                   {XI_EVENT_HANDLE_UNSET, .handlers.h0 = {0}, 0},
+                   XI_MQTT_QOS_AT_MOST_ONCE}}};
 
 #ifndef XI_DEBUG_NO_TLS
-    #include "xi_tls_layer.h"
-    #include "xi_tls_layer_state.h"
+#include "xi_tls_layer.h"
+#include "xi_tls_layer_state.h"
 #endif
-    #include "xi_control_topic_layer.h"
+#include "xi_control_topic_layer.h"
 
-    /*-----------------------------------------------------------------------*/
-    #include "xi_mqtt_codec_layer.h"
-    #include "xi_mqtt_codec_layer_data.h"
-    #include "xi_mqtt_logic_layer.h"
-    #include "xi_mqtt_logic_layer_data.h"
+/*-----------------------------------------------------------------------*/
+#include "xi_mqtt_codec_layer.h"
+#include "xi_mqtt_codec_layer_data.h"
+#include "xi_mqtt_logic_layer.h"
+#include "xi_mqtt_logic_layer_data.h"
 
-    XI_DECLARE_LAYER_TYPES_BEGIN( itest_cyassl_context )
-          XI_LAYER_TYPES_ADD( XI_LAYER_TYPE_IO
-            , &xi_io_dummy_layer_push, &xi_io_dummy_layer_pull
-            , &xi_io_dummy_layer_close, &xi_io_dummy_layer_close_externally
-            , &xi_io_dummy_layer_init, &xi_io_dummy_layer_connect, &xi_layer_default_post_connect )
+XI_DECLARE_LAYER_TYPES_BEGIN( itest_cyassl_context )
+XI_LAYER_TYPES_ADD( XI_LAYER_TYPE_IO,
+                    &xi_io_dummy_layer_push,
+                    &xi_io_dummy_layer_pull,
+                    &xi_io_dummy_layer_close,
+                    &xi_io_dummy_layer_close_externally,
+                    &xi_io_dummy_layer_init,
+                    &xi_io_dummy_layer_connect,
+                    &xi_layer_default_post_connect )
 #ifndef XI_DEBUG_NO_TLS
-        , XI_LAYER_TYPES_ADD( XI_LAYER_TYPE_TLS
-            , &xi_tls_layer_push, &xi_tls_layer_pull
-            , &xi_tls_layer_close, &xi_tls_layer_close_externally
-            , &xi_tls_layer_init, &xi_tls_layer_connect, &xi_layer_default_post_connect )
+, XI_LAYER_TYPES_ADD( XI_LAYER_TYPE_TLS,
+                      &xi_tls_layer_push,
+                      &xi_tls_layer_pull,
+                      &xi_tls_layer_close,
+                      &xi_tls_layer_close_externally,
+                      &xi_tls_layer_init,
+                      &xi_tls_layer_connect,
+                      &xi_layer_default_post_connect )
 #endif
-        , XI_LAYER_TYPES_ADD( XI_LAYER_TYPE_MQTT_CODEC
-            , &xi_mqtt_codec_layer_push, &xi_mqtt_codec_layer_pull
-            , &xi_mqtt_codec_layer_close, &xi_mqtt_codec_layer_close_externally
-            , &xi_mqtt_codec_layer_init, &xi_mqtt_codec_layer_connect, &xi_layer_default_post_connect )
-        , XI_LAYER_TYPES_ADD( XI_LAYER_TYPE_MQTT_LOGIC
-            , &xi_mqtt_logic_layer_push, &xi_mqtt_logic_layer_pull
-            , &xi_mqtt_logic_layer_close, &xi_mqtt_logic_layer_close_externally
-            , &xi_mqtt_logic_layer_init, &xi_mqtt_logic_layer_connect, &xi_layer_default_post_connect )
-        , XI_LAYER_TYPES_ADD( XI_LAYER_TYPE_CONTROL_TOPIC
-            , &xi_control_topic_layer_push ,&xi_control_topic_layer_pull
-            , &xi_control_topic_layer_close, &xi_control_topic_layer_close_externally
-            , &xi_control_topic_layer_init, &xi_control_topic_layer_connect, &xi_layer_default_post_connect )
-    XI_DECLARE_LAYER_TYPES_END()
+      ,
+    XI_LAYER_TYPES_ADD( XI_LAYER_TYPE_MQTT_CODEC,
+                        &xi_mqtt_codec_layer_push,
+                        &xi_mqtt_codec_layer_pull,
+                        &xi_mqtt_codec_layer_close,
+                        &xi_mqtt_codec_layer_close_externally,
+                        &xi_mqtt_codec_layer_init,
+                        &xi_mqtt_codec_layer_connect,
+                        &xi_layer_default_post_connect ),
+    XI_LAYER_TYPES_ADD( XI_LAYER_TYPE_MQTT_LOGIC,
+                        &xi_mqtt_logic_layer_push,
+                        &xi_mqtt_logic_layer_pull,
+                        &xi_mqtt_logic_layer_close,
+                        &xi_mqtt_logic_layer_close_externally,
+                        &xi_mqtt_logic_layer_init,
+                        &xi_mqtt_logic_layer_connect,
+                        &xi_layer_default_post_connect ),
+    XI_LAYER_TYPES_ADD( XI_LAYER_TYPE_CONTROL_TOPIC,
+                        &xi_control_topic_layer_push,
+                        &xi_control_topic_layer_pull,
+                        &xi_control_topic_layer_close,
+                        &xi_control_topic_layer_close_externally,
+                        &xi_control_topic_layer_init,
+                        &xi_control_topic_layer_connect,
+                        &xi_layer_default_post_connect ) XI_DECLARE_LAYER_TYPES_END()
 
-static void xi_inject_subscribe_handler( xi_vector_t** handler_vector,
-                                         xi_mqtt_task_specific_data_t* subs )
+        static void xi_inject_subscribe_handler( xi_vector_t** handler_vector,
+                                                 xi_mqtt_task_specific_data_t* subs )
 {
     int i = 0;
 
     if ( *handler_vector == NULL )
     {
-        *handler_vector = xi_vector_create( );
+        *handler_vector = xi_vector_create();
     }
 
-    while ( subs[ i ].subscribe.topic != NULL )
+    while ( subs[i].subscribe.topic != NULL )
     {
-        size_t len = sizeof( subs[ i ] );
+        size_t len                         = sizeof( subs[i] );
         xi_mqtt_task_specific_data_t* data = xi_alloc( len );
 
-        memcpy( data, &subs[ i ], sizeof( subs[ i ] ) );
-        data->subscribe.topic = xi_str_dup( subs[ i ].subscribe.topic );
+        memcpy( data, &subs[i], sizeof( subs[i] ) );
+        data->subscribe.topic = xi_str_dup( subs[i].subscribe.topic );
 
-        xi_vector_push(
-            *handler_vector,
-            XI_VEC_VALUE_PARAM( XI_VEC_VALUE_PTR( data ) ) );
+        xi_vector_push( *handler_vector, XI_VEC_VALUE_PARAM( XI_VEC_VALUE_PTR( data ) ) );
 
         i++;
     }
-    printf("\n----> Done with the inject\n");
+    printf( "\n----> Done with the inject\n" );
 }
 
-static xi_context_t* xi_context = NULL;
+static xi_context_t* xi_context              = NULL;
 static xi_context_handle_t xi_context_handle = XI_INVALID_CONTEXT_HANDLE;
 
 int xi_itest_clean_session_setup( void** state )
@@ -141,9 +155,9 @@ int xi_itest_clean_session_teardown( void** state )
 {
     XI_UNUSED( state );
 
-    xi_delete_context_with_custom_layers( &xi_context,
-                                          itest_cyassl_context,
-                                          XI_LAYER_CHAIN_SCHEME_LENGTH( XI_LAYER_CHAIN_DEFAULT ) );
+    xi_delete_context_with_custom_layers(
+        &xi_context, itest_cyassl_context,
+        XI_LAYER_CHAIN_SCHEME_LENGTH( XI_LAYER_CHAIN_DEFAULT ) );
     xi_shutdown();
 
     xi_memory_limiter_teardown();
@@ -151,8 +165,8 @@ int xi_itest_clean_session_teardown( void** state )
     return 0;
 }
 
-xi_state_t xi_mockfunction__layerfunction_init( void* context, void* data,
-                                                xi_state_t in_out_state )
+xi_state_t
+xi_mockfunction__layerfunction_init( void* context, void* data, xi_state_t in_out_state )
 {
     XI_UNUSED( context );
     XI_UNUSED( data );
@@ -169,8 +183,8 @@ xi_state_t xi_mockfunction__layerfunction_init( void* context, void* data,
     // check_expected_ptr(((xi_mqtt_logic_layer_data_t*)XI_PREV_LAYER(context)->user_data)->handlers_for_topics);
     check_expected( in_out_state );
 
-    const xi_mqtt_logic_layer_data_t* mqtt_logic_layer_user_data
-        = ( xi_mqtt_logic_layer_data_t* )XI_NEXT_LAYER( context )->user_data;
+    const xi_mqtt_logic_layer_data_t* mqtt_logic_layer_user_data =
+        ( xi_mqtt_logic_layer_data_t* )XI_NEXT_LAYER( context )->user_data;
     check_expected( mqtt_logic_layer_user_data );
 
     if ( mqtt_logic_layer_user_data != NULL )
@@ -179,8 +193,8 @@ xi_state_t xi_mockfunction__layerfunction_init( void* context, void* data,
             mqtt_logic_layer_user_data->handlers_for_topics,
             mqtt_logic_layer_user_data->handlers_for_topics->elem_no); */
 
-        const xi_vector_t* handlers_for_topics
-            = mqtt_logic_layer_user_data->handlers_for_topics;
+        const xi_vector_t* handlers_for_topics =
+            mqtt_logic_layer_user_data->handlers_for_topics;
 
         check_expected( handlers_for_topics );
         check_expected( handlers_for_topics->elem_no );
@@ -193,7 +207,7 @@ xi_state_t xi_mockfunction__layerfunction_init( void* context, void* data,
     {
         // this is where we are going to pass the desired input to the next
         // layer
-        void* next_data = ( void* )mock();
+        void* next_data       = ( void* )mock();
         xi_state_t next_state = ( xi_state_t )mock();
 
         XI_PROCESS_CONNECT_ON_NEXT_LAYER( context, next_data, next_state );
@@ -202,13 +216,13 @@ xi_state_t xi_mockfunction__layerfunction_init( void* context, void* data,
     return XI_STATE_OK;
 }
 
-xi_state_t xi_mockfunction__layerfunction_close( void* context, void* data,
-                                                xi_state_t in_out_state )
+xi_state_t
+xi_mockfunction__layerfunction_close( void* context, void* data, xi_state_t in_out_state )
 {
     check_expected( in_out_state );
 
-    const xi_mqtt_logic_layer_data_t* mqtt_logic_layer_user_data
-        = ( xi_mqtt_logic_layer_data_t* )XI_NEXT_LAYER( context )->user_data;
+    const xi_mqtt_logic_layer_data_t* mqtt_logic_layer_user_data =
+        ( xi_mqtt_logic_layer_data_t* )XI_NEXT_LAYER( context )->user_data;
     check_expected( mqtt_logic_layer_user_data );
 
     if ( mqtt_logic_layer_user_data != NULL )
@@ -217,8 +231,8 @@ xi_state_t xi_mockfunction__layerfunction_close( void* context, void* data,
             mqtt_logic_layer_user_data->handlers_for_topics,
             mqtt_logic_layer_user_data->handlers_for_topics->elem_no); */
 
-        const xi_vector_t* handlers_for_topics
-            = mqtt_logic_layer_user_data->handlers_for_topics;
+        const xi_vector_t* handlers_for_topics =
+            mqtt_logic_layer_user_data->handlers_for_topics;
 
         check_expected( handlers_for_topics );
         check_expected( handlers_for_topics->elem_no );
@@ -240,10 +254,9 @@ static void xi_itest_clean_session_arrange( int inject_subscribe_handlers )
     }
 }
 
-void clean_session_on_connection_state_changed(
-      xi_context_handle_t in_context_handle
-    , void* data
-    , xi_state_t state )
+void clean_session_on_connection_state_changed( xi_context_handle_t in_context_handle,
+                                                void* data,
+                                                xi_state_t state )
 {
     XI_UNUSED( in_context_handle );
     XI_UNUSED( data );
@@ -252,12 +265,16 @@ void clean_session_on_connection_state_changed(
 
 static void xi_itest_clean_session_act( enum xi_session_type_e session_type )
 {
-    xi_connect( xi_context_handle, "test", "test", 10, 20, session_type, &clean_session_on_connection_state_changed );
-    xi_evtd_step( xi_context->context_data.evtd_instance, xi_getcurrenttime_seconds() + 1 );
+    xi_connect( xi_context_handle, "test", "test", 10, 20, session_type,
+                &clean_session_on_connection_state_changed );
+    xi_evtd_step( xi_context->context_data.evtd_instance,
+                  xi_getcurrenttime_seconds() + 1 );
 
-    XI_PROCESS_CLOSE_EXTERNALLY_ON_THIS_LAYER( &xi_context->layer_chain.bottom, NULL, XI_STATE_OK );
+    XI_PROCESS_CLOSE_EXTERNALLY_ON_THIS_LAYER( &xi_context->layer_chain.bottom, NULL,
+                                               XI_STATE_OK );
 
-    xi_evtd_step( xi_context->context_data.evtd_instance, xi_getcurrenttime_seconds() + 1 );
+    xi_evtd_step( xi_context->context_data.evtd_instance,
+                  xi_getcurrenttime_seconds() + 1 );
 
     return;
 }
@@ -271,12 +288,10 @@ void xi_itest_test_valid_flow__handlers_vector_should_be_empty__init_with_clean_
     xi_itest_clean_session_arrange( 0 );
 
     expect_value( xi_mockfunction__layerfunction_init, in_out_state, XI_STATE_OK );
-    expect_not_value( xi_mockfunction__layerfunction_init,
-                      mqtt_logic_layer_user_data, NULL );
-    expect_not_value( xi_mockfunction__layerfunction_init, handlers_for_topics,
+    expect_not_value( xi_mockfunction__layerfunction_init, mqtt_logic_layer_user_data,
                       NULL );
-    expect_value( xi_mockfunction__layerfunction_init,
-                  handlers_for_topics->elem_no, 0 );
+    expect_not_value( xi_mockfunction__layerfunction_init, handlers_for_topics, NULL );
+    expect_value( xi_mockfunction__layerfunction_init, handlers_for_topics->elem_no, 0 );
     will_return( xi_mockfunction__layerfunction_init, PROC_TYPE_DONT );
 
     xi_itest_clean_session_act( XI_SESSION_CLEAN );
@@ -290,12 +305,10 @@ void xi_itest_test_valid_flow__handlers_vector_should_be_empty__init_with_contin
     xi_itest_clean_session_arrange( 0 );
 
     expect_value( xi_mockfunction__layerfunction_init, in_out_state, XI_STATE_OK );
-    expect_not_value( xi_mockfunction__layerfunction_init,
-                      mqtt_logic_layer_user_data, NULL );
-    expect_not_value( xi_mockfunction__layerfunction_init, handlers_for_topics,
+    expect_not_value( xi_mockfunction__layerfunction_init, mqtt_logic_layer_user_data,
                       NULL );
-    expect_value( xi_mockfunction__layerfunction_init,
-                  handlers_for_topics->elem_no, 0 );
+    expect_not_value( xi_mockfunction__layerfunction_init, handlers_for_topics, NULL );
+    expect_value( xi_mockfunction__layerfunction_init, handlers_for_topics->elem_no, 0 );
     will_return( xi_mockfunction__layerfunction_init, PROC_TYPE_DONT );
 
     xi_itest_clean_session_act( XI_SESSION_CONTINUE );
@@ -308,12 +321,10 @@ void xi_itest_test_valid_flow__handlers_should_be_copied( void** state )
     xi_itest_clean_session_arrange( 1 );
 
     expect_value( xi_mockfunction__layerfunction_init, in_out_state, XI_STATE_OK );
-    expect_not_value( xi_mockfunction__layerfunction_init,
-                      mqtt_logic_layer_user_data, NULL );
-    expect_not_value( xi_mockfunction__layerfunction_init, handlers_for_topics,
+    expect_not_value( xi_mockfunction__layerfunction_init, mqtt_logic_layer_user_data,
                       NULL );
-    expect_value( xi_mockfunction__layerfunction_init,
-                  handlers_for_topics->elem_no, 2 );
+    expect_not_value( xi_mockfunction__layerfunction_init, handlers_for_topics, NULL );
+    expect_value( xi_mockfunction__layerfunction_init, handlers_for_topics->elem_no, 2 );
     will_return( xi_mockfunction__layerfunction_init, PROC_TYPE_DONT );
 
     xi_itest_clean_session_act( XI_SESSION_CONTINUE );
@@ -326,24 +337,22 @@ void xi_itest_test_valid_flow__handlers_should_be_prereserved_across_initializat
 
     xi_itest_clean_session_arrange( 1 );
 
-    xi_vector_t* handlers_for_topics
-        = xi_context->context_data.copy_of_handlers_for_topics;
+    xi_vector_t* handlers_for_topics =
+        xi_context->context_data.copy_of_handlers_for_topics;
 
     expect_value( xi_mockfunction__layerfunction_init, in_out_state, XI_STATE_OK );
-    expect_not_value( xi_mockfunction__layerfunction_init,
-                      mqtt_logic_layer_user_data, NULL );
+    expect_not_value( xi_mockfunction__layerfunction_init, mqtt_logic_layer_user_data,
+                      NULL );
     expect_value( xi_mockfunction__layerfunction_init, handlers_for_topics,
                   xi_context->context_data.copy_of_handlers_for_topics );
-    expect_value( xi_mockfunction__layerfunction_init,
-                  handlers_for_topics->elem_no, 2 );
+    expect_value( xi_mockfunction__layerfunction_init, handlers_for_topics->elem_no, 2 );
 
     expect_value( xi_mockfunction__layerfunction_close, in_out_state, XI_STATE_TIMEOUT );
-    expect_not_value( xi_mockfunction__layerfunction_close,
-                      mqtt_logic_layer_user_data, NULL );
+    expect_not_value( xi_mockfunction__layerfunction_close, mqtt_logic_layer_user_data,
+                      NULL );
     expect_value( xi_mockfunction__layerfunction_close, handlers_for_topics,
                   xi_context->context_data.copy_of_handlers_for_topics );
-    expect_value( xi_mockfunction__layerfunction_close,
-                  handlers_for_topics->elem_no, 2 );
+    expect_value( xi_mockfunction__layerfunction_close, handlers_for_topics->elem_no, 2 );
 
     will_return( xi_mockfunction__layerfunction_init, PROC_TYPE_DO );
     will_return( xi_mockfunction__layerfunction_init, NULL );

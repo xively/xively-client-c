@@ -59,8 +59,7 @@ static inline void signal_task( xi_mqtt_logic_task_t* task, xi_state_t state )
 
 /* if sent after layer_data cleared
  * will stop each task and free tasks memory */
-static inline void
-abort_task( xi_mqtt_logic_task_t* task )
+static inline void abort_task( xi_mqtt_logic_task_t* task )
 {
     /* call the task handler with ok status */
     signal_task( task, XI_STATE_OK );
@@ -79,7 +78,7 @@ static inline void timeout_task( xi_mqtt_logic_task_t* task )
 static inline void
 set_new_context_and_call_resend( xi_mqtt_logic_task_t* task, void* context )
 {
-    if( task->session_state == XI_MQTT_LOGIC_TASK_SESSION_STORE )
+    if ( task->session_state == XI_MQTT_LOGIC_TASK_SESSION_STORE )
     {
         task->logic.handlers.h4.a1 = context;
         resend_task( task );
@@ -124,11 +123,12 @@ run_task( xi_layer_connectivity_t* context, xi_mqtt_logic_task_t* task )
         task->msg_id = ++layer_data->last_msg_id;
 
 #ifdef XI_DEBUG_EXTRA_INFO
-        xi_mqtt_logic_task_t* needle  = NULL;
-        XI_LIST_FIND( xi_mqtt_logic_task_t, layer_data->q12_tasks_queue, CMP_TASK_MSG_ID,
-                      task->msg_id , /* this can be optimized through
-                               * the structure optimization */
-                      needle );
+        xi_mqtt_logic_task_t* needle = NULL;
+        XI_LIST_FIND(
+            xi_mqtt_logic_task_t, layer_data->q12_tasks_queue, CMP_TASK_MSG_ID,
+            task->msg_id, /* this is linear search so we have O(n) complexity it can be
+                             optimized but for the small n it is acceptable complexity */
+            needle );
         assert( NULL == needle && "task with the same id already exist" );
 #endif
 

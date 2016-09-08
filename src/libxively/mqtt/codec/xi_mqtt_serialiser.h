@@ -13,8 +13,7 @@ extern "C" {
 
 /* @TODO: is the xi_mqtt_buffer still used? */
 
-typedef enum xi_mqtt_serialiser_rc_e
-{
+typedef enum xi_mqtt_serialiser_rc_e {
     XI_MQTT_SERIALISER_RC_ERROR,
     XI_MQTT_SERIALISER_RC_SUCCESS,
 } xi_mqtt_serialiser_rc_t;

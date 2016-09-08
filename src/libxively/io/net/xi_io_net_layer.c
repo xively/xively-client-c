@@ -54,8 +54,7 @@ xi_state_t xi_io_net_layer_connect( void* context, void* data, xi_state_t in_out
                                              layer_data->socket );
     }
 
-    state = xi_bsp_io_net_connect( &layer_data->socket,
-                                   connection_data->host,
+    state = xi_bsp_io_net_connect( &layer_data->socket, connection_data->host,
                                    connection_data->port );
 
     XI_CHECK_CND_DBGMESSAGE( XI_BSP_IO_NET_STATE_OK != state, XI_SOCKET_CONNECTION_ERROR,
@@ -64,8 +63,7 @@ xi_state_t xi_io_net_layer_connect( void* context, void* data, xi_state_t in_out
     // return here whenever we can write
     XI_CR_YIELD( layer_data->layer_connect_cs, XI_STATE_OK );
 
-    state = xi_bsp_io_net_connection_check( layer_data->socket,
-                                            connection_data->host,
+    state = xi_bsp_io_net_connection_check( layer_data->socket, connection_data->host,
                                             connection_data->port );
 
     XI_CHECK_CND_DBGMESSAGE( XI_BSP_IO_NET_STATE_OK != state, XI_SOCKET_GETSOCKOPT_ERROR,

@@ -8,6 +8,9 @@
 extern "C" {
 #endif
 
+/* This block of code below must not be clang-formatted */
+// clang-format off
+
 #define XI_CR_START( state )\
     switch( state )\
     { \
@@ -41,6 +44,8 @@ extern "C" {
 
 #define XI_CR_END()\
     };
+
+// clang-format on
 
 #define XI_CR_IS_RUNNING( state ) ( state > 2 )
 

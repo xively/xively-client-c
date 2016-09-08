@@ -211,8 +211,9 @@ xi_bsp_tls_state_t xi_bsp_tls_init( xi_bsp_tls_context_t** tls_context,
     assert( 0 < init_params->ca_cert_pem_buf_length );
 
     /* loading the certificate */
-    ret = CyaSSL_CTX_load_verify_buffer( wolfssl_tls_context->ctx, init_params->ca_cert_pem_buf,
-                                         init_params->ca_cert_pem_buf_length, SSL_FILETYPE_PEM );
+    ret = CyaSSL_CTX_load_verify_buffer(
+        wolfssl_tls_context->ctx, init_params->ca_cert_pem_buf,
+        init_params->ca_cert_pem_buf_length, SSL_FILETYPE_PEM );
 
     if ( SSL_SUCCESS != ret )
     {

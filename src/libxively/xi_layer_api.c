@@ -53,7 +53,7 @@ static xi_layer_state_t get_next_layer_state( xi_layer_func_t* func,
     {
         return XI_THIS_LAYER_STATE( from_context );
     }
-    else if( func == XI_THIS_LAYER( context )->layer_funcs->post_connect )
+    else if ( func == XI_THIS_LAYER( context )->layer_funcs->post_connect )
     {
         return XI_THIS_LAYER_STATE( from_context );
     }
@@ -73,7 +73,7 @@ xi_state_t xi_layer_continue_with_impl( xi_layer_func_t* func,
 {
     xi_state_t local_state = XI_STATE_OK;
 
-    if( NULL != context )
+    if ( NULL != context )
     {
         context->self->debug_info.debug_file_last_call = file_name;
         context->self->debug_info.debug_line_last_call = line_no;
