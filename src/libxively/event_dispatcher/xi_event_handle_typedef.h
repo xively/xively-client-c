@@ -115,7 +115,10 @@ typedef struct xi_event_handle_s
     uint8_t target_tid;
 } xi_event_handle_t;
 
-#define xi_make_empty_event_handle() {XI_EVENT_HANDLE_UNSET, .handlers.h0 = {0}, 0}
+#define xi_make_empty_event_handle( target_tid )                                         \
+    {                                                                                    \
+        XI_EVENT_HANDLE_UNSET, .handlers.h0 = {0}, target_tid                            \
+    }
 
 #ifdef __cplusplus
 }

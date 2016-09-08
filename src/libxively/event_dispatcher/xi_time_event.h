@@ -43,16 +43,47 @@ typedef struct xi_time_event_s
     }
 
 /* API */
-xi_state_t
-xi_time_event_add( xi_vector_t* vector,
-                                 xi_time_event_t* time_event,
-                                 xi_time_event_handle_t* ret_time_event_handle );
+/**
+ * @brief xi_time_event_add
+ * @param vector
+ * @param time_event
+ * @param ret_time_event_handle
+ * @return
+ */
+xi_state_t xi_time_event_add( xi_vector_t* vector,
+                              xi_time_event_t* time_event,
+                              xi_time_event_handle_t* ret_time_event_handle );
 
+/**
+ * @brief xi_time_event_get_top
+ * @param vector
+ * @return
+ */
 xi_time_event_t* xi_time_event_get_top( xi_vector_t* vector );
 
-xi_state_t
-xi_time_event_restart( xi_vector_t* vector, xi_time_event_handle_t* time_event_handle );
+/**
+ * @brief xi_time_event_peek_top
+ * @param vector
+ * @return
+ */
+const xi_time_event_t* xi_time_event_peek_top( xi_vector_t* vector );
 
+/**
+ * @brief xi_time_event_restart
+ * @param vector
+ * @param time_event_handle
+ * @return
+ */
+xi_state_t xi_time_event_restart( xi_vector_t* vector,
+                                  xi_time_event_handle_t* time_event_handle,
+                                  xi_time_t new_time );
+
+/**
+ * @brief xi_time_event_cancel
+ * @param vector
+ * @param time_event_handle
+ * @return
+ */
 xi_state_t
 xi_time_event_cancel( xi_vector_t* vector, xi_time_event_handle_t* time_event_handle );
 
