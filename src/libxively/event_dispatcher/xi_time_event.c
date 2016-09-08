@@ -237,16 +237,17 @@ xi_state_t xi_time_event_restart( xi_vector_t* vector,
     /* the element can be found with O(1) complexity cause we've been updating each
      * element's position during every operation that could've break it */
 
-    xi_vector_index_type_t index = time_event_handle->position;
+    xi_vector_index_type_t index = *time_event_handle->position;
 
     /* check for the correctness of the time_event_handle */
-    if( index >= vector->elem_no )
+    if ( index >= vector->elem_no || index < 0 )
     {
         return XI_ELEMENT_NOT_FOUND;
     }
 
     /* let's update the key of this element */
-    xi_time_event_t* time_event = ( xi_time_event_t* ) vector->array[index].selector_t.ptr_value;
+    xi_time_event_t* time_event =
+        ( xi_time_event_t* )vector->array[index].selector_t.ptr_value;
 
     time_event->time_of_execution = new_time;
 
@@ -263,6 +264,22 @@ xi_time_event_cancel( xi_vector_t* vector, xi_time_event_handle_t* time_event_ha
     /* PRE-CONDITIONS */
     assert( NULL != vector );
     assert( NULL != time_event_handle );
+
+    /* the element we would like to remove should be at position described by the
+     * time_event_handle */
+
+    xi_vector_index_type_t index = *time_event_handle->position;
+
+    if( index >= vector->elem_no || index < 0 )
+    {
+        return XI_ELEMENT_NOT_FOUND;
+    }
+
+    /* if it's somwhere else than the end, let's put it there */
+    if( index < vector->elem_no - 1 )
+    {
+
+    }
 
     return XI_STATE_OK;
 }
