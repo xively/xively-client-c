@@ -84,7 +84,8 @@ xi_state_t xi_time_event_restart( xi_vector_t* vector,
  * @param time_event_handle
  * @return
  */
-xi_state_t
-xi_time_event_cancel( xi_vector_t* vector, xi_time_event_handle_t* time_event_handle );
+xi_state_t xi_time_event_cancel( xi_vector_t* vector,
+                                 xi_time_event_handle_t* time_event_handle,
+                                 xi_time_event_t** cancelled_time_event );
 
 #endif /* __XI_TIME_EVENT_H__ */
