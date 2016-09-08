@@ -118,7 +118,7 @@ xi_event_handle_t xi_make_handle_argc6( const uint8_t target_tid,
 
 xi_event_handle_t xi_make_empty_handle_impl( const uint8_t target_tid )
 {
-    return ( xi_event_handle_t )xi_make_empty_event_handle();
+    return ( xi_event_handle_t )xi_make_empty_event_handle( target_tid );
 }
 
 xi_event_handle_t

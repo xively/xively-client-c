@@ -15,6 +15,11 @@ static void xi_vector_heap_swap_time_events( xi_vector_t* vector,
                                              xi_vector_index_type_t fi,
                                              xi_vector_index_type_t li )
 {
+    /* PRE-CONDITIONS */
+    assert( NULL != vector );
+    assert( fi < vector->elem_no );
+    assert( li < vector->elem_no );
+
     xi_time_event_t* fte = ( xi_time_event_t* )vector->array[fi].selector_t.ptr_value;
     xi_time_event_t* lte = ( xi_time_event_t* )vector->array[li].selector_t.ptr_value;
 
@@ -27,6 +32,10 @@ static void xi_vector_heap_swap_time_events( xi_vector_t* vector,
 static xi_vector_index_type_t
 xi_vector_heap_fix_order_up( xi_vector_t* vector, xi_vector_index_type_t index )
 {
+    /* PRE-CONDITIONS */
+    assert( NULL != vector );
+    assert( index < vector->elem_no );
+
     xi_vector_index_type_t ret_index = index;
 
     while ( index != 0 )
@@ -61,6 +70,10 @@ xi_vector_heap_fix_order_up( xi_vector_t* vector, xi_vector_index_type_t index )
 static void
 xi_vector_heap_fix_order_down( xi_vector_t* vector, xi_vector_index_type_t index )
 {
+    /* PRE-CONDITIONS */
+    assert( NULL != vector );
+    assert( index < vector->elem_no );
+
     xi_vector_index_type_t left_sibling_index =
         GET_LEFT_SIBLING_INDEX( index, ( vector->elem_no - 1 ) );
     xi_vector_index_type_t right_sibling_index =
@@ -111,6 +124,10 @@ xi_vector_heap_fix_order_down( xi_vector_t* vector, xi_vector_index_type_t index
 static const xi_vector_elem_t*
 xi_vector_heap_add_time_event( xi_vector_t* vector, xi_time_event_t* time_event )
 {
+    /* PRE-CONDITIONS */
+    assert( NULL != vector );
+    assert( NULL != time_event );
+
     xi_state_t out_state = XI_STATE_OK;
 
     time_event->position = vector->elem_no;
@@ -136,6 +153,11 @@ xi_state_t xi_time_event_add( xi_vector_t* vector,
                               xi_time_event_t* time_event,
                               xi_time_event_handle_t* ret_time_event_handle )
 {
+    /* PRE-CONDITIONS */
+    assert( NULL != vector );
+    assert( NULL != time_event );
+    assert( NULL != ret_time_event_handle );
+
     xi_state_t out_state = XI_STATE_OK;
 
     /* call the insert at function it will place the new element at the correct place */
@@ -162,6 +184,9 @@ err_handling:
 
 xi_time_event_t* xi_time_event_get_top( xi_vector_t* vector )
 {
+    /* PRE-CONDITIONS */
+    assert( NULL != vector );
+
     if ( 0 == vector->elem_no )
     {
         return NULL;
@@ -170,11 +195,11 @@ xi_time_event_t* xi_time_event_get_top( xi_vector_t* vector )
     xi_time_event_t* top_one = ( xi_time_event_t* )vector->array[0].selector_t.ptr_value;
 
     /* the trick is to swap the first element with the last one and to proceed bottom
-     * direction fix of heap */
+     * direction fix of heap datastructure */
 
     if ( vector->elem_no > 1 )
     {
-        xi_vector_swap_elems( vector, 0, vector->elem_no - 1 );
+        xi_vector_heap_swap_time_events( vector, 0, vector->elem_no - 1 );
         xi_vector_del( vector, vector->elem_no - 1 );
         xi_vector_heap_fix_order_down( vector, 0 );
     }
@@ -184,4 +209,43 @@ xi_time_event_t* xi_time_event_get_top( xi_vector_t* vector )
     }
 
     return top_one;
+}
+
+const xi_time_event_t* xi_time_event_peek_top( xi_vector_t* vector )
+{
+    /* PRE-CONDITIONS */
+    assert( NULL != vector );
+
+    if ( 0 == vector->elem_no )
+    {
+        return NULL;
+    }
+
+    xi_time_event_t* top_one = ( xi_time_event_t* )vector->array[0].selector_t.ptr_value;
+
+    return top_one;
+}
+
+xi_state_t xi_time_event_restart( xi_vector_t* vector,
+                                  xi_time_event_handle_t* time_event_handle,
+                                  xi_time_t new_time )
+{
+    /* PRE-CONDITIONS */
+    assert( NULL != vector );
+    assert( NULL != time_event_handle );
+
+    /* the element can be found with O(1) complexity cause we've been updating each
+     * element's position during every operation that could've break it */
+
+    return XI_STATE_OK;
+}
+
+xi_state_t
+xi_time_event_cancel( xi_vector_t* vector, xi_time_event_handle_t* time_event_handle )
+{
+    /* PRE-CONDITIONS */
+    assert( NULL != vector );
+    assert( NULL != time_event_handle );
+
+    return XI_STATE_OK;
 }
