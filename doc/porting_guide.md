@@ -396,28 +396,25 @@ Let's assume the new platform's name is np2000. And an early advise: as a rule o
     - create file *make/mt-config/mt-tls-myTLSlibrary.mk* and fill in with content similar to *mt-tls-wolfssl.mk* or *mt-tls-mbedtls.mk*. This lets know the build system the include directoy, the binary directory, the static libraries to link against and config flags of the custom TLS library.
     - you have to also provide a script *xively-client-c/src/import/tls/download_and_compile_myTLSlibrary.sh* which downloads the source of the custom TLS library and builds it. As a sample to follow look at the two already existing solutions: *download_and_compile_wolfssl.sh* and *download_and_compile_mbedtls.sh* in the same directory.
 
-#### Using the toolchain's build system
+#### Using a non-Make build system
 
-In the case that the _make_ build system is not supported by your platform toolchain then the source base and the compiler flags that you set must be transferred to the platform's own build system. This consists of
-the following steps:
+In the case that the _make_ build system is unavailable for your platform you can migrate the 
+Xively C Client build environment to your platform's own development environment.
+While we cannot completely predict how this process would work for every IDE and toolchain, here are some 
+suggested steps to follow when working through this process:
 
-- populating all of the Xively C Client platform independent source and BSP functions in the
-  platform specific build system. These are almost all files under directory
-  _src/libxively_. Exceptions are the multiple implementations of the BSP functions for
-  different platforms. E.g. the platform specific implementations are located under the _src/bsp/platform/_.
-  Only one BSP platform specific implementation should be added to the build configuration.
-- collecting the proper BSP module API implementations covering all BSP modules
-  (NET, MEM, RNG, TIME) into a directory and feeding this to build system as well
-    - this might require you to "only" cherry-pick the proper implementations from the directory
-      _xi\_client\_c/src/bsp/platforms_, depending on your platform.
-    - or this might result in code writing: you will need to implement new definitions of the BSP
-      function(s) that are specific to your platform and not compatible with the reference
-      implementations provided in the Xively client repository
-- compiler definitions also play essential role during the build process. These turn
-  modules on and off. Following the CONFIG flags in file _mt-config_ as a guide, the
-  compiler flags used in the "Preceding Step" can be looked up and fed to the
-  platform specific build system as well. Another option is to echo the makefile build
-  systemvariable XI_CONFIG_FLAGS during building on OSX to see which flags are set.
+- import all of the Xively C Client source files in the src/libxively directory. This is where all of the Xively Client's platform independant code resides.
+- import all of the source files in one of the subdirectories of src/bsp/platform.  
+  The Xively C Client BSPs contain all of the missing hooks which tie the platform independant 
+  code to a particular device. Complete implementations should include a source file for each
+  of the BSP subysstems (networking, memory, time, etc).
+	- NOTE: The Xively C Client contains reference BSP implementations for POSIX and CC3200. We also have partial implementations for specific networking APIs. 
+    Modules from these 'incomplete' BSP implementations could be used as substitutes. For instance, on devices that mirror POSIX completely except for networking, like Simplelink, the networking module from src/bsp/platform/posix could be ovewritten with the one from src/bsp/platform/simplelink_incomplete. 
+- import one of the BSP TLS implementations in src/bsp/tls.  Currently we provide two different TLS BSP implementations: WolfSSL or mbedTLS.
+- add all of the directories in src/libxively to your include path
+- add the /include directory to your include path
+- add any corresonding preprocessor defintions to toggle on/off Xively client features. 
+  Using the CONFIG flags in file _mt-config_ as a guide, the compiler flags used in the "Preceding Step" can be looked up and fed to the platform specific build system as well. Another option is to echo the makefile build system variable XI_CONFIG_FLAGS during building on OSX to see which flags are set.
 
 
 ## Xively Client Features
