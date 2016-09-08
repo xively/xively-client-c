@@ -37,9 +37,9 @@ typedef struct list_s
 
 typedef boolean_t( list_node_value_pred_t )( const void* const v, void* arg );
 typedef boolean_t( list_if_fit_pred_t )( const void* const prev_value,
-                                       const void* const tmp_value,
-                                       void* node_value,
-                                       void* arg );
+                                         const void* const tmp_value,
+                                         void* node_value,
+                                         void* arg );
 typedef void( list_node_dstr_t )( list_node_t* node );
 
 /* API */
@@ -51,9 +51,7 @@ int list_make_node( void* value, list_node_t* out_node );
 
 int list_push_back( list_t* list, list_node_t* node );
 int list_push_front( list_t* list, list_node_t* node );
-int list_insert_after( list_t* list,
-                    list_node_t* node,
-                    list_node_t* element);
+int list_insert_after( list_t* list, list_node_t* node, list_node_t* element );
 int list_find_spot_if( list_t* list,
                        list_node_t* node,
                        list_if_fit_pred_t* pred,

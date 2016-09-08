@@ -31,16 +31,17 @@ extern void xi_itest_tls_layer__bad_handshake_response__graceful_closure( void**
 
 #ifdef XI_MOCK_TEST_PREPROCESSOR_RUN
 struct CMUnitTest xi_itests_tls_layer[] = {
-        cmocka_unit_test_setup_teardown(
-        xi_itest_tls_layer__null_host__graceful_closure,
-        xi_itest_tls_layer_setup, xi_itest_tls_layer_teardown )
-      , cmocka_unit_test_setup_teardown(
+    cmocka_unit_test_setup_teardown( xi_itest_tls_layer__null_host__graceful_closure,
+                                     xi_itest_tls_layer_setup,
+                                     xi_itest_tls_layer_teardown ),
+    cmocka_unit_test_setup_teardown(
         xi_itest_tls_layer__valid_dependencies__successful_init,
-        xi_itest_tls_layer_setup, xi_itest_tls_layer_teardown )
-      , cmocka_unit_test_setup_teardown(
+        xi_itest_tls_layer_setup,
+        xi_itest_tls_layer_teardown ),
+    cmocka_unit_test_setup_teardown(
         xi_itest_tls_layer__bad_handshake_response__graceful_closure,
-        xi_itest_tls_layer_setup, xi_itest_tls_layer_teardown )
-};
+        xi_itest_tls_layer_setup,
+        xi_itest_tls_layer_teardown )};
 #endif
 
 #endif // __XI_ITEST_TLS_LAYER_H__

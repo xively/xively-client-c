@@ -265,7 +265,7 @@ xi_tls_bsp_status_t xi_tls_bsp_create_object( struct xi_tls_bsp_t* bsp,
     xi_tls_bsp_status_t result = XI_TLS_BSP_SUCCESS;
 
     CYASSL* cyasslobj = NULL;
-    cyasslobj = CyaSSL_new( context );
+    cyasslobj         = CyaSSL_new( context );
     if ( NULL == obj )
     {
         result = XI_TLS_BSP_FAILED_CREATE_OBJECT;

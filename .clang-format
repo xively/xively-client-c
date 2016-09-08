@@ -31,4 +31,5 @@ SpacesInAngles: true
 SpacesInCStyleCastParentheses: true
 SpacesInParentheses: true
 UseTab: Never
+SortIncludes: false
 ...

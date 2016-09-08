@@ -7,8 +7,7 @@
 /**
  * @brief describes the current state that the layer is in
  */
-typedef enum
-{
+typedef enum {
     XI_LAYER_STATE_NONE = 0,
     XI_LAYER_STATE_CONNECTING,
     XI_LAYER_STATE_CONNECTED,

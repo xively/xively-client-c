@@ -13,10 +13,9 @@
 
 #include "ETHPIC32ExtPhy.h"
 
-void
-xi_event_loop_with_evtds( uint32_t num_iterations,
-                                                 xi_evtd_instance_t** event_dispatchers,
-                                                 uint8_t num_evtds )
+void xi_event_loop_with_evtds( uint32_t num_iterations,
+                               xi_evtd_instance_t** event_dispatchers,
+                               uint8_t num_evtds )
 {
     num_iterations           = 2;
     uint32_t loops_processed = 0;
@@ -59,8 +58,7 @@ xi_event_loop_with_evtds( uint32_t num_iterations,
                      ( TCPIsGetReady( tuple->fd ) > 0 ||
                        0 == TCPIsConnected( tuple->fd ) ) )
                 {
-                    xi_evtd_update_event_on_socket( xi_globals.evtd_instance,
-                                                    tuple->fd );
+                    xi_evtd_update_event_on_socket( xi_globals.evtd_instance, tuple->fd );
                 }
                 else if ( ( tuple->event_type & XI_EVENT_WANT_WRITE ) > 0 &&
                           ( TCPIsPutReady( tuple->fd ) > 0 ||
