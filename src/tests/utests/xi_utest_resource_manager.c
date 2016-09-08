@@ -21,8 +21,7 @@
 #include "xi_fs_header.h"
 #include "xi_macros.h"
 
-typedef enum xi_utest_rm_fs_function_type_e
-{
+typedef enum xi_utest_rm_fs_function_type_e {
     XI_UTEST_RM_FS_FUNCTION_STAT = 0,
     XI_UTEST_RM_FS_FUNCTION_OPEN,
     XI_UTEST_RM_FS_FUNCTION_READ,
@@ -95,8 +94,7 @@ xi_state_t xi_utest_resource_manager_fs_stat( const void* context,
     XI_UNUSED( resource_stat );
 
     XI_UTEST_RM_FS_FUNCTION_BODY( XI_UTEST_RM_FS_FUNCTION_STAT, XI_STATE_WANT_READ, {},
-                                  {},
-                                  {
+                                  {}, {
                                       resource_stat->resource_size =
                                           sizeof( xi_utest_resource_manager_test_buffer );
                                   } );
@@ -115,10 +113,7 @@ xi_state_t xi_utest_resource_manager_fs_open( const void* context,
     XI_UNUSED( resource_handle );
 
     XI_UTEST_RM_FS_FUNCTION_BODY( XI_UTEST_RM_FS_FUNCTION_OPEN, XI_STATE_WANT_READ, {},
-                                  {},
-                                  {
-                                      *resource_handle = 0;
-                                  } );
+                                  {}, { *resource_handle = 0; } );
 }
 
 xi_state_t
@@ -145,11 +140,11 @@ xi_utest_resource_manager_fs_read( const void* context,
         ,
         {
 
-            *buffer      = xi_utest_resource_manager_test_buffer + ( intptr_t )chunk_offset;
+            *buffer = xi_utest_resource_manager_test_buffer + ( intptr_t )chunk_offset;
             *buffer_size = chunk_size;
         },
         {
-            *buffer      = xi_utest_resource_manager_test_buffer + ( intptr_t )chunk_offset;
+            *buffer = xi_utest_resource_manager_test_buffer + ( intptr_t )chunk_offset;
             *buffer_size = chunk_size;
         } );
 }
@@ -431,8 +426,7 @@ XI_TT_TESTCASE(
     } )
 
 XI_TT_TESTCASE(
-    utest__xi_resource_manager_open_resource__valid_data__return_XI_STATE_OK,
-    {
+    utest__xi_resource_manager_open_resource__valid_data__return_XI_STATE_OK, {
         xi_fs_functions_t fs_functions_copy = xi_internals.fs_functions;
         xi_internals.fs_functions           = xi_resource_manager_fs_functions;
         xi_state_t res                      = XI_STATE_OK;
@@ -686,8 +680,7 @@ XI_TT_TESTCASE(
     } )
 
 XI_TT_TESTCASE(
-    utest__xi_resource_manager_read_resource__valid_data__fs_functions_failing,
-    {
+    utest__xi_resource_manager_read_resource__valid_data__fs_functions_failing, {
         xi_resource_manager_context_t* context = NULL;
         xi_data_desc_t* local_buffer           = NULL;
 

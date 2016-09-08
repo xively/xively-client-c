@@ -9,35 +9,24 @@
 extern "C" {
 #endif
 
-xi_state_t xi_mock_layer_mqttlogic_prev_push(
-      void* context
-    , void* data
-    , xi_state_t state );
+xi_state_t
+xi_mock_layer_mqttlogic_prev_push( void* context, void* data, xi_state_t state );
 
-xi_state_t xi_mock_layer_mqttlogic_prev_pull(
-      void* context
-    , void* data
-    , xi_state_t state );
+xi_state_t
+xi_mock_layer_mqttlogic_prev_pull( void* context, void* data, xi_state_t state );
 
-xi_state_t xi_mock_layer_mqttlogic_prev_close(
-      void* context
-    , void* data
-    , xi_state_t state );
+xi_state_t
+xi_mock_layer_mqttlogic_prev_close( void* context, void* data, xi_state_t state );
 
-xi_state_t xi_mock_layer_mqttlogic_prev_close_externally(
-      void* context
-    , void* data
-    , xi_state_t state );
+xi_state_t xi_mock_layer_mqttlogic_prev_close_externally( void* context,
+                                                          void* data,
+                                                          xi_state_t state );
 
-xi_state_t xi_mock_layer_mqttlogic_prev_init(
-      void* context
-    , void* data
-    , xi_state_t state );
+xi_state_t
+xi_mock_layer_mqttlogic_prev_init( void* context, void* data, xi_state_t state );
 
-xi_state_t xi_mock_layer_mqttlogic_prev_connect(
-      void* context
-    , void* data
-    , xi_state_t state );
+xi_state_t
+xi_mock_layer_mqttlogic_prev_connect( void* context, void* data, xi_state_t state );
 
 #ifdef __cplusplus
 }

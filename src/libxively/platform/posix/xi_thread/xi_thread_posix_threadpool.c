@@ -23,8 +23,9 @@ xi_threadpool_t* xi_threadpool_create_instance( uint8_t num_of_threads )
 
     int8_t result = xi_vector_reserve( threadpool->workerthreads, num_of_threads );
 
-    XI_CHECK_CND_DBGMESSAGE( result == 0, XI_OUT_OF_MEMORY, state,
-                             "could not reserve enough space in vector for workerthreads" );
+    XI_CHECK_CND_DBGMESSAGE(
+        result == 0, XI_OUT_OF_MEMORY, state,
+        "could not reserve enough space in vector for workerthreads" );
 
     uint8_t counter_workerthread = 0;
     for ( ; counter_workerthread < num_of_threads; ++counter_workerthread )

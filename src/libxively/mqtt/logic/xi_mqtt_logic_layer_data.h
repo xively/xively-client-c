@@ -13,8 +13,7 @@
 extern "C" {
 #endif
 
-typedef enum xi_scenario_e
-{
+typedef enum xi_scenario_e {
     XI_MQTT_CONNECT = 0,
     XI_MQTT_PUBLISH,
     XI_MQTT_PUBACK,
@@ -23,8 +22,7 @@ typedef enum xi_scenario_e
     XI_MQTT_SHUTDOWN
 } xi_scenario_t;
 
-typedef union
-{
+typedef union {
     struct data_t_publish_t
     {
         char* topic;
@@ -59,14 +57,12 @@ typedef struct xi_mqtt_logic_task_data_s
 
 } xi_mqtt_logic_task_data_t;
 
-typedef enum
-{
+typedef enum {
     XI_MQTT_LOGIC_TASK_NORMAL = 0,
     XI_MQTT_LOGIC_TASK_IMMEDIATE
 } xi_mqtt_logic_task_priority_t;
 
-typedef enum
-{
+typedef enum {
     XI_MQTT_LOGIC_TASK_SESSION_UNSET = 0,
     XI_MQTT_LOGIC_TASK_SESSION_DO_NOT_STORE,
     XI_MQTT_LOGIC_TASK_SESSION_STORE,

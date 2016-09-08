@@ -116,7 +116,7 @@ do_mqtt_publish_q1( void* ctx /* should be the context of the logic layer */
             cancel_task_timeout( task, context );
         }
 
-        if( state == XI_STATE_RESEND )
+        if ( state == XI_STATE_RESEND )
         {
             xi_debug_format( "[m.id[%d]]publish q1 resend", task->msg_id );
         }

@@ -25,8 +25,7 @@ typedef struct
 /**
  * states of the async main handle
  */
-typedef enum handle_state_t
-{
+typedef enum handle_state_t {
     STATE_OK,
     STATE_ERROR,
     WANT_READ,
