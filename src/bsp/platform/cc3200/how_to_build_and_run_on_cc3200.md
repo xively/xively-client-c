@@ -191,8 +191,19 @@ Steps to take:
     - link the wolfSSL static library: xively-client-c/src/import/tls/wolfssl/tirtos/packages/ti/net/wolfssl/lib/wolfssl.aem4f
     - and implement two functions
 
-The functions are:
+The functions and example implementations are:
 
-    time_t XTIME(time_t * timer);
+    #include <time.h>
+    #include <xi_bsp_rng.h>
+    #include <xi_bsp_time.h>
 
-    uint32_t xively_ssl_rand_generate();
+    time_t XTIME(time_t * timer)
+    {
+        /* note: this is fine for the time beeing since BSP get milliseconds returns seconds */
+        return xi_bsp_time_getcurrenttime_milliseconds();
+    }
+
+    uint32_t xively_ssl_rand_generate()
+    {
+        return xi_bsp_rng_get();
+    }
