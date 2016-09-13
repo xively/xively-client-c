@@ -35,7 +35,7 @@ This method requires OSX development platform although Windows and Linux methods
 
     This is correct for the time being since BSP get milliseconds function returns seconds.
 
-:exclamation
+:exclamation:
 
 This step results in a static library suitable for CC3200. The command
 
