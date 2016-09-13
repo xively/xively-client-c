@@ -195,7 +195,6 @@ xi_bsp_tls_state_t xi_bsp_tls_init( xi_bsp_tls_context_t** tls_context,
         result = XI_BSP_TLS_STATE_INIT_ERROR;
         goto err_handling;
     }
-    x
 
 #endif /* OCSP_STAPLING */
 
