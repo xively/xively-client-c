@@ -195,11 +195,13 @@ xi_bsp_tls_state_t xi_bsp_tls_init( xi_bsp_tls_context_t** tls_context,
         result = XI_BSP_TLS_STATE_INIT_ERROR;
         goto err_handling;
     }
+    x
+
 #endif /* OCSP_STAPLING */
 
 #endif /* ifndef NO_OCSP */
 
-    CyaSSL_set_using_nonblock( wolfssl_tls_context->obj, 1 );
+        CyaSSL_set_using_nonblock( wolfssl_tls_context->obj, 1 );
 
     CyaSSL_SetIOReadCtx( wolfssl_tls_context->obj,
                          init_params->xively_io_callback_context );
@@ -250,12 +252,11 @@ xi_bsp_tls_state_t xi_bsp_tls_connect( xi_bsp_tls_context_t* tls_context )
         case SSL_SUCCESS:
             return XI_BSP_TLS_STATE_OK;
         default:
-#if WOLFSSL_DEBUG_LOG
+#if 1 // WOLFSSL_DEBUG_LOG
         {
             char errorString[80] = {'\0'};
             CyaSSL_ERR_error_string( cyastate, errorString );
-            wolfssl_debug_format( "CyaSSL_connect failed reason [%d]: %s\n", cyastate,
-                                  errorString );
+            printf( "CyaSSL_connect failed reason [%d]: %s\n", cyastate, errorString );
         }
 #endif
             return XI_BSP_TLS_STATE_CONNECT_ERROR;

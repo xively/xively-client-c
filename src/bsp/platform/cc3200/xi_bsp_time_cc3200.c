@@ -32,5 +32,5 @@ void xi_bsp_time_init()
 
 xi_time_t xi_bsp_time_getcurrenttime_milliseconds()
 {
-    return start_time_ntp + uptime;
+    return sntp_time_posix();
 }
