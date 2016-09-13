@@ -26,6 +26,16 @@ This method requires OSX development platform although Windows and Linux methods
 :exclamation: **Under construction notes**:
 
 - add XI_COMPILER_FLAGS += -DNO_OCSP line to file mt-cc3200, some problems were not solved with OCSP
+- currently BSP TIME has unsolved issues around returning elapsed milliseconds since 01.01.1970. since it does not fit into 4 bytes return value. So please change function in file `xively-client-c/src/libxively/time/xi_time.c` to:
+
+        xi_time_t xi_getcurrenttime_seconds()
+        {
+            return xi_bsp_time_getcurrenttime_milliseconds();
+        }
+
+    This is correct for the time being since BSP get milliseconds function returns seconds.
+
+:exclamation
 
 This step results in a static library suitable for CC3200. The command
 
@@ -44,75 +54,89 @@ The wolfSSL supports TI-RTOS builds. Follow the steps written on [Using wolfSSL 
 
 Before starting apply the following customizations made for a Xively wolfSSL build:
 
-In file wolfcrypt/settings.h add a new platform macro WOLFSSL_NOOS_XIVELY with content:
+- In file wolfcrypt/settings.h add a new platform macro WOLFSSL_NOOS_XIVELY with content:
 
-    #ifdef WOLFSSL_NOOS_XIVELY
+        #ifdef WOLFSSL_NOOS_XIVELY
 
-        #define SINGLE_THREADED
+            #define SINGLE_THREADED
 
-        #define NO_OCSP
-        #define NO_DES3
-        #define NO_OLD_TLS
-        #define NO_PSK
-        #define NO_PWDBASED
-        #define CUSTOM_RAND_GENERATE xively_ssl_rand_generate
-        #define CUSTOM_XTIME xively_ssl_time
-        #define HAVE_SNI
+            #define NO_OCSP
+            #define NO_DES3
+            #define NO_OLD_TLS
+            #define NO_PSK
+            #define NO_PWDBASED
+            #define CUSTOM_RAND_GENERATE xively_ssl_rand_generate
+            #define CUSTOM_XTIME xively_ssl_time
+            #define HAVE_SNI
 
-        // #define HAVE_OCSP
-        // #define HAVE_CERTIFICATE_STATUS_REQUEST
+            // #define HAVE_OCSP
+            // #define HAVE_CERTIFICATE_STATUS_REQUEST
 
-        #define SMALL_SESSION_CACHE
-        #define NO_CLIENT_CACHE
-        #define WOLFSSL_SMALL_STACK
-        #define WOLFSSL_USER_IO
-        #define TARGET_IS_CC3200
+            #define SMALL_SESSION_CACHE
+            #define NO_CLIENT_CACHE
+            #define WOLFSSL_SMALL_STACK
+            #define WOLFSSL_USER_IO
+            #define TARGET_IS_CC3200
 
-        #define NO_RABBIT
-        #define NO_MD4
-        #define NO_RC4
-        #define NO_DH
-        #define NO_DSA
-        #define NO_SHA
-        #define NO_HC128
+            #define NO_RABBIT
+            #define NO_MD4
+            #define NO_RC4
+            #define NO_DH
+            #define NO_DSA
+            #define NO_SHA
+            #define NO_HC128
 
-        #define SIZEOF_LONG_LONG 8
-        #define NO_WRITEV
-        #define NO_WOLFSSL_DIR
-        #define USE_FAST_MATH
-        #define TFM_TIMING_RESISTANT
-        #define NO_DEV_RANDOM
-        #define NO_FILESYSTEM
-        #define USE_CERT_BUFFERS_2048
-        #define NO_ERROR_STRINGS
-        #define USER_TIME
-        #define HAVE_ECC
-        // #define HAVE_ALPN
-        #define HAVE_TLS_EXTENSIONS
-        #define HAVE_AESGCM
-        // #define HAVE_SUPPORTED_CURVES
-        #define ALT_ECC_SIZE
+            #define SIZEOF_LONG_LONG 8
+            #define NO_WRITEV
+            #define NO_WOLFSSL_DIR
+            #define USE_FAST_MATH
+            #define TFM_TIMING_RESISTANT
+            #define NO_DEV_RANDOM
+            #define NO_FILESYSTEM
+            #define USE_CERT_BUFFERS_2048
+            #define NO_ERROR_STRINGS
+            #define USER_TIME
+            #define HAVE_ECC
+            // #define HAVE_ALPN
+            #define HAVE_TLS_EXTENSIONS
+            #define HAVE_AESGCM
+            // #define HAVE_SUPPORTED_CURVES
+            #define ALT_ECC_SIZE
 
-        #ifdef __IAR_SYSTEMS_ICC__
-            #pragma diag_suppress=Pa089
-        #elif !defined(__GNUC__)
-            /* Suppress the sslpro warning */
-            #pragma diag_suppress=11
+            #ifdef __IAR_SYSTEMS_ICC__
+                #pragma diag_suppress=Pa089
+            #elif !defined(__GNUC__)
+                /* Suppress the sslpro warning */
+                #pragma diag_suppress=11
+            #endif
+
         #endif
 
-    #endif
+    This will disable a bunch of features in wolfSSL seemingly not required for a Xively connection but drastically deflate size of the result static library. Currently OCSP is disabled as well.
 
-This will disable a bunch of features in wolfSSL seemingly not required for a Xively connection but drastically deflate size of the result static library.
+- To compile in the above settings replace the
 
-To compile in the above settings replace the
+        -DWOLFSSL_TIRTOS
 
-    -DWOLFSSL_TIRTOS
+    to
 
-to
+        -DWOLFSSL_NOOS_XIVELY
 
-    -DWOLFSSL_NOOS_XIVELY
+    in file `wolfssl/tirtos/wolfssl.bld`.
 
-in file `wolfssl/tirtos/wolfssl.bld.
+
+- In file `wolfssl/tirtos/packages/ti/net/wolfssl/package.bld` comment out the last lines for building hwLib:
+
+        /*
+        var hwLibptions = {incs: wolfsslPathInclude, defs: " -DWOLFSSL_TI_HASH "
+               + "-DWOLFSSL_TI_CRYPT -DTARGET_IS_SNOWFLAKE_RA2"};
+
+        var hwLib = Pkg.addLibrary("lib/wolfssl_tm4c_hw", targ, hwLibptions);
+        hwLib.addObjects(wolfSSLObjList);
+        */
+
+    This is not available for CC3200 and not needed at all.
+
 
 ## Building CC3200 application: CCS ent_wlan example
 
