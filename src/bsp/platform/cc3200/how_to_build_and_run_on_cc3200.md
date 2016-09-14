@@ -55,7 +55,7 @@ The wolfSSL supports TI-RTOS builds. Follow the steps written on [Using wolfSSL 
 
 Before starting apply the following customizations made for a Xively wolfSSL build:
 
-- In file wolfcrypt/settings.h add a new platform macro WOLFSSL_NOOS_XIVELY with content:
+- In file wolfssl/wolfcrypt/settings.h add a new platform macro WOLFSSL_NOOS_XIVELY with content:
 
         #ifdef WOLFSSL_NOOS_XIVELY
 
