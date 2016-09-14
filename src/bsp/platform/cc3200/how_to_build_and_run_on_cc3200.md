@@ -25,7 +25,7 @@ This method requires OSX development platform although Windows and Linux methods
 
 :exclamation: **Under construction notes**:
 
-- in file mt-3200 set XI_CC3200_PATH_SDK path according to your install location and revise the CC and AR variables pointing on compiler and archiver binaries
+- in file mt-cc3200 set XI_CC3200_PATH_SDK path according to your SDK install location and revise the CC and AR variables pointing on compiler and archiver binaries
 - add XI_COMPILER_FLAGS += -DNO_OCSP line to file mt-cc3200, some problems were not solved with OCSP
 - currently BSP TIME has unsolved issues around returning elapsed milliseconds since 01.01.1970. since it does not fit into 4 bytes return value. So please change function in file `xively-client-c/src/libxively/time/xi_time.c` to:
 
