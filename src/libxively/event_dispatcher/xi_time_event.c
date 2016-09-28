@@ -4,13 +4,65 @@
 #include "xi_time_event.h"
 
 /**
+ * @brief This part of the file implements the simplified heap order functionality. This
+ * implementation assumes that the element type is always the xi_time_event_t. Which is
+ * the only reason to use heap order within the vector.
+ *
+ * What is a heap order ?
+ *
+ * The heap order is a relation of key's in each node. If we take any node let's call it
+ * x, these conditions must be true:
+ * a) PARENT(x).key > x.key;
+ * b) LEFT_CHILD(x).key < x.key;
+ * c) RIGHT_CHILD(x).key < x.key;
+ *
+ * This gives us a nice quality of having the element with the lowest key at the top. So
+ * extraction of the element with the lowest key has O(1) + fixing the order after
+ * removing it O(logn) complexity.
+ *
+ * Peeking the element with the lowest key without removing it has O(1) complexity.
+ *
+ * All of the elements are being kept in the regular vector. This implementation uses the
+ * vector as a container.
+ *
+ * The heap order based on vector uses index based addressing. So the index of childs and
+ * parent of any node are calculated using this formulas:
+ *
+ * LEFT_CHILD(x)= ( x.i + 1 ) / 2 ) - 1
+ * RIGHT_CHILD(x) = ( x.i + 1 ) / 2
+ * PARENT(x) = ( ( x.i + 1 ) * 2 ) - 1
+ *
+ * Using that indexing technique we can traverse through the vector as if it was a binary
+ * tree. Thanks to that all of the fix heap order functions works in O(logn) complexity.
+ * Since we don't need to revisit every element in the vector.
+ *
+ * xi_time_event_handler_t special quality improves the complexity of functions such as
+ * cancel or restart. It holds a pointer to the position element of the xi_time_event_t
+ * structure. This way while the handler is valid it holds correct position of the time
+ * event it is handling.
+ */
+
+/**
  * note: the indexes are increased and decreased
  * in order to maintain the 0 - based indexing of elements
  */
-#define LEFT( i ) ( ( ( i + 1 ) << 1 ) - 1 )
-#define RIGHT( i ) ( ( ( ( i + 1 ) << 1 ) + 1 ) - 1 )
-#define PARENT( i ) ( ( ( i + 1 ) >> 1 ) - 1 )
+#undef LEFT
+#undef RIGHT
+#undef PARENT
+#define LEFT( i ) ( ( ( ( i ) + 1 ) << 1 ) - 1 )
+#define RIGHT( i ) ( ( ( i ) + 1 ) << 1 )
+#define PARENT( i ) ( ( ( ( i ) + 1 ) >> 1 ) - 1 )
 
+/**
+ * @brief xi_vector_heap_swap_time_events
+ *
+ * Swaps two vector xi_time_event_t elements pointed by fi and li indexes with each other.
+ * It updates element's positions value to the new ones.
+ *
+ * @param vector
+ * @param fi
+ * @param li
+ */
 static void xi_vector_heap_swap_time_events( xi_vector_t* vector,
                                              xi_vector_index_type_t fi,
                                              xi_vector_index_type_t li )
@@ -29,6 +81,15 @@ static void xi_vector_heap_swap_time_events( xi_vector_t* vector,
     lte->position = fi;
 }
 
+/**
+ * @brief xi_vector_heap_fix_order_up
+ *
+ * Function restores the heap order in the vector in the towards the root direction.
+ *
+ * @param vector
+ * @param index
+ * @return
+ */
 static xi_vector_index_type_t
 xi_vector_heap_fix_order_up( xi_vector_t* vector, xi_vector_index_type_t index )
 {
@@ -67,6 +128,14 @@ xi_vector_heap_fix_order_up( xi_vector_t* vector, xi_vector_index_type_t index )
 #define GET_RIGHT_SIBLING_INDEX( index, last_elem_index )                                \
     ( RIGHT( ( index ) ) > ( last_elem_index ) ) ? ( ( index ) ) : RIGHT( ( index ) )
 
+/**
+ * @brief xi_vector_heap_fix_order_down
+ *
+ * Restores the order in the heap in the down direction, towards the leafs.
+ *
+ * @param vector
+ * @param index
+ */
 static void
 xi_vector_heap_fix_order_down( xi_vector_t* vector, xi_vector_index_type_t index )
 {
@@ -81,9 +150,9 @@ xi_vector_heap_fix_order_down( xi_vector_t* vector, xi_vector_index_type_t index
 
     do
     {
-        xi_time_event_t* left_time_event =
+        xi_time_event_t* left_child_time_event =
             ( xi_time_event_t* )vector->array[left_sibling_index].selector_t.ptr_value;
-        xi_time_event_t* right_time_event =
+        xi_time_event_t* right_child_time_event =
             ( xi_time_event_t* )vector->array[right_sibling_index].selector_t.ptr_value;
         xi_time_event_t* current_time_event =
             ( xi_time_event_t* )vector->array[index].selector_t.ptr_value;
@@ -92,15 +161,16 @@ xi_vector_heap_fix_order_down( xi_vector_t* vector, xi_vector_index_type_t index
         xi_time_event_t* time_event_to_cmp  = NULL;
 
         /* pick up the sibling with lower key to cmp with */
-        if ( left_time_event->time_of_execution < right_time_event->time_of_execution )
+        if ( left_child_time_event->time_of_execution <
+             right_child_time_event->time_of_execution )
         {
             index_to_cmp      = left_sibling_index;
-            time_event_to_cmp = left_time_event;
+            time_event_to_cmp = left_child_time_event;
         }
         else
         {
             index_to_cmp      = right_sibling_index;
-            time_event_to_cmp = right_time_event;
+            time_event_to_cmp = right_child_time_event;
         }
 
         /* if the order is not correct fix it */
@@ -118,7 +188,7 @@ xi_vector_heap_fix_order_down( xi_vector_t* vector, xi_vector_index_type_t index
         left_sibling_index  = GET_LEFT_SIBLING_INDEX( index, vector->elem_no - 1 );
         right_sibling_index = GET_RIGHT_SIBLING_INDEX( index, vector->elem_no - 1 );
 
-    } while ( index != left_sibling_index && index != right_sibling_index );
+    } while ( index != left_sibling_index || index != right_sibling_index );
 }
 
 static const xi_vector_elem_t*
@@ -235,7 +305,7 @@ xi_state_t xi_time_event_restart( xi_vector_t* vector,
     assert( NULL != time_event_handle );
 
     /* the element can be found with O(1) complexity cause we've been updating each
-     * element's position during every operation that could've break it */
+     * element's position during every operation that could've broken it */
 
     xi_vector_index_type_t index = *time_event_handle->position;
 

@@ -45,10 +45,21 @@ typedef struct xi_time_event_s
 /* API */
 /**
  * @brief xi_time_event_add
- * @param vector
- * @param time_event
- * @param ret_time_event_handle
- * @return
+ *
+ * Adds new time_event to the given vector. If the operation succeded it have to return
+ * the xi_time_event_handle_t using the ret_time_event_handle return parameter. The
+ * xi_time_event_handle_t is associated with the time_event and it can be used in order to
+ * cancel or restart the time_event.
+ *
+ * @note The user of this API has the ownership of the memory created outside of this API,
+ * so if a time_event has been allocated on heap, it has to be deallocated after it is no
+ * longer used.
+ *
+ * @param vector - the storage for time_events
+ * @param time_event - new time event to get registered
+ * @param ret_time_event_handle - return parameter, a handle associated with the
+ * time_event
+ * @return XI_STATE_OK in case of success other values in case of failure
  */
 xi_state_t xi_time_event_add( xi_vector_t* vector,
                               xi_time_event_t* time_event,
