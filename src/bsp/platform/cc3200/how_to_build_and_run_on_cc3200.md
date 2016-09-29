@@ -59,33 +59,40 @@ Before starting apply the following customizations made for a Xively wolfSSL bui
 
         #ifdef WOLFSSL_NOOS_XIVELY
 
+            /*
+             *  Wolf cypher settings
+             */
+            #undef   WOLFSSL_STATIC_RSA
+            // #undef   NO_DH
+            #define  NO_DH
+            #define  HAVE_ECC
+
+            #define  NO_DES
+            #define  NO_DES3
+            #define  NO_DSA
+            #define  NO_HC128
+            #define  NO_MD4
+            #define  NO_OLD_TLS
+            #define  NO_PSK
+            #define  NO_PWDBASED
+            #define  NO_RC4
+            #define  NO_RABBIT
+            #define  NO_SHA512
+
             #define SINGLE_THREADED
 
-            #define NO_OCSP
-            #define NO_DES3
-            #define NO_OLD_TLS
-            #define NO_PSK
-            #define NO_PWDBASED
             #define CUSTOM_RAND_GENERATE xively_ssl_rand_generate
             #define CUSTOM_XTIME xively_ssl_time
-            #define HAVE_SNI
 
-            // #define HAVE_OCSP
-            // #define HAVE_CERTIFICATE_STATUS_REQUEST
+            #define HAVE_SNI
+            #define HAVE_OCSP
+            #define HAVE_CERTIFICATE_STATUS_REQUEST
 
             #define SMALL_SESSION_CACHE
             #define NO_CLIENT_CACHE
             #define WOLFSSL_SMALL_STACK
             #define WOLFSSL_USER_IO
             #define TARGET_IS_CC3200
-
-            #define NO_RABBIT
-            #define NO_MD4
-            #define NO_RC4
-            #define NO_DH
-            #define NO_DSA
-            #define NO_SHA
-            #define NO_HC128
 
             #define SIZEOF_LONG_LONG 8
             #define NO_WRITEV
@@ -95,7 +102,7 @@ Before starting apply the following customizations made for a Xively wolfSSL bui
             #define NO_DEV_RANDOM
             #define NO_FILESYSTEM
             #define USE_CERT_BUFFERS_2048
-            #define NO_ERROR_STRINGS
+            // #define NO_ERROR_STRINGS
             #define USER_TIME
             #define HAVE_ECC
             // #define HAVE_ALPN
