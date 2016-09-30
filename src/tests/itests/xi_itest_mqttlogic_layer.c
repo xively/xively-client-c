@@ -242,8 +242,8 @@ void xi_itest_mqttlogic_prepare_init_and_connect_layer( xi_layer_t* top_layer,
     expect_value( xi_mock_layer_mqttlogic_next_connect, in_out_state, XI_STATE_OK );
 
     /* */
-    xi_context__itest_mqttlogic_layer->context_data.connect_handler =
-        ( xi_heap_element_t* )( intptr_t )1;
+    xi_context__itest_mqttlogic_layer->context_data.connect_handler.position =
+        ( xi_vector_index_type_t* )( intptr_t )1;
 
 err_handling:
     return;

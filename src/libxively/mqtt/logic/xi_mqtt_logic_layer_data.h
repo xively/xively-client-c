@@ -74,7 +74,7 @@ typedef enum {
 typedef struct xi_mqtt_logic_task_s
 {
     struct xi_mqtt_logic_task_s* __next;
-    xi_heap_element_t* timeout;
+    xi_time_event_handle_t timeout;
     xi_event_handle_t logic;
     xi_event_handle_t callback;
     xi_mqtt_logic_task_data_t data;
@@ -97,7 +97,7 @@ typedef struct
     xi_mqtt_logic_task_t* q0_tasks_queue;
     xi_mqtt_logic_task_t* current_q0_task;
     xi_vector_t* handlers_for_topics;
-    xi_heap_element_t* keepalive_event;
+    xi_time_event_handle_t keepalive_event;
     uint16_t last_msg_id;
 } xi_mqtt_logic_layer_data_t;
 

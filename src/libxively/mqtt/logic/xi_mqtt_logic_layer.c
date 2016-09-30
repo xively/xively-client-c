@@ -133,11 +133,14 @@ xi_state_t xi_mqtt_logic_layer_push( void* context, void* data, xi_state_t in_ou
         }
 
         /* restart layer keepalive - centralized for every successful send */
-        if ( in_out_state == XI_STATE_WRITTEN && layer_data->keepalive_event )
+        if ( XI_STATE_WRITTEN == in_out_state &&
+             NULL != layer_data->keepalive_event.position )
         {
-            xi_evtd_restart(
-                XI_CONTEXT_DATA( context )->evtd_instance, layer_data->keepalive_event,
+            xi_state_t local_state = xi_evtd_restart(
+                XI_CONTEXT_DATA( context )->evtd_instance, &layer_data->keepalive_event,
                 XI_CONTEXT_DATA( context )->connection_data->keepalive_timeout );
+
+            XI_CHECK_STATE( local_state );
         }
 
         if ( task_to_be_called != 0 )
@@ -516,7 +519,7 @@ static void xi_mqtt_logic_task_queue_shutdown( xi_mqtt_logic_task_t** task_queue
 
         /* sanity check */
         assert( NULL != tmp_task );
-        assert( NULL == tmp_task->timeout );
+        assert( NULL == tmp_task->timeout.position );
 
         xi_mqtt_logic_free_task( &tmp_task );
     }
@@ -552,7 +555,7 @@ xi_mqtt_logic_layer_close_externally( void* context, void* data, xi_state_t in_o
     xi_update_backoff_penalty( in_out_state );
 
     /* now it can be cleared since the connection has been ended */
-    context_data->connect_handler = NULL;
+    context_data->connect_handler.position = NULL;
 
     /* disable timeouts of all tasks */
     XI_LIST_FOREACH_WITH_ARG( xi_mqtt_logic_task_t, layer_data->q12_tasks_queue,
@@ -616,10 +619,9 @@ xi_mqtt_logic_layer_close_externally( void* context, void* data, xi_state_t in_o
     }
 
     /* unregister keepalive */
-    if ( layer_data->keepalive_event )
+    if ( NULL != layer_data->keepalive_event.position )
     {
-        layer_data->keepalive_event =
-            xi_evtd_cancel( event_dispatcher, layer_data->keepalive_event );
+        xi_evtd_cancel( event_dispatcher, &layer_data->keepalive_event );
     }
 
     /* sanity check */
@@ -653,7 +655,7 @@ xi_mqtt_logic_layer_close_externally( void* context, void* data, xi_state_t in_o
 
         /* sanity check */
         assert( tmp_task != 0 );
-        assert( tmp_task->timeout == 0 );
+        assert( tmp_task->timeout.position == 0 );
 
         xi_mqtt_logic_free_task( &tmp_task );
     }

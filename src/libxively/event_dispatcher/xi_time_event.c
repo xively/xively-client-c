@@ -281,7 +281,7 @@ xi_time_event_t* xi_time_event_get_top( xi_vector_t* vector )
     return top_one;
 }
 
-const xi_time_event_t* xi_time_event_peek_top( xi_vector_t* vector )
+xi_time_event_t* xi_time_event_peek_top( xi_vector_t* vector )
 {
     /* PRE-CONDITIONS */
     assert( NULL != vector );
@@ -360,9 +360,30 @@ xi_state_t xi_time_event_cancel( xi_vector_t* vector,
     /* now we can remove that element from the vector */
     xi_vector_del( vector, vector->elem_no - 1 );
 
-    /* restore the heap order in the vector for that element */
-    xi_vector_heap_fix_order_down( vector, index );
-    xi_vector_heap_fix_order_up( vector, index );
+    /* let's invalidate the position and the handle's pointer, it is very important */
+    time_event_handle->position = NULL;
+
+    /* whenever we swap we have to fix the order that might have been broken */
+    if ( index != vector->elem_no )
+    {
+        /* restore the heap order in the vector for that element */
+        xi_vector_heap_fix_order_down( vector, index );
+        xi_vector_heap_fix_order_up( vector, index );
+    }
 
     return XI_STATE_OK;
+}
+
+static void xi_time_event_destructor( union xi_vector_selector_u* selector, void* arg )
+{
+    XI_UNUSED( arg );
+
+    xi_time_event_t* time_event = ( xi_time_event_t* )selector->ptr_value;
+    time_event->position = XI_TIME_EVENT_POSITION_INVALID;
+    XI_SAFE_FREE( time_event );
+}
+
+void xi_time_event_destroy( xi_vector_t* vector )
+{
+    xi_vector_for_each( vector, &xi_time_event_destructor, NULL, 0 );
 }

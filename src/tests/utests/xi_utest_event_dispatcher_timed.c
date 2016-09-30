@@ -14,7 +14,6 @@
 #include "tinytest_macros.h"
 #include "xi_tt_testcase_management.h"
 
-#include "xi_heap.h"
 #include "xi_vector.h"
 #include "xi_io_timeouts.h"
 #include "xi_memory_checks.h"
@@ -35,7 +34,8 @@ void xi_utest_local__add_handler__evtd( xi_evtd_instance_t* evtd,
     xi_event_handle_t evtd_handle = {XI_EVENT_HANDLE_ARGC4,
                                      .handlers.h4 = {fn, arg1, arg2, arg3, arg4}, 0};
 
-    xi_evtd_execute_in( evtd, evtd_handle, 1 );
+    xi_time_event_handle_t time_event_handle = xi_make_empty_time_event_handle();
+    xi_evtd_execute_in( evtd, evtd_handle, 1, &time_event_handle );
 }
 
 xi_state_t xi_utest_local_action__timed( xi_event_handle_arg1_t target_evtd,
@@ -71,7 +71,7 @@ xi_state_t xi_utest_local_action__timed( xi_event_handle_arg1_t target_evtd,
 xi_state_t xi_utest_local_action__io_timed( xi_event_handle_arg1_t arg1 )
 {
     xi_io_timeout_t* timeout_element = ( xi_io_timeout_t* )arg1;
-    xi_heap_element_t* event         = timeout_element->timeout;
+    xi_time_event_handle_t* event    = &timeout_element->timeout;
     xi_vector_t* vector              = timeout_element->data2;
     uint16_t* execution_counter      = timeout_element->data1;
 
@@ -121,18 +121,20 @@ XI_TT_TESTCASE(
 
         xi_evtd_instance_t* evtd = xi_evtd_create_instance();
 
-        int index                  = 0;
-        uint32_t time_counter      = 0;
-        uint32_t execution_counter = 0;
-        xi_state_t state           = XI_STATE_OK;
-        xi_vector_t* vector        = xi_vector_create();
-        xi_vector_t* test_vector   = xi_vector_create();
-        xi_heap_element_t* event;
+        int index                                = 0;
+        uint32_t time_counter                    = 0;
+        uint32_t execution_counter               = 0;
+        xi_state_t state                         = XI_STATE_OK;
+        xi_vector_t* vector                      = xi_vector_create();
+        xi_vector_t* test_vector                 = xi_vector_create();
+        xi_time_event_handle_t* time_event_handle = NULL;
 
         // schedule 50 handles
         for ( index = 0; index < 50; index++ )
         {
             XI_ALLOC( xi_io_timeout_t, timeout_element, state );
+
+            time_event_handle = &timeout_element->timeout;
 
             timeout_element->data1 = &execution_counter;
             timeout_element->data2 = vector;
@@ -145,11 +147,7 @@ XI_TT_TESTCASE(
                 0};
 
             // schedule handle execution
-            event = xi_io_timeouts_create( evtd, evtd_handle, 10, vector );
-
-            // store event in the timeout element, so handle can remove it from the
-            // collector
-            timeout_element->timeout = event;
+            xi_io_timeouts_create( evtd, evtd_handle, 10, vector, time_event_handle );
 
             // store event in the test vector
             xi_vector_push( test_vector, XI_VEC_CONST_VALUE_PARAM(
@@ -162,11 +160,11 @@ XI_TT_TESTCASE(
         // check if elements are valid
         for ( index = 0; index < vector->elem_no; ++index )
         {
-            xi_vector_elem_t element      = vector->array[index];
-            xi_vector_elem_t test_element = test_vector->array[index];
-            xi_io_timeout_t* timeout      = test_element.selector_t.ptr_value;
-            xi_heap_element_t* event      = element.selector_t.ptr_value;
-            xi_heap_element_t* test_event = timeout->timeout;
+            xi_vector_elem_t element           = vector->array[index];
+            xi_vector_elem_t test_element      = test_vector->array[index];
+            xi_io_timeout_t* timeout           = test_element.selector_t.ptr_value;
+            xi_time_event_handle_t* event      = element.selector_t.ptr_value;
+            xi_time_event_handle_t* test_event = &timeout->timeout;
             tt_assert( event == test_event );
         }
 
@@ -207,12 +205,14 @@ XI_TT_TESTCASE( utest__xi_evtd_io_cancel__delayed_execution__events_should_be_ca
     xi_state_t state           = XI_STATE_OK;
     xi_vector_t* vector        = xi_vector_create();
     xi_vector_t* test_vector   = xi_vector_create();
-    xi_heap_element_t* event;
+    xi_time_event_handle_t* time_event_handle = NULL;
 
     // schedule 50 handles
     for ( index = 0; index < 50; index++ )
     {
         XI_ALLOC( xi_io_timeout_t, timeout_element, state );
+
+        time_event_handle = &timeout_element->timeout;
 
         timeout_element->data1 = &execution_counter;
         timeout_element->data2 = vector;
@@ -225,10 +225,7 @@ XI_TT_TESTCASE( utest__xi_evtd_io_cancel__delayed_execution__events_should_be_ca
             0};
 
         // schedule handle execution
-        event = xi_io_timeouts_create( evtd, evtd_handle, 10, vector );
-
-        // store event in the timeout element, so handle can remove it from the collector
-        timeout_element->timeout = event;
+        xi_io_timeouts_create( evtd, evtd_handle, 10, vector, time_event_handle );
 
         // store event in the test vector
         xi_vector_push( test_vector,
@@ -245,7 +242,7 @@ XI_TT_TESTCASE( utest__xi_evtd_io_cancel__delayed_execution__events_should_be_ca
             {
                 xi_vector_elem_t element         = test_vector->array[index];
                 xi_io_timeout_t* timeout_element = element.selector_t.ptr_value;
-                xi_heap_element_t* event         = timeout_element->timeout;
+                xi_time_event_handle_t* event    = &timeout_element->timeout;
                 xi_io_timeouts_cancel( evtd, event, vector );
                 XI_SAFE_FREE( timeout_element );
             }
@@ -285,13 +282,14 @@ XI_TT_TESTCASE(
         xi_state_t state           = XI_STATE_OK;
         xi_vector_t* vector        = xi_vector_create();
         xi_vector_t* test_vector   = xi_vector_create();
-        xi_heap_element_t* event;
+        xi_time_event_handle_t* time_event_handle = NULL;
 
         // schedule 50 handles
         for ( index = 0; index < 50; index++ )
         {
             XI_ALLOC( xi_io_timeout_t, timeout_element, state );
 
+            time_event_handle = &timeout_element->timeout;
             timeout_element->data1 = &execution_counter;
             timeout_element->data2 = vector;
 
@@ -303,17 +301,13 @@ XI_TT_TESTCASE(
                 0};
 
             // schedule handle execution
-            event = xi_io_timeouts_create( evtd, evtd_handle, 10, vector );
-
-            // store event in the timeout element, so handle can remove it from the
-            // collector
-            timeout_element->timeout = event;
+            xi_io_timeouts_create( evtd, evtd_handle, 10, vector, time_event_handle );
 
             // store first 25 events in the test vector
             if ( index < 25 )
             {
                 xi_vector_push( test_vector,
-                                XI_VEC_CONST_VALUE_PARAM( XI_VEC_VALUE_PTR( event ) ) );
+                                XI_VEC_CONST_VALUE_PARAM( XI_VEC_VALUE_PTR( time_event_handle ) ) );
             }
         }
 
@@ -365,13 +359,14 @@ XI_TT_TESTCASE( utest__xi_evtd_io_remove__delayed_execution__events_should_be_re
     xi_vector_t* vector         = xi_vector_create();
     xi_vector_t* test_vector    = xi_vector_create();
     xi_vector_t* element_vector = xi_vector_create();
-    xi_heap_element_t* event;
+    xi_time_event_handle_t* time_event_handle = NULL;
 
     // schedule 50 handles
     for ( index = 0; index < 50; index++ )
     {
         XI_ALLOC( xi_io_timeout_t, timeout_element, state );
 
+        time_event_handle = &timeout_element->timeout;
         timeout_element->data1 = &execution_counter;
         timeout_element->data2 = vector;
 
@@ -383,16 +378,13 @@ XI_TT_TESTCASE( utest__xi_evtd_io_remove__delayed_execution__events_should_be_re
             0};
 
         // schedule handle execution
-        event = xi_io_timeouts_create( evtd, evtd_handle, 10, vector );
-
-        // store event in the timeout element, so handle can remove it from the collector
-        timeout_element->timeout = event;
+        xi_io_timeouts_create( evtd, evtd_handle, 10, vector, time_event_handle );
 
         // store first 25 events in the test vector
         if ( index < 25 )
         {
             xi_vector_push( test_vector,
-                            XI_VEC_CONST_VALUE_PARAM( XI_VEC_VALUE_PTR( event ) ) );
+                            XI_VEC_CONST_VALUE_PARAM( XI_VEC_VALUE_PTR( time_event_handle ) ) );
         }
 
         // store event in the test vector
@@ -404,9 +396,9 @@ XI_TT_TESTCASE( utest__xi_evtd_io_remove__delayed_execution__events_should_be_re
     for ( index = 0; index < 25; index++ )
     {
         xi_vector_elem_t element = test_vector->array[index];
-        event                    = element.selector_t.ptr_value;
+        time_event_handle        = element.selector_t.ptr_value;
 
-        xi_io_timeouts_remove( event, vector );
+        xi_io_timeouts_remove( time_event_handle, vector );
     }
 
     // check if last25 was removed
@@ -417,7 +409,7 @@ XI_TT_TESTCASE( utest__xi_evtd_io_remove__delayed_execution__events_should_be_re
     {
         xi_vector_elem_t element         = element_vector->array[index];
         xi_io_timeout_t* timeout_element = element.selector_t.ptr_value;
-        xi_heap_element_t* event         = timeout_element->timeout;
+        xi_time_event_handle_t* event    = &timeout_element->timeout;
         xi_io_timeouts_cancel( evtd, event, vector );
         XI_SAFE_FREE( timeout_element );
     }

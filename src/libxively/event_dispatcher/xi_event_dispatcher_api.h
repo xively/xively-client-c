@@ -17,7 +17,7 @@
 #include "xi_allocator.h"
 #include "xi_macros.h"
 #include "xi_event_handle.h"
-#include "xi_heap.h"
+#include "xi_time_event.h"
 #include "xi_event_handle_queue.h"
 
 #include "xi_critical_section.h"
@@ -27,8 +27,6 @@ extern "C" {
 #endif
 
 typedef intptr_t xi_fd_t;
-struct xi_heap_s;
-struct xi_heap_element_s;
 
 typedef enum xi_evtd_fd_type_e {
     XI_EVTD_FD_TYPE_SOCKET = 0,
@@ -47,7 +45,7 @@ typedef struct xi_evtd_tuple_s
 typedef struct xi_evtd_instance_s
 {
     xi_time_t current_step;
-    struct xi_heap_s* call_heap;
+    xi_vector_t* call_heap;
     xi_event_handle_queue_t* call_queue;
     struct xi_critical_section_s* cs;
     xi_vector_t* handles_and_socket_fd;
@@ -80,16 +78,17 @@ xi_evtd_continue_when_empty( xi_evtd_instance_t* instance, xi_event_handle_t han
 extern xi_event_handle_queue_t*
 xi_evtd_execute( xi_evtd_instance_t* instance, xi_event_handle_t handle );
 
-extern xi_heap_element_t* xi_evtd_execute_in( xi_evtd_instance_t* instance,
-                                              xi_event_handle_t handle,
-                                              xi_time_t time_diff );
+extern xi_state_t xi_evtd_execute_in( xi_evtd_instance_t* instance,
+                                      xi_event_handle_t handle,
+                                      xi_time_t time_diff,
+                                      xi_time_event_handle_t* ret_time_event_handle );
 
-extern xi_heap_element_t*
-xi_evtd_cancel( xi_evtd_instance_t* instance, xi_heap_element_t* heap_element );
+extern xi_state_t
+xi_evtd_cancel( xi_evtd_instance_t* instance, xi_time_event_handle_t* time_event_handle );
 
-extern void xi_evtd_restart( xi_evtd_instance_t* instance,
-                             xi_heap_element_t* heap_element,
-                             xi_time_t new_time );
+extern xi_state_t xi_evtd_restart( xi_evtd_instance_t* instance,
+                                   xi_time_event_handle_t* time_event_handle,
+                                   xi_time_t new_time );
 
 extern xi_evtd_instance_t* xi_evtd_create_instance( void );
 

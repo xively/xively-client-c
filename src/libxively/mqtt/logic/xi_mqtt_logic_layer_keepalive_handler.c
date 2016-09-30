@@ -29,7 +29,7 @@ xi_state_t do_mqtt_keepalive_once( void* data )
         return XI_STATE_OK;
     }
 
-    layer_data->keepalive_event = 0;
+    layer_data->keepalive_event.position = NULL;
 
     XI_ALLOC( xi_mqtt_logic_task_t, task, state );
 
@@ -86,12 +86,15 @@ do_mqtt_keepalive_task( void* ctx, void* data, xi_state_t state, void* msg_data 
 
     // wait for an interval of keepalive
     {
-        assert( task->timeout == 0 );
+        assert( task->timeout.position == 0 );
 
-        task->timeout = xi_evtd_execute_in(
+        state = xi_evtd_execute_in(
             event_dispatcher, xi_make_handle( &on_keepalive_timeout_expiry, context, task,
                                               state, msg_memory ),
-            XI_CONTEXT_DATA( context )->connection_data->keepalive_timeout );
+            XI_CONTEXT_DATA( context )->connection_data->keepalive_timeout,
+            &task->timeout );
+
+        XI_CHECK_STATE( state );
 
         /* for a message */
         XI_CR_YIELD( task->cs, XI_STATE_OK );
@@ -100,8 +103,7 @@ do_mqtt_keepalive_task( void* ctx, void* data, xi_state_t state, void* msg_data 
     if ( state == XI_STATE_TIMEOUT )
     {
         xi_debug_logger( "keepalive timeout passed!" );
-
-        task->timeout = 0;
+        task->timeout.position = NULL;
         XI_CR_EXIT( task->cs, do_reconnect( context, 0, XI_STATE_TIMEOUT ) );
     }
     else if ( state != XI_STATE_OK )
@@ -129,9 +131,11 @@ do_mqtt_keepalive_task( void* ctx, void* data, xi_state_t state, void* msg_data 
     if ( XI_CONTEXT_DATA( context )->connection_data->connection_state ==
          XI_CONNECTION_STATE_OPENED )
     {
-        layer_data->keepalive_event = xi_evtd_execute_in(
+        state = xi_evtd_execute_in(
             event_dispatcher, xi_make_handle( &do_mqtt_keepalive_once, context ),
-            XI_CONTEXT_DATA( context )->connection_data->keepalive_timeout );
+            XI_CONTEXT_DATA( context )->connection_data->keepalive_timeout,
+            &layer_data->keepalive_event );
+        XI_CHECK_STATE( state );
     }
 
     xi_mqtt_message_free( &msg_memory );

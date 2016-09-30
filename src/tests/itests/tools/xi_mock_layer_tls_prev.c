@@ -82,6 +82,8 @@ xi_mock_layer_tls_prev_close( void* context, void* data, xi_state_t in_out_state
     /* Call close on the mockbroker chain */
     if ( NULL != xi_context_mockbroker )
     {
+        xi_time_event_handle_t time_event_handle = xi_make_empty_time_event_handle();
+
         xi_evtd_execute_in(
             xi_globals.evtd_instance,
             xi_make_handle(
@@ -91,7 +93,7 @@ xi_mock_layer_tls_prev_close( void* context, void* data, xi_state_t in_out_state
                                       XI_LAYER_TYPE_MOCKBROKER_TOP )
                      ->layer_connection,
                 data, in_out_state ),
-            1 );
+            1, &time_event_handle );
     }
 
     return XI_PROCESS_CLOSE_EXTERNALLY_ON_THIS_LAYER( context, data, in_out_state );

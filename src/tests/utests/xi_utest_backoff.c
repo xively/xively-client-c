@@ -58,6 +58,66 @@ void xi__utest__reset_backoff_penalty()
     xi_cancel_backoff_event();
 }
 
+void test_function()
+{
+    xi_context_handle_t xi_context_handle = xi_create_context();
+    if ( XI_INVALID_CONTEXT_HANDLE >= xi_context_handle )
+    {
+        tt_fail_msg( "Failed to create default context!" );
+        return;
+    }
+
+    xi_evtd_instance_t* event_dispatcher = xi_globals.evtd_instance;
+    size_t itests                        = XI_ARRAYSIZE( xi_utest_backoff_test_cases );
+
+    size_t i = 0;
+    for ( ; i < itests; ++i )
+    {
+        const xi_utest_backoff_data_test_case_t* curr_test_case =
+            ( xi_utest_backoff_data_test_case_t* )&xi_utest_backoff_test_cases[i];
+
+        xi_backoff_configure_using_data(
+            ( xi_vector_elem_t* )curr_test_case->backoff_data,
+            ( xi_vector_elem_t* )curr_test_case->decay_data, curr_test_case->data_len,
+            XI_MEMORY_TYPE_UNMANAGED );
+
+        xi_inc_backoff_penalty();
+
+        xi_globals.backoff_status.backoff_class = XI_BACKOFF_CLASS_NONE;
+
+        xi_vector_index_type_t* backoff_time_event_position =
+            xi_globals.backoff_status.next_update.position;
+
+        xi_backoff_lut_index_t curr_index = xi_globals.backoff_status.backoff_lut_i;
+
+        xi_evtd_step( event_dispatcher,
+                      event_dispatcher->current_step +
+                          xi_globals.backoff_status.decay_lut->array[curr_index]
+                              .selector_t.ui32_value +
+                          1 );
+
+        if ( curr_test_case->data_len > 1 )
+        {
+            tt_int_op( xi_globals.backoff_status.backoff_lut_i, <, curr_index );
+        }
+        else
+        {
+            tt_int_op( xi_globals.backoff_status.backoff_lut_i, ==, 0 );
+        }
+
+        tt_ptr_op( xi_globals.backoff_status.next_update.position, ==, NULL );
+        tt_ptr_op( xi_globals.backoff_status.next_update.position, !=,
+                   backoff_time_event_position );
+
+        xi__utest__reset_backoff_penalty();
+    }
+
+end:
+    xi__utest__reset_backoff_penalty();
+    xi_delete_context( xi_context_handle );
+    xi_backoff_release();
+}
+
 #endif
 
 XI_TT_TESTGROUP_BEGIN( utest_backoff )
@@ -127,7 +187,7 @@ XI_TT_TESTCASE_WITH_SETUP(
                 ( xi_vector_elem_t* )curr_test_case->decay_data, curr_test_case->data_len,
                 XI_MEMORY_TYPE_UNMANAGED );
 
-            tt_want_int_op( xi_globals.backoff_status.next_update, ==, 0 );
+            tt_want_int_op( xi_globals.backoff_status.next_update.position, ==, 0 );
             xi_globals.backoff_status.backoff_lut_i = 0;
 
             int i = 0;
@@ -157,7 +217,7 @@ XI_TT_TESTCASE_WITH_SETUP(
             tt_want_int_op( prev_backoff_lut_i, ==,
                             xi_globals.backoff_status.backoff_lut_i );
 
-            xi_globals.backoff_status.next_update = 0;
+            xi_globals.backoff_status.next_update.position = 0;
         }
 
         xi_delete_context( xi_context_handle );
@@ -305,7 +365,7 @@ XI_TT_TESTCASE_WITH_SETUP(
 
             xi_cancel_backoff_event();
 
-            tt_want_ptr_op( xi_globals.backoff_status.next_update, ==, 0 );
+            tt_want_ptr_op( xi_globals.backoff_status.next_update.position, ==, 0 );
         }
 
         xi_delete_context( xi_context_handle );
@@ -399,7 +459,7 @@ XI_TT_TESTCASE_WITH_SETUP(
                 tt_want_int_op( xi_globals.backoff_status.backoff_lut_i, ==, 0 );
             }
 
-            tt_want_ptr_op( xi_globals.backoff_status.next_update, !=, 0 );
+            tt_want_ptr_op( xi_globals.backoff_status.next_update.position, !=, 0 );
 
             xi__utest__reset_backoff_penalty();
         }
@@ -451,7 +511,7 @@ XI_TT_TESTCASE_WITH_SETUP(
                 tt_want_int_op( xi_globals.backoff_status.backoff_lut_i, ==, 0 );
             }
 
-            tt_want_ptr_op( xi_globals.backoff_status.next_update, !=, 0 );
+            tt_want_ptr_op( xi_globals.backoff_status.next_update.position, !=, 0 );
 
             xi__utest__reset_backoff_penalty();
         }
@@ -493,7 +553,7 @@ XI_TT_TESTCASE_WITH_SETUP(
             tt_want_int_op( xi_globals.backoff_status.backoff_class, ==,
                             XI_BACKOFF_CLASS_NONE );
             tt_want_int_op( xi_globals.backoff_status.backoff_lut_i, ==, curr_index );
-            tt_want_ptr_op( xi_globals.backoff_status.next_update, ==, 0 );
+            tt_want_ptr_op( xi_globals.backoff_status.next_update.position, ==, 0 );
 
             xi__utest__reset_backoff_penalty();
         }
@@ -530,18 +590,20 @@ XI_TT_TESTCASE_WITH_SETUP(
                 ( xi_vector_elem_t* )curr_test_case->decay_data, curr_test_case->data_len,
                 XI_MEMORY_TYPE_UNMANAGED );
 
-            tt_want_ptr_op( xi_globals.backoff_status.next_update, ==, 0 );
+            tt_want_ptr_op( xi_globals.backoff_status.next_update.position, ==, 0 );
 
             xi_restart_update_time( event_dispatcher );
 
-            tt_want_ptr_op( xi_globals.backoff_status.next_update, !=, 0 );
+            tt_want_ptr_op( xi_globals.backoff_status.next_update.position, !=, 0 );
 
-            xi_heap_element_t* backoff_handler = xi_globals.backoff_status.next_update;
+            xi_time_event_handle_t* backoff_handler =
+                &xi_globals.backoff_status.next_update;
 
             xi_restart_update_time( event_dispatcher );
 
-            tt_want_ptr_op( xi_globals.backoff_status.next_update, ==, backoff_handler );
-            tt_want_ptr_op( xi_globals.backoff_status.next_update, !=, 0 );
+            tt_want_ptr_op( xi_globals.backoff_status.next_update.position, ==,
+                            backoff_handler->position );
+            tt_want_ptr_op( xi_globals.backoff_status.next_update.position, !=, NULL );
 
             xi__utest__reset_backoff_penalty();
         }
@@ -583,7 +645,8 @@ XI_TT_TESTCASE_WITH_SETUP(
 
             xi_globals.backoff_status.backoff_class = XI_BACKOFF_CLASS_TERMINAL;
 
-            xi_heap_element_t* backoff_handler = xi_globals.backoff_status.next_update;
+            xi_vector_index_type_t* backoff_time_event_position =
+                xi_globals.backoff_status.next_update.position;
 
             xi_backoff_lut_index_t curr_index = xi_globals.backoff_status.backoff_lut_i;
 
@@ -597,14 +660,15 @@ XI_TT_TESTCASE_WITH_SETUP(
 
             if ( curr_test_case->data_len > 1 )
             {
-                tt_ptr_op( xi_globals.backoff_status.next_update, !=, 0 );
+                tt_ptr_op( xi_globals.backoff_status.next_update.position, !=, 0 );
             }
             else
             {
-                tt_ptr_op( xi_globals.backoff_status.next_update, ==, 0 );
+                tt_ptr_op( xi_globals.backoff_status.next_update.position, ==, 0 );
             }
 
-            tt_ptr_op( xi_globals.backoff_status.next_update, !=, backoff_handler );
+            tt_ptr_op( &xi_globals.backoff_status.next_update.position, !=,
+                       backoff_time_event_position );
 
             xi__utest__reset_backoff_penalty();
         }
@@ -620,62 +684,7 @@ XI_TT_TESTCASE_WITH_SETUP(
     xi_utest_setup_basic,
     xi_utest_teardown_basic,
     NULL,
-    {
-        xi_context_handle_t xi_context_handle = xi_create_context();
-        if ( XI_INVALID_CONTEXT_HANDLE >= xi_context_handle )
-        {
-            tt_fail_msg( "Failed to create default context!" );
-            return;
-        }
-
-        xi_evtd_instance_t* event_dispatcher = xi_globals.evtd_instance;
-        size_t itests = XI_ARRAYSIZE( xi_utest_backoff_test_cases );
-
-        size_t i = 0;
-        for ( ; i < itests; ++i )
-        {
-            const xi_utest_backoff_data_test_case_t* curr_test_case =
-                ( xi_utest_backoff_data_test_case_t* )&xi_utest_backoff_test_cases[i];
-
-            xi_backoff_configure_using_data(
-                ( xi_vector_elem_t* )curr_test_case->backoff_data,
-                ( xi_vector_elem_t* )curr_test_case->decay_data, curr_test_case->data_len,
-                XI_MEMORY_TYPE_UNMANAGED );
-
-            xi_inc_backoff_penalty();
-
-            xi_globals.backoff_status.backoff_class = XI_BACKOFF_CLASS_NONE;
-
-            xi_heap_element_t* backoff_handler = xi_globals.backoff_status.next_update;
-
-            xi_backoff_lut_index_t curr_index = xi_globals.backoff_status.backoff_lut_i;
-
-            xi_evtd_step( event_dispatcher,
-                          event_dispatcher->current_step +
-                              xi_globals.backoff_status.decay_lut->array[curr_index]
-                                  .selector_t.ui32_value +
-                              1 );
-
-            if ( curr_test_case->data_len > 1 )
-            {
-                tt_int_op( xi_globals.backoff_status.backoff_lut_i, <, curr_index );
-            }
-            else
-            {
-                tt_int_op( xi_globals.backoff_status.backoff_lut_i, ==, 0 );
-            }
-
-            tt_ptr_op( xi_globals.backoff_status.next_update, ==, 0 );
-            tt_ptr_op( xi_globals.backoff_status.next_update, !=, backoff_handler );
-
-            xi__utest__reset_backoff_penalty();
-        }
-
-    end:
-        xi__utest__reset_backoff_penalty();
-        xi_delete_context( xi_context_handle );
-        xi_backoff_release();
-    } )
+    { test_function(); } )
 
 XI_TT_TESTCASE_WITH_SETUP(
     utest__xi_context__no_data__after_restarting_xi_context_penalty_must_not_be_changed,
@@ -705,7 +714,7 @@ XI_TT_TESTCASE_WITH_SETUP(
         }
 
         tt_want_int_op( curr_index, ==, xi_globals.backoff_status.backoff_lut_i );
-        tt_want_int_op( xi_globals.backoff_status.next_update, ==, NULL );
+        tt_want_int_op( xi_globals.backoff_status.next_update.position, ==, NULL );
 
         xi_delete_context( xi_context_handle );
 

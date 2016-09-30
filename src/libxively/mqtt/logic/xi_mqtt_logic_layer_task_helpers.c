@@ -26,7 +26,7 @@ xi_state_t xi_mqtt_logic_layer_run_next_q0_task( void* data )
     /* cancel the timeout of the tasks if it is still registered */
     if ( layer_data->current_q0_task != 0 )
     {
-        if ( layer_data->current_q0_task->timeout != 0 )
+        if ( NULL != layer_data->current_q0_task->timeout.position )
         {
             cancel_task_timeout( layer_data->current_q0_task, context );
         }
@@ -87,12 +87,12 @@ xi_state_t xi_mqtt_logic_layer_finalize_task( xi_layer_connectivity_t* context,
                                               xi_mqtt_logic_task_t* task )
 {
     /* PRECONDITION */
-    assert( task != 0 );
+    assert( NULL != task );
 
     /* let's make sure that the task timeout has been finished / cancelled
      * for now just a assertion so that we can check if it has been correctly
      * implemented */
-    assert( NULL == task->timeout );
+    assert( NULL == task->timeout.position );
 
     xi_mqtt_logic_layer_data_t* layer_data =
         ( xi_mqtt_logic_layer_data_t* )XI_THIS_LAYER( context )->user_data;

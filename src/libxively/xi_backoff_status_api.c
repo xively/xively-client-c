@@ -84,10 +84,10 @@ uint32_t xi_get_backoff_penalty()
 
 void xi_cancel_backoff_event()
 {
-    if ( xi_globals.backoff_status.next_update != 0 )
+    if ( NULL != xi_globals.backoff_status.next_update.position )
     {
-        xi_globals.backoff_status.next_update = xi_evtd_cancel(
-            xi_globals.evtd_instance, xi_globals.backoff_status.next_update );
+        xi_evtd_cancel( xi_globals.evtd_instance,
+                        &xi_globals.backoff_status.next_update );
     }
 }
 
@@ -198,32 +198,32 @@ xi_state_t xi_restart_update_time()
     xi_state_t local_state               = XI_STATE_OK;
     xi_evtd_instance_t* event_dispatcher = xi_globals.evtd_instance;
 
-    if ( xi_globals.backoff_status.next_update != 0 )
+    if ( NULL != xi_globals.backoff_status.next_update.position )
     {
-        xi_evtd_restart( event_dispatcher, xi_globals.backoff_status.next_update,
-                         xi_globals.backoff_status.decay_lut
-                             ->array[xi_globals.backoff_status.backoff_lut_i]
-                             .selector_t.ui32_value );
+        local_state =
+            xi_evtd_restart( event_dispatcher, &xi_globals.backoff_status.next_update,
+                             xi_globals.backoff_status.decay_lut
+                                 ->array[xi_globals.backoff_status.backoff_lut_i]
+                                 .selector_t.ui32_value );
     }
     else
     {
-        xi_globals.backoff_status.next_update =
+        local_state =
             xi_evtd_execute_in( event_dispatcher, xi_make_handle( &xi_apply_cooldown ),
                                 xi_globals.backoff_status.decay_lut
                                     ->array[xi_globals.backoff_status.backoff_lut_i]
-                                    .selector_t.ui32_value );
-
-        XI_CHECK_MEMORY( xi_globals.backoff_status.next_update, local_state );
+                                    .selector_t.ui32_value,
+                                &xi_globals.backoff_status.next_update );
     }
 
-err_handling:
     return local_state;
 }
 
 static xi_state_t xi_apply_cooldown( void )
 {
     /* clearing the event pointer is the first thing to do */
-    xi_globals.backoff_status.next_update = 0;
+    xi_globals.backoff_status.next_update =
+        ( xi_time_event_handle_t )xi_make_empty_time_event_handle();
 
     if ( xi_globals.backoff_status.backoff_class == XI_BACKOFF_CLASS_NONE )
     {

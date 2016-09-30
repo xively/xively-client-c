@@ -18,7 +18,7 @@
 #include "xi_debug.h"
 #include "xi_allocator.h"
 #include "xi_time.h"
-#include "xi_handle.h"
+#include "xi_event_handle.h"
 
 typedef struct xi_time_event_handle_s
 {
@@ -32,15 +32,23 @@ typedef struct xi_time_event_s
     xi_vector_index_type_t position;
 } xi_time_event_t;
 
+#define XI_TIME_EVENT_POSITION_INVALID -1
+
 #define xi_make_empty_time_event_handle()                                                \
     {                                                                                    \
         NULL                                                                             \
     }
 
+#define xi_make_time_event_handle( event_handle )                                        \
+    {                                                                                    \
+        &event_handle->position                                                          \
+    }
+
 #define xi_make_empty_time_event()                                                       \
     {                                                                                    \
-        xi_make_empty_event_handle(), 0, 0                                               \
+        xi_make_empty_event_handle(), 0, XI_TIME_EVENT_POSITION_INVALID                  \
     }
+
 
 /* API */
 /**
@@ -77,7 +85,17 @@ xi_time_event_t* xi_time_event_get_top( xi_vector_t* vector );
  * @param vector
  * @return
  */
-const xi_time_event_t* xi_time_event_peek_top( xi_vector_t* vector );
+xi_time_event_t* xi_time_event_peek_top( xi_vector_t* vector );
+
+/**
+ * @brief xi_time_event_get_time_event_handle
+ * @param vector
+ * @param ret_time_event_handle
+ * @return
+ */
+xi_state_t
+xi_time_event_get_time_event_handle( xi_vector_t* vector,
+                                     xi_time_event_handle_t* ret_time_event_handle );
 
 /**
  * @brief xi_time_event_restart
@@ -98,5 +116,12 @@ xi_state_t xi_time_event_restart( xi_vector_t* vector,
 xi_state_t xi_time_event_cancel( xi_vector_t* vector,
                                  xi_time_event_handle_t* time_event_handle,
                                  xi_time_event_t** cancelled_time_event );
+
+/**
+ * @brief xi_time_event_destroy
+ * @param vector
+ * @return
+ */
+void xi_time_event_destroy( xi_vector_t* vector );
 
 #endif /* __XI_TIME_EVENT_H__ */

@@ -133,7 +133,7 @@ xi_mqtt_logic_task_t* xi_mqtt_logic_free_task_data( xi_mqtt_logic_task_t* task )
     /* PRECONDITIONS */
     assert( NULL != task );
     assert( NULL != task->data.data_u );
-    assert( NULL == task->timeout );
+    assert( NULL == task->timeout.position );
 
     switch ( task->data.mqtt_settings.scenario )
     {

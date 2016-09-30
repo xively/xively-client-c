@@ -64,7 +64,7 @@ do_mqtt_subscribe( void* ctx, void* data, xi_state_t state, void* msg )
         if ( XI_STATE_WRITTEN == state )
         {
             xi_debug_format( "[m.id[%d]]subscribe has been sent", task->msg_id );
-            assert( NULL == task->timeout );
+            assert( NULL == task->timeout.position );
             task->session_state = task->session_state == XI_MQTT_LOGIC_TASK_SESSION_UNSET
                                       ? XI_MQTT_LOGIC_TASK_SESSION_STORE
                                       : task->session_state;
@@ -73,30 +73,35 @@ do_mqtt_subscribe( void* ctx, void* data, xi_state_t state, void* msg )
         {
             xi_debug_format( "[m.id[%d]]subscribe has not been sent", task->msg_id );
 
-            assert( NULL == task->timeout );
+            assert( NULL == task->timeout.position );
 
-            task->timeout = xi_evtd_execute_in(
+            xi_state_t local_state = xi_evtd_execute_in(
                 event_dispatcher, xi_make_handle( &do_mqtt_subscribe, context, task,
                                                   XI_STATE_RESEND, NULL ),
-                1 );
+                1, &task->timeout );
+
+            XI_CHECK_STATE( local_state );
 
             XI_CR_YIELD( task->cs, XI_STATE_OK );
 
-            task->timeout = NULL;
+            /* invalidate the timeout */
+            task->timeout.position = NULL;
 
             continue;
         }
 
         /* add a timeout for waiting for the response */
-        assert( NULL == task->timeout );
+        assert( NULL == task->timeout.position );
 
         /* @TODO change it to use the defined timeout */
         if ( XI_CONTEXT_DATA( context )->connection_data->keepalive_timeout > 0 )
         {
-            task->timeout = xi_evtd_execute_in(
+            xi_state_t local_state = xi_evtd_execute_in(
                 event_dispatcher, xi_make_handle( &do_mqtt_subscribe, context, task,
                                                   XI_STATE_TIMEOUT, NULL ),
-                XI_CONTEXT_DATA( context )->connection_data->keepalive_timeout );
+                XI_CONTEXT_DATA( context )->connection_data->keepalive_timeout,
+                &task->timeout );
+            XI_CHECK_STATE( local_state );
         }
 
         /* wait for the suback */
@@ -106,9 +111,8 @@ do_mqtt_subscribe( void* ctx, void* data, xi_state_t state, void* msg )
         if ( XI_STATE_TIMEOUT == state )
         {
             xi_debug_format( "[m.id[%d]]subscribe timeout occured", task->msg_id );
-
-            task->timeout = NULL;
-            state         = XI_STATE_RESEND;
+            task->timeout.position = NULL;
+            state                  = XI_STATE_RESEND;
         }
         else
         {
@@ -120,11 +124,11 @@ do_mqtt_subscribe( void* ctx, void* data, xi_state_t state, void* msg )
             xi_debug_format( "[m.id[%d]]subscribe resend", task->msg_id );
         }
 
-        assert( NULL == task->timeout );
+        assert( NULL == task->timeout.position );
 
     } while ( XI_STATE_RESEND == state );
 
-    assert( NULL == task->timeout );
+    assert( NULL == task->timeout.position );
 
     if ( state == XI_STATE_OK )
     {
