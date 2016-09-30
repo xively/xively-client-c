@@ -204,7 +204,7 @@ xi_bsp_tls_state_t xi_bsp_tls_init( xi_bsp_tls_context_t** tls_context,
 
 #else
 
-/* no OCSP at all */
+/* no OCSP */
 
 #endif
 
