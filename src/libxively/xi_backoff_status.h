@@ -7,7 +7,7 @@
 #include <stdint.h>
 
 #include "xi_vector.h"
-#include "xi_heap.h"
+#include "xi_time_event.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -23,7 +23,7 @@ typedef xi_vector_index_type_t xi_backoff_lut_index_t;
 
 typedef struct xi_backoff_status_s
 {
-    xi_heap_element_t* next_update;
+    xi_time_event_handle_t next_update;
     xi_vector_t* backoff_lut;
     xi_vector_t* decay_lut;
     xi_backoff_class_t backoff_class;

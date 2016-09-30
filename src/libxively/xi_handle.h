@@ -4,7 +4,7 @@
 #ifndef __XI_HANDLE_H__
 #define __XI_HANDLE_H__
 
-#include "xi_types.h"
+#include "xi_handle.h"
 #include "xi_vector.h"
 
 /*-----------------------------------------------------------------------

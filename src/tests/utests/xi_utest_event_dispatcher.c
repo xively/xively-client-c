@@ -11,7 +11,6 @@
 #include "tinytest_macros.h"
 #include "xi_tt_testcase_management.h"
 
-#include "xi_heap.h"
 #include "xi_event_dispatcher_api.h"
 
 #ifndef XI_TT_TESTCASE_ENUMERATION__SECONDPREPROCESSORRUN
@@ -48,6 +47,7 @@ xi_state_t continuation1_5( xi_event_handle_arg1_t a )
     return 0;
 }
 
+static xi_time_event_handle_t time_event_handle = xi_make_empty_time_event_handle();
 static xi_evtd_instance_t* evtd_g_i = 0;
 static xi_event_handle_t evtd_handle_g;
 
@@ -57,7 +57,7 @@ xi_state_t proc_loop( xi_event_handle_arg1_t a )
 
     if ( *( ( uint32_t* )a ) > 0 )
     {
-        xi_evtd_execute_in( evtd_g_i, evtd_handle_g, 1 );
+        xi_evtd_execute_in( evtd_g_i, evtd_handle_g, 1, &time_event_handle );
     }
     return 0;
 }
@@ -118,9 +118,9 @@ XI_TT_TESTCASE( utest__handler_processing_loop, {
     evtd_handle_g.handlers.h1.fn_argc1 = &proc_loop;
     evtd_handle_g.handlers.h1.a1       = ( xi_event_handle_arg1_t )&counter;
 
-    xi_evtd_execute_in( evtd_g_i, evtd_handle_g, 0 );
+    xi_evtd_execute_in( evtd_g_i, evtd_handle_g, 0, &time_event_handle );
 
-    while ( evtd_g_i->call_heap->first_free > 0 )
+    while ( evtd_g_i->call_heap->elem_no > 0 )
     {
         xi_evtd_step( evtd_g_i, step );
         step += 1;

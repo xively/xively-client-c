@@ -498,7 +498,7 @@ xi_state_t xi_connect_with_lastwill_to_impl( xi_context_handle_t xih,
     XI_UNUSED( local_state );
 
     /* guard against adding two connection requests */
-    if ( NULL != xi->context_data.connect_handler )
+    if ( NULL != xi->context_data.connect_handler.position )
     {
         return XI_ALREADY_INITIALIZED;
     }
@@ -540,12 +540,14 @@ xi_state_t xi_connect_with_lastwill_to_impl( xi_context_handle_t xih,
     xi_debug_format( "new backoff value: %d", new_backoff );
 
     /* register the execution in next init */
-    xi->context_data.connect_handler = xi_evtd_execute_in(
+    state = xi_evtd_execute_in(
         xi->context_data.evtd_instance,
         xi_make_handle( input_layer->layer_connection.self->layer_funcs->init,
                         &input_layer->layer_connection, xi->context_data.connection_data,
                         XI_STATE_OK ),
-        new_backoff );
+        new_backoff, &xi->context_data.connect_handler );
+
+    XI_CHECK_STATE( state );
 
     return XI_STATE_OK;
 
@@ -1021,9 +1023,13 @@ xi_state_t xi_shutdown_connection( xi_context_handle_t xih )
     xi_context_t* xi = xi_object_for_handle( xi_globals.context_handles_vector, xih );
     assert( NULL != xi );
 
+    xi_state_t state           = XI_STATE_OK;
+    xi_layer_t* input_layer    = xi->layer_chain.top;
+    xi_mqtt_logic_task_t* task = NULL;
+
     /* this means that the connection attempt has not even been requested
      * or the connection has been shutdown for this context */
-    if ( NULL == xi->context_data.connect_handler )
+    if ( NULL == xi->context_data.connect_handler.position )
     {
         return XI_SOCKET_NO_ACTIVE_CONNECTION_ERROR;
     }
@@ -1032,15 +1038,13 @@ xi_state_t xi_shutdown_connection( xi_context_handle_t xih )
     if ( XI_CONNECTION_STATE_UNINITIALIZED ==
          xi->context_data.connection_data->connection_state )
     {
-        xi->context_data.connect_handler = xi_evtd_cancel(
-            xi->context_data.evtd_instance, xi->context_data.connect_handler );
+        state = xi_evtd_cancel( xi->context_data.evtd_instance,
+                                &xi->context_data.connect_handler );
+
+        XI_CHECK_STATE( state );
 
         return XI_STATE_OK;
     }
-
-    xi_layer_t* input_layer    = xi->layer_chain.top;
-    xi_state_t state           = XI_STATE_OK;
-    xi_mqtt_logic_task_t* task = NULL;
 
     task = xi_mqtt_logic_make_shutdown_task();
 

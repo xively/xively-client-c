@@ -13,7 +13,7 @@ typedef struct xi_timed_task_data_s
     xi_user_task_callback_t* callback;
     xi_context_handle_t context_handle;
     void* data;
-    xi_heap_element_t* delayed_event;
+    xi_time_event_handle_t delayed_event;
     xi_evtd_instance_t* dispatcher;
     xi_time_t seconds_repeat;
     xi_timed_task_state_e state;
@@ -78,10 +78,13 @@ xi_timed_task_handle_t xi_add_timed_task( xi_timed_task_container_t* container,
                                                        task, &task_handle ) );
     xi_unlock_critical_section( container->cs );
 
-    task->delayed_event = xi_evtd_execute_in(
+    state = xi_evtd_execute_in(
         dispatcher, xi_make_handle( &xi_timed_task_callback_wrapper, ( void* )task,
                                     ( void* )container ),
-        seconds_from_now );
+        seconds_from_now, &task->delayed_event );
+
+    XI_CHECK_STATE( state );
+
     return task_handle;
 
 err_handling:
@@ -105,7 +108,8 @@ void xi_remove_timed_task( xi_timed_task_container_t* container,
     {
         if ( XI_TTS_SCHEDULED == task->state )
         {
-            xi_evtd_cancel( task->dispatcher, task->delayed_event );
+            state = xi_evtd_cancel( task->dispatcher, &task->delayed_event );
+            assert( XI_STATE_OK == state );
 
             state = xi_delete_handle_for_object( container->timed_tasks_vector, task );
             XI_UNUSED( state );
@@ -166,8 +170,9 @@ xi_state_t xi_timed_task_callback_wrapper( void* void_task, void* void_scheduler
         }
         else
         {
-            xi_evtd_restart( task->dispatcher, task->delayed_event,
+            state = xi_evtd_restart( task->dispatcher, &task->delayed_event,
                              task->seconds_repeat );
+            assert( XI_STATE_OK == state );
             task->state = XI_TTS_SCHEDULED;
         }
 

@@ -8,6 +8,7 @@
 #include "xi_connection_data.h"
 #include "xi_vector.h"
 #include "xi_event_dispatcher_api.h"
+//#include "xi_time_event.h"
 #include <xively_types.h>
 
 #ifdef __cplusplus
@@ -45,11 +46,11 @@ typedef struct xi_context_data_s
                             layers directly */
     uint16_t copy_of_last_msg_id; /* value of the msg_id for continious session */
 #endif
-    /* vector or a list of timeouts
-     * this is the common part */
+    /* this is the common part */
+    xi_time_event_handle_t connect_handler;
+    /* vector or a list of timeouts */
     xi_vector_t* io_timeouts;
     xi_connection_data_t* connection_data;
-    xi_heap_element_t* connect_handler;
     xi_evtd_instance_t* evtd_instance;
     xi_event_handle_t connection_callback;
 } xi_context_data_t;

@@ -11,6 +11,7 @@
 #include "xi_time.h"
 #include "xi_vector.h"
 #include "xi_event_dispatcher_api.h"
+#include "xi_time_event.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -18,26 +19,27 @@ extern "C" {
 
 typedef struct
 {
-    xi_heap_element_t* timeout;
+    xi_time_event_handle_t timeout;
     void* data1;
     void* data2;
 } xi_io_timeout_t;
 
-extern xi_heap_element_t* xi_io_timeouts_create( xi_evtd_instance_t* instance,
-                                                 xi_event_handle_t handle,
-                                                 xi_time_t time_diff,
-                                                 xi_vector_t* io_timeouts );
+xi_state_t xi_io_timeouts_create( xi_evtd_instance_t* instance,
+                                  xi_event_handle_t handle,
+                                  xi_time_t time_diff,
+                                  xi_vector_t* io_timeouts,
+                                  xi_time_event_handle_t* ret_time_event_handle );
 
-extern xi_heap_element_t* xi_io_timeouts_cancel( xi_evtd_instance_t* instance,
-                                                 xi_heap_element_t* heap_element,
-                                                 xi_vector_t* io_timeouts );
+void xi_io_timeouts_cancel( xi_evtd_instance_t* instance,
+                            xi_time_event_handle_t* time_event_handle,
+                            xi_vector_t* io_timeouts );
 
-extern xi_heap_element_t*
-xi_io_timeouts_remove( xi_heap_element_t* heap_element, xi_vector_t* io_timeouts );
+void xi_io_timeouts_remove( xi_time_event_handle_t* time_event_handle,
+                            xi_vector_t* io_timeouts );
 
-extern void xi_io_timeouts_restart( xi_evtd_instance_t* instance,
-                                    xi_time_t new_time,
-                                    xi_vector_t* io_timeouts );
+void xi_io_timeouts_restart( xi_evtd_instance_t* instance,
+                             xi_time_t new_time,
+                             xi_vector_t* io_timeouts );
 
 #ifdef __cplusplus
 }
