@@ -36,13 +36,6 @@ XI_COMPILER_FLAGS += --obj_directory=$(dir $@)
 XI_COMPILER_FLAGS += --asm_directory=$(dir $@)
 XI_COMPILER_FLAGS += --output_file=$@
 
-# currently only used by examples
-XI_COMPILER_FLAGS += -DXI_CROSS_TARGET
-XI_COMPILER_FLAGS += -DXI_EMBEDDED_TESTS
-XI_COMPILER_FLAGS += -DNO_OCSP
-
-XI_COMPILER_FLAGS += -DNO_WRITEV
-
 XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_SDK)/driverlib
 XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_SDK)/inc
 XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_SDK)/example/common
@@ -51,6 +44,13 @@ XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_SDK)/simplelink_extlib/provisioninglib
 
 XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_CCS_TOOLS)/compiler/ti-cgt-arm_15.12.1.LTS/include
 XI_COMPILER_FLAGS += -i"$(XI_CC3200_PATH_CCS_TOOLS)/compiler/ti-cgt-arm_15.12.1.LTS/lib"
+
+# Xively Client config flags
+XI_CONFIG_FLAGS += -DXI_CROSS_TARGET
+XI_CONFIG_FLAGS += -DXI_EMBEDDED_TESTS
+
+# wolfssl API
+XI_CONFIG_FLAGS += -DNO_WRITEV
 
 XI_ARFLAGS := r $(XI)
 XI_LIB_FLAGS := -llibxively.a
