@@ -78,26 +78,6 @@ ifneq (,$(findstring no_certverify,$(CONFIG)))
   XI_CONFIG_FLAGS += -DXI_DISABLE_CERTVERIFY
 endif
 
-# CONFIG: io layers:  posix_io, dummy_io, mbed_io, microchip_io, bsp_io
-ifneq (,$(findstring posix_io,$(CONFIG)))
-  XI_IO_LAYER ?= posix
-  XI_EVENT_LOOP ?= posix
-else ifneq (,$(findstring dummy_io,$(CONFIG)))
-  XI_IO_LAYER ?= dummy
-  XI_CONFIG_FLAGS += -DXI_IO_LAYER=1
-  XI_EVENT_LOOP ?= dummy
-else ifneq (,$(findstring mbed_io,$(CONFIG)))
-  XI_IO_LAYER ?= mbed
-  XI_EVENT_LOOP ?= posix
-else ifneq (,$(findstring microchip_io,$(CONFIG)))
-  XI_CONFIG_FLAGS += -DXI_IO_LAYER=3
-  XI_IO_LAYER ?= microchip
-  XI_EVENT_LOOP ?= dummy
-
-  # temporary
-  XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/io/dummy
-endif
-
 $(info "event_loop=$(XI_EVENT_LOOP)")
 
 # CONFIG: filesystem
@@ -146,63 +126,36 @@ else
 endif
 
 # CONFIG: BSP related include and source configuration
-ifdef XI_BSP_PLATFORM
-    # enumerate existing platform bsps
-    BSP_PLATFORM_DIR_EXIST := $(shell if [ ! -d $(XI_BSP_DIR)/platform/$(XI_BSP_PLATFORM) ]; then echo 0; else echo 1; fi; )
+# enumerate existing platform bsps
+BSP_PLATFORM_DIR_EXIST := $(shell if [ ! -d $(XI_BSP_DIR)/platform/$(XI_BSP_PLATFORM) ]; then echo 0; else echo 1; fi; )
 
-    ifeq ($(BSP_PLATFORM_DIR_EXIST),0)
-        $(error The platform with BSP implementation - [$(XI_BSP_PLATFORM)] couldn't be found. Please check your $(XI_BSP_DIR)/platform/ directory.)
-    endif
-
-    $(info Using [$(XI_BSP_PLATFORM)] BSP configuration)
-
-    # platform specific BSP implementations
-    XI_SRCDIRS += $(XI_BSP_DIR)/platform/$(XI_BSP_PLATFORM)
-
-	XI_INCLUDE_FLAGS += -I$(LIBXIVELY)/include/bsp
-
-	# platform independent BSP drivers
-	XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/io/net
-	XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/memory
-	XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/event_loop
-    XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/time
-
-    # if no tls then set proper flag
-    ifeq (,$(findstring tls,$(CONFIG)))
-        XI_CONFIG_FLAGS += -DXI_DEBUG_NO_TLS
-    else
-        XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/tls/certs
-        XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/tls
-        XI_SRCDIRS += $(XI_BSP_DIR)/tls/$(XI_BSP_TLS)
-    endif
-
-	XI_CONFIG_FLAGS += -DXI_BSP
-
-	# temporary
-	XI_CONFIG_FLAGS += -DXI_IO_LAYER=4
-
-else # non-BSP related include and source configuration
-	XI_INCLUDE_FLAGS += -I$(LIBXIVELY_SOURCE_DIR)/memory
-	XI_INCLUDE_FLAGS += -I$(LIBXIVELY_SOURCE_DIR)/event_loop
-	XI_INCLUDE_FLAGS += -I$(LIBXIVELY_SOURCE_DIR)/time
-
-	XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/io/$(XI_IO_LAYER)
-	XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/memory/$(XI_PLATFORM_BASE)
-	XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/event_loop/$(XI_EVENT_LOOP)
-	XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/time/all
-
-    # chosing TLS implementation if TLS is ON: only WolfSSL is available
-    # this implementation shouldn't exist long as non-BSP impls. won't be supported
-    ifneq (,$(findstring tls,$(CONFIG)))
-        XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/tls/certs
-        XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/tls/wolfssl
-
-        XI_CONFIG_FLAGS += -DOCSP_STAPLING
-        XI_CONFIG_FLAGS += -DHAVE_CERTIFICATE_STATUS_REQUEST
-    else
-        XI_CONFIG_FLAGS += -DXI_DEBUG_NO_TLS
-    endif
+ifeq ($(BSP_PLATFORM_DIR_EXIST),0)
+    $(error The platform with BSP implementation - [$(XI_BSP_PLATFORM)] couldn't be found. Please check your $(XI_BSP_DIR)/platform/ directory.)
 endif
+
+$(info Using [$(XI_BSP_PLATFORM)] BSP configuration)
+
+# platform specific BSP implementations
+XI_SRCDIRS += $(XI_BSP_DIR)/platform/$(XI_BSP_PLATFORM)
+
+XI_INCLUDE_FLAGS += -I$(LIBXIVELY)/include/bsp
+
+# platform independent BSP drivers
+XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/io/net
+XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/memory
+XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/event_loop
+XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/time
+
+# if no tls then set proper flag
+ifeq (,$(findstring tls,$(CONFIG)))
+    XI_CONFIG_FLAGS += -DXI_DEBUG_NO_TLS
+else
+    XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/tls/certs
+    XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/tls
+    XI_SRCDIRS += $(XI_BSP_DIR)/tls/$(XI_BSP_TLS)
+endif
+
+XI_CONFIG_FLAGS += -DXI_BSP
 
 #
 # SOURCE CONFIGURATIONS
