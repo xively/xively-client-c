@@ -172,17 +172,8 @@ xi_bsp_tls_state_t xi_bsp_tls_init( xi_bsp_tls_context_t** tls_context,
         goto err_handling;
     }
 
-#ifndef NO_OCSP
-    const int no_options = 0;
-    ret                  = CyaSSL_EnableOCSP( wolfssl_tls_context->obj, no_options );
-    if ( SSL_SUCCESS != ret )
-    {
-        wolfssl_debug_format( "failed to enable OCSP support, reason: %d", ret );
-        result = XI_BSP_TLS_STATE_INIT_ERROR;
-        goto err_handling;
-    }
+#ifdef XI_TLS_OCSP_STAPLING
 
-#ifdef OCSP_STAPLING
     /* change this next statement to:
            nonce_option = WOLFSSL_CSR_OCSP_USE_NONCE
        once the gateway can support it */
@@ -196,11 +187,27 @@ xi_bsp_tls_state_t xi_bsp_tls_init( xi_bsp_tls_context_t** tls_context,
         goto err_handling;
     }
 
-#endif /* OCSP_STAPLING */
+#else
 
+    const int no_options = 0;
+    ret                  = wolfSSL_EnableOCSP( wolfssl_tls_context->obj, no_options );
+    if ( SSL_SUCCESS != ret )
+    {
+        wolfssl_debug_format( "failed to enable OCSP support, reason: %d", ret );
+        result = XI_BSP_TLS_STATE_INIT_ERROR;
+        goto err_handling;
+    }
+
+#endif
+
+#ifndef NO_OCSP
 #endif /* ifndef NO_OCSP */
 
-        CyaSSL_set_using_nonblock( wolfssl_tls_context->obj, 1 );
+#ifdef OCSP_STAPLING
+#endif /* OCSP_STAPLING */
+
+
+    CyaSSL_set_using_nonblock( wolfssl_tls_context->obj, 1 );
 
     CyaSSL_SetIOReadCtx( wolfssl_tls_context->obj,
                          init_params->xively_io_callback_context );
@@ -251,11 +258,12 @@ xi_bsp_tls_state_t xi_bsp_tls_connect( xi_bsp_tls_context_t* tls_context )
         case SSL_SUCCESS:
             return XI_BSP_TLS_STATE_OK;
         default:
-#if 1 // WOLFSSL_DEBUG_LOG
+#if WOLFSSL_DEBUG_LOG
         {
             char errorString[80] = {'\0'};
             CyaSSL_ERR_error_string( cyastate, errorString );
-            printf( "CyaSSL_connect failed reason [%d]: %s\n", cyastate, errorString );
+            wolfssl_debug_format( "CyaSSL_connect failed reason [%d]: %s\n", cyastate,
+                                  errorString );
         }
 #endif
             return XI_BSP_TLS_STATE_CONNECT_ERROR;
