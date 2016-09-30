@@ -208,13 +208,6 @@ xi_bsp_tls_state_t xi_bsp_tls_init( xi_bsp_tls_context_t** tls_context,
 
 #endif
 
-#ifndef NO_OCSP
-#endif /* ifndef NO_OCSP */
-
-#ifdef OCSP_STAPLING
-#endif /* OCSP_STAPLING */
-
-
     CyaSSL_set_using_nonblock( wolfssl_tls_context->obj, 1 );
 
     CyaSSL_SetIOReadCtx( wolfssl_tls_context->obj,
