@@ -172,17 +172,10 @@ xi_bsp_tls_state_t xi_bsp_tls_init( xi_bsp_tls_context_t** tls_context,
         goto err_handling;
     }
 
-#ifndef NO_OCSP
-    const int no_options = 0;
-    ret                  = CyaSSL_EnableOCSP( wolfssl_tls_context->obj, no_options );
-    if ( SSL_SUCCESS != ret )
-    {
-        wolfssl_debug_format( "failed to enable OCSP support, reason: %d", ret );
-        result = XI_BSP_TLS_STATE_INIT_ERROR;
-        goto err_handling;
-    }
+#ifdef XI_TLS_OCSP_STAPLING
 
-#ifdef OCSP_STAPLING
+    /* OCSP Stapling, expecting stappled OCSP attachment during TLS handshake */
+
     /* change this next statement to:
            nonce_option = WOLFSSL_CSR_OCSP_USE_NONCE
        once the gateway can support it */
@@ -195,9 +188,25 @@ xi_bsp_tls_state_t xi_bsp_tls_init( xi_bsp_tls_context_t** tls_context,
         result = XI_BSP_TLS_STATE_INIT_ERROR;
         goto err_handling;
     }
-#endif /* OCSP_STAPLING */
 
-#endif /* ifndef NO_OCSP */
+#elif XI_TLS_OCSP
+
+    /* standard OCSP, separate socket connection to a OCSP responder */
+
+    const int no_options = 0;
+    ret                  = wolfSSL_EnableOCSP( wolfssl_tls_context->obj, no_options );
+    if ( SSL_SUCCESS != ret )
+    {
+        wolfssl_debug_format( "failed to enable OCSP support, reason: %d", ret );
+        result = XI_BSP_TLS_STATE_INIT_ERROR;
+        goto err_handling;
+    }
+
+#else
+
+/* no OCSP */
+
+#endif
 
     CyaSSL_set_using_nonblock( wolfssl_tls_context->obj, 1 );
 
