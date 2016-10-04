@@ -355,8 +355,6 @@ xi_state_t xi_control_topic_layer_close_externally( void* context,
             XI_CONNECTION_STATE_CLOSED;
     }
 
-    XI_CONTEXT_DATA( context )->shutdown_state = XI_SHUTDOWN_UNITIALISED;
-
 #ifdef XI_CONTROL_TOPIC_ENABLED
     xi_control_topic_layer_data_t* layer_data =
         ( xi_control_topic_layer_data_t* )XI_THIS_LAYER( context )->user_data;
