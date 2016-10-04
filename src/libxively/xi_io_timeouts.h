@@ -23,8 +23,6 @@ extern "C" {
 typedef struct
 {
     xi_time_event_handle_t timeout;
-    void* data1;
-    void* data2;
 } xi_io_timeout_t;
 
 xi_state_t xi_io_timeouts_create( xi_evtd_instance_t* instance,

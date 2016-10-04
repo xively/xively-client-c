@@ -410,38 +410,19 @@ void xi_evtd_step( xi_evtd_instance_t* evtd_instance, xi_time_t new_step )
         tmp = xi_time_event_peek_top( evtd_instance->call_heap );
         if ( tmp->time_of_execution <= evtd_instance->current_step )
         {
+            tmp = xi_time_event_get_top( evtd_instance->call_heap );
             xi_event_handle_t* handle = ( xi_event_handle_t* )&tmp->event_handle;
 
             xi_unlock_critical_section( evtd_instance->cs );
 
             xi_state_t result = xi_evtd_execute_handle( handle );
 
+            XI_SAFE_FREE( tmp );
+
             if ( xi_state_is_fatal( result ) == 1 )
             {
                 xi_debug_logger( "error while processing timed events" );
                 xi_evtd_stop( evtd_instance );
-            }
-
-            xi_lock_critical_section( evtd_instance->cs );
-
-            // Only remove the heap element if its STILL below it's deadline.
-            // It could have been changed during the execution. This way we can reschedule
-            // tasks without the need of reallocating heapobjects
-            if ( tmp->time_of_execution <= evtd_instance->current_step )
-            {
-                xi_time_event_handle_t time_event_handle =
-                    xi_make_time_event_handle( tmp );
-                xi_state_t state = xi_time_event_cancel( evtd_instance->call_heap,
-                                                         &time_event_handle, &tmp );
-
-                if ( XI_STATE_OK != state )
-                {
-                    xi_debug_logger( "error while removing time event" );
-                    xi_evtd_stop( evtd_instance );
-                }
-
-                /* we must explicitly free the time_event object allocated earlier */
-                XI_SAFE_FREE( tmp );
             }
         }
         else
@@ -454,8 +435,6 @@ void xi_evtd_step( xi_evtd_instance_t* evtd_instance, xi_time_t new_step )
             break;
         }
     }
-
-    xi_unlock_critical_section( evtd_instance->cs );
 
 #ifdef XI_DEUBG_OUTPUT_EVENT_SYSTEM
     xi_debug_logger( "[enqueued events]" );

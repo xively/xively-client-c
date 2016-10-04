@@ -554,9 +554,6 @@ xi_mqtt_logic_layer_close_externally( void* context, void* data, xi_state_t in_o
 
     xi_update_backoff_penalty( in_out_state );
 
-    /* now it can be cleared since the connection has been ended */
-    context_data->connect_handler.position = NULL;
-
     /* disable timeouts of all tasks */
     XI_LIST_FOREACH_WITH_ARG( xi_mqtt_logic_task_t, layer_data->q12_tasks_queue,
                               cancel_task_timeout, context );

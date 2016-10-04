@@ -84,8 +84,9 @@ do_mqtt_subscribe( void* ctx, void* data, xi_state_t state, void* msg )
 
             XI_CR_YIELD( task->cs, XI_STATE_OK );
 
-            /* invalidate the timeout */
-            task->timeout.position = NULL;
+            /* sanity checks */
+            assert( NULL == task->timeout.position );
+            assert( XI_STATE_RESEND == state );
 
             continue;
         }
@@ -111,7 +112,7 @@ do_mqtt_subscribe( void* ctx, void* data, xi_state_t state, void* msg )
         if ( XI_STATE_TIMEOUT == state )
         {
             xi_debug_format( "[m.id[%d]]subscribe timeout occured", task->msg_id );
-            task->timeout.position = NULL;
+            assert( task->timeout.position == NULL );
             state                  = XI_STATE_RESEND;
         }
         else

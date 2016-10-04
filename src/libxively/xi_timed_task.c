@@ -81,10 +81,10 @@ xi_timed_task_handle_t xi_add_timed_task( xi_timed_task_container_t* container,
                                                        task, &task_handle ) );
     xi_unlock_critical_section( container->cs );
 
-    state = xi_evtd_execute_in(
-        dispatcher, xi_make_handle( &xi_timed_task_callback_wrapper, ( void* )task,
-                                    ( void* )container ),
-        seconds_from_now, &task->delayed_event );
+    state = xi_evtd_execute_in( dispatcher,
+                                xi_make_handle( &xi_timed_task_callback_wrapper,
+                                                ( void* )task, ( void* )container ),
+                                seconds_from_now, &task->delayed_event );
 
     XI_CHECK_STATE( state );
 
@@ -173,8 +173,10 @@ xi_state_t xi_timed_task_callback_wrapper( void* void_task, void* void_scheduler
         }
         else
         {
-            state = xi_evtd_restart( task->dispatcher, &task->delayed_event,
-                             task->seconds_repeat );
+            state = xi_evtd_execute_in(
+                task->dispatcher, xi_make_handle( &xi_timed_task_callback_wrapper,
+                                                  ( void* )task, ( void* )container ),
+                task->seconds_repeat, &task->delayed_event );
             assert( XI_STATE_OK == state );
             task->state = XI_TTS_SCHEDULED;
         }
