@@ -120,8 +120,7 @@ XI_TT_TESTCASE( utest__handler_processing_loop, {
     evtd_handle_g.handlers.h1.fn_argc1 = &proc_loop;
     evtd_handle_g.handlers.h1.a1       = ( xi_event_handle_arg1_t )&counter;
 
-    xi_time_event_handle_t time_event_handle = xi_make_empty_time_event_handle();
-    xi_evtd_execute_in( evtd_g_i, evtd_handle_g, 0, &time_event_handle );
+    xi_evtd_execute_in( evtd_g_i, evtd_handle_g, 0, NULL );
 
     while ( evtd_g_i->call_heap->elem_no > 0 )
     {

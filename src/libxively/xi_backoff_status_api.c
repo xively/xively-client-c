@@ -222,8 +222,7 @@ xi_state_t xi_restart_update_time()
 static xi_state_t xi_apply_cooldown( void )
 {
     /* clearing the event pointer is the first thing to do */
-    xi_globals.backoff_status.next_update =
-        ( xi_time_event_handle_t )xi_make_empty_time_event_handle();
+    assert( NULL == xi_globals.backoff_status.next_update.position );
 
     if ( xi_globals.backoff_status.backoff_class == XI_BACKOFF_CLASS_NONE )
     {

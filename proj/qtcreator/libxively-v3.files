@@ -1383,3 +1383,5 @@
 ../../src/tests/xi_memory_checks.h
 ../../src/tests/xi_test.crontab_template
 ../../src/tests/xi_tt_testcase_management.h
+../../src/tests/itests/xi_itest_connect_error.h
+../../src/tests/itests/xi_itest_connect_error.c
