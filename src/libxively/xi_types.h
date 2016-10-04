@@ -26,6 +26,11 @@ typedef enum xi_protocol_e {
     XI_MQTT,
 } xi_protocol_t;
 
+typedef enum xi_shutdown_state_e {
+    XI_SHUTDOWN_UNITIALISED,
+    XI_SHUTDOWN_STARTED,
+} xi_shutdown_state_t;
+
 /**
  * @brief holds context sensitive data
  *
@@ -56,6 +61,7 @@ typedef struct xi_context_data_s
     xi_connection_data_t* connection_data;
     xi_evtd_instance_t* evtd_instance;
     xi_event_handle_t connection_callback;
+    xi_shutdown_state_t shutdown_state;
 } xi_context_data_t;
 
 typedef struct xi_context_s
