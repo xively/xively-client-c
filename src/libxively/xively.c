@@ -498,13 +498,12 @@ xi_state_t xi_connect_with_lastwill_to_impl( xi_context_handle_t xih,
     XI_UNUSED( local_state );
 
     /* guard against adding two connection requests */
-    if( NULL != xi->context_data.connect_handler.position )
+    if ( NULL != xi->context_data.connect_handler.position )
     {
         xi_debug_format( "Connect could not be performed due to conenction state = %d,"
                          "check if connect operation hasn't been already started.",
                          xi->context_data.connection_data->connection_state );
         return XI_ALREADY_INITIALIZED;
-
     }
 
     /* if the connection state isn't one of
@@ -551,6 +550,9 @@ xi_state_t xi_connect_with_lastwill_to_impl( xi_context_handle_t xih,
     /* reset the connection state */
     xi->context_data.connection_data->connection_state =
         XI_CONNECTION_STATE_UNINITIALIZED;
+
+    /* reset shutdown state */
+    xi->context_data.shutdown_state = XI_SHUTDOWN_UNITIALISED;
 
     /* set the connection callback */
     xi->context_data.connection_callback = event_handle;
@@ -1069,7 +1071,7 @@ xi_state_t xi_shutdown_connection( xi_context_handle_t xih )
         return XI_STATE_OK;
     }
 
-    switch( xi->context_data.shutdown_state )
+    switch ( xi->context_data.shutdown_state )
     {
         case XI_SHUTDOWN_UNITIALISED:
             xi->context_data.shutdown_state = XI_SHUTDOWN_STARTED;
