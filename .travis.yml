@@ -3,24 +3,28 @@ language: c
 compiler:
   - clang
   - gcc
+
+install:
+  - git clone https://github.com/atigyi/xi_artifactory.git $(HOME)/xi_artifactory
+
 env:
   global:
     - XI_BSP_TLS=wolfssl
   matrix:
-    - PRESET=ARM_REL
-    - PRESET=ARM_REL_MIN
+    # - PRESET=ARM_REL
+    # - PRESET=ARM_REL_MIN
 
     - PRESET=POSIX_DEV
-    - PRESET=POSIX_DEV_MIN
-    - PRESET=POSIX_REL
-    - PRESET=POSIX_REL_MIN
+    # - PRESET=POSIX_DEV_MIN
+    # - PRESET=POSIX_REL
+    # - PRESET=POSIX_REL_MIN
 
-    - PRESET=POSIX_REL
-      XI_BSP_TLS=mbedtls
+    # - PRESET=POSIX_REL
+      # XI_BSP_TLS=mbedtls
 
-    - PRESET=POSIX_THREADING_REL
-    - PRESET=POSIX_UNSECURE_REL
-      XI_BSP_TLS=""
+    # - PRESET=POSIX_THREADING_REL
+    # - PRESET=POSIX_UNSECURE_REL
+      # XI_BSP_TLS=""
 cache:
     apt
 addons:
@@ -42,6 +46,8 @@ before_script:
   - "if [[ $CC == *'clang'* ]]; then export CC='clang-3.8'; fi"
 script:
   - "set -e"
+  - "ls -l $(HOME)"
+  - "ls -l $(HOME)/xi_artifactory"
   - "cd $HOME/build/xively/xively-client-c/"
   - "make PRESET=$PRESET XI_DEBUG_OUTPUT=0 tests"
   - "if [ ! $CC == 'gcc' ]; then
