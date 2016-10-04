@@ -5,7 +5,7 @@ compiler:
   - gcc
 
 install:
-  - git clone https://github.com/atigyi/xi_artifactory.git $(HOME)/xi_artifactory
+  - git clone https://github.com/atigyi/xi_artifactory.git $HOME/xi_artifactory
 
 env:
   global:
@@ -46,8 +46,8 @@ before_script:
   - "if [[ $CC == *'clang'* ]]; then export CC='clang-3.8'; fi"
 script:
   - "set -e"
-  - "ls -l $(HOME)"
-  - "ls -l $(HOME)/xi_artifactory"
+  - "ls -l $HOME"
+  - "ls -l $HOME/xi_artifactory"
   - "cd $HOME/build/xively/xively-client-c/"
   - "make PRESET=$PRESET XI_DEBUG_OUTPUT=0 tests"
   - "if [ ! $CC == 'gcc' ]; then
