@@ -83,7 +83,7 @@ do_mqtt_keepalive_task( void* ctx, void* data, xi_state_t state, void* msg_data 
 
     // wait for an interval of keepalive
     {
-        assert( task->timeout.position == NULL );
+        assert( NULL == task->timeout.position );
 
         state = xi_evtd_execute_in(
             event_dispatcher, xi_make_handle( &on_keepalive_timeout_expiry, context, task,
@@ -100,7 +100,7 @@ do_mqtt_keepalive_task( void* ctx, void* data, xi_state_t state, void* msg_data 
     if ( state == XI_STATE_TIMEOUT )
     {
         xi_debug_logger( "keepalive timeout passed!" );
-        assert( task->timeout.position == NULL );
+        assert( NULL == task->timeout.position );
         XI_CR_EXIT( task->cs, do_reconnect( context, 0, XI_STATE_TIMEOUT ) );
     }
     else if ( state != XI_STATE_OK )

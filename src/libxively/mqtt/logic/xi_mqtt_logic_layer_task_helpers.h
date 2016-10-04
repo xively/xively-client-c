@@ -54,7 +54,7 @@ cancel_task_timeout( xi_mqtt_logic_task_t* task, xi_layer_connectivity_t* contex
     }
 
     /* POST-CONDITIONS */
-    assert( task->timeout.position == NULL );
+    assert( NULL == task->timeout.position );
 }
 
 static inline void signal_task( xi_mqtt_logic_task_t* task, xi_state_t state )

@@ -41,8 +41,6 @@ xi_mock_broker_secondary_layer_push( void* context, void* data, xi_state_t in_ou
 
         in_out_state = mock_type( xi_state_t );
 
-        xi_time_event_handle_t time_event_handle = xi_make_empty_time_event_handle();
-
         xi_evtd_execute_in(
             xi_globals.evtd_instance,
             xi_make_handle(
@@ -51,15 +49,13 @@ xi_mock_broker_secondary_layer_push( void* context, void* data, xi_state_t in_ou
                 &xi_itest_find_layer( xi_context, XI_LAYER_TYPE_MQTT_CODEC_SUT )
                      ->layer_connection,
                 NULL, in_out_state ),
-            1, &time_event_handle );
+            1, NULL );
 
         return XI_PROCESS_PUSH_ON_NEXT_LAYER( context, NULL, XI_STATE_WRITTEN );
     }
 
     if ( in_out_state == XI_STATE_OK )
     {
-        xi_time_event_handle_t time_event_handle = xi_make_empty_time_event_handle();
-
         // jump to libxively's codec layer pull function, mimicing incoming encoded
         // message
         xi_evtd_execute_in(
@@ -70,7 +66,7 @@ xi_mock_broker_secondary_layer_push( void* context, void* data, xi_state_t in_ou
                 &xi_itest_find_layer( xi_context, XI_LAYER_TYPE_MQTT_CODEC_SUT )
                      ->layer_connection,
                 data, in_out_state ),
-            1, &time_event_handle );
+            1, NULL );
 
         return XI_PROCESS_PUSH_ON_NEXT_LAYER( context, NULL, XI_STATE_WRITTEN );
     }
@@ -182,8 +178,6 @@ xi_state_t xi_mock_broker_layer_push( void* context, void* data, xi_state_t in_o
         xi_data_desc_t* copy =
             xi_make_desc_from_buffer_copy( orig->data_ptr, orig->length );
 
-        xi_time_event_handle_t time_event_handle = xi_make_empty_time_event_handle();
-
         xi_evtd_execute_in(
             xi_globals.evtd_instance,
             xi_make_handle( xi_itest_find_layer( xi_context_mockbroker,
@@ -193,7 +187,7 @@ xi_state_t xi_mock_broker_layer_push( void* context, void* data, xi_state_t in_o
                                                   XI_LAYER_TYPE_MOCKBROKER_MQTT_CODEC )
                                  ->layer_connection,
                             copy, XI_STATE_OK ),
-            1, &time_event_handle );
+            1, NULL );
 
         // "default" libxively behavior
         return XI_PROCESS_PUSH_ON_PREV_LAYER( context, data, in_out_state );
