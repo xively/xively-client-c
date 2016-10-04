@@ -184,7 +184,7 @@ void xi_itest_test_valid_flow__call_connect_function_twice_in_a_row__second_call
     xi_itest_connect_error__call_connect( fixture_void );
 }
 
-void xi_itest_test_valid_flow__call_connect_function_twice_with_a_single_evtd_call_in_the_middle__second_call_returns_error(
+void xi_itest_test_valid_flow__call_connect_function_twice__second_call_returns_error(
     void** fixture_void )
 {
     uint8_t evtd_loop_count_between_connect_calls = 0;
@@ -359,18 +359,17 @@ void xi_itest_test_valid_flow__call_disconnect_twice_on_connected_context__secon
             fixture_void, evtd_loop_count_between_connect_calls );
 
         expect_value( xi_itest_connect_error__trigger_shutdown, local_state,
-                      XI_ALREADY_INITIALIZED );
+                      evtd_loop_count_between_connect_calls == 0
+                          ? XI_ALREADY_INITIALIZED
+                          : XI_SOCKET_NO_ACTIVE_CONNECTION_ERROR );
         xi_itest_connect_error__trigger_shutdown( fixture_void );
 
         xi_itest_connect_error__trigger_event_dispatcher( fixture_void, 6 );
 
         /* artificially reset test case*/
-        xi_debug_printf( "1.. \r\n" );
         xi_itest_connect_error_teardown( fixture_void );
-        xi_debug_printf( "2.. \r\n" );
         xi_itest_connect_error_setup( fixture_void );
     }
-    xi_debug_printf( "3.. \r\n" );
 }
 
 void xi_itest_test_valid_flow__call_connect_function_then_disconnect_without_making_a_connection__shutdown_should_unregister_connect(

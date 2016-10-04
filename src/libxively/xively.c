@@ -1047,19 +1047,6 @@ xi_state_t xi_shutdown_connection( xi_context_handle_t xih )
     xi_layer_t* input_layer    = xi->layer_chain.top;
     xi_mqtt_logic_task_t* task = NULL;
 
-    switch( xi->context_data.shutdown_state )
-    {
-        case XI_SHUTDOWN_UNITIALISED:
-            xi->context_data.shutdown_state = XI_SHUTDOWN_STARTED;
-            break;
-        case XI_SHUTDOWN_STARTED:
-            xi_debug_logger( "XI_ALREADY_INITIALIZED" );
-            return XI_ALREADY_INITIALIZED;
-            break;
-        default:
-            return XI_INTERNAL_ERROR;
-    }
-
     /* check if connect operation has been finished */
     if ( NULL == xi->context_data.connect_handler.position )
     {
@@ -1080,6 +1067,19 @@ xi_state_t xi_shutdown_connection( xi_context_handle_t xih )
         XI_CHECK_STATE( state );
 
         return XI_STATE_OK;
+    }
+
+    switch( xi->context_data.shutdown_state )
+    {
+        case XI_SHUTDOWN_UNITIALISED:
+            xi->context_data.shutdown_state = XI_SHUTDOWN_STARTED;
+            break;
+        case XI_SHUTDOWN_STARTED:
+            xi_debug_logger( "XI_ALREADY_INITIALIZED" );
+            return XI_ALREADY_INITIALIZED;
+            break;
+        default:
+            return XI_INTERNAL_ERROR;
     }
 
     task = xi_mqtt_logic_make_shutdown_task();
