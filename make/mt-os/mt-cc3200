@@ -1,7 +1,10 @@
 include make/mt-os/mt-os-common
 
-XI_CC3200_PATH_CCS_TOOLS = /Applications/ti/ccsv6/tools
-XI_CC3200_PATH_SDK = /Users/atigyi/ti/CC3200SDK_1.2.0/cc3200-sdk
+#XI_CC3200_PATH_CCS_TOOLS = /Applications/ti/ccsv6/tools
+#XI_CC3200_PATH_SDK = /Users/atigyi/ti/CC3200SDK_1.2.0/cc3200-sdk
+
+XI_CC3200_PATH_CCS_TOOLS = /home/travis/xi_artifactory/ti/ccsv6/tools
+XI_CC3200_PATH_SDK = /home/travis/xi_artifactory/ti/CC3200SDK_1.2.0/cc3200-sdk
 
 CC = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/ti-cgt-arm_15.12.1.LTS/bin/armcl
 AR = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/ti-cgt-arm_15.12.1.LTS/bin/armar
