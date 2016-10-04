@@ -6,7 +6,7 @@ compiler:
 
 install:
   - git clone https://github.com/atigyi/xi_artifactory.git $HOME/xi_artifactory
-  - cd xi_artifactory
+  - cd $HOME/xi_artifactory
   - git checkout feature/cc3200_dependencies
 
 env:
