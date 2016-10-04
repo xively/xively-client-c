@@ -4,7 +4,7 @@
 #include <xi_bsp_rng.h>
 
 /* No TLS option choosen */
-#if !defined( XI_TLS_LIB_MBEDTLS ) && !defined( XI_TLS_LIB_WOLFSSL )
+#if !defined( TLSLIB_MBEDTLS ) && !defined( TLSLIB_WOLFSSL )
 
 #include <stdlib.h>
 #include <time.h>
@@ -31,7 +31,7 @@ void xi_bsp_rng_shutdown()
     /* nothing to do here */
 }
 
-#elif defined( XI_TLS_LIB_MBEDTLS ) /* MBEDTLS version of RNG implementation */
+#elif defined( TLSLIB_MBEDTLS ) /* MBEDTLS version of RNG implementation */
 
 #include <mbedtls/config.h>
 #include <mbedtls/ctr_drbg.h>
@@ -77,7 +77,7 @@ void xi_bsp_rng_shutdown()
     mbedtls_entropy_free( &entropy );
 }
 
-#elif defined( XI_TLS_LIB_WOLFSSL ) /* WOLFSSL version of RNG implementation */
+#elif defined( TLSLIB_WOLFSSL ) /* WOLFSSL version of RNG implementation */
 
 #include <cyassl/ctaocrypt/random.h>
 #include <cyassl/ctaocrypt/memory.h>
