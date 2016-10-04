@@ -65,7 +65,9 @@ void test_function()
     }
 
     xi_evtd_instance_t* event_dispatcher = xi_globals.evtd_instance;
-    size_t itests                        = XI_ARRAYSIZE( xi_utest_backoff_test_cases );
+    tt_int_op( xi_globals.backoff_status.backoff_lut_i, ==, 0 );
+
+    size_t itests = XI_ARRAYSIZE( xi_utest_backoff_test_cases );
 
     size_t i = 0;
     for ( ; i < itests; ++i )
@@ -80,7 +82,7 @@ void test_function()
 
         xi_inc_backoff_penalty();
 
-        xi_globals.backoff_status.backoff_class = XI_BACKOFF_CLASS_NONE;
+        xi_globals.backoff_status.backoff_class = XI_BACKOFF_CLASS_TERMINAL;
 
         xi_vector_index_type_t* backoff_time_event_position =
             xi_globals.backoff_status.next_update.position;
@@ -93,17 +95,18 @@ void test_function()
                               .selector_t.ui32_value +
                           1 );
 
+        tt_int_op( xi_globals.backoff_status.backoff_lut_i, ==, curr_index );
+
         if ( curr_test_case->data_len > 1 )
         {
-            tt_int_op( xi_globals.backoff_status.backoff_lut_i, <, curr_index );
+            tt_ptr_op( xi_globals.backoff_status.next_update.position, !=, NULL );
         }
         else
         {
-            tt_int_op( xi_globals.backoff_status.backoff_lut_i, ==, 0 );
+            tt_ptr_op( xi_globals.backoff_status.next_update.position, ==, NULL );
         }
 
-        tt_ptr_op( xi_globals.backoff_status.next_update.position, ==, NULL );
-        tt_ptr_op( xi_globals.backoff_status.next_update.position, !=,
+        tt_ptr_op( &xi_globals.backoff_status.next_update.position, !=,
                    backoff_time_event_position );
 
         xi__utest__reset_backoff_penalty();
@@ -615,6 +618,15 @@ XI_TT_TESTCASE_WITH_SETUP(
     xi_utest_teardown_basic,
     NULL,
     {
+        test_function();
+    } )
+
+XI_TT_TESTCASE_WITH_SETUP(
+    utest__xi_update_backoff_penalty_time__no_data__update_update_time_and_backoff_penalty,
+    xi_utest_setup_basic,
+    xi_utest_teardown_basic,
+    NULL,
+    {
         xi_context_handle_t xi_context_handle = xi_create_context();
         if ( XI_INVALID_CONTEXT_HANDLE >= xi_context_handle )
         {
@@ -623,8 +635,6 @@ XI_TT_TESTCASE_WITH_SETUP(
         }
 
         xi_evtd_instance_t* event_dispatcher = xi_globals.evtd_instance;
-        tt_int_op( xi_globals.backoff_status.backoff_lut_i, ==, 0 );
-
         size_t itests = XI_ARRAYSIZE( xi_utest_backoff_test_cases );
 
         size_t i = 0;
@@ -640,7 +650,7 @@ XI_TT_TESTCASE_WITH_SETUP(
 
             xi_inc_backoff_penalty();
 
-            xi_globals.backoff_status.backoff_class = XI_BACKOFF_CLASS_TERMINAL;
+            xi_globals.backoff_status.backoff_class = XI_BACKOFF_CLASS_NONE;
 
             xi_vector_index_type_t* backoff_time_event_position =
                 xi_globals.backoff_status.next_update.position;
@@ -653,18 +663,17 @@ XI_TT_TESTCASE_WITH_SETUP(
                                   .selector_t.ui32_value +
                               1 );
 
-            tt_int_op( xi_globals.backoff_status.backoff_lut_i, ==, curr_index );
-
             if ( curr_test_case->data_len > 1 )
             {
-                tt_ptr_op( xi_globals.backoff_status.next_update.position, !=, 0 );
+                tt_int_op( xi_globals.backoff_status.backoff_lut_i, <, curr_index );
             }
             else
             {
-                tt_ptr_op( xi_globals.backoff_status.next_update.position, ==, 0 );
+                tt_int_op( xi_globals.backoff_status.backoff_lut_i, ==, 0 );
             }
 
-            tt_ptr_op( &xi_globals.backoff_status.next_update.position, !=,
+            tt_ptr_op( xi_globals.backoff_status.next_update.position, ==, NULL );
+            tt_ptr_op( xi_globals.backoff_status.next_update.position, !=,
                        backoff_time_event_position );
 
             xi__utest__reset_backoff_penalty();
@@ -675,13 +684,6 @@ XI_TT_TESTCASE_WITH_SETUP(
         xi_delete_context( xi_context_handle );
         xi_backoff_release();
     } )
-
-XI_TT_TESTCASE_WITH_SETUP(
-    utest__xi_update_backoff_penalty_time__no_data__update_update_time_and_backoff_penalty,
-    xi_utest_setup_basic,
-    xi_utest_teardown_basic,
-    NULL,
-    { test_function(); } )
 
 XI_TT_TESTCASE_WITH_SETUP(
     utest__xi_context__no_data__after_restarting_xi_context_penalty_must_not_be_changed,

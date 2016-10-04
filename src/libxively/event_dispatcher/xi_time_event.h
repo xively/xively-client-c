@@ -30,6 +30,7 @@ typedef struct xi_time_event_s
     xi_event_handle_t event_handle;
     xi_time_t time_of_execution;
     xi_vector_index_type_t position;
+    xi_time_event_handle_t* time_event_handle;
 } xi_time_event_t;
 
 #define XI_TIME_EVENT_POSITION_INVALID -1
@@ -46,7 +47,7 @@ typedef struct xi_time_event_s
 
 #define xi_make_empty_time_event()                                                       \
     {                                                                                    \
-        xi_make_empty_event_handle(), 0, XI_TIME_EVENT_POSITION_INVALID                  \
+        xi_make_empty_event_handle(), 0, XI_TIME_EVENT_POSITION_INVALID, NULL            \
     }
 
 

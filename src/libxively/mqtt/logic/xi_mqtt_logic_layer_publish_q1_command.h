@@ -106,7 +106,7 @@ do_mqtt_publish_q1( void* ctx /* should be the context of the logic layer */
             xi_debug_format( "[m.id[%d]]publish q1 timeout occured", task->msg_id );
 
             /* clear timeout if it was timeout */
-            task->timeout.position = NULL;
+            assert( task->timeout.position == NULL );
 
             /* let's change the actual state to resend as the coroutine has to resend the
              * message */

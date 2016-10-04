@@ -219,6 +219,14 @@ err_handling:
     return NULL;
 }
 
+static void xi_time_event_clean_time_event( xi_time_event_t* time_event )
+{
+    if ( NULL != time_event->time_event_handle )
+    {
+        time_event->time_event_handle->position = NULL;
+    }
+}
+
 xi_state_t xi_time_event_add( xi_vector_t* vector,
                               xi_time_event_t* time_event,
                               xi_time_event_handle_t* ret_time_event_handle )
@@ -226,7 +234,9 @@ xi_state_t xi_time_event_add( xi_vector_t* vector,
     /* PRE-CONDITIONS */
     assert( NULL != vector );
     assert( NULL != time_event );
-    assert( NULL != ret_time_event_handle );
+    assert(
+        ( NULL != ret_time_event_handle && NULL == ret_time_event_handle->position ) ||
+        ( NULL == ret_time_event_handle ) );
 
     xi_state_t out_state = XI_STATE_OK;
 
@@ -242,8 +252,14 @@ xi_state_t xi_time_event_add( xi_vector_t* vector,
     /* sanity checks */
     assert( added_time_event == time_event );
 
-    /* update the return value with the pointer to the position in the vector */
-    ret_time_event_handle->position = &added_time_event->position;
+    if ( NULL != ret_time_event_handle )
+    {
+        /* update the return value with the pointer to the position in the vector */
+        ret_time_event_handle->position = &added_time_event->position;
+
+        /* set the time event handle pointer for further sanity checks and cleaning */
+        added_time_event->time_event_handle = ret_time_event_handle;
+    }
 
     /* exit with out_state value */
     return out_state;
@@ -277,6 +293,8 @@ xi_time_event_t* xi_time_event_get_top( xi_vector_t* vector )
     {
         xi_vector_del( vector, vector->elem_no - 1 );
     }
+
+    xi_time_event_clean_time_event( top_one );
 
     return top_one;
 }
@@ -319,6 +337,9 @@ xi_state_t xi_time_event_restart( xi_vector_t* vector,
     xi_time_event_t* time_event =
         ( xi_time_event_t* )vector->array[index].selector_t.ptr_value;
 
+    /* sanity check on the time handle */
+    assert( time_event->time_event_handle == time_event_handle );
+
     time_event->time_of_execution = new_time;
 
     /* now we have to restore the order in the vector */
@@ -335,6 +356,7 @@ xi_state_t xi_time_event_cancel( xi_vector_t* vector,
     /* PRE-CONDITIONS */
     assert( NULL != vector );
     assert( NULL != time_event_handle );
+    assert( NULL != time_event_handle->position );
     assert( NULL != cancelled_time_event );
 
     /* the element we would like to remove should be at position described by the
@@ -360,8 +382,7 @@ xi_state_t xi_time_event_cancel( xi_vector_t* vector,
     /* now we can remove that element from the vector */
     xi_vector_del( vector, vector->elem_no - 1 );
 
-    /* let's invalidate the position and the handle's pointer, it is very important */
-    time_event_handle->position = NULL;
+    xi_time_event_clean_time_event( *cancelled_time_event );
 
     /* whenever we swap we have to fix the order that might have been broken */
     if ( index != vector->elem_no )
@@ -374,12 +395,13 @@ xi_state_t xi_time_event_cancel( xi_vector_t* vector,
     return XI_STATE_OK;
 }
 
+/* local helper function used to release the memory required for time event */
 static void xi_time_event_destructor( union xi_vector_selector_u* selector, void* arg )
 {
     XI_UNUSED( arg );
 
     xi_time_event_t* time_event = ( xi_time_event_t* )selector->ptr_value;
-    time_event->position = XI_TIME_EVENT_POSITION_INVALID;
+    time_event->position        = XI_TIME_EVENT_POSITION_INVALID;
     XI_SAFE_FREE( time_event );
 }
 

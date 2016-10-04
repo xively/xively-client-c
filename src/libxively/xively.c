@@ -497,9 +497,19 @@ xi_state_t xi_connect_with_lastwill_to_impl( xi_context_handle_t xih,
     xi_state_t local_state = XI_STATE_OK;
     XI_UNUSED( local_state );
 
-    /* guard against adding two connection requests */
-    if ( NULL != xi->context_data.connect_handler.position )
+    /* guard against adding two connection requests, if the connection state isn't one of
+     * the final states it means that the connection already has been started */
+    if ( NULL != xi->context_data.connection_data &&
+         ( XI_CONNECTION_STATE_CLOSED !=
+               xi->context_data.connection_data->connection_state &&
+           XI_CONNECTION_STATE_OPEN_FAILED !=
+               xi->context_data.connection_data->connection_state &&
+           XI_CONNECTION_STATE_UNINITIALIZED !=
+               xi->context_data.connection_data->connection_state ) )
     {
+        xi_debug_format( "Connect could not be performed due to conenction state = %d,"
+                         "check if connect operation hasn't been already started.",
+                         xi->context_data.connection_data->connection_state );
         return XI_ALREADY_INITIALIZED;
     }
 
@@ -1027,17 +1037,20 @@ xi_state_t xi_shutdown_connection( xi_context_handle_t xih )
     xi_layer_t* input_layer    = xi->layer_chain.top;
     xi_mqtt_logic_task_t* task = NULL;
 
-    /* this means that the connection attempt has not even been requested
-     * or the connection has been shutdown for this context */
+    /* check if connect operation has been finished */
     if ( NULL == xi->context_data.connect_handler.position )
     {
-        return XI_SOCKET_NO_ACTIVE_CONNECTION_ERROR;
+        /* check if the connection is not established for any reason */
+        if ( NULL == xi->context_data.connection_data ||
+             XI_CONNECTION_STATE_OPENED !=
+                 xi->context_data.connection_data->connection_state )
+        {
+            return XI_SOCKET_NO_ACTIVE_CONNECTION_ERROR;
+        }
     }
-
-    /* this means that we've started the connection */
-    if ( XI_CONNECTION_STATE_UNINITIALIZED ==
-         xi->context_data.connection_data->connection_state )
+    else
     {
+        /* if the connect operation has been scheduled but not executed */
         state = xi_evtd_cancel( xi->context_data.evtd_instance,
                                 &xi->context_data.connect_handler );
 

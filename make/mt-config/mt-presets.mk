@@ -26,7 +26,7 @@ TARGET_ARM_REL				=-static-release
 
 TARGET_CC3200_REL			=-static-release
 
-PRESET ?= POSIX_REL
+PRESET ?= POSIX_DEV
 
   $(info )
   $(info -------- )
