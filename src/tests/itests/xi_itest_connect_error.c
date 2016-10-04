@@ -267,13 +267,13 @@ void xi_itest_test_valid_flow__call_connect_function_twice_in_a_row__second_call
 void xi_itest_test_valid_flow__call_connect_function_twice_with_a_single_evtd_call_in_the_middle__second_call_returns_error(
     void** fixture_void )
 {
-    const xi_itest_connect_error__test_fixture_t* const fixture =
-        ( xi_itest_connect_error__test_fixture_t* )*fixture_void;
-
     uint8_t evtd_loop_count_between_connect_calls = 0;
     for ( ; evtd_loop_count_between_connect_calls < 10;
           ++evtd_loop_count_between_connect_calls )
     {
+        const xi_itest_connect_error__test_fixture_t* const fixture =
+            ( xi_itest_connect_error__test_fixture_t* )*fixture_void;
+
         xi_debug_format( "Number of evtd calls: %d", evtd_loop_count_between_connect_calls );
 
         /* one call for mock broker layer chain init*/
