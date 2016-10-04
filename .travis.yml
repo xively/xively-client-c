@@ -8,6 +8,7 @@ install:
   - git clone https://github.com/atigyi/xi_artifactory.git $HOME/xi_artifactory
   - cd $HOME/xi_artifactory
   - git checkout feature/cc3200_dependencies
+  - $HOME/xi_artifactory/ti/ccsv6/tools/compiler/arm_15.12.3.LTS/bin/armcl --version
 
 env:
   global:
