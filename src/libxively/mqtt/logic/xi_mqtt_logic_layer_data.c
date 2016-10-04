@@ -86,8 +86,6 @@ xi_mqtt_logic_task_t* xi_mqtt_logic_make_shutdown_task( void )
     task->data.mqtt_settings.scenario = XI_MQTT_SHUTDOWN;
     task->priority                    = XI_MQTT_LOGIC_TASK_IMMEDIATE;
 
-    XI_ALLOC_AT( xi_mqtt_task_specific_data_t, task->data.data_u, state );
-
     return task;
 
 err_handling:
