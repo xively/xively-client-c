@@ -6,6 +6,7 @@ compiler:
 
 install:
   - git clone https://github.com/atigyi/xi_artifactory.git $HOME/xi_artifactory
+  - git checkout feature/cc3200_dependencies
 
 env:
   global:
@@ -47,7 +48,7 @@ before_script:
 script:
   - "set -e"
   - "ls -l $HOME"
-  - "ls -l $HOME/xi_artifactory"
+  - "ls -lR $HOME/xi_artifactory"
   - "cd $HOME/build/xively/xively-client-c/"
   - "make PRESET=$PRESET XI_DEBUG_OUTPUT=0 tests"
   - "if [ ! $CC == 'gcc' ]; then
