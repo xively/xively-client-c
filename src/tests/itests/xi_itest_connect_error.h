@@ -15,7 +15,6 @@ xi_itest_test_valid_flow__call_connect_function_twice_with_a_single_evtd_call_in
 extern void
 xi_itest_test_valid_flow__call_disconnect_twice_on_connected_context__second_call_should_return_error(
     void** state );
-
 extern void
 xi_itest_test_valid_flow__call_connect_function_then_disconnect_without_making_a_connection__shutdown_should_unregister_connect(
     void** state );

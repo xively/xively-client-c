@@ -194,7 +194,8 @@ void xi_itest_test_valid_flow__call_connect_function_twice_with_a_single_evtd_ca
         const xi_itest_connect_error__test_fixture_t* const fixture =
             ( xi_itest_connect_error__test_fixture_t* )*fixture_void;
 
-        xi_debug_format( "Number of evtd calls: %d", evtd_loop_count_between_connect_calls );
+        xi_debug_format( "Number of evtd calls: %d",
+                         evtd_loop_count_between_connect_calls );
 
         /* one call for mock broker layer chain init*/
         expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
@@ -282,6 +283,7 @@ void xi_itest_test_valid_flow__call_disconnect_twice_on_connected_context__secon
     for ( ; evtd_loop_count_between_connect_calls < 10;
           ++evtd_loop_count_between_connect_calls )
     {
+        xi_debug_printf( "gap = %d \r\n", evtd_loop_count_between_connect_calls );
 
         const xi_itest_connect_error__test_fixture_t* const fixture =
             ( xi_itest_connect_error__test_fixture_t* )*fixture_void;
@@ -317,12 +319,12 @@ void xi_itest_test_valid_flow__call_disconnect_twice_on_connected_context__secon
         expect_value( xi_mock_broker_layer_pull, in_out_state, XI_STATE_OK );
         expect_value( xi_mock_broker_layer_pull, recvd_msg_type, XI_MQTT_TYPE_SUBSCRIBE );
 
-    #ifdef XI_CONTROL_TOPIC_ENABLED
+#ifdef XI_CONTROL_TOPIC_ENABLED
         expect_string( xi_mock_broker_layer_pull, subscribe_topic_name,
                        fixture->control_topic_name );
-    #else
+#else
         expect_any( xi_mock_broker_layer_pull, subscribe_topic_name );
-    #endif
+#endif
 
         /* SUBACK sent*/
         expect_value( xi_mock_broker_secondary_layer_push, in_out_state, XI_STATE_OK );
@@ -334,34 +336,41 @@ void xi_itest_test_valid_flow__call_disconnect_twice_on_connected_context__secon
         expect_value( xi_mock_layer_tls_prev_push, in_out_state, XI_STATE_OK );
         expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
         expect_value( xi_mock_broker_layer_pull, in_out_state, XI_STATE_OK );
-        expect_value( xi_mock_broker_layer_pull, recvd_msg_type, XI_MQTT_TYPE_DISCONNECT );
+        expect_value( xi_mock_broker_layer_pull, recvd_msg_type,
+                      XI_MQTT_TYPE_DISCONNECT );
 
         /* SHUTDOWN */
         expect_value( xi_mock_broker_layer_close, in_out_state, XI_STATE_OK );
         expect_value( xi_mock_broker_layer_close, in_out_state, XI_STATE_OK );
         expect_value( xi_mock_layer_tls_prev_close, in_out_state, XI_STATE_OK );
-        expect_value( xi_mock_layer_tls_prev_close_externally, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_layer_tls_prev_close_externally, in_out_state,
+                      XI_STATE_OK );
 
         xi_itest_connect_error__trigger_connect( fixture_void, 1 );
         xi_itest_connect_error__trigger_event_dispatcher( fixture_void, 6 );
 
         /* TRY TO CALL SHUTDOWN TWICE IN A ROW */
-        expect_value( xi_itest_connect_error__trigger_shutdown, local_state, XI_STATE_OK );
+        expect_value( xi_itest_connect_error__trigger_shutdown, local_state,
+                      XI_STATE_OK );
         xi_itest_connect_error__trigger_shutdown( fixture_void );
 
-        /* HERE GOES THE DELAY */
+        /* HERE GOES THE EVTD LOOPS */
         xi_itest_connect_error__trigger_event_dispatcher(
             fixture_void, evtd_loop_count_between_connect_calls );
 
-        expect_value( xi_itest_connect_error__trigger_shutdown, local_state, XI_STATE_OK );
+        expect_value( xi_itest_connect_error__trigger_shutdown, local_state,
+                      XI_ALREADY_INITIALIZED );
         xi_itest_connect_error__trigger_shutdown( fixture_void );
 
         xi_itest_connect_error__trigger_event_dispatcher( fixture_void, 6 );
 
         /* artificially reset test case*/
+        xi_debug_printf( "1.. \r\n" );
         xi_itest_connect_error_teardown( fixture_void );
+        xi_debug_printf( "2.. \r\n" );
         xi_itest_connect_error_setup( fixture_void );
     }
+    xi_debug_printf( "3.. \r\n" );
 }
 
 void xi_itest_test_valid_flow__call_connect_function_then_disconnect_without_making_a_connection__shutdown_should_unregister_connect(
