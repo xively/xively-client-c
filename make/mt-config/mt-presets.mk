@@ -28,7 +28,7 @@ TARGET_ARM_REL				=-static-release
 
 TARGET_CC3200_REL			=-static-release
 
-PRESET ?= POSIX_DEV
+PRESET ?= POSIX_REL
 
 # -------------------------------------------------------
 # BSP DEV
