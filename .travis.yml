@@ -17,7 +17,7 @@ env:
     # - PRESET=ARM_REL
     # - PRESET=ARM_REL_MIN
 
-    - PRESET=CC3200_REL_MIN
+    - PRESET=CC3200_REL_MIN_UNSECURE
       XI_CC3200_PATH_CCS_TOOLS=$HOME/xi_artifactory/ti/ccsv6/tools
       XI_CC3200_PATH_SDK=$HOME/xi_artifactory/ti/CC3200SDK_1.2.0/cc3200-sdk
       XI_BSP_TLS=""
