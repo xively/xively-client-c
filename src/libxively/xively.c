@@ -497,7 +497,17 @@ xi_state_t xi_connect_with_lastwill_to_impl( xi_context_handle_t xih,
     xi_state_t local_state = XI_STATE_OK;
     XI_UNUSED( local_state );
 
-    /* guard against adding two connection requests, if the connection state isn't one of
+    /* guard against adding two connection requests */
+    if( NULL != xi->context_data.connect_handler.position )
+    {
+        xi_debug_format( "Connect could not be performed due to conenction state = %d,"
+                         "check if connect operation hasn't been already started.",
+                         xi->context_data.connection_data->connection_state );
+        return XI_ALREADY_INITIALIZED;
+
+    }
+
+    /* if the connection state isn't one of
      * the final states it means that the connection already has been started */
     if ( NULL != xi->context_data.connection_data &&
          ( XI_CONNECTION_STATE_CLOSED !=
