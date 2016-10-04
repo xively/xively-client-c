@@ -10,7 +10,7 @@ extern void
 xi_itest_test_valid_flow__call_connect_function_twice_in_a_row__second_call_returns_error(
     void** state );
 extern void
-xi_itest_test_valid_flow__call_connect_function_twice_with_a_single_evtd_call_in_the_middle__second_call_returns_error(
+xi_itest_test_valid_flow__call_connect_function_twice__second_call_returns_error(
     void** state );
 extern void
 xi_itest_test_valid_flow__call_disconnect_twice_on_connected_context__second_call_should_return_error(
@@ -27,7 +27,7 @@ struct CMUnitTest xi_itests_connect_error[] = {
         xi_itest_connect_error_setup,
         xi_itest_connect_error_teardown ),
     cmocka_unit_test_setup_teardown(
-        xi_itest_test_valid_flow__call_connect_function_twice_with_a_single_evtd_call_in_the_middle__second_call_returns_error,
+        xi_itest_test_valid_flow__call_connect_function_twice__second_call_returns_error,
         xi_itest_connect_error_setup,
         xi_itest_connect_error_teardown ),
     cmocka_unit_test_setup_teardown(
