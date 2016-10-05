@@ -49,8 +49,6 @@ matrix:
 before_script:
   - "if [[ $CC == *'clang'* ]]; then export CC='clang-3.8'; fi"
 script:
-  - set
-  - env
   - "set -e"
   - "cd $HOME/build/xively/xively-client-c/"
   - "make PRESET=$PRESET XI_DEBUG_OUTPUT=0 $XI_MAKETARGET"
