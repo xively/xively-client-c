@@ -1,17 +1,40 @@
 include make/mt-os/mt-os-common
 
-#XI_CC3200_PATH_CCS_TOOLS = /Applications/ti/ccsv6/tools
-#XI_CC3200_PATH_SDK = /Users/atigyi/ti/CC3200SDK_1.2.0/cc3200-sdk
-#CC = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/ti-cgt-arm_15.12.1.LTS/bin/armcl
-#AR = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/ti-cgt-arm_15.12.1.LTS/bin/armar
-
-XI_CC3200_PATH_CCS_TOOLS = /home/travis/xi_artifactory/ti/ccsv6/tools
-XI_CC3200_PATH_SDK = /home/travis/xi_artifactory/ti/CC3200SDK_1.2.0/cc3200-sdk
-CC = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/arm_15.12.3.LTS/bin/armcl
-AR = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/arm_15.12.3.LTS/bin/armar
-
 # todo: this is common, move it to outside
 XI ?= $(XI_BINDIR)/libxively.a
+
+ifeq ($(XI_HOST_PLATFORM),Linux)
+	# linux cross-compilation prerequisite downloads
+
+	XI_CC3200_PATH_CCS_TOOLS = /home/travis/xi_artifactory/ti/ccsv6/tools
+	XI_CC3200_PATH_SDK = /home/travis/xi_artifactory/ti/CC3200SDK_1.2.0/cc3200-sdk
+
+	CC = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/arm_15.12.3.LTS/bin/armcl
+	AR = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/arm_15.12.3.LTS/bin/armar
+
+	XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_CCS_TOOLS)/compiler/arm_15.12.3.LTS/include
+	XI_COMPILER_FLAGS += -i"$(XI_CC3200_PATH_CCS_TOOLS)/compiler/arm_15.12.3.LTS/lib"
+
+	XI_BUILD_PRECONDITIONS := $(CC)
+
+$(CC):
+	git clone https://github.com/atigyi/xi_artifactory.git ~/xi_artifactory
+	git -C ~/xi_artifactory checkout feature/cc3200_dependencies
+	$@ --version
+
+else ifeq ($(XI_HOST_PLATFORM),Darwin)
+	# osx cross-compilation downloads
+
+	XI_CC3200_PATH_CCS_TOOLS = /Applications/ti/ccsv6/tools
+	XI_CC3200_PATH_SDK = /Users/atigyi/ti/CC3200SDK_1.2.0/cc3200-sdk
+
+	CC = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/ti-cgt-arm_15.12.1.LTS/bin/armcl
+	AR = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/ti-cgt-arm_15.12.1.LTS/bin/armar
+
+	XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_CCS_TOOLS)/compiler/ti-cgt-arm_15.12.1.LTS/include
+	XI_COMPILER_FLAGS += -i"$(XI_CC3200_PATH_CCS_TOOLS)/compiler/ti-cgt-arm_15.12.1.LTS/lib"
+
+endif
 
 # removing these compiler flags since they are not parsed and emit warnings
 XI_COMPILER_FLAGS_TMP := $(filter-out -Wall -Werror -Wno-pointer-arith -Wno-format -Wextra, $(XI_COMPILER_FLAGS))
@@ -60,3 +83,4 @@ XI_ARFLAGS := r $(XI)
 XI_LIB_FLAGS := -llibxively.a
 
 XI_POST_COMPILE_ACTION =
+
