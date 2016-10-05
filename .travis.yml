@@ -15,8 +15,6 @@ env:
     - PRESET=CC3200_REL_MIN_UNSECURE
       XI_BSP_TLS=""
       XI_MAKETARGET=""
-      XI_CC3200_PATH_CCS_TOOLS=$HOME/Downloads/xi_artifactory/ti/ccsv6/tools
-      XI_CC3200_PATH_SDK=$HOME/Downloads/xi_artifactory/ti/CC3200SDK_1.2.0/cc3200-sdk
 
     # - PRESET=POSIX_DEV
     - PRESET=POSIX_DEV_MIN
