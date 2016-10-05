@@ -50,8 +50,6 @@ before_script:
   - "if [[ $CC == *'clang'* ]]; then export CC='clang-3.8'; fi"
 script:
   - "set -e"
-  - "ls -l $HOME"
-  - "ls -lR $HOME/xi_artifactory"
   - "cd $HOME/build/xively/xively-client-c/"
   - "make PRESET=$PRESET XI_DEBUG_OUTPUT=0 $XI_MAKETARGET"
   - "if [ ! $CC == 'gcc' ]; then
