@@ -46,8 +46,8 @@ XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_SDK)/example/common
 XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_SDK)/simplelink/include
 XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_SDK)/simplelink_extlib/provisioninglib
 
-XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_CCS_TOOLS)/compiler/ti-cgt-arm_15.12.1.LTS/include
-XI_COMPILER_FLAGS += -i"$(XI_CC3200_PATH_CCS_TOOLS)/compiler/ti-cgt-arm_15.12.1.LTS/lib"
+XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_CCS_TOOLS)/compiler/arm_15.12.3.LTS/include
+XI_COMPILER_FLAGS += -i"$(XI_CC3200_PATH_CCS_TOOLS)/compiler/arm_15.12.3.LTS/lib"
 
 # Xively Client config flags
 XI_CONFIG_FLAGS += -DXI_CROSS_TARGET
