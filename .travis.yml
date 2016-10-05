@@ -16,7 +16,7 @@ env:
     - XI_MAKETARGET=tests
   matrix:
     # - PRESET=ARM_REL
-    # - PRESET=ARM_REL_MIN
+    - PRESET=ARM_REL_MIN
 
     - PRESET=CC3200_REL_MIN_UNSECURE
       XI_CC3200_PATH_CCS_TOOLS=$HOME/xi_artifactory/ti/ccsv6/tools
@@ -25,7 +25,7 @@ env:
       XI_MAKETARGET=""
 
     # - PRESET=POSIX_DEV
-    # - PRESET=POSIX_DEV_MIN
+    - PRESET=POSIX_DEV_MIN
     # - PRESET=POSIX_REL
     # - PRESET=POSIX_REL_MIN
 
@@ -52,6 +52,8 @@ matrix:
       env: PRESET=ARM_REL_MIN
     - compiler: clang
       env: PRESET=ARM_REL
+    - compiler: clang
+      env: PRESET=CC3200_REL_MIN_UNSECURE
 before_script:
   - "if [[ $CC == *'clang'* ]]; then export CC='clang-3.8'; fi"
 script:
