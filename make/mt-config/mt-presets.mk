@@ -14,6 +14,7 @@ CONFIG_DUMMY_MIN			=bsp_dummy-memory_fs
 
 CONFIG_CC3200_MAX			=bsp_cc3200-memory_fs-tls-senml-control_topic-memory_limiter
 CONFIG_CC3200_MIN			=bsp_cc3200-memory_fs-tls
+CONFIG_CC3200_MIN_UNSECURE	=bsp_cc3200-memory_fs
 
 # TARGET presets
 TARGET_STATIC_DEV			=-static-debug
@@ -81,6 +82,11 @@ else ifeq ($(PRESET), ARM_REL)
 # Texas Instruments CC3200
 else ifeq ($(PRESET), CC3200_REL_MIN)
 	CONFIG = $(CONFIG_CC3200_MIN)
+	TARGET = $(TARGET_CC3200_REL)
+	XI_BSP_PLATFORM = cc3200
+	XI_TARGET_PLATFORM = cc3200
+else ifeq ($(PRESET), CC3200_REL_MIN_UNSECURE)
+	CONFIG = $(CONFIG_CC3200_MIN_UNSECURE)
 	TARGET = $(TARGET_CC3200_REL)
 	XI_BSP_PLATFORM = cc3200
 	XI_TARGET_PLATFORM = cc3200
