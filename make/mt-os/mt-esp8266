@@ -1,0 +1,32 @@
+include make/mt-os/mt-os-common
+
+CC = xtensa-lx106-elf-gcc
+AR = xtensa-lx106-elf-ar
+
+# todo: this is common, move it to outside
+XI ?= $(XI_BINDIR)/libxively.a
+
+# removing these compiler flags since they are not parsed and emit warnings
+XI_COMPILER_FLAGS_TMP := $(filter-out -Wall -Werror -Wno-pointer-arith -Wno-format -Wextra, $(XI_COMPILER_FLAGS))
+XI_COMPILER_FLAGS = $(XI_COMPILER_FLAGS_TMP)
+
+XI_COMPILER_FLAGS += -I.
+XI_COMPILER_FLAGS += -mlongcalls
+XI_COMPILER_FLAGS += -Os
+
+# Xively Client config flags
+XI_CONFIG_FLAGS += -DXI_CROSS_TARGET
+XI_CONFIG_FLAGS += -DLWIP_OPEN_SRC
+XI_CONFIG_FLAGS += -DXI_EMBEDDED_TESTS
+
+XI_LIB_FLAGS += -nostdlib -Wl,--start-group -ldriver -lmain -lnet80211 -lwpa -llwip -lpp -lphy -Wl,--end-group -lgcc
+XI_LIB_FLAGS += -Teagle.app.v6.ld
+
+# wolfssl API
+XI_CONFIG_FLAGS += -DSINGLE_THREADED
+XI_CONFIG_FLAGS += -DNO_WRITEV
+
+XI_ARFLAGS := r $(XI)
+XI_LIB_FLAGS := -llibxively.a
+
+XI_POST_COMPILE_ACTION =

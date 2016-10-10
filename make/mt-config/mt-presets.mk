@@ -20,6 +20,9 @@ CONFIG_CC3200_MAX			=bsp_cc3200-memory_fs-tls-senml-control_topic-memory_limiter
 CONFIG_CC3200_MIN			=bsp_cc3200-memory_fs-tls
 CONFIG_CC3200_MIN_UNSECURE	=bsp_cc3200-memory_fs
 
+CONFIG_ESP8266_MAX 			=bsp_esp8266-memory_fs-tls-senml-control_topic-memory_limiter
+CONFIG_ESP8266_MIN 			=bsp_esp8266-memory_fs-tls
+
 # TARGET presets
 TARGET_STATIC_DEV			=-static-debug
 TARGET_STATIC_REL			=-static-release
@@ -27,6 +30,8 @@ TARGET_STATIC_REL			=-static-release
 TARGET_ARM_REL				=-static-release
 
 TARGET_CC3200_REL			=-static-release
+
+TARGET_ESP8266_REL 			=-static-release
 
 PRESET ?= POSIX_REL
 
@@ -95,6 +100,19 @@ else ifeq ($(PRESET), CC3200_REL)
 	TARGET = $(TARGET_CC3200_REL)
 	XI_BSP_PLATFORM = cc3200
 	XI_TARGET_PLATFORM = cc3200
+
+# -------------------------------------------------------
+# ESP8266
+else ifeq ($(PRESET), ESP8266_REL_MIN)
+	CONFIG = $(CONFIG_ESP8266_MIN)
+	TARGET = $(TARGET_ESP8266_REL)
+	XI_BSP_PLATFORM = esp8266
+	XI_TARGET_PLATFORM = esp8266
+else ifeq ($(PRESET), ESP8266_REL)
+	CONFIG = $(CONFIG_ESP8266_MAX)
+	TARGET = $(TARGET_ESP8266_REL)
+	XI_BSP_PLATFORM = esp8266
+	XI_TARGET_PLATFORM = esp8266
 
 # -------------------------------------------------------
 # DEFAULT
