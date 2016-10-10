@@ -53,6 +53,34 @@ cleans the output of the previous build.
 
 The wolfSSL supports TI-RTOS builds. Follow the steps written on [Using wolfSSL with TI-RTOS](http://processors.wiki.ti.com/index.php/Using_wolfSSL_with_TI-RTOS) to generate wolfSSL static library for CC3200.
 
+Emirically proved functional products.mak variable settings for MacOS and Windows:
+
+- MacOS:
+
+        XDC_INSTALL_DIR        =/Applications/ti/xdctools_3_31_03_43_core/
+        BIOS_INSTALL_DIR       =/Applications/ti/tirtos_cc32xx_2_16_01_14/products/bios_6_45_02_31/
+        NDK_INSTALL_DIR        =
+        TIVAWARE_INSTALL_DIR   =
+
+        export XDCTOOLS_JAVA_HOME=/Applications/ti/ccsv6/eclipse/jre/Contents/Home/
+
+        ti.targets.arm.elf.M4F = /Applications/ti/ccsv6/tools/compiler/ti-cgt-arm_15.12.1.LTS
+        iar.targets.arm.M4F    =
+        gnu.targets.arm.M4F    =
+
+- Windows:
+
+        XDC_INSTALL_DIR        =c:/ti/xdctools_3_32_01_22_core
+        BIOS_INSTALL_DIR       =c:/ti/tirex-content/tirtos_cc32xx_2_16_00_08/products/bios_6_45_01_29
+        NDK_INSTALL_DIR        =
+        TIVAWARE_INSTALL_DIR   =
+
+        export XDCTOOLS_JAVA_HOME=c:/Program Files (x86)/Java/jre1.8.0_51/
+
+        ti.targets.arm.elf.M4F =c:/ti/ccsv6/tools/compiler/arm_15.12.3.LTS
+        iar.targets.arm.M4F    =
+        gnu.targets.arm.M4F    =
+
 Before starting apply the following customizations made for a Xively wolfSSL build:
 
 - In file wolfssl/wolfcrypt/settings.h add a new platform macro WOLFSSL_NOOS_XIVELY with content:
@@ -144,6 +172,19 @@ Before starting apply the following customizations made for a Xively wolfSSL bui
         */
 
     This is not available for CC3200 and not needed at all.
+
+- to build wolfSSL static library type
+
+    - MacOS:
+
+            make -f wolfssl.mak all
+
+    - Windows:
+
+            PATH=%PATH%;c:\ti\ccsv6\utils\bin
+            gmake -f wolfssl.mak all
+
+    under directory `wolfssl/tirtos
 
 
 ## Building CC3200 application: CCS ent_wlan example
