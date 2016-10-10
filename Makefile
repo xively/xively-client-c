@@ -1,8 +1,6 @@
-LIBXIVELY := $(shell pwd)
+LIBXIVELY := $(CURDIR)
 
 export LIBXIVELY
-
-REV := $(shell git rev-parse --short --no-symbolic HEAD)
 
 # Reserve 'all' as the default build target
 all:
