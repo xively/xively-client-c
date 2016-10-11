@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 
+# Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+#
+# This is part of the Xively C Client library,
+# it is licensed under the BSD 3-Clause license.
+
 import os
 import argparse
 import uuid
@@ -51,12 +56,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser( description='Source code formatter' )
     parser.add_argument( '-r', dest='recursive', type=int, default=100,
                        help='recursive mode, default 1, set 0 if you want to enable unlimited recursion')
-    parser.add_argument( '-d', dest='directory', default='src/', help='start directory, default src/')
 
     args        = parser.parse_args()
-
-    startDir    = args.directory
     recursive   = args.recursive
 
-    findFiles( startDir, ".h", recursive )
-    findFiles( startDir, ".c", recursive )
+    directories = [ 'src/', 'include/', 'include_senml/', 'examples/' ];
+
+    for dir in directories:
+        findFiles( dir, ".h", recursive )
+        findFiles( dir, ".c", recursive )

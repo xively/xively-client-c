@@ -1,5 +1,7 @@
-/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
- * This is part of Xively C library. */
+// Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+//
+// This is part of the Xively C Client library,
+// it is licensed under the BSD 3-Clause license.
 
 #ifndef __XIVELY_SENML_MACROS_H__
 #define __XIVELY_SENML_MACROS_H__
@@ -44,17 +46,12 @@
 #define XI_CREATE_SENML_STRUCT( state, senml_ptr, ... )                                  \
     state = xi_create_senml_struct(                                                      \
         &senml_ptr,                                                                      \
+        XI_SENML_ENTRY_IMPL( __VA_ARGS__, XI_SENML_ENTRY_ERROR( __VA_ARGS__ ),           \
+                             XI_SENML_ENTRY_ERROR( __VA_ARGS__ ), 3, 2, 1 ),             \
         XI_SENML_ENTRY_IMPL(                                                             \
             __VA_ARGS__, XI_SENML_ENTRY_ERROR( __VA_ARGS__ ),                            \
-            XI_SENML_ENTRY_ERROR( __VA_ARGS__ ), 3, 2, 1 ),                              \
-        XI_SENML_ENTRY_IMPL(                                                             \
-            __VA_ARGS__,                                                                 \
-            XI_SENML_ENTRY_ERROR( __VA_ARGS__ ),                                         \
-            XI_SENML_ENTRY_ERROR( __VA_ARGS__ ),                                         \
-            XI_SENML_ENTRY3( __VA_ARGS__ ),                                              \
-            XI_SENML_ENTRY2( __VA_ARGS__ ),                                              \
-            XI_SENML_ENTRY1( __VA_ARGS__ ) )                                             \
-        );
+            XI_SENML_ENTRY_ERROR( __VA_ARGS__ ), XI_SENML_ENTRY3( __VA_ARGS__ ),         \
+            XI_SENML_ENTRY2( __VA_ARGS__ ), XI_SENML_ENTRY1( __VA_ARGS__ ) ) );
 
 /**
  * @name XI_ADD_SENML_ENTRY
@@ -67,52 +64,45 @@
  *                 update_time. To generate a parameter here use macros
  *                 XI_SENML_ENTRY_* and XI_SENML_ENTRY_*_VALUE.
  */
- #define XI_ADD_SENML_ENTRY( state, senml_ptr, ... )                                     \
+#define XI_ADD_SENML_ENTRY( state, senml_ptr, ... )                                      \
     state = xi_add_senml_entry(                                                          \
-        senml_ptr,                                                                       \
-        XI_SENML_ENTRY_IMPL( __VA_ARGS__, 5, 4, 3, 2, 1 ),                               \
+        senml_ptr, XI_SENML_ENTRY_IMPL( __VA_ARGS__, 5, 4, 3, 2, 1 ),                    \
         XI_SENML_ENTRY_IMPL(                                                             \
-            __VA_ARGS__,                                                                 \
-            XI_SENML_ENTRY5( __VA_ARGS__ ),                                              \
-            XI_SENML_ENTRY4( __VA_ARGS__ ),                                              \
-            XI_SENML_ENTRY3( __VA_ARGS__ ),                                              \
-            XI_SENML_ENTRY2( __VA_ARGS__ ),                                              \
+            __VA_ARGS__, XI_SENML_ENTRY5( __VA_ARGS__ ), XI_SENML_ENTRY4( __VA_ARGS__ ), \
+            XI_SENML_ENTRY3( __VA_ARGS__ ), XI_SENML_ENTRY2( __VA_ARGS__ ),              \
             XI_SENML_ENTRY1( __VA_ARGS__ ) ) );
 
 #define XI_SENML_BASE_NAME( bn )                                                         \
-    ( ( xi_senml_t ){ .base_name = bn, .set.base_name_set = 1 } )
+    ( ( xi_senml_t ){.base_name = bn, .set.base_name_set = 1} )
 
 #define XI_SENML_BASE_TIME( bt )                                                         \
-    ( ( xi_senml_t ){ .base_time = bt, .set.base_time_set = 1 } )
+    ( ( xi_senml_t ){.base_time = bt, .set.base_time_set = 1} )
 
 #define XI_SENML_BASE_UNITS( bu )                                                        \
-    ( ( xi_senml_t ){ .base_units = bu, .set.base_units_set = 1 } )
+    ( ( xi_senml_t ){.base_units = bu, .set.base_units_set = 1} )
 
-#define XI_SENML_ENTRY_NAME( n )                                                         \
-    ( ( xi_senml_entry_t ){ .name = n, .set.name_set = 1 } )
+#define XI_SENML_ENTRY_NAME( n ) ( ( xi_senml_entry_t ){.name = n, .set.name_set = 1} )
 
-#define XI_SENML_ENTRY_UNITS( u )                                                        \
-    ( ( xi_senml_entry_t ){ .units = u, .set.units_set = 1 } )
+#define XI_SENML_ENTRY_UNITS( u ) ( ( xi_senml_entry_t ){.units = u, .set.units_set = 1} )
 
-#define XI_SENML_ENTRY_FLOAT_VALUE( v ) ( ( xi_senml_entry_t ){                          \
-    .value_cnt.value.float_value = v,                                                    \
-    .value_cnt.value_type = XI_SENML_VALUE_TYPE_FLOAT,                                   \
-    .set.value_set = 1 } )
+#define XI_SENML_ENTRY_FLOAT_VALUE( v )                                                  \
+    ( ( xi_senml_entry_t ){.value_cnt.value.float_value = v,                             \
+                           .value_cnt.value_type        = XI_SENML_VALUE_TYPE_FLOAT,     \
+                           .set.value_set               = 1} )
 
-#define XI_SENML_ENTRY_BOOLEAN_VALUE( bv ) ( ( xi_senml_entry_t ){                       \
-    .value_cnt.value.boolean_value = bv,                                                 \
-    .value_cnt.value_type = XI_SENML_VALUE_TYPE_BOOLEAN,                                 \
-    .set.value_set = 1 } )
+#define XI_SENML_ENTRY_BOOLEAN_VALUE( bv )                                               \
+    ( ( xi_senml_entry_t ){.value_cnt.value.boolean_value = bv,                          \
+                           .value_cnt.value_type          = XI_SENML_VALUE_TYPE_BOOLEAN, \
+                           .set.value_set                 = 1} )
 
-#define XI_SENML_ENTRY_STRING_VALUE( sv ) ( ( xi_senml_entry_t ){                        \
-    .value_cnt.value.string_value = sv,                                                  \
-    .value_cnt.value_type = XI_SENML_VALUE_TYPE_STRING,                                  \
-    .set.value_set = 1 } )
+#define XI_SENML_ENTRY_STRING_VALUE( sv )                                                \
+    ( ( xi_senml_entry_t ){.value_cnt.value.string_value = sv,                           \
+                           .value_cnt.value_type         = XI_SENML_VALUE_TYPE_STRING,   \
+                           .set.value_set                = 1} )
 
-#define XI_SENML_ENTRY_TIME( t )                                                         \
-    ( ( xi_senml_entry_t ){ .time = t, .set.time_set = 1 } )
+#define XI_SENML_ENTRY_TIME( t ) ( ( xi_senml_entry_t ){.time = t, .set.time_set = 1} )
 
 #define XI_SENML_ENTRY_UPDATE_TIME( ut )                                                 \
-    ( ( xi_senml_entry_t ){ .update_time = ut, .set.update_time_set = 1 } )
+    ( ( xi_senml_entry_t ){.update_time = ut, .set.update_time_set = 1} )
 
 #endif /* __XIVELY_SENML_MACROS_H__ */

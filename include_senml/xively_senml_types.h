@@ -1,5 +1,7 @@
-/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
- * This is part of Xively C library. */
+// Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+//
+// This is part of the Xively C Client library,
+// it is licensed under the BSD 3-Clause license.
 
 #ifndef __XIVELY_SENML_TYPES_H__
 #define __XIVELY_SENML_TYPES_H__
@@ -26,15 +28,13 @@ typedef struct xi_senml_entry_set_s
     uint8_t update_time_set : 1;
 } xi_senml_entry_set_t;
 
-typedef enum xi_senml_value_type_e
-{
+typedef enum xi_senml_value_type_e {
     XI_SENML_VALUE_TYPE_FLOAT,
     XI_SENML_VALUE_TYPE_STRING,
     XI_SENML_VALUE_TYPE_BOOLEAN
 } xi_senml_value_type_t;
 
-typedef union xi_senml_value_u
-{
+typedef union xi_senml_value_u {
     float float_value;
     char* string_value;
     uint8_t boolean_value;

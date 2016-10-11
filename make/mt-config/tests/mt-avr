@@ -1,3 +1,8 @@
+# Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+#
+# This is part of the Xively C Client library,
+# it is licensed under the BSD 3-Clause license.
+
 #
 # DDB, NOTE: this was copied from the previous Makefile configuration's avr make target.  I'm not sure how this works
 # nor how I should really be testing it so I'm putting it here for now.

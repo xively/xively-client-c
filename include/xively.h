@@ -1,5 +1,7 @@
-/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
- * This is part of Xively C library. */
+// Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+//
+// This is part of the Xively C Client library,
+// it is licensed under the BSD 3-Clause license.
 
 #ifndef __XIVELY_H__
 #define __XIVELY_H__
@@ -96,7 +98,8 @@ extern xi_state_t xi_initialize( const char* account_id,
 
 /**
  * @brief     Signals the xively library to cleanup any internal memory
- * @detailed  This should by the last function called while shutting down your application.
+ * @detailed  This should by the last function called while shutting down your
+ * application.
  * Any resources that were created during initialization will be cleaned up and
  * freed.
  *
