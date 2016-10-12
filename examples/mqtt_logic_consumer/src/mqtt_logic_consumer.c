@@ -3,7 +3,6 @@
 // This is part of the Xively C Client library,
 // it is licensed under the BSD 3-Clause license.
 
-
 //
 // This example application connects to the Xively Service with
 // a username and password that you must specify.  It then subscribes
