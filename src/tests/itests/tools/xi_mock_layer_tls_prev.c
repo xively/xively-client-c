@@ -1,7 +1,8 @@
-// Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
-//
-// This is part of the Xively C Client library,
-// it is licensed under the BSD 3-Clause license.
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #include "xi_mock_layer_tls_prev.h"
 #include "xi_layer_macros.h"

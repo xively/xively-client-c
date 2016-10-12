@@ -1,16 +1,17 @@
-// Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
-//
-// This is part of the Xively C Client library,
-// it is licensed under the BSD 3-Clause license.
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
-//
-// This example application connects to the Xively Service with
-// a username and password that you must specify.  It then publishes
-// test messages to a topic that you also must specify
-
-// This example application is meant as a companion example to the
-// mqtt_logic_consumer example.
-//
+/*
+ * This example application connects to the Xively Service with
+ * a username and password that you must specify.  It then publishes
+ * test messages to a topic that you also must specify
+ *
+ * This example application is meant as a companion example to the
+ * mqtt_logic_consumer example.
+ */
 
 #include "../../common/src/commandline.h"
 #include <xively.h>

@@ -1,12 +1,15 @@
-// Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
-//
-// This is part of the Xively C Client library,
-// it is licensed under the BSD 3-Clause license.
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
-// Note:  These tests make no demands on platform specific code and are
-// therefore useful for initial testing on a cross-compiled embedded
-// target for the purpose of demonstrate usable linkage to the xibxively library
-// and the functionality of the ported tinytest framework.
+/*
+ * Note:  These tests make no demands on platform specific code and are
+ * therefore useful for initial testing on a cross-compiled embedded
+ * target for the purpose of demonstrate usable linkage to the xibxively library
+ * and the functionality of the ported tinytest framework.
+ */
 
 #include <stdio.h>
 #include <stdlib.h>

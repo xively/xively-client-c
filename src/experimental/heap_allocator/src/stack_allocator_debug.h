@@ -1,7 +1,8 @@
-// Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
-//
-// This is part of the Xively C Client library,
-// it is licensed under the BSD 3-Clause license.
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #ifndef __STACK_ALLOCATOR_DEBUG_H__
 #define __STACK_ALLOCATOR_DEBUG_H__
@@ -30,4 +31,4 @@ void stack_debug_print_entry( const stack_allocator_entry_t* const entry );
 void stack_debug_statistic_gatherer( const stack_allocator_entry_t* const entry,
                                      void* arg );
 void stack_debug_print_statistics( const stack_allocator_statistics_t* const stats );
-#endif // __STACK_ALLOCATOR_DEBUG_H__
+#endif /* __STACK_ALLOCATOR_DEBUG_H__ */

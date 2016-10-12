@@ -1,7 +1,8 @@
-// Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
-//
-// This is part of the Xively C Client library,
-// it is licensed under the BSD 3-Clause license.
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #ifndef __XIVELY_SENML_TYPES_H__
 #define __XIVELY_SENML_TYPES_H__
