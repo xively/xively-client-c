@@ -4,7 +4,7 @@ ___
 
 This is part of the Xively C Client library, it is licensed under the BSD 3-Clause license. 
 
-For more information please read our [License.md](License.md) file located in the [Xively C Client repository](https://github.com/xively/xively-client-c).
+For more information please read our License.md file located in the base directory of the [Xively C Client repository](https://github.com/xively/xively-client-c).
 
 
 
