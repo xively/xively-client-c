@@ -1,5 +1,8 @@
-// Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.
-// This is part of Xively C library.
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #include "tinytest.h"
 #include "tinytest_macros.h"
@@ -131,7 +134,7 @@ XI_TT_TESTCASE_WITH_SETUP(
         // set the task data
         XI_ALLOC_AT( xi_mqtt_logic_task_t, task, local_state );
 
-        task->cs = 100; // this is very hakish since it depends on the code
+        task->cs = 103; // this is very hakish since it depends on the code
         // so most probably this test will fail everytime we change anything in
         // tested function which is not too good at least you know what to check
         // if the test fails
@@ -229,7 +232,7 @@ XI_TT_TESTCASE_WITH_SETUP(
         // set the task data
         XI_ALLOC_AT( xi_mqtt_logic_task_t, task, local_state );
 
-        task->cs = 100; // this is very hakish since it depends on the code
+        task->cs = 103; // this is very hakish since it depends on the code
         // so most probably this test will fail everytime we change anything in
         // tested function which is not too good at least you know what to check
         // if the test fails

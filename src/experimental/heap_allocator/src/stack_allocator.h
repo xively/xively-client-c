@@ -1,3 +1,9 @@
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
+
 #ifndef __XIVELY_EXPERIMENTAL_STACK_ALLOCATOR_H__
 #define __XIVELY_EXPERIMENTAL_STACK_ALLOCATOR_H__
 
@@ -56,4 +62,4 @@ int stack_allocator_init( stack_allocator_t* stack_allocator,
 void* stack_allocator_alloc( stack_allocator_t* stack_allocator, size_t size );
 void stack_allocator_free( stack_allocator_t* stack_allocator, void* ptr );
 
-#endif // __XIVELY_EXPERIMENTAL_STACK_ALLOCATOR_H__
+#endif /* __XIVELY_EXPERIMENTAL_STACK_ALLOCATOR_H__ */

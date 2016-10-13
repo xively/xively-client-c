@@ -1,5 +1,8 @@
 /* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
- * This is part of Xively C library. */
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #ifndef __XIVELY_TYPES_H__
 #define __XIVELY_TYPES_H__
@@ -63,8 +66,8 @@ typedef void( xi_user_task_callback_t )( const xi_context_handle_t context_handl
  *              or Examples.
  */
 typedef void( xi_user_callback_t )( xi_context_handle_t in_context_handle,
-                                          void* data,
-                                          xi_state_t state );
+                                    void* data,
+                                    xi_state_t state );
 
 /**
  * @enum xi_sub_call_type_t
@@ -78,8 +81,7 @@ typedef void( xi_user_callback_t )( xi_context_handle_t in_context_handle,
  * XI_SUBSCRIPTION_DATA_MESSAGE - callback is a MESSAGE notification thus message part
  * should be used from the params
  */
-typedef enum xi_subscription_data_type_e
-{
+typedef enum xi_subscription_data_type_e {
     XI_SUB_CALL_UNKNOWN = 0,
     XI_SUB_CALL_SUBACK,
     XI_SUB_CALL_MESSAGE
@@ -96,8 +98,7 @@ typedef enum xi_subscription_data_type_e
  * message - contains information important from perspective of processing mqtt
  * message on subscribed topic
  */
-typedef union xi_sub_call_params_u
-{
+typedef union xi_sub_call_params_u {
     struct
     {
         const char* topic;
@@ -119,8 +120,7 @@ typedef union xi_sub_call_params_u
 #define XI_EMPTY_SUB_CALL_PARAMS                                                         \
     ( xi_sub_call_params_t )                                                             \
     {                                                                                    \
-        .message =                                                                       \
-        {                                                                                \
+        .message = {                                                                     \
             NULL,                                                                        \
             NULL,                                                                        \
             0,                                                                           \
@@ -142,12 +142,11 @@ typedef union xi_sub_call_params_u
  * @param user_data - pointer previously registered via user during the subscription
  * callback registration, may be used for identification or carrying some helper data
  */
-typedef void( xi_user_subscription_callback_t )(
-    xi_context_handle_t in_context_handle,
-    xi_sub_call_type_t call_type,
-    const xi_sub_call_params_t* const params,
-    xi_state_t state,
-    void* user_data );
+typedef void( xi_user_subscription_callback_t )( xi_context_handle_t in_context_handle,
+                                                 xi_sub_call_type_t call_type,
+                                                 const xi_sub_call_params_t* const params,
+                                                 xi_state_t state,
+                                                 void* user_data );
 
 #ifdef __cplusplus
 }
