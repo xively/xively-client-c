@@ -1,10 +1,15 @@
-/*  Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
-    This is part of Xively C library.
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
-    This is a usage example of the SenML serializer module of
-    libxively. A xi_senml_t structure created, some entries are
-    injected into it. Then this structure is serialized and
-    printed to stdout. */
+/*
+ * This is a usage example of the SenML serializer module of
+ * libxively. A xi_senml_t structure created, some entries are
+ * injected into it. Then this structure is serialized and
+ * printed to stdout.
+ */
 
 #include <stdio.h>
 #include <xively_senml.h>

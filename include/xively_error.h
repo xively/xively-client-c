@@ -1,5 +1,8 @@
 /* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
- * This is part of Xively C library. */
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #ifndef __XIVELY_ERROR_H__
 #define __XIVELY_ERROR_H__
@@ -14,8 +17,7 @@ extern "C" {
  *
  * XI_STATE_OK represents success. Others represent errors.
  */
-typedef enum
-{
+typedef enum {
     XI_STATE_OK = 0,
     XI_STATE_TIMEOUT,
     XI_STATE_WANT_READ,

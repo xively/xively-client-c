@@ -1,8 +1,7 @@
+#Copyright © 2003-2016 LogMeIn, Inc.
+
 ###This library is licensed under the BSD 3-Clause license.
-
-Copyright © 2003-2016 LogMeIn, Inc.
-
-All rights reserved.
+###All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
@@ -11,3 +10,18 @@ Redistribution and use in source and binary forms, with or without modification,
 3. Neither the names of LogMeIn, Inc., nor Xively Ltd., nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL LOGMEIN, INC. OR XIVELY LTD. BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+
+
+###This library contains third-party components, which are subject to open source software licenses.
+
+##Deoxxa - mqtt-protocol-c
+https://github.com/deoxxa  
+
+
+Copyright © 2014 Deoxxa Development. All rights reserved. 
+
+
+Licensed under the Berkeley Software Distribution (BSD) 3-Clause License, which is included above or available at http://opensource.org/licenses/BSD-3-Clause 
+
