@@ -1,5 +1,8 @@
-/* Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.
- * This is part of Xively C library. */
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 /* - Every function should return a value
  * - There are special values (usually `0` or `-1`) which indicate occurrence of

@@ -1,93 +1,96 @@
 /* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
- * This is part of Xively C library. */
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #ifndef __XI_BSP_IO_NET_H__
 #define __XI_BSP_IO_NET_H__
 
 
- /*! \file
- * @brief The main API for compiling your Application against the
- * the xively library.
- *
- * \mainpage Xively Client Board Support Package (BSP)
- *
- * # Welcome
- * This doxygen catalogs the Board Support Package (BSP), an abstracted
- * framework for hosting all of the platform-specific code used by the
- * Xively C Client.
- *
- * Porting engineers should focus most of their work to a custom
- * implementation of these collection of files. The rest of the
- * Xively client sources, such as the event system, mqtt serializer, and
- * callback system, use platform generic C code that should not needs
- * any tailoring to specific devcies.
- *
- * # Out of the Box
- * The Xively C Client includes a POSIX implementation of the BSP
- * which it uses by default on MacOSX, and Linux desktops and devcies.
- * For non POSIX platforms your will need to customize the reference
- * implementation, or begin one from scratch using this documentation
- * as a guide.  More information on the porting process can be found
- * in the Xively C Porting Guide which resides in the main /doc directory
- * of this project.
- *
- * # Browsing the Sources
- * The BSP is segmented into several distinct files, each focused
- * around a particular platform library requirement:
- *  - Networking
- *  - Memory Allocators / Dealloactors
- *  - Randon Number Generator
- *  - Time
- *  - Transport Layer Security (TLS)
- *
- * The best place to start would probably be the NET
- * networking library.
- *
- * Implementations for Time, Rng and Memory might be highly
- * portable and might not need any customization at all.
- *
- * # TLS BSPs
- * The Xively C Client also ships with support for two TLS implementations
- * out of the box.
- *
- * ## &nbsp;WolfSSL <small>(https://www.wolfssl.com)</small>
- * The default make target will download a tagged WolfSSL release from
- * their repository, and build it to link against. Additionally the
- * Xively Client Sources will be configured to build the WolfSSL TLS BSP
- * that resides in: <code>/src/bsp/wolfssl</code>.
- *
- * This should get you up and running quickly but their sources must be
- * licensed for distribution.
- *
- * ## &nbsp;mbedTLS <small>(https://tls.mbed.org)</small>
- * An alternative build envirionment and source configuration exists for mbedTLS.
- * Please see our User Guide and Porting Guide for more information.  Both of
- * these documents reside in the base <code>/doc</code> directory.
- *
- * ## &nbsp;Other Implementations
- * If your platform has a TLS implementation built in, then you
- * can couple it to the Xively C Client in the TLS BSP.  Othewrise
- * the Xively C Client ships with a reference implementation
- * for WolfSSL and/or mbedTLS, both of which must be licensed
- * separately.
- *
- * # Further Reading
- * ### Xively C Client
- * Information on how to use the Xively C Library from the
- * applications perspective can be found in:
- * <ul><li>
- * <a href="../../api/html/index.html">The Xively Cilent doxygen</a></li>
- * <li>The Xively Client User Guide in: <code>/doc/user_guide.md</code></li>
- * </ul>
- *
- * ### Porting Process
- * Documentation on the porting process and more information about
- * the Xively C Client BSP can be found in the Xively C Client Porting Guide located
- * in: <code>/doc/porting_guide.md</code>.
- *
- * \copyright 2003-2016, LogMeIn, Inc.  All rights reserved.
- *
- */
+/*! \file
+* @brief The main API for compiling your Application against the
+* the xively library.
+*
+* \mainpage Xively Client Board Support Package (BSP)
+*
+* # Welcome
+* This doxygen catalogs the Board Support Package (BSP), an abstracted
+* framework for hosting all of the platform-specific code used by the
+* Xively C Client.
+*
+* Porting engineers should focus most of their work to a custom
+* implementation of these collection of files. The rest of the
+* Xively client sources, such as the event system, mqtt serializer, and
+* callback system, use platform generic C code that should not needs
+* any tailoring to specific devcies.
+*
+* # Out of the Box
+* The Xively C Client includes a POSIX implementation of the BSP
+* which it uses by default on MacOSX, and Linux desktops and devcies.
+* For non POSIX platforms your will need to customize the reference
+* implementation, or begin one from scratch using this documentation
+* as a guide.  More information on the porting process can be found
+* in the Xively C Porting Guide which resides in the main /doc directory
+* of this project.
+*
+* # Browsing the Sources
+* The BSP is segmented into several distinct files, each focused
+* around a particular platform library requirement:
+*  - Networking
+*  - Memory Allocators / Dealloactors
+*  - Randon Number Generator
+*  - Time
+*  - Transport Layer Security (TLS)
+*
+* The best place to start would probably be the NET
+* networking library.
+*
+* Implementations for Time, Rng and Memory might be highly
+* portable and might not need any customization at all.
+*
+* # TLS BSPs
+* The Xively C Client also ships with support for two TLS implementations
+* out of the box.
+*
+* ## &nbsp;WolfSSL <small>(https://www.wolfssl.com)</small>
+* The default make target will download a tagged WolfSSL release from
+* their repository, and build it to link against. Additionally the
+* Xively Client Sources will be configured to build the WolfSSL TLS BSP
+* that resides in: <code>/src/bsp/wolfssl</code>.
+*
+* This should get you up and running quickly but their sources must be
+* licensed for distribution.
+*
+* ## &nbsp;mbedTLS <small>(https://tls.mbed.org)</small>
+* An alternative build envirionment and source configuration exists for mbedTLS.
+* Please see our User Guide and Porting Guide for more information.  Both of
+* these documents reside in the base <code>/doc</code> directory.
+*
+* ## &nbsp;Other Implementations
+* If your platform has a TLS implementation built in, then you
+* can couple it to the Xively C Client in the TLS BSP.  Othewrise
+* the Xively C Client ships with a reference implementation
+* for WolfSSL and/or mbedTLS, both of which must be licensed
+* separately.
+*
+* # Further Reading
+* ### Xively C Client
+* Information on how to use the Xively C Library from the
+* applications perspective can be found in:
+* <ul><li>
+* <a href="../../api/html/index.html">The Xively Cilent doxygen</a></li>
+* <li>The Xively Client User Guide in: <code>/doc/user_guide.md</code></li>
+* </ul>
+*
+* ### Porting Process
+* Documentation on the porting process and more information about
+* the Xively C Client BSP can be found in the Xively C Client Porting Guide located
+* in: <code>/doc/porting_guide.md</code>.
+*
+* \copyright 2003-2016, LogMeIn, Inc.  All rights reserved.
+*
+*/
 
 /**
  * @file xi_bsp_io_net.h
@@ -119,18 +122,17 @@ extern "C" {
  *
  * The implementation reports internal status to Xively Client through these values.
  */
-typedef enum xi_bsp_io_net_state_e
-{
+typedef enum xi_bsp_io_net_state_e {
     /** operation finished successfully */
-    XI_BSP_IO_NET_STATE_OK                      = 0,
+    XI_BSP_IO_NET_STATE_OK = 0,
     /** operation failed */
-    XI_BSP_IO_NET_STATE_ERROR                   = 1,
+    XI_BSP_IO_NET_STATE_ERROR = 1,
     /** resource is busy, means: please invoke this function again later */
-    XI_BSP_IO_NET_STATE_BUSY                    = 2,
+    XI_BSP_IO_NET_STATE_BUSY = 2,
     /** connection lost during read or write operation */
-    XI_BSP_IO_NET_STATE_CONNECTION_RESET        = 3,
+    XI_BSP_IO_NET_STATE_CONNECTION_RESET = 3,
     /** timeout has appeared during the operation */
-    XI_BSP_IO_NET_STATE_TIMEOUT                 = 4,
+    XI_BSP_IO_NET_STATE_TIMEOUT = 4,
 
 } xi_bsp_io_net_state_t;
 
@@ -200,10 +202,9 @@ typedef struct xi_bsp_socket_events_s
  * - XI_BSP_IO_NET_STATE_TIMEOUT - if select call has encountered timeout
  * - XI_BSP_IO_NET_STATE_ERROR - if select call finished with error
  */
-xi_bsp_io_net_state_t xi_bsp_io_net_select(
-    xi_bsp_socket_events_t* socket_events_array,
-    size_t socket_events_array_size,
-    long timeout_sec /* in seconds */ );
+xi_bsp_io_net_state_t xi_bsp_io_net_select( xi_bsp_socket_events_t* socket_events_array,
+                                            size_t socket_events_array_size,
+                                            long timeout_sec /* in seconds */ );
 
 /**
  * @function
@@ -219,8 +220,8 @@ xi_bsp_io_net_state_t xi_bsp_io_net_select(
  * - XI_BSP_IO_NET_STATE_OK - if socket created successfully
  * - XI_BSP_IO_NET_STATE_ERROR - otherwise
  */
-xi_bsp_io_net_state_t xi_bsp_io_net_create_socket(
-    xi_bsp_socket_t* xi_socket_nonblocking );
+xi_bsp_io_net_state_t
+xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket_nonblocking );
 
 /**
  * @function
@@ -259,10 +260,10 @@ xi_bsp_io_net_state_t xi_bsp_io_net_connect( xi_bsp_socket_t* xi_socket_nonblock
  * - XI_BSP_IO_NET_STATE_OK - if socket is successfully connected
  * - XI_BSP_IO_NET_STATE_ERROR - otherwise
  */
-xi_bsp_io_net_state_t xi_bsp_io_net_connection_check(
-    xi_bsp_socket_t xi_socket_nonblocking,
-    const char* host,
-    uint16_t port );
+xi_bsp_io_net_state_t
+xi_bsp_io_net_connection_check( xi_bsp_socket_t xi_socket_nonblocking,
+                                const char* host,
+                                uint16_t port );
 
 /**
  * @function
@@ -318,9 +319,9 @@ xi_bsp_io_net_state_t xi_bsp_io_net_write( xi_bsp_socket_t xi_socket_nonblocking
  * - XI_BSP_IO_NET_STATE_ERROR - error occurred during the read operation
  */
 xi_bsp_io_net_state_t xi_bsp_io_net_read( xi_bsp_socket_t xi_socket_nonblocking,
-                                           int* out_read_count,
-                                           uint8_t* buf,
-                                           size_t count );
+                                          int* out_read_count,
+                                          uint8_t* buf,
+                                          size_t count );
 
 /**
  * @function
@@ -333,8 +334,8 @@ xi_bsp_io_net_state_t xi_bsp_io_net_read( xi_bsp_socket_t xi_socket_nonblocking,
  * - XI_BSP_IO_NET_STATE_OK - if socket closed successfully
  * - XI_BSP_IO_NET_STATE_ERROR - otherwise
  */
-xi_bsp_io_net_state_t xi_bsp_io_net_close_socket(
-    xi_bsp_socket_t* xi_socket_nonblocking );
+xi_bsp_io_net_state_t
+xi_bsp_io_net_close_socket( xi_bsp_socket_t* xi_socket_nonblocking );
 
 #ifdef __cplusplus
 }
