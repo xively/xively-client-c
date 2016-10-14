@@ -1,5 +1,8 @@
-/* Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.
- * This is part of Xively C library. */
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #ifndef __XI_MQTT_LOGIC_LAYER_SUBSCRIBE_COMMAND_H__
 #define __XI_MQTT_LOGIC_LAYER_SUBSCRIBE_COMMAND_H__
@@ -112,7 +115,7 @@ do_mqtt_subscribe( void* ctx, void* data, xi_state_t state, void* msg )
             cancel_task_timeout( task, context );
         }
 
-        if( XI_STATE_RESEND == state )
+        if ( XI_STATE_RESEND == state )
         {
             xi_debug_format( "[m.id[%d]]subscribe resend", task->msg_id );
         }

@@ -1,5 +1,8 @@
-/* Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.
- * This is part of Xively C library. */
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #ifndef __XI_MQTT_LOGIC_LAYER_CONNECT_COMMAND_H__
 #define __XI_MQTT_LOGIC_LAYER_CONNECT_COMMAND_H__
@@ -162,8 +165,8 @@ do_mqtt_connect( void* ctx /* should be the context of the logic layer */
             }
 
             /* now the layer is fully connected to the server */
-            XI_CONTEXT_DATA( context )
-                ->connection_data->connection_state = XI_CONNECTION_STATE_OPENED;
+            XI_CONTEXT_DATA( context )->connection_data->connection_state =
+                XI_CONNECTION_STATE_OPENED;
 
             /* inform the next layer about a state change */
             XI_PROCESS_CONNECT_ON_NEXT_LAYER( context, data, state );

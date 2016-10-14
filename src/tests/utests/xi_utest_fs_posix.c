@@ -1,6 +1,8 @@
-
-/* Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.
- * This is part of Xively C library. */
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #include "tinytest.h"
 #include "tinytest_macros.h"
@@ -164,17 +166,16 @@ XI_TT_TESTCASE_WITH_SETUP( utest__xi_fs_stat_posix__valid_data__stat_returned,
                            end:;
                            } )
 
-XI_TT_TESTCASE( utest__xi_fs_stat_posix__valid_data__file_does_not_exist,
-                {
-                    xi_fs_stat_t resource_stat = xi_fs_init_stat();
-                    xi_state_t res             = xi_fs_stat( NULL, XI_FS_CERTIFICATE,
-                                                 xi_utest_fs_posix_not_existing_file_name,
-                                                 &resource_stat );
+XI_TT_TESTCASE( utest__xi_fs_stat_posix__valid_data__file_does_not_exist, {
+    xi_fs_stat_t resource_stat = xi_fs_init_stat();
+    xi_state_t res =
+        xi_fs_stat( NULL, XI_FS_CERTIFICATE, xi_utest_fs_posix_not_existing_file_name,
+                    &resource_stat );
 
-                    tt_int_op( XI_FS_RESOURCE_NOT_AVAILABLE, ==, res );
-                    tt_int_op( xi_is_whole_memory_deallocated(), >, 0 );
-                end:;
-                } )
+    tt_int_op( XI_FS_RESOURCE_NOT_AVAILABLE, ==, res );
+    tt_int_op( xi_is_whole_memory_deallocated(), >, 0 );
+end:;
+} )
 
 XI_TT_TESTCASE_WITH_SETUP( utest__xi_fs_posix__valid_data__open_success,
                            utest__xi_fs_posix__setup_small,
@@ -243,9 +244,9 @@ XI_TT_TESTCASE_WITH_SETUP(
         res = xi_fs_open( NULL, XI_FS_CERTIFICATE, xi_utest_fs_posix_existing_file_name,
                           XI_FS_OPEN_READ, &resource_handle );
 
-        uint8_t* accumulator  = NULL;
-        size_t bytes_read     = 0u;
-        int memcmp_res        = 0;
+        uint8_t* accumulator = NULL;
+        size_t bytes_read    = 0u;
+        int memcmp_res       = 0;
 
         XI_ALLOC_BUFFER_AT( uint8_t, accumulator, xi_utest_fs_posix_file_test_size_big,
                             res );

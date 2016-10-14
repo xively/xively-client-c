@@ -1,3 +1,9 @@
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
+
 #include "xi_utest_basic_testcase_frame.h"
 #include "xively.h"
 #include "tinytest_macros.h"
@@ -25,5 +31,5 @@ int xi_utest_teardown_basic( const struct testcase_t* testcase, void* fixture )
 
     xi_memory_limiter_teardown();
 
-    return 1; //OK
+    return 1; // OK
 }

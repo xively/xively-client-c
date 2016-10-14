@@ -1,4 +1,8 @@
-// Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #ifndef XI_ITEST_HELPERS_H
 #define XI_ITEST_HELPERS_H
@@ -14,7 +18,7 @@
 #include <xi_macros.h>
 #include <xively.h>
 #include <xi_types.h>
-#include <cmocka.h>  // IAR EWARM limitation: comocka.h must come after all headers that may reference stdlib.h
+#include <cmocka.h> // IAR EWARM limitation: comocka.h must come after all headers that may reference stdlib.h
 
 
 struct CMGroupTest
@@ -26,14 +30,14 @@ struct CMGroupTest
     CMFixtureFunction group_teardown;
 };
 
-#define cmocka_test_group( group )                                             \
-    {                                                                          \
-        group, #group, XI_ARRAYSIZE( group ), NULL, NULL                       \
+#define cmocka_test_group( group )                                                       \
+    {                                                                                    \
+        group, #group, XI_ARRAYSIZE( group ), NULL, NULL                                 \
     }
 
-#define cmocka_test_group_end                                                  \
-    {                                                                          \
-        NULL, NULL, 0, NULL, NULL                                              \
+#define cmocka_test_group_end                                                            \
+    {                                                                                    \
+        NULL, NULL, 0, NULL, NULL                                                        \
     }
 
 /**
@@ -71,16 +75,15 @@ typedef struct xi_mock_cmp_s
  * of layers and contexts
  * will make the code to be reusable and easily extendable
  */
-typedef void( test_state_fun_t )( void* context, void* data,
-                                  xi_state_t in_out_state );
+typedef void( test_state_fun_t )( void* context, void* data, xi_state_t in_out_state );
 
 /**
  * macro for safe evaluation of test state function
  */
-#define test_state_evaluate( fun, context, data, in_out_state )                    \
-    if ( ( fun ) )                                                             \
-    {                                                                          \
-        ( *( fun ) )( context, data, in_out_state );                               \
+#define test_state_evaluate( fun, context, data, in_out_state )                          \
+    if ( ( fun ) )                                                                       \
+    {                                                                                    \
+        ( *( fun ) )( context, data, in_out_state );                                     \
     }
 
 /**
@@ -108,8 +111,7 @@ extern void xi_itest_ptr_cmp( xi_mock_cmp_t* cmp );
  * @param layer_id
  * @return
  */
-extern xi_layer_t* xi_itest_find_layer( xi_context_t* xi_context,
-                                        int layer_id );
+extern xi_layer_t* xi_itest_find_layer( xi_context_t* xi_context, int layer_id );
 
 /**
  * @brief xi_itest_inject_wraps
@@ -120,8 +122,10 @@ extern xi_layer_t* xi_itest_find_layer( xi_context_t* xi_context,
  * do not change that pointer.
  *
  */
-extern void xi_itest_inject_wraps( xi_context_t* xi_context, int layer_id,
-                                   xi_layer_func_t* push, xi_layer_func_t* pull,
+extern void xi_itest_inject_wraps( xi_context_t* xi_context,
+                                   int layer_id,
+                                   xi_layer_func_t* push,
+                                   xi_layer_func_t* pull,
                                    xi_layer_func_t* close,
                                    xi_layer_func_t* close_externally,
                                    xi_layer_func_t* init,
@@ -139,9 +143,10 @@ extern void xi_itest_inject_wraps( xi_context_t* xi_context, int layer_id,
  * @param layer_chain_size
  * @return
  */
-extern xi_state_t xi_create_context_with_custom_layers(
-    xi_context_t** context, xi_layer_type_t layer_config[],
-    xi_layer_type_id_t layer_chain[], size_t layer_chain_size );
+extern xi_state_t xi_create_context_with_custom_layers( xi_context_t** context,
+                                                        xi_layer_type_t layer_config[],
+                                                        xi_layer_type_id_t layer_chain[],
+                                                        size_t layer_chain_size );
 
 /**
  * @brief xi_delete_context_with_custom_layers
@@ -153,10 +158,9 @@ extern xi_state_t xi_create_context_with_custom_layers(
  * @param layer_config
  * @return
  */
-extern xi_state_t
-xi_delete_context_with_custom_layers( xi_context_t** context,
-                                      xi_layer_type_t layer_config[],
-                                      size_t layer_chain_size );
+extern xi_state_t xi_delete_context_with_custom_layers( xi_context_t** context,
+                                                        xi_layer_type_t layer_config[],
+                                                        size_t layer_chain_size );
 
 /**
  * macros for extracting next, and prev layer user data - this will be replaced

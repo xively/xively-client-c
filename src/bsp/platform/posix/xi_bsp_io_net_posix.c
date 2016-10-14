@@ -1,5 +1,8 @@
 /* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
- * This is part of Xively C library. */
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #include <xi_bsp_io_net.h>
 
@@ -73,10 +76,9 @@ xi_bsp_io_net_connect( xi_bsp_socket_t* xi_socket, const char* host, uint16_t po
     return XI_BSP_IO_NET_STATE_ERROR;
 }
 
-xi_bsp_io_net_state_t xi_bsp_io_net_connection_check(
-    xi_bsp_socket_t xi_socket,
-    const char* host,
-    uint16_t port )
+xi_bsp_io_net_state_t xi_bsp_io_net_connection_check( xi_bsp_socket_t xi_socket,
+                                                      const char* host,
+                                                      uint16_t port )
 {
     ( void )host;
     ( void )port;

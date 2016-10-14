@@ -1,5 +1,8 @@
 /* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
- * This is part of Xively C library. */
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #include <xi_bsp_io_net.h>
 
@@ -45,21 +48,19 @@ extern "C" {
 
 xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
 {
-    (void)xi_socket;
+    ( void )xi_socket;
 
     /* no operation needed here for microchip */
 
     return XI_BSP_IO_NET_STATE_OK;
 }
 
-xi_bsp_io_net_state_t xi_bsp_io_net_connect( xi_bsp_socket_t* xi_socket,
-                                             const char* host,
-                                             uint16_t port )
+xi_bsp_io_net_state_t
+xi_bsp_io_net_connect( xi_bsp_socket_t* xi_socket, const char* host, uint16_t port )
 {
-    *xi_socket = TCPOpen( ( DWORD )( PTR_BASE )host,
-                          TCP_OPEN_ROM_HOST, /*, TCP_OPEN_RAM_HOST */
-                          port,
-                          TCP_PURPOSE_GENERIC_TCP_CLIENT ); /*, TCP_PURPOSE_DEFAULT ); */
+    *xi_socket =
+        TCPOpen( ( DWORD )( PTR_BASE )host, TCP_OPEN_ROM_HOST, /*, TCP_OPEN_RAM_HOST */
+                 port, TCP_PURPOSE_GENERIC_TCP_CLIENT ); /*, TCP_PURPOSE_DEFAULT ); */
 
     if ( INVALID_SOCKET == *xi_socket )
     {

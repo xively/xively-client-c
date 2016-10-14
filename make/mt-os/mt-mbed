@@ -1,5 +1,10 @@
+# Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
 #
-# DDB, NOTE: this was copied from the previous Makefile configuration's mbed make target.  I'm not sure how this works
+# This is part of the Xively C Client library,
+# it is licensed under the BSD 3-Clause license.
+
+#
+# NOTE: this was copied from the previous Makefile configuration's mbed make target.  I'm not sure how this works
 # nor how I should really be testing it so I'm putting it here for now. This could be useful if we have new customers that use
 # mbed as a platform.
 

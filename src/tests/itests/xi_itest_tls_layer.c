@@ -1,4 +1,8 @@
-// Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #include "xi_globals.h"
 #include "xi_itest_helpers.h"
@@ -159,7 +163,7 @@ void xi_itest_tls_layer__bad_handshake_response__graceful_closure( void** fixtur
 
     expect_value( xi_mock_layer_tls_prev_pull, in_out_state, XI_STATE_OK );
 
-#ifdef TLSLIB_MBEDTLS
+#ifdef XI_TLS_LIB_MBEDTLS
     /* here a possible mbedTLS bug is handled. mbedTLS ends up in an infinite
        alert sending loop. Here a manual exit is implemented to make this test
        case valuable for mbedTSL as well. */

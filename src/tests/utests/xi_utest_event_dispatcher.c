@@ -1,5 +1,8 @@
-// Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.
-// This is part of Xively C library.
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,25 +29,25 @@ xi_state_t continuation( void )
 
 xi_state_t continuation1( xi_event_handle_arg1_t a )
 {
-    *((uint32_t *) a) = 127;
+    *( ( uint32_t* )a ) = 127;
     return 0;
 }
 
 xi_state_t continuation1_1( xi_event_handle_arg1_t a )
 {
-    *((uint32_t *) a) += 1;
+    *( ( uint32_t* )a ) += 1;
     return 0;
 }
 
 xi_state_t continuation1_3( xi_event_handle_arg1_t a )
 {
-    *((uint32_t *) a) += 3;
+    *( ( uint32_t* )a ) += 3;
     return 0;
 }
 
 xi_state_t continuation1_5( xi_event_handle_arg1_t a )
 {
-    *((uint32_t *) a) += 5;
+    *( ( uint32_t* )a ) += 5;
     return 0;
 }
 
@@ -53,9 +56,9 @@ static xi_event_handle_t evtd_handle_g;
 
 xi_state_t proc_loop( xi_event_handle_arg1_t a )
 {
-    *((uint32_t *) a) -= 1;
+    *( ( uint32_t* )a ) -= 1;
 
-    if( *((uint32_t *) a) > 0 )
+    if ( *( ( uint32_t* )a ) > 0 )
     {
         xi_evtd_execute_in( evtd_g_i, evtd_handle_g, 1 );
     }
@@ -70,16 +73,16 @@ xi_state_t proc_loop( xi_event_handle_arg1_t a )
 XI_TT_TESTGROUP_BEGIN( utest_event_dispatcher )
 
 #ifdef XI_MODULE_THREAD_ENABLED
-    #include "xi_utest_platform_dispatcher.h"
+#include "xi_utest_platform_dispatcher.h"
 #endif
 
-XI_TT_TESTCASE( utest__continuation0,
-{
+XI_TT_TESTCASE( utest__continuation0, {
 
-    xi_evtd_instance_t* evtd_i  = xi_evtd_create_instance();
+    xi_evtd_instance_t* evtd_i = xi_evtd_create_instance();
 
     {
-        xi_event_handle_t evtd_handle = { XI_EVENT_HANDLE_ARGC0, .handlers.h0 = { &continuation } };
+        xi_event_handle_t evtd_handle = {XI_EVENT_HANDLE_ARGC0,
+                                         .handlers.h0 = {&continuation}};
         xi_evtd_execute_handle( &evtd_handle );
     }
 
@@ -87,17 +90,17 @@ XI_TT_TESTCASE( utest__continuation0,
 
 end:
     xi_evtd_destroy_instance( evtd_i );
-})
+} )
 
-XI_TT_TESTCASE( utest__continuation1,
-{
-    xi_evtd_instance_t* evtd_i  = xi_evtd_create_instance();
+XI_TT_TESTCASE( utest__continuation1, {
+    xi_evtd_instance_t* evtd_i = xi_evtd_create_instance();
 
     uint32_t counter = 0;
 
     {
-        xi_event_handle_t evtd_handle = { XI_EVENT_HANDLE_ARGC1
-          , .handlers.h1 = { &continuation1, (xi_event_handle_arg1_t)&counter } };
+        xi_event_handle_t evtd_handle = {
+            XI_EVENT_HANDLE_ARGC1,
+            .handlers.h1 = {&continuation1, ( xi_event_handle_arg1_t )&counter}};
         xi_evtd_execute_handle( &evtd_handle );
     }
 
@@ -105,23 +108,22 @@ XI_TT_TESTCASE( utest__continuation1,
 
 end:
     xi_evtd_destroy_instance( evtd_i );
-})
+} )
 
-XI_TT_TESTCASE( utest__handler_processing_loop,
-{
-    evtd_g_i  = xi_evtd_create_instance();
+XI_TT_TESTCASE( utest__handler_processing_loop, {
+    evtd_g_i = xi_evtd_create_instance();
 
-    uint32_t counter    = 10;
-    xi_time_t step      = 0;
+    uint32_t counter = 10;
+    xi_time_t step   = 0;
 
 
-    evtd_handle_g.handle_type           = XI_EVENT_HANDLE_ARGC1;
-    evtd_handle_g.handlers.h1.fn_argc1  = &proc_loop;
-    evtd_handle_g.handlers.h1.a1        = (xi_event_handle_arg1_t)&counter;
+    evtd_handle_g.handle_type          = XI_EVENT_HANDLE_ARGC1;
+    evtd_handle_g.handlers.h1.fn_argc1 = &proc_loop;
+    evtd_handle_g.handlers.h1.a1       = ( xi_event_handle_arg1_t )&counter;
 
     xi_evtd_execute_in( evtd_g_i, evtd_handle_g, 0 );
 
-    while( evtd_g_i->call_heap->first_free > 0 )
+    while ( evtd_g_i->call_heap->first_free > 0 )
     {
         xi_evtd_step( evtd_g_i, step );
         step += 1;
@@ -133,11 +135,10 @@ XI_TT_TESTCASE( utest__handler_processing_loop,
 
 end:
     xi_evtd_destroy_instance( evtd_g_i );
-})
+} )
 
-XI_TT_TESTCASE( utest__register_fd,
-{
-    evtd_g_i  = xi_evtd_create_instance();
+XI_TT_TESTCASE( utest__register_fd, {
+    evtd_g_i = xi_evtd_create_instance();
 
     xi_event_handle_t handle = xi_make_empty_handle();
 
@@ -175,17 +176,17 @@ XI_TT_TESTCASE( utest__register_fd,
 
 end:
     xi_evtd_destroy_instance( evtd_g_i );
-})
+} )
 
-XI_TT_TESTCASE( utest__evtd_updates,
-{
+XI_TT_TESTCASE( utest__evtd_updates, {
     uint32_t counter = 0;
 
-    evtd_g_i    = xi_evtd_create_instance();
+    evtd_g_i = xi_evtd_create_instance();
 
     {
-        xi_event_handle_t evtd_handle = { XI_EVENT_HANDLE_ARGC1
-          , .handlers.h1 = { &continuation1_1, (xi_event_handle_arg1_t)&counter } };
+        xi_event_handle_t evtd_handle = {
+            XI_EVENT_HANDLE_ARGC1,
+            .handlers.h1 = {&continuation1_1, ( xi_event_handle_arg1_t )&counter}};
 
         tt_assert( xi_evtd_register_socket_fd( evtd_g_i, 15, evtd_handle ) != 0 );
         tt_assert( xi_evtd_register_socket_fd( evtd_g_i, 14, evtd_handle ) != 0 );
@@ -193,8 +194,9 @@ XI_TT_TESTCASE( utest__evtd_updates,
     }
 
     {
-        xi_event_handle_t evtd_handle = { XI_EVENT_HANDLE_ARGC1
-          , .handlers.h1 = { &continuation1_1, (xi_event_handle_arg1_t)&counter } };
+        xi_event_handle_t evtd_handle = {
+            XI_EVENT_HANDLE_ARGC1,
+            .handlers.h1 = {&continuation1_1, ( xi_event_handle_arg1_t )&counter}};
         xi_evtd_continue_when_evt_on_socket( evtd_g_i, XI_EVENT_WANT_READ, evtd_handle,
                                              15 );
 
@@ -202,15 +204,16 @@ XI_TT_TESTCASE( utest__evtd_updates,
             ( xi_evtd_fd_tuple_t* )evtd_g_i->handles_and_socket_fd->array[0]
                 .selector_t.ptr_value;
 
-        tt_assert( tmp->event_type                      == XI_EVENT_WANT_READ );
-        tt_assert( tmp->handle.handle_type              == XI_EVENT_HANDLE_ARGC1 );
-        tt_assert( tmp->handle.handlers.h1.a1           == (xi_event_handle_arg1_t)&counter );
-        tt_assert( tmp->handle.handlers.h1.fn_argc1     == &continuation1_1 );
+        tt_assert( tmp->event_type == XI_EVENT_WANT_READ );
+        tt_assert( tmp->handle.handle_type == XI_EVENT_HANDLE_ARGC1 );
+        tt_assert( tmp->handle.handlers.h1.a1 == ( xi_event_handle_arg1_t )&counter );
+        tt_assert( tmp->handle.handlers.h1.fn_argc1 == &continuation1_1 );
     }
 
     {
-        xi_event_handle_t evtd_handle = { XI_EVENT_HANDLE_ARGC1
-          , .handlers.h1 = { &continuation1_3, (xi_event_handle_arg1_t)&counter } };
+        xi_event_handle_t evtd_handle = {
+            XI_EVENT_HANDLE_ARGC1,
+            .handlers.h1 = {&continuation1_3, ( xi_event_handle_arg1_t )&counter}};
         xi_evtd_continue_when_evt_on_socket( evtd_g_i, XI_EVENT_WANT_WRITE, evtd_handle,
                                              14 );
 
@@ -218,25 +221,26 @@ XI_TT_TESTCASE( utest__evtd_updates,
             ( xi_evtd_fd_tuple_t* )evtd_g_i->handles_and_socket_fd->array[1]
                 .selector_t.ptr_value;
 
-        tt_assert( tmp->event_type                      == XI_EVENT_WANT_WRITE );
-        tt_assert( tmp->handle.handle_type              == XI_EVENT_HANDLE_ARGC1 );
-        tt_assert( tmp->handle.handlers.h1.a1           == (xi_event_handle_arg1_t)&counter );
-        tt_assert( tmp->handle.handlers.h1.fn_argc1     == &continuation1_3 );
+        tt_assert( tmp->event_type == XI_EVENT_WANT_WRITE );
+        tt_assert( tmp->handle.handle_type == XI_EVENT_HANDLE_ARGC1 );
+        tt_assert( tmp->handle.handlers.h1.a1 == ( xi_event_handle_arg1_t )&counter );
+        tt_assert( tmp->handle.handlers.h1.fn_argc1 == &continuation1_3 );
     }
 
     {
-        xi_event_handle_t evtd_handle = { XI_EVENT_HANDLE_ARGC1
-          , .handlers.h1 = { &continuation1_5, (xi_event_handle_arg1_t)&counter } };
+        xi_event_handle_t evtd_handle = {
+            XI_EVENT_HANDLE_ARGC1,
+            .handlers.h1 = {&continuation1_5, ( xi_event_handle_arg1_t )&counter}};
         xi_evtd_continue_when_evt_on_socket( evtd_g_i, XI_EVENT_ERROR, evtd_handle, 12 );
 
         xi_evtd_fd_tuple_t* tmp =
             ( xi_evtd_fd_tuple_t* )evtd_g_i->handles_and_socket_fd->array[2]
                 .selector_t.ptr_value;
 
-        tt_assert( tmp->event_type                      == XI_EVENT_ERROR );
-        tt_assert( tmp->handle.handle_type              == XI_EVENT_HANDLE_ARGC1 );
-        tt_assert( tmp->handle.handlers.h1.a1           == (xi_event_handle_arg1_t)&counter );
-        tt_assert( tmp->handle.handlers.h1.fn_argc1     == &continuation1_5 );
+        tt_assert( tmp->event_type == XI_EVENT_ERROR );
+        tt_assert( tmp->handle.handle_type == XI_EVENT_HANDLE_ARGC1 );
+        tt_assert( tmp->handle.handlers.h1.a1 == ( xi_event_handle_arg1_t )&counter );
+        tt_assert( tmp->handle.handlers.h1.fn_argc1 == &continuation1_5 );
     }
 
 
@@ -247,8 +251,9 @@ XI_TT_TESTCASE( utest__evtd_updates,
     counter = 0;
 
     {
-        xi_event_handle_t evtd_handle = { XI_EVENT_HANDLE_ARGC1
-          , .handlers.h1 = { &continuation1_5, (xi_event_handle_arg1_t)&counter } };
+        xi_event_handle_t evtd_handle = {
+            XI_EVENT_HANDLE_ARGC1,
+            .handlers.h1 = {&continuation1_5, ( xi_event_handle_arg1_t )&counter}};
         xi_evtd_continue_when_evt_on_socket( evtd_g_i, XI_EVENT_ERROR, evtd_handle, 12 );
     }
 
@@ -260,13 +265,15 @@ XI_TT_TESTCASE( utest__evtd_updates,
     counter = 0;
 
     {
-        xi_event_handle_t evtd_handle = { XI_EVENT_HANDLE_ARGC1
-          , .handlers.h1 = { &continuation1_5, (xi_event_handle_arg1_t)&counter } };
+        xi_event_handle_t evtd_handle = {
+            XI_EVENT_HANDLE_ARGC1,
+            .handlers.h1 = {&continuation1_5, ( xi_event_handle_arg1_t )&counter}};
         xi_evtd_continue_when_evt_on_socket( evtd_g_i, XI_EVENT_ERROR, evtd_handle, 12 );
     }
     {
-        xi_event_handle_t evtd_handle = { XI_EVENT_HANDLE_ARGC1
-          , .handlers.h1 = { &continuation1_3, (xi_event_handle_arg1_t)&counter } };
+        xi_event_handle_t evtd_handle = {
+            XI_EVENT_HANDLE_ARGC1,
+            .handlers.h1 = {&continuation1_3, ( xi_event_handle_arg1_t )&counter}};
         xi_evtd_continue_when_evt_on_socket( evtd_g_i, XI_EVENT_WANT_WRITE, evtd_handle,
                                              14 );
     }
@@ -283,7 +290,7 @@ XI_TT_TESTCASE( utest__evtd_updates,
 
 end:
     xi_evtd_destroy_instance( evtd_g_i );
-})
+} )
 
 XI_TT_TESTGROUP_END
 

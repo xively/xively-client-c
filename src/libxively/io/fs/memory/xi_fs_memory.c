@@ -1,5 +1,8 @@
-/* Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.
- * This is part of Xively C library. */
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #include "xi_fs_header.h"
 #include "xi_fs_filename_defs.h"
@@ -24,8 +27,7 @@ typedef xi_state_t( xi_fs_memory_stat_t )( const xi_fs_resource_handle_t resourc
 /* local open handler function type defined per resource id */
 typedef xi_state_t( xi_fs_memory_open_t )( const xi_fs_resource_handle_t resource_id );
 
-typedef enum xi_fs_memory_resource_state_e
-{
+typedef enum xi_fs_memory_resource_state_e {
     XI_FS_MEMORY_RESOURCE_STATE_CLOSED = 0,
     XI_FS_MEMORY_RESOURCE_STATE_OPEN
 } xi_fs_memory_resource_state_t;

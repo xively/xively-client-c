@@ -1,5 +1,8 @@
-/* Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.
- * This is part of Xively C library. */
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #ifndef __XI_COROUTINE_H__
 #define __XI_COROUTINE_H__
@@ -7,6 +10,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/* This block of code below must not be clang-formatted */
+// clang-format off
 
 #define XI_CR_START( state )\
     switch( state )\
@@ -41,6 +47,8 @@ extern "C" {
 
 #define XI_CR_END()\
     };
+
+// clang-format on
 
 #define XI_CR_IS_RUNNING( state ) ( state > 2 )
 

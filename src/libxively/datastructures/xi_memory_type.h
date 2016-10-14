@@ -1,5 +1,8 @@
-/* Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.
- * This is part of Xively C library. */
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #ifndef __XI_MEMORY_TYPE_H__
 #define __XI_MEMORY_TYPE_H__
@@ -23,8 +26,7 @@ extern "C" {
  * XI_MEMORY_TYPE_UNMANAGED - buffer memory is not managed by the entity.
  * Therefore the buffer will not be freed whenever destroy is called.
  **/
-typedef enum
-{
+typedef enum {
     XI_MEMORY_TYPE_UNKNOWN,
     XI_MEMORY_TYPE_MANAGED,
     XI_MEMORY_TYPE_UNMANAGED

@@ -1,3 +1,8 @@
+# Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+#
+# This is part of the Xively C Client library,
+# it is licensed under the BSD 3-Clause license.
+
 # pick the proper configuration file for TLS library
 XI_TLS_LIB_CONFIG_FNAME ?= make/mt-config/mt-tls-$(XI_BSP_TLS).mk
 

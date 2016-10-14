@@ -1,5 +1,8 @@
-/* Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.
- * This is part of Xively C library. */
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #ifndef __XI_HANDLE_TYPEDEF_H__
 #define __XI_HANDLE_TYPEDEF_H__
@@ -18,8 +21,7 @@ XI_EVTD_GENERATE_EVENT_TYPE_ENUM(
 XI_EVTD_GENERATE_EVENT_HANDLE_TYPEDEFS(
     xi_state_t, void*, void*, xi_state_t, void*, void*, void* );
 
-typedef enum
-{
+typedef enum {
     XI_EVENT_HANDLE_UNSET = 0,
     XI_EVENT_HANDLE_ARGC0,
     XI_EVENT_HANDLE_ARGC1,
@@ -45,8 +47,7 @@ typedef struct xi_event_handle_s
          * int                     debug_time_last_call; */
     } debug_info;
 #endif
-    union
-    {
+    union {
         struct
         {
             /* function pointer with 0 arguments */

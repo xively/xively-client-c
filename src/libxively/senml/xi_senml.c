@@ -1,5 +1,8 @@
-/* Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.
- * This is part of Xively C library. */
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #include <stdio.h>
 
@@ -33,7 +36,7 @@ xi_state_t xi_senml_serialize( xi_senml_t* senml_structure,
     XI_CHECK_CND( buffer == NULL, XI_SERIALIZATION_ERROR, state );
 
     *out_buffer = buffer->data_ptr;
-    *out_size = buffer->length;
+    *out_size   = buffer->length;
 
     /* release memory */
     buffer->memory_type = XI_MEMORY_TYPE_UNMANAGED;
@@ -110,47 +113,47 @@ xi_state_t xi_create_senml_struct( xi_senml_t** senml_ptr, uint8_t count, ... )
     va_list ap;
     uint8_t i = 0;
 
-    va_start (ap, count);
+    va_start( ap, count );
 
     xi_senml_t senml_in;
     for ( i = 0; i < count; ++i )
     {
-        senml_in = va_arg (ap, xi_senml_t);
+        senml_in = va_arg( ap, xi_senml_t );
 
         if ( 1 == senml_in.set.base_name_set )
         {
             XI_CHECK_CND( NULL == senml_in.base_name, XI_INVALID_PARAMETER, state );
 
-            if ( 1 == (*senml_ptr)->set.base_name_set )
+            if ( 1 == ( *senml_ptr )->set.base_name_set )
             {
-                XI_SAFE_FREE( (*senml_ptr)->base_name );
+                XI_SAFE_FREE( ( *senml_ptr )->base_name );
             }
 
-            (*senml_ptr)->set.base_name_set = 1;
-            (*senml_ptr)->base_name = xi_str_dup( senml_in.base_name );
+            ( *senml_ptr )->set.base_name_set = 1;
+            ( *senml_ptr )->base_name         = xi_str_dup( senml_in.base_name );
         }
 
         if ( 1 == senml_in.set.base_units_set )
         {
             XI_CHECK_CND( NULL == senml_in.base_units, XI_INVALID_PARAMETER, state );
 
-            if ( 1 == (*senml_ptr)->set.base_units_set )
+            if ( 1 == ( *senml_ptr )->set.base_units_set )
             {
-                XI_SAFE_FREE( (*senml_ptr)->base_units );
+                XI_SAFE_FREE( ( *senml_ptr )->base_units );
             }
 
-            (*senml_ptr)->set.base_units_set = 1;
-            (*senml_ptr)->base_units = xi_str_dup( senml_in.base_units );
+            ( *senml_ptr )->set.base_units_set = 1;
+            ( *senml_ptr )->base_units         = xi_str_dup( senml_in.base_units );
         }
 
         if ( 1 == senml_in.set.base_time_set )
         {
-            (*senml_ptr)->set.base_time_set = 1;
-            (*senml_ptr)->base_time = senml_in.base_time;
+            ( *senml_ptr )->set.base_time_set = 1;
+            ( *senml_ptr )->base_time         = senml_in.base_time;
         }
     }
 
-    va_end (ap);
+    va_end( ap );
 
 err_handling:
     return state;
@@ -186,14 +189,17 @@ void xi_debug_dump_senml_entry( const xi_senml_entry_t* entry, const char* prefi
         switch ( entry->value_cnt.value_type )
         {
             case XI_SENML_VALUE_TYPE_FLOAT:
-        xi_debug_printf( " float:       [%f]\n", entry->value_cnt.value.float_value );
-            break;
+                xi_debug_printf( " float:       [%f]\n",
+                                 entry->value_cnt.value.float_value );
+                break;
             case XI_SENML_VALUE_TYPE_STRING:
-        xi_debug_printf( " string:      [%s]\n", entry->value_cnt.value.string_value );
-            break;
+                xi_debug_printf( " string:      [%s]\n",
+                                 entry->value_cnt.value.string_value );
+                break;
             case XI_SENML_VALUE_TYPE_BOOLEAN:
-        xi_debug_printf( " boolean:     [%d]\n", entry->value_cnt.value.boolean_value );
-            break;
+                xi_debug_printf( " boolean:     [%d]\n",
+                                 entry->value_cnt.value.boolean_value );
+                break;
         }
     }
 }
@@ -207,12 +213,12 @@ xi_state_t xi_add_senml_entry( xi_senml_t* senml_ptr, uint8_t count, ... )
     va_list ap;
     uint8_t i = 0;
 
-    va_start (ap, count);
+    va_start( ap, count );
 
     xi_senml_entry_t entry_in;
     for ( ; i < count; ++i )
     {
-        entry_in = va_arg (ap, xi_senml_entry_t);
+        entry_in = va_arg( ap, xi_senml_entry_t );
 
         if ( 1 == entry_in.set.name_set )
         {
@@ -224,7 +230,7 @@ xi_state_t xi_add_senml_entry( xi_senml_t* senml_ptr, uint8_t count, ... )
             }
 
             entry->set.name_set = 1;
-            entry->name = xi_str_dup( entry_in.name );
+            entry->name         = xi_str_dup( entry_in.name );
         }
 
         if ( 1 == entry_in.set.units_set )
@@ -237,24 +243,24 @@ xi_state_t xi_add_senml_entry( xi_senml_t* senml_ptr, uint8_t count, ... )
             }
 
             entry->set.units_set = 1;
-            entry->units = xi_str_dup( entry_in.units );
+            entry->units         = xi_str_dup( entry_in.units );
         }
 
         if ( 1 == entry_in.set.value_set )
         {
             if ( 1 == entry->set.value_set &&
-                 XI_SENML_VALUE_TYPE_STRING == entry->value_cnt.value_type  )
+                 XI_SENML_VALUE_TYPE_STRING == entry->value_cnt.value_type )
             {
                 XI_SAFE_FREE( entry->value_cnt.value.string_value );
             }
 
             entry->set.value_set = 1;
-            entry->value_cnt = entry_in.value_cnt;
+            entry->value_cnt     = entry_in.value_cnt;
 
             if ( XI_SENML_VALUE_TYPE_STRING == entry_in.value_cnt.value_type )
             {
                 XI_CHECK_CND( NULL == entry_in.value_cnt.value.string_value,
-                    XI_INVALID_PARAMETER, state );
+                              XI_INVALID_PARAMETER, state );
 
                 entry->value_cnt.value.string_value =
                     xi_str_dup( entry_in.value_cnt.value.string_value );
@@ -264,22 +270,23 @@ xi_state_t xi_add_senml_entry( xi_senml_t* senml_ptr, uint8_t count, ... )
         if ( 1 == entry_in.set.time_set )
         {
             entry->set.time_set = 1;
-            entry->time = entry_in.time;
+            entry->time         = entry_in.time;
         }
 
         if ( 1 == entry_in.set.update_time_set )
         {
             entry->set.update_time_set = 1;
-            entry->update_time = entry_in.update_time;
+            entry->update_time         = entry_in.update_time;
         }
 
-        //xi_debug_dump_senml_entry( &entry_in, "--- --- --- --- --- --- ---\n--- entry_in:\n" );
-        //xi_debug_dump_senml_entry( entry, "--- entry_sum:\n" );
+        // xi_debug_dump_senml_entry( &entry_in, "--- --- --- --- --- --- ---\n---
+        // entry_in:\n" );
+        // xi_debug_dump_senml_entry( entry, "--- entry_sum:\n" );
     }
 
     XI_LIST_PUSH_BACK( xi_senml_entry_t, senml_ptr->entries_list, entry );
 
-    va_end (ap);
+    va_end( ap );
 
 err_handling:
     return state;

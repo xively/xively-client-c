@@ -1,3 +1,9 @@
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
+
 #include "stack_allocator_debug.h"
 
 void stack_debug_entry_visitor( const list_t* const list,

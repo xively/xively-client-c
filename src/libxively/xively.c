@@ -1,5 +1,8 @@
-/* Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.
- * This is part of Xively C library. */
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #include <string.h>
 #include <stdio.h>
@@ -37,8 +40,10 @@
 #include "xi_user_sub_call_wrapper.h"
 
 #ifdef XI_BSP
-#include "xi_bsp_rng.h"
+#include <xi_bsp_time.h>
+#include <xi_bsp_rng.h>
 #else
+#define xi_bsp_time_init()
 #define xi_bsp_rng_init()
 #define xi_bsp_rng_shutdown()
 #endif
@@ -143,6 +148,7 @@ xi_state_t xi_initialize( const char* account_id,
                           const char* device_unique_id,
                           const char* device_credentials_file_absolute_path )
 {
+    xi_bsp_time_init();
     xi_bsp_rng_init();
 
     if ( NULL != xi_globals.str_account_id || NULL != xi_globals.str_device_unique_id )
@@ -212,9 +218,8 @@ xi_state_t xi_create_context_with_custom_layers_and_evtd(
         xi_globals.evtd_instance = xi_evtd_create_instance();
 
         XI_CHECK_STATE( xi_backoff_configure_using_data(
-            ( xi_vector_elem_t* )XI_BACKOFF_LUT,
-            ( xi_vector_elem_t* )XI_DECAY_LUT, XI_ARRAYSIZE( XI_BACKOFF_LUT ),
-            XI_MEMORY_TYPE_UNMANAGED ) );
+            ( xi_vector_elem_t* )XI_BACKOFF_LUT, ( xi_vector_elem_t* )XI_DECAY_LUT,
+            XI_ARRAYSIZE( XI_BACKOFF_LUT ), XI_MEMORY_TYPE_UNMANAGED ) );
 
         XI_CHECK_MEMORY( xi_globals.evtd_instance, state );
 
@@ -409,8 +414,8 @@ xi_state_t xi_delete_context( xi_context_handle_t context_handle )
 }
 
 void xi_default_client_callback( xi_context_handle_t in_context_handle,
-                                       void* data,
-                                       xi_state_t state )
+                                 void* data,
+                                 xi_state_t state )
 {
     XI_UNUSED( in_context_handle );
     XI_UNUSED( data );
@@ -436,7 +441,6 @@ xi_state_t xi_user_callback_wrapper( void* context,
 err_handling:
     return state;
 }
-
 
 
 void xi_events_stop()
@@ -511,19 +515,15 @@ xi_state_t xi_connect_with_lastwill_to_impl( xi_context_handle_t xih,
     if ( NULL != xi->context_data.connection_data )
     {
         XI_CHECK_STATE( local_state = xi_connection_data_update_lastwill(
-                            xi->context_data.connection_data,
-                            host, port,
-                            username, password,
-                            connection_timeout, keepalive_timeout, session_type,
+                            xi->context_data.connection_data, host, port, username,
+                            password, connection_timeout, keepalive_timeout, session_type,
                             will_topic, will_message, will_qos, will_retain ) );
     }
     else
     {
         xi->context_data.connection_data = xi_alloc_connection_data_lastwill(
-            host, port,
-            username, password,
-            connection_timeout, keepalive_timeout, session_type, will_topic, will_message,
-            will_qos, will_retain );
+            host, port, username, password, connection_timeout, keepalive_timeout,
+            session_type, will_topic, will_message, will_qos, will_retain );
 
         XI_CHECK_MEMORY( xi->context_data.connection_data, state );
     }
@@ -565,17 +565,11 @@ xi_state_t xi_connect( xi_context_handle_t xih,
                        xi_user_callback_t* client_callback )
 {
     return xi_connect_with_lastwill_to_impl(
-        xih,
-        XI_MQTT_HOST_ACCESSOR.name,
-        XI_MQTT_HOST_ACCESSOR.port,
-        username, password,
-        connection_timeout,
-        keepalive_timeout,
-        session_type,
-        NULL,   /* will_topic */
-        NULL,   /* will_message */
-        0,      /* will_qos */
-        0,      /* will_retain */
+        xih, XI_MQTT_HOST_ACCESSOR.name, XI_MQTT_HOST_ACCESSOR.port, username, password,
+        connection_timeout, keepalive_timeout, session_type, NULL, /* will_topic */
+        NULL,                                                      /* will_message */
+        0,                                                         /* will_qos */
+        0,                                                         /* will_retain */
         client_callback );
 }
 
@@ -589,18 +583,13 @@ xi_state_t xi_connect_to( xi_context_handle_t xih,
                           xi_session_type_t session_type,
                           xi_user_callback_t* client_callback )
 {
-    return xi_connect_with_lastwill_to_impl(
-        xih,
-        host, port,
-        username, password,
-        connection_timeout,
-        keepalive_timeout,
-        session_type,
-        NULL,   /* will_topic */
-        NULL,   /* will_message */
-        0,      /* will_qos */
-        0,      /* will_retain */
-        client_callback );
+    return xi_connect_with_lastwill_to_impl( xih, host, port, username, password,
+                                             connection_timeout, keepalive_timeout,
+                                             session_type, NULL, /* will_topic */
+                                             NULL,               /* will_message */
+                                             0,                  /* will_qos */
+                                             0,                  /* will_retain */
+                                             client_callback );
 }
 
 xi_state_t xi_connect_with_lastwill( xi_context_handle_t xih,
@@ -628,19 +617,9 @@ xi_state_t xi_connect_with_lastwill( xi_context_handle_t xih,
     }
 
     return xi_connect_with_lastwill_to_impl(
-        xih,
-        XI_MQTT_HOST_ACCESSOR.name,
-        XI_MQTT_HOST_ACCESSOR.port,
-        username,
-        password,
-        connection_timeout,
-        keepalive_timeout,
-        session_type,
-        will_topic,
-        will_message,
-        will_qos,
-        will_retain,
-        client_callback );
+        xih, XI_MQTT_HOST_ACCESSOR.name, XI_MQTT_HOST_ACCESSOR.port, username, password,
+        connection_timeout, keepalive_timeout, session_type, will_topic, will_message,
+        will_qos, will_retain, client_callback );
 }
 
 xi_state_t xi_connect_with_lastwill_to( xi_context_handle_t xih,
@@ -670,17 +649,8 @@ xi_state_t xi_connect_with_lastwill_to( xi_context_handle_t xih,
     }
 
     return xi_connect_with_lastwill_to_impl(
-        xih,
-        host, port,
-        username, password,
-        connection_timeout,
-        keepalive_timeout,
-        session_type,
-        will_topic,
-        will_message,
-        will_qos,
-        will_retain,
-        client_callback );
+        xih, host, port, username, password, connection_timeout, keepalive_timeout,
+        session_type, will_topic, will_message, will_qos, will_retain, client_callback );
 }
 
 xi_state_t xi_publish_data_impl( xi_context_handle_t xih,

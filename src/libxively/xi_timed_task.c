@@ -1,17 +1,15 @@
-/* Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.
- * This is part of Xively C library. */
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #include "xi_timed_task.h"
 #include "xi_handle.h"
 
 #define XI_MAX_TIMED_EVENT 64
 
-typedef enum
-{
-    XI_TTS_SCHEDULED,
-    XI_TTS_RUNNING,
-    XI_TTS_DELETABLE
-} xi_timed_task_state_e;
+typedef enum { XI_TTS_SCHEDULED, XI_TTS_RUNNING, XI_TTS_DELETABLE } xi_timed_task_state_e;
 
 typedef struct xi_timed_task_data_s
 {

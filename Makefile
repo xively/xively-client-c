@@ -1,3 +1,8 @@
+# Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+#
+# This is part of the Xively C Client library,
+# it is licensed under the BSD 3-Clause license.
+
 LIBXIVELY := $(shell pwd)
 
 export LIBXIVELY
@@ -215,20 +220,6 @@ wmsdk_examples: libxively
 	export "XI_COMPILER_FLAGS=$(XI_COMPILER_FLAGS)"; \
 	$(MAKE) -s -C $(LIBXIVELY)/src/examples/wmsdk/ all;
 
-ci_msp430:
-	$(MAKE) -C src clean
-	$(MAKE) -C src libxively \
-		CC=msp430-elf-gcc AR=msp430-elf-ar \
-		XI_DEBUG_ASSERT=0 XI_DEBUG_OUTPUT=0 \
-		XI_IO_LAYER=dummy XI_PLATFORM="EVENT_LOOP=1"
-
-ci_avr:
-	$(MAKE) -C src clean
-	$(MAKE) -C src libxively \
-		CC=avr-gcc AR=avr-ar \
-		XI_DEBUG_ASSERT=0 XI_DEBUG_OUTPUT=0 \
-		XI_IO_LAYER=dummy XI_PLATFORM="EVENT_LOOP=1"
-
 update_docs_branch:
 	-rm -rf doc/html
 	doxygen && cd doc/html \
@@ -247,7 +238,7 @@ ca.pem:
 			-outform pem
 
 update_builtin_cert: ca.pem
-	./create_buffer.py \
+	./tools/create_buffer.py \
 		--file_name ./ca.pem \
 		--array_name xi_ca \
 		--out_path ./src/libxively/tls/ \
