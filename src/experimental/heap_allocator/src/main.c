@@ -1,3 +1,9 @@
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -20,7 +26,8 @@ void print_stats( stack_allocator_t* allocator )
     stack_allocator_statistics_t stack_allocator_statistics_free =
         empty_stack_allocator_statistic;
 
-    stack_debug_entry_visitor( &allocator->allocated_blocks, stack_debug_statistic_gatherer,
+    stack_debug_entry_visitor( &allocator->allocated_blocks,
+                               stack_debug_statistic_gatherer,
                                &stack_allocator_statistics_busy );
     debug_log( "%s", "Statistics for allocated blocks of memory:" );
     stack_debug_print_statistics( &stack_allocator_statistics_busy );

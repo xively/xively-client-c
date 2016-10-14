@@ -1,3 +1,7 @@
+# Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+#
+# This is part of the Xively C Client library,
+# it is licensed under the BSD 3-Clause license.
 
 XI_EXAMPLE_DIR = $(LIBXIVELY)/src/examples
 XI_EXAMPLE_OBJDIR = $(XI_OBJDIR)/examples
@@ -10,9 +14,5 @@ ifdef XI_TLS_BSP
 endif
 
 XI_INTERNAL_EXAMPLES = $(addprefix $(XI_EXAMPLE_BINDIR)/,$(XI_EXAMPLE_SOURCES:.c=))
-
-ifneq ($(XI_IO_LAYER), posix)
-    $(warning "Examples currently are only for POSIX I/O layer")
-endif
 
 XI_EXAMPLE_INCLUDE_FLAGS := $(foreach d, $(LIBXIVELY_INTERFACE_INCLUDE_DIRS), -I$d)

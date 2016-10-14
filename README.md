@@ -1,4 +1,12 @@
 # Xively C Client
+___
+##### Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+
+This is part of the Xively C Client library, it is licensed under the BSD 3-Clause license. 
+
+For more information please read our License.md file located in the base directory of the [Xively C Client repository](https://github.com/xively/xively-client-c).
+
+
 
 ## What is the Xively C Client?
 

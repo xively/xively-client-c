@@ -1,6 +1,8 @@
-/* Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.
-   This file contains code from MINIX C library, which is under MINIX license
-   Copyright (c) 1987, 1997, 2006, Vrije Universiteit, Amsterdam, The Netherlands */
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #include <string.h>
 
@@ -38,7 +40,7 @@ char* xi_str_dup( const char* s )
     assert( s != 0 );
 
     const size_t len = strlen( s );
-    char* ret = xi_alloc( len + 1 );
+    char* ret        = xi_alloc( len + 1 );
     if ( ret == 0 )
     {
         return 0;
@@ -54,7 +56,7 @@ char* xi_str_cat( const char* s1, const char* s2 )
 
     size_t len1 = strlen( s1 );
     size_t len2 = strlen( s2 );
-    char* ret = xi_alloc( len1 + len2 + 1 );
+    char* ret   = xi_alloc( len1 + len2 + 1 );
     if ( ret == 0 )
     {
         return 0;
@@ -170,7 +172,7 @@ uint32_t xi_highest_bit_filter( uint32_t value )
 void get_stack_trace()
 {
     int j, nptrs;
-    #define SIZE 100
+#define SIZE 100
     void *buffer[100];
     char **strings;
 

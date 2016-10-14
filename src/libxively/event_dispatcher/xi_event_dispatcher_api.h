@@ -1,5 +1,8 @@
-/* Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.
- * This is part of Xively C library. */
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #ifndef __XI_EVENT_DISPATCHER_API_H__
 #define __XI_EVENT_DISPATCHER_API_H__
@@ -27,8 +30,7 @@ typedef intptr_t xi_fd_t;
 struct xi_heap_s;
 struct xi_heap_element_s;
 
-typedef enum xi_evtd_fd_type_e
-{
+typedef enum xi_evtd_fd_type_e {
     XI_EVTD_FD_TYPE_SOCKET = 0,
     XI_EVTD_FD_TYPE_FILE
 } xi_evtd_fd_type_t;

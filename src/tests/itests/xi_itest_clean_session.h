@@ -1,4 +1,8 @@
-// Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #ifndef XI_ITEST_CLEAN_SESSION_H
 #define XI_ITEST_CLEAN_SESSION_H
@@ -23,16 +27,19 @@ xi_itest_test_valid_flow__handlers_should_be_prereserved_across_initialization_d
 struct CMUnitTest xi_itests_clean_session[] = {
     cmocka_unit_test_setup_teardown(
         xi_itest_test_valid_flow__handlers_vector_should_be_empty__init_with_clean_session,
-        xi_itest_clean_session_setup, xi_itest_clean_session_teardown ),
+        xi_itest_clean_session_setup,
+        xi_itest_clean_session_teardown ),
     cmocka_unit_test_setup_teardown(
         xi_itest_test_valid_flow__handlers_vector_should_be_empty__init_with_continue_session,
-        xi_itest_clean_session_setup, xi_itest_clean_session_teardown ),
-    cmocka_unit_test_setup_teardown(
-        xi_itest_test_valid_flow__handlers_should_be_copied,
-        xi_itest_clean_session_setup, xi_itest_clean_session_teardown ),
+        xi_itest_clean_session_setup,
+        xi_itest_clean_session_teardown ),
+    cmocka_unit_test_setup_teardown( xi_itest_test_valid_flow__handlers_should_be_copied,
+                                     xi_itest_clean_session_setup,
+                                     xi_itest_clean_session_teardown ),
     cmocka_unit_test_setup_teardown(
         xi_itest_test_valid_flow__handlers_should_be_prereserved_across_initialization_deinitinialization,
-        xi_itest_clean_session_setup, xi_itest_clean_session_teardown )};
+        xi_itest_clean_session_setup,
+        xi_itest_clean_session_teardown )};
 #endif
 
 #endif // XI_ITEST_CLEAN_SESSION_H

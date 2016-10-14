@@ -1,5 +1,8 @@
-/*  Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
-    This is part of Xively C library. */
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #include <xively.h>
 #include <xi_helpers.h>
@@ -265,7 +268,7 @@ xi_tls_bsp_status_t xi_tls_bsp_create_object( struct xi_tls_bsp_t* bsp,
     xi_tls_bsp_status_t result = XI_TLS_BSP_SUCCESS;
 
     CYASSL* cyasslobj = NULL;
-    cyasslobj = CyaSSL_new( context );
+    cyasslobj         = CyaSSL_new( context );
     if ( NULL == obj )
     {
         result = XI_TLS_BSP_FAILED_CREATE_OBJECT;

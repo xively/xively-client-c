@@ -1,5 +1,8 @@
-/* Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.
- * This is part of Xively C library. */
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #ifndef __XI_HEAP_H__
 #define __XI_HEAP_H__
@@ -24,8 +27,7 @@ typedef xi_event_handle_t xi_heap_value_type_t;
 
 typedef struct xi_heap_element_s
 {
-    union
-    {
+    union {
         xi_heap_value_type_t type_value;
         void* void_value;
     } heap_value;

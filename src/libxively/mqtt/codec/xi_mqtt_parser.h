@@ -1,5 +1,8 @@
-/* Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.
- * This is part of Xively C library. */
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #ifndef __XI_MQTT_PARSER_H__
 #define __XI_MQTT_PARSER_H__
@@ -16,8 +19,7 @@
 extern "C" {
 #endif
 
-typedef enum xi_mqtt_parser_rc_e
-{
+typedef enum xi_mqtt_parser_rc_e {
     XI_MQTT_PARSER_RC_ERROR,
     XI_MQTT_PARSER_RC_CONTINUE,
     XI_MQTT_PARSER_RC_INCOMPLETE,

@@ -23,40 +23,33 @@ typedef struct _XIUTESTENDIANESS XIUTESTENDIANESS;
 
 /* --- messages --- */
 
-struct  _XIUTESTENDIANESS
+struct _XIUTESTENDIANESS
 {
-  ProtobufCMessage base;
-  uint32_t test_value;
+    ProtobufCMessage base;
+    uint32_t test_value;
 };
-#define XI__UTEST__ENDIANESS__INIT \
- { PROTOBUF_C_MESSAGE_INIT (&xi__utest__endianess__descriptor) \
-    , 0 }
+#define XI__UTEST__ENDIANESS__INIT                                                       \
+    {                                                                                    \
+        PROTOBUF_C_MESSAGE_INIT( &xi__utest__endianess__descriptor )                     \
+        , 0                                                                              \
+    }
 
 
 /* XIUTESTENDIANESS methods */
-void   xi__utest__endianess__init
-                     (XIUTESTENDIANESS         *message);
-size_t xi__utest__endianess__get_packed_size
-                     (const XIUTESTENDIANESS   *message);
-size_t xi__utest__endianess__pack
-                     (const XIUTESTENDIANESS   *message,
-                      uint8_t             *out);
-size_t xi__utest__endianess__pack_to_buffer
-                     (const XIUTESTENDIANESS   *message,
-                      ProtobufCBuffer     *buffer);
-XIUTESTENDIANESS *
-       xi__utest__endianess__unpack
-                     (ProtobufCAllocator  *allocator,
-                      size_t               len,
-                      const uint8_t       *data);
-void   xi__utest__endianess__free_unpacked
-                     (XIUTESTENDIANESS *message,
-                      ProtobufCAllocator *allocator);
+void xi__utest__endianess__init( XIUTESTENDIANESS* message );
+size_t xi__utest__endianess__get_packed_size( const XIUTESTENDIANESS* message );
+size_t xi__utest__endianess__pack( const XIUTESTENDIANESS* message, uint8_t* out );
+size_t xi__utest__endianess__pack_to_buffer( const XIUTESTENDIANESS* message,
+                                             ProtobufCBuffer* buffer );
+XIUTESTENDIANESS* xi__utest__endianess__unpack( ProtobufCAllocator* allocator,
+                                                size_t len,
+                                                const uint8_t* data );
+void xi__utest__endianess__free_unpacked( XIUTESTENDIANESS* message,
+                                          ProtobufCAllocator* allocator );
 /* --- per-message closures --- */
 
-typedef void (*XIUTESTENDIANESS_Closure)
-                 (const XIUTESTENDIANESS *message,
-                  void *closure_data);
+typedef void ( *XIUTESTENDIANESS_Closure )( const XIUTESTENDIANESS* message,
+                                            void* closure_data );
 
 /* --- services --- */
 
@@ -68,4 +61,4 @@ extern const ProtobufCMessageDescriptor xi__utest__endianess__descriptor;
 PROTOBUF_C__END_DECLS
 
 
-#endif  /* PROTOBUF_C_xi_5futest_5fprotobuf_5fendianess_2eproto__INCLUDED */
+#endif /* PROTOBUF_C_xi_5futest_5fprotobuf_5fendianess_2eproto__INCLUDED */

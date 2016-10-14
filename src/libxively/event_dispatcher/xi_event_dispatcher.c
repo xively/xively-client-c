@@ -1,5 +1,8 @@
-/* Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.
- * This is part of Xively C library. */
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #include <inttypes.h>
 
@@ -34,7 +37,8 @@ static int8_t xi_evtd_register_fd( xi_evtd_instance_t* instance,
     /* PRECONDITIONS */
     assert( NULL != container );
     assert( NULL != instance );
-    assert( xi_vector_find( container, XI_VEC_CONST_VALUE_PARAM( XI_VEC_VALUE_IPTR( fd ) ),
+    assert( xi_vector_find( container,
+                            XI_VEC_CONST_VALUE_PARAM( XI_VEC_VALUE_IPTR( fd ) ),
                             &xi_evtd_cmp_fd ) == -1 );
 
     XI_UNUSED( instance );
@@ -46,11 +50,11 @@ static int8_t xi_evtd_register_fd( xi_evtd_instance_t* instance,
     /* add an entry with the proper event for file descriptor */
     XI_ALLOC( xi_evtd_fd_tuple_t, tuple, state );
 
-    tuple->fd           = fd;
-    tuple->event_type   = event_type;
-    tuple->read_handle  = read_handle;
-    tuple->handle       = current_handle;
-    tuple->fd_type      = fd_type;
+    tuple->fd          = fd;
+    tuple->event_type  = event_type;
+    tuple->read_handle = read_handle;
+    tuple->handle      = current_handle;
+    tuple->fd_type     = fd_type;
 
     /* register within the handles */
     {
@@ -564,7 +568,8 @@ uint8_t xi_evtd_update_file_fd_events( xi_evtd_instance_t* const event_dispatche
     return was_there_an_event;
 }
 
-xi_state_t xi_evtd_get_time_of_earliest_event( xi_evtd_instance_t* instance, xi_time_t* out_timeout )
+xi_state_t
+xi_evtd_get_time_of_earliest_event( xi_evtd_instance_t* instance, xi_time_t* out_timeout )
 {
     assert( NULL != instance );
     assert( NULL != out_timeout );
@@ -574,15 +579,14 @@ xi_state_t xi_evtd_get_time_of_earliest_event( xi_evtd_instance_t* instance, xi_
 
     xi_lock_critical_section( instance->cs );
 
-    if( 1 != xi_heap_is_empty( instance->call_heap ) )
+    if ( 1 != xi_heap_is_empty( instance->call_heap ) )
     {
         xi_heap_element_t* elem = xi_heap_peek_top( instance->call_heap );
-        *out_timeout = elem->key;
-        ret_state = XI_STATE_OK;
+        *out_timeout            = elem->key;
+        ret_state               = XI_STATE_OK;
     }
 
     xi_unlock_critical_section( instance->cs );
 
     return ret_state;
 }
-

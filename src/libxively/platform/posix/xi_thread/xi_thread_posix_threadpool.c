@@ -1,5 +1,8 @@
-/* Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.
- * This is part of Xively C library. */
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #include "xi_thread_threadpool.h"
 #include <xi_thread_posix_workerthread.h>
@@ -23,8 +26,9 @@ xi_threadpool_t* xi_threadpool_create_instance( uint8_t num_of_threads )
 
     int8_t result = xi_vector_reserve( threadpool->workerthreads, num_of_threads );
 
-    XI_CHECK_CND_DBGMESSAGE( result == 0, XI_OUT_OF_MEMORY, state,
-                             "could not reserve enough space in vector for workerthreads" );
+    XI_CHECK_CND_DBGMESSAGE(
+        result == 0, XI_OUT_OF_MEMORY, state,
+        "could not reserve enough space in vector for workerthreads" );
 
     uint8_t counter_workerthread = 0;
     for ( ; counter_workerthread < num_of_threads; ++counter_workerthread )

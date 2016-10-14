@@ -1,5 +1,8 @@
-/* Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.
- * This is part of Xively C library. */
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #include "tinytest.h"
 #include "tinytest_macros.h"
@@ -25,35 +28,32 @@
 XI_TT_TESTGROUP_BEGIN( utest_fs_memory )
 
 #ifndef XI_DEBUG_NO_TLS
-XI_TT_TESTCASE( utest__xi_fs_memory_stat__valid_data__stat_returned,
-                {
-                    xi_fs_stat_t stat = xi_fs_init_stat();
-                    xi_state_t ret = xi_fs_stat( NULL, XI_FS_CERTIFICATE,
-                                                 XI_GLOBAL_CERTIFICATE_FILE_NAME, &stat );
+XI_TT_TESTCASE( utest__xi_fs_memory_stat__valid_data__stat_returned, {
+    xi_fs_stat_t stat = xi_fs_init_stat();
+    xi_state_t ret =
+        xi_fs_stat( NULL, XI_FS_CERTIFICATE, XI_GLOBAL_CERTIFICATE_FILE_NAME, &stat );
 
-                    tt_int_op( ret, ==, XI_STATE_OK );
-                    tt_int_op( stat.resource_size, ==, sizeof( xi_RootCA_list ) );
+    tt_int_op( ret, ==, XI_STATE_OK );
+    tt_int_op( stat.resource_size, ==, sizeof( xi_RootCA_list ) );
 
-                end:;
-                } )
+end:;
+} )
 #endif
 
 #ifndef XI_DEBUG_NO_TLS
-XI_TT_TESTCASE( utest__xi_fs_memory_stat__invalid_stat__invalid_parameter_returned,
-                {
-                    xi_state_t ret = xi_fs_stat( NULL, XI_FS_CERTIFICATE,
-                                                 XI_GLOBAL_CERTIFICATE_FILE_NAME, NULL );
+XI_TT_TESTCASE( utest__xi_fs_memory_stat__invalid_stat__invalid_parameter_returned, {
+    xi_state_t ret =
+        xi_fs_stat( NULL, XI_FS_CERTIFICATE, XI_GLOBAL_CERTIFICATE_FILE_NAME, NULL );
 
-                    tt_int_op( ret, ==, XI_INVALID_PARAMETER );
-                end:;
-                } )
+    tt_int_op( ret, ==, XI_INVALID_PARAMETER );
+end:;
+} )
 #endif
 
 
 #ifndef XI_DEBUG_NO_TLS
 XI_TT_TESTCASE(
-    utest__xi_fs_memory_open__valid_parameters__valid_resource_handle_returned,
-    {
+    utest__xi_fs_memory_open__valid_parameters__valid_resource_handle_returned, {
         xi_fs_resource_handle_t resource_handle = xi_fs_init_resource_handle();
 
         xi_state_t ret =
@@ -89,10 +89,9 @@ XI_TT_TESTCASE(
         tt_ptr_op( xi_RootCA_list, ==, buffer );
         tt_int_op( XI_MIN( sizeof( xi_RootCA_list ), xi_fs_buffer_size ), ==,
                    buffer_size );
-        tt_int_op(
-            memcmp( xi_RootCA_list, buffer,
-                    XI_MIN( sizeof( xi_RootCA_list ), xi_fs_buffer_size ) ),
-            ==, 0 );
+        tt_int_op( memcmp( xi_RootCA_list, buffer,
+                           XI_MIN( sizeof( xi_RootCA_list ), xi_fs_buffer_size ) ),
+                   ==, 0 );
 
     end:
         xi_fs_close( NULL, resource_handle );
@@ -106,7 +105,7 @@ XI_TT_TESTCASE(
         xi_fs_resource_handle_t resource_handle = xi_fs_init_resource_handle();
 
         const uint8_t* buffer = NULL;
-        const size_t offset = sizeof( xi_RootCA_list ) / 2;
+        const size_t offset   = sizeof( xi_RootCA_list ) / 2;
         const size_t size_left =
             XI_MIN( sizeof( xi_RootCA_list ) - offset, xi_fs_buffer_size );
         size_t buffer_size = 0;
@@ -157,27 +156,24 @@ XI_TT_TESTCASE(
 #endif
 
 #ifndef XI_DEBUG_NO_TLS
-XI_TT_TESTCASE( utest__xi_fs_memory_read__invalid_buffer__invalid_parameter_returned,
-                {
-                    xi_fs_resource_handle_t resource_handle =
-                        xi_fs_init_resource_handle();
+XI_TT_TESTCASE( utest__xi_fs_memory_read__invalid_buffer__invalid_parameter_returned, {
+    xi_fs_resource_handle_t resource_handle = xi_fs_init_resource_handle();
 
-                    size_t buffer_size = 0;
+    size_t buffer_size = 0;
 
-                    xi_state_t ret = xi_fs_open( NULL, XI_FS_CERTIFICATE,
-                                                 XI_GLOBAL_CERTIFICATE_FILE_NAME,
-                                                 XI_FS_OPEN_READ, &resource_handle );
+    xi_state_t ret = xi_fs_open( NULL, XI_FS_CERTIFICATE, XI_GLOBAL_CERTIFICATE_FILE_NAME,
+                                 XI_FS_OPEN_READ, &resource_handle );
 
-                    tt_int_op( ret, ==, XI_STATE_OK );
+    tt_int_op( ret, ==, XI_STATE_OK );
 
-                    ret = xi_fs_read( NULL, resource_handle, 0, NULL, &buffer_size );
+    ret = xi_fs_read( NULL, resource_handle, 0, NULL, &buffer_size );
 
-                    tt_int_op( ret, ==, XI_INVALID_PARAMETER );
-                    tt_int_op( 0, ==, buffer_size );
+    tt_int_op( ret, ==, XI_INVALID_PARAMETER );
+    tt_int_op( 0, ==, buffer_size );
 
-                end:
-                    xi_fs_close( NULL, resource_handle );
-                } )
+end:
+    xi_fs_close( NULL, resource_handle );
+} )
 #endif
 
 #ifndef XI_DEBUG_NO_TLS
@@ -204,91 +200,82 @@ XI_TT_TESTCASE( utest__xi_fs_memory_read__invalid_buffer_size__invalid_parameter
                 } )
 #endif
 
-XI_TT_TESTCASE( utest__xi_fs_memory_write__correct_parameters,
-                {
-                    xi_fs_resource_handle_t resource_handle =
-                        xi_fs_init_resource_handle();
-                    uint8_t buffer[1024] = {'a'};
-                    size_t buffer_size   = 1024;
-                    size_t bytes_written = 0;
+XI_TT_TESTCASE( utest__xi_fs_memory_write__correct_parameters, {
+    xi_fs_resource_handle_t resource_handle = xi_fs_init_resource_handle();
+    uint8_t buffer[1024]                    = {'a'};
+    size_t buffer_size                      = 1024;
+    size_t bytes_written                    = 0;
 
-                    xi_state_t ret = xi_fs_write( NULL, resource_handle, buffer,
-                                                  buffer_size, 0, &bytes_written );
+    xi_state_t ret =
+        xi_fs_write( NULL, resource_handle, buffer, buffer_size, 0, &bytes_written );
 
-                    tt_int_op( ret, ==, XI_FS_ERROR );
-                end:;
-                } )
+    tt_int_op( ret, ==, XI_FS_ERROR );
+end:;
+} )
 
 #ifndef XI_DEBUG_NO_TLS
-XI_TT_TESTCASE( utest__xi_fs_memory_close__valid_resource_handle,
-                {
-                    xi_fs_resource_handle_t resource_handle =
-                        xi_fs_init_resource_handle();
+XI_TT_TESTCASE( utest__xi_fs_memory_close__valid_resource_handle, {
+    xi_fs_resource_handle_t resource_handle = xi_fs_init_resource_handle();
 
-                    xi_state_t ret = xi_fs_open( NULL, XI_FS_CONFIG_DATA,
-                                                 XI_GLOBAL_CERTIFICATE_FILE_NAME,
-                                                 XI_FS_OPEN_READ, &resource_handle );
+    xi_state_t ret = xi_fs_open( NULL, XI_FS_CONFIG_DATA, XI_GLOBAL_CERTIFICATE_FILE_NAME,
+                                 XI_FS_OPEN_READ, &resource_handle );
 
-                    tt_int_op( ret, ==, XI_STATE_OK );
-                    tt_int_op( resource_handle, !=, XI_FS_INVALID_RESOURCE_HANDLE );
+    tt_int_op( ret, ==, XI_STATE_OK );
+    tt_int_op( resource_handle, !=, XI_FS_INVALID_RESOURCE_HANDLE );
 
-                    ret = xi_fs_close( NULL, resource_handle );
+    ret = xi_fs_close( NULL, resource_handle );
 
-                    tt_int_op( ret, ==, XI_STATE_OK );
-                end:;
-                } )
+    tt_int_op( ret, ==, XI_STATE_OK );
+end:;
+} )
 #endif
 
 #ifndef XI_DEBUG_NO_TLS
-XI_TT_TESTCASE(
-    utest__xi_fs_memory_open_twice_close_twice__valid_resource_handle,
-    {
-        xi_fs_resource_handle_t resource_handle1 = xi_fs_init_resource_handle();
+XI_TT_TESTCASE( utest__xi_fs_memory_open_twice_close_twice__valid_resource_handle, {
+    xi_fs_resource_handle_t resource_handle1 = xi_fs_init_resource_handle();
 
-        xi_state_t ret = XI_STATE_OK;
+    xi_state_t ret = XI_STATE_OK;
 
-        ret = xi_fs_open( NULL, XI_FS_CONFIG_DATA, XI_GLOBAL_CERTIFICATE_FILE_NAME,
-                          XI_FS_OPEN_READ, &resource_handle1 );
+    ret = xi_fs_open( NULL, XI_FS_CONFIG_DATA, XI_GLOBAL_CERTIFICATE_FILE_NAME,
+                      XI_FS_OPEN_READ, &resource_handle1 );
 
-        tt_int_op( ret, ==, XI_STATE_OK );
-        tt_int_op( resource_handle1, !=, XI_FS_INVALID_RESOURCE_HANDLE );
+    tt_int_op( ret, ==, XI_STATE_OK );
+    tt_int_op( resource_handle1, !=, XI_FS_INVALID_RESOURCE_HANDLE );
 
-        xi_fs_resource_handle_t resource_handle2 = xi_fs_init_resource_handle();
+    xi_fs_resource_handle_t resource_handle2 = xi_fs_init_resource_handle();
 
-        ret = xi_fs_open( NULL, XI_FS_CONFIG_DATA, XI_GLOBAL_CERTIFICATE_FILE_NAME,
-                          XI_FS_OPEN_READ, &resource_handle2 );
+    ret = xi_fs_open( NULL, XI_FS_CONFIG_DATA, XI_GLOBAL_CERTIFICATE_FILE_NAME,
+                      XI_FS_OPEN_READ, &resource_handle2 );
 
-        tt_int_op( ret, ==, XI_STATE_OK );
-        tt_int_op( resource_handle2, !=, XI_FS_INVALID_RESOURCE_HANDLE );
+    tt_int_op( ret, ==, XI_STATE_OK );
+    tt_int_op( resource_handle2, !=, XI_FS_INVALID_RESOURCE_HANDLE );
 
-        ret = xi_fs_close( NULL, resource_handle1 );
+    ret = xi_fs_close( NULL, resource_handle1 );
 
-        tt_int_op( ret, ==, XI_STATE_OK );
+    tt_int_op( ret, ==, XI_STATE_OK );
 
-        ret = xi_fs_close( NULL, resource_handle2 );
+    ret = xi_fs_close( NULL, resource_handle2 );
 
-        tt_int_op( ret, ==, XI_STATE_OK );
-    end:;
-    } )
+    tt_int_op( ret, ==, XI_STATE_OK );
+end:;
+} )
 #endif
 
-XI_TT_TESTCASE( utest__xi_fs_memory_remove__incorrect_parameters,
-                {
-                    xi_state_t ret = xi_fs_remove( NULL, XI_FS_CONFIG_DATA, "test_name" );
+XI_TT_TESTCASE( utest__xi_fs_memory_remove__incorrect_parameters, {
+    xi_state_t ret = xi_fs_remove( NULL, XI_FS_CONFIG_DATA, "test_name" );
 
-                    tt_int_op( ret, ==, XI_FS_RESOURCE_NOT_AVAILABLE );
-                end:;
-                } )
+    tt_int_op( ret, ==, XI_FS_RESOURCE_NOT_AVAILABLE );
+end:;
+} )
 
 #ifndef XI_DEBUG_NO_TLS
-XI_TT_TESTCASE( utest__xi_fs_memory_remove__correct_parameters,
-                {
-                    xi_state_t ret = xi_fs_remove( NULL, XI_FS_CONFIG_DATA,
-                                                   XI_GLOBAL_CERTIFICATE_FILE_NAME );
+XI_TT_TESTCASE( utest__xi_fs_memory_remove__correct_parameters, {
+    xi_state_t ret =
+        xi_fs_remove( NULL, XI_FS_CONFIG_DATA, XI_GLOBAL_CERTIFICATE_FILE_NAME );
 
-                    tt_int_op( ret, ==, XI_FS_ERROR );
-                end:;
-                } )
+    tt_int_op( ret, ==, XI_FS_ERROR );
+end:;
+} )
 #endif
 
 XI_TT_TESTGROUP_END

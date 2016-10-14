@@ -1,5 +1,8 @@
-/* Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.
- * This is part of Xively C library. */
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #ifndef __XI_EVENT_DISPATCHER_MACROS_H__
 #define __XI_EVENT_DISPATCHER_MACROS_H__
@@ -23,8 +26,7 @@ extern "C" {
     +1 XI_EVTD_DECLARE_5_EV( e1, e2, e3, e4, e5 ), e5##_ID = 6, e6 = 1 << 6
 
 #define XI_EVTD_GENERATE_EVENT_TYPE_ENUM( count, ... )                                   \
-    typedef enum evts                                                                    \
-    {                                                                                    \
+    typedef enum evts {                                                                  \
         XI_EVTD_NO_EVENT    = 1 << 0,                                                    \
         XI_EVTD_NO_EVENT_ID = 0,                                                         \
         XI_EVTD_COUNT       = 1 XI_EVTD_DECLARE_##count##_EV( __VA_ARGS__ )              \

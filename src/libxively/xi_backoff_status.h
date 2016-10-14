@@ -1,5 +1,8 @@
-/* Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.
- * This is part of Xively C library. */
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #ifndef XI_BACKOFF_STATUS_H
 #define XI_BACKOFF_STATUS_H
@@ -13,8 +16,7 @@
 extern "C" {
 #endif
 
-typedef enum
-{
+typedef enum {
     XI_BACKOFF_CLASS_NONE = 0,
     XI_BACKOFF_CLASS_RECOVERABLE,
     XI_BACKOFF_CLASS_TERMINAL

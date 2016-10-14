@@ -1,8 +1,14 @@
-// Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.
-// This is part of Xively C library.
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #include "tinytest.h"
 #include "tinytest_macros.h"
+
+/* This block of code below must not be clang-formatted */
+// clang-format off
 
 /* Define a single bit for each test group. */
 #define XI_TT_CORE                              ( 1 )
@@ -28,14 +34,16 @@
 #define XI_TT_PUBLISH                           ( XI_TT_MQTT_CODEC_LAYER_DATA << 1 )
 #define XI_TT_FS                                ( XI_TT_PUBLISH << 1 )
 #define XI_TT_RESOURCE_MANAGER                  ( XI_TT_FS << 1 )
-#define XI_TT_IO_LAYER                          ( XI_TT_RESOURCE_MANAGER << 1 )
+
+// clang-format on
 
 /* If no test set is defined, run all tests */
 #ifndef XI_TT_TEST_SET
 #define XI_TT_TEST_SET ( ~0 )
 #endif
 
-#define XI_TT_TESTCASE_PREDECLARATION( testgroupname ) extern struct testcase_t testgroupname[]
+#define XI_TT_TESTCASE_PREDECLARATION( testgroupname )                                   \
+    extern struct testcase_t testgroupname[]
 
 // test groups
 XI_TT_TESTCASE_PREDECLARATION( utest_core );
@@ -96,178 +104,164 @@ XI_TT_TESTCASE_PREDECLARATION( utest_fs_dummy );
 XI_TT_TESTCASE_PREDECLARATION( utest_fs_posix );
 #endif
 
-#if ( XI_IO_LAYER == XI_IO_POSIX )
-#include "xi_utest_io_posix_layer.h"
-#endif
-
 #include "xi_test_utils.h"
 #include "xi_lamp_communication.h"
 
 /* Make an array of testgroups. This is mandatory. Unlike more
    heavy-duty testing frameworks, groups can't nest. */
 struct testgroup_t groups[] = {
-    /* Every group has a 'prefix', and an array of tests.  That's it. */
+/* Every group has a 'prefix', and an array of tests.  That's it. */
 
-    #if ( XI_TT_TEST_SET & XI_TT_CORE )
+#if ( XI_TT_TEST_SET & XI_TT_CORE )
     {"utest_core - ", utest_core},
-    #endif
+#endif
 
-    #if ( XI_TT_TEST_SET & XI_TT_CONNECT )
+#if ( XI_TT_TEST_SET & XI_TT_CONNECT )
     {"utest_connect - ", utest_connect},
-    #endif
+#endif
 
-    #if ( XI_TT_TEST_SET & XI_TT_DATASTRUCTURES )
+#if ( XI_TT_TEST_SET & XI_TT_DATASTRUCTURES )
     {"utest_datastructures - ", utest_datastructures},
-    {"utest_list - ", utest_list },
-    #endif
+    {"utest_list - ", utest_list},
+#endif
 
-    #if ( XI_TT_TEST_SET & XI_TT_EVENT_DISPATCHER )
+#if ( XI_TT_TEST_SET & XI_TT_EVENT_DISPATCHER )
     {"utest_event_dispatcher - ", utest_event_dispatcher},
-    #endif
+#endif
 
-    #if ( XI_TT_TEST_SET & XI_TT_EVENT_DISPATCHER_TIMED )
+#if ( XI_TT_TEST_SET & XI_TT_EVENT_DISPATCHER_TIMED )
     {"utest_event_dispatcher_timed - ", utest_event_dispatcher_timed},
-    #endif
+#endif
 
-    #if ( XI_TT_TEST_SET & XI_TT_IO_FILE )
+#if ( XI_TT_TEST_SET & XI_TT_IO_FILE )
     {"utest_io_file - ", utest_io_file},
-    #endif
+#endif
 
-    #if ( XI_TT_TEST_SET & XI_TT_DEVICE_CREDENTIALS )
+#if ( XI_TT_TEST_SET & XI_TT_DEVICE_CREDENTIALS )
     {"utest_device_credentials - ", utest_device_credentials},
-    #endif
+#endif
 
-    #if ( XI_TT_TEST_SET & XI_TT_DATA_DESC )
+#if ( XI_TT_TEST_SET & XI_TT_DATA_DESC )
     {"utest_data_desc - ", utest_data_desc},
-    #endif
+#endif
 
-    #if ( XI_TT_TEST_SET & XI_TT_BACKOFF )
+#if ( XI_TT_TEST_SET & XI_TT_BACKOFF )
     {"utest_backoff - ", utest_backoff},
-    #endif
+#endif
 
-    #if ( XI_TT_TEST_SET & XI_TT_MQTT_CTORS_DTORS )
+#if ( XI_TT_TEST_SET & XI_TT_MQTT_CTORS_DTORS )
     {"utest_mqtt_ctors_dtors - ", utest_mqtt_ctors_dtors},
-    #endif
+#endif
 
-    #if ( XI_TT_TEST_SET & XI_TT_MQTT_PARSER )
+#if ( XI_TT_TEST_SET & XI_TT_MQTT_PARSER )
     {"utest_mqtt_parser - ", utest_mqtt_parser},
-    #endif
+#endif
 
-    #if ( XI_TT_TEST_SET & XI_TT_MQTT_LOGIC_LAYER_SUBSCRIBE )
+#if ( XI_TT_TEST_SET & XI_TT_MQTT_LOGIC_LAYER_SUBSCRIBE )
     {"utest_mqtt_logic_layer_subscribe - ", utest_mqtt_logic_layer_subscribe},
-    #endif
+#endif
 
-    #if ( XI_TT_TEST_SET & XI_TT_PUBLISH )
+#if ( XI_TT_TEST_SET & XI_TT_PUBLISH )
     {"utest_publish - ", utest_publish},
-    #endif
+#endif
 
 #ifdef XI_CONTROL_TOPIC_ENABLED
-    #if ( XI_TT_TEST_SET & XI_TT_CONTROL_TOPIC )
+#if ( XI_TT_TEST_SET & XI_TT_CONTROL_TOPIC )
     {"utest_control_topic - ", utest_control_topic},
     {"utest_protobuf_endianess", utest_protobuf_endianess},
     {"utest_protobuf_engine", utest_protobuf_engine},
-    #endif
+#endif
 #endif
 
-    #if ( XI_TT_TEST_SET & XI_TT_MQTT_SERIALIZER )
+#if ( XI_TT_TEST_SET & XI_TT_MQTT_SERIALIZER )
     {"utest_mqtt_serializer - ", utest_mqtt_serializer},
-    #endif
+#endif
 
 #ifdef XI_MEMORY_LIMITER_ENABLED
-    #if ( XI_TT_TEST_SET & XI_TT_MEMORY_LIMITER )
+#if ( XI_TT_TEST_SET & XI_TT_MEMORY_LIMITER )
     {"utest_memory_limiter - ", utest_memory_limiter},
-    #endif
+#endif
 
 #endif
 
 #ifdef XI_SENML_ENABLED
-    #if ( XI_TT_TEST_SET & XI_TT_SENML )
+#if ( XI_TT_TEST_SET & XI_TT_SENML )
     {"utest_senml - ", utest_senml},
-    #endif
+#endif
 
-    #if ( XI_TT_TEST_SET & XI_TT_SENML_SERIALIZER )
+#if ( XI_TT_TEST_SET & XI_TT_SENML_SERIALIZER )
     {"utest_senml_serialization - ", utest_senml_serialization},
-    #endif
+#endif
 #endif
 
 #ifdef XI_MODULE_THREAD_ENABLED
-    #if ( XI_TT_TEST_SET & XI_TT_THREAD )
+#if ( XI_TT_TEST_SET & XI_TT_THREAD )
     {"utest_thread - ", utest_thread},
-    #endif
-
-    #if ( XI_TT_TEST_SET & XI_TT_THREAD_WORKERTHREAD )
-    {"utest_thread_workerthread - ", utest_thread_workerthread},
-    #endif
-
-    #if ( XI_TT_TEST_SET & XI_TT_THREAD_THREADPOOL )
-    {"utest_thread_threadpool - ", utest_thread_threadpool},
-    #endif
 #endif
 
-    #if ( XI_TT_TEST_SET & XI_TT_HELPERS )
+#if ( XI_TT_TEST_SET & XI_TT_THREAD_WORKERTHREAD )
+    {"utest_thread_workerthread - ", utest_thread_workerthread},
+#endif
+
+#if ( XI_TT_TEST_SET & XI_TT_THREAD_THREADPOOL )
+    {"utest_thread_threadpool - ", utest_thread_threadpool},
+#endif
+#endif
+
+#if ( XI_TT_TEST_SET & XI_TT_HELPERS )
     {"utest_helpers - ", utest_helpers},
     {"utest_helper_functions - ", utest_helper_functions},
-    #endif
+#endif
 
     {"utest_handle - ", utest_handle},
 
     {"utest_timed_task - ", utest_timed_task},
 
-    #if( XI_TT_TEST_SET & XI_TT_MQTT_CODEC_LAYER_DATA )
+#if ( XI_TT_TEST_SET & XI_TT_MQTT_CODEC_LAYER_DATA )
     {"utest_mqtt_codec_layer_data - ", utest_mqtt_codec_layer_data},
-    #endif
+#endif
 
-    #if( XI_TT_TEST_SET & XI_TT_FS )
-        { "utest_fs - ", utest_fs },
-        #ifdef XI_FS_DUMMY
-        {"utest_fs_dummy - ", utest_fs_dummy},
-        #endif
-        #ifdef XI_FS_MEMORY
-        {"utest_fs_memory - ", utest_fs_memory},
-        #endif
-        #ifdef XI_FS_POSIX
-        {"utest_fs_posix - ", utest_fs_posix},
-        #endif
-    #endif
+#if ( XI_TT_TEST_SET & XI_TT_FS )
+    {"utest_fs - ", utest_fs},
+#ifdef XI_FS_DUMMY
+    {"utest_fs_dummy - ", utest_fs_dummy},
+#endif
+#ifdef XI_FS_MEMORY
+    {"utest_fs_memory - ", utest_fs_memory},
+#endif
+#ifdef XI_FS_POSIX
+    {"utest_fs_posix - ", utest_fs_posix},
+#endif
+#endif
 
 #if ( XI_TT_TEST_SET & XI_TT_RESOURCE_MANAGER )
     {"utest_resource_manager - ", utest_resource_manager},
 #endif
 
-#if ( XI_IO_LAYER == XI_IO_POSIX )
-#if ( XI_TT_TEST_SET & XI_TT_IO_LAYER )
-    { "utest_io_posix_layer - ", utest_io_posix_layer },
-#endif
-#endif
-
-    { "utest_rng - ", utest_rng },
+    {"utest_rng - ", utest_rng},
 
     END_OF_GROUPS};
 
 
 #ifndef XI_EMBEDDED_TESTS
-int main( int argc, char const *argv[] )
+int main( int argc, char const* argv[] )
 #else
-int xi_utests_main( int argc, char const *argv[] )
+int xi_utests_main( int argc, char const* argv[] )
 #endif
 {
     xi_test_init( argc, argv );
 
     // report test start
-    xi_test_report_result(
-          xi_test_load_level ? "xi_utest_id_l1" : "xi_utest_id_l0"
-        , xi_test_load_level ? "xu1" : "xu"
-        , 1, 0 );
+    xi_test_report_result( xi_test_load_level ? "xi_utest_id_l1" : "xi_utest_id_l0",
+                           xi_test_load_level ? "xu1" : "xu", 1, 0 );
 
     // run all tests
     const int number_of_failures = tinytest_main( argc, argv, groups );
-    //printf( "tinttest_main return value = %i\n", number_of_failures );
+    // printf( "tinttest_main return value = %i\n", number_of_failures );
 
     // report test finish + result
-    xi_test_report_result(
-          xi_test_load_level ? "xi_utest_id_l1" : "xi_utest_id_l0"
-        , xi_test_load_level ? "xu1" : "xu"
-        , 0, number_of_failures );
+    xi_test_report_result( xi_test_load_level ? "xi_utest_id_l1" : "xi_utest_id_l0",
+                           xi_test_load_level ? "xu1" : "xu", 0, number_of_failures );
 
     return number_of_failures;
 }

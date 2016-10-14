@@ -1,5 +1,8 @@
-/* Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.
- * This is part of Xively C library. */
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #ifndef __XI_FS_API_H__
 #define __XI_FS_API_H__
@@ -20,8 +23,7 @@ typedef intptr_t xi_fs_resource_handle_t;
  * types were created in order to differenciate types based on their security
  * class
  */
-typedef enum
-{
+typedef enum {
     XI_FS_CERTIFICATE = 0,
     XI_FS_CREDENTIALS,
     XI_FS_CONFIG_DATA
@@ -30,8 +32,7 @@ typedef enum
 /**
  * @enum xi_fs_open_flags_t
  */
-typedef enum
-{
+typedef enum {
     XI_FS_OPEN_READ   = 1 << 0,
     XI_FS_OPEN_WRITE  = 1 << 1,
     XI_FS_OPEN_APPEND = 1 << 2,

@@ -1,3 +1,9 @@
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
+
 /**
  * This is proposal of the solution for bsp select implementation. It's mainly focused on
  * making the user side practicaly simple to use and it may impact the library side by
@@ -92,17 +98,14 @@ void xi_bsp_set_socket_can_read( xi_bsp_socket_descriptor_t* descriptor )
 
 void xi_bsp_set_socket_can_write( xi_bsp_socket_descriptor_t* descriptor )
 {
-
 }
 
 void xi_bsp_set_socket_error( xi_bsp_socket_descriptor_t* descriptor )
 {
-
 }
 
 void xi_bsp_set_socket_is_connected( xi_bsp_socket_descriptor_t* descriptor )
 {
-
 }
 
 /* BSP SELECT USER/PLATFORM IMPLEMENTATION SECTION */
@@ -169,7 +172,8 @@ xi_bsp_socket_status_update( xi_bsp_socket_descriptor_t* socket_descriptor_array
                                             XI_BSP_SELECT_SOCKET_EVENT_FLAG_READ ) )
             {
                 FD_SET( curr_descr->socket, &rfds );
-                max_fd_read = curr_descr->socket > max_fd_read ? curr_descr->socket : max_fd_read;
+                max_fd_read =
+                    curr_descr->socket > max_fd_read ? curr_descr->socket : max_fd_read;
             }
 
             /* This will be the new state we will enable to separate the case from
@@ -195,7 +199,8 @@ xi_bsp_socket_status_update( xi_bsp_socket_descriptor_t* socket_descriptor_array
     }
 
     /* depends on the units but probably we would like to use seconds or milliseconds */
-    tv.tv_sec  = timeout; /* so the timeout parameter might go here if decide for seconds */
+    tv.tv_sec =
+        timeout; /* so the timeout parameter might go here if decide for seconds */
     tv.tv_usec = 0;
 
     /* prepare invocation of POSIX select function */
@@ -220,8 +225,9 @@ xi_bsp_socket_status_update( xi_bsp_socket_descriptor_t* socket_descriptor_array
 
             if ( FD_ISSET( socket_descriptor_array[it_socket].socket, &wfds ) )
             {
-                if ( 1 == xi_bsp_isset_bitflag( curr_descr->in_out_socket_status_flags,
-                                                XI_BSP_SELECT_SOCKET_EVENT_FLAG_CONNECT ) )
+                if ( 1 ==
+                     xi_bsp_isset_bitflag( curr_descr->in_out_socket_status_flags,
+                                           XI_BSP_SELECT_SOCKET_EVENT_FLAG_CONNECT ) )
                 {
                     xi_bsp_unset_bitflag( &curr_descr->in_out_socket_status_flags,
                                           XI_BSP_SELECT_SOCKET_EVENT_FLAG_CONNECT );
@@ -258,10 +264,10 @@ xi_bsp_socket_status_update( xi_bsp_socket_descriptor_t* socket_descriptor_array
 /* MICROCHIP VERSION */
 /* This part of the file contains information about the example usage of the
  * xi_bsp_socket_select function on the USER side */
-xi_bsp_io_net_state_t
-xi_bsp_socket_status_update_microchip( xi_bsp_socket_descriptor_t* socket_descriptor_array,
-                                       size_t socket_descriptor_length,
-                                       xi_time_t timeout )
+xi_bsp_io_net_state_t xi_bsp_socket_status_update_microchip(
+    xi_bsp_socket_descriptor_t* socket_descriptor_array,
+    size_t socket_descriptor_length,
+    xi_time_t timeout )
 {
     /* BODY OF THE SOCKET SELECT */
     /* Iterate over given socket descriptors and fill the platform specific data with the
@@ -282,8 +288,9 @@ xi_bsp_socket_status_update_microchip( xi_bsp_socket_descriptor_t* socket_descri
             TCPFlush( curr_descr->socket );
             TCPTick();
 
-            curr_descr->in_out_socket_status_flags = xi_bsp_unset_bitflag(
-                curr_descr->in_out_socket_status_flags, XI_BSP_SELECT_SOCKET_EVENT_FLAG_CONNECT );
+            curr_descr->in_out_socket_status_flags =
+                xi_bsp_unset_bitflag( curr_descr->in_out_socket_status_flags,
+                                      XI_BSP_SELECT_SOCKET_EVENT_FLAG_CONNECT );
 
             TCPWasReset( curr_descr->socket );
 

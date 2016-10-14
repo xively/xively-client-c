@@ -1,5 +1,8 @@
-// Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
-// This is part of Xively C library.
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #ifndef __XI_USER_SUB_CALL_WRAPPER_H__
 #define __XI_USER_SUB_CALL_WRAPPER_H__
@@ -17,4 +20,3 @@ xi_state_t xi_user_sub_call_wrapper( void* context,
                                      void* task_data );
 
 #endif /* __XI_USER_SUB_CALL_WRAPPER_H__ */
-

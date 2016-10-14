@@ -1,5 +1,8 @@
 /* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
- * This is part of Xively C library. */
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #ifndef __XI_TLS_LAYER_STATE_H__
 #define __XI_TLS_LAYER_STATE_H__
@@ -15,8 +18,7 @@
 extern "C" {
 #endif
 
-typedef enum xi_tls_layer_data_write_state_e
-{
+typedef enum xi_tls_layer_data_write_state_e {
     XI_TLS_LAYER_DATA_NONE = 0,
     XI_TLS_LAYER_DATA_WRITING,
     XI_TLS_LAYER_DATA_WRITTEN,

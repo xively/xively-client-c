@@ -1,5 +1,8 @@
 /* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
- * This is part of Xively C library. */
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #include <xi_bsp_io_net.h>
 
@@ -23,8 +26,10 @@ typedef struct
     uint8_t NonblockingEnabled;
 } SlSockNonblocking_t;
 
-int sl_NetAppDnsGetHostByName( _i8* host,  size_t host_len,
-                               unsigned long* ip, int inet_family );
+int sl_NetAppDnsGetHostByName( _i8* host,
+                               size_t host_len,
+                               unsigned long* ip,
+                               int inet_family );
 int sl_SetSockOpt( intptr_t sock, int a, int b, SlSockNonblocking_t* flags, size_t len );
 
 #endif /* __XI_FAKE_SIMPLELINK_BSP_NET_IMPLEMENTATION__ */
@@ -56,9 +61,8 @@ xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
     return XI_BSP_IO_NET_STATE_OK;
 }
 
-xi_bsp_io_net_state_t xi_bsp_io_net_connect( xi_bsp_socket_t* xi_socket,
-                                             const char* host,
-                                             uint16_t port )
+xi_bsp_io_net_state_t
+xi_bsp_io_net_connect( xi_bsp_socket_t* xi_socket, const char* host, uint16_t port )
 {
     if ( NULL == xi_socket || NULL == host )
     {
@@ -67,19 +71,18 @@ xi_bsp_io_net_state_t xi_bsp_io_net_connect( xi_bsp_socket_t* xi_socket,
 
     unsigned long uiIP;
 
-    int errval = sl_NetAppDnsGetHostByName( ( _i8* )host, strlen( host ),
-                                            &uiIP, SL_AF_INET );
+    int errval =
+        sl_NetAppDnsGetHostByName( ( _i8* )host, strlen( host ), &uiIP, SL_AF_INET );
 
     if ( 0 != errval )
     {
         return XI_BSP_IO_NET_STATE_ERROR;
     }
 
-    struct sockaddr_in name = {
-        .sin_family = AF_INET, // SL_AF_INET
-        .sin_port = htons( port ),
-        .sin_addr = { htonl( uiIP ) },
-        .sin_zero = { 0 } };
+    struct sockaddr_in name = {.sin_family = AF_INET, // SL_AF_INET
+                               .sin_port   = htons( port ),
+                               .sin_addr   = {htonl( uiIP )},
+                               .sin_zero   = {0}};
 
     errval = connect( *xi_socket, ( struct sockaddr* )&name, sizeof( struct sockaddr ) );
 

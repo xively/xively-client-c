@@ -1,3 +1,7 @@
+# Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+#
+# This is part of the Xively C Client library,
+# it is licensed under the BSD 3-Clause license.
 
 include make/mt-os/mt-os-common
 
@@ -21,7 +25,6 @@ ifeq ($(XI_HOST_PLATFORM),Linux)
 	CC = $(XI_GCC_ARM_NONE_EABI_PATH)/bin/arm-none-eabi-gcc
 	AR = $(XI_GCC_ARM_NONE_EABI_PATH)/bin/arm-none-eabi-ar
 
-	XI_BUILD_PRECONDITIONS := $(CC)
 	XI_GCC_ARM_TOOLCHAIN_URL := https://launchpad.net/gcc-arm-embedded/5.0/5-2016-q2-update/+download/gcc-arm-none-eabi-5_4-2016q2-20160622-linux.tar.bz2
 
 	#export PATH=$PATH:$(XI_GCC_ARM_NONE_EABI_PATH)/bin
@@ -35,10 +38,11 @@ else ifeq ($(XI_HOST_PLATFORM),Darwin)
 	CC = $(XI_GCC_ARM_NONE_EABI_PATH)/bin/arm-none-eabi-gcc
 	AR = $(XI_GCC_ARM_NONE_EABI_PATH)/bin/arm-none-eabi-ar
 
-	XI_BUILD_PRECONDITIONS := $(CC)
 	XI_GCC_ARM_TOOLCHAIN_URL := https://launchpad.net/gcc-arm-embedded/5.0/5-2016-q2-update/+download/gcc-arm-none-eabi-5_4-2016q2-20160622-mac.tar.bz2
 
 endif
+
+XI_BUILD_PRECONDITIONS := $(CC)
 
 $(XI_GCC_ARM_NONE_EABI_DOWNLOAD_FILE):
 	@echo "XI ARM-GCC BUILD: downloading arm-gcc toolchain to file $(XI_GCC_ARM_NONE_EABI_DOWNLOAD_FILE)"

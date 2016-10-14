@@ -1,5 +1,8 @@
-/* Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.
- * This is part of Xively C library. */
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #ifndef __XI_LAYER_STATE_H__
 #define __XI_LAYER_STATE_H__
@@ -7,8 +10,7 @@
 /**
  * @brief describes the current state that the layer is in
  */
-typedef enum
-{
+typedef enum {
     XI_LAYER_STATE_NONE = 0,
     XI_LAYER_STATE_CONNECTING,
     XI_LAYER_STATE_CONNECTED,

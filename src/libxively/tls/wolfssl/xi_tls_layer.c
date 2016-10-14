@@ -1,5 +1,8 @@
 /* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
- * This is part of Xively C library. */
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #include "xi_macros.h"
 #include "xi_layer_api.h"
@@ -267,7 +270,8 @@ static xi_state_t connect_handler( void* context, void* data, xi_state_t in_out_
 #if XI_DEBUG_OUTPUT
             char errorString[80] = {'\0'};
             CyaSSL_ERR_error_string( cyastate, errorString );
-            xi_debug_format( "CyaSSL_connect failed reason [%d]: %s", cyastate, errorString );
+            xi_debug_format( "CyaSSL_connect failed reason [%d]: %s", cyastate,
+                             errorString );
 #endif
             in_out_state = XI_TLS_CONNECT_ERROR;
             goto err_handling;
@@ -417,7 +421,7 @@ static xi_state_t recv_handler( void* context, void* data, xi_state_t in_out_sta
         layer_data->decoded_buffer = data_desc;
         assert( layer_data->decoded_buffer - layer_data->decoded_buffer == 0 );
         layer_data->decoded_buffer->curr_pos = 0;
-        layer_data->decoded_buffer->length = 0;
+        layer_data->decoded_buffer->length   = 0;
         memset( layer_data->decoded_buffer->data_ptr, 0, XI_IO_BUFFER_SIZE );
     }
 
@@ -680,7 +684,7 @@ xi_state_t xi_tls_layer_init( void* context, void* data, xi_state_t in_out_state
 
 #ifndef NO_OCSP
     const int no_options = 0;
-    ret = CyaSSL_EnableOCSP( obj, no_options );
+    ret                  = CyaSSL_EnableOCSP( obj, no_options );
     if ( SSL_SUCCESS != ret )
     {
         xi_debug_format( "failed to enable OCSP support, reason: %d", ret );

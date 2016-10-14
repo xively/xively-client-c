@@ -1,5 +1,8 @@
 /* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
- * This is part of Xively C library. */
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #ifndef __XI_BSP_TIME_H__
 #define __XI_BSP_TIME_H__
@@ -21,6 +24,16 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/**
+ * @function
+ * @brief Initialization of BSP TIME module.
+ *
+ * This function should contain initialization code to fire up time functionality on a
+ * certain platform. For POSIX systems usually this remains an empty function. For
+ * microcontrollers NTP and time-step code may reside here.
+ */
+void xi_bsp_time_init();
 
 /**
  * @function

@@ -1,5 +1,8 @@
-/* Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.
- * This is part of Xively C library. */
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #ifndef __XI_MEMORY_LIMITER_H__
 #define __XI_MEMORY_LIMITER_H__
@@ -48,8 +51,7 @@ typedef struct xi_memory_limiter_entry_s
  * that unravel any currently running layer stacks when a application memory
  * exhaustion event occurs.
  */
-typedef enum
-{
+typedef enum {
     XI_MEMORY_LIMITER_ALLOCATION_TYPE_APPLICATION = 0,
     XI_MEMORY_LIMITER_ALLOCATION_TYPE_SYSTEM,
     XI_MEMORY_LIMITER_ALLOCATION_TYPE_COUNT
@@ -62,9 +64,10 @@ void* xi_memory_limiter_alloc( xi_memory_limiter_allocation_type_t limit_type,
                                size_t line );
 
 void* xi_memory_limiter_calloc( xi_memory_limiter_allocation_type_t limit_type,
-                               size_t num, size_t size_to_alloc,
-                               const char* file,
-                               size_t line );
+                                size_t num,
+                                size_t size_to_alloc,
+                                const char* file,
+                                size_t line );
 
 void* xi_memory_limiter_realloc( xi_memory_limiter_allocation_type_t limit_type,
                                  void* ptr,

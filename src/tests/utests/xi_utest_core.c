@@ -1,5 +1,8 @@
-// Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.
-// This is part of Xively C library.
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #include "tinytest.h"
 #include "tinytest_macros.h"
@@ -38,85 +41,96 @@ end:
 xi_state_t h2( xi_event_handle_arg1_t a1, xi_event_handle_arg2_t a2 )
 {
     tt_assert( a1 == 0 );
-    tt_assert( *((int*) a2) == 22 );
+    tt_assert( *( ( int* )a2 ) == 22 );
 end:
     return 0;
 }
 
-xi_state_t h3( xi_event_handle_arg1_t a1, xi_event_handle_arg2_t a2, xi_event_handle_arg3_t a3 )
+xi_state_t
+h3( xi_event_handle_arg1_t a1, xi_event_handle_arg2_t a2, xi_event_handle_arg3_t a3 )
 {
     tt_assert( a1 == 0 );
-    tt_assert( *((int*) a2) == 222 );
+    tt_assert( *( ( int* )a2 ) == 222 );
     tt_assert( a3 == 0 );
 end:
     return 0;
 }
 
-xi_state_t h4( xi_event_handle_arg1_t a1, xi_event_handle_arg2_t a2, xi_event_handle_arg3_t a3, xi_event_handle_arg4_t a4 )
+xi_state_t h4( xi_event_handle_arg1_t a1,
+               xi_event_handle_arg2_t a2,
+               xi_event_handle_arg3_t a3,
+               xi_event_handle_arg4_t a4 )
 {
     tt_assert( a1 == 0 );
-    tt_assert( *((int*) a2) == 2222 );
+    tt_assert( *( ( int* )a2 ) == 2222 );
     tt_assert( a3 == 0 );
-    tt_assert( *((int*) a4) == 4444 );
+    tt_assert( *( ( int* )a4 ) == 4444 );
 end:
     return 0;
 }
 
-xi_state_t h5( xi_event_handle_arg1_t a1, xi_event_handle_arg2_t a2, xi_event_handle_arg3_t a3, xi_event_handle_arg4_t a4, xi_event_handle_arg5_t a5 )
+xi_state_t h5( xi_event_handle_arg1_t a1,
+               xi_event_handle_arg2_t a2,
+               xi_event_handle_arg3_t a3,
+               xi_event_handle_arg4_t a4,
+               xi_event_handle_arg5_t a5 )
 {
     tt_assert( a1 == 0 );
-    tt_assert( *((int*) a2) == 22222 );
+    tt_assert( *( ( int* )a2 ) == 22222 );
     tt_assert( a3 == 0 );
-    tt_assert( *((int*) a4) == 44444 );
-    tt_assert( *((int*) a5) == 55555 );
+    tt_assert( *( ( int* )a4 ) == 44444 );
+    tt_assert( *( ( int* )a5 ) == 55555 );
 end:
     return 0;
 }
 
-xi_state_t h6( xi_event_handle_arg1_t a1, xi_event_handle_arg2_t a2, xi_event_handle_arg3_t a3, xi_event_handle_arg4_t a4, xi_event_handle_arg5_t a5, xi_event_handle_arg6_t a6 )
+xi_state_t h6( xi_event_handle_arg1_t a1,
+               xi_event_handle_arg2_t a2,
+               xi_event_handle_arg3_t a3,
+               xi_event_handle_arg4_t a4,
+               xi_event_handle_arg5_t a5,
+               xi_event_handle_arg6_t a6 )
 {
     tt_assert( a1 == 0 );
-    tt_assert( *((int*) a2) == 222222 );
+    tt_assert( *( ( int* )a2 ) == 222222 );
     tt_assert( a3 == 0 );
-    tt_assert( *((int*) a4) == 444444 );
-    tt_assert( *((int*) a5) == 555555 );
-    tt_assert( *((int*) a6) == 666666 );
+    tt_assert( *( ( int* )a4 ) == 444444 );
+    tt_assert( *( ( int* )a5 ) == 555555 );
+    tt_assert( *( ( int* )a6 ) == 666666 );
 end:
     return 0;
 }
 
 
-extern void xi_default_client_callback( xi_context_handle_t in_context_handle, void* data,
-                                    xi_state_t state );
+extern void xi_default_client_callback( xi_context_handle_t in_context_handle,
+                                        void* data,
+                                        xi_state_t state );
 #endif
 
 
 XI_TT_TESTGROUP_BEGIN( utest_core )
 
-XI_TT_TESTCASE( test_initialize_shutdown_free_up_all_memory,
-{
-    xi_initialize("test-acc", "test-dev", NULL);
+XI_TT_TESTCASE( test_initialize_shutdown_free_up_all_memory, {
+    xi_initialize( "test-acc", "test-dev", NULL );
     xi_shutdown();
 
-    xi_initialize("test-acc", "test-dev", "/foo/bar/baz.creds");
+    xi_initialize( "test-acc", "test-dev", "/foo/bar/baz.creds" );
     xi_shutdown();
 
     tt_want_int_op( xi_is_whole_memory_deallocated(), >, 0 );
-})
+} )
 
-XI_TT_TESTCASE_WITH_SETUP( test_create_and_delete_context, xi_utest_setup_basic, xi_utest_teardown_basic, NULL,
-{
-    xi_context_handle_t xi_context_handle = xi_create_context( );
-    tt_assert( xi_context_handle > XI_INVALID_CONTEXT_HANDLE );
+XI_TT_TESTCASE_WITH_SETUP(
+    test_create_and_delete_context, xi_utest_setup_basic, xi_utest_teardown_basic, NULL, {
+        xi_context_handle_t xi_context_handle = xi_create_context();
+        tt_assert( xi_context_handle > XI_INVALID_CONTEXT_HANDLE );
 
-    xi_delete_context( xi_context_handle );
+        xi_delete_context( xi_context_handle );
 
-end:
-;
-})
+    end:;
+    } )
 
-XI_TT_TESTCASE( test_make_handles,
-{
+XI_TT_TESTCASE( test_make_handles, {
     xi_event_handle_t eh;
 
     int val_a2                = 22;
@@ -167,31 +181,24 @@ XI_TT_TESTCASE( test_make_handles,
     tt_assert( eh.handle_type == XI_EVENT_HANDLE_ARGC6 );
     xi_evtd_execute_handle( &eh );
 
-end:
-    ;
-})
+end:;
+} )
 
-XI_TT_TESTCASE( test_version_major,
-{
+XI_TT_TESTCASE( test_version_major, {
     tt_assert( XI_MAJOR == xi_major );
     tt_assert( 0 != xi_major );
-end:
-;
-})
+end:;
+} )
 
-XI_TT_TESTCASE( test_version_minor,
-{
+XI_TT_TESTCASE( test_version_minor, {
     tt_assert( XI_MINOR == xi_minor );
-end:
-;
-})
+end:;
+} )
 
-XI_TT_TESTCASE( test_version_revision,
-{
+XI_TT_TESTCASE( test_version_revision, {
     tt_assert( XI_REVISION == xi_revision );
-end:
-;
-})
+end:;
+} )
 
 XI_TT_TESTGROUP_END
 
