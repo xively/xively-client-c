@@ -26,7 +26,7 @@ This method requires OSX development platform although Windows and Linux methods
 :exclamation: **Under construction notes**:
 
 - in file make/mt-os/mt-cc3200 set XI_CC3200_PATH_CCS_TOOLS and XI_CC3200_PATH_SDK variables according to your CCS and SDK install paths and revise the CC and AR variables pointing on compiler and archiver binaries
-- currently BSP TIME has unsolved issue around returning elapsed milliseconds since 01.01.1970. since it does not fit into 4 bytes return value. So please change function in file `xively-client-c/src/libxively/time/xi_time.c` to:
+- currently BSP TIME has unsolved issue around returning elapsed milliseconds from 01/01/1970 since it does not fit into 4 bytes return value. So please change function in file `xively-client-c/src/libxively/time/xi_time.c` to:
 
         xi_time_t xi_getcurrenttime_seconds()
         {
@@ -37,38 +37,32 @@ This method requires OSX development platform although Windows and Linux methods
 
 :exclamation:
 
-Executing the command
+- Windows:
 
-    make PRESET=CC3200_REL_MIN
+    Set paths for ```gmake``` and ```mkdir```
 
-will result in a TLS Xively C Client library suitable for CC3200.
+        PATH=%PATH%;c:\ti\ccsv6\utils\bin
+        PATH=%PATH%;c:\ti\ccsv6\utils\cygwin
 
-    make PRESET=CC3200_REL_MIN_UNSECURE
+    Build and clean the library:
 
-will result in Xively C Client library withouth TLS.
+        gmake PRESET=CC3200_REL_MIN
+        gmake PRESET=CC3200_REL_MIN clean
 
-    make PRESET=CC3200_REL_MIN clean
+- MacOS:
 
-cleans the output of the build.
+    Build and clean the library:
+
+        make PRESET=CC3200_REL_MIN
+        make PRESET=CC3200_REL_MIN clean
+
+For both platforms the PRESET=CC3200_REL_MIN_UNSECURE results in a Xively C Client version withouth secure connection. Primarily non-secure library is for development purposes.
 
 ## Building the wolfSSL library
 
 The wolfSSL supports TI-RTOS builds. Follow the steps written on [Using wolfSSL with TI-RTOS](http://processors.wiki.ti.com/index.php/Using_wolfSSL_with_TI-RTOS) to generate wolfSSL static library for CC3200.
 
-Example tirtos/products.mak variable settings for MacOS and Windows:
-
-- MacOS:
-
-        XDC_INSTALL_DIR        =/Applications/ti/xdctools_3_31_03_43_core/
-        BIOS_INSTALL_DIR       =/Applications/ti/tirtos_cc32xx_2_16_01_14/products/bios_6_45_02_31/
-        NDK_INSTALL_DIR        =
-        TIVAWARE_INSTALL_DIR   =
-
-        export XDCTOOLS_JAVA_HOME=/Applications/ti/ccsv6/eclipse/jre/Contents/Home/
-
-        ti.targets.arm.elf.M4F = /Applications/ti/ccsv6/tools/compiler/ti-cgt-arm_15.12.1.LTS
-        iar.targets.arm.M4F    =
-        gnu.targets.arm.M4F    =
+Example tirtos/products.mak variable settings for Windows and MacOS:
 
 - Windows:
 
@@ -77,9 +71,22 @@ Example tirtos/products.mak variable settings for MacOS and Windows:
         NDK_INSTALL_DIR        =
         TIVAWARE_INSTALL_DIR   =
 
-        export XDCTOOLS_JAVA_HOME=c:/Program Files (x86)/Java/jre1.8.0_51/
+        export XDCTOOLS_JAVA_HOME=c:/Program Files (x86)/Java/jre1.8.0_51
 
         ti.targets.arm.elf.M4F =c:/ti/ccsv6/tools/compiler/arm_15.12.3.LTS
+        iar.targets.arm.M4F    =
+        gnu.targets.arm.M4F    =
+
+- MacOS:
+
+        XDC_INSTALL_DIR        =/Applications/ti/xdctools_3_31_03_43_core
+        BIOS_INSTALL_DIR       =/Applications/ti/tirtos_cc32xx_2_16_01_14/products/bios_6_45_02_31
+        NDK_INSTALL_DIR        =
+        TIVAWARE_INSTALL_DIR   =
+
+        export XDCTOOLS_JAVA_HOME=/Applications/ti/ccsv6/eclipse/jre/Contents/Home
+
+        ti.targets.arm.elf.M4F = /Applications/ti/ccsv6/tools/compiler/ti-cgt-arm_15.12.1.LTS
         iar.targets.arm.M4F    =
         gnu.targets.arm.M4F    =
 
