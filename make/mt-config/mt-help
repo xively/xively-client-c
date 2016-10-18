@@ -120,6 +120,10 @@ help_tls:
 	$(info . In addition to WolfSSL, we also support similar BSPs and build processess for )
 	$(info . mbedTLS. see below] )
 	$(info )
+	$(info . ! Note: If you build the main library with specific XI_BSP_TLS definition )
+	$(info . then you must compile the Xively C Client examples with the same definition, )
+	$(info . otherwise you'll encounter compiler errors and/or linker errors. )
+	$(info )
 	$(info . If you wish to build without TLS then please use one of our UNSECURE )
 	$(info . makefile presets described in our Build Presets make help section, and )
 	$(info . consult doc/user_guide.md and doc/porting_guide.md in this repository. ) 
@@ -128,7 +132,7 @@ help_tls:
 	$(info .    make                    # defaults to wolfSSL )
 	$(info .    make XI_BSP_TLS=wolfssl # WolfSSL )
 	$(info .    make XI_BSP_TLS=mbedtls # mbedTLS )
-	$(info )
+	$(info . )
 	$(info )
 
 help_disclaimer:
