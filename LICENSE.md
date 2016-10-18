@@ -16,13 +16,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ###This library contains third-party components, which are subject to open source software licenses.
 
-##Deoxxa
+##Deoxxa - mqtt-protocol-c
+
 ###https://github.com/deoxxa  
 Copyright © 2014 Deoxxa Development. All rights reserved.
 
 Licensed under the Berkeley Software Distribution (BSD) 3-Clause License, which is included above or available at http://opensource.org/licenses/BSD-3-Clause 
 
-##Cmocka test framework
+##Cmocka Test Framework
 ###https://cmocka.org/
 Copyright © 2015 Andreas Schneider. All rights reserved.
 
