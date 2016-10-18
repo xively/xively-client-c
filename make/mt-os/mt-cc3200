@@ -34,40 +34,47 @@ else ifeq ($(XI_HOST_PLATFORM),Darwin)
 	XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_CCS_TOOLS)/compiler/ti-cgt-arm_15.12.1.LTS/include
 	XI_COMPILER_FLAGS += -i"$(XI_CC3200_PATH_CCS_TOOLS)/compiler/ti-cgt-arm_15.12.1.LTS/lib"
 
-else ifneq (,$(findstring Windows,$(XI_HOST_PLATFORM)))	
+else ifneq (,$(findstring Windows,$(XI_HOST_PLATFORM)))
 	 # windows cross-compilation
 
 	XI_CC3200_PATH_CCS_TOOLS ?= C:/ti/ccsv6/tools
 	XI_CC3200_PATH_SDK ?= C:/ti/tirex-content/CC3200SDK_1.1.0/cc3200-sdk/
 
+	# COMPILER ?= ti-cgt-arm_16.6.0.STS
 	COMPILER ?= arm_15.12.3.LTS
-	
+
 	CC = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armcl
 	AR = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armar
 
 	XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/include
-	XI_COMPILER_FLAGS += -i"$(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/lib"	 
+	#	XI_COMPILER_FLAGS += -i"$(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/lib"
 endif
 
 # removing these compiler flags since they are not parsed and emit warnings
-XI_COMPILER_FLAGS_TMP := $(filter-out -Wall -Werror -Wno-pointer-arith -Wno-format -Wextra, $(XI_COMPILER_FLAGS))
+XI_COMPILER_FLAGS_TMP := $(filter-out -Wall -Werror -Wno-pointer-arith -Wno-format -Wextra -Os -g -O0, $(XI_COMPILER_FLAGS))
 XI_COMPILER_FLAGS = $(XI_COMPILER_FLAGS_TMP)
 
 XI_COMPILER_FLAGS += -mv7M4
 XI_COMPILER_FLAGS += -me
-XI_COMPILER_FLAGS += -g
 XI_COMPILER_FLAGS += --define=css
-XI_COMPILER_FLAGS += --define=USE_TIRTOS
 XI_COMPILER_FLAGS += --define=cc3200
 XI_COMPILER_FLAGS += --display_error_number
 XI_COMPILER_FLAGS += --diag_warning=225
 XI_COMPILER_FLAGS += --diag_wrap=off
 XI_COMPILER_FLAGS += --abi=eabi
 
-#XI_COMPILER_FLAGS += --code_state=16
-XI_COMPILER_FLAGS += --float_support=vfplib
-XI_COMPILER_FLAGS += -O4
 XI_COMPILER_FLAGS += --opt_for_speed=0
+
+ifneq (,$(findstring release,$(TARGET)))
+    XI_COMPILER_FLAGS += -O4
+endif
+
+ifneq (,$(findstring debug,$(TARGET)))
+    XI_COMPILER_FLAGS += -O0 -g
+endif
+
+XI_COMPILER_FLAGS += --code_state=16
+XI_COMPILER_FLAGS += --float_support=vfplib
 
 XI_COMPILER_FLAGS += --preproc_with_compile
 XI_COMPILER_FLAGS += --preproc_dependency=$(@:.o=.d)
@@ -82,6 +89,8 @@ XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_SDK)/example/common
 XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_SDK)/simplelink/include
 XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_SDK)/simplelink_extlib/provisioninglib
 
+$(info $$(XI_COMPILER_FLAGS)=$(XI_COMPILER_FLAGS))
+
 # Xively Client config flags
 XI_CONFIG_FLAGS += -DXI_CROSS_TARGET
 XI_CONFIG_FLAGS += -DXI_EMBEDDED_TESTS
@@ -93,3 +102,6 @@ XI_ARFLAGS := r $(XI)
 XI_LIB_FLAGS := -llibxively.a
 
 XI_POST_COMPILE_ACTION =
+
+
+$(info $$(XI_LIB_FLAGS)=$(XI_LIB_FLAGS))
