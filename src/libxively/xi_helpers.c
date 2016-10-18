@@ -1,6 +1,8 @@
-/* Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.
-   This file contains code from MINIX C library, which is under MINIX license
-   Copyright (c) 1987, 1997, 2006, Vrije Universiteit, Amsterdam, The Netherlands */
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #include <string.h>
 

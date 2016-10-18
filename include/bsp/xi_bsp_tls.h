@@ -1,5 +1,8 @@
 /* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
- * This is part of Xively C library. */
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #ifndef __XI_BSP_TLS_H__
 #define __XI_BSP_TLS_H__
@@ -65,8 +68,8 @@ typedef struct xi_bsp_tls_init_params_s
     /** length of the buffer containing certificate */
     size_t ca_cert_pem_buf_length;
 
-    /** may be used for memory tracking and limitation if TLS library handles setting custom
-     * allocation */
+    /** may be used for memory tracking and limitation if TLS library handles setting
+     * custom allocation */
     void* ( *fp_xively_alloc )( size_t );
     void* ( *fp_xively_calloc )( size_t, size_t );
     void* ( *fp_xively_realloc )( void*, size_t );
