@@ -18,6 +18,8 @@ xi_state_t do_mqtt_keepalive_once( void* data );
 xi_state_t
 do_mqtt_keepalive_task( void* context, void* task, xi_state_t state, void* msg_memory );
 
+xi_time_t xi_calculate_keepalive_send_time( xi_time_t keepalive );
+
 static inline xi_state_t on_keepalive_timeout_expiry( void* context,
                                                       void* task,
                                                       xi_state_t state,

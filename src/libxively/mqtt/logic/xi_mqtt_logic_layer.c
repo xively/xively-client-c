@@ -137,7 +137,7 @@ xi_state_t xi_mqtt_logic_layer_push( void* context, void* data, xi_state_t in_ou
         {
             xi_evtd_restart(
                 XI_CONTEXT_DATA( context )->evtd_instance, layer_data->keepalive_event,
-                XI_CONTEXT_DATA( context )->connection_data->keepalive_timeout );
+                xi_calculate_keepalive_send_time( XI_CONTEXT_DATA( context )->connection_data->keepalive_timeout ) );
         }
 
         if ( task_to_be_called != 0 )
