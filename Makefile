@@ -3,11 +3,9 @@
 # This is part of the Xively C Client library,
 # it is licensed under the BSD 3-Clause license.
 
-LIBXIVELY := $(shell pwd)
+LIBXIVELY := $(CURDIR)
 
 export LIBXIVELY
-
-REV := $(shell git rev-parse --short --no-symbolic HEAD)
 
 # Reserve 'all' as the default build target
 all:
