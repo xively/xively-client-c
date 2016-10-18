@@ -33,6 +33,7 @@ include make/mt-config/mt-examples
 include make/mt-config/tests/mt-tests-tools
 include make/mt-config/tests/mt-tests-unit
 include make/mt-config/tests/mt-tests-integration
+include make/mt-config/mt-help
 
 ifdef MAKEFILE_DEBUG
 $(info ----- )
@@ -57,57 +58,6 @@ ifneq ($(XI_CONST_PLATFORM_CURRENT),$(XI_CONST_PLATFORM_ARM))
 #the integration tests does not cross-compile atm
 	XI_TESTS_TARGETS += $(XI_ITESTS)
 endif
-
-
-help: help_header preset_help
-
-help_header:
-	$(info )
-	$(info ## Xively C Client Build Help ##)
-	$(info . The Client's make system has been designed to be modular and flexible to )  
-	$(info . support IoT features for different platforms with varying size constrants. )
-	$(info . Due to this there are many different build options, as described below. )
-	$(info . Additionally, the Xively Client has been written with a Board Support Package )
-	$(info . in mind, where certain subsystem implementations swap in and out depending on )
-	$(info . the target platform [POSIX, CC3200, etc.] flags and desired third party )  
-	$(info . TLS implementations [WolfSSL and mbedTLS]. )
-	$(info . )
-	$(info . Don't worry!  This make system was designed to work out-of-the-box on OSX and )  
-	$(info . Linux by simply typing 'make'.  But now you might be curious to see what )
-	$(info . other snazzy toys might lie beneath the surface: )
-	$(info )
-	$(info # TLS Library Options #)
-	$(info . By default, running will compile the Xively Client Board Support Package )
-	$(info . for WolfSSL's TLS implementation.  Additionally a shell script will )
-	$(info . automatically do a git clone of a Xively-Tested version of WolfSSL from the )
-	$(info . WolfSSL hosted repository, configure its sources, and build WolfSSL as a )
-	$(info . static library using WolfSSL's make enviornment. The Xively Client will link )
-	$(info . against this library when building the examples in the examples/ directory. )
-	$(info . )
-	$(info . In addition to WolfSSL, we also support similar BSPs and build processess for )
-	$(info . mbedTLS. see below] )
-	$(info . )
-	$(info . If you wish to build without TLS then please use one of our UNSECURE )
-	$(info . makefile presets described in our Build Presets help section, and consult )
-	$(info . the UserGuide and PortingGuide in the doc/ directory of this repository. ) 
-	$(info . )
-	$(info . XI_BSP_TLS build options: )
-	$(info .    make  # defaults to wolfSSL )
-	$(info .    make XI_BSP_TLS=wolfssl # WolfSSL )
-	$(info .    make XI_BSP_TLS=mbedtls # mbedTLS )
-	$(info )
-	$(info # MAKEFILE_DEBUG # )
-	$(info . The makefile pieces together enviornment variables)
-	$(info . defined in numerous files.  You can log the resulting)
-	$(info . build enviornment variables to help debug your build) 
-	$(info . enviornment by running "make MAKEFILE_DEBUG=1")
-	$(info )
-
-
-help_disclaimer:
-	$(info )
-	$(info ## Xively C Client ## )
-	$(info . run 'make help' for more information, including a list of valid Build PRESETS. )
 
 build_output: help_disclaimer preset_output
 	$(info .    CONFIG:          [${CONFIG}])
