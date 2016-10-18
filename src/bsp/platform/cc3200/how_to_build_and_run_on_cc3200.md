@@ -4,22 +4,17 @@ This document describes a method which includes compilation and linkage of Xivel
 
 This method requires OSX development platform although Windows and Linux methods should be very similar.
 
-#### Prerequisites:
-
-- OSX as development platform
-- a [TI CC3200](http://www.ti.com/tool/cc3200-launchxl?keyMatch=launchpad%20cc3200&tisearch=Search-EN-Everything) board
-- to download the Code Composer Studio and the SDK you'll need to create a TI account, then these tools are free to download.
-- [TI Code Composer Studio](http://www.ti.com/tool/ccstudio) installed on OSX
-- Install the TI-RTOS CC32xx add-on from the CCS App Center (View-->CCS App Center)
-- [TI CC3200 SDK](http://www.ti.com/tool/cc3200sdk)
-    - note: the SDK is downloadable in a Windows .exe compressed package format.
-    - after extracting it on a Windows machine you should place it somewhere in your OSX directory structure, e.g. to ~/ti/CC3200SDK
-
 ## Table of Contents
-1. [Building the Xively C Client library](#building-the-xively-c-client-library)
-2. [Building the wolfSSL library](#building-the-wolfssl-library)
-3. [Building CC3200 application: CCS ent_wlan example](#building-cc3200-application-ccs-ent_wlan-example)
+1. [Software Installation](#software-installation)
+2. [Building the Xively C Client library](#building-the-xively-c-client-library)
+3. [Building the wolfSSL library](#building-the-wolfssl-library)
+4. [Building CC3200 application: CCS ent_wlan example](#building-cc3200-application-ccs-ent_wlan-example)
 
+## Software Installation
+
+- download [TI Code Composer Studio](http://www.ti.com/tool/ccstudio) and install
+    - here details about steps installing CCS
+- describe SDK1.1 click-path installation outside the CCS install process to support already installed CCSs
 
 ## Building the Xively C Client library
 
@@ -46,15 +41,15 @@ This method requires OSX development platform although Windows and Linux methods
 
     Build and clean the library:
 
-        gmake PRESET=CC3200_REL_MIN
         gmake PRESET=CC3200_REL_MIN clean
+        gmake PRESET=CC3200_REL_MIN
 
 - MacOS:
 
     Build and clean the library:
 
-        make PRESET=CC3200_REL_MIN
         make PRESET=CC3200_REL_MIN clean
+        make PRESET=CC3200_REL_MIN
 
 For both platforms the PRESET=CC3200_REL_MIN_UNSECURE results in a Xively C Client version withouth secure connection. Primarily non-secure library is for development purposes.
 
