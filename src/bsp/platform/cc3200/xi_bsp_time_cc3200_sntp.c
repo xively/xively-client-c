@@ -393,7 +393,7 @@ void sntp_task( void* pvParameters )
 
         if ( t > 0 )
         {
-            start_time_ntp = ( t - uptime );
+            start_time_ntp = ( t - uptime_ms );
             printf( "SNTP_G: %d, %s->0x%08X\n", sntp_time_posix(),
                     ntp_server_names[ntp_server_index], server_addr );
 
@@ -406,7 +406,7 @@ void sntp_task( void* pvParameters )
 
         ( void )sleep_ms;
         //        osi_Sleep (sleep_ms);
-        printf( "SNTP_L: %d, UT %d\n", sntp_time_posix(), uptime );
+        printf( "SNTP_L: %d, UT %lld\n", sntp_time_posix(), uptime_ms );
         break;
     }
 }
@@ -417,7 +417,7 @@ ntp_time_t sntp_time_ntp( void )
 
     if ( start_time_ntp > SECONDS_1900_TO_1970 )
     {
-        rval = start_time_ntp + uptime;
+        rval = start_time_ntp;
     }
 
     return rval;
@@ -429,7 +429,7 @@ posix_time_t sntp_time_posix( void )
 
     if ( start_time_ntp > SECONDS_1900_TO_1970 )
     {
-        rval = ( posix_time_t )( start_time_ntp + uptime - SECONDS_1900_TO_1970 );
+        rval = ( posix_time_t )( start_time_ntp - SECONDS_1900_TO_1970 );
     }
 
     return rval;

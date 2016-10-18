@@ -18,23 +18,25 @@
 
 #include <xi_bsp_time_cc3200_sntp.h>
 
+volatile uint64_t uptime_ms = 0;
+
 static void timer_int_handler()
 {
     MAP_TimerIntClear( TIMERA0_BASE, MAP_TimerIntStatus( TIMERA0_BASE, true ) );
-    uptime++;
+    uptime_ms += 100;
 }
 
 void xi_bsp_time_init()
 {
     Timer_IF_Init( PRCM_TIMERA0, TIMERA0_BASE, TIMER_CFG_PERIODIC, TIMER_A, 0 );
     Timer_IF_IntSetup( TIMERA0_BASE, TIMER_A, timer_int_handler );
-    Timer_IF_Start( TIMERA0_BASE, TIMER_A, 1000 );
+    Timer_IF_Start( TIMERA0_BASE, TIMER_A, 100 );
 
     sntp_task( NULL );
 }
 
 xi_time_t xi_bsp_time_getcurrenttime_milliseconds()
 {
-    /* note this returns seconds and not milliseconds, this issue has to be solved */
-    return sntp_time_posix();
+    /* return milliseconds */
+    return uptime_ms;
 }

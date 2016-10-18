@@ -48,6 +48,6 @@ extern posix_time_t sntp_time_posix( void ); // Seconds since 1970/01/01 00:00:0
 void sntp_task( void* pvParameters );
 
 static uint32_t start_time_ntp = 0;
-static uint32_t uptime         = 0;
+extern volatile uint64_t uptime_ms;
 
 #endif /* __XI_BSP_TIME_CC3200_SNTP_H__ */

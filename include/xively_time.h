@@ -7,11 +7,13 @@
 #ifndef __XIVELY_TIME_H__
 #define __XIVELY_TIME_H__
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef long xi_time_t;
+typedef int64_t xi_time_t;
 
 #ifdef __cplusplus
 }
