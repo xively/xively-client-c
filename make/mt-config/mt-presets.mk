@@ -30,10 +30,6 @@ TARGET_CC3200_REL			=-static-release
 
 PRESET ?= POSIX_REL
 
-  $(info )
-  $(info -------- )
-  $(info >>>> PRESET: $(PRESET))
-
 # -------------------------------------------------------
 # BSP DEV
 ifeq ($(PRESET), POSIX_DEV_MIN)
@@ -110,3 +106,33 @@ TARGET ?= $(TARGET_STATIC_REL)
 endif
 
 TARGET := $(addprefix $(XI_TARGET_PLATFORM), $(TARGET))
+
+preset_output:
+	$(info )
+	$(info # Using build PRESET: "$(PRESET)" to set CONFIG and TARGET variables:)
+	$(info .    XI_BSP_PLATFORM: [$(XI_BSP_PLATFORM)] )
+	$(info .    XI_BSP_TLS:      [$(XI_BSP_TLS)] )
+
+preset_help:
+	$(info # Build Presets #)
+	$(info . The Xively C Client has many optional modules and platform targets. )
+	$(info . While you can set CONFIG and TARGET flags directly,)
+	$(info . there are some prebaked profiles of the Xively C Client)
+	$(info . that have been created for quick development.")
+	$(info . For instance, "make PRESET=POSIX_DEV" for development on)
+	$(info . MacOSX or Linux.)
+	$(info )
+	$(info . All PRESET configurations reside in make/mt-config/mt-presets.mk.)
+	$(info )
+	$(info . A List of Popular Valid Presets: )
+	$(info .   POSIX_DEV_MIN)
+	$(info .   POSIX_DEV)
+	$(info .   POSIX_REL_MIN)
+	$(info .   POSIX_REL)
+	$(info .   POSIX_UNSECURE_REL)
+	$(info .   POSIX_THREADING_REL)
+	$(info .   CC3200_REL_MIN)
+	$(info .   CC3200_REL_MIN_UNSECURE)
+	$(info .   CC3200_REL)
+	$(info )
+
