@@ -7,6 +7,7 @@
 #include "xi_coroutine.h"
 #include "xi_layer_api.h"
 #include "xi_globals.h"
+#include "xi_time.h"
 #include "xi_mqtt_logic_layer.h"
 #include "xi_mqtt_logic_layer_data.h"
 #include "xi_mqtt_logic_layer_keepalive_handler.h"
@@ -16,10 +17,31 @@
 extern "C" {
 #endif
 
+#if XI_DEBUG_OUTPUT == 0
+#undef xi_debug_logger
+#undef xi_debug_format
+
+#ifndef xi_debug_logger
+#define xi_debug_logger( ... ) printf( __VA_ARGS__ "\r\n" )
+#define xi_local_debug_logger
+#endif
+
+#ifndef xi_debug_format
+#define xi_debug_format( fmt, ... ) printf( fmt "\r\n", __VA_ARGS__ )
+#define xi_local_debug_format
+#endif
+#endif
 
 xi_time_t xi_calculate_keepalive_send_time( xi_time_t keepalive_timeout )
 {
-    return ( keepalive_timeout / 2 );
+    assert( keepalive_timeout > 0 );
+
+    if ( keepalive_timeout > 2 )
+    {
+        return keepalive_timeout - 2;
+    }
+
+    return keepalive_timeout;
 }
 
 xi_state_t do_mqtt_keepalive_once( void* data )
@@ -42,7 +64,7 @@ xi_state_t do_mqtt_keepalive_once( void* data )
     task->data.mqtt_settings.scenario = XI_MQTT_KEEPALIVE;
     task->data.mqtt_settings.qos      = XI_MQTT_QOS_AT_MOST_ONCE;
 
-    xi_debug_format( "do_mqtt_keepalive_once %lld", xi_getcurrenttime_milliseconds() );
+    xi_debug_format( "do_mqtt_keepalive_once %ld", xi_getcurrenttime_milliseconds() );
 
     return xi_mqtt_logic_layer_push( context, task, XI_STATE_OK );
 
@@ -62,7 +84,7 @@ do_mqtt_keepalive_task( void* ctx, void* data, xi_state_t state, void* msg_data 
     xi_mqtt_logic_layer_data_t* layer_data =
         ( xi_mqtt_logic_layer_data_t* )XI_THIS_LAYER( context )->user_data;
 
-    if ( layer_data == 0 )
+    if ( XI_THIS_LAYER_NOT_OPERATIONAL( context ) || NULL == layer_data )
     {
         xi_mqtt_message_free( &msg_memory );
         return XI_STATE_OK;
@@ -91,26 +113,26 @@ do_mqtt_keepalive_task( void* ctx, void* data, xi_state_t state, void* msg_data 
     }
 
     // wait for an interval of keepalive
-    {
-        assert( task->timeout == 0 );
+    assert( task->timeout == 0 );
 
-        /*task->timeout = xi_evtd_execute_in(
-            event_dispatcher, xi_make_handle( &on_keepalive_timeout_expiry, context, task,
-                                              state, msg_memory ),
-            XI_CONTEXT_DATA( context )->connection_data->keepalive_timeout );*/
+    task->timeout = xi_evtd_execute_in(
+        event_dispatcher,
+        xi_make_handle( &on_keepalive_timeout_expiry, context, task, state, msg_memory ),
+        XI_CONTEXT_DATA( context )->connection_data->keepalive_timeout );
 
-        /* for a message */
-        XI_CR_YIELD( task->cs, XI_STATE_OK );
-    }
+    /* for a message */
+    XI_CR_YIELD( task->cs, XI_STATE_OK );
 
-    /*if ( state == XI_STATE_TIMEOUT )
+    if ( state == XI_STATE_TIMEOUT )
     {
         xi_debug_logger( "keepalive timeout passed!" );
 
-        task->timeout = 0;
-        XI_CR_EXIT( task->cs, do_reconnect( context, 0, XI_STATE_TIMEOUT ) );
+        task->timeout = NULL;
+
+        XI_CR_EXIT( task->cs,
+                    XI_PROCESS_CLOSE_ON_PREV_LAYER( context, NULL, XI_STATE_TIMEOUT ) );
     }
-    else*/ if ( state != XI_STATE_OK )
+    else if ( state != XI_STATE_OK )
     {
         xi_debug_format( "error while waiting for pingresp %d!", state );
         cancel_task_timeout( task, context );
@@ -137,7 +159,8 @@ do_mqtt_keepalive_task( void* ctx, void* data, xi_state_t state, void* msg_data 
     {
         layer_data->keepalive_event = xi_evtd_execute_in(
             event_dispatcher, xi_make_handle( &do_mqtt_keepalive_once, context ),
-            xi_calculate_keepalive_send_time( XI_CONTEXT_DATA( context )->connection_data->keepalive_timeout ) );
+            xi_calculate_keepalive_send_time(
+                XI_CONTEXT_DATA( context )->connection_data->keepalive_timeout ) );
     }
 
     xi_mqtt_message_free( &msg_memory );
@@ -155,6 +178,20 @@ err_handling:
 
     return state;
 }
+
+#if XI_DEBUG_OUTPUT == 0
+
+#ifdef xi_local_debug_logger
+#undef xi_debug_logger
+#undef xi_local_debug_logger
+#endif
+
+#ifdef xi_local_debug_format
+#undef xi_debug_format
+#undef xi_local_debug_format
+#endif
+
+#endif
 
 #ifdef __cplusplus
 }

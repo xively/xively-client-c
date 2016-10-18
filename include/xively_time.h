@@ -13,7 +13,7 @@
 extern "C" {
 #endif
 
-typedef int64_t xi_time_t;
+typedef long xi_time_t;
 
 #ifdef __cplusplus
 }

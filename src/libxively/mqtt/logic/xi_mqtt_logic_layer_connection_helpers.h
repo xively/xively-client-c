@@ -15,12 +15,6 @@ extern "C" {
 #endif
 
 static inline xi_state_t
-do_reconnect( void* context, void* data, xi_state_t in_out_state )
-{
-    return XI_PROCESS_CLOSE_ON_PREV_LAYER( context, data, in_out_state );
-}
-
-static inline xi_state_t
 do_shutdown( void* ctx /* should be the context of the logic layer */
              ,
              void* data,

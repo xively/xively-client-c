@@ -18,7 +18,7 @@
 
 #include <xi_bsp_time_cc3200_sntp.h>
 
-volatile uint64_t uptime_ms = 0;
+volatile long uptime_ms = 0;
 
 static void timer_int_handler()
 {
