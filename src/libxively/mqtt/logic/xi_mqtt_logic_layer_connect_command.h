@@ -159,7 +159,7 @@ do_mqtt_connect( void* ctx /* should be the context of the logic layer */
             {
                 layer_data->keepalive_event = xi_evtd_execute_in(
                     event_dispatcher, xi_make_handle( &do_mqtt_keepalive_once, context ),
-                    XI_CONTEXT_DATA( context )->connection_data->keepalive_timeout );
+                    xi_calculate_keepalive_send_time( XI_CONTEXT_DATA( context )->connection_data->keepalive_timeout ) );
 
                 XI_CHECK_MEMORY( layer_data->keepalive_event, state );
             }
