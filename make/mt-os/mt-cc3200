@@ -89,8 +89,6 @@ XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_SDK)/example/common
 XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_SDK)/simplelink/include
 XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_SDK)/simplelink_extlib/provisioninglib
 
-$(info $$(XI_COMPILER_FLAGS)=$(XI_COMPILER_FLAGS))
-
 # Xively Client config flags
 XI_CONFIG_FLAGS += -DXI_CROSS_TARGET
 XI_CONFIG_FLAGS += -DXI_EMBEDDED_TESTS
