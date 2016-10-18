@@ -62,8 +62,14 @@ XI_COMPILER_FLAGS += --display_error_number
 XI_COMPILER_FLAGS += --diag_warning=225
 XI_COMPILER_FLAGS += --diag_wrap=off
 XI_COMPILER_FLAGS += --abi=eabi
-
 XI_COMPILER_FLAGS += --opt_for_speed=0
+XI_COMPILER_FLAGS += --code_state=16
+XI_COMPILER_FLAGS += --float_support=vfplib
+XI_COMPILER_FLAGS += --preproc_with_compile
+XI_COMPILER_FLAGS += --preproc_dependency=$(@:.o=.d)
+XI_COMPILER_FLAGS += --obj_directory=$(dir $@)
+XI_COMPILER_FLAGS += --asm_directory=$(dir $@)
+XI_COMPILER_FLAGS += --output_file=$@
 
 ifneq (,$(findstring release,$(TARGET)))
     XI_COMPILER_FLAGS += -O4
@@ -72,16 +78,6 @@ endif
 ifneq (,$(findstring debug,$(TARGET)))
     XI_COMPILER_FLAGS += -O0 -g
 endif
-
-XI_COMPILER_FLAGS += --code_state=16
-XI_COMPILER_FLAGS += --float_support=vfplib
-
-XI_COMPILER_FLAGS += --preproc_with_compile
-XI_COMPILER_FLAGS += --preproc_dependency=$(@:.o=.d)
-
-XI_COMPILER_FLAGS += --obj_directory=$(dir $@)
-XI_COMPILER_FLAGS += --asm_directory=$(dir $@)
-XI_COMPILER_FLAGS += --output_file=$@
 
 XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_SDK)/driverlib
 XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_SDK)/inc
@@ -100,6 +96,3 @@ XI_ARFLAGS := r $(XI)
 XI_LIB_FLAGS := -llibxively.a
 
 XI_POST_COMPILE_ACTION =
-
-
-$(info $$(XI_LIB_FLAGS)=$(XI_LIB_FLAGS))
