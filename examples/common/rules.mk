@@ -1,3 +1,7 @@
+# Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+#
+# This is part of the Xively C Client library,
+# it is licensed under the BSD 3-Clause license.
 
 CC ?= cc
 AR ?= ar
@@ -26,7 +30,7 @@ XI_CLIENT_LIB_PATH ?= $(CURDIR)/../../bin/osx
 XI_CLIENT_ROOTCA_LIST := $(CURDIR)/../../res/trusted_RootCA_certs/xi_RootCA_list.pem
 
 XI_FLAGS_INCLUDE += -I$(XI_CLIENT_INC_PATH)
-XI_FLAGS_COMPILER ?= -Wall -Werror -Wno-pointer-arith -Wno-format -fstrict-aliasing -O0 -g -Wextra
+XI_FLAGS_COMPILER ?= -Wall -Werror -Wno-pointer-arith -Wno-format -fstrict-aliasing -Os -Wextra
 
 # TLS BSP related configuration
 XI_BSP_TLS ?= wolfssl

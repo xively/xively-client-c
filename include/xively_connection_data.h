@@ -1,5 +1,8 @@
 /* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
- * This is part of Xively C library. */
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license. 
+ */
 
 #ifndef __XIVELY_CONNECTION_DATA_H__
 #define __XIVELY_CONNECTION_DATA_H__
@@ -14,8 +17,7 @@ extern "C" {
  * @enum xi_connection_state_e
  * @brief Defines all possible states of the connection within the libxively
  */
-typedef enum xi_connection_state_e
-{
+typedef enum xi_connection_state_e {
     XI_CONNECTION_STATE_UNINITIALIZED =
         0,                          /**< the connection is not estblished and there
                                        is no pending connect operation in libxively */
@@ -32,10 +34,9 @@ typedef enum xi_connection_state_e
  * @enum xi_session_type_t
  * @brief MQTT session types
  */
-typedef enum xi_session_type_e
-{
-    XI_SESSION_CLEAN,       /**< MQTT clean session */
-    XI_SESSION_CONTINUE     /**< MQTT unclean session */
+typedef enum xi_session_type_e {
+    XI_SESSION_CLEAN,   /**< MQTT clean session */
+    XI_SESSION_CONTINUE /**< MQTT unclean session */
 } xi_session_type_t;
 
 /**
