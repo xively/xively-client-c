@@ -12,13 +12,37 @@ This method requires OSX development platform although Windows and Linux methods
 
 ## Software Installation
 
-- download [TI Code Composer Studio](http://www.ti.com/tool/ccstudio) and install
-    - here details about steps installing CCS
-- describe SDK1.1 click-path installation outside the CCS install process to support already installed CCSs
+### TI Code Composer Studio
+
+Download [TI Code Composer Studio](http://www.ti.com/tool/ccstudio) and start installation process.
+
+- choose your ccs install folder, leave the default value. It should be ```c:\ti``` on Windows and ```/Applications/ti``` on MacOS and continue
+- select two options from ```SimpleLink Wireless MCUs``` -> \[ ```CC3200xx Device Support``` and ```TI ARM Compiler``` \] continue
+- finalise the installation process
+
+### CC3200 Simplelink WiFi SDK
+
+To install the CC3200 Simplelink WiFi SDK you have two options:
+
+- 1st ( Works on Windows, MacOSX and Linux ) with CCS v6.2.0 or higher - let the CCS download and install v1.1.0 of the SDK for you
+    - open ```View```->```Resource Explorer``` from the top bar menu
+    - select ```CC3200 Simplelink WiFi``` from the list of available development tools
+    - click ```Install on Desktop``` -> ```Make Available Offline``` and confirm ```Yes``` on the popup window
+- 2nd ( Only Windows ) - If you need latest version of the SDK ( 1.2.0 )
+    - download [CC3200 Simplelink WiFi SDK 1.2.0](http://software-dl.ti.com/dsps/forms/self_cert_export.html?prod_no=CC3200SDK-1.2.0-windows-installer.exe&ref_url=http://software-dl.ti.com/ecs) and install using default settings
 
 ## Building the Xively C Client library
 
 :exclamation: **Under construction notes**:
+
+### Download xively-client-c library
+- Download the library source code from [xively-client-c](https://github.com/xively/xively-client-c)
+
+### Download WolfSSL library
+- Download WolfSSL library source code from [wolfssl](https://github.com/wolfSSL/wolfssl/releases/tag/v3.9.6)
+- Put the WolfSSL main directory under the PATH_TO_XIVELY_LIBRARY_MAIN_FOLDER/xively-client-c/src/import/tls/
+
+### Build Xively C Client library
 
 - in file make/mt-os/mt-cc3200 set XI_CC3200_PATH_CCS_TOOLS and XI_CC3200_PATH_SDK variables according to your CCS and SDK install paths and revise the CC and AR variables pointing on compiler and archiver binaries
 - currently BSP TIME has unsolved issue around returning elapsed milliseconds from 01/01/1970 since it does not fit into 4 bytes return value. So please change function in file `xively-client-c/src/libxively/time/xi_time.c` to:
