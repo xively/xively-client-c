@@ -16,10 +16,10 @@ This method requires OSX development platform although Windows and Linux methods
 
 Download [TI Code Composer Studio](http://www.ti.com/tool/ccstudio) and start installation process.
 
-- choose your ccs install folder, leave the default value "c:\ti" and click next
+- choose your ccs install folder, leave the default value "c:\ti" and continue
 - select two options from "SimpleLink Wireless MCUs" ->
-              "CC3200xx Device Support"
-              "TI ARM Compiler" and click next
+              \[ "CC3200xx Device Support"
+              and "TI ARM Compiler" \] continue
 - finalise the installation process
 
 ### CC3200 Simplelink WiFi SDK
