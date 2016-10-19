@@ -24,11 +24,6 @@ include make/mt-config/mt-presets.mk
 # TLS related configuration
 XI_BSP_TLS ?= wolfssl
 
-$(info -------- )
-$(info >>>> BUILDING CONFIG: [${CONFIG}] TARGET: [${TARGET}])
-$(info -------- )
-$(info )
-
 include make/mt-config/mt-config
 include make/mt-os/mt-os
 include make/mt-os/mt-$(XI_CONST_PLATFORM_CURRENT)
@@ -36,6 +31,7 @@ include make/mt-config/mt-examples
 include make/mt-config/tests/mt-tests-tools
 include make/mt-config/tests/mt-tests-unit
 include make/mt-config/tests/mt-tests-integration
+include make/mt-config/mt-help
 
 ifdef MAKEFILE_DEBUG
 $(info ----- )
@@ -61,7 +57,12 @@ ifneq ($(XI_CONST_PLATFORM_CURRENT),$(XI_CONST_PLATFORM_ARM))
 	XI_TESTS_TARGETS += $(XI_ITESTS)
 endif
 
-all: $(XI)
+build_output: help_disclaimer preset_output
+	$(info .    CONFIG:          [${CONFIG}])
+	$(info .    TARGET:          [${TARGET}])
+	$(info ) 
+
+all: build_output $(XI)
 
 tests: $(XI) $(XI_TESTS_TARGETS)
 

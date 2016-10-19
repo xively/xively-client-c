@@ -83,8 +83,6 @@ ifneq (,$(findstring no_certverify,$(CONFIG)))
   XI_CONFIG_FLAGS += -DXI_DISABLE_CERTVERIFY
 endif
 
-$(info "event_loop=$(XI_EVENT_LOOP)")
-
 # CONFIG: filesystem
 ifneq (,$(findstring dummy_fs,$(CONFIG)))
 	XI_CONFIG_FLAGS += -DXI_FS_DUMMY
@@ -137,8 +135,6 @@ BSP_PLATFORM_DIR_EXIST := $(shell if [ ! -d $(XI_BSP_DIR)/platform/$(XI_BSP_PLAT
 ifeq ($(BSP_PLATFORM_DIR_EXIST),0)
     $(error The platform with BSP implementation - [$(XI_BSP_PLATFORM)] couldn't be found. Please check your $(XI_BSP_DIR)/platform/ directory.)
 endif
-
-$(info Using [$(XI_BSP_PLATFORM)] BSP configuration)
 
 # platform specific BSP implementations
 XI_SRCDIRS += $(XI_BSP_DIR)/platform/$(XI_BSP_PLATFORM)
@@ -218,6 +214,8 @@ XI_SOURCES := $(filter-out $(LIBXIVELY_SOURCE_DIR)/xi_debug.c, $(XI_SOURCES) )
 endif
 
 ifdef MAKEFILE_DEBUG
+$(info --mt-config-- Using [$(XI_BSP_PLATFORM)] BSP configuration)
+$(info --mt-config-- event_loop=$(XI_EVENT_LOOP))
 $(info --mt-config-- $$XI_PLATFORM_BASE is [${XI_PLATFORM_BASE}])
 $(info --mt-config-- $$XI_PLATFORM_MODULES is [${XI_PLATFORM_MODULES}])
 $(info --mt-config-- $$LIBXIVELY_SOURCE_DIR is [${LIBXIVELY_SOURCE_DIR}])
