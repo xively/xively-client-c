@@ -49,7 +49,6 @@ ifneq (,$(findstring expose_fs,$(CONFIG)))
 endif
 
 ifneq (,$(findstring debug,$(TARGET)))
-	XI_DEBUG_BUILD ?= 1
 	XI_DEBUG_OUTPUT ?= 1
 	XI_DEBUG_ASSERT ?= 1
 	XI_DEBUG_EXTRA_INFO ?= 1
@@ -214,7 +213,7 @@ XI_SOURCES += $(wildcard ./src/*.c)
 XI_SOURCES += $(foreach layerdir,$(XI_SRCDIRS),\
 	$(wildcard $(layerdir)/*.c))
 
-ifndef XI_DEBUG_BUILD
+ifeq ($(XI_DEBUG_OUTPUT),0)
 XI_SOURCES := $(filter-out $(LIBXIVELY_SOURCE_DIR)/xi_debug.c, $(XI_SOURCES) )
 endif
 
