@@ -12,14 +12,25 @@ This method requires OSX development platform although Windows and Linux methods
 
 ## Software Installation
 
+### TI Code Composer Studio
+
 - download [TI Code Composer Studio](http://www.ti.com/tool/ccstudio) and install
     - choose your ccs install folder, leave the default value "c:\ti" and click next
     - select two options from "SimpleLink Wireless MCUs" ->
                   "CC3200xx Device Support"
                   "TI ARM Compiler" and click next
     - finalise the installation process and grab a coffee while waiting for CCS installer to complete the process  
-- describe SDK1.1 click-path installation outside the CCS install process to support already installed CCSs
-  -
+
+### CC3200 Simplelink WiFi SDK
+
+- To install the CC3200 Simplelink WiFi SDK you have two options
+    - 1st - let the CCS download and install version 1.1.0 of the SDK for you
+        - open "View"->"Resource Explorer" from the top bar menu
+        - select "CC3200 Simplelink WiFi" from the list of available development tools
+        - click "Install on Desktop" -> "Make Available Offline" and confirm "Yes" on the popup window
+    - 2nd - However if you need latest version of the SDK, download and install it manually
+        - [CC3200 Simplelink WiFi SDK 1.2.0](http://software-dl.ti.com/dsps/forms/self_cert_export.html?prod_no=CC3200SDK-1.2.0-windows-installer.exe&ref_url=http://software-dl.ti.com/ecs)
+        - mind this is Windows executable
 
 ## Building the Xively C Client library
 
