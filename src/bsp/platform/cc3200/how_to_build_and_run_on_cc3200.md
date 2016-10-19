@@ -26,7 +26,7 @@ Download [TI Code Composer Studio](http://www.ti.com/tool/ccstudio) and start in
 
 To install the CC3200 Simplelink WiFi SDK you have two options:
 
-- 1st ( Works on Windows, MacOSX and Linux ) - let the CCS download and install version 1.1.0 of the SDK for you
+- 1st ( Works on Windows, MacOSX and Linux ) with CCS v6.2.0 or heigher - let the CCS download and install v1.1.0 of the SDK for you
     - open "View"->"Resource Explorer" from the top bar menu
     - select "CC3200 Simplelink WiFi" from the list of available development tools
     - click "Install on Desktop" -> "Make Available Offline" and confirm "Yes" on the popup window
