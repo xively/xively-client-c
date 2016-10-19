@@ -14,23 +14,23 @@ This method requires OSX development platform although Windows and Linux methods
 
 ### TI Code Composer Studio
 
-- Follow these steps to install the [TI Code Composer Studio](http://www.ti.com/tool/ccstudio) on your machine:
+- Download [TI Code Composer Studio](http://www.ti.com/tool/ccstudio) and start installation process
     - choose your ccs install folder, leave the default value "c:\ti" and click next
     - select two options from "SimpleLink Wireless MCUs" ->
                   "CC3200xx Device Support"
                   "TI ARM Compiler" and click next
-    - finalise the installation process and grab a coffee while waiting for CCS installer to complete the process  
+    - finalise the installation process
 
 ### CC3200 Simplelink WiFi SDK
 
-- To install the CC3200 Simplelink WiFi SDK you have two options:
-    - 1st - let the CCS download and install version 1.1.0 of the SDK for you
-        - open "View"->"Resource Explorer" from the top bar menu
-        - select "CC3200 Simplelink WiFi" from the list of available development tools
-        - click "Install on Desktop" -> "Make Available Offline" and confirm "Yes" on the popup window
-    - 2nd - However if you need latest version of the SDK, download and install it manually
-        - [CC3200 Simplelink WiFi SDK 1.2.0](http://software-dl.ti.com/dsps/forms/self_cert_export.html?prod_no=CC3200SDK-1.2.0-windows-installer.exe&ref_url=http://software-dl.ti.com/ecs)
-        - mind this is Windows executable
+To install the CC3200 Simplelink WiFi SDK you have two options:
+
+- 1st ( Works on Windows, MacOSX and Linux ) - let the CCS download and install version 1.1.0 of the SDK for you
+    - open "View"->"Resource Explorer" from the top bar menu
+    - select "CC3200 Simplelink WiFi" from the list of available development tools
+    - click "Install on Desktop" -> "Make Available Offline" and confirm "Yes" on the popup window
+- 2nd ( Only Windows ) - However if you need latest version of the SDK
+    - download [CC3200 Simplelink WiFi SDK 1.2.0](http://software-dl.ti.com/dsps/forms/self_cert_export.html?prod_no=CC3200SDK-1.2.0-windows-installer.exe&ref_url=http://software-dl.ti.com/ecs) and install
 
 ## Building the Xively C Client library
 
