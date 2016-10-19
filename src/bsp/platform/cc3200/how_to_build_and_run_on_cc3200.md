@@ -218,29 +218,31 @@ Further wolfSSL build customizations:
     under directory `wolfssl/tirtos. The result file is ```wolfssl/tirtos/packages/ti/net/wolfssl/lib/wolfssl.aem4f``` this is the library one should link to an example application to provide wolfSSL symbols.
 
 
-## Building CC3200 application: CCS ent_wlan example
+## Building CC3200 application = CCS ent_wlan example + Xively Client
 
-The end_wlan is a non-os example application providing a wifi connection. This serves as a good light-weight starting point.
+The ent_wlan is a non-os example application providing a wifi connection. This serves as a good light-weight basis for Xively C Client on CC3200.
 
-Steps to take:
+### CCS + ent_wlan example
 
-#### Code Coposer Studio + ent_wlan example:
-
-- import the ent_wlan example from the CC3200 SDK's example directory
+- import the ent_wlan example project from the CC3200 SDK's example directory
     - File->Import->Code Composer Studio->CCS Projects->Select search-directory:
     - ti/tirex-content/CC3200SDK_1.1.0/cc3200-sdk/example/ent_wlan/ccs
     - click Finish to open the project
 - build the project: Project->Build Project
-- create a Target Configuration for CC3200:
-    - View->Target Configurations, right click on User Defined->New Target Configuration, choose a filename. Connection: Stellaris In-Circuit Debug Interface. Board or Device: CC3200. Save.
+- create a Target Configuration for CC3200
+    - View->Target Configurations, right click on User Defined->New Target Configuration, choose a filename.
+        - Connection: Stellaris In-Circuit Debug Interface.
+        - Board or Device: CC3200.
+        - Save.
     - Right click on new Target Configuration->Set as Default.
-- debug it on the CC3200 device:
+- debug it on the CC3200 device
     - connect the device to your PC or Mac with USB cable
     - hit the green bug button on the top in the CCS or Run->Debug
-        This should upload your program to RAM and end up with a debugger standing at the first line of main function in main.c. Reaching this point means you are able to produce and execute CC3200 compatible binary on the device itself.
-- keep the J15 ON and push Reset button on the board before each debug session. In case of trouble get help from [TI's CC3200 help doc](http://www.ti.com/lit/ds/symlink/cc3200.pdf)
 
-#### Adding Xively Client code to the ent_wlan example:
+        This should upload your program to RAM and end up with a debugger standing at the first line of main function in main.c. Reaching this point means you are able to produce and execute CC3200 compatible binary on the device itself.
+- Hint: keep the J15 ON and push Reset button on the board before each debug session. In case of trouble get help from [TI's CC3200 help doc](http://www.ti.com/lit/ds/symlink/cc3200.pdf)
+
+### CCS ent_wlan example + Xively Client
 
 - locate the successful wifi connection point in the main.c of the ent_wlan example (arond line 647, comment: "//wait for few moments")
 - here put a call on the  ConnectToXively(); function. Its implementation is based on the examples in the Client repo, e.g. xively-client-c/examples/mqtt_logic_producer/src/mqtt_logic_producer.c:
@@ -288,7 +290,7 @@ Steps to take:
     - add two libraries Xively C Client and wolfSSL: Project->Properties->Build->ARM Linker->File Search Path:
         - xively-client-c/bin/cc3200/libxively.a
         - xively-client-c/src/import/tls/wolfssl/tirtos/packages/ti/net/wolfssl/lib/wolfssl.aem4f
-    - copy two files timer_if.h and timer_if.c to the project: Project->Add Files: ti/tirex-content/CC3200SDK_1.1.0/cc3200-sdk/example/common
+    - add two files timer_if.h and timer_if.c to the project: Project->Add Files: ti/tirex-content/CC3200SDK_1.1.0/cc3200-sdk/example/common
     - implement two functions as follows:
 
             #include <time.h>
@@ -346,3 +348,7 @@ Steps to take:
             and delete variable eapParams and pass NULL as last attribute to connect function:
 
                 lRetVal = sl_WlanConnect(ENT_NAME,strlen(ENT_NAME),NULL,&g_SecParams,NULL);
+
+    - all set: Project->Build and Run->Debug
+
+        This should result in a CC3200 connected to Xively Services
