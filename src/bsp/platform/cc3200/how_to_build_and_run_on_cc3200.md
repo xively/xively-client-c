@@ -224,19 +224,34 @@ Steps to take:
 
 #### Code Coposer Studio + ent_wlan example:
 
-- create a new workspace for Code Composer Studio
 - import the ent_wlan example from the CC3200 SDK's example directory
-- build it
-- debug it on the device
-    - connect the device to the Mac
-    - hit the green bug button on the top in the CCS
+    - File->Import->Code Composer Studio->CCS Projects->Select search-directory:
+    - ti/tirex-content/CC3200SDK_1.1.0/cc3200-sdk/example/ent_wlan/ccs
+    - click Finish to open the project
+- build the project: Project->Build Project
+- create a Target Configuration for CC3200:
+    - View->Target Configurations, right click on User Defined->New Target Configuration, choose a filename. Connection: Stellaris In-Circuit Debug Interface. Board or Device: CC3200. Save.
+    - Right click on new Target Configuration->Set as Default.
+- debug it on the CC3200 device:
+    - connect the device to your PC or Mac with USB cable
+    - hit the green bug button on the top in the CCS or Run->Debug
+        This should upload your program to RAM and end up with a debugger standing at the first line of main function in main.c. Reaching this point means you are able to produce and execute CC3200 compatible binary on the device itself.
+- keep the J15 ON and push Reset button on the board before each debug session. In case of trouble get help from [TI's CC3200 help doc](http://www.ti.com/lit/ds/symlink/cc3200.pdf)
 
 #### Adding Xively Client code to the ent_wlan example:
 
-- locate the successful wifi connection point in the main.c of the ent_wlan example (comment: "wait for few moments")
-- call Xively C Client initialize code taken from one of the examples in from the Client repo, e.g.
+- locate the successful wifi connection point in the main.c of the ent_wlan example (arond line 647, comment: "//wait for few moments")
+- here put a call on the  ConnectToXively(); function. Its implementation is based on the examples in the Client repo, e.g. xively-client-c/examples/mqtt_logic_producer/src/mqtt_logic_producer.c:
 
-        void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t state ) { }
+        #include <xively.h>
+        #include <stdio.h>
+
+        void on_connection_state_changed( xi_context_handle_t in_context_handle,
+                                          void* data,
+                                          xi_state_t state )
+        {
+            printf( "Hello Xively World!, state: %d\n", state );
+        }
 
         void ConnectToXively()
         {
@@ -246,15 +261,16 @@ Steps to take:
 
             if ( XI_INVALID_CONTEXT_HANDLE >= xi_context )
             {
-                printf( " xi failed to create context, error: %d\n", -xi_context );
+                printf( " xi failed to create context, error: %d\n", xi_context );
             }
 
             xi_state_t connect_result = xi_connect_to(
                     xi_context,
                     "broker.xively.com", 8883,
-                    "35f9a1ba-2f71-4084-9b68-995eac71ef6b", "9Xusd8+jjTghQcggpvEPhu5AFY1GlVnuV9WYwxp8ZT8=",
+                    "35f9a1ba-2f71-4084-9b68-995eac71ef6b",
+                    "9Xusd8+jjTghQcggpvEPhu5AFY1GlVnuV9WYwxp8ZT8=",
                     10, 20,
-                    XI_SESSION_CLEAN, &on_connected );
+                    XI_SESSION_CLEAN, &on_connection_state_changed );
 
             xi_events_process_blocking();
 
@@ -263,25 +279,68 @@ Steps to take:
             xi_shutdown();
         }
 
-- to make it build you'll need to
-    - include xively.h
-    - link CC3200 static library: xively-client-c/obj/cc3200/libxively.a
-    - link the wolfSSL static library: xively-client-c/src/import/tls/wolfssl/tirtos/packages/ti/net/wolfssl/lib/wolfssl.aem4f
-    - and implement two functions
+- to make aboves buildable you'll need to
+    - add two include paths to your project to help compiler find xively.h and friends: Project->Properties->Build->ARM Compiler->Include Options:
+        - xively-client-c/include
+        - xively-client-c/include/bsp
+    - add two libraries Xively C Client and wolfSSL: Project->Properties->Build->ARM Linker->File Search Path:
+        - xively-client-c/bin/cc3200/libxively.a
+        - xively-client-c/src/import/tls/wolfssl/tirtos/packages/ti/net/wolfssl/lib/wolfssl.aem4f
+    - copy two files timer_if.h and timer_if.c to the project: Project->Add Files: ti/tirex-content/CC3200SDK_1.1.0/cc3200-sdk/example/common
+    - implement two functions as follows:
 
-The functions and example implementations are:
+            #include <time.h>
+            #include <xi_bsp_rng.h>
+            #include <xi_bsp_time.h>
 
-    #include <time.h>
-    #include <xi_bsp_rng.h>
-    #include <xi_bsp_time.h>
+            time_t XTIME(time_t * timer)
+            {
+                return xi_bsp_time_getcurrenttime_milliseconds();
+            }
 
-    time_t XTIME(time_t * timer)
-    {
-        /* note: this is fine for the time beeing since BSP get milliseconds returns seconds */
-        return xi_bsp_time_getcurrenttime_milliseconds();
-    }
+            uint32_t xively_ssl_rand_generate()
+            {
+                return xi_bsp_rng_get();
+            }
 
-    uint32_t xively_ssl_rand_generate()
-    {
-        return xi_bsp_rng_get();
-    }
+    - update the memory map in file cc3200v1p32.cmd. This should do it:
+
+            MEMORY
+            {
+                /* Application uses internal RAM for program and data */
+                SRAM_CODE (RWX) : origin = 0x20004000, length = 0x3C000
+                //SRAM_DATA (RWX) : origin = 0x20017000, length = 0x19000
+            }
+
+            /* Section allocation in memory */
+
+            SECTIONS
+            {
+                .intvecs:   > RAM_BASE
+                .init_array : > SRAM_CODE
+                .vtable :   > SRAM_CODE
+                .text   :   > SRAM_CODE
+                .const  :   > SRAM_CODE
+                .cinit  :   > SRAM_CODE
+                .pinit  :   > SRAM_CODE
+                .data   :   > SRAM_CODE
+                .bss    :   > SRAM_CODE
+                .sysmem :   > SRAM_CODE
+                .stack  :   > SRAM_CODE(HIGH)
+            }
+
+    - update wifi settings in main.c
+
+        - update AP name and password defines according to your wifi settings:
+
+                #define ENT_NAME    "AccessPointName"
+                #define USER_NAME   "UsernameIfAny"
+                #define PASSWORD    "Password"
+
+        - select security type according to your wifi settings, in case of WPA2 set
+
+                g_SecParams.Type = SL_SEC_TYPE_WPA_WPA2;
+
+            and delete variable eapParams and pass NULL as last attribute to connect function:
+
+                lRetVal = sl_WlanConnect(ENT_NAME,strlen(ENT_NAME),NULL,&g_SecParams,NULL);
