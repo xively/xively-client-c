@@ -30,10 +30,6 @@ TARGET_CC3200_REL			=-static-release
 
 PRESET ?= POSIX_REL
 
-  $(info )
-  $(info -------- )
-  $(info >>>> PRESET: $(PRESET))
-
 # -------------------------------------------------------
 # BSP DEV
 ifeq ($(PRESET), POSIX_DEV_MIN)
@@ -110,3 +106,9 @@ TARGET ?= $(TARGET_STATIC_REL)
 endif
 
 TARGET := $(addprefix $(XI_TARGET_PLATFORM), $(TARGET))
+
+preset_output:
+	$(info )
+	$(info # Using build PRESET: "$(PRESET)" to set CONFIG and TARGET variables:)
+	$(info .    XI_BSP_PLATFORM: [$(XI_BSP_PLATFORM)] )
+	$(info .    XI_BSP_TLS:      [$(XI_BSP_TLS)] )
