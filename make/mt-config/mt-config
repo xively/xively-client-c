@@ -213,6 +213,10 @@ XI_SOURCES += $(wildcard ./src/*.c)
 XI_SOURCES += $(foreach layerdir,$(XI_SRCDIRS),\
 	$(wildcard $(layerdir)/*.c))
 
+ifeq ($(XI_DEBUG_OUTPUT),0)
+XI_SOURCES := $(filter-out $(LIBXIVELY_SOURCE_DIR)/xi_debug.c, $(XI_SOURCES) )
+endif
+
 ifdef MAKEFILE_DEBUG
 $(info --mt-config-- $$XI_PLATFORM_BASE is [${XI_PLATFORM_BASE}])
 $(info --mt-config-- $$XI_PLATFORM_MODULES is [${XI_PLATFORM_MODULES}])
