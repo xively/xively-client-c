@@ -13,8 +13,13 @@ This method requires OSX development platform although Windows and Linux methods
 ## Software Installation
 
 - download [TI Code Composer Studio](http://www.ti.com/tool/ccstudio) and install
-    - here details about steps installing CCS
+    - choose your ccs install folder, leave the default value "c:\ti" and click next
+    - select two options from "SimpleLink Wireless MCUs" ->
+                  "CC3200xx Device Support"
+                  "TI ARM Compiler" and click next
+    - finalise the installation process and grab a coffee while waiting for CCS installer to complete the process  
 - describe SDK1.1 click-path installation outside the CCS install process to support already installed CCSs
+  -
 
 ## Building the Xively C Client library
 
