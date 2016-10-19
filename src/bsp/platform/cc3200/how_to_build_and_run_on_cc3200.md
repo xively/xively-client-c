@@ -37,6 +37,13 @@ To install the CC3200 Simplelink WiFi SDK you have two options:
 
 :exclamation: **Under construction notes**:
 
+### Download xively-client-c library
+    - Download the library source code from [xively-client-c](https://github.com/xively/xively-client-c)
+
+### Download WolfSSL library
+    - Download WolfSSL library source code from [wolfssl](https://github.com/wolfSSL/wolfssl/releases/tag/v3.9.6)
+    - Put the WolfSSL main directory under the folder PATH_TO_XIVELY_LIBRARY_MAIN_FOLDER/xively-client-c/src/import/tls/
+
 - in file make/mt-os/mt-cc3200 set XI_CC3200_PATH_CCS_TOOLS and XI_CC3200_PATH_SDK variables according to your CCS and SDK install paths and revise the CC and AR variables pointing on compiler and archiver binaries
 - currently BSP TIME has unsolved issue around returning elapsed milliseconds from 01/01/1970 since it does not fit into 4 bytes return value. So please change function in file `xively-client-c/src/libxively/time/xi_time.c` to:
 
