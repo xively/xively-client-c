@@ -1,7 +1,7 @@
 /* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
  *
  * This is part of the Xively C Client library,
- * it is licensed under the BSD 3-Clause license. 
+ * it is licensed under the BSD 3-Clause license.
  */
 
 /*
@@ -10,7 +10,7 @@
  * test messages to a topic that you also must specify
  *
  * This example application is meant as a companion example to
- * mqtt_logic_consumer example. 
+ * mqtt_logic_consumer example.
  */
 
 #include <xively.h>
