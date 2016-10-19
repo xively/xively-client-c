@@ -205,10 +205,14 @@ Steps to take:
     - ti/tirex-content/CC3200SDK_1.1.0/cc3200-sdk/example/ent_wlan/ccs
     - click Finish to open the project
 - build the project: Project->Build Project
+- create a Target Configuration for CC3200:
+    - View->Target Configurations, right click on User Defined->New Target Configuration, choose a filename. Connection: Stellaris In-Circuit Debug Interface. Board or Device: CC3200. Save.
+    - Right click on new Target Configuration->Set as Default.
 - debug it on the CC3200 device:
     - connect the device to your PC or Mac with USB cable
-    - hit the green bug button on the top in the CCS
+    - hit the green bug button on the top in the CCS or Run->Debug
         This should upload your program to RAM and end up with a debugger standing at the first line of main function in main.c. Reaching this point means you are able to produce and execute CC3200 compatible binary on the device itself.
+- keep the J15 ON and push Reset button on the board before each debug session. In case of trouble get help from [TI's CC3200 help doc](http://www.ti.com/lit/ds/symlink/cc3200.pdf)
 
 #### Adding Xively Client code to the ent_wlan example:
 
@@ -258,8 +262,24 @@ Steps to take:
     - add two libraries Xively C Client and wolfSSL: Project->Properties->Build->ARM Linker->File Search Path:
         - xively-client-c/bin/cc3200/libxively.a
         - xively-client-c/src/import/tls/wolfssl/tirtos/packages/ti/net/wolfssl/lib/wolfssl.aem4f
-    - add timer_if.h and .c files to the project from directory: ti/tirex-content/CC3200SDK_1.1.0/cc3200-sdk/example/common
-    - extend the memory map in file cc3200v1p32.cmd inside end_wlan project. This should do it:
+    - copy two files timer_if.h and timer_if.c to the project: Project->Add Files: ti/tirex-content/CC3200SDK_1.1.0/cc3200-sdk/example/common
+    - implement two functions as follows:
+
+            #include <time.h>
+            #include <xi_bsp_rng.h>
+            #include <xi_bsp_time.h>
+
+            time_t XTIME(time_t * timer)
+            {
+                return xi_bsp_time_getcurrenttime_milliseconds();
+            }
+
+            uint32_t xively_ssl_rand_generate()
+            {
+                return xi_bsp_rng_get();
+            }
+
+    - update the memory map in file cc3200v1p32.cmd. This should do it:
 
             MEMORY
             {
@@ -283,22 +303,6 @@ Steps to take:
                 .bss    :   > SRAM_CODE
                 .sysmem :   > SRAM_CODE
                 .stack  :   > SRAM_CODE(HIGH)
-            }
-
-    - implement two functions as follows:
-
-            #include <time.h>
-            #include <xi_bsp_rng.h>
-            #include <xi_bsp_time.h>
-
-            time_t XTIME(time_t * timer)
-            {
-                return xi_bsp_time_getcurrenttime_milliseconds();
-            }
-
-            uint32_t xively_ssl_rand_generate()
-            {
-                return xi_bsp_rng_get();
             }
 
     - update wifi settings in main.c
