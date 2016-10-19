@@ -31,7 +31,7 @@ To install the CC3200 Simplelink WiFi SDK you have two options:
     - select "CC3200 Simplelink WiFi" from the list of available development tools
     - click "Install on Desktop" -> "Make Available Offline" and confirm "Yes" on the popup window
 - 2nd ( Only Windows ) - If you need latest version of the SDK ( 1.2.0 )
-    - download [CC3200 Simplelink WiFi SDK 1.2.0](http://software-dl.ti.com/dsps/forms/self_cert_export.html?prod_no=CC3200SDK-1.2.0-windows-installer.exe&ref_url=http://software-dl.ti.com/ecs) and install
+    - download [CC3200 Simplelink WiFi SDK 1.2.0](http://software-dl.ti.com/dsps/forms/self_cert_export.html?prod_no=CC3200SDK-1.2.0-windows-installer.exe&ref_url=http://software-dl.ti.com/ecs) and install using default settings
 
 ## Building the Xively C Client library
 
