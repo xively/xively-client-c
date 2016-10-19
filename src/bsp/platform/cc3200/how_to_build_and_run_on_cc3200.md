@@ -14,7 +14,7 @@ This method requires OSX development platform although Windows and Linux methods
 
 ### TI Code Composer Studio
 
-- download [TI Code Composer Studio](http://www.ti.com/tool/ccstudio) and install
+- Follow these steps to install the [TI Code Composer Studio](http://www.ti.com/tool/ccstudio) on your machine:
     - choose your ccs install folder, leave the default value "c:\ti" and click next
     - select two options from "SimpleLink Wireless MCUs" ->
                   "CC3200xx Device Support"
@@ -23,7 +23,7 @@ This method requires OSX development platform although Windows and Linux methods
 
 ### CC3200 Simplelink WiFi SDK
 
-- To install the CC3200 Simplelink WiFi SDK you have two options
+- To install the CC3200 Simplelink WiFi SDK you have two options:
     - 1st - let the CCS download and install version 1.1.0 of the SDK for you
         - open "View"->"Resource Explorer" from the top bar menu
         - select "CC3200 Simplelink WiFi" from the list of available development tools
