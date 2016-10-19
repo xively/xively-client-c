@@ -200,17 +200,20 @@ Steps to take:
 
 #### Code Coposer Studio + ent_wlan example:
 
-- create a new workspace for Code Composer Studio
-- import the ent_wlan example from the CC3200 SDK's example directory: ti/tirex-content/CC3200SDK_1.1.0/cc3200-sdk/example/ent_wlan/ccs
-- build it
-- debug it on the device
-    - connect the device to the Mac
+- import the ent_wlan example from the CC3200 SDK's example directory
+    - File->Import->Code Composer Studio->CCS Projects->Select search-directory:
+    - ti/tirex-content/CC3200SDK_1.1.0/cc3200-sdk/example/ent_wlan/ccs
+    - click Finish to open the project
+- build the project: Project->Build Project
+- debug it on the CC3200 device:
+    - connect the device to your PC or Mac with USB cable
     - hit the green bug button on the top in the CCS
+        This should upload your program to RAM and end up with a debugger standing at the first line of main function in main.c. Reaching this point means you are able to produce and execute CC3200 compatible binary on the device itself.
 
 #### Adding Xively Client code to the ent_wlan example:
 
-- locate the successful wifi connection point in the main.c of the ent_wlan example (comment: "//wait for few moments")
-- here put a call on the  ConnectToXively function, implementation based on the examples in the Client repo, e.g. xively-client-c/examples/mqtt_logic_producer/src/mqtt_logic_producer.c:
+- locate the successful wifi connection point in the main.c of the ent_wlan example (arond line 647, comment: "//wait for few moments")
+- here put a call on the  ConnectToXively(); function. Its implementation is based on the examples in the Client repo, e.g. xively-client-c/examples/mqtt_logic_producer/src/mqtt_logic_producer.c:
 
         #include <xively.h>
         #include <stdio.h>
@@ -248,12 +251,13 @@ Steps to take:
             xi_shutdown();
         }
 
-- to make it build you'll need to
-    - add two full paths to your project includes:
+- to make aboves buildable you'll need to
+    - add two include paths to your project to help compiler find xively.h and friends: Project->Properties->Build->ARM Compiler->Include Options:
         - xively-client-c/include
         - xively-client-c/include/bsp
-    - link the CC3200 library: xively-client-c/bin/cc3200/libxively.a
-    - link the wolfSSL library: xively-client-c/src/import/tls/wolfssl/tirtos/packages/ti/net/wolfssl/lib/wolfssl.aem4f
+    - add two libraries Xively C Client and wolfSSL: Project->Properties->Build->ARM Linker->File Search Path:
+        - xively-client-c/bin/cc3200/libxively.a
+        - xively-client-c/src/import/tls/wolfssl/tirtos/packages/ti/net/wolfssl/lib/wolfssl.aem4f
     - add timer_if.h and .c files to the project from directory: ti/tirex-content/CC3200SDK_1.1.0/cc3200-sdk/example/common
     - extend the memory map in file cc3200v1p32.cmd inside end_wlan project. This should do it:
 
