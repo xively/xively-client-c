@@ -1,6 +1,6 @@
 # How to build and run Xively C Client on TI CC3200
 
-Welcome to the Xively C Client build tutorial for the TI CC3200!  
+Welcome to the Xively C Client build tutorial for the TI CC3200!
 
 Here you will learn how to build, link, and deploy a Xively C Client to this embedded platform using the Code Composer Studio (CCS) IDE from Texas Instruments.
 
@@ -21,7 +21,7 @@ Code Composer Studio includes the toolchain (compiler) you'll need to build for 
 Download [TI Code Composer Studio](http://www.ti.com/tool/ccstudio) and start installation process.
 
 1. Accept the license agreement and click ```Next >```.
-2. Choose the default install folder and click ```Next >```. Or, if you install into a custom directory, then please note its path as you will need to refer to it later.  
+2. Choose the default install folder and click ```Next >```. Or, if you install into a custom directory, then please note its path as you will need to refer to it later.
 
 	By default the path should be ```c:\ti``` on Windows and ```/Applications/ti``` on MacOS.
 
@@ -42,7 +42,7 @@ These are the platform libraries that you'll need to compile and link against wh
 5. On the right side of the screen, click the ```Install on Desktop``` down-arrow icon and select ```Make Available Offline```. Confirm ```Yes``` on the popup window.
 6. A ```Dependencies``` popup may appear.  Click ```OK``` to download any software dependencies.
 
-*NOTE*: Windows users may download the SDK directly outside of CCS if you wish: 
+*NOTE*: Windows users may download the SDK directly outside of CCS if you wish:
 
 - download [CC3200 Simplelink WiFi SDK](http://www.ti.com/tool/cc3200sdk) and install using default settings.
 
@@ -57,9 +57,9 @@ These are the platform libraries that you'll need to compile and link against wh
 #### Configure Make Target file mt-cc3200
 1. open the file file ```make/mt-os/mt-cc3200``` in your favorite friendly text editor
 2. Scroll the HOSTS section devoted to your host platform: ```MAC HOST OS```, ```WINDOWS HOST OS```, or ```LINUX HOST OS```.
-2. In your newly identified host's section, set ```XI_CC3200_PATH_CCS_TOOLS``` and ```XI_CC3200_PATH_SDK``` to your Code Composer Studio and SDK install paths, respectively.  If chose the default installation paths for these installations then these values should already be valid. 
-3. The toolchain that Code Composer Studio downloaded might differ from the default that's configured in this ```mt-c3200``` file. 
-	1. Please browse to the path which you set ```XI_CC3200_PATH_CCS_TOOLS```.  
+2. In your newly identified host's section, set ```XI_CC3200_PATH_CCS_TOOLS``` and ```XI_CC3200_PATH_SDK``` to your Code Composer Studio and SDK install paths, respectively.  If chose the default installation paths for these installations then these values should already be valid.
+3. The toolchain that Code Composer Studio downloaded might differ from the default that's configured in this ```mt-c3200``` file.
+	1. Please browse to the path which you set ```XI_CC3200_PATH_CCS_TOOLS```.
 	2. Open up the ```compiler/``` and note the the name of the toolchain.
 	3. Compare this to the toolchain name stored in the ```COMPILER``` variable near the top of the file in ```mt-cc3200```.  Update the ```COMPILER``` variable as necessary.
 
@@ -166,7 +166,6 @@ Further wolfSSL build customizations:
         #define SINGLE_THREADED
 
         #define CUSTOM_RAND_GENERATE xively_ssl_rand_generate
-        #define CUSTOM_XTIME xively_ssl_time
 
         #define HAVE_SNI
         #define HAVE_OCSP
