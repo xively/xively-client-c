@@ -1,8 +1,10 @@
 # How to build and run Xively C Client on TI CC3200
 
-This document describes a method which includes compilation and linkage of Xively C Client sources resulting in a CC3200 compatible static library which can be linked agains a Texas Instruments Code Composer Studio (CCS) example application. The result can be uploaded to the RAM and executed and debugged with the help of the CCS. If everything goes well the result is capable to connect to Xively Services from a CC3200 board.
+Welcome to the Xively C Client build tutorial for the TI CC3200!  
 
-This method requires OSX development platform although Windows and Linux methods should be very similar.
+Here you will learn how to build, link, and deploy a Xively C Client to this embedded platform using the Code Composer Studio (CCS) IDE from Texas Instruments.
+
+This tutorial supports OSX and Windows, though the Linux flow should be somewhat similar.
 
 ## Table of Contents
 1. [Software Installation](#software-installation)
@@ -10,15 +12,23 @@ This method requires OSX development platform although Windows and Linux methods
 3. [Building the wolfSSL library](#building-the-wolfssl-library)
 4. [Building CC3200 application: CCS ent_wlan example](#building-cc3200-application-ccs-ent_wlan-example)
 
-## Software Installation
+## Platform Software Installation
 
 ### TI Code Composer Studio
-
+Code Composer Studio includes platform cross-compiling toolchains and a java-based IDE.
 Download [TI Code Composer Studio](http://www.ti.com/tool/ccstudio) and start installation process.
 
-- choose your ccs install folder, leave the default value. It should be ```c:\ti``` on Windows and ```/Applications/ti``` on MacOS and continue
-- select two options from ```SimpleLink Wireless MCUs``` -> \[ ```CC3200xx Device Support``` and ```TI ARM Compiler``` \] continue
-- finalise the installation process
+1. Accept the license agreement.
+
+2. Choose the default install folder and click ```next```. Or, if you install into a custom directory, then please note its path as you will need to refer to it later.  
+
+	By default the path should be ```c:\ti``` on Windows and ```/Applications/ti``` on MacOS.
+
+3. Enable two options under ```SimpleLink Wireless MCUs```
+	1. ```CC3200xx Device Support```
+	2. ```TI ARM Compiler```
+
+4. Click ```next``` to select the defaults and click ```Finish```.
 
 ### CC3200 Simplelink WiFi SDK
 
