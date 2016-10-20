@@ -42,16 +42,17 @@ These are the platform libraries that you'll need to compile and link against wh
 5. On the right side of the screen, click the ```Install on Desktop``` down-arrow icon and select ```Make Available Offline```. Confirm ```Yes``` on the popup window.
 6. A ```Dependencies``` popup may appear.  Click ```OK``` to download any software dependencies.
 
-NOTE: Windows users may download the SDK directly outside of CCS if you wish:
-    - download [CC3200 Simplelink WiFi SDK 1.2.0](http://software-dl.ti.com/dsps/forms/self_cert_export.html?prod_no=CC3200SDK-1.2.0-windows-installer.exe&ref_url=http://software-dl.ti.com/ecs) and install using default settings.
+*NOTE*: Windows users may download the SDK directly outside of CCS if you wish: 
+
+- download [CC3200 Simplelink WiFi SDK](http://www.ti.com/tool/cc3200sdk) and install using default settings.
 
 ## Building the Xively C Client library
 
 ### Download the xively-client-c library source
-- Download the library source code from [xively-client-c](https://github.com/xively/xively-client-c).  You use [git](https://help.github.com/articles/set-up-git/) to clone the repository or download the source archive on the right side of the page.
+1. Download the library source code from [xively-client-c](https://github.com/xively/xively-client-c).  You use [git](https://help.github.com/articles/set-up-git/) to clone the repository or download the source archive on the right side of the page.
 
 
-### Configure Xively C Client library
+### Prebuild Configuration of the Xively C Client
 
 #### Configure Make Target file mt-cc3200
 1. open the file file ```make/mt-os/mt-cc3200``` in your favorite friendly text editor
@@ -99,7 +100,7 @@ For all host platforms the PRESET=CC3200_REL_MIN_UNSECURE results in a Xively C 
 
 ## Building the wolfSSL library
 
-WolfSSL is used to create secure TLS connections.  There is a version of WolfSSL provided on-chip when using the CC3200, but it does not provide OCSP support. OCSP support is crucial in detecting compromised and revoked Certficates, and therefore we have provided instructions on building and linking against a newer version of the WolfSSL library.
+WolfSSL is used to create secure TLS connections.  There is a version of WolfSSL provided on-chip when using the CC3200, but it does not provide OCSP support. OCSP support is crucial in detecting compromised and revoked Certficates, and therefore we have provided instructions on building and linking against a newer version of the WolfSSL library so that OCSP can be leveraged by your project.
 
 ### Download WolfSSL library source
 - Download WolfSSL library source code from [wolfssl](https://github.com/wolfSSL/wolfssl/releases/tag/v3.9.6)
