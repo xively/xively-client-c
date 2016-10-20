@@ -14,32 +14,36 @@ This tutorial supports OSX and Windows, though the Linux flow should be somewhat
 
 ## Platform Software Installation
 
+TI's CC3200 requires to main software package installations to use their standard SDK.
+
 ### TI Code Composer Studio
-Code Composer Studio includes platform cross-compiling toolchains and a java-based IDE.
+Code Composer Studio includes the toolchain (compiler) you'll need to build for the CC3200 and a java-based IDE.
 Download [TI Code Composer Studio](http://www.ti.com/tool/ccstudio) and start installation process.
 
-1. Accept the license agreement.
-
-2. Choose the default install folder and click ```next```. Or, if you install into a custom directory, then please note its path as you will need to refer to it later.  
+1. Accept the license agreement and click ```Next >```.
+2. Choose the default install folder and click ```Next >```. Or, if you install into a custom directory, then please note its path as you will need to refer to it later.  
 
 	By default the path should be ```c:\ti``` on Windows and ```/Applications/ti``` on MacOS.
 
-3. Enable two options under ```SimpleLink Wireless MCUs```
+3. Enable the following two options under ```SimpleLink Wireless MCUs```:
 	1. ```CC3200xx Device Support```
 	2. ```TI ARM Compiler```
 
-4. Click ```next``` to select the defaults and click ```Finish```.
+4. Click ```Next >``` twice more, and click ```Finish``` when the button becomes enabled.
+5. Once installation completes, click ```Finish``` to leave the installer.
 
 ### CC3200 Simplelink WiFi SDK
+These are the platform libraries that you'll need to compile and link against when writing software for the CC3200.
 
-To install the CC3200 Simplelink WiFi SDK you have two options:
+1. Launch Code Composer Studio.
+2. If prompted to ```Select a Workspace```, click ```OK``` to select the default path.
+3. 	Select  ```View```->```Resource Explorer``` from the top bar menu.
+4. Select ```CC3200 Simplelink WiFi``` from the list of available development tools.
+5. On the right side of the screen, click the ```Install on Desktop``` down-arrow icon and select ```Make Available Offline```. Confirm ```Yes``` on the popup window.
+6. A ```Dependencies``` popup may appear.  Click ```OK``` to download any software dependencies.
 
-- 1st ( Works on Windows, MacOSX and Linux ) with CCS v6.2.0 or higher - let the CCS download and install v1.1.0 of the SDK for you
-    - open ```View```->```Resource Explorer``` from the top bar menu
-    - select ```CC3200 Simplelink WiFi``` from the list of available development tools
-    - click ```Install on Desktop``` -> ```Make Available Offline``` and confirm ```Yes``` on the popup window
-- 2nd ( Only Windows ) - If you need latest version of the SDK ( 1.2.0 )
-    - download [CC3200 Simplelink WiFi SDK 1.2.0](http://software-dl.ti.com/dsps/forms/self_cert_export.html?prod_no=CC3200SDK-1.2.0-windows-installer.exe&ref_url=http://software-dl.ti.com/ecs) and install using default settings
+NOTE: Windows users may download the SDK directly outside of CCS if you wish:
+    - download [CC3200 Simplelink WiFi SDK 1.2.0](http://software-dl.ti.com/dsps/forms/self_cert_export.html?prod_no=CC3200SDK-1.2.0-windows-installer.exe&ref_url=http://software-dl.ti.com/ecs) and install using default settings.
 
 ## Building the Xively C Client library
 
