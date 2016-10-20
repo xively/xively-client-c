@@ -47,28 +47,39 @@ NOTE: Windows users may download the SDK directly outside of CCS if you wish:
 
 ## Building the Xively C Client library
 
-:exclamation: **Under construction notes**:
+**These Notes are Under construction notes**:
 
 ### Download xively-client-c library
-- Download the library source code from [xively-client-c](https://github.com/xively/xively-client-c)
+- Download the library source code from [xively-client-c](https://github.com/xively/xively-client-c).  You use [git](https://help.github.com/articles/set-up-git/) to clone the repository or download the source archive on the right side of the page.
 
 ### Download WolfSSL library
 - Download WolfSSL library source code from [wolfssl](https://github.com/wolfSSL/wolfssl/releases/tag/v3.9.6)
 - Put the WolfSSL main directory under the PATH_TO_XIVELY_LIBRARY_MAIN_FOLDER/xively-client-c/src/import/tls/
 
+### Configure Xively C Client library
+
+#### Configure Make Target file mt-cc3200
+1. open the file file ```make/mt-os/mt-cc3200``` in your favorite friendly text editor
+2. Scroll the HOSTS section devoted to your host platform: ```MAC HOST OS```, ```WINDOWS HOST OS```, or ```LINUX HOST OS```.
+2. In your newly identified host's section, set ```XI_CC3200_PATH_CCS_TOOLS``` and ```XI_CC3200_PATH_SDK``` to your Code Composer Studio and SDK install paths, respectively.  If chose the default installation paths for these installations then these values should already be valid. 
+3. The toolchain that Code Composer Studio downloaded might differ from the default that's configured in this ```mt-c3200``` file. 
+	1. Please browse to the path which you set ```XI_CC3200_PATH_CCS_TOOLS```.  
+	2. Open up the ```compiler/``` and note the the name of the toolchain.
+	3. Compare this to the toolchain name stored in the ```COMPILER``` variable near the top of the file in ```mt-cc3200```.  Update the ```COMPILER``` variable as necessary.
+
+#### A Small Xively C Source Code Change
+Currently BSP TIME has unsolved issue around returning elapsed milliseconds from 01/01/1970 since it does not fit into 4 bytes return value. For now please change function in file `xively-client-c/src/libxively/time/xi_time.c` to:
+
+	 	xi_time_t xi_getcurrenttime_seconds()
+	   {
+        return xi_bsp_time_getcurrenttime_milliseconds();
+		}
+
+This is correct for the time being since BSP get milliseconds function returns seconds.
+
 ### Build Xively C Client library
 
-- in file make/mt-os/mt-cc3200 set XI_CC3200_PATH_CCS_TOOLS and XI_CC3200_PATH_SDK variables according to your CCS and SDK install paths and revise the CC and AR variables pointing on compiler and archiver binaries
-- currently BSP TIME has unsolved issue around returning elapsed milliseconds from 01/01/1970 since it does not fit into 4 bytes return value. So please change function in file `xively-client-c/src/libxively/time/xi_time.c` to:
-
-        xi_time_t xi_getcurrenttime_seconds()
-        {
-            return xi_bsp_time_getcurrenttime_milliseconds();
-        }
-
-    This is correct for the time being since BSP get milliseconds function returns seconds.
-
-:exclamation:
+The process for building slightly depends on your host OS:
 
 - Windows:
 
@@ -82,14 +93,14 @@ NOTE: Windows users may download the SDK directly outside of CCS if you wish:
         gmake PRESET=CC3200_REL_MIN clean
         gmake PRESET=CC3200_REL_MIN
 
-- MacOS:
+- MacOS and Linux:
 
     Build and clean the library:
 
         make PRESET=CC3200_REL_MIN clean
         make PRESET=CC3200_REL_MIN
 
-For both platforms the PRESET=CC3200_REL_MIN_UNSECURE results in a Xively C Client version withouth secure connection. Primarily non-secure library is for development purposes.
+For all host platforms the PRESET=CC3200_REL_MIN_UNSECURE results in a Xively C Client version without a secure TLS connection. This can be useful for development purposes against local MQTT brokers, like [mosquitto](https://mosquitto.org/) but is not advised for devices in a real production enviorment.
 
 ## Building the wolfSSL library
 
