@@ -8,17 +8,20 @@ include make/mt-os/mt-os-common
 # todo: this is common, move it to outside
 XI ?= $(XI_BINDIR)/libxively.a
 
+# COMPILER ?= ti-cgt-arm_16.6.0.STS
+COMPILER ?= arm_15.12.3.LTS
+
 ifeq ($(XI_HOST_PLATFORM),Linux)
 	# linux cross-compilation prerequisite downloads
 
 	XI_CC3200_PATH_CCS_TOOLS ?= $(HOME)/Downloads/xi_artifactory/ti/ccsv6/tools
 	XI_CC3200_PATH_SDK ?= $(HOME)/Downloads/xi_artifactory/ti/CC3200SDK_1.2.0/cc3200-sdk
 
-	CC = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/arm_15.12.3.LTS/bin/armcl
-	AR = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/arm_15.12.3.LTS/bin/armar
+	CC = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armcl
+	AR = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armar
 
-	XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_CCS_TOOLS)/compiler/arm_15.12.3.LTS/include
-	XI_COMPILER_FLAGS += -i"$(XI_CC3200_PATH_CCS_TOOLS)/compiler/arm_15.12.3.LTS/lib"
+	XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/include
+	XI_COMPILER_FLAGS += -i"$(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/lib"
 
 	XI_BUILD_PRECONDITIONS := $(CC)
 
@@ -33,20 +36,17 @@ else ifeq ($(XI_HOST_PLATFORM),Darwin)
 	XI_CC3200_PATH_CCS_TOOLS ?= /Applications/ti/ccsv6/tools
 	XI_CC3200_PATH_SDK ?= $(HOME)/ti/tirex-content/CC3200SDK_1.1.0/cc3200-sdk
 
-	CC = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/arm_15.12.3.LTS/bin/armcl
-	AR = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/arm_15.12.3.LTS/bin/armar
+	CC = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armcl
+	AR = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER))/bin/armar
 
-	XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_CCS_TOOLS)/compiler/arm_15.12.3.LTS/include
-	XI_COMPILER_FLAGS += -i"$(XI_CC3200_PATH_CCS_TOOLS)/compiler/arm_15.12.3.LTS/lib"
+	XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/include
+	XI_COMPILER_FLAGS += -i"$(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/lib"
 
 else ifneq (,$(findstring Windows,$(XI_HOST_PLATFORM)))
 	 # windows cross-compilation
 
 	XI_CC3200_PATH_CCS_TOOLS ?= C:/ti/ccsv6/tools
 	XI_CC3200_PATH_SDK ?= C:/ti/tirex-content/CC3200SDK_1.1.0/cc3200-sdk/
-
-	# COMPILER ?= ti-cgt-arm_16.6.0.STS
-	COMPILER ?= arm_15.12.3.LTS
 
 	CC = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armcl
 	AR = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armar
