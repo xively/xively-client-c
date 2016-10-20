@@ -1,4 +1,5 @@
-# How to build and run Xively C Client on TI CC3200
+# Tutorial for Xively C Client on Texas Instruments CC3200
+
 
 Welcome to the Xively C Client build tutorial for the TI CC3200!
 
