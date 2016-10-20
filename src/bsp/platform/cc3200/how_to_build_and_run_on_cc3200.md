@@ -47,14 +47,9 @@ NOTE: Windows users may download the SDK directly outside of CCS if you wish:
 
 ## Building the Xively C Client library
 
-**These Notes are Under construction notes**:
-
-### Download xively-client-c library
+### Download the xively-client-c library source
 - Download the library source code from [xively-client-c](https://github.com/xively/xively-client-c).  You use [git](https://help.github.com/articles/set-up-git/) to clone the repository or download the source archive on the right side of the page.
 
-### Download WolfSSL library
-- Download WolfSSL library source code from [wolfssl](https://github.com/wolfSSL/wolfssl/releases/tag/v3.9.6)
-- Put the WolfSSL main directory under the PATH_TO_XIVELY_LIBRARY_MAIN_FOLDER/xively-client-c/src/import/tls/
 
 ### Configure Xively C Client library
 
@@ -103,6 +98,14 @@ The process for building slightly depends on your host OS:
 For all host platforms the PRESET=CC3200_REL_MIN_UNSECURE results in a Xively C Client version without a secure TLS connection. This can be useful for development purposes against local MQTT brokers, like [mosquitto](https://mosquitto.org/) but is not advised for devices in a real production enviorment.
 
 ## Building the wolfSSL library
+
+WolfSSL is used to create secure TLS connections.  There is a version of WolfSSL provided on-chip when using the CC3200, but it does not provide OCSP support. OCSP support is crucial in detecting compromised and revoked Certficates, and therefore we have provided instructions on building and linking against a newer version of the WolfSSL library.
+
+### Download WolfSSL library source
+- Download WolfSSL library source code from [wolfssl](https://github.com/wolfSSL/wolfssl/releases/tag/v3.9.6)
+- Put the WolfSSL main directory under the PATH_TO_XIVELY_LIBRARY_MAIN_FOLDER/xively-client-c/src/import/tls/
+
+### Configure WolfSSL library source
 
 The wolfSSL supports TI-RTOS builds. Follow the steps written on [Using wolfSSL with TI-RTOS](http://processors.wiki.ti.com/index.php/Using_wolfSSL_with_TI-RTOS) to generate wolfSSL static library for CC3200.
 
