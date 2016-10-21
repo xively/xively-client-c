@@ -375,7 +375,7 @@ Reaching this point means you are able to produce and execute CC3200 compatible 
                 #define USER_NAME   "UsernameIfAny"
                 #define PASSWORD    "Password"
 
-        - select security type according to your wifi settings, in case of WPA2 set
+        - select security type in EntWlan() function according to your wifi settings, in case of WPA2 set
 
                 g_SecParams.Type = SL_SEC_TYPE_WPA_WPA2;
 
