@@ -5,6 +5,7 @@
  */
 
 #include "xi_bsp_io_net.h"
+#include "xi_bsp_time.h"
 #include "xi_event_dispatcher_api.h"
 
 
@@ -116,7 +117,7 @@ xi_bsp_event_loop_transform_to_bsp_select( xi_evtd_instance_t** in_event_dispatc
     }
 
     /* store the current time */
-    const xi_time_t current_time = xi_getcurrenttime_seconds();
+    const xi_time_t current_time = xi_bsp_time_getcurrenttime_seconds();
 
     /* recalculate the timeout */
     if ( was_timeout_candidate_set )
@@ -267,7 +268,7 @@ xi_state_t xi_event_loop_with_evtds( uint32_t num_iterations,
         uint8_t evtd_id = 0;
         for ( evtd_id = 0; evtd_id < num_evtds; ++evtd_id )
         {
-            xi_evtd_step( event_dispatchers[evtd_id], xi_getcurrenttime_seconds() );
+            xi_evtd_step( event_dispatchers[evtd_id], xi_bsp_time_getcurrenttime_seconds() );
         }
     }
 

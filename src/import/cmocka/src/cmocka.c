@@ -2561,7 +2561,7 @@ int _cmocka_run_group_tests(const char *group_name,
                                       group_check_point);
     }
 
-    t0_all = xi_getcurrenttime_milliseconds();
+    t0_all = xi_bsp_time_getcurrenttime_milliseconds();
 
     if (rc == 0) {
         /* Execute tests */
@@ -2575,12 +2575,12 @@ int _cmocka_run_group_tests(const char *group_name,
                 cm_tests[i].state = group_state;
             }
 
-            t0_testcase = xi_getcurrenttime_milliseconds();
+            t0_testcase = xi_bsp_time_getcurrenttime_milliseconds();
 
             rc = cmocka_run_one_tests(cmtest);
 
 
-            deltatime_testcase = xi_getcurrenttime_milliseconds() - t0_testcase;
+            deltatime_testcase = xi_bsp_time_getcurrenttime_milliseconds() - t0_testcase;
 
             total_executed++;
             total_runtime += cmtest->runtime;
@@ -2640,7 +2640,7 @@ int _cmocka_run_group_tests(const char *group_name,
                                  group_check_point);
     }
 
-    deltatime_all = xi_getcurrenttime_milliseconds() - t0_all;
+    deltatime_all = xi_bsp_time_getcurrenttime_milliseconds() - t0_all;
 
     cmprintf_group_finish(group_name,
                           total_executed,

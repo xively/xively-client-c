@@ -13,6 +13,7 @@
 #include "xively.h"
 #include <getopt.h>
 #include <xi_event_loop.h>
+#include <xi_bsp_time.h>
 
 #ifdef XI_PLATFORM_BASE_POSIX
 #include <execinfo.h>
@@ -164,7 +165,7 @@ int main( int argc, char const* argv[] )
     // do a single step on driver's evtd to start control
     // channel connect before doing first empty select 1sec blocking
     xi_evtd_step( libxively_driver->context->context_data.evtd_instance,
-                  xi_getcurrenttime_seconds() );
+                  xi_bsp_time_getcurrenttime_seconds() );
 
     xi_evtd_instance_t* evtd_all[2] = {
         xi_globals.evtd_instance, libxively_driver->context->context_data.evtd_instance};
@@ -180,9 +181,9 @@ int main( int argc, char const* argv[] )
         // this is for speeding up
         // driver->libxively and
         // driver->libxively->driver requests (avoiding select timeout between)
-        xi_evtd_step( xi_globals.evtd_instance, xi_getcurrenttime_seconds() );
+        xi_evtd_step( xi_globals.evtd_instance, xi_bsp_time_getcurrenttime_seconds() );
         xi_evtd_step( libxively_driver->context->context_data.evtd_instance,
-                      xi_getcurrenttime_seconds() );
+                      xi_bsp_time_getcurrenttime_seconds() );
     }
 
     xi_libxively_driver_destroy_instance( &libxively_driver );
