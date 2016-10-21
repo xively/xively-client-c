@@ -245,31 +245,49 @@ Further wolfSSL build customizations:
     under directory `wolfssl/tirtos. The result file is ```wolfssl/tirtos/packages/ti/net/wolfssl/lib/wolfssl.aem4f``` this is the library one should link to an example application to provide wolfSSL symbols.
 
 
-## Building CC3200 application = CCS ent_wlan example + Xively Client
+## Building your CC3200 example application
 
-The ent_wlan is a non-os example application providing a wifi connection. This serves as a good light-weight basis for Xively C Client on CC3200.
+We suggest the ent_wlan networking example from the CC3200 SDK as the basis for connecting to Xively. We will first import the example into Code Comoser Studio, and then add some code to build your IoT Client connection to the Xively service.
 
-### CCS + ent_wlan example
+### Building the ent_wlan Example
 
-- import the ent_wlan example project from the CC3200 SDK's example directory
-    - File->Import->Code Composer Studio->CCS Projects->Select search-directory:
-    - ti/tirex-content/CC3200SDK_1.1.0/cc3200-sdk/example/ent_wlan/ccs
-    - click Finish to open the project
-- build the project: Project->Build Project
-- create a Target Configuration for CC3200
-    - View->Target Configurations, right click on User Defined->New Target Configuration, choose a filename.
-        - Connection: Stellaris In-Circuit Debug Interface.
-        - Board or Device: CC3200.
-        - Save.
-    - Right click on new Target Configuration->Set as Default.
-- debug it on the CC3200 device
-    - connect the device to your PC or Mac with USB cable
-    - hit the green bug button on the top in the CCS or Run->Debug
+#### Import ent_wlan
+1. In Code Composer Studio, select ```File```->```Import```.
+2. Select ```Code Composer Studio```->```CCS Projects``` and click ```Next >```
+3. To the right of ```Select search-directory``` click Browse.
+4. From this directory, browse to ```ti/tirex-content/CC3200SDK_1.1.0/cc3200-sdk/example/ent_wlan``` and highlight the ```ccs``` folder.  Click ```Open```.
+5. Click ```Finish```.
 
-        This should upload your program to RAM and end up with a debugger standing at the first line of main function in main.c. Reaching this point means you are able to produce and execute CC3200 compatible binary on the device itself.
-- Hint: keep the J15 ON and push Reset button on the board before each debug session. In case of trouble get help from [TI's CC3200 help doc](http://www.ti.com/lit/ds/symlink/cc3200.pdf)
+#### Build and Run the Example
+1. Select ```Project```-> ```Build Project```
+	1. When complete, you should see in the ```Console```:
+			
+			<Linking>
+			Finished building target: ent_wlan.out
+			...
+			**** Build Finished ****
+				
+2. Before the first execution, you will need to create a Configuration so that Code Composer Studio knows which platform you're loading the source onto.
+	1. Select ```View``` -> ```Target Configurations```.  The ```Target Configurations``` panel opens to the right side of the IDE.
+	2. Right click on ```User Defined``` and select ```New Target Configuration```.
+	3. Choose a filename or keep the default.  Click ```Finish```.
+	4. In the ```Connection``` pulldown, select ```Stellaris In-Circuit Debug Interface```.
+	5. Select the box next to ```CC3200``` to add a check mark.
+	6. Click the ```Save``` button to the right.
+	7. Back in the ```Target Configurations``` panel to the right, expand ```User Defined```.
+	8. Right click on your new target configuration and select ```Set as Default```.
 
-### CCS ent_wlan example + Xively Client
+3. 	Execute the example on the CC3200 device
+	1. connect the device to your PC or Mac with USB cable
+	2. hit the green bug button on the top in the CCS, or select ```Run``` ->```Debug```
+
+This should upload your program to RAM and end up with a debugger standing at the first line of main function in main.c.
+
+Reaching this point means you are able to produce and execute CC3200 compatible binary on the device itself.  Congratulations!
+
+**NOTE**: As per Texas Instruments instructions, keep the J15 Jumper set to ON and push Reset button on the board before each debug session. In case of trouble get help from [TI's CC3200 help doc](http://www.ti.com/lit/ds/symlink/cc3200.pdf)
+
+### Adding the Xively Client to ent_wlan
 
 - locate the successful wifi connection point in the main.c of the ent_wlan example (arond line 647, comment: "//wait for few moments")
 - here put a call on the  ConnectToXively(); function. Its implementation is based on the examples in the Client repo, e.g. xively-client-c/examples/mqtt_logic_producer/src/mqtt_logic_producer.c:
