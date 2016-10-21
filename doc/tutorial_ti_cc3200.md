@@ -318,13 +318,13 @@ Reaching this point means you are able to produce and execute CC3200 compatible 
         }
 
 - to make aboves buildable you'll need to
-    - add two include paths to your project to help compiler find xively.h and friends: Project->Properties->Build->ARM Compiler->Include Options:
+    - add two include paths to your project to help compiler find xively.h and friends: ```Project```->```Properties```->```Build```->```ARM Compiler```->```Include Options```:
         - xively-client-c/include
         - xively-client-c/include/bsp
-    - add two libraries Xively C Client and wolfSSL: Project->Properties->Build->ARM Linker->File Search Path:
+    - add two libraries Xively C Client and wolfSSL: ```Project```->```Properties```->```Build```->```ARM Linker```->```File Search Path```:
         - xively-client-c/bin/cc3200/libxively.a
         - xively-client-c/src/import/tls/wolfssl/tirtos/packages/ti/net/wolfssl/lib/wolfssl.aem4f
-    - add two files timer_if.h and timer_if.c to the project: Project->Add Files: ti/tirex-content/CC3200SDK_1.1.0/cc3200-sdk/example/common
+    - add two files timer_if.h and timer_if.c to the project: ```Project```->```Add Files```: ti/tirex-content/CC3200SDK_1.1.0/cc3200-sdk/example/common
     - implement two functions as follows:
 
             #include <time.h>
@@ -383,6 +383,6 @@ Reaching this point means you are able to produce and execute CC3200 compatible 
 
                 lRetVal = sl_WlanConnect(ENT_NAME,strlen(ENT_NAME),NULL,&g_SecParams,NULL);
 
-    - all set: Project->Build and Run->Debug
+    - all set: ```Project```->```Build``` and ```Run```->```Debug```
 
         This should result in a CC3200 connected to Xively Services.
