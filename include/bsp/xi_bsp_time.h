@@ -37,6 +37,12 @@ void xi_bsp_time_init();
 
 /**
  * @function
+ * @brief Returns elapsed seconds since Epoch.
+ */
+xi_time_t xi_bsp_time_getcurrenttime_seconds();
+
+/**
+ * @function
  * @brief Returns elapsed milliseconds since Epoch.
  */
 xi_time_t xi_bsp_time_getcurrenttime_milliseconds();

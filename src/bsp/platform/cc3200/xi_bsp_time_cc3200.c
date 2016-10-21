@@ -30,11 +30,17 @@ void xi_bsp_time_init()
     Timer_IF_IntSetup( TIMERA0_BASE, TIMER_A, timer_int_handler );
     Timer_IF_Start( TIMERA0_BASE, TIMER_A, 1000 );
 
-    sntp_task( NULL );
+    xi_bsp_time_sntp_init( NULL );
+}
+
+xi_time_t xi_bsp_time_getcurrenttime_seconds()
+{
+    return xi_bsp_time_sntp_getseconds_posix();
 }
 
 xi_time_t xi_bsp_time_getcurrenttime_milliseconds()
 {
-    /* note this returns seconds and not milliseconds, this issue has to be solved */
-    return sntp_time_posix();
+    /* note this returns seconds and not milliseconds since milliseconds from EPOCH
+       do not fit into 32 bits */
+    return xi_bsp_time_sntp_getseconds_posix();
 }

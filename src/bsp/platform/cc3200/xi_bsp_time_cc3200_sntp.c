@@ -173,6 +173,9 @@ static int ntp_server_index     = 0;
 static char* ntp_server_names[] = NTP_SERVER_NAMES;
 static int errno;
 
+static uint32_t start_time_ntp = 0;
+uint32_t uptime                = 0;
+
 #define NTP_SERVER_COUNT ( sizeof( ntp_server_names ) / sizeof( char* ) )
 
 
@@ -371,7 +374,7 @@ static ntp_time_t sntp_get( uint32_t server_addr )
 }
 
 
-void sntp_task( void* pvParameters )
+void xi_bsp_time_sntp_init( void* pvParameters )
 {
     uint32_t server_addr;
     ntp_time_t t;
@@ -394,7 +397,7 @@ void sntp_task( void* pvParameters )
         if ( t > 0 )
         {
             start_time_ntp = ( t - uptime );
-            printf( "SNTP_G: %d, %s->0x%08X\n", sntp_time_posix(),
+            printf( "SNTP_G: %d, %s->0x%08X\n", xi_bsp_time_sntp_getseconds_posix(),
                     ntp_server_names[ntp_server_index], server_addr );
 
             sleep_ms = NTP_UPDATE_MS;
@@ -406,12 +409,12 @@ void sntp_task( void* pvParameters )
 
         ( void )sleep_ms;
         //        osi_Sleep (sleep_ms);
-        printf( "SNTP_L: %d, UT %d\n", sntp_time_posix(), uptime );
+        printf( "SNTP_L: %d, UT %d\n", xi_bsp_time_sntp_getseconds_posix(), uptime );
         break;
     }
 }
 
-ntp_time_t sntp_time_ntp( void )
+ntp_time_t xi_bsp_time_sntp_getseconds_ntp( void )
 {
     ntp_time_t rval = 0;
 
@@ -423,7 +426,7 @@ ntp_time_t sntp_time_ntp( void )
     return rval;
 }
 
-posix_time_t sntp_time_posix( void )
+posix_time_t xi_bsp_time_sntp_getseconds_posix( void )
 {
     posix_time_t rval = 0;
 
