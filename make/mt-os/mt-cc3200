@@ -11,7 +11,6 @@ XI ?= $(XI_BINDIR)/libxively.a
 ###
 ## COMPILER NAME
 ###
-$(info COMPILER: $(COMPILER) )
 COMPILER ?= arm_15.12.3.LTS
 
 ###
@@ -57,17 +56,14 @@ else ifeq ($(XI_HOST_PLATFORM),Linux)
 
 	XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/include
 
-### NOTE: COMMENT THIS SECTION OUT IF YOU ARE A HUMAN.
-### THIS IS USED BY XIVELY CONTINUOUS INTEGRATOIN SYSTEM.
-
-### COMMENT OUT BLOCK --- BEGIN
+### TOOLCHAIN AUTODOWNLOAD SECTION --- BEGIN
 	XI_BUILD_PRECONDITIONS := $(CC)
 
 $(CC):
 	git clone https://github.com/atigyi/xi_artifactory.git ~/Downloads/xi_artifactory
 	git -C ~/Downloads/xi_artifactory checkout feature/cc3200_dependencies
 	$@ --version
-### COMMENT OUT BLOCK --- END
+### TOOLCHAIN AUTODOWNLOAD SECTION --- END
 endif
 
 # removing these compiler flags since they are not parsed and emit warnings
