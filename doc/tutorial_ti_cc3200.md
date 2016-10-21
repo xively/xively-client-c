@@ -8,7 +8,7 @@ Here you will learn how to build, link, and deploy a Xively C Client to this emb
 This tutorial supports OSX and Windows, though the Linux flow should be somewhat similar.
 
 ## Table of Contents
-1. [Platform Software Installation](#Platform-Software-Installation)
+1. [Platform Software Installation](#platform-software-installation)
 2. [Building the Xively C Client library](#building-the-xively-c-client-library)
 3. [Building the wolfSSL library](#building-the-wolfssl-library)
 4. [Building your CC3200 example application](#building-your-cc3200-example-application)
