@@ -8,10 +8,10 @@ Here you will learn how to build, link, and deploy a Xively C Client to this emb
 This tutorial supports OSX and Windows, though the Linux flow should be somewhat similar.
 
 ## Table of Contents
-1. [Software Installation](#software-installation)
+1. [Platform Software Installation](#Platform-Software-Installation)
 2. [Building the Xively C Client library](#building-the-xively-c-client-library)
 3. [Building the wolfSSL library](#building-the-wolfssl-library)
-4. [Building CC3200 application: CCS ent_wlan example](#building-cc3200-application-ccs-ent_wlan-example)
+4. [Building your CC3200 example application](#building-your-cc3200-example-application)
 
 ## Platform Software Installation
 
@@ -56,23 +56,13 @@ These are the platform libraries that you'll need to compile and link against wh
 ### Prebuild Configuration of the Xively C Client
 
 #### Configure Make Target file mt-cc3200
-1. open the file file ```make/mt-os/mt-cc3200``` in your favorite friendly text editor
+1. Open the file ```make/mt-os/mt-cc3200``` in your favorite friendly text editor.
 2. Scroll the HOSTS section devoted to your host platform: ```MAC HOST OS```, ```WINDOWS HOST OS```, or ```LINUX HOST OS```.
 2. In your newly identified host's section, set ```XI_CC3200_PATH_CCS_TOOLS``` and ```XI_CC3200_PATH_SDK``` to your Code Composer Studio and SDK install paths, respectively.  If chose the default installation paths for these installations then these values should already be valid.
 3. The toolchain that Code Composer Studio downloaded might differ from the default that's configured in this ```mt-c3200``` file.
 	1. Please browse to the path which you set ```XI_CC3200_PATH_CCS_TOOLS```.
 	2. Open up the ```compiler/``` and note the the name of the toolchain.
 	3. Compare this to the toolchain name stored in the ```COMPILER``` variable near the top of the file in ```mt-cc3200```.  Update the ```COMPILER``` variable as necessary.
-
-#### A Small Xively C Source Code Change
-Currently BSP TIME has unsolved issue around returning elapsed milliseconds from 01/01/1970 since it does not fit into 4 bytes return value. For now please change function in file `xively-client-c/src/libxively/time/xi_time.c` to:
-
-	 	xi_time_t xi_getcurrenttime_seconds()
-	   {
-        return xi_bsp_time_getcurrenttime_milliseconds();
-		}
-
-This is correct for the time being since BSP get milliseconds function returns seconds.
 
 ### Build Xively C Client library
 
@@ -85,14 +75,14 @@ The process for building slightly depends on your host OS:
         PATH=%PATH%;c:\ti\ccsv6\utils\bin
         PATH=%PATH%;c:\ti\ccsv6\utils\cygwin
 
-    Build and clean the library:
+    Clean and build the library:
 
         gmake PRESET=CC3200_REL_MIN clean
         gmake PRESET=CC3200_REL_MIN
 
 - MacOS and Linux:
 
-    Build and clean the library:
+    Clean and build the library:
 
         make PRESET=CC3200_REL_MIN clean
         make PRESET=CC3200_REL_MIN
@@ -128,14 +118,14 @@ Example tirtos/products.mak variable settings for Windows and MacOS:
 
 - MacOS:
 
-        XDC_INSTALL_DIR        =/Applications/ti/xdctools_3_31_03_43_core
-        BIOS_INSTALL_DIR       =/Applications/ti/tirtos_cc32xx_2_16_01_14/products/bios_6_45_02_31
+        XDC_INSTALL_DIR        =/Applications/ti/xdctools_3_32_01_22_core
+        BIOS_INSTALL_DIR       =/Users/atigyi/ti/tirex-content/tirtos_cc32xx_2_16_00_08/products/bios_6_45_01_29
         NDK_INSTALL_DIR        =
         TIVAWARE_INSTALL_DIR   =
 
         export XDCTOOLS_JAVA_HOME=/Applications/ti/ccsv6/eclipse/jre/Contents/Home
 
-        ti.targets.arm.elf.M4F = /Applications/ti/ccsv6/tools/compiler/ti-cgt-arm_15.12.1.LTS
+        ti.targets.arm.elf.M4F =/Applications/ti/ccsv6/tools/compiler/arm_15.12.3.LTS
         iar.targets.arm.M4F    =
         gnu.targets.arm.M4F    =
 
@@ -261,12 +251,12 @@ We suggest the ent_wlan networking example from the CC3200 SDK as the basis for 
 #### Build and Run the Example
 1. Select ```Project```-> ```Build Project```
 	1. When complete, you should see in the ```Console```:
-			
+
 			<Linking>
 			Finished building target: ent_wlan.out
 			...
 			**** Build Finished ****
-				
+
 2. Before the first execution, you will need to create a Configuration so that Code Composer Studio knows which platform you're loading the source onto.
 	1. Select ```View``` -> ```Target Configurations```.  The ```Target Configurations``` panel opens to the right side of the IDE.
 	2. Right click on ```User Defined``` and select ```New Target Configuration```.
@@ -304,7 +294,7 @@ Reaching this point means you are able to produce and execute CC3200 compatible 
 
         void ConnectToXively()
         {
-            xi_initialize( "account_id", "xi_username", 0 );
+            xi_initialize( "xi_account_id", "xi_device_id", 0 );
 
             xi_context_handle_t xi_context = xi_create_context();
 
@@ -313,11 +303,10 @@ Reaching this point means you are able to produce and execute CC3200 compatible 
                 printf( " xi failed to create context, error: %d\n", xi_context );
             }
 
-            xi_state_t connect_result = xi_connect_to(
+            xi_state_t connect_result = xi_connect(
                     xi_context,
-                    "broker.xively.com", 8883,
-                    "35f9a1ba-2f71-4084-9b68-995eac71ef6b",
-                    "9Xusd8+jjTghQcggpvEPhu5AFY1GlVnuV9WYwxp8ZT8=",
+                    "35f9a1ba-2f71-4084-9b68-995eac71ef6b",         // Xively Username
+                    "9Xusd8+jjTghQcggpvEPhu5AFY1GlVnuV9WYwxp8ZT8=", // Xively Password
                     10, 20,
                     XI_SESSION_CLEAN, &on_connection_state_changed );
 
@@ -344,7 +333,7 @@ Reaching this point means you are able to produce and execute CC3200 compatible 
 
             time_t XTIME(time_t * timer)
             {
-                return xi_bsp_time_getcurrenttime_milliseconds();
+                return xi_bsp_time_getcurrenttime_seconds();
             }
 
             uint32_t xively_ssl_rand_generate()
@@ -396,4 +385,4 @@ Reaching this point means you are able to produce and execute CC3200 compatible 
 
     - all set: Project->Build and Run->Debug
 
-        This should result in a CC3200 connected to Xively Services
+        This should result in a CC3200 connected to Xively Services.

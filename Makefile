@@ -60,7 +60,8 @@ endif
 build_output: help_disclaimer preset_output
 	$(info .    CONFIG:          [${CONFIG}])
 	$(info .    TARGET:          [${TARGET}])
-	$(info ) 
+	$(info .    COMPILER:        [$(CC)] )
+	$(info )
 
 all: build_output $(XI)
 
