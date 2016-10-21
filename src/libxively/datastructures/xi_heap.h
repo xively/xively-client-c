@@ -12,7 +12,7 @@
 #include "xi_debug.h"
 #include "xi_allocator.h"
 #include "xi_macros.h"
-#include "xi_time.h"
+#include "xively_time.h"
 
 #include "xi_event_handle.h"
 
