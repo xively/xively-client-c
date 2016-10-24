@@ -11,7 +11,7 @@
 - Doxygen documentation is now pre-generated in the ```doc/doxygen``` folder. It is provided in two main sections: 
 	1. API documentation for building client applications that use the Xively Service
 	2. the Board Support Package (BSP) documentation for porting the Xively C Client to new platforms.
-- Default make target now builds the Xively C Client for POSIX and fetches, downloads and compiles WolfSSL automatically.  Note: Autotools are required to build WolfSLS.
+- Default make target now builds the Xively C Client for POSIX and fetches, downloads and compiles WolfSSL automatically.  Note: Autotools are required to build WolfSSL.
 - Default make target's only goal is to build the Xively C Client static library itself without examples and tests. 
 	- To build tests, execute ```make tests``` 
 	- To build examples, cd to ````examples/``` and run ```make```. 
