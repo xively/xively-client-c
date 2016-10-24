@@ -317,6 +317,8 @@ Reaching this point means you are able to produce and execute CC3200 compatible 
             xi_shutdown();
         }
 
+- you can get a Account ID and Device ID from the Devices Page of CPM. To get the Password, click the Get Password button in the top right of that page.
+
 - to make aboves buildable you'll need to
     - add two include paths to your project to help compiler find xively.h and friends: ```Project```->```Properties```->```Build```->```ARM Compiler```->```Include Options```:
         - xively-client-c/include
