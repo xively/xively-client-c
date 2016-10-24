@@ -46,7 +46,6 @@ static xi_state_t fill_vector_with_heap_elements_using_generator(
 
         tt_assert( ret_state == XI_STATE_OK );
         tt_assert( time_event_handles[0][i].position != NULL );
-        tt_assert( *( time_event_handles[0][i].position ) == i );
     }
 
 end:
@@ -128,6 +127,12 @@ XI_TT_TESTCASE(
 
         xi_state_t ret_state = fill_vector_with_heap_elements_using_generator(
             vector, &time_events, &time_event_handles, &index_generator );
+
+        int i = 0;
+        for ( ; i < TEST_TIME_EVENT_TEST_SIZE; ++i )
+        {
+            tt_assert( *time_event_handles[i].position == i );
+        }
 
         tt_assert( XI_STATE_OK == ret_state );
 
