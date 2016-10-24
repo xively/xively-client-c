@@ -108,10 +108,6 @@ XI_TT_TESTCASE_PREDECLARATION( utest_fs_posix );
 
 XI_TT_TESTCASE_PREDECLARATION( utest_time_event );
 
-#if ( XI_IO_LAYER == XI_IO_POSIX )
-#include "xi_utest_io_posix_layer.h"
-#endif
-
 #include "xi_test_utils.h"
 #include "xi_lamp_communication.h"
 
@@ -248,12 +244,6 @@ struct testgroup_t groups[] = {
 
 #if ( XI_TT_TEST_SET & XI_TT_TIME_EVENT )
     {"utest_time_event - ", utest_time_event},
-#endif
-
-#if ( XI_IO_LAYER == XI_IO_POSIX )
-#if ( XI_TT_TEST_SET & XI_TT_IO_LAYER )
-    {"utest_io_posix_layer - ", utest_io_posix_layer},
-#endif
 #endif
 
     {"utest_rng - ", utest_rng},
