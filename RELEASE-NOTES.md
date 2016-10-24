@@ -1,8 +1,29 @@
-# Xivelt Client version 1.x.x
-#### MM DD YYYY
+# Xivelt Client version 1.2.0
+#### Oct 24 2016
 
-- User Guide file added to Xively C Client's doc directory in markdown format.
+## User facing enhancements, docs
+
+- Finalised Board Support Platform (BSP) implementation. Massively reduces and focuses coding effort required by a porting process.
+- User Guide added to Xively C Client's doc directory as a markdown file.
+- Porting Guide to doc directory as a markdown file.
 - Xively C Client README.md file has been updated serving as a first-step introduction.
+- Tutorial for CC3200 Xively Client build on Windows and MacOS using make buildsystem and TI's Code Composer Studio.
+- Rationalised Doxygen documentations: Doxygen documentation is now pre-generated in the doc/doxygen folder. It is provided in two main sections: API documentation for building client applications that use the Xively Service, and the Board Support Package (BSP) documentation for porting the Xively C Client to new platforms.
+- Default make target's only goal is to build the Xively C Client static library itself without examples and tests. One should write ```make tests``` to also build latter ones.
+- Created help make targets as a resource for people attempting to navigate our make system. type ```make help``` for more information.
+
+## Development enhancements
+
+- More developer friendly ARM cross compilation on MacOS and Linux.
+- Build presets were introduced to ease handling of the multi target and configuration make system.
+- Output libxively.a new location is the bin subdirectory.
+- Clearer BSP directory structure: New layout of ./src/bsp directory has been developed. It contains two subfolders. One named platform for all platform specific implementations such as ( network, memory, time, RNG ) with posix, wmsdk, microchip reference implementations. Second named tls for tls libraries with wolfssl and mbedtls as a reference implementations.
+- Make system CC3200 cross compilation support on Windows, MacOS and Linux plus Travis CI regular builds.
+- Library size reductions:
+  - removed redundant implementation of the vector data structure
+  - peeled down non-BSP solution remainders simplifying make build system and reducing code base
+- Unified code formatting ran on whole sourcebase.
+- Removed a ranlib build warning on OSX.
 
 # Xivelt Client version 1.1.6
 #### Jul 08 2016
