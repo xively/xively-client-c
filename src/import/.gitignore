@@ -1,0 +1,25 @@
+# List everything we don't need to check-in
+# tinytest
+tinytest/.gitignore
+tinytest/.travis.yml
+tinytest/Makefile
+tinytest/Makefile.avr
+tinytest/TODO
+tinytest/portable_demo.c
+tinytest/tinytest_demo.c
+# avrtest
+avrtest/.dejagnurc
+avrtest/ChangeLog
+avrtest/Makefile
+avrtest/avr51-flash1.x
+avrtest/dejagnuboards/atmega103-sim.exp
+avrtest/dejagnuboards/atmega128-sim.exp
+avrtest/dejagnuboards/atxmega128-sim.exp
+avrtest/flag-tables.c
+avrtest/gen-flag-tables
+# mqtt-codec
+mqtt-codec/src/test.c
+mqtt-codec/.travis.yml
+mqtt-codec/Makefile
+# cmocka
+cmocka/cmocka_build

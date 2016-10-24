@@ -1,0 +1,113 @@
+\documentclass{beamer}
+
+\mode<presentation>
+{
+  \usetheme{default}      % or try Darmstadt, Madrid, Warsaw, ...
+  \usecolortheme{default} % or try albatross, beaver, crane, ...
+  \usefonttheme{default}  % or try serif, structurebold, ...
+  \setbeamertemplate{navigation symbols}{}
+  \setbeamertemplate{caption}[numbered]
+} 
+
+\usepackage[english]{babel}
+\usepackage[utf8x]{inputenc}
+
+\title[Smart Embedded Client]{Xively Embedded Client Framework}
+\author{Ilya Dmitrichenko}
+\date{\today}
+
+\begin{document}
+
+\begin{frame}
+	\titlepage
+\end{frame}
+
+\begin{frame}{Brief Outline}
+	\tableofcontents
+\end{frame}
+
+\section{Introduction}
+\subsection{Overview of Embedded Platforms}
+
+\begin{frame}{Embedded Platforms}
+
+\begin{table}\centering\begin{tabular}{l|r|r|r}
+Device type & RAM & Flash & CPU clock \\\hline
+Microcontroller & 16-96 kB & 32-128 kB & 12-150 MHz \\
+Application SoC & 128MB-2GB & 32MB-512MB & 400MHz-1.2GHz \\
+\end{tabular}\end{table}
+
+\vskip 1cm
+
+\begin{block}{Examples}
+\begin{itemize}
+  \item[MCU] coffee maker, door lock, heater, light switch,\\ industrial system component
+  \item[SoC] domestic appliance with touch screen,\\ industrial system controller
+  %% may be give current customer example
+\end{itemize}
+\end{block}
+
+\begin{block}{Please Note}
+To keep this presentation brief any details of hardware achitecuters, vendor features and connectivity options had been omitted.
+\end{block}
+
+\end{frame}
+
+\subsection{Outline of Current Developments}
+
+\begin{frame}{Current Development}
+\begin{itemize}
+  \item Proven cross-plaform C library for embedded devices
+  %\item Read-write timeseries data via HTTP+CSV (Xively V2)
+  \item Solid integration with two chip vendor SDKs:
+  \begin{itemize}
+    \item ARM mbed
+    \item Marvell WiFi MCU
+  \end{itemize}
+  \item TLS and MQTT support underway
+  \item Non-blocking communication
+  \item Asynchronous layers, no threads required
+  \item Low runtime memory footprint
+  \item Modular design for configurable code size \emph{(WIP)}
+  \item More SDKs are easy to integrate
+\end{itemize}
+\end{frame}
+
+\section{Future Plans}
+\subsection{Smarter Client}
+
+\begin{frame}{Smarter Client from a Bird's Eye}
+\begin{itemize}
+  \item Out-of-the box examples for most typical uses
+  \item Highlevel scripting interf	ace
+  \item Self-test framework with remote logging
+  \item Vendor-specific chip features exposed
+  \item Local and remote diagnostics console access
+  \item Secure firmware updates
+  \item Industrial protocol bridges
+  \item Automated QA to allow custumer to rely on it
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Close-up on Firmware Updates}
+\begin{itemize}
+  \item Easy to underestimate
+  \item More then a dozen of tricks on Linux
+  \item Only a few general approaches on MCUs
+\end{itemize}
+\end{frame}
+
+\subsection{Resources}
+
+\begin{frame}{Last Slide...}
+\begin{itemize}
+  \item Hardware is becoming cheaper
+  \item Chip vendors are happy to supply us with free boards
+  \item Already have a stock of boards for R\&D
+  \item Might need to license some tools one day
+  \item Hard to deliver with only one part-time consultant
+\end{itemize}
+\end{frame}
+
+\end{document}

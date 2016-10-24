@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+	<storageModule moduleId="org.eclipse.cdt.core.settings">
+		<cconfiguration id="fr.ac6.managedbuild.config.gnu.cross.lib.debug.1349575406.564668647.632251301.1528633449">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="fr.ac6.managedbuild.config.gnu.cross.lib.debug.1349575406.564668647.632251301.1528633449" moduleId="org.eclipse.cdt.core.settings" name="debug-lwip-newlib">
+				<externalSettings>
+					<externalSetting>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/cyassl"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/cyassl/debug-lwip-newlib"/>
+						<entry flags="RESOLVED" kind="libraryFile" name="cyassl" srcPrefixMapping="" srcRootPath=""/>
+					</externalSetting>
+				</externalSettings>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="lwip io and gnu newlib platform" id="fr.ac6.managedbuild.config.gnu.cross.lib.debug.1349575406.564668647.632251301.1528633449" name="debug-lwip-newlib" parent="fr.ac6.managedbuild.config.gnu.cross.lib.debug">
+					<folderInfo id="fr.ac6.managedbuild.config.gnu.cross.lib.debug.1349575406.564668647.632251301.1528633449." name="/" resourcePath="">
+						<toolChain id="fr.ac6.managedbuild.toolchain.gnu.cross.lib.debug.2046340315" name="Ac6 STM32 MCU GCC" superClass="fr.ac6.managedbuild.toolchain.gnu.cross.lib.debug">
+							<option id="fr.ac6.managedbuild.option.gnu.cross.mcu.768303169" name="Mcu" superClass="fr.ac6.managedbuild.option.gnu.cross.mcu" value="STM32F417IGHx" valueType="string"/>
+							<option id="fr.ac6.managedbuild.option.gnu.cross.board.603095827" name="Board" superClass="fr.ac6.managedbuild.option.gnu.cross.board" value="STM3241G-EVAL" valueType="string"/>
+							<option id="fr.ac6.managedbuild.option.gnu.cross.fpu.1551472504" name="Floating point hardware" superClass="fr.ac6.managedbuild.option.gnu.cross.fpu" value="fr.ac6.managedbuild.option.gnu.cross.fpu.fpv4-sp-d16" valueType="enumerated"/>
+							<option id="fr.ac6.managedbuild.option.gnu.cross.floatabi.480371586" name="Floating-point ABI" superClass="fr.ac6.managedbuild.option.gnu.cross.floatabi" value="fr.ac6.managedbuild.option.gnu.cross.floatabi.hard" valueType="enumerated"/>
+							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="fr.ac6.managedbuild.targetPlatform.gnu.cross.2004649392" isAbstract="false" osList="all" superClass="fr.ac6.managedbuild.targetPlatform.gnu.cross"/>
+							<builder buildPath="${workspace_loc:/libcyassl}/Debug" id="fr.ac6.managedbuild.builder.gnu.cross.1937934333" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="fr.ac6.managedbuild.builder.gnu.cross"/>
+							<tool id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.1776378021" name="MCU GCC Compiler" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler">
+								<option id="fr.ac6.managedbuild.gnu.c.compiler.option.optimization.level.940310041" name="Optimization Level" superClass="fr.ac6.managedbuild.gnu.c.compiler.option.optimization.level" useByScannerDiscovery="false"/>
+								<option id="gnu.c.compiler.option.debugging.level.1894722345" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.c.debugging.level.max" valueType="enumerated"/>
+								<option id="gnu.c.compiler.option.preprocessor.def.symbols.126909796" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="STM32F417IGHx"/>
+									<listOptionValue builtIn="false" value="STM32F4"/>
+									<listOptionValue builtIn="false" value="STM32"/>
+									<listOptionValue builtIn="false" value="STM3241G_EVAL"/>
+									<listOptionValue builtIn="false" value="DEBUG"/>
+								</option>
+								<option id="gnu.c.compiler.option.include.paths.445699987" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${XI_TOPDIR}\xi_client_c\src\import\cyassl&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CUBE_TOPDIR}\Drivers\STM32F4xx_HAL_Driver\Inc&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CUBE_TOPDIR}\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${APP_PROJ_INC}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CUBE_TOPDIR}\Drivers\CMSIS\Device\ST\STM32F4xx\Include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CUBE_TOPDIR}\Drivers\BSP\STM324xG_EVAL&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${CUBE_TOPDIR}\Drivers\CMSIS\Include&quot;"/>
+								</option>
+								<option id="gnu.c.compiler.option.dialect.std.27192642" name="Language standard" superClass="gnu.c.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.c.compiler.dialect.default" valueType="enumerated"/>
+								<option id="gnu.c.compiler.option.include.files.1427829971" name="Include files (-include)" superClass="gnu.c.compiler.option.include.files" useByScannerDiscovery="false" valueType="includeFiles">
+									<listOptionValue builtIn="false" value="&quot;${XI_TOPDIR}\xi_client_c\proj\SW4STM32_STM3241G-EVAL\xi_target_lwip_io_newlib_platform_config.h&quot;"/>
+								</option>
+								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c.974210710" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c"/>
+								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.s.1560034194" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.s"/>
+							</tool>
+							<tool id="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.193341517" name="MCU G++ Compiler" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler">
+								<option id="fr.ac6.managedbuild.gnu.cpp.compiler.option.optimization.level.360420684" name="Optimization Level" superClass="fr.ac6.managedbuild.gnu.cpp.compiler.option.optimization.level" useByScannerDiscovery="false"/>
+								<option id="gnu.cpp.compiler.option.debugging.level.1758239193" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
+							</tool>
+							<tool id="fr.ac6.managedbuild.tool.gnu.cross.c.linker.1743089059" name="MCU GCC Linker" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.linker"/>
+							<tool id="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker.1022535673" name="MCU G++ Linker" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker"/>
+							<tool id="fr.ac6.managedbuild.tool.gnu.archiver.2082429821" name="MCU GCC Archiver" superClass="fr.ac6.managedbuild.tool.gnu.archiver"/>
+							<tool id="fr.ac6.managedbuild.tool.gnu.cross.assembler.44337927" name="MCU GCC Assembler" superClass="fr.ac6.managedbuild.tool.gnu.cross.assembler">
+								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1104650946" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.assembler.input.1340688972" superClass="fr.ac6.managedbuild.tool.gnu.cross.assembler.input"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+		<cconfiguration id="fr.ac6.managedbuild.config.gnu.cross.lib.debug.1349575406.564668647.632251301.6293298">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="fr.ac6.managedbuild.config.gnu.cross.lib.debug.1349575406.564668647.632251301.6293298" moduleId="org.eclipse.cdt.core.settings" name="debug-dummy-dummy">
+				<externalSettings>
+					<externalSetting>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/cyassl"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/cyassl/willbe-debug-dummy-dummy"/>
+						<entry flags="RESOLVED" kind="libraryFile" name="cyassl" srcPrefixMapping="" srcRootPath=""/>
+					</externalSetting>
+				</externalSettings>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="dummy io, dummy platform" id="fr.ac6.managedbuild.config.gnu.cross.lib.debug.1349575406.564668647.632251301.6293298" name="debug-dummy-dummy" parent="fr.ac6.managedbuild.config.gnu.cross.lib.debug">
+					<folderInfo id="fr.ac6.managedbuild.config.gnu.cross.lib.debug.1349575406.564668647.632251301.6293298." name="/" resourcePath="">
+						<toolChain id="fr.ac6.managedbuild.toolchain.gnu.cross.lib.debug.1855576892" name="Ac6 STM32 MCU GCC" superClass="fr.ac6.managedbuild.toolchain.gnu.cross.lib.debug">
+							<option id="fr.ac6.managedbuild.option.gnu.cross.mcu.638801892" name="Mcu" superClass="fr.ac6.managedbuild.option.gnu.cross.mcu" value="STM32F417IGHx" valueType="string"/>
+							<option id="fr.ac6.managedbuild.option.gnu.cross.board.304511135" name="Board" superClass="fr.ac6.managedbuild.option.gnu.cross.board" value="STM3241G-EVAL" valueType="string"/>
+							<option id="fr.ac6.managedbuild.option.gnu.cross.fpu.644531943" name="Floating point hardware" superClass="fr.ac6.managedbuild.option.gnu.cross.fpu" value="fr.ac6.managedbuild.option.gnu.cross.fpu.fpv4-sp-d16" valueType="enumerated"/>
+							<option id="fr.ac6.managedbuild.option.gnu.cross.floatabi.1887189181" name="Floating-point ABI" superClass="fr.ac6.managedbuild.option.gnu.cross.floatabi" value="fr.ac6.managedbuild.option.gnu.cross.floatabi.hard" valueType="enumerated"/>
+							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="fr.ac6.managedbuild.targetPlatform.gnu.cross.198558760" isAbstract="false" osList="all" superClass="fr.ac6.managedbuild.targetPlatform.gnu.cross"/>
+							<builder buildPath="${workspace_loc:/libcyassl}/Debug" id="fr.ac6.managedbuild.builder.gnu.cross.162577273" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="fr.ac6.managedbuild.builder.gnu.cross"/>
+							<tool id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.448089105" name="MCU GCC Compiler" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler">
+								<option id="fr.ac6.managedbuild.gnu.c.compiler.option.optimization.level.908044467" name="Optimization Level" superClass="fr.ac6.managedbuild.gnu.c.compiler.option.optimization.level" useByScannerDiscovery="false"/>
+								<option id="gnu.c.compiler.option.debugging.level.1756438845" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.c.debugging.level.max" valueType="enumerated"/>
+								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1972591628" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="STM32F417IGHx"/>
+									<listOptionValue builtIn="false" value="STM32F4"/>
+									<listOptionValue builtIn="false" value="STM32"/>
+									<listOptionValue builtIn="false" value="STM3241G_EVAL"/>
+									<listOptionValue builtIn="false" value="DEBUG"/>
+								</option>
+								<option id="gnu.c.compiler.option.include.paths.857359637" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${XI_TOPDIR}\xi_client_c\src\import\cyassl&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${WW_TOPDIR}\Drivers\STM32F4xx_HAL_Driver\Inc&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${WW_TOPDIR}\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${WW_TOPDIR}\Projects\STM324xG_EVAL\Applications\LwIP\XivelyExampleLwipFreeRtosBringup\Inc&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${WW_TOPDIR}\Drivers\CMSIS\Device\ST\STM32F4xx\Include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${WW_TOPDIR}\Drivers\BSP\STM324xG_EVAL&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${WW_TOPDIR}\Drivers\CMSIS\Include&quot;"/>
+								</option>
+								<option id="gnu.c.compiler.option.dialect.std.1330067153" name="Language standard" superClass="gnu.c.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.c.compiler.dialect.default" valueType="enumerated"/>
+								<option id="gnu.c.compiler.option.include.files.1680105143" name="Include files (-include)" superClass="gnu.c.compiler.option.include.files" useByScannerDiscovery="false" valueType="includeFiles">
+									<listOptionValue builtIn="false" value="&quot;${XI_TOPDIR}\xi_client_c\proj\SW4STM32_STM3241G-EVAL\xi_target_dummy_io_dummy_platform_config.h&quot;"/>
+								</option>
+								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c.903598905" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c"/>
+								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.s.1997002567" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.s"/>
+							</tool>
+							<tool id="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.1079105267" name="MCU G++ Compiler" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler">
+								<option id="fr.ac6.managedbuild.gnu.cpp.compiler.option.optimization.level.517267866" name="Optimization Level" superClass="fr.ac6.managedbuild.gnu.cpp.compiler.option.optimization.level" useByScannerDiscovery="false"/>
+								<option id="gnu.cpp.compiler.option.debugging.level.9985335" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
+							</tool>
+							<tool id="fr.ac6.managedbuild.tool.gnu.cross.c.linker.1247916517" name="MCU GCC Linker" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.linker"/>
+							<tool id="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker.1162665804" name="MCU G++ Linker" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker"/>
+							<tool id="fr.ac6.managedbuild.tool.gnu.archiver.1244793878" name="MCU GCC Archiver" superClass="fr.ac6.managedbuild.tool.gnu.archiver"/>
+							<tool id="fr.ac6.managedbuild.tool.gnu.cross.assembler.1725796184" name="MCU GCC Assembler" superClass="fr.ac6.managedbuild.tool.gnu.cross.assembler">
+								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.863346594" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.assembler.input.396926866" superClass="fr.ac6.managedbuild.tool.gnu.cross.assembler.input"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+	</storageModule>
+	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+		<project id="libcyassl.fr.ac6.managedbuild.target.gnu.cross.lib.1979960012" name="Static Library" projectType="fr.ac6.managedbuild.target.gnu.cross.lib"/>
+	</storageModule>
+	<storageModule moduleId="scannerConfiguration">
+		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		<scannerConfigBuildInfo instanceId="fr.ac6.managedbuild.config.gnu.cross.lib.debug.1349575406;fr.ac6.managedbuild.config.gnu.cross.lib.debug.1349575406.;fr.ac6.managedbuild.tool.gnu.cross.c.compiler.1586192246;fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c.243252571">
+			<autodiscovery enabled="false" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="fr.ac6.managedbuild.config.gnu.cross.lib.release.788196474;fr.ac6.managedbuild.config.gnu.cross.lib.release.788196474.;fr.ac6.managedbuild.tool.gnu.cross.c.compiler.1633962055;fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c.1107145080">
+			<autodiscovery enabled="false" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="debug-dummy-dummy"/>
+		<configuration configurationName="debug-lwip-newlib"/>
+		<configuration configurationName="Debug">
+			<resource resourceType="PROJECT" workspacePath="/libcyassl"/>
+		</configuration>
+		<configuration configurationName="Release">
+			<resource resourceType="PROJECT" workspacePath="/libcyassl"/>
+		</configuration>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
+</cproject>

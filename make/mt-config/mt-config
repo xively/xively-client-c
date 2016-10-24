@@ -1,0 +1,268 @@
+LIBXIVELY_SRC := $(LIBXIVELY)/src/
+LIBXIVELY_SOURCE_DIR := $(LIBXIVELY)/src/libxively
+LIBXIVELY_INTERFACE_INCLUDE_DIRS := $(LIBXIVELY)/include
+LIBXIVELY_INTERFACE_INCLUDE_DIRS += $(LIBXIVELY)/include_senml
+
+XI_LIB_FLAGS += -lxively
+
+ifneq (,$(findstring tls,$(CONFIG)))
+    include make/mt-config/mt-tls
+endif
+
+XI_UNIT_TEST_TARGET ?= native
+
+XI_OUTPUT ?= $(LIBXIVELY)/
+
+XI_OBJDIR_BASE ?= $(XI_OUTPUT)obj
+XI_BINDIR_BASE ?= $(XI_OUTPUT)bin
+XI_PROTOBUF_GENERATED ?= $(LIBXIVELY_SOURCE_DIR)/protobuf-generated
+
+XI_PROTO_DIR ?= $(LIBXIVELY)/src/protofiles
+
+# TARGET: Debug Output Options
+#
+ifneq (,$(findstring release,$(TARGET)))
+	XI_DEBUG_OUTPUT ?= 0
+	XI_DEBUG_ASSERT ?= 0
+	XI_DEBUG_EXTRA_INFO ?=0
+endif
+
+ifneq (,$(findstring shared,$(TARGET)))
+  XI_SHARED=1
+endif
+
+ifneq (,$(findstring backoff_godmode,$(CONFIG)))
+  XI_CONFIG_FLAGS += -DXI_BACKOFF_GODMODE
+endif
+
+ifneq (,$(findstring control_topic,$(CONFIG)))
+  XI_CONFIG_FLAGS += -DXI_CONTROL_TOPIC_ENABLED
+endif
+
+ifneq (,$(findstring expose_fs,$(CONFIG)))
+  XI_CONFIG_FLAGS += -DXI_EXPOSE_FS
+endif
+
+ifneq (,$(findstring debug,$(TARGET)))
+	XI_DEBUG_OUTPUT ?= 1
+	XI_DEBUG_ASSERT ?= 1
+	XI_DEBUG_EXTRA_INFO ?= 1
+endif
+
+XI_COMPILER_FLAGS += -Wall -Werror
+
+# TEMPORARILY disable warnings until the code gets changed
+# For all compilers:
+XI_COMPILER_FLAGS += -Wno-pointer-arith
+ifeq "$(CC)" "clang"
+	# For CLANG
+	XI_COMPILER_FLAGS += -Wno-gnu-zero-variadic-macro-arguments
+else
+	# For no CLANG compilers
+	XI_COMPILER_FLAGS += -Wno-format
+endif
+
+XI_CONFIG_FLAGS += -DHAVE_SNI -DHAVE_OCSP
+XI_CONFIG_FLAGS += -DXI_DEBUG_OUTPUT=$(XI_DEBUG_OUTPUT)
+XI_CONFIG_FLAGS += -DXI_DEBUG_ASSERT=$(XI_DEBUG_ASSERT)
+XI_CONFIG_FLAGS += -DXI_DEBUG_EXTRA_INFO=$(XI_DEBUG_EXTRA_INFO)
+
+# CONFIG: mqtt_localhost
+#
+ifneq (,$(findstring mqtt_localhost,$(CONFIG)))
+  XI_CONFIG_FLAGS += -DXI_MQTT_HOST='{ "localhost", XI_MQTT_PORT }'
+endif
+
+# CONFIG: no_certverify
+#
+ifneq (,$(findstring no_certverify,$(CONFIG)))
+  XI_CONFIG_FLAGS += -DXI_DISABLE_CERTVERIFY
+endif
+
+# CONFIG: io layers:  posix_io, dummy_io, mbed_io, microchip_io, bsp_io
+ifneq (,$(findstring posix_io,$(CONFIG)))
+  XI_IO_LAYER ?= posix
+  XI_EVENT_LOOP ?= posix
+else ifneq (,$(findstring dummy_io,$(CONFIG)))
+  XI_IO_LAYER ?= dummy
+  XI_CONFIG_FLAGS += -DXI_IO_LAYER=1
+  XI_EVENT_LOOP ?= dummy
+else ifneq (,$(findstring mbed_io,$(CONFIG)))
+  XI_IO_LAYER ?= mbed
+  XI_EVENT_LOOP ?= posix
+else ifneq (,$(findstring microchip_io,$(CONFIG)))
+  XI_CONFIG_FLAGS += -DXI_IO_LAYER=3
+  XI_IO_LAYER ?= microchip
+  XI_EVENT_LOOP ?= dummy
+
+  # temporary
+  XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/io/dummy
+endif
+
+$(info "event_loop=$(XI_EVENT_LOOP)")
+
+# CONFIG: filesystem
+ifneq (,$(findstring dummy_fs,$(CONFIG)))
+	XI_CONFIG_FLAGS += -DXI_FS_DUMMY
+	XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/io/fs/dummy
+endif
+ifneq (,$(findstring memory_fs,$(CONFIG)))
+	XI_CONFIG_FLAGS += -DXI_FS_MEMORY
+	XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/io/fs/memory
+endif
+ifneq (,$(findstring posix_fs,$(CONFIG)))
+	XI_CONFIG_FLAGS += -DXI_FS_POSIX
+	XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/io/fs/posix
+endif
+
+# DEBUG_EXTENSION: choose debug extensions
+ifneq (,$(findstring memory_limiter,$(CONFIG)))
+	XI_CONFIG_FLAGS += -DXI_MEMORY_LIMITER_APPLICATION_MEMORY_LIMIT=524288 # 512 KB
+	XI_CONFIG_FLAGS += -DXI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT=2024 # 2 KB
+	XI_CONFIG_FLAGS += -DXI_MEMORY_LIMITER_ENABLED
+	XI_MEMORY_LIMITER_ENABLED := 1
+	XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/debug_extensions/memory_limiter
+endif
+
+# CONFIG: modules here we are going to check each defined module
+
+XI_PLATFORM_MODULES ?= xi_thread
+
+# CONFIG: enable threading
+ifneq (,$(findstring threading,$(CONFIG)))
+	XI_CONFIG_FLAGS += -DXI_MODULE_THREAD_ENABLED
+	XI_PLATFORM_MODULES_ENABLED += xi_thread
+endif
+
+# CONFIG: choose modules platform
+ifneq (,$(findstring posix_platform,$(CONFIG)))
+	XI_PLATFORM_BASE = posix
+	XI_CONFIG_FLAGS += -DXI_PLATFORM_BASE_POSIX
+else ifneq (,$(findstring wmsdk_platform,$(CONFIG)))
+	XI_PLATFORM_BASE = wmsdk
+	XI_CONFIG_FLAGS += -DXI_PLATFORM_BASE_WMSDK
+else
+	XI_PLATFORM_BASE = dummy
+	XI_CONFIG_FLAGS += -DXI_PLATFORM_BASE_DUMMY
+endif
+
+# CONFIG: BSP related include and source configuration
+ifdef XI_BSP_PLATFORM
+    # enumerate existing platform bsps
+    BSP_PLATFORM_DIR_EXIST := $(shell if [ ! -d $(XI_BSP_DIR)/platform/$(XI_BSP_PLATFORM) ]; then echo 0; else echo 1; fi; )
+
+    ifeq ($(BSP_PLATFORM_DIR_EXIST),0)
+        $(error The platform with BSP implementation - [$(XI_BSP_PLATFORM)] couldn't be found. Please check your $(XI_BSP_DIR)/platform/ directory.)
+    endif
+
+    $(info Using [$(XI_BSP_PLATFORM)] BSP configuration)
+
+    # platform specific BSP implementations
+    XI_SRCDIRS += $(XI_BSP_DIR)/platform/$(XI_BSP_PLATFORM)
+
+	XI_INCLUDE_FLAGS += -I$(LIBXIVELY)/include/bsp
+
+	# platform independent BSP drivers
+	XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/io/net
+	XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/memory
+	XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/event_loop
+    XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/time
+
+    # if no tls then set proper flag
+    ifeq (,$(findstring tls,$(CONFIG)))
+        XI_CONFIG_FLAGS += -DXI_DEBUG_NO_TLS
+    else
+        XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/tls/certs
+        XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/tls
+        XI_SRCDIRS += $(XI_BSP_DIR)/tls/$(XI_BSP_TLS)
+    endif
+
+	XI_CONFIG_FLAGS += -DXI_BSP
+
+	# temporary
+	XI_CONFIG_FLAGS += -DXI_IO_LAYER=4
+
+else # non-BSP related include and source configuration
+	XI_INCLUDE_FLAGS += -I$(LIBXIVELY_SOURCE_DIR)/memory
+	XI_INCLUDE_FLAGS += -I$(LIBXIVELY_SOURCE_DIR)/event_loop
+	XI_INCLUDE_FLAGS += -I$(LIBXIVELY_SOURCE_DIR)/time
+
+	XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/io/$(XI_IO_LAYER)
+	XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/memory/$(XI_PLATFORM_BASE)
+	XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/event_loop/$(XI_EVENT_LOOP)
+	XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/time/all
+
+    # chosing TLS implementation if TLS is ON: only WolfSSL is available
+    # this implementation shouldn't exist long as non-BSP impls. won't be supported
+    ifneq (,$(findstring tls,$(CONFIG)))
+        XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/tls/certs
+        XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/tls/wolfssl
+
+        XI_CONFIG_FLAGS += -DOCSP_STAPLING
+        XI_CONFIG_FLAGS += -DHAVE_CERTIFICATE_STATUS_REQUEST
+    else
+        XI_CONFIG_FLAGS += -DXI_DEBUG_NO_TLS
+    endif
+endif
+
+#
+# SOURCE CONFIGURATIONS
+#
+XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)
+XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/io
+XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/io/fs
+XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/event_dispatcher
+XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/datastructures
+XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/mqtt/codec
+XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/mqtt/logic
+XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/control_topic
+
+ifneq (,$(findstring senml,$(CONFIG)))
+	XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/senml
+	XI_CONFIG_FLAGS += -DXI_SENML_ENABLED
+	XI_SENML_ENABLED := 1
+endif
+
+ifneq (,$(findstring control_topic,$(CONFIG)))
+	XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/../import/protobuf-c/library
+	XI_PROTOFILES := $(wildcard $(XI_PROTO_DIR)/*.proto)
+	XI_PROTOFILES := $(XI_PROTOFILES:$(XI_PROTO_DIR)/%=%)
+	XI_PROTOFILES_C := $(addprefix $(XI_PROTOBUF_GENERATED)/,$(XI_PROTOFILES:.proto=.pb-c.c))
+	XI_CONTROL_TOPIC_ENABLED := 1
+	XI_SRCDIRS += $(XI_PROTOBUF_GENERATED)
+	XI_SOURCES += $(XI_PROTOFILES_C)
+endif
+
+# MODULES SRCDIRS
+XI_SRCDIRS += $(foreach platformdep,$(XI_PLATFORM_MODULES_ENABLED) \
+			,$(LIBXIVELY_SOURCE_DIR)/platform/$(XI_PLATFORM_BASE)/$(platformdep))
+
+XI_INCLUDE_FLAGS += $(foreach platformdep,$(XI_PLATFORM_MODULES) \
+			,-I$(LIBXIVELY_SOURCE_DIR)/platform/$(platformdep))
+
+XI_INCLUDE_FLAGS += $(foreach d, $(LIBXIVELY_INTERFACE_INCLUDE_DIRS), -I$d)
+
+XI_INCLUDE_FLAGS += -I$(LIBXIVELY_SOURCE_DIR)
+
+XI_INCLUDE_FLAGS += $(foreach d, $(XI_SRCDIRS), -I$d)
+
+XI_INCLUDE_FLAGS += -I$(LIBXIVELY_SOURCE_DIR)/platform/$(XI_PLATFORM_BASE)
+
+XI_INCLUDE_FLAGS += $(foreach d,\
+			$(wildcard $(LIBXIVELY_SOURCE_DIR)/platform/$(XI_PLATFORM_BASE)/*),-I$d)
+
+XI_SOURCES += $(wildcard ./src/*.c)
+
+XI_SOURCES += $(foreach layerdir,$(XI_SRCDIRS),\
+	$(wildcard $(layerdir)/*.c))
+
+ifdef MAKEFILE_DEBUG
+$(info --mt-config-- $$XI_PLATFORM_BASE is [${XI_PLATFORM_BASE}])
+$(info --mt-config-- $$XI_PLATFORM_MODULES is [${XI_PLATFORM_MODULES}])
+$(info --mt-config-- $$LIBXIVELY_SOURCE_DIR is [${LIBXIVELY_SOURCE_DIR}])
+$(info --mt-config-- $$XI_SOURCES is [${XI_SOURCES}])
+$(info --mt-config-- $$XI_INCLUDE_FLAGS is [${XI_INCLUDE_FLAGS}])
+$(info --mt-config-- $$XI_OBJDIR_BASE is [${XI_OBJDIR_BASE}])
+$(info --mt-config-- $$XI_BINDIR_BASE is [${XI_BINDIR_BASE}])
+$(info --mt-config-- $$XI_SRCDIRS is [${XI_SRCDIRS}])
+endif

@@ -1,0 +1,15 @@
+"thawte Primary Root CA - G3_12.02.2037_RSA2048sha256.cer"
+https://www.thawte.com/roots/
+This root is used today for Thawte certificates requiring SHA-256 encryption. This root should be included in root stores.
+
+"GlobalSign Root CA - R1_01.28.2028_RSA2048sha1.cer"
+https://support.globalsign.com/customer/portal/articles/1426602-globalsign-root-certificates
+current Xively.com root
+
+"GeoTrust Primary Certification Authority - G3_12.02.2037_RSA2048sha256.cer"
+https://www.geotrust.com/resources/root-certificates/
+This root CA is not used today. It is intended for use in the future for SSL and Code Signing services needing an SHA256 encryption algorithm. This root should be included in root stores.
+
+"VeriSign Class 3 Public Primary Certification Authority - G5_07.17.2036_RSA2048sha1.cer"
+https://www.symantec.com/page.jsp?id=roots
+This root CA is the root currently used for Secure Site Certificates and Standard SSL Certificates. It is intended to be the primary root used for these products until Q4 2010 when VeriSign transitions to using a 2048 bit root. Vendors should not plan on removing support for this root until officially advised that the root is no longer needed to support certificates or CRL validation.

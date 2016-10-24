@@ -1,0 +1,22 @@
+CC ?= gcc
+AR ?= ar
+
+XI_COMPILER_FLAGS += -fPIC
+XI_LIB_FLAGS += $(XI_TLS_LIBFLAGS) -lpthread -lm
+
+include make/mt-os/mt-os-common
+
+ifdef XI_SHARED
+  AR = gcc
+  XI ?= $(XI_OBJDIR)/libxively.so
+  XI_ARFLAGS += -fPIC -DXI_SHARED -shared -o $(XI)
+  XI_LIBTLS_EXAMPLE_LIB = $(XI_LIBTLS_SHARED)
+else
+  XI ?= $(XI_OBJDIR)/libxively.a
+  XI_ARFLAGS += -rs -c $(XI)
+  XI_LIBTLS_EXAMPLE_LIB = $(XI_LIBTLS_STATIC)
+endif
+
+# Temporarily disable these warnings until the code gets changed.
+XI_COMPILER_FLAGS += -Wno-format
+XI_CONFIG_FLAGS += -DXI_MULTI_LEVEL_DIRECTORY_STRUCTURE
