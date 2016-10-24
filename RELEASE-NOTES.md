@@ -1,13 +1,13 @@
-# Xivelt Client version 1.2.0
+# Xively Client version 1.2.0
 #### Oct 24 2016
 
 ## Documentation and Ease of Use
 
 - The Xively C Client is now Open Source, distributed under the BSD 3-Clause license.
-- Finalised Board Support Package (BSP) implementation. This new system should massively reduce any porting effort of the Xively C Client by focusing platform-specific customizations to a select few files.
+- Finalized our Board Support Package (BSP) implementation. This new system should massively reduce any porting effort of the Xively C Client by focusing platform-specific customizations to a select few files.
 - README.md file has been updated serving as a first-step introduction.
 - User Guide added to ```doc/``` directory as a markdown file.
-- Porting Guide added to to ```doc/``` directory as a markdown file.
+- Porting Guide added to ```doc/``` directory as a markdown file.
 - Doxygen documentation is now pre-generated in the ```doc/doxygen``` folder. It is provided in two main sections: 
 	1. API documentation for building client applications that use the Xively Service
 	2. the Board Support Package (BSP) documentation for porting the Xively C Client to new platforms.
@@ -33,7 +33,7 @@
 - Removed a ranlib build warning on OSX.
 - migrated sources to a new home for open source: ```https://github.com/xively/xively-client-c```
 
-# Xivelt Client version 1.1.6
+# Xively Client version 1.1.6
 #### Jul 08 2016
 
 ## Features
