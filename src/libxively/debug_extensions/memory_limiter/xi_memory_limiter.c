@@ -13,6 +13,10 @@
 #include "xi_macros.h"
 #include "xi_memory_limiter.h"
 
+#ifdef XI_PLATFORM_BASE_POSIX
+#include <execinfo.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
