@@ -32,11 +32,10 @@ Sources can be obtained by pulling from the master branch at our Xively Client g
 
 - **bin** - executables resulting from a build
 - **doc** - documentation: doxygen API, User Guide, Porting Guide
-- **examples** - example sources with their own Makefiles. After building, the examples'
-             executables will reside here as well.
-- **include** - header files of Xively C Client's API. This directory must be added to the include path when linked against the Xively C Client library.
-- **include/bsp** - header files of the Board Support Package (BSP). Functions here shall be implemented during a porting process. Implementation of these functions contain all platform specific functionality needed by the Xively C Client.
-- **include_senml** - header files of the Xively C Client's SenML API. This directory should be added to the include path when using the SenML functionality of Xively C Client library.
+- **examples** - example sources with their own Makefiles. After building in this directory with make, the examples' executables will reside here as well.
+- **include** - header files of Xively C Client's API. You must add this directory to the include path when compiling and linking against a Xively C Client static library.
+- **include/bsp** - header files of the Board Support Package (BSP). Functions here shall be implemented during a porting process. Implementation of these functions contains all of the platform specific code needed tie the Xively C Client to a particular platform.
+- **include_senml** - header files of the Xively C Client's SenML API. This directory should be added to the include path when building an application that uses SenML to format timeseries messages.
 - **licenses** - licenses of 3rd party software used by the Xively C Client
 - **make** - build system configuration files
 - **obj** - object files generated during a build
@@ -46,7 +45,7 @@ Sources can be obtained by pulling from the master branch at our Xively Client g
 
 ## How to Build?
 
-The Xively C Client's preferred build enviornment is make with gcc on a POSIX platform, though it has been cross ported to other platforms via toolchains and specific IDEs.
+The Xively C Client's preferred build enviornment is make with gcc on a POSIX platform, though it has been cross-ported to other platforms via toolchains and specific IDEs.
 
 We recommend building the Xively Client on OSX or Linux before attempting to cross compile the sources to another target. This process could serve as an introduction to the basic architecture, tools and steps which will come handy during the final build onto the target platform.
 
@@ -64,7 +63,7 @@ On OSX these are available through _brew_:
 
 ### Building a TLS static library
 
-By default the Xively C Client library is built with secure connection support and therefore requires a 3rd party TLS implementation to build against. The build enviornment defaults to wolfSSL. But it can be configured to use mbedTLS by setting variable XI_BSP_TLS in the make command like this:
+By default the Xively C Client library is built with secure connection support and therefore requires a 3rd party TLS implementation to link against. The build enviornment defaults to use wolfSSL, but it can be configured to use mbedTLS by setting variable XI_BSP_TLS in the make command like this:
 
         make XI_BSP_TLS=mbedtls
 
@@ -111,7 +110,7 @@ The Xively C Client supports secure connection by utilizing a 3rd party TLS libr
 
 The Xively C Client is open to use any further TLS library solution through its BSP TLS API, please see the porting guide in ```doc/```. If you choose a library other than mbedTLS or WolfSSL then ensure that it supports async I/O, the loading of custom root CA certificates, and OCSP.
 
-The Xively C Client library can be built without TLS support. The primary purpose for a non-TLS build is to  test against localhosted non-TLS mqtt servers like the [mosquitto](http://mosquitto.org) mqtt server. Turning off TLS is strongly discouraged for release versions. For turning off secure connection use the PRESET=POSIX_UNSECURE_REL in the make command:
+The Xively C Client library can be built without TLS support. The primary purpose for a non-TLS build is to test against a localhost non-TLS mqtt server like the [mosquitto](http://mosquitto.org). Turning off TLS is strongly discouraged for release versions. For turning off secure connection use the PRESET=POSIX_UNSECURE_REL in the make command:
 
     make PRESET=POSIX_UNSECURE_REL
 
