@@ -406,7 +406,7 @@ Reaching this point means you are able to produce and execute CC3200 compatible 
     * Board or Device: ```SimpleLink WiFi CC3100/CC3200```
 * On the left panel under the ```System Files``` please highlight the ```/sys/mcuimg.bin```file
 * From the right panel press the ```Browse``` button right next to the ```Url``` field
-* Pick the ```name_of_your_project.bin``` from your workspace
+* Pick the ```name_of_your_project.bin``` from your ```workspace_name/project_name/RELEASE/```
 * From the left panel hightlight ```CC31xx/CC32xx Flash Setup and Control```  
 * Press ```Program``` button
 * Set the J15 jumper to OFF and restart your device it should now run the test program
