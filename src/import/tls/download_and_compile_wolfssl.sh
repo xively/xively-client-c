@@ -1,5 +1,36 @@
 #!/bin/bash
 echo
+echo "!! IMPORTANT !!"
+echo
+echo "WolfSSL's build system requires autotools to be installed on your host system."
+echo "Please install the followng packages before proceeding:"
+echo
+echo "  MacOSX:"
+echo "    brew update"
+echo "    brew install autoconf automake libtool cmake"
+echo "  Ubuntu:"
+echo "    sudo apt-get update"
+echo "    sudo apt-get install autoconf"
+echo "    sudo apt-get install autotools-dev"
+echo "    sudo apt-get install libtool"
+echo "    sudo apt-get install cmake"
+echo
+echo " For other TLS library options please run make help_tls."
+echo
+echo " ! If you proceed from this step the build fails then you will need to: !"
+echo "    1: make clean_all"
+echo "    2: rm -rf src/import/tls/wolfssl"
+echo
+read -p "Please acknowledge these tool dependencies. Do you wish to proceed? (Y) " -n 1 -r
+echo 
+if [[ ! $REPLY =~ ^[Yy]$ ]]
+then
+    echo
+    echo "Exiting build."
+    echo
+    exit 1
+fi
+echo
 echo "-----------------"
 echo "WolfSSL LICENSING"
 echo "-----------------"
@@ -13,8 +44,7 @@ echo "Phone: +1 425 245-8247"
 echo
 echo "More information can be found on the wolfSSL website at www.wolfssl.com."
 echo
-echo "Do you wish to download WolfSSL from github? (Y)"
-read -p "TLS Download Response => " -n 1 -r
+read -p "Do you agree to the license of this third party library? (Y) " -n 1 -r
 echo 
 if [[ ! $REPLY =~ ^[Yy]$ ]]
 then

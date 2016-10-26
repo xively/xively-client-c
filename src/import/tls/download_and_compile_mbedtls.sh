@@ -9,8 +9,7 @@ echo
 echo "the apache-2.0.txt file can be accessed here:"
 echo "   https://github.com/ARMmbed/mbedtls/blob/development/apache-2.0.txt"
 echo
-echo "Do you wish to download mbedTLS from github? (Y)"
-read -p "TLS Download Response => " -n 1 -r
+read -p "Do you agree to the license of this third party library? (Y) " -n 1 -r
 echo
 if [[ ! $REPLY =~ ^[Yy]$ ]]
 then
@@ -24,6 +23,5 @@ cd mbedtls
 git checkout tags/mbedtls-2.3.0
 # "-O2" comes from mbedtls/library/Makefile "CFLAGS ?= -O2" define
 make CFLAGS="-O2 -DMBEDTLS_PLATFORM_MEMORY"
-cd ..
 echo "mbedTLS Build Complete."
 

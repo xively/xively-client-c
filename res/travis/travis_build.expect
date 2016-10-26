@@ -5,8 +5,13 @@ set prompt "(%|#|\\$) $"
 eval spawn $argv
 
 expect {
-  -re "TLS Download Response => " {
-    send -- "Y\r"
-    exp_continue
+    "Please acknowledge these tool dependencies. Do you wish to proceed? " {
+      send -- "Y"
+      exp_continue
+    }
+
+    "Do you agree to the license of this third party library? (Y) " {
+      send -- "Y"
+      exp_continue
   }
 }
