@@ -1,0 +1,12 @@
+#!/usr/bin/expect -f
+set timeout 300
+set prompt "(%|#|\\$) $"
+
+eval spawn $argv
+
+expect {
+  -re "TLS Download Response => " {
+    send -- "Y\r"
+    exp_continue
+  }
+}

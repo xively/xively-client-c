@@ -9,7 +9,8 @@ echo
 echo "the apache-2.0.txt file can be accessed here:"
 echo "   https://github.com/ARMmbed/mbedtls/blob/development/apache-2.0.txt"
 echo
-read -p "Do you wish to download this library from github? (Y) > " -n 1 -r
+echo "Do you wish to download mbedTLS from github? (Y)"
+read -p "TLS Download Response => " -n 1 -r
 echo
 if [[ ! $REPLY =~ ^[Yy]$ ]]
 then

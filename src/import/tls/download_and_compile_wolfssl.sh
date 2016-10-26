@@ -13,7 +13,8 @@ echo "Phone: +1 425 245-8247"
 echo
 echo "More information can be found on the wolfSSL website at www.wolfssl.com."
 echo
-read -p "Do you wish to download this library from github? (Y) > " -n 1 -r
+echo "Do you wish to download WolfSSL from github? (Y)"
+read -p "TLS Download Response => " -n 1 -r
 echo 
 if [[ ! $REPLY =~ ^[Yy]$ ]]
 then
