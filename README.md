@@ -56,10 +56,20 @@ We recommend building the Xively Client on OSX or Linux before attempting to cro
 
 On OSX these are available through _brew_:
 
+    - brew update	
     - brew install autoconf
     - brew install automake
     - brew install libtool
     - brew install cmake
+
+ On Ubuntu these are available through _apt-get_:
+
+    - sudo apt-get update	
+    - sudo apt-get install autoconf
+    - sudo apt-get install autotools-dev
+    - sudo apt-get install libtool
+    - sudo apt-get install cmake
+ 
 
 ### Building a TLS static library
 
