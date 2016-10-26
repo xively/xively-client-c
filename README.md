@@ -12,7 +12,7 @@ The Xively C Client is an easy to port, open-source C client that connects low-e
 
 ## Stability and QA
 
-20 different combinations of compiler and feature sets are continously built by [Travis CI][travis-private-repo-page]. 58 functional, 23 integration and 256 unit tests are executed after each build. Tested with two TLS libraries: [WolfSSL](https://www.wolfssl.com) and [mbedTLS](https://tls.mbed.org). The library is open  for further TLS libraries as well via its TLS BSP.
+20 different combinations of compiler and feature sets are continuously built by [Travis CI][travis-private-repo-page]. 58 functional, 23 integration and 256 unit tests are executed after each build. Tested with two TLS libraries: [WolfSSL](https://www.wolfssl.com) and [mbedTLS](https://tls.mbed.org). The library is open  for further TLS libraries as well via its TLS BSP.
 
 Branch      | Build status
 ------------|-------------
@@ -56,14 +56,24 @@ We recommend building the Xively Client on OSX or Linux before attempting to cro
 
 On OSX these are available through _brew_:
 
+    - brew update	
     - brew install autoconf
     - brew install automake
     - brew install libtool
     - brew install cmake
 
+ On Ubuntu these are available through _apt-get_:
+
+    - sudo apt-get update	
+    - sudo apt-get install autoconf
+    - sudo apt-get install autotools-dev
+    - sudo apt-get install libtool
+    - sudo apt-get install cmake
+ 
+
 ### Building a TLS static library
 
-By default the Xively C Client library is built with secure connection support and therefore requires a 3rd party TLS implementation to link against. The build enviornment defaults to use wolfSSL, but it can be configured to use mbedTLS by setting variable XI_BSP_TLS in the make command like this:
+By default the Xively C Client library is built with secure connection support and therefore requires a 3rd party TLS implementation to link against. The build environment defaults to use wolfSSL, but it can be configured to use mbedTLS by setting variable XI_BSP_TLS in the make command like this:
 
         make XI_BSP_TLS=mbedtls
 
@@ -82,7 +92,7 @@ Examples require both the Xively C Client library and a TLS library to be built 
     cd examples
     make
 
-Execution of the examples requires Xively accountId, username, password and usually an mqtt topic to communicate over. These credentails can be obtained via your Device Details page of the [Xively Connected Product Management (CPM)](https://app.xively.com/login).  If you don't yet have a Xively Account, then you may [Register For One Here](https://app.xively.com/register).
+Execution of the examples requires Xively accountId, username, password and usually an mqtt topic to communicate over. These credentials can be obtained via your Device Details page of the [Xively Connected Product Management (CPM)](https://app.xively.com/login).  If you don't yet have a Xively Account, then you may [Register For One Here](https://app.xively.com/register).
 
 For a secure connection a file named xi_RootCA_list.pem is also required to be placed into the current working directory (CWD) of the example, although this is done automatically by the build system.
 
@@ -102,7 +112,7 @@ For cross-compilation please see the porting guide under ```doc/``` directory. B
 
 - extending the build system with a new cross-compilation preset in the file ```xively-client-c/make/mt-config/mt-presets.mk```
 - a Board Support Package (BSP) implementation that you have written for your platform in the directory ```xively-client-c/src/bsp/platform/TARGETPLATFORM```
-- a TLS library built for the target platform in the directoy ```xively-client-c/src/bsp/tls/TARGETTLSSOLUTION```
+- a TLS library built for the target platform in the directory ```xively-client-c/src/bsp/tls/TARGETTLSSOLUTION```
 
 ## Security
 
