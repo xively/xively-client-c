@@ -95,9 +95,6 @@ $(XI): $(TLS_LIB_PATH) $(XI_PROTOFILES_C) $(XI_OBJS) | $(XI_BIN_DIRS)
 	$(info [$(AR)] $@ )
 	$(MD) $(AR) $(XI_ARFLAGS) $(XI_OBJS) $(XI_EXTRA_ARFLAGS)
 
-$(TLS_LIB_PATH):
-	$(TLS_LIB_PREPARE_CMD)
-
 # protobuf compilation
 $(XI_PROTOBUF_GENERATED)/%.pb-c.c : $(XI_PROTO_DIR)/%.proto
 	@-mkdir -p $(dir $@)
