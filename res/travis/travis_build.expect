@@ -5,12 +5,12 @@ set prompt "(%|#|\\$) $"
 eval spawn $argv
 
 expect {
-    "Please acknowledge these tool dependencies. Do you wish to proceed? " {
+    "Please acknowledge these tool dependencies. Do you wish to proceed?" {
       send -- "Y"
       exp_continue
     }
 
-    "Do you agree to the license of this third party library? (Y) " {
+    "Do you agree to the license of this third party library?" {
       send -- "Y"
       exp_continue
   }

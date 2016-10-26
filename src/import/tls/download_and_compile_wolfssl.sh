@@ -20,7 +20,7 @@ echo " ! If you proceed from this step and the build fails then you will need to
 echo "    1: make clean_all"
 echo "    2: rm -rf src/import/tls/wolfssl"
 echo
-read -p "Please acknowledge these tool dependencies. Do you wish to proceed? (Y) " -n 1 -r
+read -p "Please acknowledge these tool dependencies. Do you wish to proceed? [Y/N] " -n 1 -r
 echo 
 if [[ ! $REPLY =~ ^[Yy]$ ]]
 then
@@ -43,7 +43,7 @@ echo "Phone: +1 425 245-8247"
 echo
 echo "More information can be found on the wolfSSL website at www.wolfssl.com."
 echo
-read -p "Do you agree to the license of this third party library? (Y) " -n 1 -r
+read -p "Do you agree to the license of this third party library? [Y/N] " -n 1 -r
 echo 
 if [[ ! $REPLY =~ ^[Yy]$ ]]
 then
