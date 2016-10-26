@@ -45,7 +45,7 @@ Sources can be obtained by pulling from the master branch at our Xively Client g
 
 ## How to Build?
 
-The Xively C Client's preferred build enviornment is make with gcc on a POSIX platform, though it has been cross-ported to other platforms via toolchains and specific IDEs.
+The Xively C Client's preferred build environment is make with gcc on a POSIX platform, though it has been cross-ported to other platforms via toolchains and specific IDEs.
 
 We recommend building the Xively Client on OSX or Linux before attempting to cross compile the sources to another target. This process could serve as an introduction to the basic architecture, tools and steps which will come handy during the final build onto the target platform.
 
