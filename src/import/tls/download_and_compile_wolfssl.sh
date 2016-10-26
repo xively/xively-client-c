@@ -7,13 +7,12 @@ echo "Please install the followng packages before proceeding:"
 echo
 echo "  MacOSX:"
 echo "    brew update"
-echo "    brew install autoconf automake libtool cmake"
+echo "    brew install autoconf automake libtool"
 echo "  Ubuntu:"
 echo "    sudo apt-get update"
 echo "    sudo apt-get install autoconf"
 echo "    sudo apt-get install autotools-dev"
 echo "    sudo apt-get install libtool"
-echo "    sudo apt-get install cmake"
 echo
 echo " For other TLS library options please run make help_tls."
 echo
