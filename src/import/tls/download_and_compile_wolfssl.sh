@@ -16,7 +16,7 @@ echo "    sudo apt-get install libtool"
 echo
 echo " For other TLS library options please run make help_tls."
 echo
-echo " ! If you proceed from this step the build fails then you will need to: !"
+echo " ! If you proceed from this step and the build fails then you will need to: !"
 echo "    1: make clean_all"
 echo "    2: rm -rf src/import/tls/wolfssl"
 echo
