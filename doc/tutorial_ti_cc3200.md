@@ -59,7 +59,7 @@ These are the platform libraries that you'll need to compile and link against wh
 1. Open the file ```make/mt-os/mt-cc3200``` in your favorite friendly text editor.
 2. Scroll the HOSTS section devoted to your host platform: ```MAC HOST OS```, ```WINDOWS HOST OS```, or ```LINUX HOST OS```.
 2. In your newly identified host's section, set ```XI_CC3200_PATH_CCS_TOOLS``` and ```XI_CC3200_PATH_SDK``` to your Code Composer Studio and SDK install paths, respectively.  If chose the default installation paths for these installations then these values should already be valid.
-3. The toolchain that Code Composer Studio downloaded might differ from the default that's configured in this ```mt-c3200``` file.
+3. The toolchain that Code Composer Studio downloaded might differ from the default that's configured in this ```mt-cc3200``` file.
 	1. Please browse to the path which you set ```XI_CC3200_PATH_CCS_TOOLS```.
 	2. Open up the ```compiler/``` and note the the name of the toolchain.
 	3. Compare this to the toolchain name stored in the ```COMPILER``` variable near the top of the file in ```mt-cc3200```.  Update the ```COMPILER``` variable as necessary.
@@ -232,7 +232,7 @@ Further wolfSSL build customizations:
             PATH=%PATH%;c:\ti\ccsv6\utils\bin
             gmake -f wolfssl.mak all
 
-    under directory `wolfssl/tirtos. The result file is ```wolfssl/tirtos/packages/ti/net/wolfssl/lib/wolfssl.aem4f``` this is the library one should link to an example application to provide wolfSSL symbols.
+    under directory ```wolfssl/tirtos/```. The result file is ```wolfssl/tirtos/packages/ti/net/wolfssl/lib/wolfssl.aem4f``` this is the library one should link to an example application to provide wolfSSL symbols.
 
 
 ## Building your CC3200 example application
