@@ -12,16 +12,6 @@ libxively.*
 !*.eww
 !*.ewp
 
-doc/tex/*.aux
-doc/tex/*.fdb_latexmk
-doc/tex/*.fls
-doc/tex/*.log
-doc/tex/*.nav
-doc/tex/*.out
-doc/tex/*.pdf
-doc/tex/*.snm
-doc/tex/*.toc
-
 project/*.user
 
 .cache/
