@@ -349,16 +349,16 @@ Next we're going to add a function to connect to the Xively Broker. Its implemen
 - Locate the successful wifi connection point in the `main.c` of the ent_wlan example (around line 647, comment: "//wait for few moments"). Here put a call on the ConnectToXively(); function we just added. 
 
 - To make the above buildable you'll need to
-    a. add two include paths to your project to help the compiler find `xively.h` and friends: ```Project```->```Properties```->```Build```->```ARM Compiler```->```Include Options```:
+    - add two include paths to your project to help the compiler find `xively.h` and friends: ```Project```->```Properties```->```Build```->```ARM Compiler```->```Include Options```:
         - `xively-client-c/include`
         - `xively-client-c/include/bsp`
-    b. add two libraries Xively C Client and wolfSSL: ```Project```->```Properties```->```Build```->```ARM Linker```->```File Search Path```:
+    - add two libraries Xively C Client and wolfSSL: ```Project```->```Properties```->```Build```->```ARM Linker```->```File Search Path```:
         - `xively-client-c/bin/cc3200/libxively.a`
         - `xively-client-c/src/import/tls/wolfssl/tirtos/packages/ti/net/wolfssl/lib/wolfssl.aem4f`
-    c. add two files to the project: ```Project```->```Add Files```: `ti/tirex-content/CC3200SDK_1.1.0/cc3200-sdk/example/common`
+    - add two files to the project: ```Project```->```Add Files```: `ti/tirex-content/CC3200SDK_1.1.0/cc3200-sdk/example/common`
         - `timer_if.h`
         - `timer_if.c`
-    d. implement two functions as follows:
+    - implement two functions as follows:
 
             #include <time.h>
             #include <xi_bsp_rng.h>
@@ -374,7 +374,7 @@ Next we're going to add a function to connect to the Xively Broker. Its implemen
                 return xi_bsp_rng_get();
             }
 
-    e. update the memory map in file `cc3200v1p32.cmd`. This should do it:
+    - update the memory map in file `cc3200v1p32.cmd`. This should do it:
 
             MEMORY
             {
@@ -400,7 +400,7 @@ Next we're going to add a function to connect to the Xively Broker. Its implemen
                 .stack  :   > SRAM_CODE(HIGH)
             }
 
-    f. update wifi settings in main.c
+    - update wifi settings in main.c
 
         - update AP name and password defines according to your wifi settings:
 
@@ -416,7 +416,7 @@ Next we're going to add a function to connect to the Xively Broker. Its implemen
 
                 lRetVal = sl_WlanConnect(ENT_NAME,strlen(ENT_NAME),NULL,&g_SecParams,NULL);
 
-    g. All set. Now do this: ```Project```->```Build``` and ```Run```->```Debug```
+    - All set. Now do this: ```Project```->```Build``` and ```Run```->```Debug```
 
         This should result in a CC3200 connected to Xively Services.
 
