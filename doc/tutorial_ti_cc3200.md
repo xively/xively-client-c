@@ -265,7 +265,7 @@ In MQTT tab, select the topic from the dropdown and blue text to copy.
 
 We suggest the _ent_wlan_ networking example from the CC3200 SDK as the basis for connecting to Xively. We will first import the example into Code Composer Studio™, and then add some code to build your IoT Client connection to the Xively service.
 
-### Building the _ent_wlan_ Example
+### Build the _ent_wlan_ Example
 
 #### Import _ent_wlan_
 1. In Code Composer Studio™, select ```File```->```Import```.
@@ -303,7 +303,7 @@ Reaching this point means you are able to produce and execute CC3200 compatible 
 
 **NOTE**: As per Texas Instruments instructions, keep the J15 Jumper set to ON and push Reset button on the board before each debug session. In case of trouble get help from [TI's CC3200 help doc](http://www.ti.com/lit/ds/symlink/cc3200.pdf)
 
-### Adding the Xively Client to ent_wlan
+### Add the Xively Client to ent_wlan
 
 Next we're going to add a function to connect to the Xively Broker. Its implementation is based on the examples in the Client repo, e.g. `xively-client-c/examples/mqtt_logic_producer/src/mqtt_logic_producer.c`.
 
