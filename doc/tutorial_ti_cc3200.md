@@ -103,7 +103,7 @@ _From the `xively-client-c` root folder:_
     make PRESET=CC3200_REL_MIN clean
     make PRESET=CC3200_REL_MIN
 
-For all host platforms the PRESET=CC3200_REL_MIN_UNSECURE results in a Xively C Client version without a secure TLS connection. This can be useful for development purposes against local MQTT brokers, like [mosquitto](https://mosquitto.org/) but is not advised for devices in a real production enviorment.
+For all host platforms the PRESET=CC3200_REL_MIN_UNSECURE results in a Xively C Client version without a secure TLS connection. This can be useful for development purposes against local MQTT brokers, like [mosquitto](https://mosquitto.org/) but is not advised for devices in a real production environment.
 
 
 ## Step 4 of 8: Install the wolfSSL embedded SSL library.
@@ -445,7 +445,7 @@ To permanently make changes to the device you must flash the device using a Wind
 * On the left panel under the ```System Files``` please highlight the ```/sys/mcuimg.bin```file
 * From the right panel press the ```Browse``` button right next to the ```Url``` field
 * Pick the ```name_of_your_project.bin``` from your ```workspace_name/project_name/RELEASE/```
-* From the left panel hightlight ```CC31xx/CC32xx Flash Setup and Control```  
+* From the left panel highlight ```CC31xx/CC32xx Flash Setup and Control```  
 * Press ```Program``` button
 * Set the J15 jumper to OFF and restart your device it should now run the test program
 
