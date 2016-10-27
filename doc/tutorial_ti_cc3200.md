@@ -28,13 +28,13 @@ Texas Instruments [SimpleLink™ Wi-Fi® CC3200 LaunchPad™](http://www.ti.com/
 
 Code Composer Studio™ includes the toolchain (compiler) you'll need to build for the CC3200 and a java-based IDE.
 
-Download the [Code Composer Studio™](http://www.ti.com/tool/ccstudio) appropriate for your operating system (Windows, Linux or MacOS). 
+[Download](http://www.ti.com/tool/ccstudio) the Code Composer Studio™ appropriate for your operating system (Windows, Linux or MacOS). 
 
 1. Complete the free registration.
-2. Validate your email address and your account activation is complete.
+2. Validate your email address.
 3. Complete the brief export approval form and click ```Submit```.
 4. Upon approval, click ```Download``` to proceed. Monitor the download process to completion.
-5. Once download is complete, start the installation 
+5. Once download is complete, start the installation. 
 6. Accept the license agreement and click ```Next >```.
 7. Choose the default install folder and click ```Next >```. Or, if you install into a custom directory, then please note its path as you will need to refer to it later.
 
@@ -65,7 +65,7 @@ These are the platform libraries that you'll need to compile and link against wh
 ## Step 3 of 8: Install the Xively C Client library.
 
 ### Download the xively-client-c library source
-1. Download the library source code from [xively-client-c](https://github.com/xively/xively-client-c).  You use [git](https://help.github.com/articles/set-up-git/) to clone the repository or download the source archive on the right side of the page.
+1. Download the library source code from [xively-client-c](https://github.com/xively/xively-client-c).  Git [clone](https://help.github.com/articles/set-up-git/) the repository or download the source archive from the right side of the github page.
 
 ### Prebuild Configuration of the Xively C Client
 
@@ -254,6 +254,8 @@ The resulting file is ```wolfssl/tirtos/packages/ti/net/wolfssl/lib/wolfssl.aem4
 
 ## Step 5 of 8: Create your Xively (digital) device.
 
+(todo)
+
 In Device page, download the creds (devicePassword & deviceID).
 
 In MQTT tab, select the topic from the dropdown and blue text to copy.
@@ -423,7 +425,6 @@ Next we're going to add a function to connect to the Xively Broker. Its implemen
 
 ## Step 7 of 8: Flash your client application onto the device.
 
-## Flashing Your Application onto Your CC3200
 By default Code Composer uploads your application into RAM for execution. This is great for quick iterations, but it also means that your device will lose your changes when you uplug it.
 
 To permanently make changes to the device you must flash the device using a Windows binary executable called Uniflash. This tool is external to Code Composer Studio™.
@@ -447,3 +448,17 @@ To permanently make changes to the device you must flash the device using a Wind
 * From the left panel hightlight ```CC31xx/CC32xx Flash Setup and Control```  
 * Press ```Program``` button
 * Set the J15 jumper to OFF and restart your device it should now run the test program
+
+
+## Congratulations!
+
+(todo)
+
+You did great! 
+Here's what the end result should look like.
+
+
+## What to do next.
+
+(todo)
+
