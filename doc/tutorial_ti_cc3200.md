@@ -136,7 +136,7 @@ _Alternatively you can follow the steps written on [Using wolfSSL with TI-RTOS](
 
 #### Further wolfSSL build customizations:
 
-- In file `{..}/wolfssl/wolfssl/wolfcrypt/settings.h` add a new platform macro `WOLFSSL_NOOS_XIVELY` with following content. This will configure wolfSSL features needed for connecting to Xively services.
+- In the file `{..}/wolfssl/wolfssl/wolfcrypt/settings.h` add a new platform macro `WOLFSSL_NOOS_XIVELY` with the following content. This will configure the wolfSSL features needed for connecting to the Xively service.
 
         #ifdef WOLFSSL_NOOS_XIVELY
 
@@ -208,7 +208,7 @@ _Alternatively you can follow the steps written on [Using wolfSSL with TI-RTOS](
         -DWOLFSSL_NOOS_XIVELY
 
 
-- In file `wolfssl/tirtos/packages/ti/net/wolfssl/package.bld` comment out the last lines for building hwLib:
+- In the file `wolfssl/tirtos/packages/ti/net/wolfssl/package.bld` comment out the last lines for building hwLib:
 
         /*
         var hwLibptions = {incs: wolfsslPathInclude, defs: " -DWOLFSSL_TI_HASH "
@@ -220,7 +220,7 @@ _Alternatively you can follow the steps written on [Using wolfSSL with TI-RTOS](
 
     _The above can be removed because is not available for CC3200 and not needed for a Xively C Client TLS lib._
 
-- Also in file `wolfssl/tirtos/packages/ti/net/wolfssl/package.bld` to add OCSP support add `"src/ocsp.c"` source file to wolfSSLObjList variable.
+- Also in the file `wolfssl/tirtos/packages/ti/net/wolfssl/package.bld`, to add OCSP support add the `"src/ocsp.c"` source file to the wolfSSLObjList variable.
 
 #### Build wolfSSL static library
 
@@ -234,8 +234,7 @@ _Alternatively you can follow the steps written on [Using wolfSSL with TI-RTOS](
         PATH=%PATH%;c:\ti\ccsv6\utils\bin
         gmake -f wolfssl.mak all
 
-The resulting file is ```wolfssl/tirtos/packages/ti/net/wolfssl/lib/wolfssl.aem4f``` this is the library one should link to an example application to provide wolfSSL symbols.
-
+The resulting file is ```wolfssl/tirtos/packages/ti/net/wolfssl/lib/wolfssl.aem4f```. This is the WolfSSL library will provide TLS support to the example application below.
 
 ## Building your CC3200 example application
 
@@ -320,12 +319,12 @@ Next we're going to add a function to connect to the Xively Broker. Its implemen
             xi_shutdown();
         }
 
-- you can get a Device ID and Device Secret from the Devices Page of CPM. Navigate to a specific device paeg and click the Get Password button in the top right of that page to download a file with the values.
+- you can get a Device ID and Device Secret from the Devices Page of CPM. Navigate to a specific device page and click the Get Password button in the top right of that page to download a file with the values.
 
 - locate the successful wifi connection point in the `main.c` of the ent_wlan example (around line 647, comment: "//wait for few moments"). Here put a call on the ConnectToXively(); function we just added. 
 
 - to make aboves buildable you'll need to
-    - add two include paths to your project to help compiler find `xively.h` and friends: ```Project```->```Properties```->```Build```->```ARM Compiler```->```Include Options```:
+    - add two include paths to your project to help the compiler find `xively.h` and friends: ```Project```->```Properties```->```Build```->```ARM Compiler```->```Include Options```:
         - `xively-client-c/include`
         - `xively-client-c/include/bsp`
     - add two libraries Xively C Client and wolfSSL: ```Project```->```Properties```->```Build```->```ARM Linker```->```File Search Path```:
@@ -384,11 +383,11 @@ Next we're going to add a function to connect to the Xively Broker. Its implemen
                 #define USER_NAME   "UsernameIfAny"
                 #define PASSWORD    "Password"
 
-        - select security type in `EntWlan()` function according to your wifi settings, in case of WPA2 set
+        - select a security type in the `EntWlan()` function according to your wifi settings.  For example, in the case of WPA2 set
 
                 g_SecParams.Type = SL_SEC_TYPE_WPA_WPA2;
 
-            and delete variable `eapParams` and pass NULL as last attribute to connect function:
+            and delete the variable `eapParams`. Then pass NULL as the last attribute to the connect function:
 
                 lRetVal = sl_WlanConnect(ENT_NAME,strlen(ENT_NAME),NULL,&g_SecParams,NULL);
 
