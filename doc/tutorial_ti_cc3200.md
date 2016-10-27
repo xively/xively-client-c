@@ -388,3 +388,28 @@ Reaching this point means you are able to produce and execute CC3200 compatible 
     - all set: ```Project```->```Build``` and ```Run```->```Debug```
 
         This should result in a CC3200 connected to Xively Services.
+
+## Flashing Your Application onto Your CC3200
+By default Code Composer uploads your application into RAM for execution. This is great for quick iterations, but it also means that your device will lose your changes when you uplug it.
+
+To permanently make changes to the device you must flash the device using a Windows binary executable called UniFlash. This tool is external to Code Composer Studio.
+
+### Download and Install CCS UniFlash Software
+
+* From [CCS UniFlash download page](http://processors.wiki.ti.com/index.php/CCS_UniFlash_v3.4.1_Release_Notes) choose Windows Offline Version
+* Begin the installation process
+* On the "Select Components" window
+    * Please leave only ```Simplelink WiFi CC31xx/CC32xx``` the selected and continue installation process
+
+### Run CCS UniFlash Software
+
+* Plug in your CC3200 device and make sure that the J15 Jumper is set to ON
+* From ```File``` select ```New Configuration``` and select
+    * Connection: ```CC3x Serial(UART) Interface```  
+    * Board or Device: ```SimpleLink WiFi CC3100/CC3200```
+* On the left panel under the ```System Files``` please highlight the ```/sys/mcuimg.bin```file
+* From the right panel press the ```Browse``` button right next to the ```Url``` field
+* Pick the ```name_of_your_project.bin``` from your ```workspace_name/project_name/RELEASE/```
+* From the left panel hightlight ```CC31xx/CC32xx Flash Setup and Control```  
+* Press ```Program``` button
+* Set the J15 jumper to OFF and restart your device it should now run the test program
