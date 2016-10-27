@@ -54,7 +54,7 @@ These are the platform libraries that you'll need to compile and link against wh
 
 1. Launch Code Composer Studio™.
 2. If prompted to ```Select a Workspace```, click ```OK``` to select the default path.
-3. 	Select  ```View```->```Resource Explorer``` from the top bar menu.
+3. Select  ```View```->```Resource Explorer``` from the top bar menu.
 4. Select ```CC3200 Simplelink WiFi``` from the list of available development tools.
 5. On the right side of the screen, click the ```Install on Desktop``` down-arrow icon and select ```Make Available Offline```. Confirm ```Yes``` on the popup window.
 6. A ```Dependencies``` popup may appear.  Click ```OK``` to download any software dependencies.
@@ -65,11 +65,11 @@ These are the platform libraries that you'll need to compile and link against wh
 ## Step 3 of 8: Install the Xively C Client library.
 
 ### Download the xively-client-c library source
-1. Download the library source code from [xively-client-c](https://github.com/xively/xively-client-c).  Git [clone](https://help.github.com/articles/set-up-git/) the repository or download the source archive from the right side of the github page.
+Download the library source code from [xively-client-c](https://github.com/xively/xively-client-c).  Git [clone](https://help.github.com/articles/set-up-git/) the repository or download the source archive from the right side of the github page.
 
-### Prebuild Configuration of the Xively C Client
+### Prebuild configuration of the Xively C Client
 
-#### Configure Make Target file mt-cc3200
+#### Configure make target file mt-cc3200
 1. Open the file ```make/mt-os/mt-cc3200``` in your favorite friendly text editor.
 2. Scroll the HOSTS section devoted to your host platform: ```MAC HOST OS```, ```WINDOWS HOST OS```, or ```LINUX HOST OS```.
 2. In your newly identified host's section, set ```XI_CC3200_PATH_CCS_TOOLS``` and ```XI_CC3200_PATH_SDK``` to your Code Composer Studio™ and SDK install paths, respectively.  **If you chose the default installation paths for these installations then these values should already be valid and you shouldn't need to change anything.**
@@ -78,7 +78,7 @@ These are the platform libraries that you'll need to compile and link against wh
 	2. Open up the ```compiler/``` and note the the name of the toolchain.
 	3. Compare this to the toolchain name stored in the ```COMPILER``` variable near the top of the file in ```mt-cc3200```.  Update the ```COMPILER``` variable as necessary.
 
-### Build Xively C Client library
+### Build the Xively C Client library
 
 The process for building slightly depends on your host OS:
 
@@ -108,7 +108,7 @@ For all host platforms the PRESET=CC3200_REL_MIN_UNSECURE results in a Xively C 
 
 ## Step 4 of 8: Install the wolfSSL embedded SSL library.
 
-WolfSSL is used to create secure TLS connections.  There is a version of WolfSSL provided on-chip when using the CC3200, but it does not provide OCSP support. OCSP support is crucial in detecting compromised and revoked Certficates, and therefore we have provided instructions on building and linking against a newer version of the WolfSSL library so that OCSP can be leveraged by your project.
+WolfSSL is used to create secure TLS connections.  There is a version of WolfSSL provided on-chip when using the CC3200, but it does not provide Online Certificate Status Protocol ([OCSP](https://tools.ietf.org/html/rfc6960)) support. OCSP support is crucial in detecting compromised and revoked Certificates, and therefore we have provided instructions on building and linking against a newer version of the WolfSSL library so that OCSP can be leveraged by your project.
 
 ### Download WolfSSL library source
 - Download WolfSSL library source code from [wolfssl](https://github.com/wolfSSL/wolfssl/releases/tag/v3.9.6)
@@ -265,7 +265,7 @@ In MQTT tab, select the topic from the dropdown and blue text to copy.
 
 We suggest the _ent_wlan_ networking example from the CC3200 SDK as the basis for connecting to Xively. We will first import the example into Code Composer Studio™, and then add some code to build your IoT Client connection to the Xively service.
 
-### Build the _ent_wlan_ Example
+### Build the _ent_wlan_ example
 
 #### Import _ent_wlan_
 1. In Code Composer Studio™, select ```File```->```Import```.
@@ -274,7 +274,7 @@ We suggest the _ent_wlan_ networking example from the CC3200 SDK as the basis fo
 4. From this directory, browse to ```ti/tirex-content/CC3200SDK_1.1.0/cc3200-sdk/example/ent_wlan``` and highlight the ```ccs``` folder.  Click ```Open```.
 5. Click ```Finish```.
 
-#### Build and Run the Example
+#### Build and run the example
 1. Select ```Project```-> ```Build Project```
 	1. When complete, you should see in the ```Console```:
 
@@ -294,14 +294,14 @@ We suggest the _ent_wlan_ networking example from the CC3200 SDK as the basis fo
 	8. Right click on your new target configuration and select ```Set as Default```.
 
 3. 	Execute the example on the CC3200 device
-	1. connect the device to your PC or Mac with USB cable
-	2. hit the green bug button on the top in the CCS, or select ```Run``` ->```Debug```
+	1. Connect the device to your PC or Mac with USB cable
+	2. Hit the green bug button on the top in the CCS, or select ```Run``` ->```Debug```
 
 This should upload your program to RAM and end up with a debugger standing at the first line of main function in main.c.
 
 Reaching this point means you are able to produce and execute CC3200 compatible binary on the device itself.  Congratulations!
 
-**NOTE**: As per Texas Instruments instructions, keep the J15 Jumper set to ON and push Reset button on the board before each debug session. In case of trouble get help from [TI's CC3200 help doc](http://www.ti.com/lit/ds/symlink/cc3200.pdf)
+**NOTE**: As per Texas Instruments instructions, keep the J15 Jumper set to ON and push Reset button on the board before each debug session. In case of trouble review the [TI's CC3200 help doc](http://www.ti.com/lit/ds/symlink/cc3200.pdf)
 
 ### Add the Xively Client to ent_wlan
 
@@ -344,21 +344,21 @@ Next we're going to add a function to connect to the Xively Broker. Its implemen
             xi_shutdown();
         }
 
-- you can get a Device ID and Device Secret from the Devices Page of CPM. Navigate to a specific device page and click the Get Password button in the top right of that page to download a file with the values.
+- For _Xively Device Id_ and _Xively Device Secret_ use the information you got from Step 5 (_Create your Xively (digital) device_).
 
-- locate the successful wifi connection point in the `main.c` of the ent_wlan example (around line 647, comment: "//wait for few moments"). Here put a call on the ConnectToXively(); function we just added. 
+- Locate the successful wifi connection point in the `main.c` of the ent_wlan example (around line 647, comment: "//wait for few moments"). Here put a call on the ConnectToXively(); function we just added. 
 
-- to make aboves buildable you'll need to
-    - add two include paths to your project to help the compiler find `xively.h` and friends: ```Project```->```Properties```->```Build```->```ARM Compiler```->```Include Options```:
+- To make the above buildable you'll need to
+    a. add two include paths to your project to help the compiler find `xively.h` and friends: ```Project```->```Properties```->```Build```->```ARM Compiler```->```Include Options```:
         - `xively-client-c/include`
         - `xively-client-c/include/bsp`
-    - add two libraries Xively C Client and wolfSSL: ```Project```->```Properties```->```Build```->```ARM Linker```->```File Search Path```:
+    b. add two libraries Xively C Client and wolfSSL: ```Project```->```Properties```->```Build```->```ARM Linker```->```File Search Path```:
         - `xively-client-c/bin/cc3200/libxively.a`
         - `xively-client-c/src/import/tls/wolfssl/tirtos/packages/ti/net/wolfssl/lib/wolfssl.aem4f`
-    - add two files to the project: ```Project```->```Add Files```: `ti/tirex-content/CC3200SDK_1.1.0/cc3200-sdk/example/common`
+    c. add two files to the project: ```Project```->```Add Files```: `ti/tirex-content/CC3200SDK_1.1.0/cc3200-sdk/example/common`
         - `timer_if.h`
         - `timer_if.c`
-    - implement two functions as follows:
+    d. implement two functions as follows:
 
             #include <time.h>
             #include <xi_bsp_rng.h>
@@ -374,7 +374,7 @@ Next we're going to add a function to connect to the Xively Broker. Its implemen
                 return xi_bsp_rng_get();
             }
 
-    - update the memory map in file `cc3200v1p32.cmd`. This should do it:
+    e. update the memory map in file `cc3200v1p32.cmd`. This should do it:
 
             MEMORY
             {
@@ -400,7 +400,7 @@ Next we're going to add a function to connect to the Xively Broker. Its implemen
                 .stack  :   > SRAM_CODE(HIGH)
             }
 
-    - update wifi settings in main.c
+    f. update wifi settings in main.c
 
         - update AP name and password defines according to your wifi settings:
 
@@ -416,7 +416,7 @@ Next we're going to add a function to connect to the Xively Broker. Its implemen
 
                 lRetVal = sl_WlanConnect(ENT_NAME,strlen(ENT_NAME),NULL,&g_SecParams,NULL);
 
-    - all set: ```Project```->```Build``` and ```Run```->```Debug```
+    g. All set. Now do this: ```Project```->```Build``` and ```Run```->```Debug```
 
         This should result in a CC3200 connected to Xively Services.
 
@@ -429,14 +429,14 @@ By default Code Composer uploads your application into RAM for execution. This i
 
 To permanently make changes to the device you must flash the device using a Windows binary executable called Uniflash. This tool is external to Code Composer Studio™.
 
-### Download and Install Code Composer Studio™ Uniflash Software
+### Download and install the Code Composer Studio™ Uniflash software
 
 * From [Code Composer Studio™ Uniflash download page](http://processors.wiki.ti.com/index.php/CCS_Uniflash_v3.4.1_Release_Notes) choose Windows Offline Version
 * Begin the installation process
 * On the "Select Components" window
     * Please leave only ```Simplelink WiFi CC31xx/CC32xx``` the selected and continue installation process
 
-### Run CCS Uniflash Software
+### Run the Code Composer Studio™ Uniflash Software
 
 * Plug in your CC3200 device and make sure that the J15 Jumper is set to ON
 * From ```File``` select ```New Configuration``` and select
