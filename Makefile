@@ -194,9 +194,6 @@ ifdef XI_PROVIDE_RESOURCE_FILES
 	@cp $(XI_RESOURCE_FILES) $@
 endif
 
-docs_tex:
-	$(MAKE) -C doc/tex
-
 libxively: $(XI)
 
 # new rule added in order not to change too much in this file
