@@ -49,45 +49,11 @@ These are the platform libraries that you'll need to compile and link against wh
 
 ## Building the Xively C Client library
 
+In order to build the Xively C Client library it is required to first configure and compile the WolfSSL TLS library within the Xively C Client library path. This can be accomplished by downloading the Xively C client library sources and then by downloading, preparing and compiling the WolfSSL TLS library source as described below.
+
 ### Download the xively-client-c library source
+
 1. Download the library source code from [xively-client-c](https://github.com/xively/xively-client-c).  You use [git](https://help.github.com/articles/set-up-git/) to clone the repository or download the source archive on the right side of the page.
-
-
-### Prebuild Configuration of the Xively C Client
-
-#### Configure Make Target file mt-cc3200
-1. Open the file ```make/mt-os/mt-cc3200``` in your favorite friendly text editor.
-2. Scroll the HOSTS section devoted to your host platform: ```MAC HOST OS```, ```WINDOWS HOST OS```, or ```LINUX HOST OS```.
-2. In your newly identified host's section, set ```XI_CC3200_PATH_CCS_TOOLS``` and ```XI_CC3200_PATH_SDK``` to your Code Composer Studio and SDK install paths, respectively.  If chose the default installation paths for these installations then these values should already be valid.
-3. The toolchain that Code Composer Studio downloaded might differ from the default that's configured in this ```mt-c3200``` file.
-	1. Please browse to the path which you set ```XI_CC3200_PATH_CCS_TOOLS```.
-	2. Open up the ```compiler/``` and note the the name of the toolchain.
-	3. Compare this to the toolchain name stored in the ```COMPILER``` variable near the top of the file in ```mt-cc3200```.  Update the ```COMPILER``` variable as necessary.
-
-### Build Xively C Client library
-
-The process for building slightly depends on your host OS:
-
-- Windows:
-
-    Set paths for ```gmake``` and ```mkdir```
-
-        PATH=%PATH%;c:\ti\ccsv6\utils\bin
-        PATH=%PATH%;c:\ti\ccsv6\utils\cygwin
-
-    Clean and build the library:
-
-        gmake PRESET=CC3200_REL_MIN clean
-        gmake PRESET=CC3200_REL_MIN
-
-- MacOS and Linux:
-
-    Clean and build the library:
-
-        make PRESET=CC3200_REL_MIN clean
-        make PRESET=CC3200_REL_MIN
-
-For all host platforms the PRESET=CC3200_REL_MIN_UNSECURE results in a Xively C Client version without a secure TLS connection. This can be useful for development purposes against local MQTT brokers, like [mosquitto](https://mosquitto.org/) but is not advised for devices in a real production enviorment.
 
 ## Building the wolfSSL library
 
@@ -234,6 +200,41 @@ Further wolfSSL build customizations:
 
     under directory `wolfssl/tirtos. The result file is ```wolfssl/tirtos/packages/ti/net/wolfssl/lib/wolfssl.aem4f``` this is the library one should link to an example application to provide wolfSSL symbols.
 
+### Prebuild Configuration of the Xively C Client
+
+#### Configure Make Target file mt-cc3200
+1. Open the file ```make/mt-os/mt-cc3200``` in your favorite friendly text editor.
+2. Scroll the HOSTS section devoted to your host platform: ```MAC HOST OS```, ```WINDOWS HOST OS```, or ```LINUX HOST OS```.
+2. In your newly identified host's section, set ```XI_CC3200_PATH_CCS_TOOLS``` and ```XI_CC3200_PATH_SDK``` to your Code Composer Studio and SDK install paths, respectively.  If chose the default installation paths for these installations then these values should already be valid.
+3. The toolchain that Code Composer Studio downloaded might differ from the default that's configured in this ```mt-c3200``` file.
+	1. Please browse to the path which you set ```XI_CC3200_PATH_CCS_TOOLS```.
+	2. Open up the ```compiler/``` and note the the name of the toolchain.
+	3. Compare this to the toolchain name stored in the ```COMPILER``` variable near the top of the file in ```mt-cc3200```.  Update the ```COMPILER``` variable as necessary.
+
+### Build Xively C Client library
+
+The process for building slightly depends on your host OS:
+
+- Windows:
+
+    Set paths for ```gmake``` and ```mkdir```
+
+        PATH=%PATH%;c:\ti\ccsv6\utils\bin
+        PATH=%PATH%;c:\ti\ccsv6\utils\cygwin
+
+    Clean and build the library:
+
+        gmake PRESET=CC3200_REL_MIN clean
+        gmake PRESET=CC3200_REL_MIN
+
+- MacOS and Linux:
+
+    Clean and build the library:
+
+        make PRESET=CC3200_REL_MIN clean
+        make PRESET=CC3200_REL_MIN
+
+For all host platforms the PRESET=CC3200_REL_MIN_UNSECURE results in a Xively C Client version without a secure TLS connection. This can be useful for development purposes against local MQTT brokers, like [mosquitto](https://mosquitto.org/) but is not advised for devices in a real production enviorment.
 
 ## Building your CC3200 example application
 
