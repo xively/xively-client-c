@@ -113,7 +113,7 @@ WolfSSL is used to create secure TLS connections.  There is a version of WolfSSL
 ### Download WolfSSL library source
 - Download WolfSSL library source code from [wolfssl](https://github.com/wolfSSL/wolfssl/releases/tag/v3.9.6)
 - Put the WolfSSL main directory under the PATH_TO_XIVELY_LIBRARY_MAIN_FOLDER/xively-client-c/src/import/tls/
-    - **If needed rename the folder so it is just `wolfssl`; it does not need to include the version number**
+    - **If needed, rename the folder so it is just `wolfssl`. It does not need to include the version number.**
 
 ### Configure WolfSSL library source
 
@@ -147,7 +147,9 @@ _Alternatively you can follow the steps written on [Using wolfSSL with TI-RTOS](
     iar.targets.arm.M4F    =
     gnu.targets.arm.M4F    =
 
-**Important Note** - Depending on the version of the packages installed, the folder of `BIOS_INSTALL_DIR` may be different. Please check inside the `~/ti/tirex-content` folder to ensure the variable references the correct folder.
+**Important Notes** 
+- Position of this macro matters. Please put the new section just before the line `#ifdef WOLFSSL_TIRTOS`.
+- Depending on the version of the packages installed, the folder of `BIOS_INSTALL_DIR` may be different. Please check inside the `~/ti/tirex-content` folder to ensure the variable references the correct folder.
 
 #### Further wolfSSL build customizations:
 
@@ -307,7 +309,7 @@ Reaching this point means you are able to produce and execute CC3200 compatible 
 
 Next we're going to add a function to connect to the Xively Broker. Its implementation is based on the examples in the Client repo, e.g. `xively-client-c/examples/mqtt_logic_producer/src/mqtt_logic_producer.c`.
 
-- Paste the following code within `main.c` of the _ent_wlan_ anywhere in the main portion of the file
+- Paste the following code within `main.c` of the _ent_wlan_ anywhere in the main portion of the file _before_ the location where we will call the function, which will be around line 647, near the comment: "//wait for few moments" (see the following steps).
 
         #include <xively.h>
         #include <stdio.h>
