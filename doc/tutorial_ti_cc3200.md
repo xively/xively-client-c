@@ -451,7 +451,7 @@ If everything worked correctly, within a few seconds you should see a debug log 
 
 If you do not see that, double check that you followed all the previous complicated steps accurately. If you see a `state` value other than `0` check within `xively_error.h` to see which error could be occuring (ex: `34` means bad credentials).
 
-If you are just testing (or on a Mac) go ahead and skip the next step and go straigt to [Congratulations](#29)!
+If you are just testing (or on a Mac) go ahead and skip the next step and go straight to [Congratulations](#29)!
 
 
 ## Step 7 of 8: Flash your client application onto the device. _(Optional, Windows Only)_
@@ -485,11 +485,22 @@ To permanently make changes to the device you must flash the device using a Wind
 
 You did it! You now have a CC3200 board connected and communicating with Xively.
 
-You should be able to go back to your device page on Xively CPM and see that its status is now `Connected` and within the logs see it's `Device connected` lifecycle log.
+You should be able to go back to your device page on Xively CPM and see that its status is now `Connected` and within the logs see its `Device connected` lifecycle log.
 
 <img src="https://cloud.githubusercontent.com/assets/1428256/19814034/91b3b296-9d0a-11e6-813b-9eb7ca499350.png" width="600">
 
 ## What to do next?
 
-_More coming soon, for now please visit some other guides and please let us know any feedback or questions that you may have regarding this guide or Xively in general!_
+_More coming soon, for now [please visit our docs](http://developer.xively.com/docs) and view some other guides and please let us know any feedback or questions that you may have regarding this guide or Xively in general!_
+
+## Common pitfalls or errors
+
+_More coming soon_
+
+##### Q. When I build the example application I get the "Xively Hello World" debug message, but with a state of 34.
+    
+    Hello Xively World!, state: 34
+
+**A.** A state of `34` means that the device connected to the Xively system, but its credentials are invalid. This could occur if you copied the credentials incorrectly or if you have regenerated the device credentials and are using older ones. The easiest way to fix this issue is to regenerate the device credentials (see Step 5.3) and re-copy the new credentials within `main.c`. Once you've done this rebuild the image flash the hardware again.
+
 
