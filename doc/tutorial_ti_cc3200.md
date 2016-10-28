@@ -58,7 +58,7 @@ These are the platform libraries that you'll need to compile and link against wh
 #### Configure Make Target file mt-cc3200
 1. Open the file ```make/mt-os/mt-cc3200``` in your favorite friendly text editor.
 2. Scroll the HOSTS section devoted to your host platform: ```MAC HOST OS```, ```WINDOWS HOST OS```, or ```LINUX HOST OS```.
-2. In your newly identified host's section, set ```XI_CC3200_PATH_CCS_TOOLS``` and ```XI_CC3200_PATH_SDK``` to your Code Composer Studio and SDK install paths, respectively.  If chose the default installation paths for these installations then these values should already be valid.
+2. In your newly identified host's section, set ```XI_CC3200_PATH_CCS_TOOLS``` and ```XI_CC3200_PATH_SDK``` to your Code Composer Studio and SDK install paths, respectively.  **If you chose the default installation paths for these installations then these values should already be valid and you shouldn't need to change anything.**
 3. The toolchain that Code Composer Studio downloaded might differ from the default that's configured in this ```mt-cc3200``` file.
 	1. Please browse to the path which you set ```XI_CC3200_PATH_CCS_TOOLS```.
 	2. Open up the ```compiler/``` and note the the name of the toolchain.
@@ -68,24 +68,26 @@ These are the platform libraries that you'll need to compile and link against wh
 
 The process for building slightly depends on your host OS:
 
-- Windows:
+#### Windows:
 
-    Set paths for ```gmake``` and ```mkdir```
+Set paths for ```gmake``` and ```mkdir```
 
-        PATH=%PATH%;c:\ti\ccsv6\utils\bin
-        PATH=%PATH%;c:\ti\ccsv6\utils\cygwin
+    PATH=%PATH%;c:\ti\ccsv6\utils\bin
+    PATH=%PATH%;c:\ti\ccsv6\utils\cygwin
 
-    Clean and build the library:
+Clean and build the library:
 
-        gmake PRESET=CC3200_REL_MIN clean
-        gmake PRESET=CC3200_REL_MIN
+    gmake PRESET=CC3200_REL_MIN clean
+    gmake PRESET=CC3200_REL_MIN
 
-- MacOS and Linux:
+#### MacOS and Linux:
 
-    Clean and build the library:
+Clean and build the library:
 
-        make PRESET=CC3200_REL_MIN clean
-        make PRESET=CC3200_REL_MIN
+_From the `xively-client-c` root folder:_
+
+    make PRESET=CC3200_REL_MIN clean
+    make PRESET=CC3200_REL_MIN
 
 For all host platforms the PRESET=CC3200_REL_MIN_UNSECURE results in a Xively C Client version without a secure TLS connection. This can be useful for development purposes against local MQTT brokers, like [mosquitto](https://mosquitto.org/) but is not advised for devices in a real production enviorment.
 
@@ -96,42 +98,47 @@ WolfSSL is used to create secure TLS connections.  There is a version of WolfSSL
 ### Download WolfSSL library source
 - Download WolfSSL library source code from [wolfssl](https://github.com/wolfSSL/wolfssl/releases/tag/v3.9.6)
 - Put the WolfSSL main directory under the PATH_TO_XIVELY_LIBRARY_MAIN_FOLDER/xively-client-c/src/import/tls/
+    - **If needed, rename the folder so it is just `wolfssl`. It does not need to include the version number.**
 
 ### Configure WolfSSL library source
 
-The wolfSSL supports TI-RTOS builds. Follow the steps written on [Using wolfSSL with TI-RTOS](http://processors.wiki.ti.com/index.php/Using_wolfSSL_with_TI-RTOS) to generate wolfSSL static library for CC3200.
+The wolfSSL supports TI-RTOS builds. Below we've provided the needed `{..}/wolfssl/tirtos/products.mak` variable settings for Windows and MacOS to make it easier to get going:
 
-Example tirtos/products.mak variable settings for Windows and MacOS:
+_Alternatively you can follow the steps written on [Using wolfSSL with TI-RTOS](http://processors.wiki.ti.com/index.php/Using_wolfSSL_with_TI-RTOS) to generate wolfSSL static library for CC3200._
 
-- Windows:
+#### Windows:
 
-        XDC_INSTALL_DIR        =c:/ti/xdctools_3_32_01_22_core
-        BIOS_INSTALL_DIR       =c:/ti/tirex-content/tirtos_cc32xx_2_16_00_08/products/bios_6_45_01_29
-        NDK_INSTALL_DIR        =
-        TIVAWARE_INSTALL_DIR   =
+    XDC_INSTALL_DIR        =c:/ti/xdctools_3_32_01_22_core
+    BIOS_INSTALL_DIR       =c:/ti/tirex-content/tirtos_cc32xx_2_16_00_08/products/bios_6_45_01_29
+    NDK_INSTALL_DIR        =
+    TIVAWARE_INSTALL_DIR   =
 
-        export XDCTOOLS_JAVA_HOME=c:/Program Files (x86)/Java/jre1.8.0_51
+    export XDCTOOLS_JAVA_HOME=c:/Program Files (x86)/Java/jre1.8.0_51
 
-        ti.targets.arm.elf.M4F =c:/ti/ccsv6/tools/compiler/arm_15.12.3.LTS
-        iar.targets.arm.M4F    =
-        gnu.targets.arm.M4F    =
+    ti.targets.arm.elf.M4F =c:/ti/ccsv6/tools/compiler/arm_15.12.3.LTS
+    iar.targets.arm.M4F    =
+    gnu.targets.arm.M4F    =
 
-- MacOS:
+#### MacOS:
 
-        XDC_INSTALL_DIR        =/Applications/ti/xdctools_3_32_01_22_core
-        BIOS_INSTALL_DIR       =/Users/atigyi/ti/tirex-content/tirtos_cc32xx_2_16_00_08/products/bios_6_45_01_29
-        NDK_INSTALL_DIR        =
-        TIVAWARE_INSTALL_DIR   =
+    XDC_INSTALL_DIR        =/Applications/ti/xdctools_3_32_01_22_core
+    BIOS_INSTALL_DIR       =$(HOME)/ti/tirex-content/tirtos_cc32xx_2_16_00_08/products/bios_6_45_01_29
+    NDK_INSTALL_DIR        =
+    TIVAWARE_INSTALL_DIR   =
 
-        export XDCTOOLS_JAVA_HOME=/Applications/ti/ccsv6/eclipse/jre/Contents/Home
+    export XDCTOOLS_JAVA_HOME=/Applications/ti/ccsv6/eclipse/jre/Contents/Home
 
-        ti.targets.arm.elf.M4F =/Applications/ti/ccsv6/tools/compiler/arm_15.12.3.LTS
-        iar.targets.arm.M4F    =
-        gnu.targets.arm.M4F    =
+    ti.targets.arm.elf.M4F =/Applications/ti/ccsv6/tools/compiler/arm_15.12.3.LTS
+    iar.targets.arm.M4F    =
+    gnu.targets.arm.M4F    =
 
-Further wolfSSL build customizations:
+**Important Notes** 
+- Position of this macro matters. Please put the new section just before the line `#ifdef WOLFSSL_TIRTOS`.
+- Depending on the version of the packages installed, the folder of `BIOS_INSTALL_DIR` may be different. Please check inside the `~/ti/tirex-content` folder to ensure the variable references the correct folder.
 
-- In file wolfssl/wolfcrypt/settings.h add a new platform macro WOLFSSL_NOOS_XIVELY with content:
+#### Further wolfSSL build customizations:
+
+- In the file `{..}/wolfssl/wolfssl/wolfcrypt/settings.h` add a new platform macro `WOLFSSL_NOOS_XIVELY` with the following content. This will configure the wolfSSL features needed for connecting to the Xively service.
 
         #ifdef WOLFSSL_NOOS_XIVELY
 
@@ -194,9 +201,7 @@ Further wolfSSL build customizations:
 
         #endif
 
-    This will configure wolfSSL features needed for connecting to Xively services.
-
-- To compile in the above settings replace the
+- To compile the above settings change the following variable in the file `wolfssl/tirtos/wolfssl.bld`:
 
         -DWOLFSSL_TIRTOS
 
@@ -204,10 +209,8 @@ Further wolfSSL build customizations:
 
         -DWOLFSSL_NOOS_XIVELY
 
-    in file `wolfssl/tirtos/wolfssl.bld`.
 
-
-- In file `wolfssl/tirtos/packages/ti/net/wolfssl/package.bld` comment out the last lines for building hwLib:
+- In the file `wolfssl/tirtos/packages/ti/net/wolfssl/package.bld` comment out the last lines for building hwLib:
 
         /*
         var hwLibptions = {incs: wolfsslPathInclude, defs: " -DWOLFSSL_TI_HASH "
@@ -217,31 +220,31 @@ Further wolfSSL build customizations:
         hwLib.addObjects(wolfSSLObjList);
         */
 
-    This is not available for CC3200 and not needed for a Xively C Client TLS lib.
+    _The above can be removed because is not available for CC3200 and not needed for a Xively C Client TLS lib._
 
-- In file `wolfssl/tirtos/packages/ti/net/wolfssl/package.bld` to add OCSP support add "src/ocsp.c" source file to wolfSSLObjList variable.
+- Also in the file `wolfssl/tirtos/packages/ti/net/wolfssl/package.bld`, to add OCSP support add the `"src/ocsp.c"` source file to the wolfSSLObjList variable.
 
-- to build wolfSSL static library type
+#### Build wolfSSL static library
 
-    - MacOS:
+- MacOS:
+    _From the `{..}/wolfssl/tirtos/` folder:_
 
-            make -f wolfssl.mak all
+        make -f wolfssl.mak all
 
-    - Windows:
+- Windows:
 
-            PATH=%PATH%;c:\ti\ccsv6\utils\bin
-            gmake -f wolfssl.mak all
+        PATH=%PATH%;c:\ti\ccsv6\utils\bin
+        gmake -f wolfssl.mak all
 
-    under directory ```wolfssl/tirtos/```. The result file is ```wolfssl/tirtos/packages/ti/net/wolfssl/lib/wolfssl.aem4f``` this is the library one should link to an example application to provide wolfSSL symbols.
-
+The resulting file is ```wolfssl/tirtos/packages/ti/net/wolfssl/lib/wolfssl.aem4f```. This is the WolfSSL library will provide TLS support to the example application below.
 
 ## Building your CC3200 example application
 
-We suggest the ent_wlan networking example from the CC3200 SDK as the basis for connecting to Xively. We will first import the example into Code Comoser Studio, and then add some code to build your IoT Client connection to the Xively service.
+We suggest the _ent_wlan_ networking example from the CC3200 SDK as the basis for connecting to Xively. We will first import the example into Code Composer Studio, and then add some code to build your IoT Client connection to the Xively service.
 
-### Building the ent_wlan Example
+### Building the _ent_wlan_ Example
 
-#### Import ent_wlan
+#### Import _ent_wlan_
 1. In Code Composer Studio, select ```File```->```Import```.
 2. Select ```Code Composer Studio```->```CCS Projects``` and click ```Next >```
 3. To the right of ```Select search-directory``` click Browse.
@@ -263,7 +266,7 @@ We suggest the ent_wlan networking example from the CC3200 SDK as the basis for 
 	3. Choose a filename or keep the default.  Click ```Finish```.
 	4. In the ```Connection``` pulldown, select ```Stellaris In-Circuit Debug Interface```.
 	5. Select the box next to ```CC3200``` to add a check mark.
-	6. Click the ```Save``` button to the right.
+	6. Click the ```Save``` button to the right. _You may have to scroll the middle window to the right to see the button._
 	7. Back in the ```Target Configurations``` panel to the right, expand ```User Defined```.
 	8. Right click on your new target configuration and select ```Set as Default```.
 
@@ -279,8 +282,9 @@ Reaching this point means you are able to produce and execute CC3200 compatible 
 
 ### Adding the Xively Client to ent_wlan
 
-- locate the successful wifi connection point in the main.c of the ent_wlan example (arond line 647, comment: "//wait for few moments")
-- here put a call on the  ConnectToXively(); function. Its implementation is based on the examples in the Client repo, e.g. xively-client-c/examples/mqtt_logic_producer/src/mqtt_logic_producer.c:
+Next we're going to add a function to connect to the Xively Broker. Its implementation is based on the examples in the Client repo, e.g. `xively-client-c/examples/mqtt_logic_producer/src/mqtt_logic_producer.c`.
+
+- Paste the following code within `main.c` of the _ent_wlan_ anywhere in the main portion of the file _before_ the location where we will call the function, which will be around line 647, near the comment: "//wait for few moments" (see the following steps).
 
         #include <xively.h>
         #include <stdio.h>
@@ -305,8 +309,8 @@ Reaching this point means you are able to produce and execute CC3200 compatible 
 
             xi_state_t connect_result = xi_connect(
                     xi_context,
-                    "35f9a1ba-2f71-4084-9b68-995eac71ef6b",         // Xively Username
-                    "9Xusd8+jjTghQcggpvEPhu5AFY1GlVnuV9WYwxp8ZT8=", // Xively Password
+                    "35f9a1ba-2f71-4084-9b68-995eac71ef6b",         // Xively Device Id
+                    "9Xusd8+jjTghQcggpvEPhu5AFY1GlVnuV9WYwxp8ZT8=", // Xively Device Secret
                     10, 20,
                     XI_SESSION_CLEAN, &on_connection_state_changed );
 
@@ -317,16 +321,20 @@ Reaching this point means you are able to produce and execute CC3200 compatible 
             xi_shutdown();
         }
 
-- you can get a Account ID and Device ID from the Devices Page of CPM. To get the Password, click the Get Password button in the top right of that page.
+- You can get a Device ID and Device Secret from the Devices Page of CPM. Navigate to a specific device page and click the Get Password button in the top right of that page to download a file with the values.
 
-- to make aboves buildable you'll need to
-    - add two include paths to your project to help compiler find xively.h and friends: ```Project```->```Properties```->```Build```->```ARM Compiler```->```Include Options```:
-        - xively-client-c/include
-        - xively-client-c/include/bsp
+- Locate the successful wifi connection point in the `main.c` of the ent_wlan example (around line 647, comment: "//wait for few moments"). Here put a call on the ConnectToXively(); function we just added. 
+
+- To make aboves buildable you'll need to
+    - add two include paths to your project to help the compiler find `xively.h` and friends: ```Project```->```Properties```->```Build```->```ARM Compiler```->```Include Options```:
+        - `xively-client-c/include`
+        - `xively-client-c/include/bsp`
     - add two libraries Xively C Client and wolfSSL: ```Project```->```Properties```->```Build```->```ARM Linker```->```File Search Path```:
-        - xively-client-c/bin/cc3200/libxively.a
-        - xively-client-c/src/import/tls/wolfssl/tirtos/packages/ti/net/wolfssl/lib/wolfssl.aem4f
-    - add two files timer_if.h and timer_if.c to the project: ```Project```->```Add Files```: ti/tirex-content/CC3200SDK_1.1.0/cc3200-sdk/example/common
+        - `xively-client-c/bin/cc3200/libxively.a`
+        - `xively-client-c/src/import/tls/wolfssl/tirtos/packages/ti/net/wolfssl/lib/wolfssl.aem4f`
+    - add two files to the project: ```Project```->```Add Files```: `ti/tirex-content/CC3200SDK_1.1.0/cc3200-sdk/example/common`
+        - `timer_if.h`
+        - `timer_if.c`
     - implement two functions as follows:
 
             #include <time.h>
@@ -343,7 +351,7 @@ Reaching this point means you are able to produce and execute CC3200 compatible 
                 return xi_bsp_rng_get();
             }
 
-    - update the memory map in file cc3200v1p32.cmd. This should do it:
+    - update the memory map in file `cc3200v1p32.cmd`. This should do it:
 
             MEMORY
             {
@@ -377,11 +385,11 @@ Reaching this point means you are able to produce and execute CC3200 compatible 
                 #define USER_NAME   "UsernameIfAny"
                 #define PASSWORD    "Password"
 
-        - select security type in EntWlan() function according to your wifi settings, in case of WPA2 set
+        - select a security type in the `EntWlan()` function according to your wifi settings.  For example, in the case of WPA2 set
 
                 g_SecParams.Type = SL_SEC_TYPE_WPA_WPA2;
 
-            and delete variable eapParams and pass NULL as last attribute to connect function:
+            and delete the variable `eapParams`. Then pass NULL as the last attribute to the connect function:
 
                 lRetVal = sl_WlanConnect(ENT_NAME,strlen(ENT_NAME),NULL,&g_SecParams,NULL);
 
