@@ -21,10 +21,9 @@ Texas Instruments [SimpleLink™ Wi-Fi® CC3200 LaunchPad™](http://www.ti.com/
 - CC3200 Simplelink™ WiFi SDK
 - wolfSSL embedded SSL library
 - Xively C Client library
-- CC3200 Uniflash
+- CC3200 Uniflash _(optional)_
 
-
-## Step 1 of 8: Install the Code Composer Studio™.
+## Step 1 of 7: Install the Code Composer Studio™.
 
 Code Composer Studio™ includes the toolchain (compiler) you'll need to build for the CC3200 and a java-based IDE.
 
@@ -48,7 +47,7 @@ Code Composer Studio™ includes the toolchain (compiler) you'll need to build f
 10. Once installation completes, click ```Finish``` to leave the installer.
 
 
-## Step 2 of 8: Install the CC3200 Simplelink™ WiFi SDK.
+## Step 2 of 7: Install the CC3200 Simplelink™ WiFi SDK.
 
 These are the platform libraries that you'll need to compile and link against when writing software for the CC3200.
 
@@ -62,7 +61,7 @@ These are the platform libraries that you'll need to compile and link against wh
 *NOTE*: Windows users may download the [CC3200 Simplelink™ WiFi SDK](http://www.ti.com/tool/cc3200sdk) directly outside of the Code Composer Studio™ if you wish. Once downloaded, please install using the default settings.
 
 
-## Step 3 of 8: Install the Xively C Client library.
+## Step 3 of 7: Install the Xively C Client library.
 
 ### Download the xively-client-c library source
 Download the library source code from [xively-client-c](https://github.com/xively/xively-client-c).  Git [clone](https://help.github.com/articles/set-up-git/) the repository or download the source archive from the right side of the github page.
@@ -106,7 +105,7 @@ _From the `xively-client-c` root folder:_
 For all host platforms the PRESET=CC3200_REL_MIN_UNSECURE results in a Xively C Client version without a secure TLS connection. This can be useful for development purposes against local MQTT brokers, like [mosquitto](https://mosquitto.org/) but is not advised for devices in a real production environment.
 
 
-## Step 4 of 8: Install the wolfSSL embedded SSL library.
+## Step 4 of 7: Install the wolfSSL embedded SSL library.
 
 WolfSSL is used to create secure TLS connections.  There is a version of WolfSSL provided on-chip when using the CC3200, but it does not provide Online Certificate Status Protocol ([OCSP](https://tools.ietf.org/html/rfc6960)) support. OCSP support is crucial in detecting compromised and revoked Certificates, and therefore we have provided instructions on building and linking against a newer version of the WolfSSL library so that OCSP can be leveraged by your project.
 
@@ -254,7 +253,7 @@ _Alternatively you can follow the steps written on [Using wolfSSL with TI-RTOS](
 The resulting file is ```wolfssl/tirtos/packages/ti/net/wolfssl/lib/wolfssl.aem4f```. This is the WolfSSL library will provide TLS support to the example application below.
 
 
-## Step 5 of 8: Create your Xively (digital) device.
+## Step 5 of 7: Create your Xively (digital) device.
 
 _You should have a Xively account already created, but if you do not, register for free at [Xively.com](https://app.xively.com/register)._
 
@@ -284,7 +283,7 @@ To have a device communicate through Xively we will first need to tell the Xivel
 
  You now have a provisioned device in Xively that your CC3200 will be able to connect as!
 
-## Step 6 of 8: Build your client application.
+## Step 6 of 7: Build your client application.
 
 We suggest the _ent_wlan_ networking example from the CC3200 SDK as the basis for connecting to Xively. We will first import the example into Code Composer Studio™, and then add some code to build your IoT Client connection to the Xively service.
 
@@ -454,7 +453,7 @@ If you do not see that, double check that you followed all the previous complica
 If you are just testing (or on a Mac) go ahead and skip the next step and go straight to [Congratulations](#29)!
 
 
-## Step 7 of 8: Flash your client application onto the device. _(Optional, Windows Only)_
+## Step 7 of 7: Flash your client application onto the device. _(Optional, Windows Only)_
 
 By default Code Composer uploads your application into RAM for execution. This is great for quick iterations, but it also means that your device will lose your changes when you uplug it.
 
