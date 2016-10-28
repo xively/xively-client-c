@@ -3,7 +3,7 @@
 
 ## Table of Contents
 1. [Target Audience](#target-audience)
-2. [Xively Client versions](#xively-client-versions)
+2. [C Client Overview](#c-client-overview)
 3. [Supported Platforms](#supported-platforms)
 4. [Board Support Package (BSP)](#board-support-package-bsp)
 5. [Porting the C Client](#porting-the-c-client)
@@ -17,32 +17,20 @@ This document is intended for Embedded Developers who have access to the source 
 
 Details of the Xively C Client build steps, build configuration flags, and the location of the functions needed to port the library to new platforms are included in this document.
 
-## Xively Client Versions
+For information about the Xively Python client, please visit its public git repository: [xiPy](https://github.com/xively/xipy).
 
-#### C Client
+## C Client Overview
 
-The C Client is designed for low resources platforms. The single threaded implementation is non-blocking, which allows it to operate on NoOs platforms. The implementation also supports seamless concurrent processing of outgoing and incoming messages.
+The Xively C Client is designed for low resources platforms. The single threaded implementation is non-blocking, which allows it to operate on NoOs platforms. The implementation also supports seamless concurrent processing of outgoing and incoming messages.
 
-An event system is also included for Xively C Client scheduling, but it can also be used by your client application as well. It's a platform independant implementation that doesn't require porting to any platform-specific timers or tasks.
+An event system is included in the client which can be used by your client application as well. The client's event system is a platform independant implementation that doesn't require porting to any platform-specific timers or tasks.
 
 The client provides this functionality while remaining small enough to reside on low resource MCUs, consumes minimal memory, processor power and energy consumption.
 
 The codebase is built against C99 standards.
 
-For more information place see the Xively C Client user guide in the Xively Developer Center.
+For more information please see the Xively C Client User Guide: `doc/user_guide.md`.
 
-#### Python Client
-
-The Python Client is meant for platforms where Python interpreter is available and it allows you to skip the C Client Porting Process for those platforms.
-
-Typically this is where there's no need for low resource consumption and where battery power or energy consumption is not a bottleneck.
-
-Python 2.7 and 3.4+ are both supported.
-
-The development version of the Xively Python Client is in seperate repository under xi_client_py.  A release version of this same source-base is accessible in two ways:
-
-- pip install xiPy OR
-- public git repository: [xiPy](https://github.com/xively/xipy)
 
 ## Supported Platforms
 
