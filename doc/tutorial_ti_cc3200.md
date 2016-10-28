@@ -284,7 +284,7 @@ Reaching this point means you are able to produce and execute CC3200 compatible 
 
 Next we're going to add a function to connect to the Xively Broker. Its implementation is based on the examples in the Client repo, e.g. `xively-client-c/examples/mqtt_logic_producer/src/mqtt_logic_producer.c`.
 
-- Paste the following code within `main.c` of the _ent_wlan_ anywhere in the main portion of the file
+- Paste the following code within `main.c` of the _ent_wlan_ anywhere in the main portion of the file _before_ the location where we will call the function, which will be around line 647, near the comment: "//wait for few moments" (see the following steps).
 
         #include <xively.h>
         #include <stdio.h>
