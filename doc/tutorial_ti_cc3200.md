@@ -98,7 +98,7 @@ WolfSSL is used to create secure TLS connections.  There is a version of WolfSSL
 ### Download WolfSSL library source
 - Download WolfSSL library source code from [wolfssl](https://github.com/wolfSSL/wolfssl/releases/tag/v3.9.6)
 - Put the WolfSSL main directory under the PATH_TO_XIVELY_LIBRARY_MAIN_FOLDER/xively-client-c/src/import/tls/
-    - **If needed rename the folder so it is just `wolfssl`; it does not need to include the version number**
+    - **If needed, rename the folder so it is just `wolfssl`. It does not need to include the version number.**
 
 ### Configure WolfSSL library source
 
@@ -132,7 +132,9 @@ _Alternatively you can follow the steps written on [Using wolfSSL with TI-RTOS](
     iar.targets.arm.M4F    =
     gnu.targets.arm.M4F    =
 
-**Important Note** - Depending on the version of the packages installed, the folder of `BIOS_INSTALL_DIR` may be different. Please check inside the `~/ti/tirex-content` folder to ensure the variable references the correct folder.
+**Important Notes** 
+- Position of this macro matters. Please put the new section just before the line `#ifdef WOLFSSL_TIRTOS`.
+- Depending on the version of the packages installed, the folder of `BIOS_INSTALL_DIR` may be different. Please check inside the `~/ti/tirex-content` folder to ensure the variable references the correct folder.
 
 #### Further wolfSSL build customizations:
 
@@ -319,11 +321,11 @@ Next we're going to add a function to connect to the Xively Broker. Its implemen
             xi_shutdown();
         }
 
-- you can get a Device ID and Device Secret from the Devices Page of CPM. Navigate to a specific device page and click the Get Password button in the top right of that page to download a file with the values.
+- You can get a Device ID and Device Secret from the Devices Page of CPM. Navigate to a specific device page and click the Get Password button in the top right of that page to download a file with the values.
 
-- locate the successful wifi connection point in the `main.c` of the ent_wlan example (around line 647, comment: "//wait for few moments"). Here put a call on the ConnectToXively(); function we just added. 
+- Locate the successful wifi connection point in the `main.c` of the ent_wlan example (around line 647, comment: "//wait for few moments"). Here put a call on the ConnectToXively(); function we just added. 
 
-- to make aboves buildable you'll need to
+- To make aboves buildable you'll need to
     - add two include paths to your project to help the compiler find `xively.h` and friends: ```Project```->```Properties```->```Build```->```ARM Compiler```->```Include Options```:
         - `xively-client-c/include`
         - `xively-client-c/include/bsp`
