@@ -256,12 +256,33 @@ The resulting file is ```wolfssl/tirtos/packages/ti/net/wolfssl/lib/wolfssl.aem4
 
 ## Step 5 of 8: Create your Xively (digital) device.
 
-(todo)
+_You should have a Xively account already created, but if you do not, register for free at [Xively.com](https://app.xively.com/register)._
 
-In Device page, download the creds (devicePassword & deviceID).
+To have a device communicate through Xively we will first need to tell the Xively system that a device exists. [Log into the Xively CPM app](https://app.xively.com/) to complete the following steps.
 
-In MQTT tab, select the topic from the dropdown and blue text to copy.
+1. Create a device template.
+ _This device template will represent the CC3200 type board that we are using for this example._
+ - Click on `Devices` > `Device templates`
+ - Click on `Add  new device template`
+ - Enter any name you want (ex: "CC3200 Launchpad") and click `Ok`
+ <img src="https://cloud.githubusercontent.com/assets/1428256/19813190/82157058-9d06-11e6-9b47-99c99e235850.png" width="600">
 
+2. Create an individual device.
+ _This individual device will represent the specific CC3200 board that you have physicially connected for this example._
+ - Click on `Add new device`
+ - The device template we just created should already be selected for the template.
+ - Choose any Org from the list 
+ - Enter any serial number you want (ex: "My Xively CC3200") and click `Ok`
+ <img src="https://cloud.githubusercontent.com/assets/1428256/19813191/821704b8-9d06-11e6-89aa-78b52c251d20.png" width="600">
+
+3. Get credentials for this device.
+ _In order for your device to securely talk to Xively it needs credentials that it will use to authenticate itself as a valid device within your account._
+ - Click on `Get password`
+ - Click the `Download` button
+ - Save these credentials as they will be used in the next step.
+ <img src="https://cloud.githubusercontent.com/assets/1428256/19813189/8214fda8-9d06-11e6-859f-f3805e34ec04.png" width="600">
+
+ You now have a provisioned device in Xively that your CC3200 will be able to connect as!
 
 ## Step 6 of 8: Build your client application.
 
@@ -420,12 +441,20 @@ Next we're going to add a function to connect to the Xively Broker. Its implemen
 
     - All set. Now do this: ```Project```->```Build``` and ```Run```->```Debug```
 
-        This should result in a CC3200 connected to Xively Services.
+        This should result in a CC3200 connected to Xively Services!
+
+### You (hopefully) did it!
+
+If everything worked correctly, within a few seconds you should see a debug log that says 
+    
+    Hello Xively World!, state: 0
+
+If you do not see that, double check that you followed all the previous complicated steps accurately. If you see a `state` value other than `0` check within `xively_error.h` to see which error could be occuring (ex: `34` means bad credentials).
+
+If you are just testing (or on a Mac) go ahead and skip the next step and go straigt to [Congratulations](#29)!
 
 
-
-
-## Step 7 of 8: Flash your client application onto the device.
+## Step 7 of 8: Flash your client application onto the device. _(Optional, Windows Only)_
 
 By default Code Composer uploads your application into RAM for execution. This is great for quick iterations, but it also means that your device will lose your changes when you uplug it.
 
@@ -454,13 +483,13 @@ To permanently make changes to the device you must flash the device using a Wind
 
 ## Congratulations!
 
-(todo)
+You did it! You now have a CC3200 board connected and communicating with Xively.
 
-You did great! 
-Here's what the end result should look like.
+You should be able to go back to your device page on Xively CPM and see that its status is now `Connected` and within the logs see it's `Device connected` lifecycle log.
 
+<img src="https://cloud.githubusercontent.com/assets/1428256/19814034/91b3b296-9d0a-11e6-813b-9eb7ca499350.png" width="600">
 
-## What to do next.
+## What to do next?
 
-(todo)
+_More coming soon, for now please visit some other guides and please let us know any feedback or questions that you may have regarding this guide or Xively in general!_
 
