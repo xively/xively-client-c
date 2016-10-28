@@ -264,6 +264,7 @@ To have a device communicate through Xively we will first need to tell the Xivel
  - Click on `Devices` > `Device templates`
  - Click on `Add  new device template`
  - Enter any name you want (ex: "CC3200 Launchpad") and click `Ok`
+ 
  <img src="https://cloud.githubusercontent.com/assets/1428256/19813190/82157058-9d06-11e6-9b47-99c99e235850.png" width="600">
 
 2. Create an individual device.
@@ -272,13 +273,16 @@ To have a device communicate through Xively we will first need to tell the Xivel
  - The device template we just created should already be selected for the template.
  - Choose any Org from the list 
  - Enter any serial number you want (ex: "My Xively CC3200") and click `Ok`
+ 
  <img src="https://cloud.githubusercontent.com/assets/1428256/19813191/821704b8-9d06-11e6-89aa-78b52c251d20.png" width="600">
 
 3. Get credentials for this device.
  _In order for your device to securely talk to Xively it needs credentials that it will use to authenticate itself as a valid device within your account._
  - Click on `Get password`
- - Click the `Download` button
+ - Click the `Download` button. You should see two data items; the first is the _Xively Device Secret_ and the second is the _Xively Device Id_. 
+    
  - Save these credentials as they will be used in the next step.
+ 
  <img src="https://cloud.githubusercontent.com/assets/1428256/19813189/8214fda8-9d06-11e6-859f-f3805e34ec04.png" width="600">
 
  You now have a provisioned device in Xively that your CC3200 will be able to connect as!
