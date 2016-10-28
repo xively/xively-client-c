@@ -259,7 +259,6 @@ A typical CONFIG flag:
     - posix_fs          - POSIX implementation of File System calls
     - memory_fs         - an in-memory File System implementation
     - dummy_fs          - empty implementation of File System calls
-
     - expose_fs         - adds a new Xively C Client API function which allows external definition
                           of File System calls.  This will be part of our BSP system in the future.
 
