@@ -458,23 +458,24 @@ While we cannot completely predict how this process would work for every IDE and
   Using the CONFIG flags in file `make/mt-config/mt-config` as a guide, the compiler flags used in the "Preceding Step" can be looked up and fed to the platform specific build system as well. Another option is to echo the makefile build system variable XI_CONFIG_FLAGS during building on OSX to see which flags are set.
 
 
-## Xively Client Features
+## Further Reading
+For more informationa about the Xively Client, check these other documents in the [github repository](https://github.com/xively/xively-client-c):
 
-#### TLS
 
-The Xively C Client brings its own secure connection solution suitable for multiple
-platforms. In order to provide TLSv1.2 secure communication with Xively servers -
-Xively Client exposes BSP TLS with reference implementations against [WolfSSL's TLS](https://www.wolfssl.com/wolfSSL/Home.html) and [mbed TLS](https://tls.mbed.org/) libraries.
+### README.md
 
-If you do not have a Xively Client compiled for you by Xively Professional Services, then you will need to compile a TLS implementation yourself.
+Contains general information about the file structure of the sources, how to build on OSX and Linux,  a general overview of Security.
 
-#### Back-off logic
+### doc/UserGuide.md
 
-Xively Clients has accidental Distributed Denial of Service protection logic (DDoS) built into the library itself, which we call Back-off logic. This logic randomly spreads out reconnection attempts based on the number of recently failed connection attempts.  The goal is to prevent all of the devices choking the Xively Service in the rare case that there was a massive networking outage.
+Contains an in-depth description of the Client Design and IoT Features, including MQTT logic, Event System, Back-Off Logic, Platform Security Requirements, etc.
 
-Xively Servers may ban clients which don't keep the rules of Back-off's delayed reconnection. To avoid banning your devices, please DO NOT alter this Back-off logic.
+### doxygen/api 
 
-#### Control Topic
+Contains the function specifications for communicating with the Xively C Client from our application.  Functionality such as Connect, Subscribe, and Publish are outlined here.
 
-This is a Xively Client specific feature. Currently this consist of a single step: subscription
-to a control topic at the beginning of the connection.  More features are coming soon.
+
+### doxygen/bsp
+
+Contains the declarations and documentations of the abstracted Board Support Package functions that you will need to implement to couple the Xively C Client to your hardware platform.
+
