@@ -166,27 +166,26 @@ Firing a bare `make` should be enough for an OSX build. It defaults to *posix* p
 
 Run command
 
-`make`
+	`make`
 
 Alternatively one can use mbedTLS instead of wolfSSL if preferred:
 
-`make XI_BSP_TLS=mbedTLS`
+	make XI_BSP_TLS=mbedTLS
 
-Occasionally cleaning the build directories are necessary. This is done with the commands
+Occasionally cleaning the build directories are necessary. This is done with either of the following commands:
 
-`make clean`
-    OR
-`make clean_all`
+	make clean
+	make clean_all
 
 ##### Building the Examples
+From the base directory of the repository:
 
-`cd examples`
+	cd examples
+	make
 
-`make`
+Here if the library was previously built with the mbedTLS setting then the XI_BSP_TLS variable is necessary.  Otherwise you will get link errors.
 
-here if previously library was built with mbedTLS setting the XI_BSP_TLS variable is necessary to tell the linker which TLS lib to link agains:
-
-`make XI_BSP_TLS=mbedTLS`
+	make XI_BSP_TLS=mbedTLS
 
 
 #### Build Dependencies
