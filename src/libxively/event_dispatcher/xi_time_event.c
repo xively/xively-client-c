@@ -7,39 +7,52 @@
  * @brief This part of the file implements time event functionality. This
  * implementation assumes that the element type is always the xi_time_event_t.
  *
- * It uses the vector as a container type. The vector stores all teh time event related
- * values.
+ * It uses the vector as a container type. The vector stores pointers to the time events.
+ * Time events are always sorted in the vector by the time event
  *
  */
 
 /**
  * @brief xi_swap_time_events
  *
- * Swaps two vector xi_time_event_t elements pointed by fi and li indexes with each other.
- * It updates element's positions value to the new ones.
+ * Swaps two vector xi_time_event_t elements pointed by lhs_index and rhs_index indexes
+ * with each other. It updates element's positions value to the new ones.
  *
  * @param vector
- * @param fi
- * @param li
+ * @param lhs_index
+ * @param rhs_index
  */
 static void xi_swap_time_events( xi_vector_t* vector,
-                                 xi_vector_index_type_t fi,
-                                 xi_vector_index_type_t li )
+                                 xi_vector_index_type_t lhs_index,
+                                 xi_vector_index_type_t rhs_index )
 {
     /* PRE-CONDITIONS */
     assert( NULL != vector );
-    assert( fi < vector->elem_no );
-    assert( li < vector->elem_no );
+    assert( lhs_index < vector->elem_no );
+    assert( rhs_index < vector->elem_no );
 
-    xi_time_event_t* fte = ( xi_time_event_t* )vector->array[fi].selector_t.ptr_value;
-    xi_time_event_t* lte = ( xi_time_event_t* )vector->array[li].selector_t.ptr_value;
+    xi_time_event_t* lhs_time_event =
+        ( xi_time_event_t* )vector->array[lhs_index].selector_t.ptr_value;
+    xi_time_event_t* rhs_time_event =
+        ( xi_time_event_t* )vector->array[rhs_index].selector_t.ptr_value;
 
-    xi_vector_swap_elems( vector, fi, li );
+    xi_vector_swap_elems( vector, lhs_index, rhs_index );
 
-    fte->position = li;
-    lte->position = fi;
+    lhs_time_event->position = rhs_index;
+    rhs_time_event->position = lhs_index;
 }
 
+/**
+ * @brief xi_time_event_bubble_and_sort_down
+ *
+ * Helper function used for insertion and re-insertion ( cancel opertaion ). It uses the
+ * bubble sort idea to put the element on the proper position. In order to leave the
+ * container sorted.
+ *
+ * @param vector
+ * @param index
+ * @return new index of the element after bubbling it
+ */
 xi_vector_index_type_t
 xi_time_event_bubble_and_sort_down( xi_vector_t* vector, xi_vector_index_type_t index )
 {
@@ -79,6 +92,15 @@ xi_time_event_bubble_and_sort_down( xi_vector_t* vector, xi_vector_index_type_t 
     return elem_index;
 }
 
+/**
+ * @brief xi_time_event_move_to_the_end
+ *
+ * Helper function that moves the element form the given position ( index ) to the end of
+ * the vector so it is the last element in the vector.
+ *
+ * @param vector
+ * @param index
+ */
 void xi_time_event_move_to_the_end( xi_vector_t* vector, xi_vector_index_type_t index )
 {
     assert( vector->elem_no > 0 );
@@ -102,8 +124,7 @@ void xi_time_event_move_to_the_end( xi_vector_t* vector, xi_vector_index_type_t 
 /**
  * @brief xi_insert_time_event
  *
- * This function uses an idea of bubble sort in order to put the given time_event onto the
- * proper place inside the vector.
+ * Helper function that inserts the new time event element to the vector.
  *
  * @param vector
  * @param time_event
@@ -135,7 +156,14 @@ err_handling:
     return NULL;
 }
 
-static void xi_time_event_clean_time_event( xi_time_event_t* time_event )
+/**
+ * @brief xi_time_event_clean_time_event
+ *
+ * Helper function that cleans the time event so that it is unusable
+ *
+ * @param time_event
+ */
+static void xi_time_event_dispose_time_event( xi_time_event_t* time_event )
 {
     if ( NULL != time_event->time_event_handle )
     {
@@ -209,7 +237,7 @@ xi_time_event_t* xi_time_event_get_top( xi_vector_t* vector )
         xi_vector_del( vector, vector->elem_no - 1 );
     }
 
-    xi_time_event_clean_time_event( top_one );
+    xi_time_event_dispose_time_event( top_one );
 
     return top_one;
 }
@@ -299,7 +327,7 @@ xi_state_t xi_time_event_cancel( xi_vector_t* vector,
     /* now we can remove that element from the vector */
     xi_vector_del( vector, vector->elem_no - 1 );
 
-    xi_time_event_clean_time_event( *cancelled_time_event );
+    xi_time_event_dispose_time_event( *cancelled_time_event );
 
     return XI_STATE_OK;
 }

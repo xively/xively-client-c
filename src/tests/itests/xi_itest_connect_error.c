@@ -194,6 +194,8 @@ void xi_itest_test_valid_flow__call_connect_function_twice__second_call_returns_
         const xi_itest_connect_error__test_fixture_t* const fixture =
             ( xi_itest_connect_error__test_fixture_t* )*fixture_void;
 
+        XI_UNUSED( fixture );
+
         xi_debug_format( "Number of evtd calls: %d",
                          evtd_loop_count_between_connect_calls );
 
