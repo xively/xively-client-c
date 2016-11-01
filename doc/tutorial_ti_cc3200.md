@@ -74,7 +74,7 @@ Download the library source code from [xively-client-c](https://github.com/xivel
 2. In your newly identified host's section, set ```XI_CC3200_PATH_CCS_TOOLS``` and ```XI_CC3200_PATH_SDK``` to your Code Composer Studio™ and SDK install paths, respectively.  **If you chose the default installation paths for these installations then these values should already be valid and you shouldn't need to change anything.**
 3. The toolchain that Code Composer Studio™ downloaded might differ from the default that's configured in this ```mt-cc3200``` file.
 	1. Please browse to the path which you set ```XI_CC3200_PATH_CCS_TOOLS```.
-	2. Open up the ```compiler/``` and note the the name of the toolchain.
+	2. Open up the ```compiler/``` directory and note the the name of the toolchain.
 	3. Compare this to the toolchain name stored in the ```COMPILER``` variable near the top of the file in ```mt-cc3200```.  Update the ```COMPILER``` variable as necessary.
 
 ### Build the Xively C Client library
@@ -218,7 +218,7 @@ _Alternatively you can follow the steps written on [Using wolfSSL with TI-RTOS](
 
         #endif
 
-- To compile the above settings change the following variable in the file `wolfssl/tirtos/wolfssl.bld`:
+- To compile the above settings please change the following variable in the file `wolfssl/tirtos/wolfssl.bld`:
 
         -DWOLFSSL_TIRTOS
 
@@ -239,7 +239,7 @@ _Alternatively you can follow the steps written on [Using wolfSSL with TI-RTOS](
 
     _The above can be removed because is not available for CC3200 and not needed for a Xively C Client TLS lib._
 
-- Also in the file `wolfssl/tirtos/packages/ti/net/wolfssl/package.bld`, to add OCSP support add the `"src/ocsp.c"` source file to the wolfSSLObjList variable.
+- Also in the file `wolfssl/tirtos/packages/ti/net/wolfssl/package.bld`, to add [OCSP](https://en.wikipedia.org/wiki/Online_Certificate_Status_Protocol) support add the `"src/ocsp.c"` source file to the wolfSSLObjList variable.
 
 #### Build wolfSSL static library
 
@@ -253,12 +253,12 @@ _Alternatively you can follow the steps written on [Using wolfSSL with TI-RTOS](
         PATH=%PATH%;c:\ti\ccsv6\utils\bin
         gmake -f wolfssl.mak all
 
-The resulting file is ```wolfssl/tirtos/packages/ti/net/wolfssl/lib/wolfssl.aem4f```. This is the WolfSSL library will provide TLS support to the example application below.
+The resulting file is ```wolfssl/tirtos/packages/ti/net/wolfssl/lib/wolfssl.aem4f```. This is the WolfSSL library that will provide TLS support to the example application below.
 
 
 ## Step 5 of 7: Create your Xively (digital) device.
 
-_You should have a Xively account already created, but if you do not, register for free at [Xively.com](https://app.xively.com/register)._
+_You should have a Xively account already created, but if you do not, register one for free at [Xively.com](https://app.xively.com/register)._
 
 To have a device communicate through Xively we will first need to tell the Xively system that a device exists. [Log into the Xively CPM app](https://app.xively.com/) to complete the following steps.
 
@@ -282,9 +282,11 @@ To have a device communicate through Xively we will first need to tell the Xivel
 3. Get credentials for this device.
  _In order for your device to securely talk to Xively it needs credentials that it will use to authenticate itself as a valid device within your account._
  - Click on `Get password`
- - Click the `Download` button. You should see two data items; the first is the _Xively Device Secret_ and the second is the _Xively Device Id_. 
-    
- - Save these credentials as they will be used in the next step.
+ - When the modal window pops-up, click the `Download` button.
+
+	A file named `MQTTCredentials.txt` gets downloaded. It contains the device credentials that will be used in the next step. The file contains two data items:
+ 		- the first line is the _Xively Device Secret_
+ 		- the second line is the _Xively Device Id_. 
  
  <img src="https://cloud.githubusercontent.com/assets/1428256/19813189/8214fda8-9d06-11e6-859f-f3805e34ec04.png" width="600">
 
@@ -361,8 +363,8 @@ Next we're going to add a function to connect to the Xively Broker. Its implemen
 
             xi_state_t connect_result = xi_connect(
                     xi_context,
-                    "35f9a1ba-2f71-4084-9b68-995eac71ef6b",         // Xively Device Id
-                    "9Xusd8+jjTghQcggpvEPhu5AFY1GlVnuV9WYwxp8ZT8=", // Xively Device Secret
+                    "11111111-aaaa-bbbb-cccc-222222222222",         // Paste Your Xively Device Id Here
+                    "123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ12345678=", // Paste Your Xively Device Secret Here
                     10, 20,
                     XI_SESSION_CLEAN, &on_connection_state_changed );
 
@@ -377,7 +379,7 @@ Next we're going to add a function to connect to the Xively Broker. Its implemen
 
 - Locate the successful wifi connection point in the `main.c` of the ent_wlan example (around line 647, comment: "//wait for few moments"). Here put a call on the ConnectToXively(); function we just added. 
 
-- To make the above buildable you'll need to
+- To make the above buildable you'll need to:
     - add two include paths to your project to help the compiler find `xively.h` and friends: ```Project```->```Properties```->```Build```->```ARM Compiler```->```Include Options```:
         - `xively-client-c/include`
         - `xively-client-c/include/bsp`
