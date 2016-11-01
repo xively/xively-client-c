@@ -290,6 +290,8 @@ void xi_itest_test_valid_flow__call_disconnect_twice_on_connected_context__secon
         const xi_itest_connect_error__test_fixture_t* const fixture =
             ( xi_itest_connect_error__test_fixture_t* )*fixture_void;
 
+        XI_UNUSED( fixture );
+
         /* one call for mock broker layer chain init*/
         expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
         expect_value( xi_mock_layer_tls_prev_init, in_out_state, XI_STATE_OK );
