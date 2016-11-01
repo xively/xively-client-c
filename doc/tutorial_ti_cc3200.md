@@ -15,14 +15,14 @@ This tutorial supports OSX and Windows, though the Linux flow should be somewhat
 
 ## Platform Software Installation
 
-TI's CC3200 requires to main software package installations to use their standard SDK.
+TI's CC3200 requires two main software package installations to use their standard SDK.
 
 ### TI Code Composer Studio
 Code Composer Studio includes the toolchain (compiler) you'll need to build for the CC3200 and a java-based IDE.
-Download [TI Code Composer Studio](http://www.ti.com/tool/ccstudio) and start installation process.
+Download [TI Code Composer Studio](http://www.ti.com/tool/ccstudio) and start the installation process.
 
 1. Accept the license agreement and click ```Next >```.
-2. Choose the default install folder and click ```Next >```. Or, if you install into a custom directory, then please note its path as you will need to refer to it later.
+2. Choose the default install folder and click ```Next >```. Or, if you install into a custom directory, please note its path as you will need to refer to it later.
 
 	By default the path should be ```c:\ti``` on Windows and ```/Applications/ti``` on MacOS.
 
@@ -31,10 +31,10 @@ Download [TI Code Composer Studio](http://www.ti.com/tool/ccstudio) and start in
 	2. ```TI ARM Compiler```
 
 4. Click ```Next >``` twice more, and click ```Finish``` when the button becomes enabled.
-5. Once installation completes, click ```Finish``` to leave the installer.
+5. Once the installation completes, click ```Finish``` to leave the installer.
 
 ### CC3200 Simplelink WiFi SDK
-These are the platform libraries that you'll need to compile and link against when writing software for the CC3200.
+The SDK contains the platform libraries that you'll need to compile and link against when writing software for the CC3200.
 
 1. Launch Code Composer Studio.
 2. If prompted to ```Select a Workspace```, click ```OK``` to select the default path.
@@ -45,11 +45,11 @@ These are the platform libraries that you'll need to compile and link against wh
 
 *NOTE*: Windows users may download the SDK directly outside of CCS if you wish:
 
-- download [CC3200 Simplelink WiFi SDK](http://www.ti.com/tool/cc3200sdk) and install using default settings.
+- Download [CC3200 Simplelink WiFi SDK](http://www.ti.com/tool/cc3200sdk) and install it using default settings.
 
 ## Building the Xively C Client library
 
-### Download the xively-client-c library source
+### Download the xively-client-c Library Source
 1. Download the library source code from [xively-client-c](https://github.com/xively/xively-client-c).  You use [git](https://help.github.com/articles/set-up-git/) to clone the repository or download the source archive on the right side of the page.
 
 
@@ -57,14 +57,14 @@ These are the platform libraries that you'll need to compile and link against wh
 
 #### Configure Make Target file mt-cc3200
 1. Open the file ```make/mt-os/mt-cc3200``` in your favorite friendly text editor.
-2. Scroll the HOSTS section devoted to your host platform: ```MAC HOST OS```, ```WINDOWS HOST OS```, or ```LINUX HOST OS```.
+2. Scroll to the HOSTS section devoted to your host platform: ```MAC HOST OS```, ```WINDOWS HOST OS```, or ```LINUX HOST OS```.
 2. In your newly identified host's section, set ```XI_CC3200_PATH_CCS_TOOLS``` and ```XI_CC3200_PATH_SDK``` to your Code Composer Studio and SDK install paths, respectively.  **If you chose the default installation paths for these installations then these values should already be valid and you shouldn't need to change anything.**
 3. The toolchain that Code Composer Studio downloaded might differ from the default that's configured in this ```mt-cc3200``` file.
 	1. Please browse to the path which you set ```XI_CC3200_PATH_CCS_TOOLS```.
 	2. Open up the ```compiler/``` and note the the name of the toolchain.
-	3. Compare this to the toolchain name stored in the ```COMPILER``` variable near the top of the file in ```mt-cc3200```.  Update the ```COMPILER``` variable as necessary.
+	3. Compare this to the toolchain name that's stored in the ```COMPILER``` variable near the top of the file in ```mt-cc3200```.  Update the ```COMPILER``` variable as necessary.
 
-### Build Xively C Client library
+### Build Xively C Client Library
 
 The process for building slightly depends on your host OS:
 
@@ -91,7 +91,7 @@ _From the `xively-client-c` root folder:_
 
 For all host platforms the PRESET=CC3200_REL_MIN_UNSECURE results in a Xively C Client version without a secure TLS connection. This can be useful for development purposes against local MQTT brokers, like [mosquitto](https://mosquitto.org/) but is not advised for devices in a real production enviorment.
 
-## Building the wolfSSL library
+## Building the wolfSSL Library
 
 WolfSSL is used to create secure TLS connections.  There is a version of WolfSSL provided on-chip when using the CC3200, but it does not provide OCSP support. OCSP support is crucial in detecting compromised and revoked Certficates, and therefore we have provided instructions on building and linking against a newer version of the WolfSSL library so that OCSP can be leveraged by your project.
 
@@ -102,7 +102,7 @@ WolfSSL is used to create secure TLS connections.  There is a version of WolfSSL
 
 ### Configure WolfSSL library source
 
-The wolfSSL supports TI-RTOS builds. Below we've provided the needed `{..}/wolfssl/tirtos/products.mak` variable settings for Windows and MacOS to make it easier to get going:
+WolfSSL's TLS library supports TI-RTOS builds. Below we've provided the needed `{..}/wolfssl/tirtos/products.mak` variable settings that you'll need to make for Windows and MacOS:
 
 _Alternatively you can follow the steps written on [Using wolfSSL with TI-RTOS](http://processors.wiki.ti.com/index.php/Using_wolfSSL_with_TI-RTOS) to generate wolfSSL static library for CC3200._
 
@@ -132,13 +132,19 @@ _Alternatively you can follow the steps written on [Using wolfSSL with TI-RTOS](
     iar.targets.arm.M4F    =
     gnu.targets.arm.M4F    =
 
+
 **Important Notes** 
-- Position of this macro matters. Please put the new section just before the line `#ifdef WOLFSSL_TIRTOS`.
+
 - Depending on the version of the packages installed, the folder of `BIOS_INSTALL_DIR` may be different. Please check inside the `~/ti/tirex-content` folder to ensure the variable references the correct folder.
 
-#### Further wolfSSL build customizations:
+#### Further wolfSSL Build Customizations:
 
 - In the file `{..}/wolfssl/wolfssl/wolfcrypt/settings.h` add a new platform macro `WOLFSSL_NOOS_XIVELY` with the following content. This will configure the wolfSSL features needed for connecting to the Xively service.
+
+**Important Notes** 
+
+- Position of this macro matters. Please put the new section just before the line `#ifdef WOLFSSL_TIRTOS`.
+
 
         #ifdef WOLFSSL_NOOS_XIVELY
 
@@ -210,7 +216,7 @@ _Alternatively you can follow the steps written on [Using wolfSSL with TI-RTOS](
         -DWOLFSSL_NOOS_XIVELY
 
 
-- In the file `wolfssl/tirtos/packages/ti/net/wolfssl/package.bld` comment out the last lines for building hwLib:
+- In the file `wolfssl/tirtos/packages/ti/net/wolfssl/package.bld` comment out the last lines for building as follows hwLib:
 
         /*
         var hwLibptions = {incs: wolfsslPathInclude, defs: " -DWOLFSSL_TI_HASH "
@@ -220,11 +226,11 @@ _Alternatively you can follow the steps written on [Using wolfSSL with TI-RTOS](
         hwLib.addObjects(wolfSSLObjList);
         */
 
-    _The above can be removed because is not available for CC3200 and not needed for a Xively C Client TLS lib._
+    _The above can be removed like this because it's not available for CC3200 and not needed for a Xively C Client TLS lib._
 
-- Also in the file `wolfssl/tirtos/packages/ti/net/wolfssl/package.bld`, to add OCSP support add the `"src/ocsp.c"` source file to the wolfSSLObjList variable.
+- Also in the file `wolfssl/tirtos/packages/ti/net/wolfssl/package.bld`, add [OCSP](https://en.wikipedia.org/wiki/Online_Certificate_Status_Protocol) support by adding the `"src/ocsp.c"` source file to the wolfSSLObjList variable.  We advise always shipping products with OCSP enabled.
 
-#### Build wolfSSL static library
+#### Build wolfSSL Static Library
 
 - MacOS:
     _From the `{..}/wolfssl/tirtos/` folder:_
@@ -419,5 +425,5 @@ To permanently make changes to the device you must flash the device using a Wind
 * From the right panel press the ```Browse``` button right next to the ```Url``` field
 * Pick the ```name_of_your_project.bin``` from your ```workspace_name/project_name/RELEASE/```
 * From the left panel hightlight ```CC31xx/CC32xx Flash Setup and Control```  
-* Press ```Program``` button
-* Set the J15 jumper to OFF and restart your device it should now run the test program
+* Press the ```Program``` button
+* Set the J15 jumper to OFF and restart your device. It should now run the test program
