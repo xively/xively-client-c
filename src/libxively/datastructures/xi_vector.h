@@ -17,6 +17,7 @@
 extern "C" {
 #endif
 
+/* ! This type has to be SIGNED ! */
 typedef int8_t xi_vector_index_type_t;
 
 union xi_vector_selector_u {

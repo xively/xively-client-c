@@ -4,57 +4,16 @@
 #include "xi_time_event.h"
 
 /**
- * @brief This part of the file implements the simplified heap order functionality. This
- * implementation assumes that the element type is always the xi_time_event_t. Which is
- * the only reason to use heap order within the vector.
+ * @brief This part of the file implements time event functionality. This
+ * implementation assumes that the element type is always the xi_time_event_t.
  *
- * What is a heap order ?
+ * It uses the vector as a container type. The vector stores all teh time event related
+ * values.
  *
- * The heap order is a relation of key's in each node. If we take any node let's call it
- * x, these conditions must be true:
- * a) PARENT(x).key > x.key;
- * b) LEFT_CHILD(x).key < x.key;
- * c) RIGHT_CHILD(x).key < x.key;
- *
- * This gives us a nice quality of having the element with the lowest key at the top. So
- * extraction of the element with the lowest key has O(1) + fixing the order after
- * removing it O(logn) complexity.
- *
- * Peeking the element with the lowest key without removing it has O(1) complexity.
- *
- * All of the elements are being kept in the regular vector. This implementation uses the
- * vector as a container.
- *
- * The heap order based on vector uses index based addressing. So the index of childs and
- * parent of any node are calculated using this formulas:
- *
- * LEFT_CHILD(x)= ( x.i + 1 ) / 2 ) - 1
- * RIGHT_CHILD(x) = ( x.i + 1 ) / 2
- * PARENT(x) = ( ( x.i + 1 ) * 2 ) - 1
- *
- * Using that indexing technique we can traverse through the vector as if it was a binary
- * tree. Thanks to that all of the fix heap order functions works in O(logn) complexity.
- * Since we don't need to revisit every element in the vector.
- *
- * xi_time_event_handler_t special quality improves the complexity of functions such as
- * cancel or restart. It holds a pointer to the position element of the xi_time_event_t
- * structure. This way while the handler is valid it holds correct position of the time
- * event it is handling.
  */
 
 /**
- * note: the indexes are increased and decreased
- * in order to maintain the 0 - based indexing of elements
- */
-#undef LEFT
-#undef RIGHT
-#undef PARENT
-#define LEFT( i ) ( ( ( ( i ) + 1 ) << 1 ) - 1 )
-#define RIGHT( i ) ( ( ( i ) + 1 ) << 1 )
-#define PARENT( i ) ( ( ( ( i ) + 1 ) >> 1 ) - 1 )
-
-/**
- * @brief xi_vector_heap_swap_time_events
+ * @brief xi_swap_time_events
  *
  * Swaps two vector xi_time_event_t elements pointed by fi and li indexes with each other.
  * It updates element's positions value to the new ones.
@@ -63,9 +22,9 @@
  * @param fi
  * @param li
  */
-static void xi_vector_heap_swap_time_events( xi_vector_t* vector,
-                                             xi_vector_index_type_t fi,
-                                             xi_vector_index_type_t li )
+static void xi_swap_time_events( xi_vector_t* vector,
+                                 xi_vector_index_type_t fi,
+                                 xi_vector_index_type_t li )
 {
     /* PRE-CONDITIONS */
     assert( NULL != vector );
@@ -81,139 +40,88 @@ static void xi_vector_heap_swap_time_events( xi_vector_t* vector,
     lte->position = fi;
 }
 
-/**
- * @brief xi_vector_heap_fix_order_up
- *
- * Function restores the heap order in the vector in the towards the root direction.
- *
- * @param vector
- * @param index
- * @return
- */
-static xi_vector_index_type_t
-xi_vector_heap_fix_order_up( xi_vector_t* vector, xi_vector_index_type_t index )
+xi_vector_index_type_t
+xi_time_event_bubble_and_sort_down( xi_vector_t* vector, xi_vector_index_type_t index )
 {
-    /* PRE-CONDITIONS */
-    assert( NULL != vector );
-    assert( index < vector->elem_no );
+    /* prepare the tmp variables that will keep the indexes */
+    xi_vector_index_type_t elem_index        = index;
+    xi_vector_index_type_t elem_to_cmp_index = elem_index - 1;
 
-    xi_vector_index_type_t ret_index = index;
-
-    while ( index != 0 )
+    /* let's bubble up the element to the proper position */
+    while ( elem_to_cmp_index >= 0 )
     {
-        xi_vector_index_type_t parent_index = PARENT( index );
+        const xi_time_event_t* elem_to_cmp =
+            ( xi_time_event_t* )vector->array[elem_to_cmp_index].selector_t.ptr_value;
+        const xi_time_event_t* elem_to_bubble =
+            ( xi_time_event_t* )vector->array[elem_index].selector_t.ptr_value;
 
-        xi_time_event_t* e = vector->array[index].selector_t.ptr_value;
-        xi_time_event_t* p = vector->array[parent_index].selector_t.ptr_value;
-
-        if ( e->time_of_execution < p->time_of_execution )
+        if ( elem_to_cmp->time_of_execution > elem_to_bubble->time_of_execution )
         {
-            xi_vector_heap_swap_time_events( vector, index, parent_index );
-            ret_index = parent_index;
+            /* if the elements are not in the right order lets swap them */
+            xi_swap_time_events( vector, elem_to_cmp_index, elem_index );
+
+            /* update the positions */
+            elem_index = elem_to_cmp_index;
+            elem_to_cmp_index -= 1;
         }
-        else /* we don't need to go to the very top */
+        else
         {
+            /* thanks to the container invariant on the order of the elemements we can
+             * break at this moment */
             break;
         }
-
-        index = parent_index;
     }
 
-    return ret_index;
+    return elem_index;
 }
 
-#define GET_LEFT_SIBLING_INDEX( index, last_elem_index )                                 \
-    ( LEFT( ( index ) ) > ( last_elem_index ) ) ? ( ( index ) ) : LEFT( ( index ) )
+void
+xi_time_event_move_to_the_end( xi_vector_t* vector, xi_vector_index_type_t index )
+{
+    assert( vector->elem_no > 0 );
+    assert( index < vector->elem_no );
+    assert( index >= 0 );
 
-#define GET_RIGHT_SIBLING_INDEX( index, last_elem_index )                                \
-    ( RIGHT( ( index ) ) > ( last_elem_index ) ) ? ( ( index ) ) : RIGHT( ( index ) )
+    const xi_vector_index_type_t last_elem_index = vector->elem_no - 1;
+
+    xi_vector_index_type_t elem_to_swap_with_index = index + 1;
+
+    while ( index < last_elem_index )
+    {
+        xi_swap_time_events( vector, index, elem_to_swap_with_index );
+
+        /* once swapped update the indexes */
+        index += 1;
+        elem_to_swap_with_index += 1;
+    }
+}
 
 /**
- * @brief xi_vector_heap_fix_order_down
+ * @brief xi_insert_time_event
  *
- * Restores the order in the heap in the down direction, towards the leafs.
+ * This function uses an idea of bubble sort in order to put the given time_event onto the
+ * proper place inside the vector.
  *
  * @param vector
- * @param index
+ * @param time_event
  */
-static void
-xi_vector_heap_fix_order_down( xi_vector_t* vector, xi_vector_index_type_t index )
-{
-    /* PRE-CONDITIONS */
-    assert( NULL != vector );
-    assert( index < vector->elem_no );
-
-    xi_vector_index_type_t left_sibling_index =
-        GET_LEFT_SIBLING_INDEX( index, ( vector->elem_no - 1 ) );
-    xi_vector_index_type_t right_sibling_index =
-        GET_RIGHT_SIBLING_INDEX( index, ( vector->elem_no - 1 ) );
-
-    do
-    {
-        xi_time_event_t* left_child_time_event =
-            ( xi_time_event_t* )vector->array[left_sibling_index].selector_t.ptr_value;
-        xi_time_event_t* right_child_time_event =
-            ( xi_time_event_t* )vector->array[right_sibling_index].selector_t.ptr_value;
-        xi_time_event_t* current_time_event =
-            ( xi_time_event_t* )vector->array[index].selector_t.ptr_value;
-
-        xi_vector_index_type_t index_to_cmp = index;
-        xi_time_event_t* time_event_to_cmp  = NULL;
-
-        /* pick up the sibling with lower key to cmp with */
-        if ( left_child_time_event->time_of_execution <
-             right_child_time_event->time_of_execution )
-        {
-            index_to_cmp      = left_sibling_index;
-            time_event_to_cmp = left_child_time_event;
-        }
-        else
-        {
-            index_to_cmp      = right_sibling_index;
-            time_event_to_cmp = right_child_time_event;
-        }
-
-        /* if the order is not correct fix it */
-        if ( time_event_to_cmp->time_of_execution <
-             current_time_event->time_of_execution )
-        {
-            xi_vector_heap_swap_time_events( vector, index, index_to_cmp );
-            index = index_to_cmp;
-        }
-        else
-        {
-            return;
-        }
-
-        left_sibling_index  = GET_LEFT_SIBLING_INDEX( index, vector->elem_no - 1 );
-        right_sibling_index = GET_RIGHT_SIBLING_INDEX( index, vector->elem_no - 1 );
-
-    } while ( index != left_sibling_index || index != right_sibling_index );
-}
-
 static const xi_vector_elem_t*
-xi_vector_heap_add_time_event( xi_vector_t* vector, xi_time_event_t* time_event )
+xi_insert_time_event( xi_vector_t* vector, xi_time_event_t* time_event )
 {
-    /* PRE-CONDITIONS */
-    assert( NULL != vector );
-    assert( NULL != time_event );
+    xi_state_t local_state = XI_STATE_OK;
 
-    xi_state_t out_state = XI_STATE_OK;
+    /* add the element to the end of the vector */
+    const xi_vector_elem_t* inserted_element = xi_vector_push(
+        vector, XI_VEC_CONST_VALUE_PARAM( XI_VEC_VALUE_PTR( time_event ) ) );
 
-    time_event->position = vector->elem_no;
+    XI_CHECK_MEMORY( inserted_element, local_state );
 
-    /* stage first let's add it to the end of the heap */
-    const xi_vector_elem_t* elem = xi_vector_push(
-        vector, XI_VEC_CONST_VALUE_PARAM( XI_VEC_VALUE_PTR( ( void* )time_event ) ) );
+    /* update the time event new position */
+    time_event->position = vector->elem_no - 1;
 
-    XI_CHECK_MEMORY( elem, out_state );
+    xi_time_event_bubble_and_sort_down( vector, vector->elem_no - 1 );
 
-    /* 2nd stage now let's fix the heap from bottom to the top */
-    xi_vector_index_type_t element_position =
-        xi_vector_heap_fix_order_up( vector, vector->elem_no - 1 );
-
-    /* return the element of the vector that points to the new time event*/
-    return &vector->array[element_position];
+    return inserted_element;
 
 err_handling:
     return NULL;
@@ -240,8 +148,8 @@ xi_state_t xi_time_event_add( xi_vector_t* vector,
 
     xi_state_t out_state = XI_STATE_OK;
 
-    /* call the insert at function it will place the new element at the correct place */
-    const xi_vector_elem_t* elem = xi_vector_heap_add_time_event( vector, time_event );
+    /* call the insert at function it will place the new element at the proper place */
+    const xi_vector_elem_t* elem = xi_insert_time_event( vector, time_event );
 
     /* if there is a problem with the memory go to err_handling */
     XI_CHECK_MEMORY( elem, out_state );
@@ -285,9 +193,8 @@ xi_time_event_t* xi_time_event_get_top( xi_vector_t* vector )
 
     if ( vector->elem_no > 1 )
     {
-        xi_vector_heap_swap_time_events( vector, 0, vector->elem_no - 1 );
+        xi_time_event_move_to_the_end( vector, 0 );
         xi_vector_del( vector, vector->elem_no - 1 );
-        xi_vector_heap_fix_order_down( vector, 0 );
     }
     else
     {
@@ -343,8 +250,9 @@ xi_state_t xi_time_event_restart( xi_vector_t* vector,
     time_event->time_of_execution = new_time;
 
     /* now we have to restore the order in the vector */
-    xi_vector_heap_fix_order_up( vector, index );
-    xi_vector_heap_fix_order_down( vector, index );
+    /* this is very lame implementation but it works and doesn't require additional code */
+    xi_time_event_move_to_the_end( vector, index );
+    xi_time_event_bubble_and_sort_down( vector, vector->elem_no - 1 );
 
     return XI_STATE_OK;
 }
@@ -372,7 +280,7 @@ xi_state_t xi_time_event_cancel( xi_vector_t* vector,
     /* if it's somwhere else than the end, let's swap it with the last element */
     if ( index < vector->elem_no - 1 )
     {
-        xi_vector_heap_swap_time_events( vector, index, vector->elem_no - 1 );
+        xi_time_event_move_to_the_end( vector, index );
     }
 
     /* let's update the return parameter */
@@ -383,14 +291,6 @@ xi_state_t xi_time_event_cancel( xi_vector_t* vector,
     xi_vector_del( vector, vector->elem_no - 1 );
 
     xi_time_event_clean_time_event( *cancelled_time_event );
-
-    /* whenever we swap we have to fix the order that might have been broken */
-    if ( index != vector->elem_no )
-    {
-        /* restore the heap order in the vector for that element */
-        xi_vector_heap_fix_order_down( vector, index );
-        xi_vector_heap_fix_order_up( vector, index );
-    }
 
     return XI_STATE_OK;
 }
