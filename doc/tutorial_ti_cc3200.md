@@ -107,7 +107,7 @@ For all host platforms the PRESET=CC3200_REL_MIN_UNSECURE results in a Xively C 
 
 ## Step 4 of 7: Install the wolfSSL embedded SSL library.
 
-WolfSSL is used to create secure TLS connections.  There is a version of WolfSSL provided on-chip when using the CC3200, but it does not provide Online Certificate Status Protocol ([OCSP](https://tools.ietf.org/html/rfc6960)) support. OCSP support is crucial in detecting compromised and revoked Certificates, and therefore we have provided instructions on building and linking against a newer version of the WolfSSL library so that OCSP can be leveraged by your project.
+WolfSSL is used to create secure TLS connections.  There is a version of WolfSSL provided on-chip when using the CC3200, but it does not provide Online Certificate Status Protocol ([OCSP](https://en.wikipedia.org/wiki/Online_Certificate_Status_Protocol)) support. OCSP support is crucial in detecting compromised and revoked Certificates, and therefore we have provided instructions on building and linking against a newer version of the WolfSSL library so that OCSP can be leveraged by your project.
 
 ### Download WolfSSL library source
 - Download WolfSSL library source code from [wolfssl](https://github.com/wolfSSL/wolfssl/releases/tag/v3.9.6)
@@ -239,7 +239,7 @@ _Alternatively you can follow the steps written on [Using wolfSSL with TI-RTOS](
 
     _The above can be removed because is not available for CC3200 and not needed for a Xively C Client TLS lib._
 
-- Also in the file `wolfssl/tirtos/packages/ti/net/wolfssl/package.bld`, to add [OCSP](https://en.wikipedia.org/wiki/Online_Certificate_Status_Protocol) support add the `"src/ocsp.c"` source file to the wolfSSLObjList variable.
+- Also in the file `wolfssl/tirtos/packages/ti/net/wolfssl/package.bld`, to add OCSP support add the `"src/ocsp.c"` source file to the wolfSSLObjList variable.
 
 #### Build wolfSSL static library
 
