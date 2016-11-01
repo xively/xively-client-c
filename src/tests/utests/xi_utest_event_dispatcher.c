@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <time.h>
 
+#include "xi_memory_checks.h"
 #include "tinytest.h"
 #include "tinytest_macros.h"
 #include "xi_tt_testcase_management.h"
@@ -122,7 +123,7 @@ XI_TT_TESTCASE( utest__handler_processing_loop, {
 
     xi_evtd_execute_in( evtd_g_i, evtd_handle_g, 0, NULL );
 
-    while ( evtd_g_i->call_heap->elem_no > 0 )
+    while ( evtd_g_i->time_events_container->elem_no > 0 )
     {
         xi_evtd_step( evtd_g_i, step );
         step += 1;
@@ -291,6 +292,26 @@ XI_TT_TESTCASE( utest__evtd_updates, {
 end:
     xi_evtd_destroy_instance( evtd_g_i );
 } )
+
+#if 0
+XI_TT_TESTCASE(
+    utest__xi_evtd__events_to_call_added__overlap_timer__proper_events_executed, {
+        evtd_g_i = xi_evtd_create_instance();
+
+        const xi_time_t time_max = ( xi_time_t ) 0xFFFFFFFFFFFFFFFF;
+        const xi_time_t time_hole = 10;
+
+        evtd_g_i->current_step = time_max - time_hole;
+
+        /* now let's add some events */
+
+        xi_evtd_destroy_instance( evtd_g_i );
+
+        tt_int_op( xi_is_whole_memory_deallocated(), >, 0 );
+end:
+            ;
+    } )
+#endif
 
 XI_TT_TESTGROUP_END
 
