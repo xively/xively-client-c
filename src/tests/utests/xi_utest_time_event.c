@@ -103,7 +103,6 @@ XI_TT_TESTCASE(
             tt_assert( time_event->time_of_execution >= last_element_value );
             last_element_value = time_event->time_of_execution;
             ++no_elements;
-            /* we have to relelase the memory */
         } while ( vector->elem_no != 0 );
 
         /* and we can check if all of them has been received */

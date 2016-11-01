@@ -43,6 +43,10 @@ static void xi_swap_time_events( xi_vector_t* vector,
 xi_vector_index_type_t
 xi_time_event_bubble_and_sort_down( xi_vector_t* vector, xi_vector_index_type_t index )
 {
+    assert( NULL != vector );
+    assert( index >= 0 );
+    assert( index < vector->elem_no );
+
     /* prepare the tmp variables that will keep the indexes */
     xi_vector_index_type_t elem_index        = index;
     xi_vector_index_type_t elem_to_cmp_index = elem_index - 1;
@@ -60,8 +64,8 @@ xi_time_event_bubble_and_sort_down( xi_vector_t* vector, xi_vector_index_type_t 
             /* if the elements are not in the right order lets swap them */
             xi_swap_time_events( vector, elem_to_cmp_index, elem_index );
 
-            /* update the positions */
-            elem_index = elem_to_cmp_index;
+            /* update the indexes */
+            elem_index -= 1;
             elem_to_cmp_index -= 1;
         }
         else
@@ -75,8 +79,7 @@ xi_time_event_bubble_and_sort_down( xi_vector_t* vector, xi_vector_index_type_t 
     return elem_index;
 }
 
-void
-xi_time_event_move_to_the_end( xi_vector_t* vector, xi_vector_index_type_t index )
+void xi_time_event_move_to_the_end( xi_vector_t* vector, xi_vector_index_type_t index )
 {
     assert( vector->elem_no > 0 );
     assert( index < vector->elem_no );
@@ -111,17 +114,22 @@ xi_insert_time_event( xi_vector_t* vector, xi_time_event_t* time_event )
     xi_state_t local_state = XI_STATE_OK;
 
     /* add the element to the end of the vector */
-    const xi_vector_elem_t* inserted_element = xi_vector_push(
-        vector, XI_VEC_CONST_VALUE_PARAM( XI_VEC_VALUE_PTR( time_event ) ) );
+    {
+        const xi_vector_elem_t* inserted_element = xi_vector_push(
+            vector, XI_VEC_CONST_VALUE_PARAM( XI_VEC_VALUE_PTR( time_event ) ) );
 
-    XI_CHECK_MEMORY( inserted_element, local_state );
+        XI_CHECK_MEMORY( inserted_element, local_state );
+    }
 
     /* update the time event new position */
     time_event->position = vector->elem_no - 1;
 
-    xi_time_event_bubble_and_sort_down( vector, vector->elem_no - 1 );
+    xi_vector_index_type_t index =
+        xi_time_event_bubble_and_sort_down( vector, vector->elem_no - 1 );
 
-    return inserted_element;
+    const xi_vector_elem_t* element_added = &vector->array[index];
+
+    return element_added;
 
 err_handling:
     return NULL;
@@ -250,7 +258,8 @@ xi_state_t xi_time_event_restart( xi_vector_t* vector,
     time_event->time_of_execution = new_time;
 
     /* now we have to restore the order in the vector */
-    /* this is very lame implementation but it works and doesn't require additional code */
+    /* this is very lame implementation but it works and doesn't require additional code
+     */
     xi_time_event_move_to_the_end( vector, index );
     xi_time_event_bubble_and_sort_down( vector, vector->elem_no - 1 );
 
