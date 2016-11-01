@@ -112,7 +112,7 @@ WolfSSL is used to create secure TLS connections.  There is a version of WolfSSL
 ### Download WolfSSL library source
 - Download WolfSSL library source code from [wolfssl](https://github.com/wolfSSL/wolfssl/releases/tag/v3.9.6)
 - Put the WolfSSL main directory under the PATH_TO_XIVELY_LIBRARY_MAIN_FOLDER/xively-client-c/src/import/tls/
-    - **If needed, rename the folder so it is just `wolfssl`. It does not need to include the version number.**
+- **Important: Rename the folder so it is just `wolfssl`. It should not include the version number.**
 
 ### Configure WolfSSL library source
 
@@ -146,13 +146,16 @@ _Alternatively you can follow the steps written on [Using wolfSSL with TI-RTOS](
     iar.targets.arm.M4F    =
     gnu.targets.arm.M4F    =
 
-**Important Notes** 
-- Position of this macro matters. Please put the new section just before the line `#ifdef WOLFSSL_TIRTOS`.
+**Important Note** 
 - Depending on the version of the packages installed, the folder of `BIOS_INSTALL_DIR` may be different. Please check inside the `~/ti/tirex-content` folder to ensure the variable references the correct folder.
 
 #### Further wolfSSL build customizations:
 
 - In the file `{..}/wolfssl/wolfssl/wolfcrypt/settings.h` add a new platform macro `WOLFSSL_NOOS_XIVELY` with the following content. This will configure the wolfSSL features needed for connecting to the Xively service.
+
+**Important Note**
+- The position of this macro matters. Please put this new section just before the line `#ifdef WOLFSSL_TIRTOS`.
+
 
         #ifdef WOLFSSL_NOOS_XIVELY
 
