@@ -211,7 +211,7 @@ xi_state_t xi_evtd_execute_in( xi_evtd_instance_t* instance,
     xi_lock_critical_section( instance->cs );
 
     ret_state =
-        xi_time_event_add( instance->call_heap, time_event, ret_time_event_handle );
+        xi_time_event_add( instance->time_events_container, time_event, ret_time_event_handle );
 
     xi_unlock_critical_section( instance->cs );
 
@@ -230,7 +230,7 @@ xi_evtd_cancel( xi_evtd_instance_t* instance, xi_time_event_handle_t* time_event
     xi_lock_critical_section( instance->cs );
 
     ret_state =
-        xi_time_event_cancel( instance->call_heap, time_event_handle, &time_event );
+        xi_time_event_cancel( instance->time_events_container, time_event_handle, &time_event );
 
     xi_unlock_critical_section( instance->cs );
 
@@ -247,7 +247,7 @@ xi_state_t xi_evtd_restart( xi_evtd_instance_t* instance,
 
     xi_lock_critical_section( instance->cs );
 
-    ret_state = xi_time_event_restart( instance->call_heap, time_event_handle,
+    ret_state = xi_time_event_restart( instance->time_events_container, time_event_handle,
                                        instance->current_step + new_time );
 
     xi_unlock_critical_section( instance->cs );
@@ -260,8 +260,8 @@ xi_evtd_instance_t* xi_evtd_create_instance( void )
     xi_state_t state = XI_STATE_OK;
     XI_ALLOC( xi_evtd_instance_t, evtd_instance, state );
 
-    evtd_instance->call_heap = xi_vector_create();
-    XI_CHECK_MEMORY( evtd_instance->call_heap, state );
+    evtd_instance->time_events_container = xi_vector_create();
+    XI_CHECK_MEMORY( evtd_instance->time_events_container, state );
 
     evtd_instance->handles_and_socket_fd = xi_vector_create();
     XI_CHECK_MEMORY( evtd_instance->handles_and_socket_fd, state );
@@ -291,8 +291,8 @@ void xi_evtd_destroy_instance( xi_evtd_instance_t* instance )
 
     xi_vector_destroy( instance->handles_and_file_fd );
     xi_vector_destroy( instance->handles_and_socket_fd );
-    xi_time_event_destroy( instance->call_heap );
-    xi_vector_destroy( instance->call_heap );
+    xi_time_event_destroy( instance->time_events_container );
+    xi_vector_destroy( instance->time_events_container );
 
     XI_SAFE_FREE( instance );
 
@@ -405,12 +405,12 @@ void xi_evtd_step( xi_evtd_instance_t* evtd_instance, xi_time_t new_step )
     xi_lock_critical_section( evtd_instance->cs );
 
     /* zero - not NULL elem_no it's a number not a pointer */
-    while ( 0 != evtd_instance->call_heap->elem_no )
+    while ( 0 != evtd_instance->time_events_container->elem_no )
     {
-        tmp = xi_time_event_peek_top( evtd_instance->call_heap );
+        tmp = xi_time_event_peek_top( evtd_instance->time_events_container );
         if ( tmp->time_of_execution <= evtd_instance->current_step )
         {
-            tmp = xi_time_event_get_top( evtd_instance->call_heap );
+            tmp = xi_time_event_get_top( evtd_instance->time_events_container );
             xi_event_handle_t* handle = ( xi_event_handle_t* )&tmp->event_handle;
 
             xi_unlock_critical_section( evtd_instance->cs );
@@ -448,7 +448,7 @@ void xi_evtd_step( xi_evtd_instance_t* evtd_instance, xi_time_t new_step )
     /* here we can call the on_empty handler
      * watch out, handler is called only once and
      * it is disposed after that */
-    if ( ( 0 == evtd_instance->call_heap->elem_no ) &&
+    if ( ( 0 == evtd_instance->time_events_container->elem_no ) &&
          ( evtd_instance->on_empty.handle_type != XI_EVENT_HANDLE_UNSET ) )
     {
         xi_debug_logger( "calling on_empty_handler" );
@@ -585,15 +585,15 @@ xi_evtd_get_time_of_earliest_event( xi_evtd_instance_t* instance, xi_time_t* out
 {
     assert( NULL != instance );
     assert( NULL != out_timeout );
-    assert( NULL != instance->call_heap );
+    assert( NULL != instance->time_events_container );
 
     xi_state_t ret_state = XI_ELEMENT_NOT_FOUND;
 
     xi_lock_critical_section( instance->cs );
 
-    if ( 0 != instance->call_heap->elem_no )
+    if ( 0 != instance->time_events_container->elem_no )
     {
-        xi_time_event_t* elem = xi_time_event_peek_top( instance->call_heap );
+        xi_time_event_t* elem = xi_time_event_peek_top( instance->time_events_container );
         *out_timeout          = elem->time_of_execution;
         ret_state             = XI_STATE_OK;
     }

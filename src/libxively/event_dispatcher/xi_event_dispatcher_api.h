@@ -45,7 +45,7 @@ typedef struct xi_evtd_tuple_s
 typedef struct xi_evtd_instance_s
 {
     xi_time_t current_step;
-    xi_vector_t* call_heap;
+    xi_vector_t* time_events_container;
     xi_event_handle_queue_t* call_queue;
     struct xi_critical_section_s* cs;
     xi_vector_t* handles_and_socket_fd;
