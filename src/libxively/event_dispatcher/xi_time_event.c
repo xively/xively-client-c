@@ -46,6 +46,58 @@ static void xi_swap_time_events( xi_vector_t* vector,
 }
 
 /**
+ * @brief xi_time_event_bubble_core
+ *
+ * Generic bubbler. This function eliminates code repeatition for the logic of bubbling
+ * an element in both directions in the vector. It is used by
+ * xi_time_event_bubble_and_sort_down and xi_time_event_bubble_and_sort_up.
+ *
+ * @param vector - input vector, container of time events
+ * @param lhs - value that will appear on the left hand side of the stop condition
+ * @param rhs - value that will appear on the right hand side of the stop condition
+ * @param elem_index_var_pos - points which: lhs or rhs represents the index of an element
+ * @param dir - direction of bubbling - +1 stands for up -1 means down
+ * @return new index of bubbled element
+ */
+static xi_vector_index_type_t xi_time_event_bubble_core( xi_vector_t* vector,
+                                                         xi_vector_index_type_t lhs,
+                                                         xi_vector_index_type_t rhs,
+                                                         uint8_t elem_index_var_pos,
+                                                         int8_t dir )
+{
+    xi_vector_index_type_t* indexes[] = {&lhs, &rhs};
+
+    while ( lhs < rhs )
+    {
+        const xi_vector_index_type_t elem_index = *indexes[elem_index_var_pos];
+
+        const xi_time_event_t* lhs_element =
+            ( xi_time_event_t* )vector->array[dir < 0 ? elem_index : elem_index + dir ]
+                .selector_t.ptr_value;
+        const xi_time_event_t* rhs_element =
+            ( xi_time_event_t* )vector->array[dir < 0 ? elem_index + dir : elem_index ]
+                .selector_t.ptr_value;
+
+        if ( lhs_element->time_of_execution < rhs_element->time_of_execution )
+        {
+            /* if the elements are not in the right order lets swap them */
+            xi_swap_time_events( vector, lhs_element->position, rhs_element->position );
+
+            /* update the indexes */
+            *indexes[elem_index_var_pos] += dir;
+        }
+        else
+        {
+            /* thanks to the container invariant on the order of the elemements we can
+             * break at this moment */
+            break;
+        }
+    }
+
+    return *indexes[elem_index_var_pos];
+}
+
+/**
  * @brief xi_time_event_bubble_and_sort_down
  *
  * Helper function used for insertion and re-insertion ( cancel opertaion ). It uses the
@@ -67,35 +119,33 @@ xi_time_event_bubble_and_sort_down( xi_vector_t* vector, xi_vector_index_type_t 
     assert( index >= 0 );
     assert( index < vector->elem_no );
 
-    /* prepare the tmp variables that will keep the indexes */
-    xi_vector_index_type_t elem_index = index;
-
-    /* let's bubble up the element to the proper position */
-    while ( elem_index > 0 )
-    {
-        const xi_time_event_t* elem_to_cmp =
-            ( xi_time_event_t* )vector->array[elem_index - 1].selector_t.ptr_value;
-        const xi_time_event_t* elem_to_bubble =
-            ( xi_time_event_t* )vector->array[elem_index].selector_t.ptr_value;
-
-        if ( elem_to_cmp->time_of_execution > elem_to_bubble->time_of_execution )
-        {
-            /* if the elements are not in the right order lets swap them */
-            xi_swap_time_events( vector, elem_index - 1, elem_index );
-
-            /* update the indexes */
-            elem_index -= 1;
-        }
-        else
-        {
-            /* thanks to the container invariant on the order of the elemements we can
-             * break at this moment */
-            break;
-        }
-    }
-
-    return elem_index;
+    return xi_time_event_bubble_core( vector, 0, index, 1, -1 );
 }
+
+/**
+ * @brief xi_time_event_bubble_and_sort_up
+ *
+ * Helper function used to restarting time event. It bubbles the time event element up to
+ * the end of the container. It works using the same principle as
+ * xi_time_event_bubble_and_sort_down function.
+ *
+ * @see xi_time_event_bubble_and_sort_down function xi_time_event_restart
+ *
+ * @param vector
+ * @param index
+ * @return
+ */
+static xi_vector_index_type_t
+xi_time_event_bubble_and_sort_up( xi_vector_t* vector, xi_vector_index_type_t index )
+{
+    /* PRE-CONDITIONS */
+    assert( NULL != vector );
+    assert( index >= 0 );
+    assert( index < vector->elem_no );
+
+    return xi_time_event_bubble_core( vector, index, vector->elem_no - 1, 0, 1 );
+}
+
 
 /**
  * @brief xi_time_event_move_to_the_end
@@ -298,12 +348,8 @@ xi_state_t xi_time_event_restart( xi_vector_t* vector,
 
     time_event->time_of_execution = new_time;
 
-    /* now we have to restore the order in the vector, this way of implementing it is very
-     * un-optimal for big number of elements but it works good for small number of
-     * elements we suppose have here and doesn't require additional code */
-
-    xi_time_event_move_to_the_end( vector, index );
-    xi_time_event_bubble_and_sort_down( vector, vector->elem_no - 1 );
+    xi_time_event_bubble_and_sort_down(
+        vector, xi_time_event_bubble_and_sort_up( vector, index ) );
 
     return XI_STATE_OK;
 }
@@ -346,7 +392,14 @@ xi_state_t xi_time_event_cancel( xi_vector_t* vector,
     return XI_STATE_OK;
 }
 
-/* local helper function used to release the memory required for time event */
+/**
+ * @brief xi_time_event_destructor
+ *
+ * Helper function used to release the memory required by time event structure.
+ *
+ * @param selector
+ * @param arg
+ */
 static void xi_time_event_destructor( union xi_vector_selector_u* selector, void* arg )
 {
     /* PRE-CONDITIONS */
