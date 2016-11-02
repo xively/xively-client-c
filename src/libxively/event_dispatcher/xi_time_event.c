@@ -72,10 +72,10 @@ static xi_vector_index_type_t xi_time_event_bubble_core( xi_vector_t* vector,
         const xi_vector_index_type_t elem_index = *indexes[elem_index_var_pos];
 
         const xi_time_event_t* lhs_element =
-            ( xi_time_event_t* )vector->array[dir < 0 ? elem_index : elem_index + dir ]
+            ( xi_time_event_t* )vector->array[dir < 0 ? elem_index : elem_index + dir]
                 .selector_t.ptr_value;
         const xi_time_event_t* rhs_element =
-            ( xi_time_event_t* )vector->array[dir < 0 ? elem_index + dir : elem_index ]
+            ( xi_time_event_t* )vector->array[dir < 0 ? elem_index + dir : elem_index]
                 .selector_t.ptr_value;
 
         if ( lhs_element->time_of_execution < rhs_element->time_of_execution )

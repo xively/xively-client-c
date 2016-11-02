@@ -10,7 +10,8 @@
 #include "xi_itest_mock_broker_layerchain.h"
 
 /**
- * @brief These test cases are for testing the wrong usage of connect and disconnect functions.
+ * @brief These test cases are for testing the wrong usage of connect and disconnect
+ * functions.
  * Motivation is to make the library's API as robust as it's possible. Thanks to these
  * tests we are protecting our library from running connect or disconnect logic twice in a
  * row.
@@ -25,7 +26,8 @@
  * - Mock Broker - MB
  * - TLSPREV
  *
- * @note MB layer is used twice which requires to double to requirements for functions of this
+ * @note MB layer is used twice which requires to double to requirements for functions of
+ * this
  * layer in all of the tests. Keep that in mind while reading the test's code.
  *
  * This test consists two layer chains that communicates through the MB layer.

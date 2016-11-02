@@ -279,7 +279,7 @@ XI_TT_TESTCASE(
         {
             XI_ALLOC( xi_io_timeout_t, timeout_element, state );
 
-            time_event_handle      = &timeout_element->timeout;
+            time_event_handle = &timeout_element->timeout;
 
             xi_event_handle_t evtd_handle =
                 xi_make_handle( &xi_utest_local_action__io_timed, timeout_element, vector,
@@ -351,7 +351,7 @@ XI_TT_TESTCASE( utest__xi_evtd_io_remove__delayed_execution__events_should_be_re
     {
         XI_ALLOC( xi_io_timeout_t, timeout_element, state );
 
-        time_event_handle      = &timeout_element->timeout;
+        time_event_handle = &timeout_element->timeout;
 
         xi_event_handle_t evtd_handle =
             xi_make_handle( &xi_utest_local_action__io_timed, timeout_element, vector,
