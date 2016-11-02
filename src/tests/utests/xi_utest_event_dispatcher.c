@@ -293,7 +293,6 @@ end:
     xi_evtd_destroy_instance( evtd_g_i );
 } )
 
-#if 0
 XI_TT_TESTCASE(
     utest__xi_evtd__events_to_call_added__overlap_timer__proper_events_executed, {
         evtd_g_i = xi_evtd_create_instance();
@@ -305,13 +304,14 @@ XI_TT_TESTCASE(
 
         /* now let's add some events */
 
+
+
         xi_evtd_destroy_instance( evtd_g_i );
 
         tt_int_op( xi_is_whole_memory_deallocated(), >, 0 );
 end:
             ;
     } )
-#endif
 
 XI_TT_TESTGROUP_END
 

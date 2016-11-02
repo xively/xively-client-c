@@ -221,6 +221,8 @@ void xi_itest_test_valid_flow__call_connect_function_twice__second_call_returns_
         will_return( xi_mock_broker_secondary_layer_push, CONTROL_CONTINUE );
         expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
 
+
+#ifdef XI_CONTROL_TOPIC_ENABLED
         /* second message (probably SUBSCRIBE on a control topic)*/
         expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_OK );
         expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
@@ -230,17 +232,14 @@ void xi_itest_test_valid_flow__call_connect_function_twice__second_call_returns_
         expect_value( xi_mock_broker_layer_pull, in_out_state, XI_STATE_OK );
         expect_value( xi_mock_broker_layer_pull, recvd_msg_type, XI_MQTT_TYPE_SUBSCRIBE );
 
-#ifdef XI_CONTROL_TOPIC_ENABLED
         expect_string( xi_mock_broker_layer_pull, subscribe_topic_name,
                        fixture->control_topic_name );
-#else
-        expect_any( xi_mock_broker_layer_pull, subscribe_topic_name );
-#endif
 
         /* SUBACK sent*/
         expect_value( xi_mock_broker_secondary_layer_push, in_out_state, XI_STATE_OK );
         will_return( xi_mock_broker_secondary_layer_push, CONTROL_CONTINUE );
         expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
+#endif
 
         /* DISCONNECT MESSAGE */
         expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_OK );
@@ -314,6 +313,8 @@ void xi_itest_test_valid_flow__call_disconnect_twice_on_connected_context__secon
         will_return( xi_mock_broker_secondary_layer_push, CONTROL_CONTINUE );
         expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
 
+
+#ifdef XI_CONTROL_TOPIC_ENABLED
         /* second message (probably SUBSCRIBE on a control topic)*/
         expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_OK );
         expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
@@ -323,17 +324,14 @@ void xi_itest_test_valid_flow__call_disconnect_twice_on_connected_context__secon
         expect_value( xi_mock_broker_layer_pull, in_out_state, XI_STATE_OK );
         expect_value( xi_mock_broker_layer_pull, recvd_msg_type, XI_MQTT_TYPE_SUBSCRIBE );
 
-#ifdef XI_CONTROL_TOPIC_ENABLED
         expect_string( xi_mock_broker_layer_pull, subscribe_topic_name,
                        fixture->control_topic_name );
-#else
-        expect_any( xi_mock_broker_layer_pull, subscribe_topic_name );
-#endif
 
         /* SUBACK sent*/
         expect_value( xi_mock_broker_secondary_layer_push, in_out_state, XI_STATE_OK );
         will_return( xi_mock_broker_secondary_layer_push, CONTROL_CONTINUE );
         expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
+#endif
 
         /* DISCONNECT MESSAGE */
         expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_OK );
