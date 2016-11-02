@@ -92,7 +92,7 @@ XI_TT_TESTCASE(
 
         /* counter for tracking the number of elements */
         int no_elements = 0;
-        /* for tracking the order of the heap */
+        /* for tracking the order of the container */
         int last_element_value = 0;
 
         /* at this point we should have a heap constructed, we can test if taking elements
@@ -116,41 +116,89 @@ XI_TT_TESTCASE(
 
 
 XI_TT_TESTCASE(
-    utest__xi_time_event_restart_first_element__event_key_and_position_changed, {
-        xi_vector_t* vector = xi_vector_create();
-
-        xi_time_event_handle_t time_event_handles[TEST_TIME_EVENT_TEST_SIZE] = {
-            xi_make_empty_time_event_handle()};
-        xi_time_event_t time_events[TEST_TIME_EVENT_TEST_SIZE] = {
-            xi_make_empty_time_event()};
-
-        xi_state_t ret_state = fill_vector_with_heap_elements_using_generator(
-            vector, &time_events, &time_event_handles, &index_generator );
-
-        int i = 0;
-        for ( ; i < TEST_TIME_EVENT_TEST_SIZE; ++i )
+    utest__xi_time_event_restart_first_element__event_key_and_position_changed_positive, {
+        xi_time_t original_position = 0;
+        for ( ; original_position < TEST_TIME_EVENT_TEST_SIZE; ++original_position )
         {
-            tt_assert( *time_event_handles[i].position == i );
+            xi_time_event_handle_t time_event_handles[TEST_TIME_EVENT_TEST_SIZE] = {
+                xi_make_empty_time_event_handle()};
+            xi_time_event_t time_events[TEST_TIME_EVENT_TEST_SIZE] = {
+                xi_make_empty_time_event()};
+
+            xi_vector_t* vector = xi_vector_create();
+
+            xi_state_t ret_state = fill_vector_with_heap_elements_using_generator(
+                vector, &time_events, &time_event_handles, &index_generator );
+
+            int i = 0;
+            for ( ; i < TEST_TIME_EVENT_TEST_SIZE; ++i )
+            {
+                tt_assert( *time_event_handles[i].position == i );
+            }
+
+            tt_assert( XI_STATE_OK == ret_state );
+
+            const xi_time_t new_test_time = TEST_TIME_EVENT_TEST_SIZE + 12;
+
+            ret_state = xi_time_event_restart(
+                vector, &time_event_handles[original_position], new_test_time );
+
+            tt_assert( XI_STATE_OK == ret_state );
+
+            xi_time_event_t* time_event =
+                ( xi_time_event_t* )vector->array[TEST_TIME_EVENT_TEST_SIZE - 1]
+                    .selector_t.ptr_value;
+
+            tt_assert( time_event->time_of_execution == new_test_time );
+            tt_assert( time_event->position ==
+                       *time_event_handles[original_position].position );
+
+            xi_vector_destroy( vector );
+            tt_int_op( xi_is_whole_memory_deallocated(), >, 0 );
         }
+    end:;
+    } )
 
-        tt_assert( XI_STATE_OK == ret_state );
+XI_TT_TESTCASE(
+    utest__xi_time_event_restart_first_element__event_key_and_position_changed_negative, {
+        xi_time_t original_position = 0;
+        for ( ; original_position < TEST_TIME_EVENT_TEST_SIZE; ++original_position )
+        {
+            xi_time_event_handle_t time_event_handles[TEST_TIME_EVENT_TEST_SIZE] = {
+                xi_make_empty_time_event_handle()};
+            xi_time_event_t time_events[TEST_TIME_EVENT_TEST_SIZE] = {
+                xi_make_empty_time_event()};
 
-        const xi_time_t new_test_time = TEST_TIME_EVENT_TEST_SIZE + 12;
+            xi_vector_t* vector = xi_vector_create();
 
-        ret_state =
-            xi_time_event_restart( vector, &time_event_handles[0], new_test_time );
+            xi_state_t ret_state = fill_vector_with_heap_elements_using_generator(
+                vector, &time_events, &time_event_handles, &index_generator );
 
-        tt_assert( XI_STATE_OK == ret_state );
+            int i = 0;
+            for ( ; i < TEST_TIME_EVENT_TEST_SIZE; ++i )
+            {
+                tt_assert( *time_event_handles[i].position == i );
+            }
 
-        xi_time_event_t* time_event =
-            ( xi_time_event_t* )vector->array[TEST_TIME_EVENT_TEST_SIZE - 1]
-                .selector_t.ptr_value;
+            tt_assert( XI_STATE_OK == ret_state );
 
-        tt_assert( time_event->time_of_execution == new_test_time );
-        tt_assert( time_event->position == *time_event_handles[0].position );
+            const xi_time_t new_test_time = -1;
 
-        xi_vector_destroy( vector );
-        tt_int_op( xi_is_whole_memory_deallocated(), >, 0 );
+            ret_state = xi_time_event_restart(
+                vector, &time_event_handles[original_position], new_test_time );
+
+            tt_assert( XI_STATE_OK == ret_state );
+
+            xi_time_event_t* time_event =
+                ( xi_time_event_t* )vector->array[0].selector_t.ptr_value;
+
+            tt_assert( time_event->time_of_execution == new_test_time );
+            tt_assert( time_event->position ==
+                       *time_event_handles[original_position].position );
+
+            xi_vector_destroy( vector );
+            tt_int_op( xi_is_whole_memory_deallocated(), >, 0 );
+        }
     end:;
     } )
 
@@ -194,7 +242,6 @@ XI_TT_TESTCASE(
 
         xi_vector_destroy( vector );
         tt_int_op( xi_is_whole_memory_deallocated(), >, 0 );
-
     end:;
     } )
 
