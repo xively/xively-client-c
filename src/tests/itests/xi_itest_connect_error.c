@@ -5,6 +5,7 @@
 #include "xi_globals.h"
 #include "xi_handle.h"
 
+#include "xi_bsp_time.h"
 #include "xi_memory_checks.h"
 #include "xi_itest_layerchain_ct_ml_mc.h"
 #include "xi_itest_mock_broker_layerchain.h"
@@ -173,7 +174,7 @@ xi_itest_connect_error__trigger_connect( void** fixture_void, uint8_t init_mock_
             &xi_context_mockbroker->layer_chain.top->layer_connection, NULL,
             XI_STATE_OK );
 
-        xi_evtd_step( xi_globals.evtd_instance, xi_getcurrenttime_seconds() );
+        xi_evtd_step( xi_globals.evtd_instance, xi_bsp_time_getcurrenttime_seconds() );
     }
 
     /* here we expect to connect succesfully */
@@ -192,7 +193,7 @@ xi_itest_connect_error__trigger_event_dispatcher( void** fixture_void,
             loop_counter < max_evtd_iterations )
     {
         xi_evtd_step( xi_globals.evtd_instance,
-                      xi_getcurrenttime_seconds() + loop_counter );
+                      xi_bsp_time_getcurrenttime_seconds() + loop_counter );
         ++loop_counter;
     }
 }

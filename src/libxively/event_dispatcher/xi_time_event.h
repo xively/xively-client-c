@@ -20,7 +20,7 @@
 #include "xi_vector.h"
 #include "xi_debug.h"
 #include "xi_allocator.h"
-#include "xi_time.h"
+#include "xively_time.h"
 #include "xi_event_handle.h"
 
 typedef struct xi_time_event_handle_s

@@ -11,7 +11,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-#include "xi_time.h"
+#include "xively_time.h"
 #include "xi_vector.h"
 #include "xi_event_dispatcher_api.h"
 #include "xi_time_event.h"
