@@ -8,7 +8,7 @@
 
 xi_time_t xi_getcurrenttime_seconds()
 {
-    return xi_bsp_time_getcurrenttime_milliseconds() / 1000;
+    return xi_bsp_time_getcurrenttime_milliseconds();
 }
 
 xi_time_t xi_getcurrenttime_milliseconds()

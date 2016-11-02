@@ -31,13 +31,13 @@ else ifeq ($(XI_HOST_PLATFORM),Darwin)
 	# osx cross-compilation downloads
 
 	XI_CC3200_PATH_CCS_TOOLS ?= /Applications/ti/ccsv6/tools
-	XI_CC3200_PATH_SDK ?= $(HOME)/ti/CC3200SDK_1.2.0/cc3200-sdk
+	XI_CC3200_PATH_SDK ?= $(HOME)/ti/tirex-content/CC3200SDK_1.1.0/cc3200-sdk/
 
-	CC = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/ti-cgt-arm_15.12.1.LTS/bin/armcl
-	AR = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/ti-cgt-arm_15.12.1.LTS/bin/armar
+	CC = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/arm_15.12.3.LTS/bin/armcl
+	AR = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/arm_15.12.3.LTS/bin/armar
 
-	XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_CCS_TOOLS)/compiler/ti-cgt-arm_15.12.1.LTS/include
-	XI_COMPILER_FLAGS += -i"$(XI_CC3200_PATH_CCS_TOOLS)/compiler/ti-cgt-arm_15.12.1.LTS/lib"
+	XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_CCS_TOOLS)/compiler/arm_15.12.3.LTS/include
+	XI_COMPILER_FLAGS += -i"$(XI_CC3200_PATH_CCS_TOOLS)/compiler/arm_15.12.3.LTS/lib"
 
 else ifneq (,$(findstring Windows,$(XI_HOST_PLATFORM)))
 	 # windows cross-compilation

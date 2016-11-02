@@ -17,6 +17,10 @@
 #define MAX( a, b ) ( ( ( a ) > ( b ) ) ? ( a ) : ( b ) )
 #endif
 
+#define XI_CC3200_ONBOARD_TLS
+// #define XI_CC3200_ROOTCACERT_FILE_NAME "/cert/globalsignrootca.der"
+#define XI_CC3200_ROOTCACERT_FILE_NAME "/cert/testcacert.der"
+
 xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
 {
     if ( NULL == xi_socket )
@@ -24,19 +28,58 @@ xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
         return XI_BSP_IO_NET_STATE_ERROR;
     }
 
-    //*xi_socket = socket( SL_AF_INET, SOCK_STREAM, 0 );
-    *xi_socket = sl_Socket( AF_INET, SOCK_STREAM, 0 );
+#ifdef XI_CC3200_ONBOARD_TLS
 
-    if ( -1 == *xi_socket )
+    // open a secure socket
+    *xi_socket = sl_Socket( SL_AF_INET, SL_SOCK_STREAM, SL_SEC_SOCKET );
+
+    if ( *xi_socket < 0 )
     {
         return XI_BSP_IO_NET_STATE_ERROR;
     }
 
-    int sl_nonblockingOption = 1;
-    int flags                = sl_SetSockOpt( *xi_socket, SOL_SOCKET, SL_SO_NONBLOCKING,
-                               &sl_nonblockingOption, sizeof( sl_nonblockingOption ) );
+    unsigned char ucMethod = SL_SO_SEC_METHOD_TLSV1_2;
+    int retval_setsockopt  = sl_SetSockOpt( *xi_socket, SL_SOL_SOCKET, SL_SO_SECMETHOD,
+                                           &ucMethod, sizeof( ucMethod ) );
+    if ( retval_setsockopt < 0 )
+    {
+        return XI_BSP_IO_NET_STATE_ERROR;
+    }
 
-    if ( flags < 0 )
+    /*unsigned int uiCipher = SL_SEC_MASK_TLS_RSA_WITH_AES_256_CBC_SHA256;
+    retval_setsockopt     = sl_SetSockOpt( *xi_socket, SL_SOL_SOCKET, SL_SO_SECURE_MASK,
+                                       &uiCipher, sizeof( uiCipher ) );
+    if ( retval_setsockopt < 0 )
+    {
+        return XI_BSP_IO_NET_STATE_ERROR;
+    }*/
+
+    retval_setsockopt = sl_SetSockOpt(
+        *xi_socket, SL_SOL_SOCKET, SL_SO_SECURE_FILES_CA_FILE_NAME,
+        XI_CC3200_ROOTCACERT_FILE_NAME, strlen( XI_CC3200_ROOTCACERT_FILE_NAME ) );
+
+    if ( retval_setsockopt < 0 )
+    {
+        return XI_BSP_IO_NET_STATE_ERROR;
+    }
+
+#else
+
+    *xi_socket = sl_Socket( SL_AF_INET, SL_SOCK_STREAM, 0 );
+
+    if ( *xi_socket < 0 )
+    {
+        return XI_BSP_IO_NET_STATE_ERROR;
+    }
+
+#endif
+
+    int sl_nonblockingOption = 1;
+    retval_setsockopt =
+        sl_SetSockOpt( *xi_socket, SOL_SOCKET, SL_SO_NONBLOCKING, &sl_nonblockingOption,
+                       sizeof( sl_nonblockingOption ) );
+
+    if ( retval_setsockopt < 0 )
     {
         return XI_BSP_IO_NET_STATE_ERROR;
     }
@@ -52,6 +95,8 @@ xi_bsp_io_net_connect( xi_bsp_socket_t* xi_socket, const char* host, uint16_t po
         return XI_BSP_IO_NET_STATE_ERROR;
     }
 
+    // printf( "host: %s, port: %d\n", host, port );
+
     unsigned long uiIP;
 
     int errval =
@@ -62,7 +107,7 @@ xi_bsp_io_net_connect( xi_bsp_socket_t* xi_socket, const char* host, uint16_t po
         return XI_BSP_IO_NET_STATE_ERROR;
     }
 
-    struct sockaddr_in name = {.sin_family      = AF_INET, // SL_AF_INET
+    struct sockaddr_in name = {.sin_family      = SL_AF_INET, // SL_AF_INET
                                .sin_port        = htons( port ),
                                .sin_addr.s_addr = htonl( uiIP ),
                                .sin_zero        = {0}};
@@ -70,7 +115,9 @@ xi_bsp_io_net_connect( xi_bsp_socket_t* xi_socket, const char* host, uint16_t po
     errval =
         sl_Connect( *xi_socket, ( struct sockaddr* )&name, sizeof( struct sockaddr ) );
 
-    if ( -1 == errval )
+    // printf( "connection result, errval = %d\n", errval );
+
+    if ( errval < 0 && SL_EALREADY != errval )
     {
         return XI_BSP_IO_NET_STATE_ERROR;
     }
@@ -124,6 +171,8 @@ xi_bsp_io_net_state_t xi_bsp_io_net_read( xi_bsp_socket_t xi_socket,
     }
 
     *out_read_count = sl_Recv( xi_socket, buf, count, 0 );
+
+    // printf( "out_read_count: %d, asked count: %lu\n", *out_read_count, count );
 
     if ( SL_EAGAIN == *out_read_count )
     {
