@@ -210,8 +210,8 @@ xi_state_t xi_evtd_execute_in( xi_evtd_instance_t* instance,
 
     xi_lock_critical_section( instance->cs );
 
-    ret_state =
-        xi_time_event_add( instance->time_events_container, time_event, ret_time_event_handle );
+    ret_state = xi_time_event_add( instance->time_events_container, time_event,
+                                   ret_time_event_handle );
 
     xi_unlock_critical_section( instance->cs );
 
@@ -229,8 +229,8 @@ xi_evtd_cancel( xi_evtd_instance_t* instance, xi_time_event_handle_t* time_event
 
     xi_lock_critical_section( instance->cs );
 
-    ret_state =
-        xi_time_event_cancel( instance->time_events_container, time_event_handle, &time_event );
+    ret_state = xi_time_event_cancel( instance->time_events_container, time_event_handle,
+                                      &time_event );
 
     xi_unlock_critical_section( instance->cs );
 
@@ -334,9 +334,11 @@ xi_event_handle_return_t xi_evtd_execute_handle( xi_event_handle_t* handle )
                 handle->handlers.h6.a4, handle->handlers.h6.a5, handle->handlers.h6.a6 );
         case XI_EVENT_HANDLE_UNSET:
             xi_debug_logger( "you are trying to call an unset handler!" );
+#if XI_DEBUG_EXTRA_INFO == 1
             xi_debug_format( "handler created in %s:%d",
                              handle->debug_info.debug_file_init,
                              handle->debug_info.debug_line_init );
+#endif
             return ( xi_event_handle_return_t )XI_UNSET_HANDLER_ERROR;
     }
 
@@ -424,6 +426,8 @@ void xi_evtd_step( xi_evtd_instance_t* evtd_instance, xi_time_t new_step )
                 xi_debug_logger( "error while processing timed events" );
                 xi_evtd_stop( evtd_instance );
             }
+
+            xi_lock_critical_section( evtd_instance->cs );
         }
         else
         {
@@ -435,6 +439,8 @@ void xi_evtd_step( xi_evtd_instance_t* evtd_instance, xi_time_t new_step )
             break;
         }
     }
+
+    xi_unlock_critical_section( evtd_instance->cs );
 
 #ifdef XI_DEUBG_OUTPUT_EVENT_SYSTEM
     xi_debug_logger( "[enqueued events]" );
