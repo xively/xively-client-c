@@ -40,7 +40,7 @@ int __stdcall IsDebuggerPresent();
 /* Forward declaration of a Xively Function that determines
  * the current time of the target platform.  This will be
  * linked in by libxively. */
-long xi_getcurrenttime_milliseconds();
+long xi_bsp_time_getcurrenttime_milliseconds();
 
 /**
  * @defgroup cmocka The CMocka API

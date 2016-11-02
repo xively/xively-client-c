@@ -3,7 +3,7 @@
 # This is part of the Xively C Client library,
 # it is licensed under the BSD 3-Clause license.
 
-LIBXIVELY := $(shell pwd)
+LIBXIVELY := $(CURDIR)
 
 export LIBXIVELY
 
@@ -60,7 +60,8 @@ endif
 build_output: help_disclaimer preset_output
 	$(info .    CONFIG:          [${CONFIG}])
 	$(info .    TARGET:          [${TARGET}])
-	$(info ) 
+	$(info .    COMPILER:        [$(CC)] )
+	$(info )
 
 all: build_output $(XI)
 
