@@ -76,13 +76,28 @@ xi_state_t xi_time_event_add( xi_vector_t* vector,
 
 /**
  * @brief xi_time_event_get_top
+ *
+ * Returns the pointer to the first element in the container which is guaranteed by the
+ * time event implementation to be the time event with minimum execution time of all time
+ * events stored within this container.
+ *
+ * It removes the returned time event element from the vector. Use xi_time_event_pee_top
+ * in order to minitor for the value of the minimum element without removing it from the
+ * container.
+ *
  * @param vector
- * @return
+ * @return pointer to the time event that has miminum execution time, NULL if time event
+ * container is empty
  */
 xi_time_event_t* xi_time_event_get_top( xi_vector_t* vector );
 
 /**
  * @brief xi_time_event_peek_top
+ *
+ * Returns the pointer to the first element in the container which is guaranteed by the
+ * time event implementation to be the time event with minimum execution time of all time
+ * events stored within this container.
+ *
  * @param vector
  * @return
  */
