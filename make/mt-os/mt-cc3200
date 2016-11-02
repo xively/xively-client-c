@@ -8,51 +8,61 @@ include make/mt-os/mt-os-common
 # todo: this is common, move it to outside
 XI ?= $(XI_BINDIR)/libxively.a
 
-ifeq ($(XI_HOST_PLATFORM),Linux)
-	# linux cross-compilation prerequisite downloads
+###
+## COMPILER NAME
+###
+COMPILER ?= arm_15.12.3.LTS
 
-	XI_CC3200_PATH_CCS_TOOLS ?= $(HOME)/Downloads/xi_artifactory/ti/ccsv6/tools
-	XI_CC3200_PATH_SDK ?= $(HOME)/Downloads/xi_artifactory/ti/CC3200SDK_1.2.0/cc3200-sdk
-
-	CC = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/arm_15.12.3.LTS/bin/armcl
-	AR = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/arm_15.12.3.LTS/bin/armar
-
-	XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_CCS_TOOLS)/compiler/arm_15.12.3.LTS/include
-	XI_COMPILER_FLAGS += -i"$(XI_CC3200_PATH_CCS_TOOLS)/compiler/arm_15.12.3.LTS/lib"
-
-	XI_BUILD_PRECONDITIONS := $(CC)
-
-$(CC):
-	git clone https://github.com/atigyi/xi_artifactory.git ~/Downloads/xi_artifactory
-	git -C ~/Downloads/xi_artifactory checkout feature/cc3200_dependencies
-	$@ --version
-
-else ifeq ($(XI_HOST_PLATFORM),Darwin)
+###
+## MAC HOST OS
+###
+ifeq ($(XI_HOST_PLATFORM),Darwin)
 	# osx cross-compilation downloads
 
 	XI_CC3200_PATH_CCS_TOOLS ?= /Applications/ti/ccsv6/tools
-	XI_CC3200_PATH_SDK ?= $(HOME)/ti/tirex-content/CC3200SDK_1.1.0/cc3200-sdk/
+	XI_CC3200_PATH_SDK ?= $(HOME)/ti/tirex-content/CC3200SDK_1.1.0/cc3200-sdk
 
-	CC = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/arm_15.12.3.LTS/bin/armcl
-	AR = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/arm_15.12.3.LTS/bin/armar
+	CC = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armcl
+	AR = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armar
 
-	XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_CCS_TOOLS)/compiler/arm_15.12.3.LTS/include
-	XI_COMPILER_FLAGS += -i"$(XI_CC3200_PATH_CCS_TOOLS)/compiler/arm_15.12.3.LTS/lib"
+	XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/include
 
+###
+## WINDOWS HOST OS
+###
 else ifneq (,$(findstring Windows,$(XI_HOST_PLATFORM)))
 	 # windows cross-compilation
 
 	XI_CC3200_PATH_CCS_TOOLS ?= C:/ti/ccsv6/tools
 	XI_CC3200_PATH_SDK ?= C:/ti/tirex-content/CC3200SDK_1.1.0/cc3200-sdk/
 
-	# COMPILER ?= ti-cgt-arm_16.6.0.STS
-	COMPILER ?= arm_15.12.3.LTS
+	CC = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armcl
+	AR = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armar
+
+	XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/include
+
+###
+## LINUX HOST OS
+###
+else ifeq ($(XI_HOST_PLATFORM),Linux)
+	# linux cross-compilation prerequisite downloads
+
+	XI_CC3200_PATH_CCS_TOOLS ?= $(HOME)/Downloads/xi_artifactory/ti/ccsv6/tools
+	XI_CC3200_PATH_SDK ?= $(HOME)/Downloads/xi_artifactory/ti/CC3200SDK_1.2.0/cc3200-sdk
 
 	CC = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armcl
 	AR = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armar
 
 	XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/include
-	#	XI_COMPILER_FLAGS += -i"$(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/lib"
+
+### TOOLCHAIN AUTODOWNLOAD SECTION --- BEGIN
+	XI_BUILD_PRECONDITIONS := $(CC)
+
+$(CC):
+	git clone https://github.com/atigyi/xi_artifactory.git ~/Downloads/xi_artifactory
+	git -C ~/Downloads/xi_artifactory checkout feature/cc3200_dependencies
+	$@ --version
+### TOOLCHAIN AUTODOWNLOAD SECTION --- END
 endif
 
 # removing these compiler flags since they are not parsed and emit warnings
@@ -63,6 +73,7 @@ XI_COMPILER_FLAGS += -mv7M4
 XI_COMPILER_FLAGS += -me
 XI_COMPILER_FLAGS += --define=css
 XI_COMPILER_FLAGS += --define=cc3200
+XI_COMPILER_FLAGS += --define=WOLFSSL_NOOS_XIVELY
 XI_COMPILER_FLAGS += --display_error_number
 XI_COMPILER_FLAGS += --diag_warning=225
 XI_COMPILER_FLAGS += --diag_wrap=off

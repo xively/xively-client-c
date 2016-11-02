@@ -31,7 +31,7 @@
 #include <string.h>
 #include <assert.h>
 
-#include "xi_time.h"
+#include "xi_bsp_time.h"
 
 /* This conditional compilation is endented for clarity */
 #ifndef NO_FORKING
@@ -275,7 +275,7 @@ testcase_run_one(const struct testgroup_t *group,
 		cur_test_name = testcase->name;
 	}
 
-	long t0_testcase = xi_getcurrenttime_milliseconds();
+	long t0_testcase = xi_bsp_time_getcurrenttime_milliseconds();
 
 #ifndef NO_FORKING
 	if ((testcase->flags & TT_FORK) && !(opt_forked||opt_nofork)) {
@@ -287,7 +287,7 @@ testcase_run_one(const struct testgroup_t *group,
 		run_outcome = testcase_run_bare_(testcase);
 	}
 
-	long t1_testcase = xi_getcurrenttime_milliseconds();
+	long t1_testcase = xi_bsp_time_getcurrenttime_milliseconds();
 	const unsigned long deltatime_testcase = t1_testcase - t0_testcase;
 
 	if (run_outcome == OK) {
@@ -516,7 +516,7 @@ tinytest_main(int c, const char **v, struct testgroup_t *groups)
 #endif /* _IONBF */
 #endif /* XI_EMBEDDED_TESTS */
 
-	long t0_all = xi_getcurrenttime_milliseconds();
+	long t0_all = xi_bsp_time_getcurrenttime_milliseconds();
 
 	char run_tests = 1;
 	++in_tinytest_main;
@@ -535,7 +535,7 @@ tinytest_main(int c, const char **v, struct testgroup_t *groups)
 		}
 	}
 
-	long t1_all = xi_getcurrenttime_milliseconds();
+	long t1_all = xi_bsp_time_getcurrenttime_milliseconds();
 	unsigned long deltatime_all = t1_all - t0_all;
 
 	--in_tinytest_main;

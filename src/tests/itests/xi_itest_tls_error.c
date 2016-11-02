@@ -13,6 +13,7 @@
 #include "xi_itest_layerchain_ct_ml_mc.h"
 #include "xi_itest_mock_broker_layerchain.h"
 #include "xi_memory_checks.h"
+#include "xi_bsp_time.h"
 
 extern char xi_test_load_level;
 
@@ -202,7 +203,7 @@ static void xi_itest_tls_error__act( void** fixture_void,
     XI_PROCESS_INIT_ON_THIS_LAYER(
         &xi_context_mockbroker->layer_chain.top->layer_connection, NULL, XI_STATE_OK );
 
-    xi_evtd_step( xi_globals.evtd_instance, xi_getcurrenttime_seconds() );
+    xi_evtd_step( xi_globals.evtd_instance, xi_bsp_time_getcurrenttime_seconds() );
 
     const xi_itest_tls_error__test_fixture_t* const fixture =
         ( xi_itest_tls_error__test_fixture_t* )*fixture_void;
@@ -218,7 +219,7 @@ static void xi_itest_tls_error__act( void** fixture_void,
             loop_counter < keepalive_timeout )
     {
         xi_evtd_step( xi_globals.evtd_instance,
-                      xi_getcurrenttime_seconds() + loop_counter );
+                      xi_bsp_time_getcurrenttime_seconds() + loop_counter );
         ++loop_counter;
 
 #ifndef XI_CONTROL_TOPIC_ENABLED

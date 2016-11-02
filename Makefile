@@ -3,7 +3,7 @@
 # This is part of the Xively C Client library,
 # it is licensed under the BSD 3-Clause license.
 
-LIBXIVELY := $(shell pwd)
+LIBXIVELY := $(CURDIR)
 
 export LIBXIVELY
 
@@ -60,7 +60,8 @@ endif
 build_output: help_disclaimer preset_output
 	$(info .    CONFIG:          [${CONFIG}])
 	$(info .    TARGET:          [${TARGET}])
-	$(info ) 
+	$(info .    COMPILER:        [$(CC)] )
+	$(info )
 
 all: build_output $(XI)
 
@@ -94,9 +95,6 @@ libxively: $(XI)
 $(XI): $(TLS_LIB_PATH) $(XI_PROTOFILES_C) $(XI_OBJS) | $(XI_BIN_DIRS)
 	$(info [$(AR)] $@ )
 	$(MD) $(AR) $(XI_ARFLAGS) $(XI_OBJS) $(XI_EXTRA_ARFLAGS)
-
-$(TLS_LIB_PATH):
-	$(TLS_LIB_PREPARE_CMD)
 
 # protobuf compilation
 $(XI_PROTOBUF_GENERATED)/%.pb-c.c : $(XI_PROTO_DIR)/%.proto
@@ -196,9 +194,6 @@ $(XI_BIN_DIRS):
 ifdef XI_PROVIDE_RESOURCE_FILES
 	@cp $(XI_RESOURCE_FILES) $@
 endif
-
-docs_tex:
-	$(MAKE) -C doc/tex
 
 libxively: $(XI)
 
