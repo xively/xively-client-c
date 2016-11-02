@@ -10,8 +10,37 @@
 #include "xi_itest_mock_broker_layerchain.h"
 
 /**
- * These test cases
+ * @brief These test cases are for testing the wrong usage of connect and disconnect functions.
+ * Motivation is to make the library's API as robust as it's possible. Thanks to these
+ * tests we are protecting our library from running connect or disconnect logic twice in a
+ * row.
  *
+ * This integration test setup is similar to xi_itest_tls_error.c. It is using same setup
+ * of layers so the SUT layer chain is:
+ * - Control Topic (CT)
+ * - Mqtt Logic (ML)
+ * - Mqtt Codec (MC)
+ *
+ * In order to perform tests on SUT layers it is using additional mock layers such as:
+ * - Mock Broker - MB
+ * - TLSPREV
+ *
+ * @note MB layer is used twice which requires to double to requirements for functions of this
+ * layer in all of the tests. Keep that in mind while reading the test's code.
+ *
+ * This test consists two layer chains that communicates through the MB layer.
+ *
+ *        CT - ML - MC - MB - TLSPREV
+ *                       |
+ *                       MC
+ *                       |
+ *                       MBS
+ *
+ * The horizontal layer chain acts like libxively, MB intercepts messages from the
+ * 3 SUT layers, forwards it to two directions: TLSPREV which behaves like IO layer
+ * and MC for decoding mqtt messages.
+ * The horizontal layer chain's MB and TLSPREV is "programmed" to mimic errors at
+ * various stages of functioning.
  *
  */
 

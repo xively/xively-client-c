@@ -104,8 +104,8 @@ void test_time_overflow_function( void )
         for ( ; i < time_hole; ++i )
         {
             const xi_state_t ret_state = xi_evtd_execute_in(
-                           evtd_g_i, xi_make_handle( &continuation1_1, &counter ),
-                           time_hole + i, NULL );
+                evtd_g_i, xi_make_handle( &continuation1_1, &counter ), time_hole + i,
+                NULL );
             tt_int_op( XI_STATE_OK, ==, ret_state );
         }
     }
@@ -113,13 +113,15 @@ void test_time_overflow_function( void )
     /* let's execute first half */
     xi_evtd_step( evtd_g_i, time_max - ( time_hole / 2 ) );
 
-    /* expectation is that only the half of the events added before the MAX( xi_time_t
-     * ) will be executed */
+    /* expectation is that only the half of the events added before the MAX( xi_time_t )
+     * will be executed */
     tt_int_op( counter, ==, ( time_hole / 2 ) );
 
     xi_evtd_destroy_instance( evtd_g_i );
 
     tt_int_op( xi_is_whole_memory_deallocated(), >, 0 );
+
+    return;
 end:;
 }
 
@@ -353,9 +355,8 @@ end:
 
 /* skipped because this feature is not yet implemented */
 SKIP_XI_TT_TESTCASE(
-    utest__xi_evtd__events_to_call_added__overlap_timer__proper_events_executed, {
-        test_time_overflow_function();
-    } )
+    utest__xi_evtd__events_to_call_added__overlap_timer__proper_events_executed,
+    { test_time_overflow_function(); } )
 
 #undef TEST_DATA_SIZE
 

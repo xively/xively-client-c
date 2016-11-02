@@ -215,7 +215,7 @@ void xi_vector_del( xi_vector_t* vector, xi_vector_index_type_t index )
                 sizeof( vector->array[vector->elem_no].selector_t ) );
     }
 
-#if 0 /* after thinking for a while I think that we don't want to decrease the size of   \
+#if 0 /* after thinking for a while I think we don't want to decrease the size of   \
          the vector */
     xi_state_t state = XI_STATE_OK;
     /* if the element number has been decreased below
@@ -257,6 +257,8 @@ void xi_vector_for_each( xi_vector_t* vector,
                          xi_vector_index_type_t offset )
 {
     assert( NULL != vector );
+    assert( offset >= 0 );
+    assert( offset <= vector->elem_no );
 
     xi_vector_index_type_t i = offset;
 

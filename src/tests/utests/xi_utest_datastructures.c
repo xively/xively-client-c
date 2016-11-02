@@ -22,38 +22,6 @@
 
 #ifndef XI_TT_TESTCASE_ENUMERATION__SECONDPREPROCESSORRUN
 
-#if 0
-void test_heap( xi_heap_t* heap, xi_heap_index_type_t index )
-{
-    if ( index >= heap->first_free )
-    {
-        return;
-    }
-
-    xi_heap_element_t* e = heap->elements[index];
-
-    xi_heap_index_type_t li = LEFT( index );
-    xi_heap_index_type_t ri = RIGHT( index );
-
-    li = li >= heap->first_free ? index : li;
-    ri = ri >= heap->first_free ? index : ri;
-
-    if ( li == index || ri == index )
-        return;
-
-    xi_heap_element_t* le = heap->elements[li];
-    xi_heap_element_t* re = heap->elements[ri];
-
-    tt_assert( e->key <= le->key );
-    tt_assert( e->key <= re->key );
-
-    test_heap( heap, li );
-    test_heap( heap, ri );
-
-end:;
-}
-#endif
-
 int8_t vector_is_odd( union xi_vector_selector_u* e0 )
 {
     if ( ( e0->i32_value & 1 ) > 0 )

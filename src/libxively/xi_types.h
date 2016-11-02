@@ -11,7 +11,6 @@
 #include "xi_connection_data.h"
 #include "xi_vector.h"
 #include "xi_event_dispatcher_api.h"
-//#include "xi_time_event.h"
 #include <xively_types.h>
 
 #ifdef __cplusplus

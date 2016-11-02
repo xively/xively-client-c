@@ -1,5 +1,8 @@
-/* Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.
- * This is part of Xively C library. */
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license.
+ */
 
 /**
  * @file xi_time_event.h
@@ -58,11 +61,14 @@ typedef struct xi_time_event_s
  * Adds new time_event to the given vector. If the operation succeded it have to return
  * the xi_time_event_handle_t using the ret_time_event_handle return parameter. The
  * xi_time_event_handle_t is associated with the time_event and it can be used in order to
- * cancel or restart the time_event.
+ * cancel or restart the time_event via calling xi_time_event_cancel or
+ * xi_time_event_restart.
+ *
+ * @see xi_time_event_restart xi_time_event_cancel
  *
  * @note The user of this API has the ownership of the memory created outside of this API,
- * so if a time_event has been allocated on heap, it has to be deallocated after it is no
- * longer used.
+ * so if a time_event has been allocated on the heap, it has to be deallocated after it is
+ * no longer used.
  *
  * @param vector - the storage for time_events
  * @param time_event - new time event to get registered
