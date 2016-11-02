@@ -85,7 +85,7 @@ void test_time_overflow_function( void )
     /* now let's add some events to be executed */
     /* we will add some events before the MAX( xi_time_t ) */
     {
-        size_t i = 0;
+        xi_time_t i = 0;
         for ( ; i < time_hole; ++i )
         {
             const xi_state_t ret_state = xi_evtd_execute_in(
@@ -100,7 +100,7 @@ void test_time_overflow_function( void )
     /* and some after the MIN( xi_time_t ) in order to check the reaction on time
      * overlap */
     {
-        size_t i = 0;
+        xi_time_t i = 0;
         for ( ; i < time_hole; ++i )
         {
             const xi_state_t ret_state = xi_evtd_execute_in(

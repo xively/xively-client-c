@@ -86,7 +86,7 @@ xi_state_t xi_time_event_add( xi_vector_t* vector,
  * container.
  *
  * @param vector
- * @return pointer to the time event that has miminum execution time, NULL if time event
+ * @return pointer to the time event with minimum execution time, NULL if the time event
  * container is empty
  */
 xi_time_event_t* xi_time_event_get_top( xi_vector_t* vector );
@@ -99,25 +99,20 @@ xi_time_event_t* xi_time_event_get_top( xi_vector_t* vector );
  * events stored within this container.
  *
  * @param vector
- * @return
+ * @return pointer to the time event with minimum execution time, NULL if the time event
+ * container is empty
  */
 xi_time_event_t* xi_time_event_peek_top( xi_vector_t* vector );
 
 /**
- * @brief xi_time_event_get_time_event_handle
- * @param vector
- * @param ret_time_event_handle
- * @return
- */
-xi_state_t
-xi_time_event_get_time_event_handle( xi_vector_t* vector,
-                                     xi_time_event_handle_t* ret_time_event_handle );
-
-/**
  * @brief xi_time_event_restart
+ *
+ * Changes the execution time of a time event associated with the gven time_event_handle.
+ *
  * @param vector
  * @param time_event_handle
- * @return
+ * @return XI_STATE_OK in case of the success, XI_ELEMENT_NOT_FOUND if the time event does
+ * not exist in the container
  */
 xi_state_t xi_time_event_restart( xi_vector_t* vector,
                                   xi_time_event_handle_t* time_event_handle,
@@ -125,9 +120,14 @@ xi_state_t xi_time_event_restart( xi_vector_t* vector,
 
 /**
  * @brief xi_time_event_cancel
+ *
+ * Cancels execution of the time event associated by the time_event_handle. It removes the
+ * time event from the time events container.
+ *
  * @param vector
  * @param time_event_handle
- * @return
+ * @return XI_STATE_OK in case of the success, XI_ELEMENT_NOT_FOUND if the time event
+ * couldn't be found
  */
 xi_state_t xi_time_event_cancel( xi_vector_t* vector,
                                  xi_time_event_handle_t* time_event_handle,
@@ -135,8 +135,11 @@ xi_state_t xi_time_event_cancel( xi_vector_t* vector,
 
 /**
  * @brief xi_time_event_destroy
+ *
+ * Releases all the memory allocated by time events. Invalidates all the time event
+ * handles associated with unexecuted time events.
+ *
  * @param vector
- * @return
  */
 void xi_time_event_destroy( xi_vector_t* vector );
 

@@ -339,6 +339,12 @@ static void xi_time_event_destructor( union xi_vector_selector_u* selector, void
 
     xi_time_event_t* time_event = ( xi_time_event_t* )selector->ptr_value;
     time_event->position        = XI_TIME_EVENT_POSITION_INVALID;
+
+    if( NULL != time_event->time_event_handle )
+    {
+        time_event->time_event_handle->position = NULL;
+    }
+
     XI_SAFE_FREE( time_event );
 }
 
