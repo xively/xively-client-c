@@ -142,8 +142,7 @@ xi_state_t xi_time_event_cancel( xi_vector_t* vector,
 /**
  * @brief xi_time_event_destroy
  *
- * Releases all the memory allocated by time events. Invalidates all the time event
- * handles associated with unexecuted time events.
+ * Releases all the memory allocated by time events.
  *
  * @param vector
  */
