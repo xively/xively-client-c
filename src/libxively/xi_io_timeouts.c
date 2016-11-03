@@ -21,7 +21,8 @@ xi_state_t xi_io_timeouts_create( xi_evtd_instance_t* event_dispatcher,
 {
     assert( NULL != event_dispatcher );
     assert( NULL != io_timeouts );
-    assert( NULL != ret_time_event_handle && NULL == ret_time_event_handle->position );
+    assert( NULL != ret_time_event_handle &&
+            NULL == ret_time_event_handle->ptr_to_position );
 
     xi_state_t ret_state =
         xi_evtd_execute_in( event_dispatcher, handle, time_diff, ret_time_event_handle );
@@ -50,7 +51,7 @@ void xi_io_timeouts_cancel( xi_evtd_instance_t* event_dispatcher,
 {
     assert( event_dispatcher != NULL );
     assert( io_timeouts != NULL );
-    assert( NULL != time_event_handle && NULL != time_event_handle->position );
+    assert( NULL != time_event_handle && NULL != time_event_handle->ptr_to_position );
 
     xi_io_timeouts_remove( time_event_handle, io_timeouts );
     const xi_state_t local_state = xi_evtd_cancel( event_dispatcher, time_event_handle );
@@ -77,7 +78,7 @@ void xi_io_timeouts_restart( xi_evtd_instance_t* event_dispatcher,
         xi_vector_elem_t timeout_element          = io_timeouts->array[index];
         xi_time_event_handle_t* time_event_handle = timeout_element.selector_t.ptr_value;
 
-        assert( NULL != time_event_handle && NULL != time_event_handle->position );
+        assert( NULL != time_event_handle && NULL != time_event_handle->ptr_to_position );
 
         const xi_state_t local_state =
             xi_evtd_restart( event_dispatcher, time_event_handle, new_time );

@@ -273,9 +273,9 @@ xi_state_t xi_time_event_add( xi_vector_t* vector,
     /* PRE-CONDITIONS */
     assert( NULL != vector );
     assert( NULL != time_event );
-    assert(
-        ( NULL != ret_time_event_handle && NULL == ret_time_event_handle->ptr_to_position ) ||
-        ( NULL == ret_time_event_handle ) );
+    assert( ( NULL != ret_time_event_handle &&
+              NULL == ret_time_event_handle->ptr_to_position ) ||
+            ( NULL == ret_time_event_handle ) );
 
     xi_state_t out_state = XI_STATE_OK;
 
