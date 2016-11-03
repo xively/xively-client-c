@@ -36,6 +36,8 @@ static void xi_swap_time_events( xi_vector_t* vector,
     assert( NULL != vector );
     assert( lhs_index < vector->elem_no );
     assert( rhs_index < vector->elem_no );
+    assert( lhs_index >= 0 );
+    assert( rhs_index >= 0 );
 
     xi_time_event_t* lhs_time_event =
         ( xi_time_event_t* )vector->array[lhs_index].selector_t.ptr_value;
