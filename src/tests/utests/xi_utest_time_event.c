@@ -2,6 +2,7 @@
 #include "tinytest_macros.h"
 #include "xi_tt_testcase_management.h"
 #include "xi_memory_checks.h"
+#include "xi_bsp_rng.h"
 
 #include "xi_handle.h"
 #include "xi_vector.h"
@@ -23,7 +24,7 @@ static xi_time_t random_generator_0_1000( int index )
 {
     XI_UNUSED( index );
 
-    return random() % 1000;
+    return xi_bsp_rng_get() % 1000;
 }
 
 static xi_state_t fill_vector_with_heap_elements_using_generator(
