@@ -11,8 +11,11 @@
  * implementation assumes that the element type is always the xi_time_event_t.
  *
  * It uses the vector as a container type. The vector stores pointers to the time events.
- * Time events are always sorted in the vector by the time event
- *
+ * Time events are always sorted in the vector by the time event execution time.
+ */
+
+/*
+ * STATIC INTERNAL FUNCTIONS
  */
 
 /**
@@ -151,7 +154,7 @@ xi_time_event_bubble_and_sort_up( xi_vector_t* vector, xi_vector_index_type_t in
  * @brief xi_time_event_move_to_the_end
  *
  * Helper function that moves the element form the given position ( index ) to the end of
- * the vector so it is the last element in the vector.
+ * the vector.
  *
  * @param vector
  * @param index
@@ -235,6 +238,31 @@ static void xi_time_event_dispose_time_event( xi_time_event_t* time_event )
         time_event->time_event_handle->position = NULL;
     }
 }
+
+/**
+ * @brief xi_time_event_destructor
+ *
+ * Helper function used to release the memory required by time event structure.
+ *
+ * @param selector
+ * @param arg
+ */
+static void xi_time_event_destructor( union xi_vector_selector_u* selector, void* arg )
+{
+    /* PRE-CONDITIONS */
+    assert( NULL != selector );
+
+    XI_UNUSED( arg );
+
+    xi_time_event_t* time_event = ( xi_time_event_t* )selector->ptr_value;
+    time_event->position        = XI_TIME_EVENT_POSITION_INVALID;
+
+    XI_SAFE_FREE( time_event );
+}
+
+/*
+ * PUBLIC FUNCTIONS
+ */
 
 xi_state_t xi_time_event_add( xi_vector_t* vector,
                               xi_time_event_t* time_event,
@@ -390,27 +418,6 @@ xi_state_t xi_time_event_cancel( xi_vector_t* vector,
     xi_time_event_dispose_time_event( *cancelled_time_event );
 
     return XI_STATE_OK;
-}
-
-/**
- * @brief xi_time_event_destructor
- *
- * Helper function used to release the memory required by time event structure.
- *
- * @param selector
- * @param arg
- */
-static void xi_time_event_destructor( union xi_vector_selector_u* selector, void* arg )
-{
-    /* PRE-CONDITIONS */
-    assert( NULL != selector );
-
-    XI_UNUSED( arg );
-
-    xi_time_event_t* time_event = ( xi_time_event_t* )selector->ptr_value;
-    time_event->position        = XI_TIME_EVENT_POSITION_INVALID;
-
-    XI_SAFE_FREE( time_event );
 }
 
 void xi_time_event_destroy( xi_vector_t* vector )
