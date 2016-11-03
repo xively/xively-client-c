@@ -26,7 +26,7 @@ typedef enum xi_protocol_e {
 } xi_protocol_t;
 
 typedef enum xi_shutdown_state_e {
-    XI_SHUTDOWN_UNITIALISED,
+    XI_SHUTDOWN_UNINITIALISED,
     XI_SHUTDOWN_STARTED,
 } xi_shutdown_state_t;
 

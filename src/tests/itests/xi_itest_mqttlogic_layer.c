@@ -210,7 +210,7 @@ void xi_itest_mqttlogic_prepare_init_and_connect_layer( xi_layer_t* top_layer,
                                                         uint16_t keepalive_timeout )
 {
     xi_context__itest_mqttlogic_layer->context_data.shutdown_state =
-        XI_SHUTDOWN_UNITIALISED;
+        XI_SHUTDOWN_UNINITIALISED;
 
     // default init process expectations
     expect_value( xi_mock_layer_mqttlogic_prev_init, in_out_state, XI_STATE_OK );
