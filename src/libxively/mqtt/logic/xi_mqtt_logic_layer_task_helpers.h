@@ -42,7 +42,7 @@ cancel_task_timeout( xi_mqtt_logic_task_t* task, xi_layer_connectivity_t* contex
     assert( event_dispatcher != NULL );
     assert( io_timeouts != NULL );
 
-    if ( NULL != task->timeout.position )
+    if ( NULL != task->timeout.ptr_to_position )
     {
         /* check if timeout is in timeouts vector, and remove it */
         xi_io_timeouts_remove( &task->timeout, io_timeouts );
@@ -57,7 +57,7 @@ cancel_task_timeout( xi_mqtt_logic_task_t* task, xi_layer_connectivity_t* contex
     }
 
     /* POST-CONDITIONS */
-    assert( NULL == task->timeout.position );
+    assert( NULL == task->timeout.ptr_to_position );
 }
 
 static inline void signal_task( xi_mqtt_logic_task_t* task, xi_state_t state )

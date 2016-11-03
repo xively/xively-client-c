@@ -46,7 +46,7 @@ static xi_state_t fill_vector_with_heap_elements_using_generator(
         XI_CHECK_STATE( ret_state );
 
         tt_assert( ret_state == XI_STATE_OK );
-        tt_assert( time_event_handles[0][i].position != NULL );
+        tt_assert( time_event_handles[0][i].ptr_to_position != NULL );
     }
 
 end:
@@ -67,7 +67,7 @@ XI_TT_TESTCASE( utest__xi_time_event_execute_handle_in__time_event_added, {
     xi_state_t ret_state = xi_time_event_add( vector, &time_event, &time_event_handle );
 
     tt_assert( ret_state == XI_STATE_OK );
-    tt_assert( time_event_handle.position != NULL );
+    tt_assert( time_event_handle.ptr_to_position != NULL );
 
     xi_vector_destroy( vector );
 
@@ -134,7 +134,7 @@ XI_TT_TESTCASE(
             int i = 0;
             for ( ; i < TEST_TIME_EVENT_TEST_SIZE; ++i )
             {
-                tt_assert( *time_event_handles[i].position == i );
+                tt_assert( *time_event_handles[i].ptr_to_position == i );
             }
 
             tt_assert( XI_STATE_OK == ret_state );
@@ -152,7 +152,7 @@ XI_TT_TESTCASE(
 
             tt_assert( time_event->time_of_execution == new_test_time );
             tt_assert( time_event->position ==
-                       *time_event_handles[original_position].position );
+                       *time_event_handles[original_position].ptr_to_position );
 
             xi_vector_destroy( vector );
             tt_int_op( xi_is_whole_memory_deallocated(), >, 0 );
@@ -178,7 +178,7 @@ XI_TT_TESTCASE(
             int i = 0;
             for ( ; i < TEST_TIME_EVENT_TEST_SIZE; ++i )
             {
-                tt_assert( *time_event_handles[i].position == i );
+                tt_assert( *time_event_handles[i].ptr_to_position == i );
             }
 
             tt_assert( XI_STATE_OK == ret_state );
@@ -195,7 +195,7 @@ XI_TT_TESTCASE(
 
             tt_assert( time_event->time_of_execution == new_test_time );
             tt_assert( time_event->position ==
-                       *time_event_handles[original_position].position );
+                       *time_event_handles[original_position].ptr_to_position );
 
             xi_vector_destroy( vector );
             tt_int_op( xi_is_whole_memory_deallocated(), >, 0 );
@@ -237,7 +237,7 @@ XI_TT_TESTCASE(
             size_t i = 0;
             for ( ; i < TEST_TIME_EVENT_TEST_SIZE; ++i )
             {
-                tt_assert( NULL == time_event_handles[i].position );
+                tt_assert( NULL == time_event_handles[i].ptr_to_position );
             }
         }
 

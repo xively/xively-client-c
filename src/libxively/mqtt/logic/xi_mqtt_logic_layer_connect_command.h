@@ -64,7 +64,7 @@ do_mqtt_connect_timeout( xi_event_handle_arg1_t arg1, xi_event_handle_arg2_t arg
 
     /* remove finished timeout event from context's io timeout vector */
     xi_io_timeouts_remove( &task->timeout, context->self->context_data->io_timeouts );
-    assert( NULL == task->timeout.position );
+    assert( NULL == task->timeout.ptr_to_position );
 
     XI_PROCESS_CONNECT_ON_NEXT_LAYER( context, arg2, XI_STATE_TIMEOUT );
 
@@ -121,7 +121,7 @@ do_mqtt_connect( void* ctx /* should be the context of the logic layer */
     }
     else
     {
-        assert( NULL == task->timeout.position );
+        assert( NULL == task->timeout.ptr_to_position );
     }
 
     /* book up sending and wait till it's sent */
@@ -147,11 +147,11 @@ do_mqtt_connect( void* ctx /* should be the context of the logic layer */
     if ( msg_memory->common.common_u.common_bits.type == XI_MQTT_TYPE_CONNACK )
     {
         /* cancel io timeout */
-        if ( NULL != task->timeout.position )
+        if ( NULL != task->timeout.ptr_to_position )
         {
             xi_io_timeouts_cancel( xi_globals.evtd_instance, &task->timeout,
                                    XI_CONTEXT_DATA( context )->io_timeouts );
-            assert( NULL == task->timeout.position );
+            assert( NULL == task->timeout.ptr_to_position );
         }
 
         if ( msg_memory->connack.return_code == 0 )
@@ -190,11 +190,11 @@ do_mqtt_connect( void* ctx /* should be the context of the logic layer */
             xi_mqtt_message_free( &msg_memory );
 
             /* cancel io timeout */
-            if ( NULL != task->timeout.position )
+            if ( NULL != task->timeout.ptr_to_position )
             {
                 xi_io_timeouts_cancel( xi_globals.evtd_instance, &task->timeout,
                                        XI_CONTEXT_DATA( context )->io_timeouts );
-                assert( NULL == task->timeout.position );
+                assert( NULL == task->timeout.ptr_to_position );
             }
 
             XI_CR_EXIT( task->cs, xi_mqtt_logic_layer_finalize_task( context, task ) );
@@ -204,11 +204,11 @@ do_mqtt_connect( void* ctx /* should be the context of the logic layer */
     xi_mqtt_message_free( &msg_memory );
 
     /* cancel io timeout */
-    if ( NULL != task->timeout.position )
+    if ( NULL != task->timeout.ptr_to_position )
     {
         xi_io_timeouts_cancel( xi_globals.evtd_instance, &task->timeout,
                                XI_CONTEXT_DATA( context )->io_timeouts );
-        assert( NULL == task->timeout.position );
+        assert( NULL == task->timeout.ptr_to_position );
     }
 
     XI_CR_EXIT( task->cs, xi_mqtt_logic_layer_finalize_task( context, task ) );
@@ -217,11 +217,11 @@ err_handling:
     xi_mqtt_message_free( &msg_memory );
 
     /* cancel io timeout */
-    if ( NULL != task->timeout.position )
+    if ( NULL != task->timeout.ptr_to_position )
     {
         xi_io_timeouts_cancel( xi_globals.evtd_instance, &task->timeout,
                                XI_CONTEXT_DATA( context )->io_timeouts );
-        assert( NULL == task->timeout.position );
+        assert( NULL == task->timeout.ptr_to_position );
     }
 
     XI_CR_EXIT( task->cs, xi_mqtt_logic_layer_finalize_task( context, task ) );

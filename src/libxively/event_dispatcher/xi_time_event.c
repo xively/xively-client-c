@@ -237,7 +237,7 @@ static void xi_time_event_dispose_time_event( xi_time_event_t* time_event )
 
     if ( NULL != time_event->time_event_handle )
     {
-        time_event->time_event_handle->position = NULL;
+        time_event->time_event_handle->ptr_to_position = NULL;
     }
 }
 
@@ -274,7 +274,7 @@ xi_state_t xi_time_event_add( xi_vector_t* vector,
     assert( NULL != vector );
     assert( NULL != time_event );
     assert(
-        ( NULL != ret_time_event_handle && NULL == ret_time_event_handle->position ) ||
+        ( NULL != ret_time_event_handle && NULL == ret_time_event_handle->ptr_to_position ) ||
         ( NULL == ret_time_event_handle ) );
 
     xi_state_t out_state = XI_STATE_OK;
@@ -294,7 +294,7 @@ xi_state_t xi_time_event_add( xi_vector_t* vector,
     if ( NULL != ret_time_event_handle )
     {
         /* update the return value with the pointer to the position in the vector */
-        ret_time_event_handle->position = &added_time_event->position;
+        ret_time_event_handle->ptr_to_position = &added_time_event->position;
 
         /* set the time event handle pointer for further sanity checks and cleaning */
         added_time_event->time_event_handle = ret_time_event_handle;
@@ -361,7 +361,7 @@ xi_state_t xi_time_event_restart( xi_vector_t* vector,
     /* the element can be found with O(1) complexity cause we've been updating each
      * element's position during every operation that could've broken it */
 
-    xi_vector_index_type_t index = *time_event_handle->position;
+    xi_vector_index_type_t index = *time_event_handle->ptr_to_position;
 
     /* check for the correctness of the time_event_handle */
     if ( index >= vector->elem_no || index < 0 )
@@ -391,13 +391,13 @@ xi_state_t xi_time_event_cancel( xi_vector_t* vector,
     /* PRE-CONDITIONS */
     assert( NULL != vector );
     assert( NULL != time_event_handle );
-    assert( NULL != time_event_handle->position );
+    assert( NULL != time_event_handle->ptr_to_position );
     assert( NULL != cancelled_time_event );
 
     /* the element we would like to remove should be at position described by the
      * time_event_handle */
 
-    xi_vector_index_type_t index = *time_event_handle->position;
+    xi_vector_index_type_t index = *time_event_handle->ptr_to_position;
 
     if ( index >= vector->elem_no || index < 0 )
     {

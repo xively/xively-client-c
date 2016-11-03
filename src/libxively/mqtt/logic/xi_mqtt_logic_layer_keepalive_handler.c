@@ -29,7 +29,7 @@ xi_state_t do_mqtt_keepalive_once( void* data )
         return XI_STATE_OK;
     }
 
-    layer_data->keepalive_event.position = NULL;
+    layer_data->keepalive_event.ptr_to_position = NULL;
 
     XI_ALLOC( xi_mqtt_logic_task_t, task, state );
 
@@ -86,7 +86,7 @@ do_mqtt_keepalive_task( void* ctx, void* data, xi_state_t state, void* msg_data 
 
     // wait for an interval of keepalive
     {
-        assert( NULL == task->timeout.position );
+        assert( NULL == task->timeout.ptr_to_position );
 
         state = xi_evtd_execute_in(
             event_dispatcher, xi_make_handle( &on_keepalive_timeout_expiry, context, task,
@@ -103,7 +103,7 @@ do_mqtt_keepalive_task( void* ctx, void* data, xi_state_t state, void* msg_data 
     if ( state == XI_STATE_TIMEOUT )
     {
         xi_debug_logger( "keepalive timeout passed!" );
-        assert( NULL == task->timeout.position );
+        assert( NULL == task->timeout.ptr_to_position );
         XI_CR_EXIT( task->cs, do_reconnect( context, 0, XI_STATE_TIMEOUT ) );
     }
     else if ( state != XI_STATE_OK )

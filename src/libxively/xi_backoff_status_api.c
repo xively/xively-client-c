@@ -84,7 +84,7 @@ uint32_t xi_get_backoff_penalty()
 
 void xi_cancel_backoff_event()
 {
-    if ( NULL != xi_globals.backoff_status.next_update.position )
+    if ( NULL != xi_globals.backoff_status.next_update.ptr_to_position )
     {
         xi_evtd_cancel( xi_globals.evtd_instance,
                         &xi_globals.backoff_status.next_update );
@@ -198,7 +198,7 @@ xi_state_t xi_restart_update_time()
     xi_state_t local_state               = XI_STATE_OK;
     xi_evtd_instance_t* event_dispatcher = xi_globals.evtd_instance;
 
-    if ( NULL != xi_globals.backoff_status.next_update.position )
+    if ( NULL != xi_globals.backoff_status.next_update.ptr_to_position )
     {
         local_state =
             xi_evtd_restart( event_dispatcher, &xi_globals.backoff_status.next_update,
@@ -222,7 +222,7 @@ xi_state_t xi_restart_update_time()
 static xi_state_t xi_apply_cooldown( void )
 {
     /* clearing the event pointer is the first thing to do */
-    assert( NULL == xi_globals.backoff_status.next_update.position );
+    assert( NULL == xi_globals.backoff_status.next_update.ptr_to_position );
 
     if ( xi_globals.backoff_status.backoff_class == XI_BACKOFF_CLASS_NONE )
     {

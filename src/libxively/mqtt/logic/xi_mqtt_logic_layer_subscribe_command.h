@@ -64,7 +64,7 @@ do_mqtt_subscribe( void* ctx, void* data, xi_state_t state, void* msg )
         if ( XI_STATE_WRITTEN == state )
         {
             xi_debug_format( "[m.id[%d]]subscribe has been sent", task->msg_id );
-            assert( NULL == task->timeout.position );
+            assert( NULL == task->timeout.ptr_to_position );
             task->session_state = task->session_state == XI_MQTT_LOGIC_TASK_SESSION_UNSET
                                       ? XI_MQTT_LOGIC_TASK_SESSION_STORE
                                       : task->session_state;
@@ -73,7 +73,7 @@ do_mqtt_subscribe( void* ctx, void* data, xi_state_t state, void* msg )
         {
             xi_debug_format( "[m.id[%d]]subscribe has not been sent", task->msg_id );
 
-            assert( NULL == task->timeout.position );
+            assert( NULL == task->timeout.ptr_to_position );
 
             xi_state_t local_state = xi_evtd_execute_in(
                 event_dispatcher, xi_make_handle( &do_mqtt_subscribe, context, task,
@@ -85,14 +85,14 @@ do_mqtt_subscribe( void* ctx, void* data, xi_state_t state, void* msg )
             XI_CR_YIELD( task->cs, XI_STATE_OK );
 
             /* sanity checks */
-            assert( NULL == task->timeout.position );
+            assert( NULL == task->timeout.ptr_to_position );
             assert( XI_STATE_RESEND == state );
 
             continue;
         }
 
         /* add a timeout for waiting for the response */
-        assert( NULL == task->timeout.position );
+        assert( NULL == task->timeout.ptr_to_position );
 
         /* @TODO change it to use the defined timeout */
         if ( XI_CONTEXT_DATA( context )->connection_data->keepalive_timeout > 0 )
@@ -112,7 +112,7 @@ do_mqtt_subscribe( void* ctx, void* data, xi_state_t state, void* msg )
         if ( XI_STATE_TIMEOUT == state )
         {
             xi_debug_format( "[m.id[%d]]subscribe timeout occured", task->msg_id );
-            assert( NULL == task->timeout.position );
+            assert( NULL == task->timeout.ptr_to_position );
             state = XI_STATE_RESEND;
         }
         else
@@ -125,11 +125,11 @@ do_mqtt_subscribe( void* ctx, void* data, xi_state_t state, void* msg )
             xi_debug_format( "[m.id[%d]]subscribe resend", task->msg_id );
         }
 
-        assert( NULL == task->timeout.position );
+        assert( NULL == task->timeout.ptr_to_position );
 
     } while ( XI_STATE_RESEND == state );
 
-    assert( NULL == task->timeout.position );
+    assert( NULL == task->timeout.ptr_to_position );
 
     if ( state == XI_STATE_OK )
     {

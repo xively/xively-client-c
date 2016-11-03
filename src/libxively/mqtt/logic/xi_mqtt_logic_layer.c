@@ -134,7 +134,7 @@ xi_state_t xi_mqtt_logic_layer_push( void* context, void* data, xi_state_t in_ou
 
         /* restart layer keepalive - centralized for every successful send */
         if ( XI_STATE_WRITTEN == in_out_state &&
-             NULL != layer_data->keepalive_event.position )
+             NULL != layer_data->keepalive_event.ptr_to_position )
         {
             xi_state_t local_state = xi_evtd_restart(
                 XI_CONTEXT_DATA( context )->evtd_instance, &layer_data->keepalive_event,
@@ -519,7 +519,7 @@ static void xi_mqtt_logic_task_queue_shutdown( xi_mqtt_logic_task_t** task_queue
 
         /* sanity check */
         assert( NULL != tmp_task );
-        assert( NULL == tmp_task->timeout.position );
+        assert( NULL == tmp_task->timeout.ptr_to_position );
 
         xi_mqtt_logic_free_task( &tmp_task );
     }
@@ -616,7 +616,7 @@ xi_mqtt_logic_layer_close_externally( void* context, void* data, xi_state_t in_o
     }
 
     /* unregister keepalive */
-    if ( NULL != layer_data->keepalive_event.position )
+    if ( NULL != layer_data->keepalive_event.ptr_to_position )
     {
         xi_evtd_cancel( event_dispatcher, &layer_data->keepalive_event );
     }
@@ -652,7 +652,7 @@ xi_mqtt_logic_layer_close_externally( void* context, void* data, xi_state_t in_o
 
         /* sanity check */
         assert( tmp_task != 0 );
-        assert( tmp_task->timeout.position == 0 );
+        assert( tmp_task->timeout.ptr_to_position == 0 );
 
         xi_mqtt_logic_free_task( &tmp_task );
     }

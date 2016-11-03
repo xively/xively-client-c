@@ -501,7 +501,7 @@ xi_state_t xi_connect_with_lastwill_to_impl( xi_context_handle_t xih,
     XI_UNUSED( local_state );
 
     /* guard against adding two connection requests */
-    if ( NULL != xi->context_data.connect_handler.position )
+    if ( NULL != xi->context_data.connect_handler.ptr_to_position )
     {
         xi_debug_format( "Connect could not be performed due to conenction state = %d,"
                          "check if connect operation hasn't been already started.",
@@ -1053,7 +1053,7 @@ xi_state_t xi_shutdown_connection( xi_context_handle_t xih )
     xi_mqtt_logic_task_t* task = NULL;
 
     /* check if connect operation has been finished */
-    if ( NULL == xi->context_data.connect_handler.position )
+    if ( NULL == xi->context_data.connect_handler.ptr_to_position )
     {
         /* check if the connection is not established for any reason */
         if ( NULL == xi->context_data.connection_data ||

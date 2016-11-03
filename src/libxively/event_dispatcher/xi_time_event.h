@@ -25,7 +25,7 @@
 
 typedef struct xi_time_event_handle_s
 {
-    xi_vector_index_type_t* position;
+    xi_vector_index_type_t* ptr_to_position;
 } xi_time_event_handle_t;
 
 typedef struct xi_time_event_s

@@ -127,7 +127,7 @@ XI_TT_TESTCASE_WITH_SETUP(
                 ( xi_vector_elem_t* )curr_test_case->decay_data, curr_test_case->data_len,
                 XI_MEMORY_TYPE_UNMANAGED );
 
-            tt_want_int_op( xi_globals.backoff_status.next_update.position, ==, 0 );
+            tt_want_int_op( xi_globals.backoff_status.next_update.ptr_to_position, ==, 0 );
             xi_globals.backoff_status.backoff_lut_i = 0;
 
             int i = 0;
@@ -157,7 +157,7 @@ XI_TT_TESTCASE_WITH_SETUP(
             tt_want_int_op( prev_backoff_lut_i, ==,
                             xi_globals.backoff_status.backoff_lut_i );
 
-            xi_globals.backoff_status.next_update.position = 0;
+            xi_globals.backoff_status.next_update.ptr_to_position = 0;
         }
 
         xi_delete_context( xi_context_handle );
@@ -305,7 +305,7 @@ XI_TT_TESTCASE_WITH_SETUP(
 
             xi_cancel_backoff_event();
 
-            tt_want_ptr_op( xi_globals.backoff_status.next_update.position, ==, 0 );
+            tt_want_ptr_op( xi_globals.backoff_status.next_update.ptr_to_position, ==, 0 );
         }
 
         xi_delete_context( xi_context_handle );
@@ -399,7 +399,7 @@ XI_TT_TESTCASE_WITH_SETUP(
                 tt_want_int_op( xi_globals.backoff_status.backoff_lut_i, ==, 0 );
             }
 
-            tt_want_ptr_op( xi_globals.backoff_status.next_update.position, !=, 0 );
+            tt_want_ptr_op( xi_globals.backoff_status.next_update.ptr_to_position, !=, 0 );
 
             xi__utest__reset_backoff_penalty();
         }
@@ -451,7 +451,7 @@ XI_TT_TESTCASE_WITH_SETUP(
                 tt_want_int_op( xi_globals.backoff_status.backoff_lut_i, ==, 0 );
             }
 
-            tt_want_ptr_op( xi_globals.backoff_status.next_update.position, !=, 0 );
+            tt_want_ptr_op( xi_globals.backoff_status.next_update.ptr_to_position, !=, 0 );
 
             xi__utest__reset_backoff_penalty();
         }
@@ -493,7 +493,7 @@ XI_TT_TESTCASE_WITH_SETUP(
             tt_want_int_op( xi_globals.backoff_status.backoff_class, ==,
                             XI_BACKOFF_CLASS_NONE );
             tt_want_int_op( xi_globals.backoff_status.backoff_lut_i, ==, curr_index );
-            tt_want_ptr_op( xi_globals.backoff_status.next_update.position, ==, 0 );
+            tt_want_ptr_op( xi_globals.backoff_status.next_update.ptr_to_position, ==, 0 );
 
             xi__utest__reset_backoff_penalty();
         }
@@ -530,20 +530,20 @@ XI_TT_TESTCASE_WITH_SETUP(
                 ( xi_vector_elem_t* )curr_test_case->decay_data, curr_test_case->data_len,
                 XI_MEMORY_TYPE_UNMANAGED );
 
-            tt_want_ptr_op( xi_globals.backoff_status.next_update.position, ==, 0 );
+            tt_want_ptr_op( xi_globals.backoff_status.next_update.ptr_to_position, ==, 0 );
 
             xi_restart_update_time( event_dispatcher );
 
-            tt_want_ptr_op( xi_globals.backoff_status.next_update.position, !=, 0 );
+            tt_want_ptr_op( xi_globals.backoff_status.next_update.ptr_to_position, !=, 0 );
 
             xi_time_event_handle_t* backoff_handler =
                 &xi_globals.backoff_status.next_update;
 
             xi_restart_update_time( event_dispatcher );
 
-            tt_want_ptr_op( xi_globals.backoff_status.next_update.position, ==,
-                            backoff_handler->position );
-            tt_want_ptr_op( xi_globals.backoff_status.next_update.position, !=, NULL );
+            tt_want_ptr_op( xi_globals.backoff_status.next_update.ptr_to_position, ==,
+                            backoff_handler->ptr_to_position );
+            tt_want_ptr_op( xi_globals.backoff_status.next_update.ptr_to_position, !=, NULL );
 
             xi__utest__reset_backoff_penalty();
         }
@@ -586,7 +586,7 @@ XI_TT_TESTCASE_WITH_SETUP(
             xi_globals.backoff_status.backoff_class = XI_BACKOFF_CLASS_TERMINAL;
 
             xi_vector_index_type_t* backoff_time_event_position =
-                xi_globals.backoff_status.next_update.position;
+                xi_globals.backoff_status.next_update.ptr_to_position;
 
             xi_backoff_lut_index_t curr_index = xi_globals.backoff_status.backoff_lut_i;
 
@@ -600,14 +600,14 @@ XI_TT_TESTCASE_WITH_SETUP(
 
             if ( curr_test_case->data_len > 1 )
             {
-                tt_ptr_op( xi_globals.backoff_status.next_update.position, !=, NULL );
+                tt_ptr_op( xi_globals.backoff_status.next_update.ptr_to_position, !=, NULL );
             }
             else
             {
-                tt_ptr_op( xi_globals.backoff_status.next_update.position, ==, NULL );
+                tt_ptr_op( xi_globals.backoff_status.next_update.ptr_to_position, ==, NULL );
             }
 
-            tt_ptr_op( &xi_globals.backoff_status.next_update.position, !=,
+            tt_ptr_op( &xi_globals.backoff_status.next_update.ptr_to_position, !=,
                        backoff_time_event_position );
 
             xi__utest__reset_backoff_penalty();
@@ -651,7 +651,7 @@ XI_TT_TESTCASE_WITH_SETUP(
             xi_globals.backoff_status.backoff_class = XI_BACKOFF_CLASS_NONE;
 
             xi_vector_index_type_t* backoff_time_event_position =
-                xi_globals.backoff_status.next_update.position;
+                xi_globals.backoff_status.next_update.ptr_to_position;
 
             xi_backoff_lut_index_t curr_index = xi_globals.backoff_status.backoff_lut_i;
 
@@ -670,8 +670,8 @@ XI_TT_TESTCASE_WITH_SETUP(
                 tt_int_op( xi_globals.backoff_status.backoff_lut_i, ==, 0 );
             }
 
-            tt_ptr_op( xi_globals.backoff_status.next_update.position, ==, NULL );
-            tt_ptr_op( xi_globals.backoff_status.next_update.position, !=,
+            tt_ptr_op( xi_globals.backoff_status.next_update.ptr_to_position, ==, NULL );
+            tt_ptr_op( xi_globals.backoff_status.next_update.ptr_to_position, !=,
                        backoff_time_event_position );
 
             xi__utest__reset_backoff_penalty();
@@ -711,7 +711,7 @@ XI_TT_TESTCASE_WITH_SETUP(
         }
 
         tt_want_int_op( curr_index, ==, xi_globals.backoff_status.backoff_lut_i );
-        tt_want_int_op( xi_globals.backoff_status.next_update.position, ==, NULL );
+        tt_want_int_op( xi_globals.backoff_status.next_update.ptr_to_position, ==, NULL );
 
         xi_delete_context( xi_context_handle );
 
