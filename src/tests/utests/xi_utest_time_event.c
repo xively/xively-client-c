@@ -12,7 +12,7 @@
 
 #define TEST_TIME_EVENT_TEST_SIZE 64
 
-typedef xi_time_t( heap_element_generator )( int index );
+typedef xi_time_t( time_event_container_element_generator )( int index );
 
 static xi_time_t index_generator( int index )
 {
@@ -30,7 +30,7 @@ static xi_state_t fill_vector_with_heap_elements_using_generator(
     xi_vector_t* vector,
     xi_time_event_t ( *time_events )[TEST_TIME_EVENT_TEST_SIZE],
     xi_time_event_handle_t ( *time_event_handles )[TEST_TIME_EVENT_TEST_SIZE],
-    heap_element_generator* generator_fn )
+    time_event_container_element_generator* generator_fn )
 {
     xi_state_t state = XI_STATE_OK;
 
