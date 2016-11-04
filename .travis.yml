@@ -12,6 +12,10 @@ env:
     - PRESET=ARM_REL
     - PRESET=ARM_REL_MIN
 
+    - PRESET=CC3200_REL_MIN
+      XI_MAKETARGET=""
+    - PRESET=CC3200_REL_MIN_SECURESOCKET
+      XI_MAKETARGET=""
     - PRESET=CC3200_REL_MIN_UNSECURE
       XI_BSP_TLS=""
       XI_MAKETARGET=""
@@ -45,6 +49,10 @@ matrix:
       env: PRESET=ARM_REL_MIN
     - compiler: clang
       env: PRESET=ARM_REL
+    - compiler: clang
+      env: PRESET=CC3200_REL_MIN XI_MAKETARGET=""
+    - compiler: clang
+      env: PRESET=CC3200_REL_MIN_SECURESOCKET XI_MAKETARGET=""
     - compiler: clang
       env: PRESET=CC3200_REL_MIN_UNSECURE XI_BSP_TLS="" XI_MAKETARGET=""
 before_script:
