@@ -1,3 +1,13 @@
+# Xively Client version 1.2.1
+#### Nov 04 2016
+
+## Documentation and Ease of Use
+
+- Tutorial for cross-compiling a Xively Client application onto Texas Instruments CC3200 on Windows and macOS has been added to doc/ directory.
+- Added commandline build capability on Windows using TI ARM toolchain.
+- Ubuntu Build dependency steps are added to README.md.
+- Removed out of date project files for IAR IDE and for STM32 evaluation platforms.
+
 # Xively Client version 1.2.0
 #### Oct 24 2016
 
@@ -8,13 +18,13 @@
 - README.md file has been updated serving as a first-step introduction.
 - User Guide added to ```doc/``` directory as a markdown file.
 - Porting Guide added to ```doc/``` directory as a markdown file.
-- Doxygen documentation is now pre-generated in the ```doc/doxygen``` folder. It is provided in two main sections: 
+- Doxygen documentation is now pre-generated in the ```doc/doxygen``` folder. It is provided in two main sections:
 	1. API documentation for building client applications that use the Xively Service
 	2. the Board Support Package (BSP) documentation for porting the Xively C Client to new platforms.
 - Default make target now builds the Xively C Client for POSIX and fetches, downloads and compiles WolfSSL automatically.  Note: Autotools are required to build WolfSSL.
-- Default make target's only goal is to build the Xively C Client static library itself without examples and tests. 
-	- To build tests, execute ```make tests``` 
-	- To build examples, cd to ````examples/``` and run ```make```. 
+- Default make target's only goal is to build the Xively C Client static library itself without examples and tests.
+	- To build tests, execute ```make tests```
+	- To build examples, cd to ````examples/``` and run ```make```.
 - Created help make targets as a resource for people attempting to navigate our make system. Type ```make help``` for more information.
 
 ## Development Enhancements
@@ -23,11 +33,11 @@
 - More developer friendly ARM cross compilation on MacOS and Linux.
 - Output libxively.a new location is the bin subdirectory.
 - Clearer BSP directory structure: New layout of ```src/bsp directory``` has been developed. It contains two subfolders:
-	1. ```src/bsp/platform``` for all platform specific implementations (such as network, memory, time, RNG.).  New reference implementations are provided for posix, wmsdk, and microchip TCP. 
+	1. ```src/bsp/platform``` for all platform specific implementations (such as network, memory, time, RNG.).  New reference implementations are provided for posix, wmsdk, and microchip TCP.
 	2. ```src/bsp/tls``` for support of third party TLS implementations.  Reference implementations are provided for WolfSSL and mbedTLS.
 - Library size reductions:
   - removed redundant implementation of the vector data structure
-  - new BSP architecture removed unneeded code infrastructure. 
+  - new BSP architecture removed unneeded code infrastructure.
 - Simplified make build system
 - Code reformatted based on ```.clang-format``` file in base directory of repository.
 - Removed a ranlib build warning on OSX.

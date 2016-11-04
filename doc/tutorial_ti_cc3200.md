@@ -1,6 +1,6 @@
 # How to connect your CC3200 to Xively
 
-Please scan the whole tutorial to get familiar with it. Then complete each step in a sequential manner; each step builds upon the previous one. 
+Please scan the whole tutorial to get familiar with it. Then complete each step in a sequential manner; each step builds upon the previous one.
 
 This tutorial supports mainly MacOS and Windows, though the Linux flow should be somewhat similar to MacOS.
 
@@ -12,7 +12,7 @@ This tutorial will teach you how to build, link and deploy a Xively C Client ont
 
 ## Hardware you will need.
 
-Texas Instruments [SimpleLink™ Wi-Fi® CC3200 LaunchPad™](http://www.ti.com/tool/cc3200-launchxl) development kit. 
+Texas Instruments [SimpleLink™ Wi-Fi® CC3200 LaunchPad™](http://www.ti.com/tool/cc3200-launchxl) development kit.
 
 
 ## Software you will install during the tutorial.
@@ -23,17 +23,17 @@ Texas Instruments [SimpleLink™ Wi-Fi® CC3200 LaunchPad™](http://www.ti.com/
 - Xively C Client library
 - CC3200 Uniflash _(optional)_
 
-## Step 1 of 7: Install the Code Composer Studio™.
+## Step 1 of 10: Install the Code Composer Studio™.
 
 Code Composer Studio™ includes the toolchain (compiler) you'll need to build for the CC3200 and a java-based IDE.
 
-[Download](http://www.ti.com/tool/ccstudio) the Code Composer Studio™ appropriate for your operating system (Windows, Linux or MacOS). 
+[Download](http://www.ti.com/tool/ccstudio) the Code Composer Studio™ appropriate for your operating system (Windows, Linux or MacOS).
 
 1. Complete the free registration.
 2. Validate your email address.
 3. Complete the brief export approval form and click ```Submit```.
 4. Upon approval, click ```Download``` to proceed. Monitor the download process to completion.
-5. Once download is complete, start the installation. 
+5. Once download is complete, start the installation.
 6. Accept the license agreement and click ```Next >```.
 7. Choose the default install folder and click ```Next >```. Or, if you install into a custom directory, then please note its path as you will need to refer to it later.
 
@@ -47,7 +47,7 @@ Code Composer Studio™ includes the toolchain (compiler) you'll need to build f
 10. Once installation completes, click ```Finish``` to leave the installer.
 
 
-## Step 2 of 7: Install the CC3200 Simplelink™ WiFi SDK.
+## Step 2 of 10: Install the CC3200 Simplelink™ WiFi SDK.
 
 These are the platform libraries that you'll need to compile and link against when writing software for the CC3200.
 
@@ -60,56 +60,16 @@ These are the platform libraries that you'll need to compile and link against wh
 
 *NOTE*: Windows users may download the [CC3200 Simplelink™ WiFi SDK](http://www.ti.com/tool/cc3200sdk) directly outside of the Code Composer Studio™ if you wish. Once downloaded, please install using the default settings.
 
+## Step 3 of 10: Download the Xively C Client library.
 
-## Step 3 of 7: Install the Xively C Client library.
-
-### Download the xively-client-c library source
 Download the library source code from [xively-client-c](https://github.com/xively/xively-client-c).  Git [clone](https://help.github.com/articles/set-up-git/) the repository or download the source archive from the right side of the github page.
 
-### Prebuild configuration of the Xively C Client
-
-#### Configure make target file mt-cc3200
-1. Open the file ```make/mt-os/mt-cc3200``` in your favorite friendly text editor.
-2. Scroll the HOSTS section devoted to your host platform: ```MAC HOST OS```, ```WINDOWS HOST OS```, or ```LINUX HOST OS```.
-2. In your newly identified host's section, set ```XI_CC3200_PATH_CCS_TOOLS``` and ```XI_CC3200_PATH_SDK``` to your Code Composer Studio™ and SDK install paths, respectively.  **If you chose the default installation paths for these installations then these values should already be valid and you shouldn't need to change anything.**
-3. The toolchain that Code Composer Studio™ downloaded might differ from the default that's configured in this ```mt-cc3200``` file.
-	1. Please browse to the path which you set ```XI_CC3200_PATH_CCS_TOOLS```.
-	2. Open up the ```compiler/``` directory and note the the name of the toolchain.
-	3. Compare this to the toolchain name stored in the ```COMPILER``` variable near the top of the file in ```mt-cc3200```.  Update the ```COMPILER``` variable as necessary.
-
-### Build the Xively C Client library
-
-The process for building slightly depends on your host OS:
-
-#### Windows:
-
-Set paths for ```gmake``` and ```mkdir```
-
-    PATH=%PATH%;c:\ti\ccsv6\utils\bin
-    PATH=%PATH%;c:\ti\ccsv6\utils\cygwin
-
-Clean and build the library:
-
-    gmake PRESET=CC3200_REL_MIN clean
-    gmake PRESET=CC3200_REL_MIN
-
-#### MacOS and Linux:
-
-Clean and build the library:
-
-_From the `xively-client-c` root folder:_
-
-    make PRESET=CC3200_REL_MIN clean
-    make PRESET=CC3200_REL_MIN
-
-For all host platforms the PRESET=CC3200_REL_MIN_UNSECURE results in a Xively C Client version without a secure TLS connection. This can be useful for development purposes against local MQTT brokers, like [mosquitto](https://mosquitto.org/) but is not advised for devices in a real production environment.
-
-
-## Step 4 of 7: Install the wolfSSL embedded SSL library.
+## Step 4 of 10: Download and configure the WolfSSL library
 
 WolfSSL is used to create secure TLS connections.  There is a version of WolfSSL provided on-chip when using the CC3200, but it does not provide Online Certificate Status Protocol ([OCSP](https://en.wikipedia.org/wiki/Online_Certificate_Status_Protocol)) support. OCSP support is crucial in detecting compromised and revoked Certificates, and therefore we have provided instructions on building and linking against a newer version of the WolfSSL library so that OCSP can be leveraged by your project.
 
 ### Download WolfSSL library source
+
 - Download WolfSSL library source code from [wolfssl](https://github.com/wolfSSL/wolfssl/releases/tag/v3.9.6)
 - Put the WolfSSL main directory under the PATH_TO_XIVELY_LIBRARY_MAIN_FOLDER/xively-client-c/src/import/tls/
 - **Important: Rename the folder so it is just `wolfssl`. It should not include the version number.**
@@ -146,7 +106,7 @@ _Alternatively you can follow the steps written on [Using wolfSSL with TI-RTOS](
     iar.targets.arm.M4F    =
     gnu.targets.arm.M4F    =
 
-**Important Note** 
+**Important Note**
 - Depending on the version of the packages installed, the folder of `BIOS_INSTALL_DIR` may be different. Please check inside the `~/ti/tirex-content` folder to ensure the variable references the correct folder.
 
 #### Further wolfSSL build customizations:
@@ -241,7 +201,49 @@ _Alternatively you can follow the steps written on [Using wolfSSL with TI-RTOS](
 
 - Also in the file `wolfssl/tirtos/packages/ti/net/wolfssl/package.bld`, to add OCSP support add the `"src/ocsp.c"` source file to the wolfSSLObjList variable.
 
-#### Build wolfSSL static library
+
+## Step 5 of 10: Build the Xively C Client library.
+
+### Prebuild configuration of the Xively C Client
+
+#### Configure make target file mt-cc3200
+1. Open the file ```make/mt-os/mt-cc3200``` in your favorite friendly text editor.
+2. Scroll the HOSTS section devoted to your host platform: ```MAC HOST OS```, ```WINDOWS HOST OS```, or ```LINUX HOST OS```.
+2. In your newly identified host's section, set ```XI_CC3200_PATH_CCS_TOOLS``` and ```XI_CC3200_PATH_SDK``` to your Code Composer Studio™ and SDK install paths, respectively.  **If you chose the default installation paths for these installations then these values should already be valid and you shouldn't need to change anything.**
+3. The toolchain that Code Composer Studio™ downloaded might differ from the default that's configured in this ```mt-cc3200``` file.
+	1. Please browse to the path which you set ```XI_CC3200_PATH_CCS_TOOLS```.
+	2. Open up the ```compiler/``` directory and note the the name of the toolchain.
+	3. Compare this to the toolchain name stored in the ```COMPILER``` variable near the top of the file in ```mt-cc3200```.  Update the ```COMPILER``` variable as necessary.
+
+## Step 6 of 10: Build the Xively C Client library
+
+The process for building slightly depends on your host OS:
+
+#### Windows:
+
+Set paths for ```gmake``` and ```mkdir```
+
+    PATH=%PATH%;c:\ti\ccsv6\utils\bin
+    PATH=%PATH%;c:\ti\ccsv6\utils\cygwin
+
+Clean and build the library:
+
+    gmake PRESET=CC3200_REL_MIN clean
+    gmake PRESET=CC3200_REL_MIN
+
+#### MacOS and Linux:
+
+Clean and build the library:
+
+_From the `xively-client-c` root folder:_
+
+    make PRESET=CC3200_REL_MIN clean
+    make PRESET=CC3200_REL_MIN
+
+For all host platforms the PRESET=CC3200_REL_MIN_UNSECURE results in a Xively C Client version without a secure TLS connection. This can be useful for development purposes against local MQTT brokers, like [mosquitto](https://mosquitto.org/) but is not advised for devices in a real production environment.
+
+
+## Step 7 of 10: Build the wolfSSL embedded SSL library.
 
 - MacOS:
     _From the `{..}/wolfssl/tirtos/` folder:_
@@ -255,8 +257,7 @@ _Alternatively you can follow the steps written on [Using wolfSSL with TI-RTOS](
 
 The resulting file is ```wolfssl/tirtos/packages/ti/net/wolfssl/lib/wolfssl.aem4f```. This is the WolfSSL library that will provide TLS support to the example application below.
 
-
-## Step 5 of 7: Create your Xively (digital) device.
+## Step 8 of 10: Create your Xively (digital) device.
 
 _You should have a Xively account already created, but if you do not, register one for free at [Xively.com](https://app.xively.com/register)._
 
@@ -267,16 +268,16 @@ To have a device communicate through Xively we will first need to tell the Xivel
  - Click on `Devices` > `Device templates`
  - Click on `Add  new device template`
  - Enter any name you want (ex: "CC3200 Launchpad") and click `Ok`
- 
+
  <img src="https://cloud.githubusercontent.com/assets/1428256/19813190/82157058-9d06-11e6-9b47-99c99e235850.png" width="600">
 
 2. Create an individual device.
  _This individual device will represent the specific CC3200 board that you have physicially connected for this example._
  - Click on `Add new device`
  - The device template we just created should already be selected for the template.
- - Choose any Org from the list 
+ - Choose any Org from the list
  - Enter any serial number you want (ex: "My Xively CC3200") and click `Ok`
- 
+
  <img src="https://cloud.githubusercontent.com/assets/1428256/19813191/821704b8-9d06-11e6-89aa-78b52c251d20.png" width="600">
 
 3. Get credentials for this device.
@@ -286,13 +287,13 @@ To have a device communicate through Xively we will first need to tell the Xivel
 
 	A file named `MQTTCredentials.txt` gets downloaded. It contains the device credentials that will be used in the next step. The file contains two data items:
  		- the first line is the _Xively Device Secret_
- 		- the second line is the _Xively Device Id_. 
- 
+ 		- the second line is the _Xively Device Id_.
+
  <img src="https://cloud.githubusercontent.com/assets/1428256/19813189/8214fda8-9d06-11e6-859f-f3805e34ec04.png" width="600">
 
  You now have a provisioned device in Xively that your CC3200 will be able to connect as!
 
-## Step 6 of 7: Build your client application.
+## Step 9 of 10: Build your client application.
 
 We suggest the _ent_wlan_ networking example from the CC3200 SDK as the basis for connecting to Xively. We will first import the example into Code Composer Studio™, and then add some code to build your IoT Client connection to the Xively service.
 
@@ -377,7 +378,7 @@ Next we're going to add a function to connect to the Xively Broker. Its implemen
 
 - For _Xively Device Id_ and _Xively Device Secret_ use the information you got from Step 5 (_Create your Xively (digital) device_).
 
-- Locate the successful wifi connection point in the `main.c` of the ent_wlan example (around line 647, comment: "//wait for few moments"). Here put a call on the ConnectToXively(); function we just added. 
+- Locate the successful wifi connection point in the `main.c` of the ent_wlan example (around line 647, comment: "//wait for few moments"). Here put a call on the ConnectToXively(); function we just added.
 
 - To make the above buildable you'll need to:
     - add two include paths to your project to help the compiler find `xively.h` and friends: ```Project```->```Properties```->```Build```->```ARM Compiler```->```Include Options```:
@@ -453,8 +454,8 @@ Next we're going to add a function to connect to the Xively Broker. Its implemen
 
 ### You (hopefully) did it!
 
-If everything worked correctly, within a few seconds you should see a debug log that says 
-    
+If everything worked correctly, within a few seconds you should see a debug log that says
+
     Hello Xively World!, state: 0
 
 If you do not see that, double check that you followed all the previous complicated steps accurately. If you see a `state` value other than `0` check within `xively_error.h` to see which error could be occuring (ex: `34` means bad credentials).
@@ -462,7 +463,7 @@ If you do not see that, double check that you followed all the previous complica
 If you are just testing (or on a Mac) go ahead and skip the next step and go straight to [Congratulations](#29)!
 
 
-## Step 7 of 7: Flash your client application onto the device. _(Optional, Windows Only)_
+## Step 10 of 10: Flash your client application onto the device. _(Optional, Windows Only)_
 
 By default Code Composer uploads your application into RAM for execution. This is great for quick iterations, but it also means that your device will lose your changes when you uplug it.
 
@@ -506,9 +507,7 @@ _More coming soon, for now [please visit our docs](http://developer.xively.com/d
 _More coming soon_
 
 ##### Q. When I build the example application I get the "Xively Hello World" debug message, but with a state of 34.
-    
+
     Hello Xively World!, state: 34
 
 **A.** A state of `34` means that the device connected to the Xively system, but its credentials are invalid. This could occur if you copied the credentials incorrectly or if you have regenerated the device credentials and are using older ones. The easiest way to fix this issue is to regenerate the device credentials (see Step 5.3) and re-copy the new credentials within `main.c`. Once you've done this rebuild the image flash the hardware again.
-
-
