@@ -376,10 +376,17 @@ xi_state_t xi_time_event_restart( xi_vector_t* vector,
     /* sanity check on the time handle */
     assert( time_event->time_event_handle == time_event_handle );
 
+    xi_time_t old_time            = time_event->time_of_execution;
     time_event->time_of_execution = new_time;
 
-    xi_time_event_bubble_and_sort_down(
-        vector, xi_time_event_bubble_and_sort_up( vector, index ) );
+    if ( new_time < old_time )
+    {
+        xi_time_event_bubble_and_sort_down( vector, index );
+    }
+    else
+    {
+        xi_time_event_bubble_and_sort_up( vector, index );
+    }
 
     return XI_STATE_OK;
 }
