@@ -58,38 +58,45 @@ static void xi_swap_time_events( xi_vector_t* vector,
  * xi_time_event_bubble_and_sort_down and xi_time_event_bubble_and_sort_up.
  *
  * @param vector - input vector, container of time events
- * @param lhs - value that will appear on the left hand side of the stop condition
- * @param rhs - value that will appear on the right hand side of the stop condition
- * @param elem_index_var_pos - points which: lhs or rhs represents the index of an element
+ * @param index - position of the elment to bubble
  * @param dir - direction of bubbling - +1 stands for up -1 means down
  * @return new index of bubbled element
  */
-static xi_vector_index_type_t xi_time_event_bubble_core( xi_vector_t* vector,
-                                                         xi_vector_index_type_t lhs,
-                                                         xi_vector_index_type_t rhs,
-                                                         uint8_t elem_index_var_pos,
-                                                         int8_t dir )
+static xi_vector_index_type_t
+xi_time_event_bubble_core( xi_vector_t* vector, xi_vector_index_type_t index, int8_t dir )
 {
-    xi_vector_index_type_t* indexes[] = {&lhs, &rhs};
+    /* PRE-CONDITIONS */
+    assert( NULL != vector );
+    assert( vector->elem_no > 0 );
+    assert( index >= 0 );
+    assert( index < vector->elem_no );
+    assert( dir == -1 || dir == 1 );
 
-    while ( lhs < rhs )
+    /* guards */
+    const xi_vector_elem_t* end   = &vector->array[XI_MAX( vector->elem_no - 1, 0 )];
+    const xi_vector_elem_t* begin = &vector->array[0];
+
+    /* lonely traveler */
+    xi_vector_elem_t* elem_to_bubble = &vector->array[index];
+
+    while ( ( dir < 0 ) ? ( elem_to_bubble != begin ) : ( elem_to_bubble != end ) )
     {
-        const xi_vector_index_type_t elem_index = *indexes[elem_index_var_pos];
+        const xi_time_event_t* time_event_to_cmp =
+            ( elem_to_bubble + dir )->selector_t.ptr_value;
+        const xi_time_event_t* time_event_to_bubble =
+            elem_to_bubble->selector_t.ptr_value;
 
-        const xi_time_event_t* lhs_element =
-            ( xi_time_event_t* )vector->array[dir < 0 ? elem_index : elem_index + dir]
-                .selector_t.ptr_value;
-        const xi_time_event_t* rhs_element =
-            ( xi_time_event_t* )vector->array[dir < 0 ? elem_index + dir : elem_index]
-                .selector_t.ptr_value;
-
-        if ( lhs_element->time_of_execution < rhs_element->time_of_execution )
+        if ( ( dir < 0 ) ? ( time_event_to_bubble->time_of_execution <
+                             time_event_to_cmp->time_of_execution )
+                         : ( time_event_to_bubble->time_of_execution >
+                             time_event_to_cmp->time_of_execution ) )
         {
             /* if the elements are not in the right order lets swap them */
-            xi_swap_time_events( vector, lhs_element->position, rhs_element->position );
+            xi_swap_time_events( vector, time_event_to_cmp->position,
+                                 time_event_to_bubble->position );
 
-            /* update the indexes */
-            *indexes[elem_index_var_pos] += dir;
+            /* update the ptr */
+            elem_to_bubble += dir;
         }
         else
         {
@@ -99,13 +106,14 @@ static xi_vector_index_type_t xi_time_event_bubble_core( xi_vector_t* vector,
         }
     }
 
-    return *indexes[elem_index_var_pos];
+    return ( ( xi_time_event_t* )( elem_to_bubble->selector_t.ptr_value ) )->position;
 }
 
 /**
  * @brief xi_time_event_bubble_and_sort_down
  *
- * Helper function used for insertion and re-insertion ( cancel opertaion ). It uses the
+ * Helper function used for insertion and re-insertion ( cancel opertaion ). It uses
+ * the
  * bubble sort algorithm to put the element on the proper position.
  *
  * @note: invariant of this container - it's elements are sorted using the time of
@@ -124,13 +132,14 @@ xi_time_event_bubble_and_sort_down( xi_vector_t* vector, xi_vector_index_type_t 
     assert( index >= 0 );
     assert( index < vector->elem_no );
 
-    return xi_time_event_bubble_core( vector, 0, index, 1, -1 );
+    return xi_time_event_bubble_core( vector, index, -1 );
 }
 
 /**
  * @brief xi_time_event_bubble_and_sort_up
  *
- * Helper function used to restarting time event. It bubbles the time event element up to
+ * Helper function used to restarting time event. It bubbles the time event element up
+ * to
  * the end of the container. It works using the same principle as
  * xi_time_event_bubble_and_sort_down function.
  *
@@ -148,14 +157,15 @@ xi_time_event_bubble_and_sort_up( xi_vector_t* vector, xi_vector_index_type_t in
     assert( index >= 0 );
     assert( index < vector->elem_no );
 
-    return xi_time_event_bubble_core( vector, index, vector->elem_no - 1, 0, 1 );
+    return xi_time_event_bubble_core( vector, index, 1 );
 }
 
 
 /**
  * @brief xi_time_event_move_to_the_end
  *
- * Helper function that moves the element form the given position ( index ) to the end of
+ * Helper function that moves the element form the given position ( index ) to the end
+ * of
  * the vector.
  *
  * @param vector
@@ -279,7 +289,8 @@ xi_state_t xi_time_event_add( xi_vector_t* vector,
 
     xi_state_t out_state = XI_STATE_OK;
 
-    /* call the insert at function it will place the new element at the proper place */
+    /* call the insert at function it will place the new element at the proper place
+     */
     const xi_vector_elem_t* elem = xi_insert_time_event( vector, time_event );
 
     /* if there is a problem with the memory go to err_handling */
@@ -319,7 +330,8 @@ xi_time_event_t* xi_time_event_get_top( xi_vector_t* vector )
 
     xi_time_event_t* top_one = ( xi_time_event_t* )vector->array[0].selector_t.ptr_value;
 
-    /* the trick is to bubble the element to the end of the vector and then to delete it*/
+    /* the trick is to bubble the element to the end of the vector and then to delete
+     * it*/
     if ( vector->elem_no > 1 )
     {
         xi_time_event_move_to_the_end( vector, 0 );
