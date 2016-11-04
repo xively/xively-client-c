@@ -4,6 +4,7 @@
 ## Documentation and Ease of Use
 
 - Tutorial for cross-compiling a Xively Client application onto Texas Instruments CC3200 on Windows and macOS has been added to doc/ directory.
+- Added commandline build capability on Windows using TI ARM toolchain.
 - Ubuntu Build dependency steps are added to README.md.
 - Removed out of date project files for IAR IDE and for STM32 evaluation platforms.
 
