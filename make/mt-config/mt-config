@@ -156,6 +156,10 @@ else
     XI_SRCDIRS += $(XI_BSP_DIR)/tls/$(XI_BSP_TLS)
 endif
 
+ifneq (,$(findstring securesocket,$(CONFIG)))
+  XI_CONFIG_FLAGS += -DXI_MQTT_PORT=8883
+endif
+
 XI_CONFIG_FLAGS += -DXI_BSP
 
 #

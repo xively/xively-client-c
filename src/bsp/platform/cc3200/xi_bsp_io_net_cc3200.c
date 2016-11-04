@@ -46,14 +46,6 @@ xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
         return XI_BSP_IO_NET_STATE_ERROR;
     }
 
-    /*unsigned int uiCipher = SL_SEC_MASK_TLS_RSA_WITH_AES_256_CBC_SHA256;
-    retval_setsockopt     = sl_SetSockOpt( *xi_socket, SL_SOL_SOCKET, SL_SO_SECURE_MASK,
-                                       &uiCipher, sizeof( uiCipher ) );
-    if ( retval_setsockopt < 0 )
-    {
-        return XI_BSP_IO_NET_STATE_ERROR;
-    }*/
-
     retval_setsockopt = sl_SetSockOpt(
         *xi_socket, SL_SOL_SOCKET, SL_SO_SECURE_FILES_CA_FILE_NAME,
         XI_CC3200_ROOTCACERT_FILE_NAME, strlen( XI_CC3200_ROOTCACERT_FILE_NAME ) );
