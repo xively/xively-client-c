@@ -9,16 +9,16 @@
 #include "xi_macros.h"
 #include "xi_debug.h"
 
-#ifndef XI_DEBUG_NO_TLS
+#ifndef XI_NO_TLS_LAYER
 #include "xi_RootCA_list.h"
 #endif
 
 /* The size of the buffer to be used for reads. */
-#ifndef XI_DEBUG_NO_TLS
+#ifndef XI_NO_TLS_LAYER
 const size_t xi_fs_buffer_size = XI_ROOTCA_LIST_BYTE_LENGTH;
 #else
 const size_t xi_fs_buffer_size = 512;
-#endif /* XI_DEBUG_NO_TLS */
+#endif /* XI_NO_TLS_LAYER */
 
 /* local stat handler function type defined per resource id */
 typedef xi_state_t( xi_fs_memory_stat_t )( const xi_fs_resource_handle_t resource_id,
@@ -33,7 +33,7 @@ typedef enum xi_fs_memory_resource_state_e {
 } xi_fs_memory_resource_state_t;
 
 /* declarations of all memory functions */
-#ifndef XI_DEBUG_NO_TLS
+#ifndef XI_NO_TLS_LAYER
 xi_state_t xi_fs_memory_stat_builtin_cert( const xi_fs_resource_handle_t resource_id,
                                            xi_fs_stat_t* resource_stat );
 xi_state_t xi_fs_memory_open_builtin_cert( const xi_fs_resource_handle_t resource_id );
@@ -55,7 +55,7 @@ typedef struct xi_fs_memory_database_s
 } xi_fs_memory_database_t;
 
 xi_fs_memory_database_t XI_FS_MEMORY_DATABASE[] = {
-#ifndef XI_DEBUG_NO_TLS
+#ifndef XI_NO_TLS_LAYER
     {.file_name             = XI_GLOBAL_CERTIFICATE_FILE_NAME_DEF,
      .stat_handler_function = &xi_fs_memory_stat_builtin_cert,
      .open_handler_function = &xi_fs_memory_open_builtin_cert,
@@ -65,7 +65,7 @@ xi_fs_memory_database_t XI_FS_MEMORY_DATABASE[] = {
 #endif
 };
 
-#ifndef XI_DEBUG_NO_TLS
+#ifndef XI_NO_TLS_LAYER
 xi_state_t xi_fs_memory_stat_builtin_cert( const xi_fs_resource_handle_t resource_id,
                                            xi_fs_stat_t* resource_stat )
 {

@@ -17,8 +17,6 @@
 #define MAX( a, b ) ( ( ( a ) > ( b ) ) ? ( a ) : ( b ) )
 #endif
 
-#define XI_CC3200_ONBOARD_TLS
-// #define XI_CC3200_ROOTCACERT_FILE_NAME "/cert/globalsignrootca.der"
 #define XI_CC3200_ROOTCACERT_FILE_NAME "/cert/testcacert.der"
 
 xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
@@ -28,7 +26,7 @@ xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
         return XI_BSP_IO_NET_STATE_ERROR;
     }
 
-#ifdef XI_CC3200_ONBOARD_TLS
+#ifdef XI_BSP_IO_NET_SECURESOCKET
 
     // open a secure socket
     *xi_socket = sl_Socket( SL_AF_INET, SL_SOCK_STREAM, SL_SEC_SOCKET );
@@ -64,6 +62,7 @@ xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
         return XI_BSP_IO_NET_STATE_ERROR;
     }
 
+    int retval_setsockopt = 0;
 #endif
 
     int sl_nonblockingOption = 1;

@@ -22,7 +22,7 @@
 #include "xi_layer_default_functions.h"
 
 /*-----------------------------------------------------------------------*/
-#ifndef XI_DEBUG_NO_TLS
+#ifndef XI_NO_TLS_LAYER
 #define XI_DEFAULT_LAYER_CHAIN                                                           \
     XI_LAYER_TYPE_IO                                                                     \
     , XI_LAYER_TYPE_TLS, XI_LAYER_TYPE_MQTT_CODEC, XI_LAYER_TYPE_MQTT_LOGIC,             \
@@ -47,7 +47,7 @@ xi_mqtt_task_specific_data_t handlers_b[] = {
                    {XI_EVENT_HANDLE_UNSET, .handlers.h0 = {0}, 0},
                    XI_MQTT_QOS_AT_MOST_ONCE}}};
 
-#ifndef XI_DEBUG_NO_TLS
+#ifndef XI_NO_TLS_LAYER
 #include "xi_tls_layer.h"
 #include "xi_tls_layer_state.h"
 #endif
@@ -68,7 +68,7 @@ XI_LAYER_TYPES_ADD( XI_LAYER_TYPE_IO,
                     &xi_io_dummy_layer_init,
                     &xi_io_dummy_layer_connect,
                     &xi_layer_default_post_connect )
-#ifndef XI_DEBUG_NO_TLS
+#ifndef XI_NO_TLS_LAYER
 , XI_LAYER_TYPES_ADD( XI_LAYER_TYPE_TLS,
                       &xi_tls_layer_push,
                       &xi_tls_layer_pull,

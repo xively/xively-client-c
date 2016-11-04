@@ -32,11 +32,7 @@
 #endif
 
 #ifndef XI_MQTT_PORT
-#ifdef XI_DEBUG_NO_TLS
-#define XI_MQTT_PORT 1883
-#else
 #define XI_MQTT_PORT 8883
-#endif
 #endif
 
 #ifndef XI_MQTT_HOST
