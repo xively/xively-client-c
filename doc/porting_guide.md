@@ -9,7 +9,7 @@
 5. [Porting the C Client](#porting-the-c-client)
     - [Suggested First Step - A Native Build](#suggested-first-step---a-native-build)
     - [Porting the Xively C Client to Your Platform](#porting-the-xively-c-client-to-your-platform)
-6. [Xively Client Features](#xively-client-features)
+6. [Further Reading](#further-reading)
 
 
 ## Target Audience
@@ -25,7 +25,7 @@ The Xively C Client is designed for low resources platforms. The single threaded
 
 An event system is included in the client which can be used by your client application as well. The client's event system is a platform independant implementation that doesn't require porting to any platform-specific timers or tasks.
 
-The client provides this functionality while remaining small enough to reside on low resource MCUs, consumes minimal memory, processor power and energy consumption.
+The client provides this functionality while remaining small and efficient enough to fit into low-resource devices, with minimal footprint and processing power requirements.
 
 The codebase is built against C99 standards.
 
@@ -52,18 +52,18 @@ We've organized the sources of the Xivey Client so that your BSP implementation 
 
 The BSP was designed to minimize the time it takes to make a port of the library. With it an engineer can ignore the MQTT codec or the non-blocking / asynchronous engine that resides in the main library source.
 
-All of the BSP **function declarations** can be found under the _xi\_client\_c/include/bsp_
-directory. Doxygen documentation for these functions can be found in the _doc/doxygen/bsp/html/index.html_. 
+All of the BSP **function declarations** can be found under the `include/bsp`
+directory. Doxygen documentation for these functions can be found in the `doc/doxygen/bsp/html/index.html`.
 
 BSP Functions are broken down by logical subsystem as follows:
 
 ### BSP Modules
 
-- BSP IO NET: Networking Stack Integration (xi\_bsp\_io\_net.h)
-- BSP TLS: Transport Layer Security Integration (xi\_bsp\_tls.h)
-- BSP MEM: Heap Memory Management (xi\_bsp\_mem.h)
-- BSP RNG: Random Number Generator (xi\_bsp\_rng.h)
-- BSP TIME: Time Function (xi\_bsp\_time.h)
+- BSP IO NET: Networking Stack Integration (`include/bsp/xi_bsp_io_net.h`)
+- BSP TLS: Transport Layer Security Integration (`include/bsp/xi_bsp_tls.h`)
+- BSP MEM: Heap Memory Management (`include/bsp/xi_bsp_mem.h`)
+- BSP RNG: Random Number Generator (`include/bsp/xi_bsp_rng.h`)
+- BSP TIME: Time Function (`include/bsp/xi_bsp_time.h`)
 
 ### Reference Implementations
 
@@ -112,9 +112,9 @@ This is fine for building on OSX or Linux/Unix using wolfSSL for a TLS library. 
 
 	`make XI_BSP_PLATFORM=cc3200 XI_BSP_TLS=microSSL`
 
-*Note: microSSL is a fictional TLS library we conjured up as a quick custom example.*
+*Note: microSSL is a fictional TLS library we've conjured-up as a quick custom example.*
 
-This command assumes directory *src/bsp/platform/cc3200* containing networking, memory, random and time implementations as well as directory *src/bsp/tls/microSSL* covering the TLS calls.  
+This command assumes directory `src/bsp/platform/cc3200*` containing networking, memory, random and time implementations as well as directory `src/bsp/tls/microSSL` covering the TLS calls.  
 
 
 ## Porting the C Client
@@ -123,11 +123,11 @@ Building a Xively C Client consists of building the Xively C Client *library*, t
 
 ### Suggested First Step - A Native Build
 
-We recommend building the Xively Client on OSX or Linux/Unix before attempting to cross compile the sources to another target platform. This process could serve as an introduction to the basic architecture, tools and building stepos of the Xively Client source. This basic knowledge will be handy later when doing a full cross-compiled port of the software to an embedded device.
+We recommend building the Xively Client on OSX or Linux/Unix before attempting to cross compile the sources to another target platform. This process could serve as an introduction to the basic architecture, tools and building steps of the Xively Client source. This basic knowledge will be handy later when doing a full cross-compiled port of the software to an embedded device.
 
 #### Build System: make
 
-The Xively C Client uses _make_ to build for OSX or Linux/Unix. The main makefile is root directory of the repository. 
+The Xively C Client uses _make_ to build for OSX or Linux/Unix. The main makefile is in the root directory of the repository. 
 
 Further build configurations can be found under directory `make/` which contains numerous make target (mt) files which are included by the main makefile. Here `make/mt-config/mt-config` and `make/mt-os/mt-os` files should be your main focus.  These are always included by the main makefile, and further include optional mt files based on the CONFIG and TARGET flags you specify when building.  
 
@@ -198,7 +198,7 @@ On OSX these are available through `brew`:
     - brew install autoconf
     - brew install automake
     - brew install libtool
-    - brew install cmak
+    - brew install cmake
 
 On Ubuntu these are available through `apt-get`:
 	
@@ -206,6 +206,7 @@ On Ubuntu these are available through `apt-get`:
 	- sudo apt-get install autoconf
 	- sudo apt-get install autotools-dev
 	- sudo apt-get install libtool
+	- sudo apt-get install cmake
    
 
 #### Xively C Client Build Flags
@@ -218,7 +219,7 @@ CONFIG flags specify selections from a list of Xively Client modules and feature
 
 _Default_ values will be chosen for you if you do not set the TARGET or CONFIG makefile variables.
 
-The TARGET and CONFIG flags are enumerated below, and can be mixed and matched in any order.  Each flag isseparated by the - (minus sign / dash) character.
+The TARGET and CONFIG flags are enumerated below, and can be mixed and matched in any order.  Each flag is separated by the - (minus sign / dash) character.
 
 ##### TARGET Flags
 
@@ -250,7 +251,7 @@ A typical CONFIG flag:
                           Currently activating this feature has no behavioral benefit.
     - senml             - turns on SENML JSON serialization support for timeseries data. To maintain a small
                           footprint size we recommend turning this off (by removing senml flag from CONFIG).
-    - threading         - POSIX only.  This turns causes pplication callbacks to be called on separate thread.
+    - threading         - POSIX only.  This turns causes application callbacks to be called on separate thread.
                           Not having this flag set application callbacks are called on the sole main
                           thread of the Xively C Client.
 
@@ -271,9 +272,9 @@ A typical CONFIG flag:
                           is to help development processes.
     - no_certverify     - lowers security by disabling TLS certificate verification
     - tls               - the Client will use third party TLS 1.2 implementations to encrypt data before it's sent over network sockets.   The lack of this
-                          flag will skip the TLS handshaking.  This may helpful in connecting to mosquitto to test,
+                          flag will skip the TLS handshaking.  This be may helpful in connecting to mosquitto to test,
                           but may not be supported on some secure services and is not recommend for production
-                          deployment.  The Xively Gateway will not accepts connections without TLS.
+                          deployment.  The Xively Gateway will not accept connections without TLS.
 
 ###### Platform selector flags
 
@@ -300,9 +301,8 @@ For CI configurations please look at the file [.travis.yml](../../.travis.yml).
 
 #### Example Xively Client Applications Linked with the Library
 
-Example application binaries can be found under directory _xi\_client\_c/src/examples_.
-These examples use of the Xively C Client library for connecting to Xively Servers,
-subscribing to topics, and sending and receiving data.
+Example application binaries can be found under directory `examples`
+These examples use the Xively C Client library for connecting to Xively Servers, subscribing to topics, and sending and receiving data.
 The examples are command line applications libxively links against. They require a Xively-specific account-id, username, password and optional topicname to subscribe or publish on.
 
 ##### _XI_BSP_PLATFORM_
@@ -324,7 +324,7 @@ Let's assume the new platform's name is np2000.
 
 #### The Goal: Cross Compilation with the _make_ Build System
 
-The ideal goal to cross-compile the Xively C Client on OSX or Linux/Unix to your platform.  For the sake of this tutorial, let's pretend that your platform is a new fictitious platform: The *NP2000*.  You'r platform sounds awesome.
+The ideal goal to cross-compile the Xively C Client on OSX or Linux/Unix to your platform.  For the sake of this tutorial, let's pretend that your platform is a new fictitious platform: The *NP2000*.  Your platform sounds awesome.
 
 Our goal is construct the following command to build the Xively Client for the NP2000:
 
@@ -402,7 +402,7 @@ To make this possible, the following steps have to be taken.
     Hint: to reach successful build just create the files and implement all the BSP API functions with **empty body**.  While this wont execute properly, it should link and run.
 
 - [x] select TLS implementation
-    - the default seelction is wolfssl.  If wolfssl fits the needs then nothing to do here.
+    - the default selection is wolfssl.  If wolfssl fits your needs then there's nothing to do here.
     - to select a different TLS lib add
 
             XI_BSP_TLS=mbedtls
