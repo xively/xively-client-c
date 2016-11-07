@@ -13,6 +13,12 @@
 #include <xi_bsp_io_net.h>
 #include <stdio.h>
 
+#ifdef XI_BSP_IO_NET_SECURESOCKET
+#include <device.h>
+#include <xi_bsp_time.h>
+#include <time.h>
+#endif
+
 #ifndef MAX
 #define MAX( a, b ) ( ( ( a ) > ( b ) ) ? ( a ) : ( b ) )
 #endif
@@ -28,6 +34,28 @@ xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
 
 #ifdef XI_BSP_IO_NET_SECURESOCKET
 
+    const time_t current_time_seconds = xi_bsp_time_getcurrenttime_seconds();
+
+    struct tm* const gm_time = localtime( &current_time_seconds );
+
+    // conversion between tm datetime representation to Sl datetime representation
+    gm_time->tm_year += 1970; /* tm years: since 1970, Sl years: since 0 */
+    gm_time->tm_mon += 1;     /* tm months: 0-11, Sl months: 1-12 */
+
+    /*printf( "--- current time: %d/%.2d/%.2d, %.2d:%.2d:%.2d\n", gm_time->tm_year,
+            gm_time->tm_mon, gm_time->tm_mday, gm_time->tm_hour, gm_time->tm_min,
+            gm_time->tm_sec );*/
+
+    // set current time for certificate validity check during TLS handshake
+    int retval = sl_DevSet(
+        SL_DEVICE_GENERAL_CONFIGURATION, SL_DEVICE_GENERAL_CONFIGURATION_DATE_TIME,
+        sizeof( SlDateTime_t ), ( unsigned char* )( ( SlDateTime_t* )&gm_time ) );
+
+    if ( retval < 0 )
+    {
+        return XI_BSP_IO_NET_STATE_ERROR;
+    }
+
     // open a secure socket
     *xi_socket = sl_Socket( SL_AF_INET, SL_SOCK_STREAM, SL_SEC_SOCKET );
 
@@ -36,25 +64,28 @@ xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
         return XI_BSP_IO_NET_STATE_ERROR;
     }
 
+    // set TLS version to 1.2
     unsigned char ucMethod = SL_SO_SEC_METHOD_TLSV1_2;
-    int retval_setsockopt  = sl_SetSockOpt( *xi_socket, SL_SOL_SOCKET, SL_SO_SECMETHOD,
-                                           &ucMethod, sizeof( ucMethod ) );
-    if ( retval_setsockopt < 0 )
+    retval = sl_SetSockOpt( *xi_socket, SL_SOL_SOCKET, SL_SO_SECMETHOD, &ucMethod,
+                            sizeof( ucMethod ) );
+    if ( retval < 0 )
     {
         return XI_BSP_IO_NET_STATE_ERROR;
     }
 
-    retval_setsockopt = sl_SetSockOpt(
-        *xi_socket, SL_SOL_SOCKET, SL_SO_SECURE_FILES_CA_FILE_NAME,
-        XI_CC3200_ROOTCACERT_FILE_NAME, strlen( XI_CC3200_ROOTCACERT_FILE_NAME ) );
+    // set trusted Root CA Cert file path
+    retval = sl_SetSockOpt( *xi_socket, SL_SOL_SOCKET, SL_SO_SECURE_FILES_CA_FILE_NAME,
+                            XI_CC3200_ROOTCACERT_FILE_NAME,
+                            strlen( XI_CC3200_ROOTCACERT_FILE_NAME ) );
 
-    if ( retval_setsockopt < 0 )
+    if ( retval < 0 )
     {
         return XI_BSP_IO_NET_STATE_ERROR;
     }
 
 #else
 
+    // open a socket
     *xi_socket = sl_Socket( SL_AF_INET, SL_SOCK_STREAM, 0 );
 
     if ( *xi_socket < 0 )
@@ -62,15 +93,14 @@ xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
         return XI_BSP_IO_NET_STATE_ERROR;
     }
 
-    int retval_setsockopt = 0;
+    int retval = 0;
 #endif
 
     int sl_nonblockingOption = 1;
-    retval_setsockopt =
-        sl_SetSockOpt( *xi_socket, SOL_SOCKET, SL_SO_NONBLOCKING, &sl_nonblockingOption,
-                       sizeof( sl_nonblockingOption ) );
+    retval                   = sl_SetSockOpt( *xi_socket, SOL_SOCKET, SL_SO_NONBLOCKING,
+                            &sl_nonblockingOption, sizeof( sl_nonblockingOption ) );
 
-    if ( retval_setsockopt < 0 )
+    if ( retval < 0 )
     {
         return XI_BSP_IO_NET_STATE_ERROR;
     }
