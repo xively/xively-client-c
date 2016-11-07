@@ -8,12 +8,6 @@
 #define __XI_MQTT_LOGIC_LAYER_SUBSCRIBE_COMMAND_H__
 
 #include "xi_layer_api.h"
-#include "xi_mqtt_logic_layer_data.h"
-#include "xi_coroutine.h"
-#include "xi_mqtt_message.h"
-#include "xi_mqtt_logic_layer_data_helpers.h"
-#include "xi_mqtt_logic_layer_task_helpers.h"
-#include "xi_globals.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -1385,3 +1385,12 @@
 ../../src/tests/xi_tt_testcase_management.h
 ../../src/tests/itests/xi_itest_connect_error.h
 ../../src/tests/itests/xi_itest_connect_error.c
+../../src/libxively/mqtt/logic/xi_mqtt_logic_layer_data_helpers.c
+../../src/libxively/mqtt/logic/xi_mqtt_logic_layer_connection_helpers.c
+../../src/libxively/mqtt/logic/xi_mqtt_logic_layer_connect_command.c
+../../src/libxively/mqtt/logic/xi_mqtt_logic_layer_publish_handler.c
+../../src/libxively/mqtt/logic/xi_mqtt_logic_layer_publish_q0_command.c
+../../src/libxively/mqtt/logic/xi_mqtt_logic_layer_publish_q1_command.c
+../../src/libxively/mqtt/logic/xi_mqtt_logic_layer_subscribe_command.c
+../../src/libxively/xi_layer_chain.c
+../../src/libxively/xi_layer_factory.c

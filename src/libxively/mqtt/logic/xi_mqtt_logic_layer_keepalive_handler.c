@@ -154,6 +154,19 @@ err_handling:
     return state;
 }
 
+xi_state_t on_keepalive_timeout_expiry( void* context,
+                                        void* task,
+                                        xi_state_t state,
+                                        void* msg_memory )
+{
+    XI_UNUSED( state );
+
+    do_mqtt_keepalive_task( context, task, XI_STATE_TIMEOUT, msg_memory );
+
+    return XI_STATE_OK;
+}
+
+
 #ifdef __cplusplus
 }
 #endif

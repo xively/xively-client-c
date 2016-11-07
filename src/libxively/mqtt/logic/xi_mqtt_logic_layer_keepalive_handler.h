@@ -18,17 +18,10 @@ xi_state_t do_mqtt_keepalive_once( void* data );
 xi_state_t
 do_mqtt_keepalive_task( void* context, void* task, xi_state_t state, void* msg_memory );
 
-static inline xi_state_t on_keepalive_timeout_expiry( void* context,
-                                                      void* task,
-                                                      xi_state_t state,
-                                                      void* msg_memory )
-{
-    XI_UNUSED( state );
-
-    do_mqtt_keepalive_task( context, task, XI_STATE_TIMEOUT, msg_memory );
-
-    return XI_STATE_OK;
-}
+xi_state_t on_keepalive_timeout_expiry( void* context,
+                                        void* task,
+                                        xi_state_t state,
+                                        void* msg_memory );
 
 #ifdef __cplusplus
 }
