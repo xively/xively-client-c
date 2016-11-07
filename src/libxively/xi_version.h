@@ -9,6 +9,6 @@
 
 #define XI_MAJOR 1
 #define XI_MINOR 2
-#define XI_REVISION 0
+#define XI_REVISION 1
 
 #endif /* __XI_VERSION_H__ */

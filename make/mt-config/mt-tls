@@ -13,7 +13,12 @@ XI_LIB_FLAGS += $(foreach d, $(XI_TLS_LIB_NAME), -l$d)
 XI_LIB_FLAGS += -L$(XI_TLS_LIB_BIN_DIR)
 
 TLS_LIB_PATH := $(LIBXIVELY_SRC)import/tls/$(XI_BSP_TLS)
-TLS_LIB_PREPARE_CMD := (cd $(LIBXIVELY_SRC)/import/tls/ && ./download_and_compile_$(XI_BSP_TLS).sh)
+
+ifneq (,$(findstring Windows,$(XI_HOST_PLATFORM)))
+    TLS_LIB_PREPARE_CMD := 
+else
+    TLS_LIB_PREPARE_CMD := (cd $(LIBXIVELY_SRC)/import/tls/ && ./download_and_compile_$(XI_BSP_TLS).sh)
+endif
 
 $(TLS_LIB_PATH):
 	$(info ############################)
