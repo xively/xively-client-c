@@ -95,20 +95,6 @@ extern xi_vector_t* xi_vector_create_from( xi_vector_elem_t* array,
                                            xi_memory_type_t memory_type );
 
 /**
- * @brief xi_vector_assign
- *
- * Assigns new elements described by value to the vector and tries to allocate space
- * needed for n new elements of type value. Returns 0 if success 1  if failed.
- *
- * @param n
- * @param value
- * @return int8_t
- */
-extern int8_t xi_vector_assign( xi_vector_t* vector,
-                                xi_vector_index_type_t n,
-                                union xi_vector_selector_u value );
-
-/**
  * @brief xi_vector_reserve
  *
  * Changes the capacity of the vector. If the capacity is lower than the previous one

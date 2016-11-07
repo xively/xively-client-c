@@ -89,31 +89,6 @@ err_handling:
     return NULL;
 }
 
-int8_t xi_vector_assign( xi_vector_t* vector,
-                         xi_vector_index_type_t n,
-                         union xi_vector_selector_u value )
-{
-    assert( NULL != vector );
-    assert( n > 0 );
-
-    int8_t result = xi_vector_realloc( vector, n );
-
-    if ( 0 == result )
-    {
-        return 0;
-    }
-
-    xi_vector_index_type_t i = 0;
-    for ( ; i < n; ++i )
-    {
-        vector->array[i].selector_t = value;
-    }
-
-    vector->elem_no = n;
-
-    return 1;
-}
-
 int8_t xi_vector_reserve( xi_vector_t* vector, xi_vector_index_type_t n )
 {
     assert( NULL != vector );

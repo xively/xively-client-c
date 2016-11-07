@@ -97,29 +97,6 @@ XI_TT_TESTCASE( test_vector_create, {
 end:;
 } )
 
-XI_TT_TESTCASE( test_vector_assign, {
-    xi_vector_t* sv = xi_vector_create();
-
-    uint32_t rnd_value = rand();
-
-    int8_t result =
-        xi_vector_assign( sv, 13, XI_VEC_VALUE_PARAM( XI_VEC_VALUE_UI32( rnd_value ) ) );
-
-    tt_assert( result == 1 );
-    tt_assert( sv->capacity == 13 );
-    tt_assert( sv->elem_no == 13 );
-
-    xi_vector_index_type_t i = 0;
-    for ( ; i < 13; ++i )
-    {
-        tt_assert( sv->array[i].selector_t.ui32_value == rnd_value )
-    }
-
-    xi_vector_destroy( sv );
-    tt_want_int_op( xi_is_whole_memory_deallocated(), >, 0 );
-end:;
-} )
-
 XI_TT_TESTCASE( test_vector_reserve_upsize, {
     xi_vector_t* sv = xi_vector_create();
 
