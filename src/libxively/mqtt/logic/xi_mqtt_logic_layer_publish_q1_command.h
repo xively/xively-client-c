@@ -51,7 +51,7 @@ do_mqtt_publish_q1( void* ctx /* should be the context of the logic layer */
 
     XI_CR_START( task->cs );
 
-    assert( NULL == task->timeout );
+    assert( NULL == task->timeout.ptr_to_position );
 
     do
     {
@@ -88,16 +88,17 @@ do_mqtt_publish_q1( void* ctx /* should be the context of the logic layer */
         }
 
         /* add a timeout for waiting for the response */
-        assert( NULL == task->timeout );
+        assert( NULL == task->timeout.ptr_to_position );
 
         /* @TODO change it to use the defined timeout */
         if ( XI_CONTEXT_DATA( context )->connection_data->keepalive_timeout > 0 )
         {
-            task->timeout = xi_evtd_execute_in(
+            state = xi_evtd_execute_in(
                 event_dispatcher, xi_make_handle( &do_mqtt_publish_q1, context, task,
                                                   XI_STATE_TIMEOUT, NULL ),
-                XI_CONTEXT_DATA( context )->connection_data->keepalive_timeout );
-            XI_CHECK_MEMORY( task->timeout, state );
+                XI_CONTEXT_DATA( context )->connection_data->keepalive_timeout,
+                &task->timeout );
+            XI_CHECK_STATE( state );
         }
 
         /* wait for the puback */
@@ -108,7 +109,7 @@ do_mqtt_publish_q1( void* ctx /* should be the context of the logic layer */
             xi_debug_format( "[m.id[%d]]publish q1 timeout occured", task->msg_id );
 
             /* clear timeout if it was timeout */
-            task->timeout = NULL;
+            assert( NULL == task->timeout.ptr_to_position );
 
             /* let's change the actual state to resend as the coroutine has to resend the
              * message */
@@ -125,12 +126,12 @@ do_mqtt_publish_q1( void* ctx /* should be the context of the logic layer */
         }
 
         /* post-loop condition */
-        assert( NULL == task->timeout );
+        assert( NULL == task->timeout.ptr_to_position );
 
     } while ( XI_STATE_RESEND == state );
     /* try to send the message until timeout occurs */
 
-    assert( NULL == task->timeout );
+    assert( NULL == task->timeout.ptr_to_position );
 
     if ( XI_STATE_OK != state )
     {

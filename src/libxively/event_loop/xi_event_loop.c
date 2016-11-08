@@ -268,7 +268,8 @@ xi_state_t xi_event_loop_with_evtds( uint32_t num_iterations,
         uint8_t evtd_id = 0;
         for ( evtd_id = 0; evtd_id < num_evtds; ++evtd_id )
         {
-            xi_evtd_step( event_dispatchers[evtd_id], xi_bsp_time_getcurrenttime_seconds() );
+            xi_evtd_step( event_dispatchers[evtd_id],
+                          xi_bsp_time_getcurrenttime_seconds() );
         }
     }
 

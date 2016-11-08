@@ -9,12 +9,13 @@
 #include <string.h>
 #include <errno.h>
 #include <time.h>
+#include <limits.h>
 
+#include "xi_memory_checks.h"
 #include "tinytest.h"
 #include "tinytest_macros.h"
 #include "xi_tt_testcase_management.h"
 
-#include "xi_heap.h"
 #include "xi_event_dispatcher_api.h"
 
 #ifndef XI_TT_TESTCASE_ENUMERATION__SECONDPREPROCESSORRUN
@@ -60,9 +61,68 @@ xi_state_t proc_loop( xi_event_handle_arg1_t a )
 
     if ( *( ( uint32_t* )a ) > 0 )
     {
-        xi_evtd_execute_in( evtd_g_i, evtd_handle_g, 1 );
+        xi_evtd_execute_in( evtd_g_i, evtd_handle_g, 1, NULL );
     }
     return 0;
+}
+
+void test_time_overflow_function( void )
+{
+    evtd_g_i = xi_evtd_create_instance();
+
+    tt_assert( NULL != evtd_g_i );
+
+    /* counter that will be used by this test */
+    uint32_t counter = 0;
+
+    const xi_time_t time_max  = LONG_MAX;
+    const xi_time_t time_hole = 10;
+
+    printf( "%ld\r\n", time_max );
+
+    evtd_g_i->current_step = time_max - time_hole;
+
+    /* now let's add some events to be executed */
+    /* we will add some events before the MAX( xi_time_t ) */
+    {
+        xi_time_t i = 0;
+        for ( ; i < time_hole; ++i )
+        {
+            const xi_state_t ret_state = xi_evtd_execute_in(
+                evtd_g_i, xi_make_handle( &continuation1_1, &counter ), i, NULL );
+
+            xi_debug_format( "ret_state = %d", ret_state );
+
+            tt_int_op( XI_STATE_OK, ==, ret_state );
+        }
+    }
+
+    /* and some after the MIN( xi_time_t ) in order to check the reaction on time
+     * overlap */
+    {
+        xi_time_t i = 0;
+        for ( ; i < time_hole; ++i )
+        {
+            const xi_state_t ret_state = xi_evtd_execute_in(
+                evtd_g_i, xi_make_handle( &continuation1_1, &counter ), time_hole + i,
+                NULL );
+            tt_int_op( XI_STATE_OK, ==, ret_state );
+        }
+    }
+
+    /* let's execute first half */
+    xi_evtd_step( evtd_g_i, time_max - ( time_hole / 2 ) );
+
+    /* expectation is that only the half of the events added before the MAX( xi_time_t )
+     * will be executed */
+    tt_int_op( counter, ==, ( time_hole / 2 ) );
+
+    xi_evtd_destroy_instance( evtd_g_i );
+
+    tt_int_op( xi_is_whole_memory_deallocated(), >, 0 );
+
+    return;
+end:;
 }
 
 #endif
@@ -121,9 +181,9 @@ XI_TT_TESTCASE( utest__handler_processing_loop, {
     evtd_handle_g.handlers.h1.fn_argc1 = &proc_loop;
     evtd_handle_g.handlers.h1.a1       = ( xi_event_handle_arg1_t )&counter;
 
-    xi_evtd_execute_in( evtd_g_i, evtd_handle_g, 0 );
+    xi_evtd_execute_in( evtd_g_i, evtd_handle_g, 0, NULL );
 
-    while ( evtd_g_i->call_heap->first_free > 0 )
+    while ( evtd_g_i->time_events_container->elem_no > 0 )
     {
         xi_evtd_step( evtd_g_i, step );
         step += 1;
@@ -135,6 +195,7 @@ XI_TT_TESTCASE( utest__handler_processing_loop, {
 
 end:
     xi_evtd_destroy_instance( evtd_g_i );
+
 } )
 
 XI_TT_TESTCASE( utest__register_fd, {
@@ -291,6 +352,13 @@ XI_TT_TESTCASE( utest__evtd_updates, {
 end:
     xi_evtd_destroy_instance( evtd_g_i );
 } )
+
+/* skipped because this feature is not yet implemented */
+SKIP_XI_TT_TESTCASE(
+    utest__xi_evtd__events_to_call_added__overlap_timer__proper_events_executed,
+    { test_time_overflow_function(); } )
+
+#undef TEST_DATA_SIZE
 
 XI_TT_TESTGROUP_END
 

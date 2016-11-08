@@ -7,7 +7,6 @@
 #include "tinytest.h"
 #include "tinytest_macros.h"
 
-#include "xi_heap.h"
 #include "xi_event_dispatcher_api.h"
 
 #include "xi_critical_section_def.h"
@@ -50,7 +49,7 @@ xi_state_t proc_loop_thread( xi_event_handle_arg1_t a )
 
     if ( *( ( uint32_t* )a ) > 0 )
     {
-        xi_evtd_execute_in( evtd_g_i, evtd_handle_g, 1 );
+        xi_evtd_execute_in( evtd_g_i, evtd_handle_g, 1, NULL );
     }
 
     tt_want_int_op( evtd_g_i->cs->cs_state, ==, 0 );
@@ -70,7 +69,7 @@ XI_TT_TESTCASE( utest__thread_safety_clash__entities_must_not_clash, {
     evtd_handle_g.handlers.h1.fn_argc1 = &proc_loop_thread;
     evtd_handle_g.handlers.h1.a1       = ( xi_event_handle_arg1_t )&counter;
 
-    xi_evtd_execute_in( evtd_g_i, evtd_handle_g, 0 );
+    xi_evtd_execute_in( evtd_g_i, evtd_handle_g, 0, NULL );
 
     xi_event_handle_t evtd_handle = {
         XI_EVENT_HANDLE_ARGC1,
@@ -81,7 +80,7 @@ XI_TT_TESTCASE( utest__thread_safety_clash__entities_must_not_clash, {
     xi_evtd_continue_when_evt_on_socket( evtd_g_i, XI_EVENT_ERROR, evtd_handle, 12 );
     tt_want_int_op( evtd_g_i->cs->cs_state, ==, 0 );
 
-    while ( evtd_g_i->call_heap->first_free > 0 )
+    while ( evtd_g_i->time_events_container->elem_no > 0 )
     {
         tt_want_int_op( evtd_g_i->cs->cs_state, ==, 0 );
         xi_evtd_continue_when_evt_on_socket( evtd_g_i, XI_EVENT_WANT_READ, evtd_handle,
@@ -110,7 +109,7 @@ XI_TT_TESTCASE( utest__thread_safety_clash_time_handler_on_stop__entities_must_n
                     evtd_handle_g.handlers.h1.fn_argc1 = &stop_evtd_handle;
                     evtd_handle_g.handlers.h1.a1 = ( xi_event_handle_arg1_t )&evtd_g_i;
 
-                    xi_evtd_execute_in( evtd_g_i, evtd_handle_g, 0 );
+                    xi_evtd_execute_in( evtd_g_i, evtd_handle_g, 0, NULL );
 
                     xi_evtd_step( evtd_g_i, 1 );
 

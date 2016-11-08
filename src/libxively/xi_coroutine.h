@@ -23,21 +23,17 @@ extern "C" {
     state = __LINE__; return ret; case __LINE__:
 
 #define XI_CR_YIELD_ON( state, expression, ret )\
-{ \
     if ( (expression) ) \
     { \
       state = __LINE__; return ret; case __LINE__:; \
-    } \
-};
+    }
 
 #define XI_CR_YIELD_UNTIL( state, expression, ret )\
-{ \
     if ( (expression) ) \
     { \
       state = __LINE__; return ret; case __LINE__:; \
       continue; \
-    } \
-};
+    }
 
 #define XI_CR_EXIT( state, ret )\
     state = 1; return ret;
