@@ -15,6 +15,7 @@
 
 #include "xi_config.h"
 #include "xi_data_desc.h"
+#include "xi_bsp_time.h"
 
 #ifdef XI_PLATFORM_BASE_WMSDK
 #include <wm_os.h>
@@ -34,30 +35,25 @@ extern "C" {
 #endif /* XI_DEBUG_PRINTF */
 
 #if XI_DEBUG_OUTPUT
+const char* xi_debug_dont_print_the_path( const char* msg );
 void xi_debug_data_logger_impl( const char* msg, const xi_data_desc_t* data_desc );
 
-#ifdef XI_PLATFORM_BASE_WMSDK
-#define xi_debug_logger( msg ) __xi_printf( "[%d:(%s)] %s\n", __LINE__, __func__, msg )
-#define xi_debug_format( fmt, ... )                                                      \
-    __xi_printf( "[%d:(%s)] " fmt "\n", __LINE__, __func__, __VA_ARGS__ )
-#define xi_debug_printf( ... ) __xi_printf( __VA_ARGS__ )
-#define xi_debug_function_entered()                                                      \
-    __xi_printf( "[%s:%d (%s)] -> entered\n", __FILE__, __LINE__, __func__ )
-#define xi_debug_data_logger( msg, dsc )                                                 \
-    __xi_printf( "[%s:%d (%s)] #\n", __FILE__, __LINE__, __func__ );                     \
-    xi_debug_data_logger_impl( msg, dsc );
-#else /* XI_PLATFORM_BASE_WMSDK */
 #define xi_debug_logger( msg )                                                           \
-    __xi_printf( "[%s:%d (%s)] %s\n", __FILE__, __LINE__, __func__, msg )
+    __xi_printf( "[%d][%s:%d (%s)] %s\n", xi_bsp_time_getcurrenttime_milliseconds(),     \
+                 xi_debug_dont_print_the_path( __FILE__ ), __LINE__, __func__, msg )
 #define xi_debug_format( fmt, ... )                                                      \
-    __xi_printf( "[%s:%d (%s)] " fmt "\n", __FILE__, __LINE__, __func__, __VA_ARGS__ )
+    __xi_printf(                                                                         \
+        "[%d][%s:%d (%s)] " fmt "\n", xi_bsp_time_getcurrenttime_milliseconds(),         \
+        xi_debug_dont_print_the_path( __FILE__ ), __LINE__, __func__, __VA_ARGS__ )
 #define xi_debug_printf( ... ) __xi_printf( __VA_ARGS__ )
 #define xi_debug_function_entered()                                                      \
-    __xi_printf( "[%s:%d (%s)] -> entered\n", __FILE__, __LINE__, __func__ )
+    __xi_printf( "[%d][%s:%d (%s)] -> entered\n",                                        \
+                 xi_bsp_time_getcurrenttime_milliseconds(),                              \
+                 xi_debug_dont_print_the_path( __FILE__ ), __LINE__, __func__ )
 #define xi_debug_data_logger( msg, dsc )                                                 \
-    __xi_printf( "[%s:%d (%s)] #\n", __FILE__, __LINE__, __func__ );                     \
+    __xi_printf( "[%d][%s:%d (%s)] #\n", xi_bsp_time_getcurrenttime_milliseconds(),      \
+                 xi_debug_dont_print_the_path( __FILE__ ), __LINE__, __func__ );         \
     xi_debug_data_logger_impl( msg, dsc );
-#endif /* XI_PLATFORM_BASE_WMSDK */
 
 #else /* XI_DEBUG_OUTPUT */
 #define xi_debug_logger( ... )
