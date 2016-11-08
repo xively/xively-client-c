@@ -43,19 +43,19 @@ const char* xi_debug_dont_print_the_path( const char* msg );
 void xi_debug_data_logger_impl( const char* msg, const xi_data_desc_t* data_desc );
 
 #define xi_debug_logger( msg )                                                           \
-    __xi_printf( "[%d][%s:%d (%s)] %s\n", xi_bsp_time_getcurrenttime_milliseconds(),     \
+    __xi_printf( "[%ld][%s:%d (%s)] %s\n", xi_bsp_time_getcurrenttime_milliseconds(),     \
                  xi_debug_dont_print_the_path( __FILE__ ), __LINE__, __func__, msg )
 #define xi_debug_format( fmt, ... )                                                      \
     __xi_printf(                                                                         \
-        "[%d][%s:%d (%s)] " fmt "\n", xi_bsp_time_getcurrenttime_milliseconds(),         \
+        "[%ld][%s:%d (%s)] " fmt "\n", xi_bsp_time_getcurrenttime_milliseconds(),         \
         xi_debug_dont_print_the_path( __FILE__ ), __LINE__, __func__, __VA_ARGS__ )
 #define xi_debug_printf( ... ) __xi_printf( __VA_ARGS__ )
 #define xi_debug_function_entered()                                                      \
-    __xi_printf( "[%d][%s:%d (%s)] -> entered\n",                                        \
+    __xi_printf( "[%ld][%s:%d (%s)] -> entered\n",                                        \
                  xi_bsp_time_getcurrenttime_milliseconds(),                              \
                  xi_debug_dont_print_the_path( __FILE__ ), __LINE__, __func__ )
 #define xi_debug_data_logger( msg, dsc )                                                 \
-    __xi_printf( "[%d][%s:%d (%s)] #\n", xi_bsp_time_getcurrenttime_milliseconds(),      \
+    __xi_printf( "[%ld][%s:%d (%s)] #\n", xi_bsp_time_getcurrenttime_milliseconds(),      \
                  xi_debug_dont_print_the_path( __FILE__ ), __LINE__, __func__ );         \
     xi_debug_data_logger_impl( msg, dsc );
 
