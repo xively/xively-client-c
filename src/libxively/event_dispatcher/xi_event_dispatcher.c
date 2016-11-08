@@ -312,10 +312,12 @@ xi_event_handle_return_t xi_evtd_execute_handle( xi_event_handle_t* handle )
                 handle->handlers.h6.a1, handle->handlers.h6.a2, handle->handlers.h6.a3,
                 handle->handlers.h6.a4, handle->handlers.h6.a5, handle->handlers.h6.a6 );
         case XI_EVENT_HANDLE_UNSET:
+#if XI_DEBUG_EXTRA_INFO
             xi_debug_logger( "you are trying to call an unset handler!" );
             xi_debug_format( "handler created in %s:%d",
                              handle->debug_info.debug_file_init,
                              handle->debug_info.debug_line_init );
+#endif
             return ( xi_event_handle_return_t )XI_UNSET_HANDLER_ERROR;
     }
 
