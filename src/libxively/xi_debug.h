@@ -29,13 +29,9 @@ extern "C" {
 #include <stdio.h>
 #define __xi_printf( ... )                                                               \
     printf( __VA_ARGS__ );                                                               \
-    fflush( stdout );                                                                    \
-    fflush( stderr )
+    fflush( stdout );
 #else /* XI_DEBUG_PRINTF */
-#define __xi_printf( ... )                                                               \
-    XI_DEBUG_PRINTF( __VA_ARGS__ );                                                      \
-    fflush( stdout );                                                                    \
-    fflush( stderr )
+#define __xi_printf( ... ) XI_DEBUG_PRINTF( __VA_ARGS__ );
 #endif /* XI_DEBUG_PRINTF */
 
 #if XI_DEBUG_OUTPUT
@@ -43,19 +39,19 @@ const char* xi_debug_dont_print_the_path( const char* msg );
 void xi_debug_data_logger_impl( const char* msg, const xi_data_desc_t* data_desc );
 
 #define xi_debug_logger( msg )                                                           \
-    __xi_printf( "[%ld][%s:%d (%s)] %s\n", xi_bsp_time_getcurrenttime_milliseconds(),     \
+    __xi_printf( "[%ld][%s:%d (%s)] %s\n", xi_bsp_time_getcurrenttime_milliseconds(),    \
                  xi_debug_dont_print_the_path( __FILE__ ), __LINE__, __func__, msg )
 #define xi_debug_format( fmt, ... )                                                      \
     __xi_printf(                                                                         \
-        "[%ld][%s:%d (%s)] " fmt "\n", xi_bsp_time_getcurrenttime_milliseconds(),         \
+        "[%ld][%s:%d (%s)] " fmt "\n", xi_bsp_time_getcurrenttime_milliseconds(),        \
         xi_debug_dont_print_the_path( __FILE__ ), __LINE__, __func__, __VA_ARGS__ )
 #define xi_debug_printf( ... ) __xi_printf( __VA_ARGS__ )
 #define xi_debug_function_entered()                                                      \
-    __xi_printf( "[%ld][%s:%d (%s)] -> entered\n",                                        \
+    __xi_printf( "[%ld][%s:%d (%s)] -> entered\n",                                       \
                  xi_bsp_time_getcurrenttime_milliseconds(),                              \
                  xi_debug_dont_print_the_path( __FILE__ ), __LINE__, __func__ )
 #define xi_debug_data_logger( msg, dsc )                                                 \
-    __xi_printf( "[%ld][%s:%d (%s)] #\n", xi_bsp_time_getcurrenttime_milliseconds(),      \
+    __xi_printf( "[%ld][%s:%d (%s)] #\n", xi_bsp_time_getcurrenttime_milliseconds(),     \
                  xi_debug_dont_print_the_path( __FILE__ ), __LINE__, __func__ );         \
     xi_debug_data_logger_impl( msg, dsc );
 
@@ -74,8 +70,7 @@ void xi_debug_data_logger_impl( const char* msg, const xi_data_desc_t* data_desc
             "%d, data = %p\n",                                                           \
             __func__, XI_THIS_LAYER( context )->context_data, in_out_state,              \
             XI_THIS_LAYER( context )->layer_type_id, data );                             \
-    fflush( stdout );                                                                    \
-    fflush( stderr );
+    fflush( stdout );
 
 #if XI_DEBUG_ASSERT
 #ifdef NDEBUG
