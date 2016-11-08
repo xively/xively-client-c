@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 
-extern xi_context_t* xi_context;            // Xivley Client context
 extern xi_context_t* xi_context_mockbroker; // test mock broker context
 
 xi_state_t
@@ -91,7 +90,7 @@ xi_mock_layer_tls_prev_close( void* context, void* data, xi_state_t in_out_state
                                       XI_LAYER_TYPE_MOCKBROKER_TOP )
                      ->layer_connection,
                 data, in_out_state ),
-            1 );
+            1, NULL );
     }
 
     return XI_PROCESS_CLOSE_EXTERNALLY_ON_THIS_LAYER( context, data, in_out_state );

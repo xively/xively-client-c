@@ -4,32 +4,32 @@
  * it is licensed under the BSD 3-Clause license.
  */
 
-#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-#include "xi_version.h"
 #include "xi_allocator.h"
-#include "xively.h"
-#include "xi_macros.h"
-#include "xi_debug.h"
-#include "xi_helpers.h"
-#include "xi_err.h"
-#include "xi_globals.h"
-#include "xi_internals.h"
-#include "xi_common.h"
-#include "xi_layer_api.h"
-#include "xi_layer_interface.h"
-#include "xi_layer_chain.h"
-#include "xi_layer_factory.h"
-#include "xi_layer_macros.h"
-#include "xi_layer_default_allocators.h"
-#include "xi_connection_data.h"
-#include "xi_backoff_status_api.h"
 #include "xi_backoff_lut_config.h"
-#include "xi_handle.h"
-#include "xi_timed_task.h"
+#include "xi_backoff_status_api.h"
+#include "xi_common.h"
+#include "xi_connection_data.h"
+#include "xi_debug.h"
+#include "xi_err.h"
 #include "xi_event_loop.h"
+#include "xi_globals.h"
+#include "xi_handle.h"
+#include "xi_helpers.h"
+#include "xi_internals.h"
+#include "xi_layer_api.h"
+#include "xi_layer_chain.h"
+#include "xi_layer_default_allocators.h"
+#include "xi_layer_factory.h"
+#include "xi_layer_interface.h"
+#include "xi_layer_macros.h"
+#include "xi_macros.h"
+#include "xi_timed_task.h"
+#include "xi_version.h"
+#include "xively.h"
 
 #include "xi_layer_stack.h"
 
@@ -335,7 +335,7 @@ static void xi_free_context_data( xi_context_t* context )
     if ( context_data->copy_of_handlers_for_topics )
     {
         xi_vector_for_each( context_data->copy_of_handlers_for_topics,
-                            &xi_mqtt_task_spec_data_free_subscribe_data_vec );
+                            &xi_mqtt_task_spec_data_free_subscribe_data_vec, NULL, 0 );
 
         context_data->copy_of_handlers_for_topics =
             xi_vector_destroy( context_data->copy_of_handlers_for_topics );
@@ -501,8 +501,27 @@ xi_state_t xi_connect_with_lastwill_to_impl( xi_context_handle_t xih,
     XI_UNUSED( local_state );
 
     /* guard against adding two connection requests */
-    if ( NULL != xi->context_data.connect_handler )
+    if ( NULL != xi->context_data.connect_handler.ptr_to_position )
     {
+        xi_debug_format( "Connect could not be performed due to conenction state = %d,"
+                         "check if connect operation hasn't been already started.",
+                         xi->context_data.connection_data->connection_state );
+        return XI_ALREADY_INITIALIZED;
+    }
+
+    /* if the connection state isn't one of
+     * the final states it means that the connection already has been started */
+    if ( NULL != xi->context_data.connection_data &&
+         ( XI_CONNECTION_STATE_CLOSED !=
+               xi->context_data.connection_data->connection_state &&
+           XI_CONNECTION_STATE_OPEN_FAILED !=
+               xi->context_data.connection_data->connection_state &&
+           XI_CONNECTION_STATE_UNINITIALIZED !=
+               xi->context_data.connection_data->connection_state ) )
+    {
+        xi_debug_format( "Connect could not be performed due to conenction state = %d,"
+                         "check if connect operation hasn't been already started.",
+                         xi->context_data.connection_data->connection_state );
         return XI_ALREADY_INITIALIZED;
     }
 
@@ -535,6 +554,9 @@ xi_state_t xi_connect_with_lastwill_to_impl( xi_context_handle_t xih,
     xi->context_data.connection_data->connection_state =
         XI_CONNECTION_STATE_UNINITIALIZED;
 
+    /* reset shutdown state */
+    xi->context_data.shutdown_state = XI_SHUTDOWN_UNINITIALISED;
+
     /* set the connection callback */
     xi->context_data.connection_callback = event_handle;
 
@@ -543,12 +565,14 @@ xi_state_t xi_connect_with_lastwill_to_impl( xi_context_handle_t xih,
     xi_debug_format( "new backoff value: %d", new_backoff );
 
     /* register the execution in next init */
-    xi->context_data.connect_handler = xi_evtd_execute_in(
+    state = xi_evtd_execute_in(
         xi->context_data.evtd_instance,
         xi_make_handle( input_layer->layer_connection.self->layer_funcs->init,
                         &input_layer->layer_connection, xi->context_data.connection_data,
                         XI_STATE_OK ),
-        new_backoff );
+        new_backoff, &xi->context_data.connect_handler );
+
+    XI_CHECK_STATE( state );
 
     return XI_STATE_OK;
 
@@ -1024,26 +1048,44 @@ xi_state_t xi_shutdown_connection( xi_context_handle_t xih )
     xi_context_t* xi = xi_object_for_handle( xi_globals.context_handles_vector, xih );
     assert( NULL != xi );
 
-    /* this means that the connection attempt has not even been requested
-     * or the connection has been shutdown for this context */
-    if ( NULL == xi->context_data.connect_handler )
-    {
-        return XI_SOCKET_NO_ACTIVE_CONNECTION_ERROR;
-    }
+    xi_state_t state           = XI_STATE_OK;
+    xi_layer_t* input_layer    = xi->layer_chain.top;
+    xi_mqtt_logic_task_t* task = NULL;
 
-    /* this means that we've started the connection */
-    if ( XI_CONNECTION_STATE_UNINITIALIZED ==
-         xi->context_data.connection_data->connection_state )
+    /* check if connect operation has been finished */
+    if ( NULL == xi->context_data.connect_handler.ptr_to_position )
     {
-        xi->context_data.connect_handler = xi_evtd_cancel(
-            xi->context_data.evtd_instance, xi->context_data.connect_handler );
+        /* check if the connection is not established for any reason */
+        if ( NULL == xi->context_data.connection_data ||
+             XI_CONNECTION_STATE_OPENED !=
+                 xi->context_data.connection_data->connection_state )
+        {
+            return XI_SOCKET_NO_ACTIVE_CONNECTION_ERROR;
+        }
+    }
+    else
+    {
+        /* if the connect operation has been scheduled but not executed */
+        state = xi_evtd_cancel( xi->context_data.evtd_instance,
+                                &xi->context_data.connect_handler );
+
+        XI_CHECK_STATE( state );
 
         return XI_STATE_OK;
     }
 
-    xi_layer_t* input_layer    = xi->layer_chain.top;
-    xi_state_t state           = XI_STATE_OK;
-    xi_mqtt_logic_task_t* task = NULL;
+    switch ( xi->context_data.shutdown_state )
+    {
+        case XI_SHUTDOWN_UNINITIALISED:
+            xi->context_data.shutdown_state = XI_SHUTDOWN_STARTED;
+            break;
+        case XI_SHUTDOWN_STARTED:
+            xi_debug_logger( "XI_ALREADY_INITIALIZED" );
+            return XI_ALREADY_INITIALIZED;
+            break;
+        default:
+            return XI_INTERNAL_ERROR;
+    }
 
     task = xi_mqtt_logic_make_shutdown_task();
 

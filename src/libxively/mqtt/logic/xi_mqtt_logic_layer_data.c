@@ -86,8 +86,6 @@ xi_mqtt_logic_task_t* xi_mqtt_logic_make_shutdown_task( void )
     task->data.mqtt_settings.scenario = XI_MQTT_SHUTDOWN;
     task->priority                    = XI_MQTT_LOGIC_TASK_IMMEDIATE;
 
-    XI_ALLOC_AT( xi_mqtt_task_specific_data_t, task->data.data_u, state );
-
     return task;
 
 err_handling:
@@ -119,8 +117,11 @@ void xi_mqtt_task_spec_data_free_subscribe_data( xi_mqtt_task_specific_data_t** 
     XI_SAFE_FREE( ( *data ) );
 }
 
-void xi_mqtt_task_spec_data_free_subscribe_data_vec( union xi_vector_selector_u* data )
+void xi_mqtt_task_spec_data_free_subscribe_data_vec( union xi_vector_selector_u* data,
+                                                     void* arg )
 {
+    XI_UNUSED( arg );
+
     xi_mqtt_task_spec_data_free_subscribe_data(
         ( xi_mqtt_task_specific_data_t** )&data->ptr_value );
 }
@@ -130,7 +131,7 @@ xi_mqtt_logic_task_t* xi_mqtt_logic_free_task_data( xi_mqtt_logic_task_t* task )
     /* PRECONDITIONS */
     assert( NULL != task );
     assert( NULL != task->data.data_u );
-    assert( NULL == task->timeout );
+    assert( NULL == task->timeout.ptr_to_position );
 
     switch ( task->data.mqtt_settings.scenario )
     {

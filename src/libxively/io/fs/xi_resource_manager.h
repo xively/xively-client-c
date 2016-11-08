@@ -10,7 +10,6 @@
 #include "xi_event_handle.h"
 #include "xi_data_desc.h"
 #include "xi_fs_api.h"
-#include "xi_heap.h"
 #include "xi_err.h"
 
 /**

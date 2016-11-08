@@ -7,7 +7,6 @@
 #include <inttypes.h>
 
 #include "xi_event_dispatcher_api.h"
-#include "xi_heap.h"
 #include "xi_list.h"
 #include "xi_helpers.h"
 
@@ -197,42 +196,63 @@ err_handling:
     return NULL;
 }
 
-xi_heap_element_t* xi_evtd_execute_in( xi_evtd_instance_t* instance,
-                                       xi_event_handle_t handle,
-                                       xi_time_t time_diff )
+xi_state_t xi_evtd_execute_in( xi_evtd_instance_t* instance,
+                               xi_event_handle_t handle,
+                               xi_time_t time_diff,
+                               xi_time_event_handle_t* ret_time_event_handle )
 {
+    xi_state_t ret_state = XI_STATE_OK;
+
+    XI_ALLOC( xi_time_event_t, time_event, ret_state );
+
+    time_event->event_handle      = handle;
+    time_event->time_of_execution = instance->current_step + time_diff;
+
     xi_lock_critical_section( instance->cs );
 
-    xi_heap_element_t* ret = xi_heap_element_add(
-        instance->call_heap, instance->current_step + time_diff, handle );
+    ret_state = xi_time_event_add( instance->time_events_container, time_event,
+                                   ret_time_event_handle );
 
     xi_unlock_critical_section( instance->cs );
 
-    return ret;
+    return ret_state;
+
+err_handling:
+    return ret_state;
 }
 
-xi_heap_element_t*
-xi_evtd_cancel( xi_evtd_instance_t* instance, xi_heap_element_t* heap_element )
+xi_state_t
+xi_evtd_cancel( xi_evtd_instance_t* instance, xi_time_event_handle_t* time_event_handle )
 {
+    xi_time_event_t* time_event = NULL;
+    xi_state_t ret_state        = XI_STATE_OK;
+
     xi_lock_critical_section( instance->cs );
 
-    xi_heap_element_remove( instance->call_heap, heap_element );
+    ret_state = xi_time_event_cancel( instance->time_events_container, time_event_handle,
+                                      &time_event );
 
     xi_unlock_critical_section( instance->cs );
 
-    return NULL;
+    XI_SAFE_FREE( time_event );
+
+    return ret_state;
 }
 
-void xi_evtd_restart( xi_evtd_instance_t* instance,
-                      xi_heap_element_t* heap_element,
-                      xi_time_t new_time )
+xi_state_t xi_evtd_restart( xi_evtd_instance_t* instance,
+                            xi_time_event_handle_t* time_event_handle,
+                            xi_time_t new_time )
 {
+    xi_state_t ret_state = XI_STATE_OK;
+
     xi_lock_critical_section( instance->cs );
 
-    xi_heap_element_update_key( instance->call_heap, heap_element,
-                                instance->current_step + new_time );
+    ret_state = xi_time_event_restart( instance->time_events_container, time_event_handle,
+                                       instance->current_step + new_time );
 
     xi_unlock_critical_section( instance->cs );
+
+    return ret_state;
 }
 
 xi_evtd_instance_t* xi_evtd_create_instance( void )
@@ -240,8 +260,8 @@ xi_evtd_instance_t* xi_evtd_create_instance( void )
     xi_state_t state = XI_STATE_OK;
     XI_ALLOC( xi_evtd_instance_t, evtd_instance, state );
 
-    evtd_instance->call_heap = xi_heap_create();
-    XI_CHECK_MEMORY( evtd_instance->call_heap, state );
+    evtd_instance->time_events_container = xi_vector_create();
+    XI_CHECK_MEMORY( evtd_instance->time_events_container, state );
 
     evtd_instance->handles_and_socket_fd = xi_vector_create();
     XI_CHECK_MEMORY( evtd_instance->handles_and_socket_fd, state );
@@ -271,7 +291,8 @@ void xi_evtd_destroy_instance( xi_evtd_instance_t* instance )
 
     xi_vector_destroy( instance->handles_and_file_fd );
     xi_vector_destroy( instance->handles_and_socket_fd );
-    xi_heap_destroy( instance->call_heap );
+    xi_time_event_destroy( instance->time_events_container );
+    xi_vector_destroy( instance->time_events_container );
 
     XI_SAFE_FREE( instance );
 
@@ -314,6 +335,7 @@ xi_event_handle_return_t xi_evtd_execute_handle( xi_event_handle_t* handle )
         case XI_EVENT_HANDLE_UNSET:
 #if XI_DEBUG_EXTRA_INFO
             xi_debug_logger( "you are trying to call an unset handler!" );
+#if XI_DEBUG_EXTRA_INFO == 1
             xi_debug_format( "handler created in %s:%d",
                              handle->debug_info.debug_file_init,
                              handle->debug_info.debug_line_init );
@@ -375,7 +397,7 @@ void xi_evtd_step( xi_evtd_instance_t* evtd_instance, xi_time_t new_step )
         return;
 
     evtd_instance->current_step = new_step;
-    xi_heap_element_t* tmp      = 0;
+    xi_time_event_t* tmp        = NULL;
 
 #ifdef XI_DEUBG_OUTPUT_EVENT_SYSTEM
     xi_debug_format( "[size of time event queue: %d]",
@@ -385,33 +407,28 @@ void xi_evtd_step( xi_evtd_instance_t* evtd_instance, xi_time_t new_step )
 
     xi_lock_critical_section( evtd_instance->cs );
 
-    while ( !xi_heap_is_empty( evtd_instance->call_heap ) )
+    /* zero - not NULL elem_no it's a number not a pointer */
+    while ( 0 != evtd_instance->time_events_container->elem_no )
     {
-        tmp = xi_heap_peek_top( evtd_instance->call_heap );
-        if ( tmp->key <= evtd_instance->current_step )
+        tmp = xi_time_event_peek_top( evtd_instance->time_events_container );
+        if ( tmp->time_of_execution <= evtd_instance->current_step )
         {
-            xi_event_handle_t* handle = ( xi_event_handle_t* )&tmp->heap_value.type_value;
+            tmp = xi_time_event_get_top( evtd_instance->time_events_container );
+            xi_event_handle_t* handle = ( xi_event_handle_t* )&tmp->event_handle;
 
             xi_unlock_critical_section( evtd_instance->cs );
 
             xi_state_t result = xi_evtd_execute_handle( handle );
 
+            XI_SAFE_FREE( tmp );
+
             if ( xi_state_is_fatal( result ) == 1 )
             {
                 xi_debug_logger( "error while processing timed events" );
-
                 xi_evtd_stop( evtd_instance );
             }
 
             xi_lock_critical_section( evtd_instance->cs );
-
-            // Only remove the heap element if its STILL below it's deadline.
-            // It could have been changed during the execution. This way we can reschedule
-            // tasks without the need of reallocating heapobjects
-            if ( tmp->key <= evtd_instance->current_step )
-            {
-                xi_heap_element_remove( evtd_instance->call_heap, tmp );
-            }
         }
         else
         {
@@ -438,8 +455,8 @@ void xi_evtd_step( xi_evtd_instance_t* evtd_instance, xi_time_t new_step )
     /* here we can call the on_empty handler
      * watch out, handler is called only once and
      * it is disposed after that */
-    if ( xi_heap_is_empty( evtd_instance->call_heap ) &&
-         evtd_instance->on_empty.handle_type != XI_EVENT_HANDLE_UNSET )
+    if ( ( 0 == evtd_instance->time_events_container->elem_no ) &&
+         ( evtd_instance->on_empty.handle_type != XI_EVENT_HANDLE_UNSET ) )
     {
         xi_debug_logger( "calling on_empty_handler" );
 
@@ -575,17 +592,17 @@ xi_evtd_get_time_of_earliest_event( xi_evtd_instance_t* instance, xi_time_t* out
 {
     assert( NULL != instance );
     assert( NULL != out_timeout );
-    assert( NULL != instance->call_heap );
+    assert( NULL != instance->time_events_container );
 
     xi_state_t ret_state = XI_ELEMENT_NOT_FOUND;
 
     xi_lock_critical_section( instance->cs );
 
-    if ( 1 != xi_heap_is_empty( instance->call_heap ) )
+    if ( 0 != instance->time_events_container->elem_no )
     {
-        xi_heap_element_t* elem = xi_heap_peek_top( instance->call_heap );
-        *out_timeout            = elem->key;
-        ret_state               = XI_STATE_OK;
+        xi_time_event_t* elem = xi_time_event_peek_top( instance->time_events_container );
+        *out_timeout          = elem->time_of_execution;
+        ret_state             = XI_STATE_OK;
     }
 
     xi_unlock_critical_section( instance->cs );
