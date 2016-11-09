@@ -6,7 +6,6 @@
 
 /**
  * \file    xi_debug.h
- * \author  Olgierd Humenczuk
  * \brief   Macros to use for debugging
  */
 
