@@ -105,7 +105,7 @@ To create a new BSP implementation for TLS:
 - copy the file `make/mt-config/mt-tls-wolfssl.mk` to `make/mt-config/mt-tls-[NEW_TLS_LIBRARY_NAME].mk` and set the path variables inside according to the new TLS library's internal directory structure
 - call `make` with parameter `XI_BSP_TLS=[NEW_TLS_LIBRARY_NAME]`
 
-#### Customising Both: Platform and TLS BSPs
+#### Customizing Both: Platform and TLS BSPs
 
 Invoking `make` without parameters will silently default the configuration to `make XI_BSP_PLATFORM=posix XI_BSP_TLS=wolfssl`. 
 
@@ -244,7 +244,7 @@ A typical TARGET flag looks like this:
 
 A typical CONFIG flag:
 
-    posix_io-posix_fs-thread_module-posix_platform-tls-senml-memory_limiter
+    posix_io-posix_fs-posix_platform-tls-senml-memory_limiter
 
 ###### Xively Client Feature flags
 
@@ -282,6 +282,12 @@ A typical CONFIG flag:
     - posix_platform    - selects implementation for non-BSP time and non-BSP memory solutions
     - wmsdk_platform    - selects implementation for non-BSP time and non-BSP memory solutions
 
+The Platform Selector configurations will eventually be sunset.  Currently these configure the build system to include Critical Section implementations for invoking callbacks on new threads.  
+
+We suggest defining `posix_platform` and omit `threading` from your CONFIG options when building for custom platforms.  `threading` is currently ommitted by default.
+
+For more information about thread safe callback support please see the Xively C Client User Guide: `doc/user_guide.md`.
+
 #### Example make Command
 
 By executing a simple 'make' under directory xi\_client\_c should be sufficient on OSX or Linux/Unix. This will result in build configuration with the following default flags:
@@ -305,14 +311,6 @@ For CI configurations please look at the file [.travis.yml](../../.travis.yml).
 Example application binaries can be found under directory `examples`
 These examples use the Xively C Client library for connecting to Xively Servers, subscribing to topics, and sending and receiving data.
 The examples are command line applications libxively links against. They require a Xively-specific account-id, username, password and optional topicname to subscribe or publish on.
-
-##### _XI_BSP_PLATFORM_
-
-    - [ posix | cc3200 | ... ] - selects the bsp implementation from the available implementations, by default this flag is set to posix platform
-
-##### _XI_BSP_TLS_
-
-    - [ wolfssl | mbedtls ] - selects the TLS library which is used to provide secure connection with Xively servers, WolfSSL is set by default
 
 ### Porting the Xively C Client to Your Platform
 
