@@ -96,7 +96,8 @@ Before selecting another TLS solution other than those mentioned above, be sure 
 
 - asynchronous networking
 - loading custom root CA certs from a buffer
-- Online Certificate Status Protocol [(OCSP)](https://en.wikipedia.org/wiki/Online_Certificate_Status_Protocol)
+- Online Certificate Status Protocol [(OCSP)](https://en.wikipedia.org/wiki/Online_Certificate_Status_Protocol) 
+	- The added functionality of [OCSP Stapling](https://en.wikipedia.org/wiki/OCSP_stapling) is prefered. 
 
 To create a new BSP implementation for TLS:
 
@@ -115,7 +116,7 @@ This is fine for building on OSX or Linux/Unix using wolfSSL for a TLS library. 
 
 *Note: microSSL is a fictional TLS library we've conjured-up as a quick custom example.*
 
-This command assumes directory `src/bsp/platform/cc3200*` containing networking, memory, random and time implementations as well as directory `src/bsp/tls/microSSL` covering the TLS calls.  
+This command assumes directory `src/bsp/platform/cc3200` containing networking, memory, random and time implementations as well as directory `src/bsp/tls/microSSL` covering the TLS calls.  
 
 
 ## Porting the C Client
@@ -167,7 +168,7 @@ Firing a bare `make` should be enough for an OSX build. It defaults to *posix* p
 
 Run command
 
-	`make`
+	make
 
 Alternatively one can use mbedTLS instead of wolfSSL if preferred:
 
@@ -244,7 +245,7 @@ A typical TARGET flag looks like this:
 
 A typical CONFIG flag:
 
-    posix_io-posix_fs-posix_platform-tls-senml-memory_limiter
+	bsp_posix-posix_fs-posix_platform-tls-senml-control_topic-memory_limiter
 
 ###### Xively Client Feature flags
 
@@ -252,7 +253,7 @@ A typical CONFIG flag:
                           Currently activating this feature has no behavioral benefit.
     - senml             - turns on SENML JSON serialization support for timeseries data. To maintain a small
                           footprint size we recommend turning this off (by removing senml flag from CONFIG).
-    - threading         - POSIX only.  This turns causes application callbacks to be called on separate thread.
+    - threading         - POSIX only.  This causes pub, sub, and connection callbacks to be called on separate thread.
                           Not having this flag set application callbacks are called on the sole main
                           thread of the Xively C Client.
 
@@ -266,14 +267,15 @@ A typical CONFIG flag:
 
 ###### Development flags
 
-    - memory_limiter    - turns on memory limiting and monitoring functionality. The purpose of this configuration is to aid development processes by simulating low-memory environment behavior.
+    - memory_limiter    - turns on memory limiting and monitoring functionality. 
+						  The purpose of this configuration is to aid development processes by simulating low-memory environment behavior.
                           The memory monitor part is useful for memory consumption tracking and to hunt down memory
                           leaks.  When a leak occurs a stack trace of the initial allocation will be logged.
     - mqtt_localhost    - the Client will connect to localhost MQTT server. The purpose of this configuration option
                           is to help development processes.
     - no_certverify     - lowers security by disabling TLS certificate verification
-    - tls               - the Client will use third party TLS 1.2 implementations to encrypt data before it's sent over network sockets.   The lack of this
-                          flag will skip the TLS handshaking.  This be may helpful in connecting to mosquitto to test,
+    - tls               - the Client will use third party TLS 1.2 implementations to encrypt data before it's sent over network sockets.   
+					      The lack of this flag will skip the TLS handshaking.  This be may helpful in connecting to mosquitto to test,
                           but may not be supported on some secure services and is not recommend for production
                           deployment.  The Xively Gateway will not accept connections without TLS.
 
@@ -290,19 +292,17 @@ For more information about thread safe callback support please see the Xively C 
 
 #### Example make Command
 
-By executing a simple 'make' under directory xi\_client\_c should be sufficient on OSX or Linux/Unix. This will result in build configuration with the following default flags:
+By executing a simple 'make' under the base directory of the repository should be sufficient on OSX or Linux/Unix. This will result in build configuration with the following default flags:
 
-    - CONFIG: posix_io-posix_fs-posix_platform-tls-senml-control_topic-memory_limiter
-    - TARGET: osx-static-debug
+    - CONFIG: bsp_posix-posix_fs-posix_platform-tls-senml-control_topic-memory_limiter
+    - TARGET: osx-static-release
 
-The result will be a development version Xively C Client static library with debug outputs,
-secure TLS connection, POSIX networking and file system, artificial memory limits and memory guards
-turned on and with SENML support for timeseries formatting.
+The result will be a release version Xively C Client static library with debug outputs, secure TLS connection, POSIX networking and file system, artificial memory limits and memory guards turned on and with SENML support for timeseries formatting.
 
-The release version flags without SENML and memory limits may look like this:
+The development version flags without SENML and memory limits may look like this:
 
     - CONFIG=posix_io-posix_fs-posix_platform-tls
-    - TARGET=osx-static-release
+    - TARGET=osx-static-debug
 
 For CI configurations please look at the file [.travis.yml](../../.travis.yml).
 
@@ -398,7 +398,7 @@ To make this possible, the following steps have to be taken.
  		- **time** (`include/bsp/xi_bsp_time.h`)
  		- **random** (`include/bsp/xi_bsp_rng.h`)
  
-    Hint: to reach successful build just create the files and implement all the BSP API functions with **empty body**.  While this wont execute properly, it should link and run.
+    Hint: to reach successful build just create the files and implement all the BSP API functions with **empty body**.  You may use files under `src/bsp/platform/dummy` as empty starting point. While this wont execute properly, it should link and run.
 
 - [x] select TLS implementation
     - the default selection is wolfssl.  If wolfssl fits your needs then there's nothing to do here.
@@ -419,7 +419,6 @@ To make this possible, the following steps have to be taken.
         - create a file `src/bsp/tls/myTLSlibrary/xi_bsp_tls_myTLSlibrary.c` and implement all functions declared in `include/bsp/xi_bsp_tls.h`
         - as samples you can follow the two existing implementations: wolfssl and mbedtls
     - create a file `make/mt-config/mt-tls-myTLSlibrary.mk` and fill in with content similar to `make/mt-config/mt-tls-wolfssl.mk` or `make/mt-config/mt-tls-mbedtls.mk`. This is where you would defined the include directory, the static library directory, the static library file to link against and the config flags of the custom TLS library.
-    - you might also want to provide a script `src/import/tls/download_and_compile_myTLSlibrary.sh` which downloads the source of the custom TLS library and builds it. As a sample to follow look at the two already existing solutions: `download_and_compile_wolfssl.sh`and `download_and_compile_mbedtls.sh` in that same directory.
 
 #### Using a Third Party IDE (non-make)
 
