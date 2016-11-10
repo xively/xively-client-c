@@ -48,7 +48,7 @@ XI_ITESTS_SOURCES += $(wildcard $(XI_TEST_DIR)/*.c)
 XI_ITESTS_SOURCES += $(wildcard $(LIBXIVELY)/src/libxively/io/dummy/*.c)
 
 # removing TLS layer related tests in case TLS is turned off from compilation
-ifeq (,$(findstring tls,$(CONFIG)))
+ifeq (,$(findstring tls_bsp,$(CONFIG)))
     XI_ITESTS_SOURCES := $(filter-out $(XI_ITESTS_SOURCE_DIR)/xi_itest_tls_layer.c, $(XI_ITESTS_SOURCES))
 endif
 

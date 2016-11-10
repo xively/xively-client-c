@@ -10,7 +10,7 @@ LIBXIVELY_INTERFACE_INCLUDE_DIRS += $(LIBXIVELY)/include_senml
 
 XI_LIB_FLAGS += -lxively
 
-ifneq (,$(findstring tls,$(CONFIG)))
+ifneq (,$(findstring tls_bsp,$(CONFIG)))
 	include make/mt-config/mt-tls
 endif
 
@@ -149,11 +149,11 @@ XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/time
 
 
 # if no tls then set proper flag
-ifeq (,$(findstring tls,$(CONFIG)))
+ifeq (,$(findstring tls_bsp,$(CONFIG)))
 	XI_CONFIG_FLAGS += -DXI_NO_TLS_LAYER
 
-	ifneq (,$(findstring onchip_TLS,$(CONFIG)))
-		XI_CONFIG_FLAGS += -DXI_BSP_IO_NET_ONCHIP_TLS
+	ifneq (,$(findstring tls_socket,$(CONFIG)))
+		XI_CONFIG_FLAGS += -DXI_BSP_IO_NET_TLS_SOCKET
 	else
 		XI_CONFIG_FLAGS += -DXI_MQTT_PORT=1883
 	endif

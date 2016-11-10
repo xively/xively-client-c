@@ -6,18 +6,18 @@
 include make/mt-config/mt-target-platform.mk
 
 # CONFIG presets
-CONFIG_POSIX_MAX				=bsp_posix-posix_fs-posix_platform-tls-senml-control_topic-memory_limiter
-CONFIG_POSIX_MAX_THREADING		=bsp_posix-posix_fs-posix_platform-tls-senml-control_topic-threading-memory_limiter
-CONFIG_POSIX_MID				=bsp_posix-posix_fs-posix_platform-tls-senml-control_topic
+CONFIG_POSIX_MAX				=bsp_posix-posix_fs-posix_platform-tls_bsp-senml-control_topic-memory_limiter
+CONFIG_POSIX_MAX_THREADING		=bsp_posix-posix_fs-posix_platform-tls_bsp-senml-control_topic-threading-memory_limiter
+CONFIG_POSIX_MID				=bsp_posix-posix_fs-posix_platform-tls_bsp-senml-control_topic
 CONFIG_POSIX_MID_UNSECURE		=bsp_posix-posix_fs-posix_platform-senml-control_topic
-CONFIG_POSIX_MIN				=bsp_posix-posix_fs-posix_platform-tls
+CONFIG_POSIX_MIN				=bsp_posix-posix_fs-posix_platform-tls_bsp
 
 # arm configs
 CONFIG_DUMMY_MAX				=bsp_dummy-memory_fs-memory_limiter-control_topic-senml
 CONFIG_DUMMY_MIN				=bsp_dummy-memory_fs
 
-CONFIG_CC3200					=bsp_cc3200-memory_fs-tls
-CONFIG_CC3200_ONCHIP_TLS		=bsp_cc3200-memory_fs-onchip_TLS
+CONFIG_CC3200					=bsp_cc3200-memory_fs-tls_bsp
+CONFIG_CC3200_TLS_SOCKET		=bsp_cc3200-memory_fs-tls_socket
 
 # TARGET presets
 TARGET_STATIC_DEV				=-static-debug
@@ -82,8 +82,8 @@ else ifeq ($(PRESET), CC3200)
 	TARGET = $(TARGET_STATIC_REL)
 	XI_BSP_PLATFORM = cc3200
 	XI_TARGET_PLATFORM = cc3200
-else ifeq ($(PRESET), CC3200_ONCHIP_TLS)
-	CONFIG = $(CONFIG_CC3200_ONCHIP_TLS)
+else ifeq ($(PRESET), CC3200_TLS_SOCKET)
+	CONFIG = $(CONFIG_CC3200_TLS_SOCKET)
 	TARGET = $(TARGET_STATIC_REL)
 	XI_BSP_PLATFORM = cc3200
 	XI_TARGET_PLATFORM = cc3200
