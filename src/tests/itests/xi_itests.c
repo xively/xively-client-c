@@ -8,7 +8,7 @@
 #include "xi_itest_clean_session.h"
 #include "xi_itest_tls_error.h"
 #include "xi_itest_connect_error.h"
-#ifndef XI_DEBUG_NO_TLS
+#ifndef XI_NO_TLS_LAYER
 #include "xi_itest_tls_layer.h"
 #endif
 #include "xi_itest_mqttlogic_layer.h"
