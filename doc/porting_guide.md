@@ -41,6 +41,7 @@ The Xively Client has been deployed on many different devices already shipping i
   - WMSDK
   - Texas Instruments CC3200
   - STM3241G-EVAL
+  - Marvell
 
 Porting the Xively C Client to new platforms is accelerated by the Board Support Package (BSP). 
 
@@ -317,7 +318,7 @@ The examples are command line applications libxively links against. They require
 
 #### Let's Begin
 
-As a rule of thumb if you are stuck or confused, then please user existing platform config files like: `make/mt-os/mt-cc3200` or `make/mt-os/mt-linux` files as an example.
+As a rule of thumb if you are stuck or confused, then please use existing platform config files like: `make/mt-os/mt-cc3200` or `make/mt-os/mt-linux` files as an example.
 
 Let's assume the new platform's name is np2000. 
 
@@ -378,7 +379,7 @@ To make this possible, the following steps have to be taken.
                 XI_BSP_PLATFORM = np2000
                 XI_TARGET_PLATFORM = np2000
 
-- [x] extend `make/mt-os/mt-os` to check the TARGET make parameter for 'np2000' and include the `make/mt-os/mt-np2000` config file when the np200 TARGET is found:
+- [x] extend `make/mt-os/mt-os` to check the TARGET make parameter for 'np2000' and include the `make/mt-os/mt-np2000` config file when the np2000 TARGET is found:
 
         XI_CONST_PLATFORM_NP2000 := np2000
 
@@ -438,8 +439,12 @@ While we cannot completely predict how this process would work for every IDE and
 	- NOTE: The Xively C Client contains reference BSP implementations for POSIX and CC3200. We also have partial implementations for specific networking APIs. 
     Modules from these 'incomplete' BSP implementations could be used as substitutes. For instance, on devices that mirror POSIX completely except for networking, like Simplelink, the networking module from `src/bsp/platform/posix` could be ovewritten with the one from `src/bsp/platform/simplelink_incomplete`. 
 - import one of the BSP TLS implementations in `src/bsp/tls`.  Currently we provide two different TLS BSP implementations: WolfSSL or mbedTLS.
-- add all of the directories in `src/libxively` to your include path
-- add the `include` directory in the base of the sources to your include path
+
+
+- alter the include path for the toolchain.
+	- add all of the directories in `src/libxively` to your include path
+	- add the `include` directory to your include path
+	- add the `include/bsp` directory to your include path
 - add any corresonding preprocessor defintions to toggle on/off Xively client features. 
   Using the CONFIG flags in file `make/mt-config/mt-config` as a guide, the compiler flags used in the "Preceding Step" can be looked up and fed to the platform specific build system as well. Another option is to echo the makefile build system variable XI_CONFIG_FLAGS during building on OSX to see which flags are set.
 
