@@ -9,7 +9,7 @@
 #include "xi_debug.h"
 #include "xi_allocator.h"
 
-#if XI_DEBUG_EXTRA_INFO
+#if XI_DEBUG_OUTPUT
 void xi_debug_data_logger_impl( const char* msg, const xi_data_desc_t* data_desc )
 {
     char* tmp = xi_alloc( 1024 );
