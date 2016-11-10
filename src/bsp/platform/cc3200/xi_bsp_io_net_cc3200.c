@@ -14,11 +14,14 @@
 #include <stdio.h>
 
 #ifdef XI_BSP_IO_NET_SECURESOCKET
+
 #include <device.h>
 #include <xi_bsp_time.h>
 #include <time.h>
 
 long WriteFileToDevice( unsigned long* ulToken, long* lFileHandle );
+
+#define XI_CC3200_ROOTCACERT_FILE_NAME "/cert/xively_cert_globalsign_rootca.der"
 
 #endif
 
@@ -26,8 +29,6 @@ long WriteFileToDevice( unsigned long* ulToken, long* lFileHandle );
 #define MAX( a, b ) ( ( ( a ) > ( b ) ) ? ( a ) : ( b ) )
 #endif
 
-
-#define XI_CC3200_ROOTCACERT_FILE_NAME "/cert/xively_cert_globalsign_rootca.der"
 xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
 {
     if ( NULL == xi_socket )
@@ -57,12 +58,12 @@ xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
         /* conversion between tm datetime representation to Sl datetime representation
            tm years: since 1970, Sl years: since 0
            tm months: 0-11, Sl months: 1-12 */
-        SlDateTime_t sl_datetime = {.sl_tm_year = gm_time->tm_year + 1970,
-                                    .sl_tm_mon  = gm_time->tm_mon + 1,
-                                    .sl_tm_day  = gm_time->tm_mday,
-                                    .sl_tm_hour = gm_time->tm_hour,
-                                    .sl_tm_min  = gm_time->tm_min,
-                                    .sl_tm_sec  = gm_time->tm_sec};
+        const SlDateTime_t sl_datetime = {.sl_tm_year = gm_time->tm_year + 1970,
+                                          .sl_tm_mon  = gm_time->tm_mon + 1,
+                                          .sl_tm_day  = gm_time->tm_mday,
+                                          .sl_tm_hour = gm_time->tm_hour,
+                                          .sl_tm_min  = gm_time->tm_min,
+                                          .sl_tm_sec  = gm_time->tm_sec};
 
         /*printf( "--- current time: %d/%.2d/%.2d, %.2d:%.2d:%.2d\n",
                 sl_datetime.sl_tm_year, sl_datetime.sl_tm_mon, sl_datetime.sl_tm_day,
