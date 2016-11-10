@@ -33,19 +33,19 @@ ifneq (,$(findstring release,$(TARGET)))
 endif
 
 ifneq (,$(findstring shared,$(TARGET)))
-  XI_SHARED=1
+	XI_SHARED=1
 endif
 
 ifneq (,$(findstring backoff_godmode,$(CONFIG)))
-  XI_CONFIG_FLAGS += -DXI_BACKOFF_GODMODE
+	XI_CONFIG_FLAGS += -DXI_BACKOFF_GODMODE
 endif
 
 ifneq (,$(findstring control_topic,$(CONFIG)))
-  XI_CONFIG_FLAGS += -DXI_CONTROL_TOPIC_ENABLED
+	XI_CONFIG_FLAGS += -DXI_CONTROL_TOPIC_ENABLED
 endif
 
 ifneq (,$(findstring expose_fs,$(CONFIG)))
-  XI_CONFIG_FLAGS += -DXI_EXPOSE_FS
+	XI_CONFIG_FLAGS += -DXI_EXPOSE_FS
 endif
 
 ifneq (,$(findstring debug,$(TARGET)))
@@ -74,13 +74,13 @@ XI_CONFIG_FLAGS += -DXI_DEBUG_EXTRA_INFO=$(XI_DEBUG_EXTRA_INFO)
 # CONFIG: mqtt_localhost
 #
 ifneq (,$(findstring mqtt_localhost,$(CONFIG)))
-  XI_CONFIG_FLAGS += -DXI_MQTT_HOST='{ "localhost", XI_MQTT_PORT }'
+	XI_CONFIG_FLAGS += -DXI_MQTT_HOST='{ "localhost", XI_MQTT_PORT }'
 endif
 
 # CONFIG: no_certverify
 #
 ifneq (,$(findstring no_certverify,$(CONFIG)))
-  XI_CONFIG_FLAGS += -DXI_DISABLE_CERTVERIFY
+	XI_CONFIG_FLAGS += -DXI_DISABLE_CERTVERIFY
 endif
 
 # CONFIG: filesystem

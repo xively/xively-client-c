@@ -46,7 +46,7 @@ xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
     if ( ( retval = WriteFileToDevice( &ulToken, &lFileHandle ) ) < 0 )
     {
         printf( "ERROR: WriteFileToDevice result: %d\n", retval );
-        // return XI_BSP_IO_NET_STATE_ERROR;
+        return XI_BSP_IO_NET_STATE_ERROR;
     }
 
     { // set current time for certificate validity check during TLS handshake
@@ -158,8 +158,6 @@ xi_bsp_io_net_connect( xi_bsp_socket_t* xi_socket, const char* host, uint16_t po
     errval =
         sl_Connect( *xi_socket, ( struct sockaddr* )&name, sizeof( struct sockaddr ) );
 
-    // printf( "connection result, errval = %d\n", errval );
-
     if ( errval < 0 && SL_EALREADY != errval )
     {
         return XI_BSP_IO_NET_STATE_ERROR;
@@ -214,8 +212,6 @@ xi_bsp_io_net_state_t xi_bsp_io_net_read( xi_bsp_socket_t xi_socket,
     }
 
     *out_read_count = sl_Recv( xi_socket, buf, count, 0 );
-
-    // printf( "out_read_count: %d, asked count: %lu\n", *out_read_count, count );
 
     if ( SL_EAGAIN == *out_read_count )
     {
@@ -479,8 +475,6 @@ long WriteFileToDevice( unsigned long* ulToken, long* lFileHandle )
         lRetVal = sl_FsClose( *lFileHandle, 0, 0, 0 );
         ASSERT_ON_ERROR( FILE_OPEN_WRITE_FAILED );
     }
-
-    printf( "INFO: file size: %d\n", sizeof( cert_globalsign_rootca_DER ) );
 
     lRetVal = sl_FsWrite( *lFileHandle, 0, ( unsigned char* )cert_globalsign_rootca_DER,
                           sizeof( cert_globalsign_rootca_DER ) );
