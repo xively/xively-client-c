@@ -11,6 +11,7 @@
 
 #include "xi_handle.h"
 #include "xi_vector.h"
+#include "xi_types.h"
 #include "xively.h"
 
 #ifndef XI_TT_TESTCASE_ENUMERATION__SECONDPREPROCESSORRUN

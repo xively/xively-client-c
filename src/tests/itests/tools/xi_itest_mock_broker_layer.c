@@ -53,7 +53,7 @@ xi_mock_broker_secondary_layer_push( void* context, void* data, xi_state_t in_ou
                 &xi_itest_find_layer( xi_context, XI_LAYER_TYPE_MQTT_CODEC_SUT )
                      ->layer_connection,
                 NULL, in_out_state ),
-            1 );
+            1, NULL );
 
         return XI_PROCESS_PUSH_ON_NEXT_LAYER( context, NULL, XI_STATE_WRITTEN );
     }
@@ -70,7 +70,7 @@ xi_mock_broker_secondary_layer_push( void* context, void* data, xi_state_t in_ou
                 &xi_itest_find_layer( xi_context, XI_LAYER_TYPE_MQTT_CODEC_SUT )
                      ->layer_connection,
                 data, in_out_state ),
-            1 );
+            1, NULL );
 
         return XI_PROCESS_PUSH_ON_NEXT_LAYER( context, NULL, XI_STATE_WRITTEN );
     }
@@ -191,7 +191,7 @@ xi_state_t xi_mock_broker_layer_push( void* context, void* data, xi_state_t in_o
                                                   XI_LAYER_TYPE_MOCKBROKER_MQTT_CODEC )
                                  ->layer_connection,
                             copy, XI_STATE_OK ),
-            1 );
+            1, NULL );
 
         // "default" libxively behavior
         return XI_PROCESS_PUSH_ON_PREV_LAYER( context, data, in_out_state );

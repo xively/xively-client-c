@@ -16,4 +16,5 @@ xi_globals_t xi_globals = {.network_timeout        = 1500,
                            .main_threadpool        = NULL,
                            .str_account_id         = NULL,
                            .str_device_unique_id   = NULL,
-                           .backoff_status         = {0, 0, 0, XI_BACKOFF_CLASS_NONE, 0}};
+                           .backoff_status = {xi_make_empty_time_event_handle(), 0, 0,
+                                              XI_BACKOFF_CLASS_NONE, 0}};

@@ -28,9 +28,13 @@ extern "C" {
 #include <stdio.h>
 #define __xi_printf( ... )                                                               \
     printf( __VA_ARGS__ );                                                               \
-    fflush( stdout )
+    fflush( stdout );                                                                    \
+    fflush( stderr )
 #else /* XI_DEBUG_PRINTF */
-#define __xi_printf( ... ) XI_DEBUG_PRINTF( __VA_ARGS__ )
+#define __xi_printf( ... )                                                               \
+    XI_DEBUG_PRINTF( __VA_ARGS__ );                                                      \
+    fflush( stdout );                                                                    \
+    fflush( stderr )
 #endif /* XI_DEBUG_PRINTF */
 
 #if XI_DEBUG_OUTPUT
@@ -74,7 +78,8 @@ void xi_debug_data_logger_impl( const char* msg, const xi_data_desc_t* data_desc
             "%d, data = %p\n",                                                           \
             __func__, XI_THIS_LAYER( context )->context_data, in_out_state,              \
             XI_THIS_LAYER( context )->layer_type_id, data );                             \
-    fflush( stdout );
+    fflush( stdout );                                                                    \
+    fflush( stderr );
 
 #if XI_DEBUG_ASSERT
 #ifdef NDEBUG
