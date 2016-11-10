@@ -6,28 +6,24 @@
 include make/mt-config/mt-target-platform.mk
 
 # CONFIG presets
-CONFIG_POSIX_MAX			=bsp_posix-posix_fs-posix_platform-tls-senml-control_topic-memory_limiter
-CONFIG_POSIX_MAX_THREADING  =bsp_posix-posix_fs-posix_platform-tls-senml-control_topic-threading-memory_limiter
-CONFIG_POSIX_MID			=bsp_posix-posix_fs-posix_platform-tls-senml-control_topic
-CONFIG_POSIX_MID_UNSECURE   =bsp_posix-posix_fs-posix_platform-senml-control_topic
-CONFIG_POSIX_MIN			=bsp_posix-posix_fs-posix_platform-tls
+CONFIG_POSIX_MAX				=bsp_posix-posix_fs-posix_platform-tls-senml-control_topic-memory_limiter
+CONFIG_POSIX_MAX_THREADING		=bsp_posix-posix_fs-posix_platform-tls-senml-control_topic-threading-memory_limiter
+CONFIG_POSIX_MID				=bsp_posix-posix_fs-posix_platform-tls-senml-control_topic
+CONFIG_POSIX_MID_UNSECURE		=bsp_posix-posix_fs-posix_platform-senml-control_topic
+CONFIG_POSIX_MIN				=bsp_posix-posix_fs-posix_platform-tls
 
 # arm configs
-CONFIG_DUMMY_MAX			=bsp_dummy-memory_fs-memory_limiter-control_topic-senml
-CONFIG_DUMMY_MIN			=bsp_dummy-memory_fs
+CONFIG_DUMMY_MAX				=bsp_dummy-memory_fs-memory_limiter-control_topic-senml
+CONFIG_DUMMY_MIN				=bsp_dummy-memory_fs
 
-CONFIG_CC3200_MAX				=bsp_cc3200-memory_fs-tls-senml-control_topic-memory_limiter
-CONFIG_CC3200_MIN				=bsp_cc3200-memory_fs-tls
-CONFIG_CC3200_MIN_UNSECURE		=bsp_cc3200-memory_fs
-CONFIG_CC3200_MIN_SECURESOCKET	=bsp_cc3200-memory_fs-securesocket
+CONFIG_CC3200					=bsp_cc3200-memory_fs-tls
+CONFIG_CC3200_ONCHIP_TLS		=bsp_cc3200-memory_fs-onchip_TLS
 
 # TARGET presets
-TARGET_STATIC_DEV			=-static-debug
-TARGET_STATIC_REL			=-static-release
+TARGET_STATIC_DEV				=-static-debug
+TARGET_STATIC_REL				=-static-release
 
-TARGET_ARM_REL				=-static-release
-
-TARGET_CC3200_REL			=-static-release
+TARGET_ARM_REL					=-static-release
 
 PRESET ?= POSIX_REL
 
@@ -81,24 +77,14 @@ else ifeq ($(PRESET), ARM_REL)
 
 # -------------------------------------------------------
 # Texas Instruments CC3200
-else ifeq ($(PRESET), CC3200_REL_MIN)
-	CONFIG = $(CONFIG_CC3200_MIN)
-	TARGET = $(TARGET_CC3200_REL)
+else ifeq ($(PRESET), CC3200)
+	CONFIG = $(CONFIG_CC3200)
+	TARGET = $(TARGET_STATIC_REL)
 	XI_BSP_PLATFORM = cc3200
 	XI_TARGET_PLATFORM = cc3200
-else ifeq ($(PRESET), CC3200_REL_MIN_UNSECURE)
-	CONFIG = $(CONFIG_CC3200_MIN_UNSECURE)
-	TARGET = $(TARGET_CC3200_REL)
-	XI_BSP_PLATFORM = cc3200
-	XI_TARGET_PLATFORM = cc3200
-else ifeq ($(PRESET), CC3200_REL_MIN_SECURESOCKET)
-	CONFIG = $(CONFIG_CC3200_MIN_SECURESOCKET)
-	TARGET = $(TARGET_CC3200_REL)
-	XI_BSP_PLATFORM = cc3200
-	XI_TARGET_PLATFORM = cc3200
-else ifeq ($(PRESET), CC3200_REL)
-	CONFIG = $(CONFIG_CC3200_MAX)
-	TARGET = $(TARGET_CC3200_REL)
+else ifeq ($(PRESET), CC3200_ONCHIP_TLS)
+	CONFIG = $(CONFIG_CC3200_ONCHIP_TLS)
+	TARGET = $(TARGET_STATIC_REL)
 	XI_BSP_PLATFORM = cc3200
 	XI_TARGET_PLATFORM = cc3200
 

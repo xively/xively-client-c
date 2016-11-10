@@ -147,16 +147,16 @@ XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/memory
 XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/event_loop
 XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/time
 
+
 # if no tls then set proper flag
 ifeq (,$(findstring tls,$(CONFIG)))
 	XI_CONFIG_FLAGS += -DXI_NO_TLS_LAYER
 
-	ifneq (,$(findstring securesocket,$(CONFIG)))
-		XI_CONFIG_FLAGS += -DXI_BSP_IO_NET_SECURESOCKET
+	ifneq (,$(findstring onchip_TLS,$(CONFIG)))
+		XI_CONFIG_FLAGS += -DXI_BSP_IO_NET_ONCHIP_TLS
 	else
 		XI_CONFIG_FLAGS += -DXI_MQTT_PORT=1883
 	endif
-
 else
 	XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/tls/certs
 	XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/tls

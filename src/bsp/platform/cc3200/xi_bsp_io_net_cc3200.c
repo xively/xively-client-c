@@ -13,7 +13,7 @@
 #include <xi_bsp_io_net.h>
 #include <stdio.h>
 
-#ifdef XI_BSP_IO_NET_SECURESOCKET
+#ifdef XI_BSP_IO_NET_ONCHIP_TLS
 
 #include <device.h>
 #include <xi_bsp_time.h>
@@ -38,7 +38,7 @@ xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
 
     int retval = 0;
 
-#ifdef XI_BSP_IO_NET_SECURESOCKET
+#ifdef XI_BSP_IO_NET_ONCHIP_TLS
 
     long lFileHandle;
     unsigned long ulToken;
@@ -345,8 +345,7 @@ xi_bsp_io_net_state_t xi_bsp_io_net_select( xi_bsp_socket_events_t* socket_event
 }
 
 
-#ifdef XI_BSP_IO_NET_SECURESOCKET
-
+#ifdef XI_BSP_IO_NET_ONCHIP_TLS
 
 const unsigned char cert_globalsign_rootca_DER[889] = {
     0x30, 0x82, 0x03, 0x75, 0x30, 0x82, 0x02, 0x5d, 0xa0, 0x03, 0x02, 0x01, 0x02, 0x02,
