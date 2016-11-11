@@ -23,7 +23,7 @@ Texas Instruments [SimpleLink™ Wi-Fi® CC3200 LaunchPad™](http://www.ti.com/
 - Xively C Client library
 - CC3200 Uniflash _(optional)_
 
-## Step 1 of 10: Install the Code Composer Studio™.
+## Step 1 of 9: Install the Code Composer Studio™.
 
 Code Composer Studio™ includes the toolchain (compiler) you'll need to build for the CC3200 and a java-based IDE.
 
@@ -47,7 +47,7 @@ Code Composer Studio™ includes the toolchain (compiler) you'll need to build f
 10. Once installation completes, click ```Finish``` to leave the installer.
 
 
-## Step 2 of 10: Install the CC3200 Simplelink™ WiFi SDK.
+## Step 2 of 9: Install the CC3200 Simplelink™ WiFi SDK.
 
 These are the platform libraries that you'll need to compile and link against when writing software for the CC3200.
 
@@ -60,11 +60,11 @@ These are the platform libraries that you'll need to compile and link against wh
 
 *NOTE*: Windows users may download the [CC3200 Simplelink™ WiFi SDK](http://www.ti.com/tool/cc3200sdk) directly outside of the Code Composer Studio™ if you wish. Once downloaded, please install using the default settings.
 
-## Step 3 of 10: Download the Xively C Client library.
+## Step 3 of 9: Download the Xively C Client library.
 
 Download the library source code from [xively-client-c](https://github.com/xively/xively-client-c).  Git [clone](https://help.github.com/articles/set-up-git/) the repository or download the source archive from the right side of the github page.
 
-## Step 4 of 10: Download and configure the WolfSSL library
+## Step 4 of 9: Download and configure the WolfSSL library
 
 WolfSSL is used to create secure TLS connections.  There is a version of WolfSSL provided on-chip when using the CC3200, but it does not provide Online Certificate Status Protocol ([OCSP](https://en.wikipedia.org/wiki/Online_Certificate_Status_Protocol)) support. OCSP support is crucial in detecting compromised and revoked Certificates, and therefore we have provided instructions on building and linking against a newer version of the WolfSSL library so that OCSP can be leveraged by your project.
 
@@ -202,7 +202,7 @@ _Alternatively you can follow the steps written on [Using wolfSSL with TI-RTOS](
 - Also in the file `wolfssl/tirtos/packages/ti/net/wolfssl/package.bld`, to add OCSP support add the `"src/ocsp.c"` source file to the wolfSSLObjList variable.
 
 
-## Step 5 of 10: Build the Xively C Client library.
+## Step 5 of 9: Build the Xively C Client library.
 
 ### Prebuild configuration of the Xively C Client
 
@@ -215,9 +215,7 @@ _Alternatively you can follow the steps written on [Using wolfSSL with TI-RTOS](
 	2. Open up the ```compiler/``` directory and note the the name of the toolchain.
 	3. Compare this to the toolchain name stored in the ```COMPILER``` variable near the top of the file in ```mt-cc3200```.  Update the ```COMPILER``` variable as necessary.
 
-## Step 6 of 10: Build the Xively C Client library
-
-The process for building slightly depends on your host OS:
+### The process for building slightly depends on your host OS:
 
 #### Windows:
 
@@ -243,7 +241,7 @@ _From the `xively-client-c` root folder:_
 For all host platforms the PRESET=CC3200_REL_MIN_UNSECURE results in a Xively C Client version without a secure TLS connection. This can be useful for development purposes against local MQTT brokers, like [mosquitto](https://mosquitto.org/) but is not advised for devices in a real production environment.
 
 
-## Step 7 of 10: Build the wolfSSL embedded SSL library.
+## Step 6 of 9: Build the wolfSSL embedded SSL library.
 
 - MacOS:
     _From the `{..}/wolfssl/tirtos/` folder:_
@@ -257,7 +255,7 @@ For all host platforms the PRESET=CC3200_REL_MIN_UNSECURE results in a Xively C 
 
 The resulting file is ```wolfssl/tirtos/packages/ti/net/wolfssl/lib/wolfssl.aem4f```. This is the WolfSSL library that will provide TLS support to the example application below.
 
-## Step 8 of 10: Create your Xively (digital) device.
+## Step 7 of 9: Create your Xively (digital) device.
 
 _You should have a Xively account already created, but if you do not, register one for free at [Xively.com](https://app.xively.com/register)._
 
@@ -293,7 +291,7 @@ To have a device communicate through Xively we will first need to tell the Xivel
 
  You now have a provisioned device in Xively that your CC3200 will be able to connect as!
 
-## Step 9 of 10: Build your client application.
+## Step 8 of 9: Build your client application.
 
 We suggest the _ent_wlan_ networking example from the CC3200 SDK as the basis for connecting to Xively. We will first import the example into Code Composer Studio™, and then add some code to build your IoT Client connection to the Xively service.
 
@@ -463,7 +461,7 @@ If you do not see that, double check that you followed all the previous complica
 If you are just testing (or on a Mac) go ahead and skip the next step and go straight to [Congratulations](#29)!
 
 
-## Step 10 of 10: Flash your client application onto the device. _(Optional, Windows Only)_
+## Step 9 of 9: Flash your client application onto the device. _(Optional, Windows Only)_
 
 By default Code Composer uploads your application into RAM for execution. This is great for quick iterations, but it also means that your device will lose your changes when you uplug it.
 
@@ -480,12 +478,12 @@ To permanently make changes to the device you must flash the device using a Wind
 
 * Plug in your CC3200 device and make sure that the J15 Jumper is set to ON
 * From ```File``` select ```New Configuration``` and select
-    * Connection: ```CC3x Serial(UART) Interface```  
+    * Connection: ```CC3x Serial(UART) Interface```
     * Board or Device: ```SimpleLink WiFi CC3100/CC3200```
 * On the left panel under the ```System Files``` please highlight the ```/sys/mcuimg.bin```file
 * From the right panel press the ```Browse``` button right next to the ```Url``` field
 * Pick the ```name_of_your_project.bin``` from your ```workspace_name/project_name/RELEASE/```
-* From the left panel highlight ```CC31xx/CC32xx Flash Setup and Control```  
+* From the left panel highlight ```CC31xx/CC32xx Flash Setup and Control```
 * Press ```Program``` button
 * Set the J15 jumper to OFF and restart your device it should now run the test program
 
