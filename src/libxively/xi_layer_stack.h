@@ -19,7 +19,7 @@ extern "C" {
 /* -----------------------------------------------------------------------
  * LAYERS SETTINGS
  * ----------------------------------------------------------------------- */
-#ifndef XI_DEBUG_NO_TLS
+#ifndef XI_NO_TLS_LAYER
 #define XI_DEFAULT_LAYER_CHAIN                                                           \
     XI_LAYER_TYPE_IO                                                                     \
     , XI_LAYER_TYPE_TLS, XI_LAYER_TYPE_MQTT_CODEC, XI_LAYER_TYPE_MQTT_LOGIC,             \
@@ -33,7 +33,7 @@ extern "C" {
 XI_DECLARE_LAYER_CHAIN_SCHEME( XI_LAYER_CHAIN_DEFAULT, XI_DEFAULT_LAYER_CHAIN );
 
 #include "xi_io_net_layer.h"
-#ifndef XI_DEBUG_NO_TLS
+#ifndef XI_NO_TLS_LAYER
 #include "xi_tls_layer.h"
 #include "xi_tls_layer_state.h"
 #endif
@@ -54,7 +54,7 @@ XI_LAYER_TYPES_ADD( XI_LAYER_TYPE_IO,
                     &xi_io_net_layer_init,
                     &xi_io_net_layer_connect,
                     &xi_layer_default_post_connect )
-#ifndef XI_DEBUG_NO_TLS
+#ifndef XI_NO_TLS_LAYER
 , XI_LAYER_TYPES_ADD( XI_LAYER_TYPE_TLS,
                       &xi_tls_layer_push,
                       &xi_tls_layer_pull,
