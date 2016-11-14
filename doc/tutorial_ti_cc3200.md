@@ -73,10 +73,12 @@ Download the library source code from [xively-client-c](https://github.com/xivel
 2. In your newly identified host's section, set ```XI_CC3200_PATH_CCS_TOOLS``` and ```XI_CC3200_PATH_SDK``` to your Code Composer Studio™ and SDK install paths, respectively.  **If you chose the default installation paths for these installations then these values should already be valid and you shouldn't need to change anything.**
 3. The toolchain that Code Composer Studio™ downloaded might differ from the default that's configured in this ```mt-cc3200``` file.
 	1. Please browse to the path which you set ```XI_CC3200_PATH_CCS_TOOLS```.
-	2. Open up the ```compiler/``` directory and note the the name of the toolchain.
+	2. Open up the ```compiler/``` directory and note the name of the toolchain.
 	3. Compare this to the toolchain name stored in the ```COMPILER``` variable near the top of the file in ```mt-cc3200```.  Update the ```COMPILER``` variable as necessary.
 
 ### The process for building slightly depends on your host OS:
+
+_Execute the commands below from the `xively-client-c` root folder:_
 
 #### Windows:
 
@@ -93,8 +95,6 @@ Clean and build the library:
 #### MacOS and Linux:
 
 Clean and build the library:
-
-_From the `xively-client-c` root folder:_
 
     make PRESET=CC3200_TLS_SOCKET clean
     make PRESET=CC3200_TLS_SOCKET
@@ -181,7 +181,7 @@ Reaching this point means you are able to produce and execute CC3200 compatible 
 
 Next we're going to add a function to connect to the Xively Broker. Its implementation is based on the examples in the Client repo, e.g. `xively-client-c/examples/mqtt_logic_producer/src/mqtt_logic_producer.c`.
 
-- Paste the following code within `main.c` of the _ent_wlan_ anywhere in the main portion of the file _before_ the location where we will call the function, which will be around line 647, near the comment: "//wait for few moments" (see the following steps).
+- Paste the following code within `main.c` of the _ent_wlan_ anywhere in the main portion of the file _before_ the location where we will call the function, which will be around line 647 (see the following steps).
 
         #include <xively.h>
         #include <stdio.h>
@@ -231,21 +231,6 @@ Next we're going to add a function to connect to the Xively Broker. Its implemen
     - add two files to the project: ```Project```->```Add Files```: `ti/tirex-content/CC3200SDK_1.1.0/cc3200-sdk/example/common`
         - `timer_if.h`
         - `timer_if.c`
-    - implement two functions as follows:
-
-            #include <time.h>
-            #include <xi_bsp_rng.h>
-            #include <xi_bsp_time.h>
-
-            time_t XTIME(time_t * timer)
-            {
-                return xi_bsp_time_getcurrenttime_seconds();
-            }
-
-            uint32_t xively_ssl_rand_generate()
-            {
-                return xi_bsp_rng_get();
-            }
 
     - update the memory map in file `cc3200v1p32.cmd`. This should do it:
 
@@ -301,7 +286,7 @@ If everything worked correctly, within a few seconds you should see a debug log 
 
 If you do not see that, double check that you followed all the previous complicated steps accurately. If you see a `state` value other than `0` check within `xively_error.h` to see which error could be occuring (ex: `34` means bad credentials).
 
-If you are just testing (or on a Mac) go ahead and skip the next step and go straight to [Congratulations](#29)!
+If you are just testing (or on a Mac) go ahead and skip the next step and go straight to [Congratulations!](#congratulations!)
 
 
 ## Step 7 of 7: Flash your client application onto the device. _(Optional, Windows Only)_

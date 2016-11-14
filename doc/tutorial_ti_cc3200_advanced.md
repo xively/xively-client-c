@@ -168,3 +168,22 @@ The resulting file is ```wolfssl/tirtos/packages/ti/net/wolfssl/lib/wolfssl.aem4
         gmake -f wolfssl.mak all
 
 The resulting file is ```wolfssl/tirtos/packages/ti/net/wolfssl/lib/wolfssl.aem4f```. This is the WolfSSL library that will provide TLS support to the example application below.
+
+
+## wolfSSL time and random function implementations (to the end of main.c)
+
+- implement two functions as follows:
+
+            #include <time.h>
+            #include <xi_bsp_rng.h>
+            #include <xi_bsp_time.h>
+
+            time_t XTIME(time_t * timer)
+            {
+                return xi_bsp_time_getcurrenttime_seconds();
+            }
+
+            uint32_t xively_ssl_rand_generate()
+            {
+                return xi_bsp_rng_get();
+            }
