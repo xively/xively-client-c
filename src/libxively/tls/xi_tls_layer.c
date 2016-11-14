@@ -271,8 +271,6 @@ static xi_state_t recv_handler( void* context, void* data, xi_state_t in_out_sta
     xi_tls_layer_state_t* layer_data =
         ( xi_tls_layer_state_t* )XI_THIS_LAYER( context )->user_data;
 
-    xi_data_desc_t* data_desc = ( xi_data_desc_t* )data;
-
     int size_left          = 0;
     xi_bsp_tls_state_t ret = XI_BSP_TLS_STATE_READ_ERROR;
 
