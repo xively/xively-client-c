@@ -14,8 +14,6 @@ This advanced tutorial will teach you how to use custom wolfSSL library during c
 
 ## Step 1 of 4: Download and configure the wolfSSL library
 
-### Note: in this custom wolfSSL case this step is a prerequisite for the _basic tutorial's_   _Build the Xively C Client library_ step. So plese do it before or redo every steps thereafter.
-
 wolfSSL is used to create secure TLS connections. There is a version of wolfSSL provided on-chip when using the CC3200, but it does not provide Online Certificate Status Protocol ([OCSP](https://en.wikipedia.org/wiki/Online_Certificate_Status_Protocol)) support. OCSP support is crucial in detecting compromised and revoked Certificates, and therefore we have provided instructions on building and linking against a newer version of the wolfSSL library so that OCSP can be leveraged by your project.
 
 ### Download wolfSSL library source
