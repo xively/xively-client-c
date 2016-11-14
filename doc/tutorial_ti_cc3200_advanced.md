@@ -1,21 +1,32 @@
+# Stage 2: How to use custom wolfSSL during connecting to Xively with CC3200
+
+**Please be aware** this tutorial is the 2nd stage of a _basic_ CC3200 Xively tutorial. You should start with the _basic_ tutorial which resides in the same directory as this document. Thanks.
+
+This tutorial supports mainly macOS and Windows, though the Linux flow should be somewhat similar to macOS.
+
+## What you will learn.
+
+This advanced tutorial will teach you how to use custom wolfSSL library during connecting your CC3200 board to Xively instead of using the on-board TLS solution. This will let you using newest wolfSSL features (e.g. OCSP Stapling). Note this will increase overall RAM usage of the final solution since the wolfSSL library will now become part of the deployed application.
+
 ## Software you will install during the tutorial.
 
 - wolfSSL embedded SSL library
 
-## Step 3 of 9: Download the Xively C Client library.
-## Step 3.5: Download and configure the WolfSSL library
+## Step 1 of 4: Download and configure the wolfSSL library
 
-WolfSSL is used to create secure TLS connections.  There is a version of WolfSSL provided on-chip when using the CC3200, but it does not provide Online Certificate Status Protocol ([OCSP](https://en.wikipedia.org/wiki/Online_Certificate_Status_Protocol)) support. OCSP support is crucial in detecting compromised and revoked Certificates, and therefore we have provided instructions on building and linking against a newer version of the WolfSSL library so that OCSP can be leveraged by your project.
+### Note: in this custom wolfSSL case this step is a prerequisite for the _basic tutorial's_   _Build the Xively C Client library_ step. So plese do it before or redo every steps thereafter.
 
-### Download WolfSSL library source
+wolfSSL is used to create secure TLS connections. There is a version of wolfSSL provided on-chip when using the CC3200, but it does not provide Online Certificate Status Protocol ([OCSP](https://en.wikipedia.org/wiki/Online_Certificate_Status_Protocol)) support. OCSP support is crucial in detecting compromised and revoked Certificates, and therefore we have provided instructions on building and linking against a newer version of the wolfSSL library so that OCSP can be leveraged by your project.
 
-- Download WolfSSL library source code from [wolfssl](https://github.com/wolfSSL/wolfssl/releases/tag/v3.9.6)
-- Put the WolfSSL main directory under the PATH_TO_XIVELY_LIBRARY_MAIN_FOLDER/xively-client-c/src/import/tls/
+### Download wolfSSL library source
+
+- Download wolfSSL library source code from [wolfssl](https://github.com/wolfSSL/wolfssl/releases/tag/v3.9.6)
+- Put the wolfSSL main directory under the PATH_TO_XIVELY_LIBRARY_MAIN_FOLDER/xively-client-c/src/import/tls/
 - **Important: Rename the folder so it is just `wolfssl`. It should not include the version number.**
 
-### Configure WolfSSL library source
+### Configure wolfSSL library source
 
-The wolfSSL supports TI-RTOS builds. Below we've provided the needed `{..}/wolfssl/tirtos/products.mak` variable settings for Windows and MacOS to make it easier to get going:
+The wolfSSL supports TI-RTOS builds. Below we've provided the needed `{..}/wolfssl/tirtos/products.mak` variable settings for Windows and macOS to make it easier to get going:
 
 _Alternatively you can follow the steps written on [Using wolfSSL with TI-RTOS](http://processors.wiki.ti.com/index.php/Using_wolfSSL_with_TI-RTOS) to generate wolfSSL static library for CC3200._
 
@@ -32,7 +43,7 @@ _Alternatively you can follow the steps written on [Using wolfSSL with TI-RTOS](
     iar.targets.arm.M4F    =
     gnu.targets.arm.M4F    =
 
-#### MacOS:
+#### macOS:
 
     XDC_INSTALL_DIR        =/Applications/ti/xdctools_3_32_01_22_core
     BIOS_INSTALL_DIR       =$(HOME)/ti/tirex-content/tirtos_cc32xx_2_16_00_08/products/bios_6_45_01_29
@@ -140,50 +151,62 @@ _Alternatively you can follow the steps written on [Using wolfSSL with TI-RTOS](
 
 - Also in the file `wolfssl/tirtos/packages/ti/net/wolfssl/package.bld`, to add OCSP support add the `"src/ocsp.c"` source file to the wolfSSLObjList variable.
 
-## Step 5 of 9: Build the Xively C Client library.
-## Step 6 of 9: Build the wolfSSL embedded SSL library.
+## Step 2 of 4: Rebuild the Xively C Client library with new PRESET.
 
-- MacOS:
-    _From the `{..}/wolfssl/tirtos/` folder:_
+Rebuilding will persuade the Xively C Client to use the freshly configured wolfSSL solution during its connection to Xively Services. To do this execute the following commands in the root directory of the repository `xively-client-c`:
 
-        make -f wolfssl.mak all
+#### Windows:
 
-- Windows:
+Set paths for `gmake` and `mkdir`
+
+    PATH=%PATH%;c:\ti\ccsv6\utils\bin
+    PATH=%PATH%;c:\ti\ccsv6\utils\cygwin
+
+Clean and build the library:
+
+    gmake PRESET=CC3200 clean
+    gmake PRESET=CC3200
+
+#### macOS and Linux:
+
+Clean and build the library:
+
+    make PRESET=CC3200 clean
+    make PRESET=CC3200
+
+## Step 3 of 4: Build the wolfSSL embedded SSL library.
+
+_From the `{..}/wolfssl/tirtos/` folder:_
+
+#### Windows:
 
         PATH=%PATH%;c:\ti\ccsv6\utils\bin
         gmake -f wolfssl.mak all
 
-The resulting file is ```wolfssl/tirtos/packages/ti/net/wolfssl/lib/wolfssl.aem4f```. This is the WolfSSL library that will provide TLS support to the example application below.
-
-## Step 6 of 9: Build the wolfSSL embedded SSL library.
-
-- MacOS:
-    _From the `{..}/wolfssl/tirtos/` folder:_
+#### macOS:
 
         make -f wolfssl.mak all
 
-- Windows:
+The resulting file is `wolfssl/tirtos/packages/ti/net/wolfssl/lib/wolfssl.aem4f`. This is the wolfSSL library that will provide TLS support to the example application.
 
-        PATH=%PATH%;c:\ti\ccsv6\utils\bin
-        gmake -f wolfssl.mak all
+## Step 4 of 4: Extend, clean and rebuild your client application CCS project.
 
-The resulting file is ```wolfssl/tirtos/packages/ti/net/wolfssl/lib/wolfssl.aem4f```. This is the WolfSSL library that will provide TLS support to the example application below.
+- Implement two functions at the end of the main.c file as follows:
 
+        #include <time.h>
+        #include <xi_bsp_rng.h>
+        #include <xi_bsp_time.h>
 
-## wolfSSL time and random function implementations (to the end of main.c)
+        time_t XTIME(time_t * timer)
+        {
+            return xi_bsp_time_getcurrenttime_seconds();
+        }
 
-- implement two functions as follows:
+        uint32_t xively_ssl_rand_generate()
+        {
+            return xi_bsp_rng_get();
+        }
 
-            #include <time.h>
-            #include <xi_bsp_rng.h>
-            #include <xi_bsp_time.h>
+- All set. Now do this: `Project`->`Clean...`, `Project`->`Build` and `Run`->`Debug`
 
-            time_t XTIME(time_t * timer)
-            {
-                return xi_bsp_time_getcurrenttime_seconds();
-            }
-
-            uint32_t xively_ssl_rand_generate()
-            {
-                return xi_bsp_rng_get();
-            }
+This should result in a CC3200 connected to Xively Services **using custom wolfSSL library!**

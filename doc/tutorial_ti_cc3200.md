@@ -2,7 +2,7 @@
 
 Please scan the whole tutorial to get familiar with it. Then complete each step in a sequential manner; each step builds upon the previous one.
 
-This tutorial supports mainly MacOS and Windows, though the Linux flow should be somewhat similar to MacOS.
+This tutorial supports mainly macOS and Windows, though the Linux flow should be somewhat similar to macOS.
 
 
 ## What you will learn.
@@ -26,7 +26,7 @@ Texas Instruments [SimpleLink™ Wi-Fi® CC3200 LaunchPad™](http://www.ti.com/
 
 Code Composer Studio™ includes the toolchain (compiler) you'll need to build for the CC3200 and a java-based IDE.
 
-[Download](http://www.ti.com/tool/ccstudio) the Code Composer Studio™ appropriate for your operating system (Windows, Linux or MacOS).
+[Download](http://www.ti.com/tool/ccstudio) the Code Composer Studio™ appropriate for your operating system (Windows, Linux or macOS).
 
 1. Complete the free registration.
 2. Validate your email address.
@@ -36,7 +36,7 @@ Code Composer Studio™ includes the toolchain (compiler) you'll need to build f
 6. Accept the license agreement and click ```Next >```.
 7. Choose the default install folder and click ```Next >```. Or, if you install into a custom directory, then please note its path as you will need to refer to it later.
 
-	By default the path should be ```c:\ti``` on Windows and ```/Applications/ti``` on MacOS.
+	By default the path should be ```c:\ti``` on Windows and ```/Applications/ti``` on macOS.
 
 8. Enable the following two options under ```SimpleLink Wireless MCUs```:
 	1. ```CC3200xx Device Support```
@@ -92,7 +92,7 @@ Clean and build the library:
     gmake PRESET=CC3200_TLS_SOCKET clean
     gmake PRESET=CC3200_TLS_SOCKET
 
-#### MacOS and Linux:
+#### macOS and Linux:
 
 Clean and build the library:
 
@@ -274,7 +274,7 @@ Next we're going to add a function to connect to the Xively Broker. Its implemen
 
                 lRetVal = sl_WlanConnect(ENT_NAME,strlen(ENT_NAME),NULL,&g_SecParams,NULL);
 
-    - All set. Now do this: ```Project```->```Build``` and ```Run```->```Debug```
+    - All set. Now do this: `Project`->`Build` and `Run`->`Debug`
 
         This should result in a CC3200 connected to Xively Services!
 
