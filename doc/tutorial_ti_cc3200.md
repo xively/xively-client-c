@@ -326,7 +326,13 @@ You should be able to go back to your device page on Xively CPM and see that its
 
 ## What to do next?
 
-_More coming soon, for now [please visit our docs](http://developer.xively.com/docs) and view some other guides and please let us know any feedback or questions that you may have regarding this guide or Xively in general!_
+### Stage 2: How to use custom wolfSSL during connecting to Xively with CC3200
+
+For advanced security please take a look at the tutorial extension in the same directory as this document: [CC3200 Xively tutorial Stage 2](./tutorial_ti_cc3200_advanced.md)
+
+### More coming soon
+
+_For now [please visit our docs](http://developer.xively.com/docs) and view some other guides and please let us know any feedback or questions that you may have regarding this guide or Xively in general!_
 
 ## Common pitfalls or errors
 
