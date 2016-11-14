@@ -12,7 +12,7 @@
 
 #include <stdio.h>
 
-#define WOLFSSL_DEBUG_LOG 1
+#define WOLFSSL_DEBUG_LOG 0
 
 typedef struct wolfssl_tls_context_s
 {

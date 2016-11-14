@@ -51,7 +51,7 @@ const char* xi_debug_dont_print_the_path( const char* msg )
     }
 
     /* let's crawl back to the beginning */
-    while ( *tmp != '/' && tmp != msg )
+    while ( *tmp != '/' && *tmp != '\\' && tmp != msg )
     {
         --tmp;
     }
