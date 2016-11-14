@@ -12,7 +12,7 @@
 
 #include <stdio.h>
 
-#define WOLFSSL_DEBUG_LOG 0
+#define WOLFSSL_DEBUG_LOG 1
 
 typedef struct wolfssl_tls_context_s
 {
@@ -20,18 +20,27 @@ typedef struct wolfssl_tls_context_s
     CYASSL* obj;
 } wolfssl_tls_context_t;
 
+
+#ifndef XI_DEBUG_PRINTF
+#include <stdio.h>
+#define __xi_printf( ... )                                                               \
+    printf( __VA_ARGS__ );                                                               \
+    fflush( stdout )
+#else /* XI_DEBUG_PRINTF */
+#define __xi_printf( ... ) XI_DEBUG_PRINTF( __VA_ARGS__ );
+#endif /* XI_DEBUG_PRINTF */
+
 #if WOLFSSL_DEBUG_LOG
 #define wolfssl_debug_logger( format_string )                                            \
-    printf( "%s@%d[  BSP TLS   ] [ WOLFSSL ] " format_string "\n", __FILE__, __LINE__ ); \
-    fflush( stdout )
+    __xi_printf( "%s@%d[  BSP TLS   ] [ WOLFSSL ] " format_string "\n", __FILE__,        \
+                 __LINE__ )
 #define wolfssl_debug_format( format_string, ... )                                       \
-    printf( "%s@%d[  BSP TLS   ] [ WOLFSSL ] " format_string "\n", __FILE__, __LINE__,   \
-            __VA_ARGS__ );                                                               \
-    fflush( stdout )
-#else
+    __xi_printf( "%s@%d[  BSP TLS   ] [ WOLFSSL ] " format_string "\n", __FILE__,        \
+                 __LINE__, __VA_ARGS__ )
+#else /* WOLFSSL_DEBUG_LOG */
 #define wolfssl_debug_logger( ... )
 #define wolfssl_debug_format( ... )
-#endif
+#endif /* WOLFSSL_DEBUG_LOG */
 
 int xi_wolfssl_recv( CYASSL* ssl, char* buf, int sz, void* context )
 {
