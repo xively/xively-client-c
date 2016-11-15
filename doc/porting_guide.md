@@ -245,7 +245,7 @@ A typical TARGET flag looks like this:
 
 A typical CONFIG flag:
 
-	bsp_posix-posix_fs-posix_platform-tls-senml-control_topic-memory_limiter
+	bsp_posix-posix_fs-posix_platform-tls_bsp-senml-control_topic-memory_limiter
 
 ###### Xively Client Feature flags
 
@@ -274,7 +274,7 @@ A typical CONFIG flag:
     - mqtt_localhost    - the Client will connect to localhost MQTT server. The purpose of this configuration option
                           is to help development processes.
     - no_certverify     - lowers security by disabling TLS certificate verification
-    - tls               - the Client will use third party TLS 1.2 implementations to encrypt data before it's sent over network sockets.   
+    - tls_bsp           - the Client will use third party TLS 1.2 implementations to encrypt data before it's sent over network sockets.   
 					      The lack of this flag will skip the TLS handshaking.  This be may helpful in connecting to mosquitto to test,
                           but may not be supported on some secure services and is not recommend for production
                           deployment.  The Xively Gateway will not accept connections without TLS.
@@ -316,7 +316,7 @@ The examples are command line applications libxively links against. They require
 
 #### Let's Begin
 
-As a rule of thumb if you are stuck or confused, then please use existing platform config files like: `make/mt-os/mt-cc3200` or `make/mt-os/mt-linux` files as an example.
+As a rule of thumb if you are stuck or confused, then please use existing platform config files like: `make/mt-os/mt-cc3200` or `make/mt-os/mt-linux` files as examples.
 
 Let's assume the new platform's name is np2000. 
 
@@ -404,7 +404,7 @@ To make this possible, the following steps have to be taken.
     - the default selection is wolfssl.  If wolfssl fits your needs then there's nothing to do here.
     - to select a different TLS lib add
 
-            XI_BSP_TLS=mbedtls
+            XI_BSP_TLS=mbedTLS
 
         or
 
