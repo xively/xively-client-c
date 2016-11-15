@@ -205,6 +205,32 @@ The resulting file is `wolfssl/tirtos/packages/ti/net/wolfssl/lib/wolfssl.aem4f`
             return xi_bsp_rng_get();
         }
 
+- update the memory map in file `cc3200v1p32.cmd`. This should do it:
+
+        MEMORY
+        {
+            /* Application uses internal RAM for program and data */
+            SRAM_CODE (RWX) : origin = 0x20004000, length = 0x3C000
+            //SRAM_DATA (RWX) : origin = 0x20017000, length = 0x19000
+        }
+
+        /* Section allocation in memory */
+
+        SECTIONS
+        {
+            .intvecs:   > RAM_BASE
+            .init_array : > SRAM_CODE
+            .vtable :   > SRAM_CODE
+            .text   :   > SRAM_CODE
+            .const  :   > SRAM_CODE
+            .cinit  :   > SRAM_CODE
+            .pinit  :   > SRAM_CODE
+            .data   :   > SRAM_CODE
+            .bss    :   > SRAM_CODE
+            .sysmem :   > SRAM_CODE
+            .stack  :   > SRAM_CODE(HIGH)
+        }
+
 - All set. Now do this: `Project`->`Clean...`, `Project`->`Build` and `Run`->`Debug`
 
 This should result in a CC3200 connected to Xively Services **using custom wolfSSL library!**
