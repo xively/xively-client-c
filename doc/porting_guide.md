@@ -172,7 +172,7 @@ Run command
 
 Alternatively one can use mbedTLS instead of wolfSSL if preferred:
 
-	make XI_BSP_TLS=mbedTLS
+	make XI_BSP_TLS=mbedtls
 
 Occasionally cleaning the build directories are necessary. This is done with either of the following commands:
 
@@ -404,7 +404,7 @@ To make this possible, the following steps have to be taken.
     - the default selection is wolfssl.  If wolfssl fits your needs then there's nothing to do here.
     - to select a different TLS lib add
 
-            XI_BSP_TLS=mbedTLS
+            XI_BSP_TLS=mbedtls
 
         or
 
