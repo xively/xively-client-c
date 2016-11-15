@@ -231,6 +231,9 @@ The resulting file is `wolfssl/tirtos/packages/ti/net/wolfssl/lib/wolfssl.aem4f`
             .stack  :   > SRAM_CODE(HIGH)
         }
 
+- add the wolfSSL library: ```Project```->```Properties```->```Build```->```ARM Linker```->```File Search Path```:
+    - `wolfssl/tirtos/packages/ti/net/wolfssl/lib/wolfssl.aem4f`
+
 - All set. Now do this: `Project`->`Clean...`, `Project`->`Build` and `Run`->`Debug`
 
 This should result in a CC3200 connected to Xively Services **using custom wolfSSL library!**
