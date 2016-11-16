@@ -358,10 +358,9 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
             UART_PRINT( "connection to %s:%d has failed reason %d\n", conn_data->host,
                         conn_data->port, state );
 
-            xi_connect_to( in_context_handle, conn_data->host, conn_data->port,
-                           conn_data->username, conn_data->password,
-                           conn_data->connection_timeout, conn_data->keepalive_timeout,
-                           conn_data->session_type, &on_connected );
+            xi_connect( in_context_handle, conn_data->username, conn_data->password,
+                        conn_data->connection_timeout, conn_data->keepalive_timeout,
+                        conn_data->session_type, &on_connected );
 
             return;
         case XI_CONNECTION_STATE_OPENED:
@@ -409,11 +408,9 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
             {
                 WaitForWlanEvent();
 
-                xi_connect_to( in_context_handle, conn_data->host, conn_data->port,
-                               conn_data->username, conn_data->password,
-                               conn_data->connection_timeout,
-                               conn_data->keepalive_timeout, conn_data->session_type,
-                               &on_connected );
+                xi_connect( in_context_handle, conn_data->username, conn_data->password,
+                            conn_data->connection_timeout, conn_data->keepalive_timeout,
+                            conn_data->session_type, &on_connected );
             }
             return;
         default:
@@ -459,9 +456,9 @@ void ConnectToXively()
         return;
     }
 
-    xi_state_t connect_result = xi_connect_to(
-        gXivelyContextHandle, "broker.dev.xively.io", 8883, XIVELY_DEVICE_ID,
-        XIVELY_DEVICE_PASSWORD, 10, 0, XI_SESSION_CLEAN, &on_connected );
+    xi_state_t connect_result =
+        xi_connect( gXivelyContextHandle, XIVELY_DEVICE_ID, XIVELY_DEVICE_PASSWORD, 10, 0,
+                    XI_SESSION_CLEAN, &on_connected );
 
     /* start processing xively library events */
     xi_events_process_blocking();
