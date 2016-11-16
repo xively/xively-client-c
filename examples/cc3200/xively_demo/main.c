@@ -135,7 +135,7 @@ void WaitForWlanEvent();
 /******************************************************************************/
 
 /* Names of the MQTT topics used by this application */
-const char* const gTempratureTopicName =
+const char* const gTemperatureTopicName =
     "xi/blue/v1/" XIVELY_ACCOUNT_ID "/d/" XIVELY_DEVICE_ID "/Temperature";
 const char* const gGreenLedTopicName =
     "xi/blue/v1/" XIVELY_ACCOUNT_ID "/d/" XIVELY_DEVICE_ID "/Green LED";
@@ -167,9 +167,7 @@ const static ledNames gRedLed    = MCU_RED_LED_GPIO;
 /**
 * @brief Event handler for SW2 button press/release interrupts.
  *
- * If the button was pushed the pinValue will be 1 if it was released 0.
- * @note This function uses the global variable of gXivelyContextHandle - the button_if
- * implementation doesn't provide alternative.
+ * The pinValue will be 1 on a button press event, 0 on button up..
  */
 void pushButtonInterruptHandlerSW2()
 {
@@ -192,9 +190,7 @@ void pushButtonInterruptHandlerSW2()
 /**
  * @brief Event handler for SW2 button press/release interrupts.
  *
- * If the button was pushed the pinValue will be 1 if it was released 0.
- * @note This function uses the global variable of gXivelyContextHandle - the button_if
- * implementation doesn't provide alternative.
+ * The pinValue will be 1 on a button press event, 0 on button up.
  */
 void pushButtonInterruptHandlerSW3()
 {
@@ -215,8 +211,8 @@ void pushButtonInterruptHandlerSW3()
 }
 
 /**
- * @brief Function that handles events related to the LEDs' topics messages and
- * subscription status changes.
+ * @brief Function that handles messages sent to the device on the LEDs' topics,
+ * including toggle commands and subscription changes.
  *
  * @note For more details please refer to the xively.h - xi_subscribe function.
  *
@@ -225,7 +221,8 @@ void pushButtonInterruptHandlerSW3()
  * operation result or the incoming message
  * @oaram params - structure with data
  * @param state - state of the operation
- * @oaram user_data - pointer attached to the topic
+ * @oaram user_data - Pointer provided upon LedTopic subscription. For this application's
+ * use, these are the LED names.
  */
 void onLedTopic( xi_context_handle_t in_context_handle,
                  xi_sub_call_type_t call_type,
@@ -247,7 +244,6 @@ void onLedTopic( xi_context_handle_t in_context_handle,
             }
             return;
         case XI_SUB_CALL_MESSAGE:
-        {
             if ( params->message.temporary_payload_data_length == 1 )
             {
                 ledNames ledName = *( ( ledNames* )user_data );
@@ -269,13 +265,12 @@ void onLedTopic( xi_context_handle_t in_context_handle,
                                     params->message.topic );
                         break;
                 }
+                else
+                {
+                    UART_PRINT( "unexpected data length on topic %s \r\n",
+                                params->message.topic );
+                }
             }
-            else
-            {
-                UART_PRINT( "unexpected data length on topic %s \r\n",
-                            params->message.topic );
-            }
-        }
             return;
         default:
             return;
@@ -283,8 +278,9 @@ void onLedTopic( xi_context_handle_t in_context_handle,
 }
 
 /**
- * @brief Implementation of recurring time task that sends updates on temperature sensor
- * on each invocation.
+ * @brief Recurring time task that temporarily activates the device's temperature sensor,
+ * publishes the result on the temperature topic for the device, an then re-enables LED
+ * control.
  *
  * @note for more details about user time tasks please refer to the xively.h -
  * xi_schedule_timed_task function.
@@ -325,7 +321,7 @@ void send_temprature( const xi_context_handle_t context_handle,
     TMP006DrvGetTemp( &fCurrentTemp );
 
     sprintf( ( char* )&msg, "%5.02f", fCurrentTemp );
-    xi_publish( context_handle, gTempratureTopicName, msg, XI_MQTT_QOS_AT_MOST_ONCE,
+    xi_publish( context_handle, gTemperatureTopicName, msg, XI_MQTT_QOS_AT_MOST_ONCE,
                 XI_MQTT_RETAIN_FALSE, NULL, NULL );
 
     do
@@ -349,7 +345,7 @@ end:
  * @param context_handle - xively library context required for calling API functions
  * @param data - points to the structure that holds detailed information about the
  * connection state and settings
- * @param - state additional internal state of the library helps to determine the reason
+ * @param state - additional internal state of the library helps to determine the reason
  * of connection failure or disconnection
  */
 void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t state )
@@ -429,8 +425,8 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
 /**
  * @brief Driver for the xively library logic
  *
- * It initialises the library, creates a context and starts the internal event dispatcher
- * and event processing of xively library.
+ * This function initialises the library, creates a context and starts the internal event
+ * dispatcher and event processing of xively library.
  *
  * This function is blocking for the sakness of this demo application however it is
  * possible to run xively's event processing with limit of iterations.
