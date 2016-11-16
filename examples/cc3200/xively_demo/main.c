@@ -310,7 +310,7 @@ void send_temperature( const xi_context_handle_t context_handle,
         goto end;
     }
 
-    /* Init Temprature Sensor */
+    /* Init Temperature Sensor */
     lRetVal = TMP006DrvOpen();
     if ( lRetVal < 0 )
     {
