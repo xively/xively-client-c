@@ -388,7 +388,7 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
             xi_subscribe( in_context_handle, gRedLedTopicName, XI_MQTT_QOS_AT_MOST_ONCE,
                           onLedTopic, ( void* )&gRedLed );
 
-            /* re-enable the button interrupts */
+            /* enable the button interrupts */
             Button_IF_EnableInterrupt( SW2 | SW3 );
 
             break;
