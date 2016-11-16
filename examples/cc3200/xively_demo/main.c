@@ -1,3 +1,9 @@
+/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license.
+ */
+
 //*****************************************************************************
 //
 // Copyright (C) 2014 Texas Instruments Incorporated - http://www.ti.com/
@@ -108,10 +114,11 @@ extern uVectorEntry __vector_table;
 //****************************************************************************
 //                      LOCAL FUNCTION PROTOTYPES
 //****************************************************************************
-long EntWlan();
+long MainLogic();
 static void BoardInit( void );
 static void InitializeAppVariables();
 void ConnectToXively();
+void WaitForWlanEvent();
 
 /******************************************************************************/
 /* BEGINNING OF XIVELY CODE */
@@ -142,8 +149,7 @@ const char* const gButtonSW3TopicName =
     "xi/blue/v1/" XIVELY_ACCOUNT_ID "/d/" XIVELY_DEVICE_ID "/Button SW3";
 
 /* Required by push button interrupt handlers - there is no space for user argument so we
- * can't pass the xively's context handler as a function argument.
- * None of the Xively's callbacks require global variables!*/
+ * can't pass the xively's context handler as a function argument. */
 xi_context_handle_t gXivelyContextHandle = -1;
 
 /* Used to store the temperature timed task handles. */
@@ -161,7 +167,7 @@ const static ledNames gRedLed    = MCU_RED_LED_GPIO;
 /**
 * @brief Event handler for SW2 button press/release interrupts.
  *
- * Event might be related to push or release of the button.
+ * If the button was pushed the pinValue will be 1 if it was released 0.
  * @note This function uses the global variable of gXivelyContextHandle - the button_if
  * implementation doesn't provide alternative.
  */
@@ -186,7 +192,7 @@ void pushButtonInterruptHandlerSW2()
 /**
  * @brief Event handler for SW2 button press/release interrupts.
  *
- * Event might be related to push or release of the button.
+ * If the button was pushed the pinValue will be 1 if it was released 0.
  * @note This function uses the global variable of gXivelyContextHandle - the button_if
  * implementation doesn't provide alternative.
  */
@@ -292,32 +298,32 @@ void send_temprature( const xi_context_handle_t context_handle,
                       const xi_timed_task_handle_t timed_task_handle,
                       void* user_data )
 {
-    // Prepare configuration for temperature sensor for I2C bus
+    /* Prepare configuration for temperature sensor for I2C bus */
     PinTypeI2C( PIN_01, PIN_MODE_1 );
     PinTypeI2C( PIN_02, PIN_MODE_1 );
 
-    int lRetVal = -1;
+    int lRetVal        = -1;
+    float fCurrentTemp = .0f;
+    char msg[16]       = {'\0'};
 
-    // I2C Init
+    /* I2C Init */
     lRetVal = I2C_IF_Open( I2C_MASTER_MODE_FST );
     if ( lRetVal < 0 )
     {
         ERR_PRINT( lRetVal );
-        return;
+        goto end;
     }
 
-    // Init Temprature Sensor
+    /* Init Temprature Sensor */
     lRetVal = TMP006DrvOpen();
     if ( lRetVal < 0 )
     {
         ERR_PRINT( lRetVal );
-        return;
+        goto end;
     }
 
-    float fCurrentTemp = .0f;
     TMP006DrvGetTemp( &fCurrentTemp );
 
-    char msg[16] = {'\0'};
     sprintf( ( char* )&msg, "%5.02f", fCurrentTemp );
     xi_publish( context_handle, gTempratureTopicName, msg, XI_MQTT_QOS_AT_MOST_ONCE,
                 XI_MQTT_RETAIN_FALSE, NULL, NULL );
@@ -326,7 +332,8 @@ void send_temprature( const xi_context_handle_t context_handle,
     {
     } while ( I2C_IF_Close() != 0 );
 
-    // Restore configuration for LED control
+end:
+    /* Restore configuration for LED control */
     PinTypeGPIO( PIN_01, PIN_MODE_0, false );
     GPIODirModeSet( GPIOA1_BASE, 0x4, GPIO_DIR_MODE_OUT );
 
@@ -364,7 +371,7 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
         case XI_CONNECTION_STATE_OPENED:
             UART_PRINT( "connected to %s:%d\n", conn_data->host, conn_data->port );
 
-            /* register a function to be called periodically */
+            /* register a function to publish temperature data every 5 seconds */
             gSendTempratureHandle =
                 xi_schedule_timed_task( in_context_handle, send_temprature, 5, 1, NULL );
 
@@ -373,7 +380,7 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
                 UART_PRINT( "send_temprature_task couldn't be registered\r\n" );
             }
 
-            /* re-subscribe to topics led topics */
+            /* subscribe to LED topics to listen for light toggle commands */
             xi_subscribe( in_context_handle, gGreenLedTopicName, XI_MQTT_QOS_AT_MOST_ONCE,
                           onLedTopic, ( void* )&gGreenLed );
             xi_subscribe( in_context_handle, gOrangeLedTopicName,
@@ -404,7 +411,7 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
             }
             else
             {
-                waitForWlanEvent();
+                WaitForWlanEvent();
 
                 xi_connect_to( in_context_handle, conn_data->host, conn_data->port,
                                conn_data->username, conn_data->password,
@@ -433,18 +440,18 @@ void ConnectToXively()
     /* Register Push Button Handlers */
     Button_IF_Init( pushButtonInterruptHandlerSW2, pushButtonInterruptHandlerSW3 );
 
-    // Make the buttons to react on both press and release events
+    /* Make the buttons to react on both press and release events */
     MAP_GPIOIntTypeSet( GPIOA1_BASE, GPIO_PIN_5, GPIO_BOTH_EDGES );
     MAP_GPIOIntTypeSet( GPIOA2_BASE, GPIO_PIN_6, GPIO_BOTH_EDGES );
 
-    // Disable the interrupt for now
+    /* Disable the interrupt for now */
     Button_IF_DisableInterrupt( SW2 | SW3 );
 
     xi_state_t ret_state = xi_initialize( "account_id", "xi_username", 0 );
 
     if ( XI_STATE_OK != ret_state )
     {
-        printf( "xi failed to initialise\r\n" );
+        UART_PRINT( "xi failed to initialise\r\n" );
         return;
     }
 
@@ -452,7 +459,7 @@ void ConnectToXively()
 
     if ( XI_INVALID_CONTEXT_HANDLE == gXivelyContextHandle )
     {
-        printf( " xi failed to create context, error: %d\n", -gXivelyContextHandle );
+        UART_PRINT( " xi failed to create context, error: %d\n", -gXivelyContextHandle );
         return;
     }
 
@@ -494,6 +501,7 @@ uint32_t xively_ssl_rand_generate()
 // SimpleLink Asynchronous Event Handlers -- Start
 //*****************************************************************************
 
+#if 0
 //*****************************************************************************
 //
 //! \brief The Function Handles WLAN Events
@@ -583,7 +591,7 @@ void SimpleLinkWlanEventHandler( SlWlanEvent_t* pWlanEvent )
         break;
     }
 }
-
+#endif
 //*****************************************************************************
 //
 //! \brief This function handles network events such as IP acquisition, IP
@@ -978,14 +986,14 @@ static void BoardInit( void )
 
 //*****************************************************************************
 //
-//! waitForWlanEvent
+//! WaitForWlanEvent
 //!
 //! \param  None
 //!
 //! \return None
 //!
 //*****************************************************************************
-void waitForWlanEvent()
+void WaitForWlanEvent()
 {
     // Wait for WLAN Event
     while ( ( !IS_CONNECTED( g_ulStatus ) ) || ( !IS_IP_ACQUIRED( g_ulStatus ) ) )
@@ -1002,14 +1010,14 @@ void waitForWlanEvent()
 
 //*****************************************************************************
 //
-//! EntWlan
+//! MainLogic
 //!
 //! \param  None
 //!
-//! \return None
+//! \return SUCCESS if no error error value otherwise
 //!
 //*****************************************************************************
-long EntWlan()
+long MainLogic()
 {
     SlSecParams_t g_SecParams;
     long lRetVal          = -1;
@@ -1070,7 +1078,7 @@ long EntWlan()
                       &pValues, 1 );
 
     // wait for the WiFi connection
-    waitForWlanEvent();
+    WaitForWlanEvent();
 
     // this is where the connection to Xively Broker can be established
     ConnectToXively();
@@ -1117,7 +1125,8 @@ int main()
     ClearTerm();
 #endif
 
-    lRetVal = EntWlan();
+    lRetVal = MainLogic();
+
     if ( lRetVal < 0 )
     {
         ERR_PRINT( lRetVal );
