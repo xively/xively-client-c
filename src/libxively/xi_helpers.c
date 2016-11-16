@@ -177,7 +177,7 @@ void get_stack_trace()
     char **strings;
 
     nptrs = backtrace(buffer, SIZE);
-    printf( "backtrace() returned %d addresses\r\n", nptrs);
+    printf( "backtrace() returned %d addresses\n", nptrs);
     fflush( stdout );
 
     /* The call backtrace_symbols_fd(buffer, nptrs, STDOUT_FILENO)
@@ -191,7 +191,7 @@ void get_stack_trace()
 
     for (j = 0; j < nptrs; j++)
     {
-        printf( "%s\r\n", strings[j]);
+        printf( "%s\n", strings[j]);
         fflush( stdout );
     }
 

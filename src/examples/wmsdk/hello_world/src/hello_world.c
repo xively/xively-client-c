@@ -29,7 +29,7 @@ int main( void )
     /* Initialize console on uart0 */
     wmstdio_init( UART0_ID, 0 );
 
-    wmprintf( "Hello World application Started\r\n" );
+    wmprintf( "Hello World application Started\n" );
 
     // initialize xi library.
     if ( XI_STATE_OK != xi_create_default_context() )
@@ -41,10 +41,10 @@ int main( void )
     while ( 1 )
     {
         count++;
-        wmprintf( "Hello World: iteration %d\r\n", count );
-        wmprintf( "Hello World: iteration os_ticks_get() =  %d\r\n",
+        wmprintf( "Hello World: iteration %d\n", count );
+        wmprintf( "Hello World: iteration os_ticks_get() =  %d\n",
                   os_ticks_to_msec( os_ticks_get() ) );
-        wmprintf( "Hello World: iteration os_total_ticks_get() = %d\r\n",
+        wmprintf( "Hello World: iteration os_total_ticks_get() = %d\n",
                   os_ticks_to_msec( os_total_ticks_get() ) );
 
         /* Sleep  5 seconds */

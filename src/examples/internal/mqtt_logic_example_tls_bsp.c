@@ -29,9 +29,9 @@ static uint8_t connected    = 0;
 
 #if BSP_DEBUG
 #define BSP_ENTER()                                                                      \
-    printf( "[XI_TLS_BSP ENTER %s:%d (%s)]\r\n", __FILE__, __LINE__, __func__ );
+    printf( "[XI_TLS_BSP ENTER %s:%d (%s)]\n", __FILE__, __LINE__, __func__ );
 #define BSP_EXIT( status )                                                               \
-    printf( "[XI_TLS_BSP EXIT %s:%d (%s)] status: %d\r\n", __FILE__, __LINE__, __func__, \
+    printf( "[XI_TLS_BSP EXIT %s:%d (%s)] status: %d\n", __FILE__, __LINE__, __func__, \
             status );                                                                    \
     return status;
 #else
