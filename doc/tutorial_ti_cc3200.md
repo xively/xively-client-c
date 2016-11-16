@@ -300,9 +300,9 @@ You should be able to go back to your device page on Xively CPM and see that its
 
 ## What to do next?
 
-### Stage 2: How to use custom wolfSSL during connecting to Xively with CC3200
+### How to use a more secure configuration of wolfSSL with OCSP Stapling?
 
-For advanced security please take a look at the tutorial extension in the same directory as this document: [CC3200 Xively tutorial Stage 2](./tutorial_ti_cc3200_advanced.md)
+For advanced security please take a look at the tutorial extension: [CC3200 Xively tutorial Stage 2](./tutorial_ti_cc3200_advanced.md)
 
 ### More coming soon
 
