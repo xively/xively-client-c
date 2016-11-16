@@ -290,9 +290,9 @@ void onLedTopic( xi_context_handle_t in_context_handle,
  * cancel the task
  * @param user_data - data assosicated with this timed task
  */
-void send_temprature( const xi_context_handle_t context_handle,
-                      const xi_timed_task_handle_t timed_task_handle,
-                      void* user_data )
+void send_temperature( const xi_context_handle_t context_handle,
+                       const xi_timed_task_handle_t timed_task_handle,
+                       void* user_data )
 {
     /* Prepare configuration for temperature sensor for I2C bus */
     PinTypeI2C( PIN_01, PIN_MODE_1 );
@@ -368,11 +368,11 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
 
             /* register a function to publish temperature data every 5 seconds */
             gTemperatureTaskHandle =
-                xi_schedule_timed_task( in_context_handle, send_temprature, 5, 1, NULL );
+                xi_schedule_timed_task( in_context_handle, send_temperature, 5, 1, NULL );
 
             if ( XI_INVALID_TIMED_TASK_HANDLE == gTemperatureTaskHandle )
             {
-                UART_PRINT( "send_temprature_task couldn't be registered\r\n" );
+                UART_PRINT( "send_temperature_task couldn't be registered\r\n" );
             }
 
             /* subscribe to LED topics to listen for light toggle commands */
