@@ -113,6 +113,383 @@ static void BoardInit( void );
 static void InitializeAppVariables();
 void ConnectToXively();
 
+/******************************************************************************/
+/* BEGINNING OF XIVELY CODE */
+/******************************************************************************/
+
+/* Includes used by the code below. */
+#include <time.h>
+#include <xi_bsp_rng.h>
+#include <xi_bsp_time.h>
+#include <xively.h>
+
+/******************************************************************************/
+/* BEGINNING OF XIVELY CODE GLOBAL SECTION */
+/******************************************************************************/
+
+/* Names of the MQTT topics used by this application */
+const char* const gTempratureTopicName =
+    "xi/blue/v1/" XIVELY_ACCOUNT_ID "/d/" XIVELY_DEVICE_ID "/Temperature";
+const char* const gGreenLedTopicName =
+    "xi/blue/v1/" XIVELY_ACCOUNT_ID "/d/" XIVELY_DEVICE_ID "/Green LED";
+const char* const gOrangeLedTopicName =
+    "xi/blue/v1/" XIVELY_ACCOUNT_ID "/d/" XIVELY_DEVICE_ID "/Orange LED";
+const char* const gRedLedTopicName =
+    "xi/blue/v1/" XIVELY_ACCOUNT_ID "/d/" XIVELY_DEVICE_ID "/Red LED";
+const char* const gButtonSW2TopicName =
+    "xi/blue/v1/" XIVELY_ACCOUNT_ID "/d/" XIVELY_DEVICE_ID "/Button SW2";
+const char* const gButtonSW3TopicName =
+    "xi/blue/v1/" XIVELY_ACCOUNT_ID "/d/" XIVELY_DEVICE_ID "/Button SW3";
+
+/* Required by push button interrupt handlers - there is no space for user argument so we
+ * can't pass the xively's context handler as a function argument.
+ * None of the Xively's callbacks require global variables!*/
+xi_context_handle_t gXivelyContextHandle = -1;
+
+/* Used to store the temperature timed task handles. */
+xi_timed_task_handle_t gSendTempratureHandle = -1;
+
+/* Used by onLed handler function to differentiate LED's */
+const static ledNames gGreenLed  = MCU_GREEN_LED_GPIO;
+const static ledNames gOrangeLed = MCU_ORANGE_LED_GPIO;
+const static ledNames gRedLed    = MCU_RED_LED_GPIO;
+
+/******************************************************************************/
+/* END OF XIVELY CODE GLOBAL SECTION */
+/******************************************************************************/
+
+/**
+* @brief Event handler for SW2 button press/release interrupts.
+ *
+ * Event might be related to push or release of the button.
+ * @note This function uses the global variable of gXivelyContextHandle - the button_if
+ * implementation doesn't provide alternative.
+ */
+void pushButtonInterruptHandlerSW2()
+{
+    int pinValue = GPIOPinRead( GPIOA2_BASE, GPIO_PIN_6 );
+
+    if ( pinValue == 0 )
+    {
+        xi_publish( gXivelyContextHandle, gButtonSW2TopicName, "0",
+                    XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
+    }
+    else
+    {
+        xi_publish( gXivelyContextHandle, gButtonSW2TopicName, "1",
+                    XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
+    }
+
+    Button_IF_EnableInterrupt( SW2 );
+}
+
+/**
+ * @brief Event handler for SW2 button press/release interrupts.
+ *
+ * Event might be related to push or release of the button.
+ * @note This function uses the global variable of gXivelyContextHandle - the button_if
+ * implementation doesn't provide alternative.
+ */
+void pushButtonInterruptHandlerSW3()
+{
+    int pinValue = GPIOPinRead( GPIOA1_BASE, GPIO_PIN_5 );
+
+    if ( pinValue == 0 )
+    {
+        xi_publish( gXivelyContextHandle, gButtonSW3TopicName, "0",
+                    XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
+    }
+    else
+    {
+        xi_publish( gXivelyContextHandle, gButtonSW3TopicName, "1",
+                    XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
+    }
+
+    Button_IF_EnableInterrupt( SW3 );
+}
+
+/**
+ * @brief Function that handles events related to the LEDs' topics messages and
+ * subscription status changes.
+ *
+ * @note For more details please refer to the xively.h - xi_subscribe function.
+ *
+ * @param in_context_handle - xively library context required for calling API functions
+ * @param call_type - describes if the handler was called carrying the subscription
+ * operation result or the incoming message
+ * @oaram params - structure with data
+ * @param state - state of the operation
+ * @oaram user_data - pointer attached to the topic
+ */
+void onLedTopic( xi_context_handle_t in_context_handle,
+                 xi_sub_call_type_t call_type,
+                 const xi_sub_call_params_t* const params,
+                 xi_state_t state,
+                 void* user_data )
+{
+    switch ( call_type )
+    {
+        case XI_SUB_CALL_SUBACK:
+            if ( params->suback.suback_status == XI_MQTT_SUBACK_FAILED )
+            {
+                UART_PRINT( "topic:%s. Subscription failed.\n", params->suback.topic );
+            }
+            else
+            {
+                UART_PRINT( "topic:%s. Subscription granted %d.\n", params->suback.topic,
+                            ( int )params->suback.suback_status );
+            }
+            return;
+        case XI_SUB_CALL_MESSAGE:
+        {
+            if ( params->message.temporary_payload_data_length == 1 )
+            {
+                ledNames ledName = *( ( ledNames* )user_data );
+
+                switch ( params->message.temporary_payload_data[0] )
+                {
+                    case 48:
+                        UART_PRINT( "topic:%s off %d\r\n", params->suback.topic,
+                                    ( int )ledName );
+                        GPIO_IF_LedOff( ledName );
+                        break;
+                    case 49:
+                        UART_PRINT( "topic:%s on %d\r\n", params->suback.topic,
+                                    ( int )ledName );
+                        GPIO_IF_LedOn( ledName );
+                        break;
+                    default:
+                        UART_PRINT( "unexpected value on topic %s \r\n",
+                                    params->message.topic );
+                        break;
+                }
+            }
+            else
+            {
+                UART_PRINT( "unexpected data length on topic %s \r\n",
+                            params->message.topic );
+            }
+        }
+            return;
+        default:
+            return;
+    }
+}
+
+/**
+ * @brief Implementation of recurring time task that sends updates on temperature sensor
+ * on each invocation.
+ *
+ * @note for more details about user time tasks please refer to the xively.h -
+ * xi_schedule_timed_task function.
+ *
+ * @param context_handle - xively library context required for calling API functions
+ * @param timed_task_handle - handle to *this* timed task, can be used to re-schedule or
+ * cancel the task
+ * @param user_data - data assosicated with this timed task
+ */
+void send_temprature( const xi_context_handle_t context_handle,
+                      const xi_timed_task_handle_t timed_task_handle,
+                      void* user_data )
+{
+    // Prepare configuration for temperature sensor for I2C bus
+    PinTypeI2C( PIN_01, PIN_MODE_1 );
+    PinTypeI2C( PIN_02, PIN_MODE_1 );
+
+    int lRetVal = -1;
+
+    // I2C Init
+    lRetVal = I2C_IF_Open( I2C_MASTER_MODE_FST );
+    if ( lRetVal < 0 )
+    {
+        ERR_PRINT( lRetVal );
+        return;
+    }
+
+    // Init Temprature Sensor
+    lRetVal = TMP006DrvOpen();
+    if ( lRetVal < 0 )
+    {
+        ERR_PRINT( lRetVal );
+        return;
+    }
+
+    float fCurrentTemp = .0f;
+    TMP006DrvGetTemp( &fCurrentTemp );
+
+    char msg[16] = {'\0'};
+    sprintf( ( char* )&msg, "%5.02f", fCurrentTemp );
+    xi_publish( context_handle, gTempratureTopicName, msg, XI_MQTT_QOS_AT_MOST_ONCE,
+                XI_MQTT_RETAIN_FALSE, NULL, NULL );
+
+    do
+    {
+    } while ( I2C_IF_Close() != 0 );
+
+    // Restore configuration for LED control
+    PinTypeGPIO( PIN_01, PIN_MODE_0, false );
+    GPIODirModeSet( GPIOA1_BASE, 0x4, GPIO_DIR_MODE_OUT );
+
+    PinTypeGPIO( PIN_02, PIN_MODE_0, false );
+    GPIODirModeSet( GPIOA1_BASE, 0x8, GPIO_DIR_MODE_OUT );
+}
+
+/**
+ * @brief Handler function for eventa related to changes in connection state.
+ *
+ * @note for more details please refer to xively.h - xi_connect function.
+ *
+ * @param context_handle - xively library context required for calling API functions
+ * @param data - points to the structure that holds detailed information about the
+ * connection state and settings
+ * @param - state additional internal state of the library helps to determine the reason
+ * of connection failure or disconnection
+ */
+void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t state )
+{
+    xi_connection_data_t* conn_data = ( xi_connection_data_t* )data;
+
+    switch ( conn_data->connection_state )
+    {
+        case XI_CONNECTION_STATE_OPEN_FAILED:
+            UART_PRINT( "connection to %s:%d has failed reason %d\n", conn_data->host,
+                        conn_data->port, state );
+
+            xi_connect_to( in_context_handle, conn_data->host, conn_data->port,
+                           conn_data->username, conn_data->password,
+                           conn_data->connection_timeout, conn_data->keepalive_timeout,
+                           conn_data->session_type, &on_connected );
+
+            return;
+        case XI_CONNECTION_STATE_OPENED:
+            UART_PRINT( "connected to %s:%d\n", conn_data->host, conn_data->port );
+
+            /* register a function to be called periodically */
+            gSendTempratureHandle =
+                xi_schedule_timed_task( in_context_handle, send_temprature, 5, 1, NULL );
+
+            if ( XI_INVALID_TIMED_TASK_HANDLE == gSendTempratureHandle )
+            {
+                UART_PRINT( "send_temprature_task couldn't be registered\r\n" );
+            }
+
+            /* re-subscribe to topics led topics */
+            xi_subscribe( in_context_handle, gGreenLedTopicName, XI_MQTT_QOS_AT_MOST_ONCE,
+                          onLedTopic, ( void* )&gGreenLed );
+            xi_subscribe( in_context_handle, gOrangeLedTopicName,
+                          XI_MQTT_QOS_AT_MOST_ONCE, onLedTopic, ( void* )&gOrangeLed );
+            xi_subscribe( in_context_handle, gRedLedTopicName, XI_MQTT_QOS_AT_MOST_ONCE,
+                          onLedTopic, ( void* )&gRedLed );
+
+            /* re-enable the button interrupts */
+            Button_IF_EnableInterrupt( SW2 | SW3 );
+
+            break;
+        case XI_CONNECTION_STATE_CLOSED:
+            UART_PRINT( "connection closed - reason %d!\n", state );
+
+            /* cancel timed task - we don't want to send messages while the library not
+             * connected */
+            xi_cancel_timed_task( gSendTempratureHandle );
+            gSendTempratureHandle = XI_INVALID_TIMED_TASK_HANDLE;
+
+            /* disable button interrupts so the messages for button push/release events
+             * won't be sent */
+            Button_IF_DisableInterrupt( SW2 | SW3 );
+
+            /* check if the close was due to the user's request */
+            if ( XI_STATE_OK == state )
+            {
+                xi_events_stop();
+            }
+            else
+            {
+                waitForWlanEvent();
+
+                xi_connect_to( in_context_handle, conn_data->host, conn_data->port,
+                               conn_data->username, conn_data->password,
+                               conn_data->connection_timeout,
+                               conn_data->keepalive_timeout, conn_data->session_type,
+                               &on_connected );
+            }
+            return;
+        default:
+            UART_PRINT( "invalid parameter %d\n", conn_data->connection_state );
+            return;
+    }
+}
+
+/**
+ * @brief Driver for the xively library logic
+ *
+ * It initialises the library, creates a context and starts the internal event dispatcher
+ * and event processing of xively library.
+ *
+ * This function is blocking for the sakness of this demo application however it is
+ * possible to run xively's event processing with limit of iterations.
+ */
+void ConnectToXively()
+{
+    /* Register Push Button Handlers */
+    Button_IF_Init( pushButtonInterruptHandlerSW2, pushButtonInterruptHandlerSW3 );
+
+    // Make the buttons to react on both press and release events
+    MAP_GPIOIntTypeSet( GPIOA1_BASE, GPIO_PIN_5, GPIO_BOTH_EDGES );
+    MAP_GPIOIntTypeSet( GPIOA2_BASE, GPIO_PIN_6, GPIO_BOTH_EDGES );
+
+    // Disable the interrupt for now
+    Button_IF_DisableInterrupt( SW2 | SW3 );
+
+    xi_state_t ret_state = xi_initialize( "account_id", "xi_username", 0 );
+
+    if ( XI_STATE_OK != ret_state )
+    {
+        printf( "xi failed to initialise\r\n" );
+        return;
+    }
+
+    gXivelyContextHandle = xi_create_context();
+
+    if ( XI_INVALID_CONTEXT_HANDLE == gXivelyContextHandle )
+    {
+        printf( " xi failed to create context, error: %d\n", -gXivelyContextHandle );
+        return;
+    }
+
+    xi_state_t connect_result = xi_connect_to(
+        gXivelyContextHandle, "broker.dev.xively.io", 8883, XIVELY_DEVICE_ID,
+        XIVELY_DEVICE_PASSWORD, 10, 0, XI_SESSION_CLEAN, &on_connected );
+
+    /* start processing xively library events */
+    xi_events_process_blocking();
+
+    /* when the event dispatcher is stop destroy the context */
+    xi_delete_context( gXivelyContextHandle );
+
+    /* shutdown the xively library */
+    xi_shutdown();
+}
+
+/**
+ * @brief Function that is required by TLS library to track the current time.
+ */
+time_t XTIME( time_t* timer )
+{
+    return xi_bsp_time_getcurrenttime_seconds();
+}
+
+/**
+ * @brief Function required by the TLS library.
+ */
+uint32_t xively_ssl_rand_generate()
+{
+    return xi_bsp_rng_get();
+}
+
+/******************************************************************************/
+/* END OF XIVELY CODE */
+/******************************************************************************/
+
 //*****************************************************************************
 // SimpleLink Asynchronous Event Handlers -- Start
 //*****************************************************************************
@@ -748,380 +1125,3 @@ int main()
 
     LOOP_FOREVER();
 }
-
-/******************************************************************************/
-/* BEGINNING OF XIVELY CODE */
-/******************************************************************************/
-
-/* Includes used by the code below. */
-#include <time.h>
-#include <xi_bsp_rng.h>
-#include <xi_bsp_time.h>
-#include <xively.h>
-
-/******************************************************************************/
-/* BEGINNING OF XIVELY CODE GLOBAL SECTION */
-/******************************************************************************/
-
-/* Names of the MQTT topics used by this application */
-const char* const gTempratureTopicName =
-    "xi/blue/v1/" XIVELY_ACCOUNT_ID "/d/" XIVELY_DEVICE_ID "/Temperature";
-const char* const gGreenLedTopicName =
-    "xi/blue/v1/" XIVELY_ACCOUNT_ID "/d/" XIVELY_DEVICE_ID "/Green LED";
-const char* const gOrangeLedTopicName =
-    "xi/blue/v1/" XIVELY_ACCOUNT_ID "/d/" XIVELY_DEVICE_ID "/Orange LED";
-const char* const gRedLedTopicName =
-    "xi/blue/v1/" XIVELY_ACCOUNT_ID "/d/" XIVELY_DEVICE_ID "/Red LED";
-const char* const gButtonSW2TopicName =
-    "xi/blue/v1/" XIVELY_ACCOUNT_ID "/d/" XIVELY_DEVICE_ID "/Button SW2";
-const char* const gButtonSW3TopicName =
-    "xi/blue/v1/" XIVELY_ACCOUNT_ID "/d/" XIVELY_DEVICE_ID "/Button SW3";
-
-/* Required by push button interrupt handlers - there is no space for user argument so we
- * can't pass the xively's context handler as a function argument.
- * None of the Xively's callbacks require global variables!*/
-xi_context_handle_t gXivelyContextHandle = -1;
-
-/* Used to store the temperature timed task handles. */
-xi_timed_task_handle_t gSendTempratureHandle = -1;
-
-/* Used by onLed handler function to differentiate LED's */
-const static ledNames gGreenLed  = MCU_GREEN_LED_GPIO;
-const static ledNames gOrangeLed = MCU_ORANGE_LED_GPIO;
-const static ledNames gRedLed    = MCU_RED_LED_GPIO;
-
-/******************************************************************************/
-/* END OF XIVELY CODE GLOBAL SECTION */
-/******************************************************************************/
-
-/**
-* @brief Event handler for SW2 button press/release interrupts.
- *
- * Event might be related to push or release of the button.
- * @note This function uses the global variable of gXivelyContextHandle - the button_if
- * implementation doesn't provide alternative.
- */
-void pushButtonInterruptHandlerSW2()
-{
-    int pinValue = GPIOPinRead( GPIOA2_BASE, GPIO_PIN_6 );
-
-    if ( pinValue == 0 )
-    {
-        xi_publish( gXivelyContextHandle, gButtonSW2TopicName, "0",
-                    XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
-    }
-    else
-    {
-        xi_publish( gXivelyContextHandle, gButtonSW2TopicName, "1",
-                    XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
-    }
-
-    Button_IF_EnableInterrupt( SW2 );
-}
-
-/**
- * @brief Event handler for SW2 button press/release interrupts.
- *
- * Event might be related to push or release of the button.
- * @note This function uses the global variable of gXivelyContextHandle - the button_if
- * implementation doesn't provide alternative.
- */
-void pushButtonInterruptHandlerSW3()
-{
-    int pinValue = GPIOPinRead( GPIOA1_BASE, GPIO_PIN_5 );
-
-    if ( pinValue == 0 )
-    {
-        xi_publish( gXivelyContextHandle, gButtonSW3TopicName, "0",
-                    XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
-    }
-    else
-    {
-        xi_publish( gXivelyContextHandle, gButtonSW3TopicName, "1",
-                    XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
-    }
-
-    Button_IF_EnableInterrupt( SW3 );
-}
-
-/**
- * @brief Function that handles events related to the LEDs' topics messages and
- * subscription status changes.
- *
- * @note For more details please refer to the xively.h - xi_subscribe function.
- *
- * @param in_context_handle - xively library context required for calling API functions
- * @param call_type - describes if the handler was called carrying the subscription
- * operation result or the incoming message
- * @oaram params - structure with data
- * @param state - state of the operation
- * @oaram user_data - pointer attached to the topic
- */
-void onLedTopic( xi_context_handle_t in_context_handle,
-                 xi_sub_call_type_t call_type,
-                 const xi_sub_call_params_t* const params,
-                 xi_state_t state,
-                 void* user_data )
-{
-    switch ( call_type )
-    {
-        case XI_SUB_CALL_SUBACK:
-            if ( params->suback.suback_status == XI_MQTT_SUBACK_FAILED )
-            {
-                UART_PRINT( "topic:%s. Subscription failed.\n", params->suback.topic );
-            }
-            else
-            {
-                UART_PRINT( "topic:%s. Subscription granted %d.\n", params->suback.topic,
-                            ( int )params->suback.suback_status );
-            }
-            return;
-        case XI_SUB_CALL_MESSAGE:
-        {
-            if ( params->message.temporary_payload_data_length == 1 )
-            {
-                ledNames ledName = *( ( ledNames* )user_data );
-
-                switch ( params->message.temporary_payload_data[0] )
-                {
-                    case 48:
-                        UART_PRINT( "topic:%s off %d\r\n", params->suback.topic,
-                                    ( int )ledName );
-                        GPIO_IF_LedOff( ledName );
-                        break;
-                    case 49:
-                        UART_PRINT( "topic:%s on %d\r\n", params->suback.topic,
-                                    ( int )ledName );
-                        GPIO_IF_LedOn( ledName );
-                        break;
-                    default:
-                        UART_PRINT( "unexpected value on topic %s \r\n",
-                                    params->message.topic );
-                        break;
-                }
-            }
-            else
-            {
-                UART_PRINT( "unexpected data length on topic %s \r\n",
-                            params->message.topic );
-            }
-        }
-            return;
-        default:
-            return;
-    }
-}
-
-/**
- * @brief Implementation of recurring time task that sends updates on temperature sensor
- * on each invocation.
- *
- * @note for more details about user time tasks please refer to the xively.h -
- * xi_schedule_timed_task function.
- *
- * @param context_handle - xively library context required for calling API functions
- * @param timed_task_handle - handle to *this* timed task, can be used to re-schedule or
- * cancel the task
- * @param user_data - data assosicated with this timed task
- */
-void send_temprature( const xi_context_handle_t context_handle,
-                      const xi_timed_task_handle_t timed_task_handle,
-                      void* user_data )
-{
-    // Prepare configuration for temperature sensor for I2C bus
-    PinTypeI2C( PIN_01, PIN_MODE_1 );
-    PinTypeI2C( PIN_02, PIN_MODE_1 );
-
-    int lRetVal = -1;
-
-    // I2C Init
-    lRetVal = I2C_IF_Open( I2C_MASTER_MODE_FST );
-    if ( lRetVal < 0 )
-    {
-        ERR_PRINT( lRetVal );
-        return;
-    }
-
-    // Init Temprature Sensor
-    lRetVal = TMP006DrvOpen();
-    if ( lRetVal < 0 )
-    {
-        ERR_PRINT( lRetVal );
-        return;
-    }
-
-    float fCurrentTemp = .0f;
-    TMP006DrvGetTemp( &fCurrentTemp );
-
-    char msg[16] = {'\0'};
-    sprintf( ( char* )&msg, "%5.02f", fCurrentTemp );
-    xi_publish( context_handle, gTempratureTopicName, msg, XI_MQTT_QOS_AT_MOST_ONCE,
-                XI_MQTT_RETAIN_FALSE, NULL, NULL );
-
-    do
-    {
-    } while ( I2C_IF_Close() != 0 );
-
-    // Restore configuration for LED control
-    PinTypeGPIO( PIN_01, PIN_MODE_0, false );
-    GPIODirModeSet( GPIOA1_BASE, 0x4, GPIO_DIR_MODE_OUT );
-
-    PinTypeGPIO( PIN_02, PIN_MODE_0, false );
-    GPIODirModeSet( GPIOA1_BASE, 0x8, GPIO_DIR_MODE_OUT );
-}
-
-/**
- * @brief Handler function for eventa related to changes in connection state.
- *
- * @note for more details please refer to xively.h - xi_connect function.
- *
- * @param context_handle - xively library context required for calling API functions
- * @param data - points to the structure that holds detailed information about the
- * connection state and settings
- * @param - state additional internal state of the library helps to determine the reason
- * of connection failure or disconnection
- */
-void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t state )
-{
-    xi_connection_data_t* conn_data = ( xi_connection_data_t* )data;
-
-    switch ( conn_data->connection_state )
-    {
-        case XI_CONNECTION_STATE_OPEN_FAILED:
-            UART_PRINT( "connection to %s:%d has failed reason %d\n", conn_data->host,
-                        conn_data->port, state );
-
-            xi_connect_to( in_context_handle, conn_data->host, conn_data->port,
-                           conn_data->username, conn_data->password,
-                           conn_data->connection_timeout, conn_data->keepalive_timeout,
-                           conn_data->session_type, &on_connected );
-
-            return;
-        case XI_CONNECTION_STATE_OPENED:
-            UART_PRINT( "connected to %s:%d\n", conn_data->host, conn_data->port );
-
-            /* register a function to be called periodically */
-            gSendTempratureHandle =
-                xi_schedule_timed_task( in_context_handle, send_temprature, 5, 1, NULL );
-
-            if ( XI_INVALID_TIMED_TASK_HANDLE == gSendTempratureHandle )
-            {
-                UART_PRINT( "send_temprature_task couldn't be registered\r\n" );
-            }
-
-            /* re-subscribe to topics led topics */
-            xi_subscribe( in_context_handle, gGreenLedTopicName, XI_MQTT_QOS_AT_MOST_ONCE,
-                          onLedTopic, ( void* )&gGreenLed );
-            xi_subscribe( in_context_handle, gOrangeLedTopicName,
-                          XI_MQTT_QOS_AT_MOST_ONCE, onLedTopic, ( void* )&gOrangeLed );
-            xi_subscribe( in_context_handle, gRedLedTopicName, XI_MQTT_QOS_AT_MOST_ONCE,
-                          onLedTopic, ( void* )&gRedLed );
-
-            /* re-enable the button interrupts */
-            Button_IF_EnableInterrupt( SW2 | SW3 );
-
-            break;
-        case XI_CONNECTION_STATE_CLOSED:
-            UART_PRINT( "connection closed - reason %d!\n", state );
-
-            /* cancel timed task - we don't want to send messages while the library not
-             * connected */
-            xi_cancel_timed_task( gSendTempratureHandle );
-            gSendTempratureHandle = XI_INVALID_TIMED_TASK_HANDLE;
-
-            /* disable button interrupts so the messages for button push/release events
-             * won't be sent */
-            Button_IF_DisableInterrupt( SW2 | SW3 );
-
-            /* check if the close was due to the user's request */
-            if ( XI_STATE_OK == state )
-            {
-                xi_events_stop();
-            }
-            else
-            {
-                waitForWlanEvent();
-
-                xi_connect_to( in_context_handle, conn_data->host, conn_data->port,
-                               conn_data->username, conn_data->password,
-                               conn_data->connection_timeout,
-                               conn_data->keepalive_timeout, conn_data->session_type,
-                               &on_connected );
-            }
-            return;
-        default:
-            UART_PRINT( "invalid parameter %d\n", conn_data->connection_state );
-            return;
-    }
-}
-
-/**
- * @brief Driver for the xively library logic
- *
- * It initialises the library, creates a context and starts the internal event dispatcher
- * and event processing of xively library.
- *
- * This function is blocking for the sakness of this demo application however it is
- * possible to run xively's event processing with limit of iterations.
- */
-void ConnectToXively()
-{
-    /* Register Push Button Handlers */
-    Button_IF_Init( pushButtonInterruptHandlerSW2, pushButtonInterruptHandlerSW3 );
-
-    // Make the buttons to react on both press and release events
-    MAP_GPIOIntTypeSet( GPIOA1_BASE, GPIO_PIN_5, GPIO_BOTH_EDGES );
-    MAP_GPIOIntTypeSet( GPIOA2_BASE, GPIO_PIN_6, GPIO_BOTH_EDGES );
-
-    // Disable the interrupt for now
-    Button_IF_DisableInterrupt( SW2 | SW3 );
-
-    xi_state_t ret_state = xi_initialize( "account_id", "xi_username", 0 );
-
-    if ( XI_STATE_OK != ret_state )
-    {
-        printf( "xi failed to initialise\r\n" );
-        return;
-    }
-
-    gXivelyContextHandle = xi_create_context();
-
-    if ( XI_INVALID_CONTEXT_HANDLE == gXivelyContextHandle )
-    {
-        printf( " xi failed to create context, error: %d\n", -gXivelyContextHandle );
-        return;
-    }
-
-    xi_state_t connect_result = xi_connect_to(
-        gXivelyContextHandle, "broker.dev.xively.io", 8883, XIVELY_DEVICE_ID,
-        XIVELY_DEVICE_PASSWORD, 10, 0, XI_SESSION_CLEAN, &on_connected );
-
-    /* start processing xively library events */
-    xi_events_process_blocking();
-
-    /* when the event dispatcher is stop destroy the context */
-    xi_delete_context( gXivelyContextHandle );
-
-    /* shutdown the xively library */
-    xi_shutdown();
-}
-
-/**
- * @brief Function that is required by TLS library to track the current time.
- */
-time_t XTIME( time_t* timer )
-{
-    return xi_bsp_time_getcurrenttime_seconds();
-}
-
-/**
- * @brief Function required by the TLS library.
- */
-uint32_t xively_ssl_rand_generate()
-{
-    return xi_bsp_rng_get();
-}
-
-/******************************************************************************/
-/* END OF XIVELY CODE */
-/******************************************************************************/
