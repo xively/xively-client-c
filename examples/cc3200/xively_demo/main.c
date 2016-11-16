@@ -153,7 +153,7 @@ const char* const gButtonSW3TopicName =
 xi_context_handle_t gXivelyContextHandle = -1;
 
 /* Used to store the temperature timed task handles. */
-xi_timed_task_handle_t gTemperatureTopicName = -1;
+xi_timed_task_handle_t gTemperatureTaskHandle = -1;
 
 /* Used by onLed handler function to differentiate LED's */
 const static ledNames gGreenLed  = MCU_GREEN_LED_GPIO;
@@ -265,11 +265,11 @@ void onLedTopic( xi_context_handle_t in_context_handle,
                                     params->message.topic );
                         break;
                 }
-                else
-                {
-                    UART_PRINT( "unexpected data length on topic %s \r\n",
-                                params->message.topic );
-                }
+            }
+            else
+            {
+                UART_PRINT( "unexpected data length on topic %s \r\n",
+                            params->message.topic );
             }
             return;
         default:
@@ -367,10 +367,10 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
             UART_PRINT( "connected to %s:%d\n", conn_data->host, conn_data->port );
 
             /* register a function to publish temperature data every 5 seconds */
-            gTemperatureTopicName =
+            gTemperatureTaskHandle =
                 xi_schedule_timed_task( in_context_handle, send_temprature, 5, 1, NULL );
 
-            if ( XI_INVALID_TIMED_TASK_HANDLE == gTemperatureTopicName )
+            if ( XI_INVALID_TIMED_TASK_HANDLE == gTemperatureTaskHandle )
             {
                 UART_PRINT( "send_temprature_task couldn't be registered\r\n" );
             }
@@ -392,8 +392,8 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
 
             /* cancel timed task - we don't want to send messages while the library not
              * connected */
-            xi_cancel_timed_task( gTemperatureTopicName );
-            gTemperatureTopicName = XI_INVALID_TIMED_TASK_HANDLE;
+            xi_cancel_timed_task( gTemperatureTaskHandle );
+            gTemperatureTaskHandle = XI_INVALID_TIMED_TASK_HANDLE;
 
             /* disable button interrupts so the messages for button push/release events
              * won't be sent */
