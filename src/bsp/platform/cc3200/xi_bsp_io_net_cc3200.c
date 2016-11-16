@@ -232,7 +232,7 @@ xi_bsp_io_net_state_t xi_bsp_io_net_read( xi_bsp_socket_t xi_socket,
 
 xi_bsp_io_net_state_t xi_bsp_io_net_close_socket( xi_bsp_socket_t* xi_socket )
 {
-    ( void )xi_socket;
+    sl_Close( *xi_socket );
 
     return XI_BSP_IO_NET_STATE_OK;
 }
