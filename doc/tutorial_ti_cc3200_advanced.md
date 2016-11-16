@@ -1,7 +1,7 @@
 # Xively C Client for CC3200 Stage 2
 # How to use a more secure configuration of wolfSSL with OCSP Stapling?
 
-**Please be aware** this tutorial is the 2nd stage of a _basic_ CC3200 Xively tutorial. You should start with the _basic_ tutorial which resides in the same directory as this document. Thanks.
+**Please be aware** this tutorial is the 2nd stage of a _basic_ CC3200 Xively tutorial. You should start with the [_basic_ tutorial](./tutorial_ti_cc3200.md). Thanks.
 
 This tutorial supports mainly macOS and Windows, though the Linux flow should be somewhat similar to macOS.
 
