@@ -498,8 +498,6 @@ uint32_t xively_ssl_rand_generate()
 /******************************************************************************/
 
 //*****************************************************************************
-// SimpleLink Asynchronous Event Handlers -- Start
-//
 // These functions are from the ent_wlan example of the CC3200 SDK. They exist in this
 // project to facilitate state tracking of the WiFi connection for the device and are not
 // Xively specific.
@@ -692,19 +690,6 @@ _SlEventPropogationStatus_e sl_Provisioning_WlanEventHdl( SlWlanEvent_t* apEvent
     return EVENT_PROPAGATION_CONTINUE;
 }
 
-//*****************************************************************************
-// SimpleLink Asynchronous Event Handlers -- End
-//*****************************************************************************
-
-//*****************************************************************************
-//
-//! \brief This function initializes the application variables
-//!
-//! \param    None
-//!
-//! \return None
-//!
-//*****************************************************************************
 static void InitializeAppVariables()
 {
     g_ulStatus    = 0;
@@ -713,21 +698,6 @@ static void InitializeAppVariables()
     memset( g_ucConnectionBSSID, 0, sizeof( g_ucConnectionBSSID ) );
 }
 
-//*****************************************************************************
-//! \brief This function puts the device in its default state. It:
-//!           - Set the mode to STATION
-//!           - Configures connection policy to Auto and AutoSmartConfig
-//!           - Deletes all the stored profiles
-//!           - Enables DHCP
-//!           - Disables Scan policy
-//!           - Sets Tx power to maximum
-//!           - Sets power policy to normal
-//!           - Unregister mDNS services
-//!           - Remove all filters
-//!
-//! \param   none
-//! \return  On success, zero is returned. On error, negative is returned
-//*****************************************************************************
 static long ConfigureSimpleLinkToDefaultState()
 {
     SlVersionFull ver                                  = {0};
@@ -803,12 +773,6 @@ static long ConfigureSimpleLinkToDefaultState()
     lRetVal = sl_WlanProfileDel( 0xFF );
     ASSERT_ON_ERROR( lRetVal );
 
-    //
-    // Device in station-mode. Disconnect previous connection if any
-    // The function returns 0 if 'Disconnected done', negative number if already
-    // disconnected Wait for 'disconnection' event if 0 is returned, Ignore
-    // other return-codes
-    //
     lRetVal = sl_WlanDisconnect();
     if ( 0 == lRetVal )
     {
@@ -860,15 +824,6 @@ static long ConfigureSimpleLinkToDefaultState()
     return lRetVal; // Success
 }
 
-//*****************************************************************************
-//
-//! Board Initialization & Configuration
-//!
-//! \param  None
-//!
-//! \return None
-//
-//*****************************************************************************
 static void BoardInit( void )
 {
 /* In case of TI-RTOS vector table is initialize by OS itself */
@@ -892,15 +847,6 @@ static void BoardInit( void )
     PRCMCC3200MCUInit();
 }
 
-//*****************************************************************************
-//
-//! WaitForWlanEvent
-//!
-//! \param  None
-//!
-//! \return None
-//!
-//*****************************************************************************
 void WaitForWlanEvent()
 {
     // Wait for WLAN Event
@@ -916,15 +862,6 @@ void WaitForWlanEvent()
     }
 }
 
-//*****************************************************************************
-//
-//! MainLogic
-//!
-//! \param  None
-//!
-//! \return SUCCESS if no error error value otherwise
-//!
-//*****************************************************************************
 long MainLogic()
 {
     SlSecParams_t g_SecParams;
@@ -933,17 +870,6 @@ long MainLogic()
 
     InitializeAppVariables();
 
-    //
-    // Following function configure the device to default state by cleaning
-    // the persistent settings stored in NVMEM (viz. connection profiles &
-    // policies, power policy etc)
-    //
-    // Applications may choose to skip this step if the developer is sure
-    // that the device is in its default state at start of applicaton
-    //
-    // Note that all profiles and persistent settings that were done on the
-    // device will be lost
-    //
     lRetVal = ConfigureSimpleLinkToDefaultState();
     if ( lRetVal < 0 )
     {
@@ -1005,15 +931,6 @@ long MainLogic()
     return SUCCESS;
 }
 
-//*****************************************************************************
-//
-//! Main function
-//!
-//! \param  None
-//!
-//! \return None
-//!
-//*****************************************************************************
 int main()
 {
     long lRetVal = -1;
