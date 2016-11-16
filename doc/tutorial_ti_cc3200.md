@@ -137,120 +137,71 @@ To have a device communicate through Xively we will first need to tell the Xivel
 
 ## Step 6 of 7: Build your client application.
 
-We suggest the _ent_wlan_ networking example from the CC3200 SDK as the basis for connecting to Xively. We will first import the example into Code Composer Studio™, and then add some code to build your IoT Client connection to the Xively service.
+We've prepared demo application that uses Xively C Library. After connecting to Xively service it allows to control on board LEDs' it sends temperature information and sends information about the state of on board buttons.
 
-### Build the _ent_wlan_ example
+We will first import the example into Code Composer Studio™, and then change configuration variables to build your IoT Client connection to the Xively service.
 
-#### Import _ent_wlan_
+### Build the _xively_demo_ example
+
+#### Import _xively_demo_
+
 1. In Code Composer Studio™, select ```File```->```Import```.
 2. Select ```Code Composer Studio™```->```CCS Projects``` and click ```Next >```
 3. To the right of ```Select search-directory``` click Browse.
-4. From this directory, browse to ```ti/tirex-content/CC3200SDK_1.1.0/cc3200-sdk/example/ent_wlan``` and highlight the ```ccs``` folder.  Click ```Open```.
+4. From this directory, browse to ```PATH_TO_XIVELY_LIBRARY/xively-client-c/examples/cc3200``` and highlight the ```xively_demo``` folder.  Click ```Open```.
 5. Click ```Finish```.
 
+#### Code Composer Studio project configuration
+
+In order to adapt the imported project to your environment you have to modify project variables that describes two very important locations on your hard drive.
+
+1. In Code Composer Studio™, make sure the ```xively_demo``` project is highlighted
+2. Select ```Project```->```Properties```
+3. Highlight```Resource```->```Linked Resources```
+4. Double click on ```CC3200_SDK_ROOT``` variable name and using the ```Folder``` button navigate to where your ```CC3200_SDK``` is installed, mark the subfolder ```cc3200-sdk``` in SDK's main directory and hit ```OK``` twice.
+5. Double click on ```XIVELY_LIBRARY_C_ROOT``` variable name and again using the ```Folder``` make the variable to point to the ```xively-client-c``` folder.
+
+#### xively_demo configuration
+
+Before you build your application you will have to set some data like your WiFi router credentials and Xively device credentials.  
+
+- update wifi settings in main.c
+
+    - update AP name and password defines according to your wifi settings:
+
+            #define ENT_NAME    "AccessPointName"
+            #define USER_NAME   "UsernameIfAny"
+            #define PASSWORD    "Password"
+
+    - select a security type in the `MainLogic()` function according to your wifi settings.  For example, in the case of WPA2 set
+
+            g_SecParams.Type = SL_SEC_TYPE_WPA_WPA2;
+
+- In main.c locate following code
+
+    - update all three values using information you got from Step 5 (_Create your Xively (digital) device_).
+
+            #define XIVELY_DEVICE_ID "PASTER_YOUR_XIVELY_DEVICE_ID"
+            #define XIVELY_DEVICE_PASSWORD "PASTE_YOUR_XIVELY_DEVICE_PASSWORD"
+            #define XIVELY_ACCOUNT_ID "PASTE_YOUR_XIVELY_ACCOUNT_ID"
+
 #### Build and run the example
+
 1. Select ```Project```-> ```Build Project```
 	1. When complete, you should see in the ```Console```:
 
 			<Linking>
-			Finished building target: ent_wlan.out
+			Finished building target: xively_demo.out
 			...
 			**** Build Finished ****
 
-2. Before the first execution, you will need to create a Configuration so that Code Composer Studio™ knows which platform you're loading the source onto.
-	1. Select ```View``` -> ```Target Configurations```.  The ```Target Configurations``` panel opens to the right side of the IDE.
-	2. Right click on ```User Defined``` and select ```New Target Configuration```.
-	3. Choose a filename or keep the default.  Click ```Finish```.
-	4. In the ```Connection``` pulldown, select ```Stellaris In-Circuit Debug Interface```.
-	5. Select the box next to ```CC3200``` to add a check mark.
-	6. Click the ```Save``` button to the right. _You may have to scroll the middle window to the right to see the button._
-	7. Back in the ```Target Configurations``` panel to the right, expand ```User Defined```.
-	8. Right click on your new target configuration and select ```Set as Default```.
-
-3. 	Execute the example on the CC3200 device
+2. 	Execute the example on the CC3200 device
 	1. Connect the device to your PC or Mac with USB cable
 	2. Hit the green bug button on the top in the CCS, or select ```Run``` ->```Debug```
-
-This should upload your program to RAM and end up with a debugger standing at the first line of main function in main.c.
 
 Reaching this point means you are able to produce and execute CC3200 compatible binary on the device itself.  Congratulations!
 
 **NOTE**: As per Texas Instruments instructions, keep the J15 Jumper set to ON and push Reset button on the board before each debug session. In case of trouble review the [TI's CC3200 help doc](http://www.ti.com/lit/ds/symlink/cc3200.pdf)
-
-### Add the Xively Client to ent_wlan
-
-Next we're going to add a function to connect to the Xively Broker. Its implementation is based on the examples in the Client repo, e.g. `xively-client-c/examples/mqtt_logic_producer/src/mqtt_logic_producer.c`.
-
-- Paste the following code within `main.c` of the _ent_wlan_ anywhere in the main portion of the file _before_ the location where we will call the function, which will be around line 647 (see the following steps).
-
-        #include <xively.h>
-        #include <stdio.h>
-
-        void on_connection_state_changed( xi_context_handle_t in_context_handle,
-                                          void* data,
-                                          xi_state_t state )
-        {
-            printf( "Hello Xively World!, state: %d\n", state );
-        }
-
-        void ConnectToXively()
-        {
-            xi_initialize( "xi_account_id", "xi_device_id", 0 );
-
-            xi_context_handle_t xi_context = xi_create_context();
-
-            if ( XI_INVALID_CONTEXT_HANDLE >= xi_context )
-            {
-                printf( " xi failed to create context, error: %d\n", xi_context );
-            }
-
-            xi_state_t connect_result = xi_connect(
-                    xi_context,
-                    "11111111-aaaa-bbbb-cccc-222222222222",         // Paste Your Xively Device Id Here
-                    "123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ12345678=", // Paste Your Xively Device Secret Here
-                    10, 20,
-                    XI_SESSION_CLEAN, &on_connection_state_changed );
-
-            xi_events_process_blocking();
-
-            xi_delete_context( xi_context );
-
-            xi_shutdown();
-        }
-
-- For _Xively Device Id_ and _Xively Device Secret_ use the information you got from Step 5 (_Create your Xively (digital) device_).
-
-- Locate the successful wifi connection point in the `main.c` of the ent_wlan example (around line 647, comment: "//wait for few moments"). Here put a call on the ConnectToXively(); function we just added.
-
-- To make the above buildable you'll need to:
-    - add two include paths to your project to help the compiler find `xively.h` and friends: ```Project```->```Properties```->```Build```->```ARM Compiler```->```Include Options```:
-        - `xively-client-c/include`
-        - `xively-client-c/include/bsp`
-    - add the Xively C Client library: ```Project```->```Properties```->```Build```->```ARM Linker```->```File Search Path```:
-        - `xively-client-c/bin/cc3200/libxively.a`
-    - add two files to the project: ```Project```->```Add Files```: `ti/tirex-content/CC3200SDK_1.1.0/cc3200-sdk/example/common`
-        - `timer_if.h`
-        - `timer_if.c`
-
-    - update wifi settings in main.c
-
-        - update AP name and password defines according to your wifi settings:
-
-                #define ENT_NAME    "AccessPointName"
-                #define USER_NAME   "UsernameIfAny"
-                #define PASSWORD    "Password"
-
-        - select a security type in the `EntWlan()` function according to your wifi settings.  For example, in the case of WPA2 set
-
-                g_SecParams.Type = SL_SEC_TYPE_WPA_WPA2;
-
-            and delete the variable `eapParams`. Then pass NULL as the last attribute to the connect function:
-
-                lRetVal = sl_WlanConnect(ENT_NAME,strlen(ENT_NAME),NULL,&g_SecParams,NULL);
-
-    - All set. Now do this: `Project`->`Build` and `Run`->`Debug`
-
-        This should result in a CC3200 connected to Xively Services!
 
 ### You (hopefully) did it!
 
@@ -261,7 +212,6 @@ If everything worked correctly, within a few seconds you should see a debug log 
 If you do not see that, double check that you followed all the previous complicated steps accurately. If you see a `state` value other than `0` check within `xively_error.h` to see which error could be occuring (ex: `34` means bad credentials).
 
 If you are just testing (or on a Mac) go ahead and skip the next step and go straight to [Congratulations!](#congratulations!)
-
 
 ## Step 7 of 7: Flash your client application onto the device. _(Optional, Windows Only)_
 
@@ -288,7 +238,6 @@ To permanently make changes to the device you must flash the device using a Wind
 * From the left panel highlight ```CC31xx/CC32xx Flash Setup and Control```
 * Press ```Program``` button
 * Set the J15 jumper to OFF and restart your device it should now run the test program
-
 
 ## Congratulations!
 
