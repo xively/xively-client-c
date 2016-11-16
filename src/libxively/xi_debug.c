@@ -39,7 +39,7 @@ void xi_debug_data_logger_impl( const char* msg, const xi_data_desc_t* data_desc
     xi_free( tmp );
 }
 
-/** Purpose of this function is to cut the file name */
+/** Trims the absolute file path to just the file name */
 const char* xi_debug_dont_print_the_path( const char* msg )
 {
     const char* tmp = msg;
