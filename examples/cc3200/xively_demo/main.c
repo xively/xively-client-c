@@ -499,18 +499,15 @@ uint32_t xively_ssl_rand_generate()
 
 //*****************************************************************************
 // SimpleLink Asynchronous Event Handlers -- Start
+//
+// These functions are from the ent_wlan example of the CC3200 SDK. They exist in this
+// project to facilitate state tracking of the WiFi connection for the device and are not
+// Xively specific.
+//
+// If you would like more information and documentation on these functions, please see the
+// source code in the directory example/ent_wlan of your CC3200 SDK installation.
 //*****************************************************************************
 
-#if 0
-//*****************************************************************************
-//
-//! \brief The Function Handles WLAN Events
-//!
-//! \param[in]  pWlanEvent - Pointer to WLAN Event Info
-//!
-//! \return None
-//!
-//*****************************************************************************
 void SimpleLinkWlanEventHandler( SlWlanEvent_t* pWlanEvent )
 {
     if ( !pWlanEvent )
@@ -523,15 +520,6 @@ void SimpleLinkWlanEventHandler( SlWlanEvent_t* pWlanEvent )
         case SL_WLAN_CONNECT_EVENT:
         {
             SET_STATUS_BIT( g_ulStatus, STATUS_BIT_CONNECTION );
-
-            //
-            // Information about the connected AP (like name, MAC etc) will be
-            // available in 'slWlanConnectAsyncResponse_t'
-            // - applications can use it if required
-            //
-            //  slWlanConnectAsyncResponse_t *pEventData = NULL;
-            // pEventData = &pWlanEvent->EventData.STAandP2PModeWlanConnected;
-            //
 
             // Copy new connection SSID and BSSID to global parameters
             memcpy( g_ucConnectionSSID,
@@ -591,17 +579,7 @@ void SimpleLinkWlanEventHandler( SlWlanEvent_t* pWlanEvent )
         break;
     }
 }
-#endif
-//*****************************************************************************
-//
-//! \brief This function handles network events such as IP acquisition, IP
-//!           leased, IP released etc.
-//!
-//! \param[in]  pNetAppEvent - Pointer to NetApp Event Info
-//!
-//! \return None
-//!
-//*****************************************************************************
+
 void SimpleLinkNetAppEventHandler( SlNetAppEvent_t* pNetAppEvent )
 {
     if ( !pNetAppEvent )
@@ -645,52 +623,19 @@ void SimpleLinkNetAppEventHandler( SlNetAppEvent_t* pNetAppEvent )
     }
 }
 
-//*****************************************************************************
-//
-//! \brief This function handles HTTP server events
-//!
-//! \param[in]  pServerEvent - Contains the relevant event information
-//! \param[in]    pServerResponse - Should be filled by the user with the
-//!                                      relevant response information
-//!
-//! \return None
-//!
-//****************************************************************************
 void SimpleLinkHttpServerCallback( SlHttpServerEvent_t* pHttpEvent,
                                    SlHttpServerResponse_t* pHttpResponse )
 {
     // Unused in this application
 }
 
-//*****************************************************************************
-//
-//! \brief This function handles General Events
-//!
-//! \param[in]     pDevEvent - Pointer to General Event Info
-//!
-//! \return None
-//!
-//*****************************************************************************
 void SimpleLinkGeneralEventHandler( SlDeviceEvent_t* pDevEvent )
 {
-    //
-    // Most of the general errors are not FATAL are are to be handled
-    // appropriately by the application
-    //
     UART_PRINT( "[GENERAL EVENT] - ID=[%d] Sender=[%d]\n\n",
                 pDevEvent->EventData.deviceEvent.status,
                 pDevEvent->EventData.deviceEvent.sender );
 }
 
-//*****************************************************************************
-//
-//! This function handles socket events indication
-//!
-//! \param[in]      pSock - Pointer to Socket Event Info
-//!
-//! \return None
-//!
-//*****************************************************************************
 void SimpleLinkSockEventHandler( SlSockEvent_t* pSock )
 {
     if ( !pSock )
@@ -726,19 +671,6 @@ void SimpleLinkSockEventHandler( SlSockEvent_t* pSock )
     }
 }
 
-//*****************************************************************************
-//
-//! \brief This function serves as first level handler for HTTP GET/POST tokens
-//!        It runs under driver context and performs only operation that can run
-//!        from this context. For operations that can't is sets an indication of
-//!        received token and preempts the provisioning context.
-//!
-//! \param pSlHttpServerEvent Pointer indicating http server event
-//! \param pSlHttpServerResponse Pointer indicating http server response
-//!
-//! \return None
-//!
-//*****************************************************************************
 _SlEventPropogationStatus_e
 sl_Provisioning_HttpServerEventHdl( SlHttpServerEvent_t* apSlHttpServerEvent,
                                     SlHttpServerResponse_t* apSlHttpServerResponse )
@@ -747,18 +679,6 @@ sl_Provisioning_HttpServerEventHdl( SlHttpServerEvent_t* apSlHttpServerEvent,
     return EVENT_PROPAGATION_CONTINUE;
 }
 
-//*****************************************************************************
-//
-//! \brief This function serves as first level network application events handler.
-//!        It runs under driver context and performs only operation that can run
-//!        from this context. For operations that can't is sets an indication of
-//!        received token and preempts the provisioning context.
-//!
-//! \param apEventInfo Pointer to the net app event information
-//!
-//! \return None
-//!
-//*****************************************************************************
 _SlEventPropogationStatus_e
 sl_Provisioning_NetAppEventHdl( SlNetAppEvent_t* apNetAppEvent )
 {
@@ -766,18 +686,6 @@ sl_Provisioning_NetAppEventHdl( SlNetAppEvent_t* apNetAppEvent )
     return EVENT_PROPAGATION_CONTINUE;
 }
 
-//*****************************************************************************
-//
-//! \brief This function serves as first level WLAN events handler.
-//!        It runs under driver context and performs only operation that can run
-//!        from this context. For operations that can't is sets an indication of
-//!        received token and preempts the provisioning context.
-//!
-//! \param apEventInfo Pointer to the WLAN event information
-//!
-//! \return None
-//!
-//*****************************************************************************
 _SlEventPropogationStatus_e sl_Provisioning_WlanEventHdl( SlWlanEvent_t* apEventInfo )
 {
     // Unused in this application
