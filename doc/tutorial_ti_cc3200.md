@@ -105,24 +105,21 @@ _You should have a Xively account already created, but if you do not, register o
 
 To have a device communicate through Xively we will first need to tell the Xively system that a device exists. [Log into the Xively CPM app](https://app.xively.com/) to complete the following steps.
 
-1. Create a device template.
- _This device template will represent the CC3200 type board that we are using for this example._
- - Click on `Devices` > `Device templates`
- - Click on `Add  new device template`
- - Enter any name you want (ex: "CC3200 Launchpad") and click `Ok`
+1. Create a CC3200 device representation using the Product Launcher
+_This operation will create device template and a device that will represent the CC3200 type board that we are using for this example._
+ - Click on `Product Launcher` > `Add another device`
 
- <img src="https://cloud.githubusercontent.com/assets/1428256/19813190/82157058-9d06-11e6-9b47-99c99e235850.png" width="600">
+ <img src="https://cloud.githubusercontent.com/assets/1899893/20390204/0a1a1068-acce-11e6-90c4-e95aa878913a.png" width="600"/>
 
-2. Create an individual device.
- _This individual device will represent the specific CC3200 board that you have physicially connected for this example._
- - Click on `Add new device`
- - The device template we just created should already be selected for the template.
- - Choose any Org from the list
- - Enter any serial number you want (ex: "My Xively CC3200") and click `Ok`
+ - From the popup window select `Choose from our device library` and click `Next`
 
- <img src="https://cloud.githubusercontent.com/assets/1428256/19813191/821704b8-9d06-11e6-89aa-78b52c251d20.png" width="600">
+<img src="https://cloud.githubusercontent.com/assets/1899893/20390205/0a1c11ba-acce-11e6-9a80-02802309ac96.png" width="600"/>
 
-3. Get credentials for this device.
+ - Go to `Quickstart Kits` and select `TI CC3200` and click `Next`
+
+ <img src="https://cloud.githubusercontent.com/assets/1899893/20390206/0a1f07da-acce-11e6-8fb6-bab8243a314d.png" width="600">/
+
+2. Get credentials for this device.
  _In order for your device to securely talk to Xively it needs credentials that it will use to authenticate itself as a valid device within your account._
  - Click on `Get password`
  - When the modal window pops-up, click the `Download` button.
