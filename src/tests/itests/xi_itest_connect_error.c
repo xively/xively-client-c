@@ -322,7 +322,7 @@ void xi_itest_test_valid_flow__call_disconnect_twice_on_connected_context__secon
     for ( ; evtd_loop_count_between_connect_calls < 10;
           ++evtd_loop_count_between_connect_calls )
     {
-        xi_debug_printf( "gap = %d \r\n", evtd_loop_count_between_connect_calls );
+        xi_debug_printf( "gap = %d \n", evtd_loop_count_between_connect_calls );
 
         const xi_itest_connect_error__test_fixture_t* const fixture =
             ( xi_itest_connect_error__test_fixture_t* )*fixture_void;
