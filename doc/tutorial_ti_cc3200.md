@@ -121,6 +121,7 @@ _This operation will create device template and a device that will represent the
 
 2. Get credentials for this device.
  _In order for your device to securely talk to Xively it needs credentials that it will use to authenticate itself as a valid device within your account._
+ - Go to `Devices` > `All devices` and look for your sample CC3200 device then click on it's name
  - Click on `Get password`
  - When the modal window pops-up, click the `Download` button.
 
@@ -129,6 +130,9 @@ _This operation will create device template and a device that will represent the
  		- the second line is the _Xively Device Id_.
 
  <img src="https://cloud.githubusercontent.com/assets/1428256/19813189/8214fda8-9d06-11e6-859f-f3805e34ec04.png" width="600">
+
+3. Get account id
+_To allow your device to push and subscribe to existing device topics you will need to know your accountId_
 
  You now have a provisioned device in Xively that your CC3200 will be able to connect as!
 
