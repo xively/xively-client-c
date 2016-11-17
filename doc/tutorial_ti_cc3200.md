@@ -113,7 +113,7 @@ _This operation will create device template and a device that will represent the
 
  - From the popup window select `Choose from our device library` and click `Next`
 
-<img src="https://cloud.githubusercontent.com/assets/1899893/20390205/0a1c11ba-acce-11e6-9a80-02802309ac96.png" width="600"/>
+ <img src="https://cloud.githubusercontent.com/assets/1899893/20390205/0a1c11ba-acce-11e6-9a80-02802309ac96.png" width="600"/>
 
  - Go to `Quickstart Kits` and select `TI CC3200` and click `Next`
 
