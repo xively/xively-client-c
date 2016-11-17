@@ -132,7 +132,11 @@ _This operation will create device template and a device that will represent the
  <img src="https://cloud.githubusercontent.com/assets/1428256/19813189/8214fda8-9d06-11e6-859f-f3805e34ec04.png" width="600">
 
 3. Get account id
-_To allow your device to push and subscribe to existing device topics you will need to know your accountId_
+_To allow your device to push and subscribe to existing device topics you will need to know your account id_
+ - In order to know your account id you have to click on your account name on the very top right side of the page
+ - The small window should appear with the name of your organization and with turquoise rectangle underneath
+ - Click that rectangle and your account id will be copied to the clipboard
+ - Save your account id for later it will be needed for ```xively_demo``` application configuration
 
  You now have a provisioned device in Xively that your CC3200 will be able to connect as!
 
