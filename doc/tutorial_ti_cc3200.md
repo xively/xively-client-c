@@ -218,7 +218,7 @@ Reaching this point means you are able to produce and execute CC3200 compatible 
 
 If everything worked correctly, within a few seconds you should see a debug log that says
 
-    Hello Xively World!, state: 0
+    connected to broker.xively.com:8883
 
 If you do not see that, double check that you followed all the previous complicated steps accurately. If you see a `state` value other than `0` check within `xively_error.h` to see which error could be occuring (ex: `34` means bad credentials).
 
@@ -274,6 +274,6 @@ _More coming soon_
 
 ##### Q. When I build the example application I get the "Xively Hello World" debug message, but with a state of 34.
 
-    Hello Xively World!, state: 34
+    connection to broker.xively.com:8883 has failed reason 34
 
 **A.** A state of `34` means that the device connected to the Xively system, but its credentials are invalid. This could occur if you copied the credentials incorrectly or if you have regenerated the device credentials and are using older ones. The easiest way to fix this issue is to regenerate the device credentials (see Step 5.3) and re-copy the new credentials within `main.c`. Once you've done this rebuild the image flash the hardware again.
