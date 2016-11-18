@@ -258,7 +258,7 @@ You should be able to go back to your device page on Xively CPM and see that its
 
 <img src="https://cloud.githubusercontent.com/assets/1428256/19814034/91b3b296-9d0a-11e6-813b-9eb7ca499350.png" width="600">
 
-When you enter the Product Launcher you should be able to receive data from your CC3200 device and turn on and off it's LEDs' using the web page.
+When you enter the Product Launcher you will be able to see the graphical representation of data received from your CC3200 device such as temperature and button states. You can also turn on and off CC3200's LEDs' using this web page interface.
 
 <img src="https://cloud.githubusercontent.com/assets/1899893/20430715/39b6de32-ad96-11e6-8945-79442b3f77a9.png" width="600">
 
