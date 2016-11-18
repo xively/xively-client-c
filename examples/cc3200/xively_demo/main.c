@@ -70,6 +70,10 @@
 #include "uart_if.h"
 #endif
 
+#define XIVELY_DEMO_PRINT( ... )                                                         \
+    UART_PRINT( __VA_ARGS__ );                                                           \
+    printf( __VA_ARGS__ );
+
 #define APPLICATION_NAME "XIVELY_CC3200_DEMO_APP"
 #define APPLICATION_VERSION "0.0.1"
 #define SUCCESS 0
@@ -235,12 +239,14 @@ void onLedTopic( xi_context_handle_t in_context_handle,
         case XI_SUB_CALL_SUBACK:
             if ( params->suback.suback_status == XI_MQTT_SUBACK_FAILED )
             {
-                UART_PRINT( "topic:%s. Subscription failed.\n", params->suback.topic );
+                XIVELY_DEMO_PRINT( "topic:%s. Subscription failed.\n",
+                                   params->suback.topic );
             }
             else
             {
-                UART_PRINT( "topic:%s. Subscription granted %d.\n", params->suback.topic,
-                            ( int )params->suback.suback_status );
+                XIVELY_DEMO_PRINT( "topic:%s. Subscription granted %d.\n",
+                                   params->suback.topic,
+                                   ( int )params->suback.suback_status );
             }
             return;
         case XI_SUB_CALL_MESSAGE:
@@ -251,25 +257,21 @@ void onLedTopic( xi_context_handle_t in_context_handle,
                 switch ( params->message.temporary_payload_data[0] )
                 {
                     case 48:
-                        UART_PRINT( "topic:%s off %d\r\n", params->suback.topic,
-                                    ( int )ledName );
                         GPIO_IF_LedOff( ledName );
                         break;
                     case 49:
-                        UART_PRINT( "topic:%s on %d\r\n", params->suback.topic,
-                                    ( int )ledName );
                         GPIO_IF_LedOn( ledName );
                         break;
                     default:
-                        UART_PRINT( "unexpected value on topic %s \r\n",
-                                    params->message.topic );
+                        XIVELY_DEMO_PRINT( "unexpected value on topic %s \n",
+                                           params->message.topic );
                         break;
                 }
             }
             else
             {
-                UART_PRINT( "unexpected data length on topic %s \r\n",
-                            params->message.topic );
+                XIVELY_DEMO_PRINT( "unexpected data length on topic %s \n",
+                                   params->message.topic );
             }
             return;
         default:
@@ -355,8 +357,8 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
     switch ( conn_data->connection_state )
     {
         case XI_CONNECTION_STATE_OPEN_FAILED:
-            UART_PRINT( "connection to %s:%d has failed reason %d\n", conn_data->host,
-                        conn_data->port, state );
+            XIVELY_DEMO_PRINT( "connection to %s:%d has failed reason %d\n",
+                               conn_data->host, conn_data->port, state );
 
             xi_connect( in_context_handle, conn_data->username, conn_data->password,
                         conn_data->connection_timeout, conn_data->keepalive_timeout,
@@ -364,7 +366,7 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
 
             return;
         case XI_CONNECTION_STATE_OPENED:
-            UART_PRINT( "connected to %s:%d\n", conn_data->host, conn_data->port );
+            XIVELY_DEMO_PRINT( "connected to %s:%d\n", conn_data->host, conn_data->port );
 
             /* register a function to publish temperature data every 5 seconds */
             gTemperatureTaskHandle =
@@ -372,7 +374,7 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
 
             if ( XI_INVALID_TIMED_TASK_HANDLE == gTemperatureTaskHandle )
             {
-                UART_PRINT( "send_temperature_task couldn't be registered\r\n" );
+                XIVELY_DEMO_PRINT( "send_temperature_task couldn't be registered\n" );
             }
 
             /* subscribe to LED topics to listen for light toggle commands */
@@ -388,7 +390,7 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
 
             break;
         case XI_CONNECTION_STATE_CLOSED:
-            UART_PRINT( "connection closed - reason %d!\n", state );
+            XIVELY_DEMO_PRINT( "connection closed - reason %d!\n", state );
 
             /* cancel timed task - we don't want to send messages while the library not
              * connected */
@@ -414,7 +416,7 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
             }
             return;
         default:
-            UART_PRINT( "invalid parameter %d\n", conn_data->connection_state );
+            XIVELY_DEMO_PRINT( "invalid parameter %d\n", conn_data->connection_state );
             return;
     }
 }
@@ -444,7 +446,7 @@ void ConnectToXively()
 
     if ( XI_STATE_OK != ret_state )
     {
-        UART_PRINT( "xi failed to initialise\r\n" );
+        XIVELY_DEMO_PRINT( "xi failed to initialise\n" );
         return;
     }
 
@@ -452,7 +454,8 @@ void ConnectToXively()
 
     if ( XI_INVALID_CONTEXT_HANDLE == gXivelyContextHandle )
     {
-        UART_PRINT( " xi failed to create context, error: %d\n", -gXivelyContextHandle );
+        XIVELY_DEMO_PRINT( " xi failed to create context, error: %d\n",
+                           -gXivelyContextHandle );
         return;
     }
 
@@ -520,12 +523,12 @@ void SimpleLinkWlanEventHandler( SlWlanEvent_t* pWlanEvent )
                     pWlanEvent->EventData.STAandP2PModeWlanConnected.bssid,
                     SL_BSSID_LENGTH );
 
-            UART_PRINT( "[WLAN EVENT] STA Connected to the AP: %s , "
-                        "BSSID: %x:%x:%x:%x:%x:%x\n\r",
-                        g_ucConnectionSSID, g_ucConnectionBSSID[0],
-                        g_ucConnectionBSSID[1], g_ucConnectionBSSID[2],
-                        g_ucConnectionBSSID[3], g_ucConnectionBSSID[4],
-                        g_ucConnectionBSSID[5] );
+            XIVELY_DEMO_PRINT( "[WLAN EVENT] STA Connected to the AP: %s , "
+                               "BSSID: %x:%x:%x:%x:%x:%x\n",
+                               g_ucConnectionSSID, g_ucConnectionBSSID[0],
+                               g_ucConnectionBSSID[1], g_ucConnectionBSSID[2],
+                               g_ucConnectionBSSID[3], g_ucConnectionBSSID[4],
+                               g_ucConnectionBSSID[5] );
         }
         break;
 
@@ -542,21 +545,21 @@ void SimpleLinkWlanEventHandler( SlWlanEvent_t* pWlanEvent )
             //'reason_code' is SL_WLAN_DISCONNECT_USER_INITIATED_DISCONNECTION
             if ( SL_USER_INITIATED_DISCONNECTION == pEventData->reason_code )
             {
-                UART_PRINT( "[WLAN EVENT]Device disconnected from the AP: %s, "
-                            "BSSID: %x:%x:%x:%x:%x:%x on application's request \n\r",
-                            g_ucConnectionSSID, g_ucConnectionBSSID[0],
-                            g_ucConnectionBSSID[1], g_ucConnectionBSSID[2],
-                            g_ucConnectionBSSID[3], g_ucConnectionBSSID[4],
-                            g_ucConnectionBSSID[5] );
+                XIVELY_DEMO_PRINT( "[WLAN EVENT]Device disconnected from the AP: %s, "
+                                   "BSSID: %x:%x:%x:%x:%x:%x on application's request \n",
+                                   g_ucConnectionSSID, g_ucConnectionBSSID[0],
+                                   g_ucConnectionBSSID[1], g_ucConnectionBSSID[2],
+                                   g_ucConnectionBSSID[3], g_ucConnectionBSSID[4],
+                                   g_ucConnectionBSSID[5] );
             }
             else
             {
-                UART_PRINT( "[WLAN ERROR]Device disconnected from the AP AP: %s,"
-                            "BSSID: %x:%x:%x:%x:%x:%x on an ERROR..!! \n\r",
-                            g_ucConnectionSSID, g_ucConnectionBSSID[0],
-                            g_ucConnectionBSSID[1], g_ucConnectionBSSID[2],
-                            g_ucConnectionBSSID[3], g_ucConnectionBSSID[4],
-                            g_ucConnectionBSSID[5] );
+                XIVELY_DEMO_PRINT( "[WLAN ERROR]Device disconnected from the AP AP: %s,"
+                                   "BSSID: %x:%x:%x:%x:%x:%x on an ERROR..!! \n",
+                                   g_ucConnectionSSID, g_ucConnectionBSSID[0],
+                                   g_ucConnectionBSSID[1], g_ucConnectionBSSID[2],
+                                   g_ucConnectionBSSID[3], g_ucConnectionBSSID[4],
+                                   g_ucConnectionBSSID[5] );
             }
             memset( g_ucConnectionSSID, 0, sizeof( g_ucConnectionSSID ) );
             memset( g_ucConnectionBSSID, 0, sizeof( g_ucConnectionBSSID ) );
@@ -565,7 +568,8 @@ void SimpleLinkWlanEventHandler( SlWlanEvent_t* pWlanEvent )
 
         default:
         {
-            UART_PRINT( "[WLAN EVENT] Unexpected event [0x%x]\n\r", pWlanEvent->Event );
+            XIVELY_DEMO_PRINT( "[WLAN EVENT] Unexpected event [0x%x]\n",
+                               pWlanEvent->Event );
         }
         break;
     }
@@ -592,23 +596,24 @@ void SimpleLinkNetAppEventHandler( SlNetAppEvent_t* pNetAppEvent )
             // Gateway IP address
             g_ulGatewayIP = pEventData->gateway;
 
-            UART_PRINT( "[NETAPP EVENT] IP Acquired: IP=%d.%d.%d.%d ,"
-                        "Gateway=%d.%d.%d.%d\n\r",
-                        SL_IPV4_BYTE( pNetAppEvent->EventData.ipAcquiredV4.ip, 3 ),
-                        SL_IPV4_BYTE( pNetAppEvent->EventData.ipAcquiredV4.ip, 2 ),
-                        SL_IPV4_BYTE( pNetAppEvent->EventData.ipAcquiredV4.ip, 1 ),
-                        SL_IPV4_BYTE( pNetAppEvent->EventData.ipAcquiredV4.ip, 0 ),
-                        SL_IPV4_BYTE( pNetAppEvent->EventData.ipAcquiredV4.gateway, 3 ),
-                        SL_IPV4_BYTE( pNetAppEvent->EventData.ipAcquiredV4.gateway, 2 ),
-                        SL_IPV4_BYTE( pNetAppEvent->EventData.ipAcquiredV4.gateway, 1 ),
-                        SL_IPV4_BYTE( pNetAppEvent->EventData.ipAcquiredV4.gateway, 0 ) );
+            XIVELY_DEMO_PRINT(
+                "[NETAPP EVENT] IP Acquired: IP=%d.%d.%d.%d ,"
+                "Gateway=%d.%d.%d.%d\n",
+                SL_IPV4_BYTE( pNetAppEvent->EventData.ipAcquiredV4.ip, 3 ),
+                SL_IPV4_BYTE( pNetAppEvent->EventData.ipAcquiredV4.ip, 2 ),
+                SL_IPV4_BYTE( pNetAppEvent->EventData.ipAcquiredV4.ip, 1 ),
+                SL_IPV4_BYTE( pNetAppEvent->EventData.ipAcquiredV4.ip, 0 ),
+                SL_IPV4_BYTE( pNetAppEvent->EventData.ipAcquiredV4.gateway, 3 ),
+                SL_IPV4_BYTE( pNetAppEvent->EventData.ipAcquiredV4.gateway, 2 ),
+                SL_IPV4_BYTE( pNetAppEvent->EventData.ipAcquiredV4.gateway, 1 ),
+                SL_IPV4_BYTE( pNetAppEvent->EventData.ipAcquiredV4.gateway, 0 ) );
         }
         break;
 
         default:
         {
-            UART_PRINT( "[NETAPP EVENT] Unexpected event [0x%x] \n\r",
-                        pNetAppEvent->Event );
+            XIVELY_DEMO_PRINT( "[NETAPP EVENT] Unexpected event [0x%x] \n",
+                               pNetAppEvent->Event );
         }
         break;
     }
@@ -622,9 +627,9 @@ void SimpleLinkHttpServerCallback( SlHttpServerEvent_t* pHttpEvent,
 
 void SimpleLinkGeneralEventHandler( SlDeviceEvent_t* pDevEvent )
 {
-    UART_PRINT( "[GENERAL EVENT] - ID=[%d] Sender=[%d]\n\n",
-                pDevEvent->EventData.deviceEvent.status,
-                pDevEvent->EventData.deviceEvent.sender );
+    XIVELY_DEMO_PRINT( "[GENERAL EVENT] - ID=[%d] Sender=[%d]\n\n",
+                       pDevEvent->EventData.deviceEvent.status,
+                       pDevEvent->EventData.deviceEvent.sender );
 }
 
 void SimpleLinkSockEventHandler( SlSockEvent_t* pSock )
@@ -643,21 +648,22 @@ void SimpleLinkSockEventHandler( SlSockEvent_t* pSock )
             switch ( pSock->socketAsyncEvent.SockTxFailData.status )
             {
                 case SL_ECLOSE:
-                    UART_PRINT( "[SOCK ERROR] - close socket (%d) operation "
-                                "failed to transmit all queued packets\n\n",
-                                pSock->socketAsyncEvent.SockTxFailData.sd );
+                    XIVELY_DEMO_PRINT( "[SOCK ERROR] - close socket (%d) operation "
+                                       "failed to transmit all queued packets\n\n",
+                                       pSock->socketAsyncEvent.SockTxFailData.sd );
                     break;
                 default:
-                    UART_PRINT( "[SOCK ERROR] - TX FAILED  :  socket %d , reason "
-                                "(%d) \n\n",
-                                pSock->socketAsyncEvent.SockTxFailData.sd,
-                                pSock->socketAsyncEvent.SockTxFailData.status );
+                    XIVELY_DEMO_PRINT( "[SOCK ERROR] - TX FAILED  :  socket %d , reason "
+                                       "(%d) \n\n",
+                                       pSock->socketAsyncEvent.SockTxFailData.sd,
+                                       pSock->socketAsyncEvent.SockTxFailData.status );
                     break;
             }
             break;
 
         default:
-            UART_PRINT( "[SOCK EVENT] - Unexpected Event [%x0x]\n\n", pSock->Event );
+            XIVELY_DEMO_PRINT( "[SOCK EVENT] - Unexpected Event [%x0x]\n\n",
+                               pSock->Event );
             break;
     }
 }
@@ -747,9 +753,9 @@ static long ConfigureSimpleLinkToDefaultState()
                          ( unsigned char* )( &ver ) );
     ASSERT_ON_ERROR( lRetVal );
 
-    UART_PRINT( "Host Driver Version: %s\n\r", SL_DRIVER_VERSION );
-    UART_PRINT(
-        "Build Version %d.%d.%d.%d.31.%d.%d.%d.%d.%d.%d.%d.%d\n\r", ver.NwpVersion[0],
+    XIVELY_DEMO_PRINT( "Host Driver Version: %s\n", SL_DRIVER_VERSION );
+    XIVELY_DEMO_PRINT(
+        "Build Version %d.%d.%d.%d.31.%d.%d.%d.%d.%d.%d.%d.%d\n", ver.NwpVersion[0],
         ver.NwpVersion[1], ver.NwpVersion[2], ver.NwpVersion[3],
         ver.ChipFwAndPhyVersion.FwVersion[0], ver.ChipFwAndPhyVersion.FwVersion[1],
         ver.ChipFwAndPhyVersion.FwVersion[2], ver.ChipFwAndPhyVersion.FwVersion[3],
@@ -867,13 +873,13 @@ long MainLogic()
     if ( lRetVal < 0 )
     {
         if ( DEVICE_NOT_IN_STATION_MODE == lRetVal )
-            UART_PRINT( "Failed to configure the device "
-                        "in its default state \n\r" );
+            XIVELY_DEMO_PRINT( "Failed to configure the device "
+                               "in its default state \n" );
 
         return lRetVal;
     }
 
-    UART_PRINT( "Device is configured in default state \n\r" );
+    XIVELY_DEMO_PRINT( "Device is configured in default state \n" );
 
     CLR_STATUS_BIT_ALL( g_ulStatus );
 
@@ -881,11 +887,11 @@ long MainLogic()
     lRetVal = sl_Start( 0, 0, 0 );
     if ( lRetVal < 0 || ROLE_STA != lRetVal )
     {
-        UART_PRINT( "Failed to start the device \n\r" );
+        XIVELY_DEMO_PRINT( "Failed to start the device \n" );
         return lRetVal;
     }
 
-    UART_PRINT( "Device started as STATION \n\r" );
+    XIVELY_DEMO_PRINT( "Device started as STATION \n" );
 
     // start ent wlan connection
     g_SecParams.Key    = PASSWORD;
