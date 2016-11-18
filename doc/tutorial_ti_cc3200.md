@@ -129,7 +129,7 @@ _This operation will create a device template and a device instance inside the X
  		- the first line is the _Xively Device Secret_
  		- the second line is the _Xively Device Id_.
 
- <img src="https://cloud.githubusercontent.com/assets/1428256/19813189/8214fda8-9d06-11e6-859f-f3805e34ec04.png" width="600">
+ <img src="https://cloud.githubusercontent.com/assets/1899893/20426734/c725974c-ad80-11e6-812f-ef5043b10a2c.png" width="600">
 
  You now have a provisioned device in Xively that your CC3200 will be able to connect as!
 
