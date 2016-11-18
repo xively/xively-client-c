@@ -210,7 +210,7 @@ Before you build your application you will have to set some data like your WiFi 
 	1. Connect the device to your PC or Mac with USB cable
 	2. Hit the green bug button on the top in the CCS, or select ```Run``` ->```Debug```
 
-Reaching this point means you are able to produce and execute CC3200 compatible binary on the device itself.  Congratulations!
+Reaching this point means you are able to produce and execute CC3200 compatible binary on the device itself. Congratulations!
 
 **NOTE**: As per Texas Instruments instructions, keep the J15 Jumper set to ON and push Reset button on the board before each debug session. In case of trouble review the [TI's CC3200 help doc](http://www.ti.com/lit/ds/symlink/cc3200.pdf)
 
@@ -257,6 +257,10 @@ You did it! You now have a CC3200 board connected and communicating with Xively.
 You should be able to go back to your device page on Xively CPM and see that its status is now `Connected` and within the logs see its `Device connected` lifecycle log.
 
 <img src="https://cloud.githubusercontent.com/assets/1428256/19814034/91b3b296-9d0a-11e6-813b-9eb7ca499350.png" width="600">
+
+When you enter the Product Launcher you should be able to receive data from your CC3200 device and turn on and off it's LEDs' using the web page.
+
+<img src="https://cloud.githubusercontent.com/assets/1899893/20430715/39b6de32-ad96-11e6-8945-79442b3f77a9.png" width="600">
 
 ## What to do next?
 
