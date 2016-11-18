@@ -212,7 +212,7 @@ Before you build your application you will have to set your WiFi credentials and
 
 Reaching this point means you are able to produce and execute CC3200 compatible binary on the device itself. Congratulations!
 
-**NOTE**: As per Texas Instruments instructions, keep the J15 Jumper set to ON and push Reset button on the board before each debug session. In case of trouble review the [TI's CC3200 help doc](http://www.ti.com/lit/ds/symlink/cc3200.pdf)
+**NOTE**: As per Texas Instruments instructions, keep the J15 Jumper set to ON and push Reset button on the board before each debug session. In case of trouble review the [TI's CC3200 help doc](http://www.ti.com/lit/ds/symlink/cc3200.pdf).
 
 ### You (hopefully) did it!
 
