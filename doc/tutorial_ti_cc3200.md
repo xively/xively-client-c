@@ -1,13 +1,13 @@
 # How to connect your CC3200 to Xively
 
-Please scan the whole tutorial to get familiar with it. Then complete each step in a sequential manner; each step builds upon the previous one.
+Please scan this whole tutorial to get familiar with it. Then complete each step in a sequential manner; each step builds upon the previous one.
 
 This tutorial supports mainly macOS and Windows, though the Linux flow should be somewhat similar to macOS.
 
 
 ## What you will learn.
 
-This tutorial will teach you how to build, link and deploy a Xively C Client onto the CC3200 using the Code Composer Studio™. Then you will learn how to connect your device to Xively.
+This tutorial will teach you how to build, link and deploy a Xively C Client Application onto the CC3200 using Code Composer Studio™. Then you will learn how to connect your device to Xively.
 
 
 ## Hardware you will need.
@@ -22,7 +22,7 @@ Texas Instruments [SimpleLink™ Wi-Fi® CC3200 LaunchPad™](http://www.ti.com/
 - Xively C Client library
 - CC3200 Uniflash _(optional)_
 
-## Step 1 of 7: Install the Code Composer Studio™.
+## Step 1 of 7: Install Code Composer Studio™.
 
 Code Composer Studio™ includes the toolchain (compiler) you'll need to build for the CC3200 and a java-based IDE.
 
@@ -39,7 +39,7 @@ Code Composer Studio™ includes the toolchain (compiler) you'll need to build f
 	By default the path should be ```c:\ti``` on Windows and ```/Applications/ti``` on macOS.
 
 8. Enable the following two options under ```SimpleLink Wireless MCUs```:
-	1. ```CC3200xx Device Support```
+	1. ```CC32xx Device Support```
 	2. ```TI ARM Compiler```
 
 9. Click ```Next >``` twice more, and click ```Finish``` when the button becomes enabled.
@@ -65,7 +65,7 @@ Download the library source code from [xively-client-c](https://github.com/xivel
 
 ## Step 4 of 7: Build the Xively C Client library.
 
-### Prebuild configuration of the Xively C Client
+### Configuration of the Xively C Client build enviornment
 
 #### Configure make target file mt-cc3200
 1. Open the file ```make/mt-os/mt-cc3200``` in your favorite friendly text editor.
@@ -146,9 +146,9 @@ _To allow your device to publish and subscribe to MQTT topics you will need your
 
 ## Step 6 of 7: Build your client application.
 
-We've prepared a demo application that uses Xively C Library. After connecting to Xively service it allows to control on board LEDs' it sends temperature information and sends information about the state of on board buttons.
+We've prepared a CC3200 demo application that uses the Xively C Library to connect to the Xively Service.  It will allow you to control the on-board LEDs remotely from the Xively Product Launcher, and send temperature and button state data from the device to the Xively Service.
 
-We will first import the example into Code Composer Studio™, and then change configuration variables to build your IoT Client connection to the Xively service.
+We will first import the example into Code Composer Studio™, and then configure your IoT Client parameters to connect to the Xively service.
 
 ### Build the _xively_demo_ example
 
@@ -172,9 +172,9 @@ In order to adapt the imported project to your environment you have to modify pr
 
 #### xively_demo configuration
 
-Before you build your application you will have to set some data like your WiFi router credentials and Xively device credentials.  
+Before you build your application you will have to set your WiFi credentials and Xively device credentials.  
 
-- update wifi settings in main.c
+- set your WiFi credentials in main.c
 
     - update AP name and password defines according to your wifi settings:
 
@@ -188,9 +188,9 @@ Before you build your application you will have to set some data like your WiFi 
 
         - for other WLAN security setting flags please refer to `CC3200_SDK_ROOT/simplelink/include/wlan.h` or TI Simplelink documentation
 
-- In main.c locate following code
+- set your Xively Credentials In main.c
 
-    - update these three values using information you got from Step 5 (_Create your Xively (digital) device_).
+    - locate and update these three values using information you got from Step 5 (_Create your Xively (digital) device_).
 
             #define XIVELY_DEVICE_ID "PASTE_YOUR_XIVELY_DEVICE_ID"
             #define XIVELY_DEVICE_SECRET "PASTE_YOUR_XIVELY_DEVICE_SECRET"
@@ -208,7 +208,7 @@ Before you build your application you will have to set some data like your WiFi 
 
 2. 	Execute the example on the CC3200 device
 	1. Connect the device to your PC or Mac with USB cable
-	2. Hit the green bug button on the top in the CCS, or select ```Run``` ->```Debug```
+	2. In Code Composer Studio™, hit the green bug button on the top or select ```Run``` ->```Debug```
 
 Reaching this point means you are able to produce and execute CC3200 compatible binary on the device itself. Congratulations!
 
@@ -266,7 +266,7 @@ When you enter the Product Launcher you will be able to see the graphical repres
 
 ### How to use a more secure configuration of wolfSSL with OCSP Stapling?
 
-For advanced security please take a look at the tutorial extension: [CC3200 Xively tutorial Stage 2](./tutorial_ti_cc3200_advanced.md)
+For advanced security with OCSP support please take a look at the next tutorial: [CC3200 Xively tutorial Stage 2](./tutorial_ti_cc3200_advanced.md)
 
 ### More coming soon
 
