@@ -81,9 +81,9 @@
 
 // Values for below macros will be used for connecting the device to Xively's
 // MQTT broker
-#define XIVELY_DEVICE_ID "YOUR_XIVELY_DEVICE_ID"
-#define XIVELY_DEVICE_PASSWORD "YOUR_XIVELY_DEVICE_PASSWORD"
-#define XIVELY_ACCOUNT_ID "YOUR_XIVELY_ACCOUNT_ID"
+#define XIVELY_DEVICE_ID "PASTER_YOUR_XIVELY_DEVICE_ID"
+#define XIVELY_DEVICE_SECRET "PASTE_YOUR_XIVELY_DEVICE_SECRET"
+#define XIVELY_ACCOUNT_ID "PASTE_YOUR_XIVELY_ACCOUNT_ID"
 
 // Application specific status/error codes
 typedef enum {
@@ -457,7 +457,7 @@ void ConnectToXively()
     }
 
     xi_state_t connect_result =
-        xi_connect( gXivelyContextHandle, XIVELY_DEVICE_ID, XIVELY_DEVICE_PASSWORD, 10, 0,
+        xi_connect( gXivelyContextHandle, XIVELY_DEVICE_ID, XIVELY_DEVICE_SECRET, 10, 0,
                     XI_SESSION_CLEAN, &on_connected );
 
     /* start processing xively library events */

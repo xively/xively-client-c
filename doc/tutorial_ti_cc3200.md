@@ -105,8 +105,8 @@ _You should have a Xively account already created, but if you do not, register o
 
 To have a device communicate through Xively we will first need to tell the Xively system that a device exists. [Log into the Xively CPM app](https://app.xively.com/) to complete the following steps.
 
-1. Create a CC3200 device representation using the Product Launcher
-_This operation will create device template and a device that will represent the CC3200 type board that we are using for this example._
+1. Create a CC3200 device template using the Product Launcher
+_This operation will create a device template and a device instance inside the Xively Service to represent your CC3200 board._
  - Click on `Product Launcher` > `Add another device`
 
  <img src="https://cloud.githubusercontent.com/assets/1899893/20390204/0a1a1068-acce-11e6-90c4-e95aa878913a.png" width="600"/>
@@ -121,32 +121,32 @@ _This operation will create device template and a device that will represent the
 
 2. Get credentials for this device.
  _In order for your device to securely talk to Xively it needs credentials that it will use to authenticate itself as a valid device within your account._
- - Go to `Devices` > `All devices` and look for your sample CC3200 device then click on it's name
+ - From the sections tabs at the top of the window, go to `Devices` > `All devices` and look for your sample CC3200 device then click on it's name
  - Click on `Get password`
  - When the modal window pops-up, click the `Download` button.
 
 	A file named `MQTTCredentials.txt` gets downloaded. It contains the device credentials that will be used in the next step. The file contains two data items:
  		- the first line is the _Xively Device Secret_
- 		- the second line is the _XIVELY_DEVICE_ID_.
+ 		- the second line is the _Xively Device Id_.
 
  <img src="https://cloud.githubusercontent.com/assets/1428256/19813189/8214fda8-9d06-11e6-859f-f3805e34ec04.png" width="600">
 
  You now have a provisioned device in Xively that your CC3200 will be able to connect as!
 
 3. Get account id.
-_To allow your device to push and subscribe to existing MQTT topics you will need your account id_
+_To allow your device to publish and subscribe to MQTT topics you will need your account id_
  - In order to get your account id click on your account name on the very top right side of the page
  - The small window should appear with the name of your organization and with turquoise rectangle underneath
  - Click that rectangle and your account id will be copied to the clipboard
- - Save your account id for later it will be needed for ```xively_demo``` application configuration
+ - Save your account id for later it will be needed for ```xively_demo``` application configuration in the next step
 
 <img src="https://cloud.githubusercontent.com/assets/1899893/20405267/a1b265bc-ad08-11e6-8a9f-08fc64e1ebaf.png" width="600">
 
  Now you are ready to build and run Xively Demo application!
- 
+
 ## Step 6 of 7: Build your client application.
 
-We've prepared demo application that uses Xively C Library. After connecting to Xively service it allows to control on board LEDs' it sends temperature information and sends information about the state of on board buttons.
+We've prepared a demo application that uses Xively C Library. After connecting to Xively service it allows to control on board LEDs' it sends temperature information and sends information about the state of on board buttons.
 
 We will first import the example into Code Composer Studio™, and then change configuration variables to build your IoT Client connection to the Xively service.
 
@@ -186,12 +186,14 @@ Before you build your application you will have to set some data like your WiFi 
 
             g_SecParams.Type = SL_SEC_TYPE_WPA_WPA2;
 
+        - for other WLAN security setting flags please refer to `CC3200_SDK_ROOT/simplelink/include/wlan.h` or TI Simplelink documentation
+
 - In main.c locate following code
 
-    - update all three values using information you got from Step 5 (_Create your Xively (digital) device_).
+    - update these three values using information you got from Step 5 (_Create your Xively (digital) device_).
 
-            #define XIVELY_DEVICE_ID "PASTER_YOUR_XIVELY_DEVICE_ID"
-            #define XIVELY_DEVICE_PASSWORD "PASTE_YOUR_XIVELY_DEVICE_PASSWORD"
+            #define XIVELY_DEVICE_ID "PASTE_YOUR_XIVELY_DEVICE_ID"
+            #define XIVELY_DEVICE_SECRET "PASTE_YOUR_XIVELY_DEVICE_SECRET"
             #define XIVELY_ACCOUNT_ID "PASTE_YOUR_XIVELY_ACCOUNT_ID"
 
 #### Build and run the example
