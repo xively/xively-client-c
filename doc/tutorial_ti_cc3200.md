@@ -115,13 +115,13 @@ _This operation will create a device template and a device instance inside the X
 
  <img src="https://cloud.githubusercontent.com/assets/1899893/20390205/0a1c11ba-acce-11e6-9a80-02802309ac96.png" width="600"/>
 
- - Go to `Quickstart Kits` and select `TI CC3200` and click `Next`
+ - From the sections tabs at the top of the window go to `Quickstart Kits` and select `TI CC3200` and click `Next`
 
  <img src="https://cloud.githubusercontent.com/assets/1899893/20390206/0a1f07da-acce-11e6-8fb6-bab8243a314d.png" width="600"/>
 
 2. Get credentials for this device.
  _In order for your device to securely talk to Xively it needs credentials that it will use to authenticate itself as a valid device within your account._
- - From the sections tabs at the top of the window, go to `Devices` > `All devices` and look for your sample CC3200 device then click on it's name
+ - Go to `Devices` > `All devices` and look for your sample CC3200 device then click on it's name
  - Click on `Get password`
  - When the modal window pops-up, click the `Download` button.
 
