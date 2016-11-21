@@ -80,12 +80,12 @@
 
 // Values for below macros shall be modified per the access-point's (AP) properties.
 // SimpleLink device will connect to following AP when the application is executed.
-#define ENT_NAME "YOUR_WIFI_BSSID"
+#define ENT_NAME "YOUR_WIFI_SSID"
 #define PASSWORD "YOUR_WIFI_PASSWORD"
 
 // Values for below macros will be used for connecting the device to Xively's
 // MQTT broker
-#define XIVELY_DEVICE_ID "PASTER_YOUR_XIVELY_DEVICE_ID"
+#define XIVELY_DEVICE_ID "PASTE_YOUR_XIVELY_DEVICE_ID"
 #define XIVELY_DEVICE_SECRET "PASTE_YOUR_XIVELY_DEVICE_SECRET"
 #define XIVELY_ACCOUNT_ID "PASTE_YOUR_XIVELY_ACCOUNT_ID"
 
