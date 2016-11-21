@@ -19,17 +19,13 @@ CONFIG_DUMMY_MIN                =bsp_dummy-memory_fs
 CONFIG_CC3200                   =bsp_cc3200-memory_fs-tls_bsp
 CONFIG_CC3200_TLS_SOCKET        =bsp_cc3200-memory_fs-tls_socket
 
-CONFIG_STM32F4_MAX          =bsp_stm32f-memory_fs-tls-senml-control_topic-memory_limiter
-CONFIG_STM32F4_MIN          =bsp_stm32f-memory_fs-tls
-CONFIG_STM32F4_MIN_UNSECURE =bsp_stm32f-memory_fs
+CONFIG_STM32F4                  =bsp_stm32f4-memory_fs-tls_bsp
 
 # TARGET presets
 TARGET_STATIC_DEV               =-static-debug
 TARGET_STATIC_REL               =-static-release
 
 TARGET_ARM_REL                  =-static-release
-
-TARGET_STM32F4_REL			=-static-release
 
 PRESET ?= POSIX_REL
 
@@ -96,21 +92,11 @@ else ifeq ($(PRESET), CC3200_TLS_SOCKET)
 
 # -------------------------------------------------------
 # ST Micro STM32F4
-else ifeq ($(PRESET), STM32F4_REL_MIN)
-	CONFIG = $(CONFIG_STM32F4_MIN)
-	TARGET = $(TARGET_STM32F4_REL)
-	XI_BSP_PLATFORM = stm32f4
-	XI_TARGET_PLATFORM = stm32f4
-else ifeq ($(PRESET), STM32F4_REL_MIN_UNSECURE)
-	CONFIG = $(CONFIG_STM32F4_MIN_UNSECURE)
-	TARGET = $(TARGET_STM32F4_REL)
-	XI_BSP_PLATFORM = stm32f4
-	XI_TARGET_PLATFORM = stm32f4
-else ifeq ($(PRESET), STM32F4_REL)
-	CONFIG = $(CONFIG_STM32F4_MAX)
-	TARGET = $(TARGET_STM32F4_REL)
-	XI_BSP_PLATFORM = stm32f4
-	XI_TARGET_PLATFORM = stm32f4
+else ifeq ($(PRESET), STM32F4)
+    CONFIG = $(CONFIG_STM32F4)
+    TARGET = $(TARGET_STATIC_REL)
+    XI_BSP_PLATFORM = stm32f4
+    XI_TARGET_PLATFORM = stm32f4
 
 # -------------------------------------------------------
 # DEFAULT
