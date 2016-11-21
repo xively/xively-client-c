@@ -32,11 +32,8 @@
 #endif
 
 #ifndef XI_MQTT_PORT
-#ifdef XI_DEBUG_NO_TLS
-#define XI_MQTT_PORT 1883
-#else
 #define XI_MQTT_PORT 8883
-#endif
+/* note: usually port 1883 is used for insecure MQTT connections */
 #endif
 
 #ifndef XI_MQTT_HOST

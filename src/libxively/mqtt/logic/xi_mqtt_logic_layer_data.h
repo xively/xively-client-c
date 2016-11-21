@@ -7,10 +7,10 @@
 #ifndef __XI_MQTT_LOGIC_LAYER_DATA_H__
 #define __XI_MQTT_LOGIC_LAYER_DATA_H__
 
-#include "xi_event_dispatcher_api.h"
-#include "xi_mqtt_message.h"
 #include "xi_connection_data.h"
 #include "xi_data_desc.h"
+#include "xi_event_dispatcher_api.h"
+#include "xi_mqtt_message.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -74,7 +74,7 @@ typedef enum {
 typedef struct xi_mqtt_logic_task_s
 {
     struct xi_mqtt_logic_task_s* __next;
-    xi_heap_element_t* timeout;
+    xi_time_event_handle_t timeout;
     xi_event_handle_t logic;
     xi_event_handle_t callback;
     xi_mqtt_logic_task_data_t data;
@@ -97,7 +97,7 @@ typedef struct
     xi_mqtt_logic_task_t* q0_tasks_queue;
     xi_mqtt_logic_task_t* current_q0_task;
     xi_vector_t* handlers_for_topics;
-    xi_heap_element_t* keepalive_event;
+    xi_time_event_handle_t keepalive_event;
     uint16_t last_msg_id;
 } xi_mqtt_logic_layer_data_t;
 
@@ -121,7 +121,8 @@ extern void
 xi_mqtt_task_spec_data_free_subscribe_data( xi_mqtt_task_specific_data_t** data );
 
 extern void
-xi_mqtt_task_spec_data_free_subscribe_data_vec( union xi_vector_selector_u* data );
+xi_mqtt_task_spec_data_free_subscribe_data_vec( union xi_vector_selector_u* data,
+                                                void* arg );
 
 extern xi_mqtt_logic_task_t* xi_mqtt_logic_make_shutdown_task( void );
 

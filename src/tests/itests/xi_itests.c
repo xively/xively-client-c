@@ -7,7 +7,8 @@
 #define XI_MOCK_TEST_PREPROCESSOR_RUN
 #include "xi_itest_clean_session.h"
 #include "xi_itest_tls_error.h"
-#ifndef XI_DEBUG_NO_TLS
+#include "xi_itest_connect_error.h"
+#ifndef XI_NO_TLS_LAYER
 #include "xi_itest_tls_layer.h"
 #endif
 #include "xi_itest_mqttlogic_layer.h"
@@ -23,7 +24,8 @@ struct CMGroupTest groups[] = {
     cmocka_test_group( xi_itests_tls_layer )
 #endif
         ,
-    cmocka_test_group( xi_itests_mqttlogic_layer ), cmocka_test_group_end};
+    cmocka_test_group( xi_itests_mqttlogic_layer ),
+    cmocka_test_group( xi_itests_connect_error ), cmocka_test_group_end};
 
 int8_t xi_cm_strict_mock = 0;
 

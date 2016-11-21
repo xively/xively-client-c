@@ -6,7 +6,6 @@
 
 /**
  * \file    xi_debug.h
- * \author  Olgierd Humenczuk
  * \brief   Macros to use for debugging
  */
 
@@ -15,6 +14,7 @@
 
 #include "xi_config.h"
 #include "xi_data_desc.h"
+#include "xi_bsp_time.h"
 
 #ifdef XI_PLATFORM_BASE_WMSDK
 #include <wm_os.h>
@@ -28,37 +28,31 @@ extern "C" {
 #include <stdio.h>
 #define __xi_printf( ... )                                                               \
     printf( __VA_ARGS__ );                                                               \
-    fflush( stdout )
+    fflush( stdout );
 #else /* XI_DEBUG_PRINTF */
-#define __xi_printf( ... ) XI_DEBUG_PRINTF( __VA_ARGS__ )
+#define __xi_printf( ... ) XI_DEBUG_PRINTF( __VA_ARGS__ );
 #endif /* XI_DEBUG_PRINTF */
 
 #if XI_DEBUG_OUTPUT
+const char* xi_debug_dont_print_the_path( const char* msg );
 void xi_debug_data_logger_impl( const char* msg, const xi_data_desc_t* data_desc );
 
-#ifdef XI_PLATFORM_BASE_WMSDK
-#define xi_debug_logger( msg ) __xi_printf( "[%d:(%s)] %s\n", __LINE__, __func__, msg )
-#define xi_debug_format( fmt, ... )                                                      \
-    __xi_printf( "[%d:(%s)] " fmt "\n", __LINE__, __func__, __VA_ARGS__ )
-#define xi_debug_printf( ... ) __xi_printf( __VA_ARGS__ )
-#define xi_debug_function_entered()                                                      \
-    __xi_printf( "[%s:%d (%s)] -> entered\n", __FILE__, __LINE__, __func__ )
-#define xi_debug_data_logger( msg, dsc )                                                 \
-    __xi_printf( "[%s:%d (%s)] #\n", __FILE__, __LINE__, __func__ );                     \
-    xi_debug_data_logger_impl( msg, dsc );
-#else /* XI_PLATFORM_BASE_WMSDK */
 #define xi_debug_logger( msg )                                                           \
-    __xi_printf( "[%s:%d (%s)] %s\n", __FILE__, __LINE__, __func__, msg )
+    __xi_printf( "[%ld][%s:%d (%s)] %s\n", xi_bsp_time_getcurrenttime_milliseconds(),    \
+                 xi_debug_dont_print_the_path( __FILE__ ), __LINE__, __func__, msg )
 #define xi_debug_format( fmt, ... )                                                      \
-    __xi_printf( "[%s:%d (%s)] " fmt "\n", __FILE__, __LINE__, __func__, __VA_ARGS__ )
+    __xi_printf(                                                                         \
+        "[%ld][%s:%d (%s)] " fmt "\n", xi_bsp_time_getcurrenttime_milliseconds(),        \
+        xi_debug_dont_print_the_path( __FILE__ ), __LINE__, __func__, __VA_ARGS__ )
 #define xi_debug_printf( ... ) __xi_printf( __VA_ARGS__ )
 #define xi_debug_function_entered()                                                      \
-    __xi_printf( "[%s:%d (%s)] -> entered\n", __FILE__, __LINE__, __func__ )
+    __xi_printf( "[%ld][%s:%d (%s)] -> entered\n",                                       \
+                 xi_bsp_time_getcurrenttime_milliseconds(),                              \
+                 xi_debug_dont_print_the_path( __FILE__ ), __LINE__, __func__ )
 #define xi_debug_data_logger( msg, dsc )                                                 \
-    __xi_printf( "[%s:%d (%s)] #\n", __FILE__, __LINE__, __func__ );                     \
-    xi_debug_data_logger_impl( msg, dsc );
-#endif /* XI_PLATFORM_BASE_WMSDK */
-
+    __xi_printf( "[%ld][%s:%d (%s)] #\n", xi_bsp_time_getcurrenttime_milliseconds(),     \
+                 xi_debug_dont_print_the_path( __FILE__ ), __LINE__, __func__ );         \
+    xi_debug_data_logger_impl( msg, dsc )
 #else /* XI_DEBUG_OUTPUT */
 #define xi_debug_logger( ... )
 #define xi_debug_format( ... )
@@ -69,12 +63,13 @@ void xi_debug_data_logger_impl( const char* msg, const xi_data_desc_t* data_desc
 
 #define XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST()
 #define XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST_OFF()                                    \
-    printf( "[ libxively  ] %-50s, layerchainid = %p, in_out_state = %d, "               \
+    printf( "[%ld][ libxively  ] %-50s, layerchainid = %p, in_out_state = %d, "          \
             "layer_type_id = "                                                           \
             "%d, data = %p\n",                                                           \
-            __func__, XI_THIS_LAYER( context )->context_data, in_out_state,              \
+            xi_bsp_time_getcurrenttime_milliseconds(), __func__,                         \
+            XI_THIS_LAYER( context )->context_data, in_out_state,                        \
             XI_THIS_LAYER( context )->layer_type_id, data );                             \
-    fflush( stdout );
+    fflush( stdout )
 
 #if XI_DEBUG_ASSERT
 #ifdef NDEBUG

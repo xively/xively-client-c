@@ -9,49 +9,18 @@
 #include "xi_tt_testcase_management.h"
 #include "xi_utest_basic_testcase_frame.h"
 
-#include "xi_heap.h"
 #include "xi_vector.h"
 
 #include "xi_memory_checks.h"
 #include "xi_rng.h"
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 #include <time.h>
 
 #ifndef XI_TT_TESTCASE_ENUMERATION__SECONDPREPROCESSORRUN
-
-void test_heap( xi_heap_t* heap, xi_heap_index_type_t index )
-{
-    if ( index >= heap->first_free )
-    {
-        return;
-    }
-
-    xi_heap_element_t* e = heap->elements[index];
-
-    xi_heap_index_type_t li = LEFT( index );
-    xi_heap_index_type_t ri = RIGHT( index );
-
-    li = li >= heap->first_free ? index : li;
-    ri = ri >= heap->first_free ? index : ri;
-
-    if ( li == index || ri == index )
-        return;
-
-    xi_heap_element_t* le = heap->elements[li];
-    xi_heap_element_t* re = heap->elements[ri];
-
-    tt_assert( e->key <= le->key );
-    tt_assert( e->key <= re->key );
-
-    test_heap( heap, li );
-    test_heap( heap, ri );
-
-end:;
-}
 
 int8_t vector_is_odd( union xi_vector_selector_u* e0 )
 {
@@ -114,135 +83,6 @@ int8_t utest_datastructures_cmp_vector_ui32( const union xi_vector_selector_u* e
 /*-----------------------------------------------------------------------*/
 XI_TT_TESTGROUP_BEGIN( utest_datastructures )
 
-XI_TT_TESTCASE( test_heap_index_calculus, {
-    xi_heap_index_type_t index = 0;
-
-    tt_assert( RIGHT( index ) == 2 );
-    tt_assert( LEFT( index ) == 1 );
-    tt_assert( PARENT( RIGHT( index ) ) == 0 );
-    tt_assert( PARENT( LEFT( index ) ) == 0 );
-
-end:;
-} )
-
-XI_TT_TESTCASE( test_heap_create, {
-    xi_heap_t* heap = xi_heap_create();
-
-    tt_assert( heap != 0 );
-    tt_assert( heap->capacity == 2 );
-    tt_assert( heap->first_free == 0 );
-
-    int i = 0;
-    for ( ; i < heap->capacity; ++i )
-    {
-        tt_assert( heap->elements[i] == 0 );
-    }
-
-/* Every test-case function needs to finish with an "end:"
-   label and (optionally) code to clean up local variables. */
-end:
-    xi_heap_destroy( heap );
-    tt_want_int_op( xi_is_whole_memory_deallocated(), >, 0 );
-} )
-
-XI_TT_TESTCASE( test_heap_add, {
-    xi_heap_t* heap = xi_heap_create();
-
-    xi_heap_element_add_void( heap, 12, ( void* )12 );
-
-    tt_assert( heap->first_free == 1 );
-
-    tt_assert( ( heap->elements[0] )->index == 0 );
-    tt_assert( ( heap->elements[0] )->key == 12 );
-    tt_assert( ( heap->elements[0] )->heap_value.void_value == ( void* )12 );
-
-    xi_heap_element_add_void( heap, 13, ( void* )13 );
-
-    tt_assert( heap->first_free == 2 );
-
-    tt_assert( ( heap->elements[1] )->index == 1 );
-    tt_assert( ( heap->elements[1] )->key == 13 );
-    tt_assert( ( heap->elements[1] )->heap_value.void_value == ( void* )13 );
-
-    xi_heap_element_add_void( heap, 1, ( void* )1 );
-
-    tt_assert( ( heap->elements[0] )->index == 0 );
-    tt_assert( ( heap->elements[0] )->key == 1 );
-    tt_assert( ( heap->elements[0] )->heap_value.void_value == ( void* )1 );
-
-    tt_assert( ( heap->elements[2] )->index == 2 );
-    tt_assert( ( heap->elements[2] )->key == 12 );
-    tt_assert( ( heap->elements[2] )->heap_value.void_value == ( void* )12 );
-
-end:
-    xi_heap_destroy( heap );
-    tt_want_int_op( xi_is_whole_memory_deallocated(), >, 0 );
-} )
-
-XI_TT_TESTCASE( test_heap_sequencial_add, {
-    xi_heap_t* heap = xi_heap_create();
-
-    long i = 0;
-    for ( ; i < 16; ++i )
-    {
-        xi_heap_element_add_void( heap, i, ( void* )i );
-    }
-
-    for ( i = 0; i < 16; ++i )
-    {
-        tt_assert( heap->elements[i]->index == i );
-        tt_assert( heap->elements[i]->heap_value.void_value == ( void* )i );
-        tt_assert( heap->elements[i]->key == i );
-    }
-
-end:
-    xi_heap_destroy( heap );
-    tt_want_int_op( xi_is_whole_memory_deallocated(), >, 0 );
-} )
-
-XI_TT_TESTCASE_WITH_SETUP(
-    test_heap_random_add, xi_utest_setup_basic, xi_utest_teardown_basic, NULL, {
-        xi_heap_t* heap = xi_heap_create();
-        srand( time( 0 ) );
-
-        size_t i = 0;
-        for ( ; i < 64; ++i )
-        {
-            xi_heap_index_type_t index = xi_rand() & 63;
-            xi_heap_element_add_void( heap, index, ( void* )i );
-        }
-
-        test_heap( heap, 0 );
-
-        xi_heap_destroy( heap );
-    } )
-
-XI_TT_TESTCASE_WITH_SETUP(
-    test_heap_random_remove, xi_utest_setup_basic, xi_utest_teardown_basic, NULL, {
-        xi_heap_t* heap = xi_heap_create();
-        srand( time( 0 ) );
-
-        size_t i = 0;
-        for ( ; i < 64; ++i )
-        {
-            xi_heap_index_type_t index = xi_rand() & 63;
-            xi_heap_element_add_void( heap, index, ( void* )i );
-        }
-
-        xi_heap_key_type_t key = 0;
-
-        for ( i = 0; i < 64; ++i )
-        {
-            const xi_heap_element_t* e = xi_heap_get_top( heap );
-            tt_assert( key <= e->key );
-            key = e->key;
-        }
-
-    end:
-        xi_heap_destroy( heap );
-    } )
-
-
 XI_TT_TESTCASE( test_vector_create, {
     xi_vector_t* sv = xi_vector_create();
 
@@ -251,29 +91,6 @@ XI_TT_TESTCASE( test_vector_create, {
     tt_assert( sv->capacity == 2 );
     tt_assert( sv->elem_no == 0 );
     tt_assert( sv->memory_type == XI_MEMORY_TYPE_MANAGED );
-
-    xi_vector_destroy( sv );
-    tt_want_int_op( xi_is_whole_memory_deallocated(), >, 0 );
-end:;
-} )
-
-XI_TT_TESTCASE( test_vector_assign, {
-    xi_vector_t* sv = xi_vector_create();
-
-    uint32_t rnd_value = rand();
-
-    int8_t result =
-        xi_vector_assign( sv, 13, XI_VEC_VALUE_PARAM( XI_VEC_VALUE_UI32( rnd_value ) ) );
-
-    tt_assert( result == 1 );
-    tt_assert( sv->capacity == 13 );
-    tt_assert( sv->elem_no == 13 );
-
-    xi_vector_index_type_t i = 0;
-    for ( ; i < 13; ++i )
-    {
-        tt_assert( sv->array[i].selector_t.ui32_value == rnd_value )
-    }
 
     xi_vector_destroy( sv );
     tt_want_int_op( xi_is_whole_memory_deallocated(), >, 0 );
@@ -462,7 +279,7 @@ XI_TT_TESTCASE( test_vector_del, {
         xi_vector_del( sv, 0 );
     }
 
-    tt_assert( sv->capacity == 1 );
+    tt_assert( sv->capacity == 16 );
 
 end:;
     xi_vector_destroy( sv );

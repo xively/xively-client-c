@@ -34,6 +34,8 @@
 #define XI_TT_PUBLISH                           ( XI_TT_MQTT_CODEC_LAYER_DATA << 1 )
 #define XI_TT_FS                                ( XI_TT_PUBLISH << 1 )
 #define XI_TT_RESOURCE_MANAGER                  ( XI_TT_FS << 1 )
+#define XI_TT_IO_LAYER                          ( XI_TT_RESOURCE_MANAGER << 1 )
+#define XI_TT_TIME_EVENT                        ( XI_TT_IO_LAYER << 1 )
 
 // clang-format on
 
@@ -103,6 +105,8 @@ XI_TT_TESTCASE_PREDECLARATION( utest_fs_dummy );
 #ifdef XI_FS_POSIX
 XI_TT_TESTCASE_PREDECLARATION( utest_fs_posix );
 #endif
+
+XI_TT_TESTCASE_PREDECLARATION( utest_time_event );
 
 #include "xi_test_utils.h"
 #include "xi_lamp_communication.h"
@@ -238,7 +242,11 @@ struct testgroup_t groups[] = {
     {"utest_resource_manager - ", utest_resource_manager},
 #endif
 
-    { "utest_rng - ", utest_rng },
+#if ( XI_TT_TEST_SET & XI_TT_TIME_EVENT )
+    {"utest_time_event - ", utest_time_event},
+#endif
+
+    {"utest_rng - ", utest_rng},
 
     END_OF_GROUPS};
 

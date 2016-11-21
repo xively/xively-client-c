@@ -10,8 +10,8 @@ LIBXIVELY_INTERFACE_INCLUDE_DIRS += $(LIBXIVELY)/include_senml
 
 XI_LIB_FLAGS += -lxively
 
-ifneq (,$(findstring tls,$(CONFIG)))
-    include make/mt-config/mt-tls
+ifneq (,$(findstring tls_bsp,$(CONFIG)))
+	include make/mt-config/mt-tls
 endif
 
 XI_UNIT_TEST_TARGET ?= native
@@ -32,20 +32,22 @@ ifneq (,$(findstring release,$(TARGET)))
 	XI_DEBUG_EXTRA_INFO ?=0
 endif
 
+XI_DEBUG_PRINTF ?=
+
 ifneq (,$(findstring shared,$(TARGET)))
-  XI_SHARED=1
+	XI_SHARED=1
 endif
 
 ifneq (,$(findstring backoff_godmode,$(CONFIG)))
-  XI_CONFIG_FLAGS += -DXI_BACKOFF_GODMODE
+	XI_CONFIG_FLAGS += -DXI_BACKOFF_GODMODE
 endif
 
 ifneq (,$(findstring control_topic,$(CONFIG)))
-  XI_CONFIG_FLAGS += -DXI_CONTROL_TOPIC_ENABLED
+	XI_CONFIG_FLAGS += -DXI_CONTROL_TOPIC_ENABLED
 endif
 
 ifneq (,$(findstring expose_fs,$(CONFIG)))
-  XI_CONFIG_FLAGS += -DXI_EXPOSE_FS
+	XI_CONFIG_FLAGS += -DXI_EXPOSE_FS
 endif
 
 ifneq (,$(findstring debug,$(TARGET)))
@@ -71,16 +73,20 @@ XI_CONFIG_FLAGS += -DXI_DEBUG_OUTPUT=$(XI_DEBUG_OUTPUT)
 XI_CONFIG_FLAGS += -DXI_DEBUG_ASSERT=$(XI_DEBUG_ASSERT)
 XI_CONFIG_FLAGS += -DXI_DEBUG_EXTRA_INFO=$(XI_DEBUG_EXTRA_INFO)
 
+ifneq (,$(XI_DEBUG_PRINTF))
+    XI_CONFIG_FLAGS += -DXI_DEBUG_PRINTF=$(XI_DEBUG_PRINTF)
+endif
+
 # CONFIG: mqtt_localhost
 #
 ifneq (,$(findstring mqtt_localhost,$(CONFIG)))
-  XI_CONFIG_FLAGS += -DXI_MQTT_HOST='{ "localhost", XI_MQTT_PORT }'
+	XI_CONFIG_FLAGS += -DXI_MQTT_HOST='{ "localhost", XI_MQTT_PORT }'
 endif
 
 # CONFIG: no_certverify
 #
 ifneq (,$(findstring no_certverify,$(CONFIG)))
-  XI_CONFIG_FLAGS += -DXI_DISABLE_CERTVERIFY
+	XI_CONFIG_FLAGS += -DXI_DISABLE_CERTVERIFY
 endif
 
 # CONFIG: filesystem
@@ -133,7 +139,7 @@ endif
 BSP_PLATFORM_DIR_EXIST := $(shell if [ ! -d $(XI_BSP_DIR)/platform/$(XI_BSP_PLATFORM) ]; then echo 0; else echo 1; fi; )
 
 ifeq ($(BSP_PLATFORM_DIR_EXIST),0)
-    $(error The platform with BSP implementation - [$(XI_BSP_PLATFORM)] couldn't be found. Please check your $(XI_BSP_DIR)/platform/ directory.)
+	$(error The platform with BSP implementation - [$(XI_BSP_PLATFORM)] couldn't be found. Please check your $(XI_BSP_DIR)/platform/ directory.)
 endif
 
 # platform specific BSP implementations
@@ -147,13 +153,20 @@ XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/memory
 XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/event_loop
 XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/time
 
+
 # if no tls then set proper flag
-ifeq (,$(findstring tls,$(CONFIG)))
-    XI_CONFIG_FLAGS += -DXI_DEBUG_NO_TLS
+ifeq (,$(findstring tls_bsp,$(CONFIG)))
+	XI_CONFIG_FLAGS += -DXI_NO_TLS_LAYER
+
+	ifneq (,$(findstring tls_socket,$(CONFIG)))
+		XI_CONFIG_FLAGS += -DXI_BSP_IO_NET_TLS_SOCKET
+	else
+		XI_CONFIG_FLAGS += -DXI_MQTT_PORT=1883
+	endif
 else
-    XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/tls/certs
-    XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/tls
-    XI_SRCDIRS += $(XI_BSP_DIR)/tls/$(XI_BSP_TLS)
+	XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/tls/certs
+	XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/tls
+	XI_SRCDIRS += $(XI_BSP_DIR)/tls/$(XI_BSP_TLS)
 endif
 
 XI_CONFIG_FLAGS += -DXI_BSP

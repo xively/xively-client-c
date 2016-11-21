@@ -68,7 +68,7 @@ xi_itest_mqttlogic_test_msg_t* xi_itest_mqttlogic_make_msg_test_matrix(
              test_msg_data->values_to_check.what )                                       \
         {                                                                                \
             fprintf( stderr, "msg bit - [%d] " #what                                     \
-                             " does not match the expected value [%d]\r\n",              \
+                             " does not match the expected value [%d]\n",              \
                      msg->common.common_u.common_bits.what,                              \
                      test_msg_data->values_to_check.what );                              \
             fflush( stderr );                                                            \
@@ -209,6 +209,9 @@ void xi_itest_mqttlogic_prepare_init_and_connect_layer( xi_layer_t* top_layer,
                                                         xi_session_type_t session_type,
                                                         uint16_t keepalive_timeout )
 {
+    xi_context__itest_mqttlogic_layer->context_data.shutdown_state =
+        XI_SHUTDOWN_UNINITIALISED;
+
     // default init process expectations
     expect_value( xi_mock_layer_mqttlogic_prev_init, in_out_state, XI_STATE_OK );
     expect_value( xi_mock_layer_mqttlogic_prev_connect, in_out_state, XI_STATE_OK );
@@ -240,10 +243,6 @@ void xi_itest_mqttlogic_prepare_init_and_connect_layer( xi_layer_t* top_layer,
     XI_PROCESS_PULL_ON_PREV_LAYER( &top_layer->layer_connection, connack, XI_STATE_OK );
 
     expect_value( xi_mock_layer_mqttlogic_next_connect, in_out_state, XI_STATE_OK );
-
-    /* */
-    xi_context__itest_mqttlogic_layer->context_data.connect_handler =
-        ( xi_heap_element_t* )( intptr_t )1;
 
 err_handling:
     return;
@@ -667,7 +666,7 @@ void xi_itest_mqtt_logic_layer__persistant_session__unsent_messages_not_prereser
         for ( ; i < test_data_size; ++i )
         {
             xi_debug_format(
-                "Ruuning test on: %d msg type\r\n",
+                "Ruuning test on: %d msg type\n",
                 XI_ITEST_MQTTLOGIC_PERSISTANT_SESSION_TEST_DATA[i].msg_type );
 
             /* we have to pretend that we are connected with clean session bit set to 0 */
@@ -745,7 +744,7 @@ void xi_itest_mqtt_logic_layer__persistant_session__failure_unsent_message_are_n
         for ( ; i < test_data_size; ++i )
         {
             xi_debug_format(
-                "Ruuning test on: %d msg type\r\n",
+                "Ruuning test on: %d msg type\n",
                 XI_ITEST_MQTTLOGIC_PERSISTANT_SESSION_TEST_DATA[i].msg_type );
 
             /* we have to pretend that we are connected with clean session bit set to 0 */
@@ -833,7 +832,7 @@ void xi_itest_mqtt_logic_layer__persistant_session__success_unacked_messages_are
 
             xi_mqtt_type_t msg_type =
                 XI_ITEST_MQTTLOGIC_PERSISTANT_SESSION_TEST_DATA[i].msg_type;
-            xi_debug_format( "Ruuning test on: %d msg type\r\n", msg_type );
+            xi_debug_format( "Ruuning test on: %d msg type\n", msg_type );
 
             /* we have to pretend that we are connected with clean session bit set to 0 */
             xi_itest_mqttlogic_prepare_init_and_connect_layer(

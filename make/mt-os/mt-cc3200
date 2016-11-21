@@ -41,7 +41,6 @@ else ifneq (,$(findstring Windows,$(XI_HOST_PLATFORM)))
 
 	XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/include
 
-
 ###
 ## LINUX HOST OS
 ###
