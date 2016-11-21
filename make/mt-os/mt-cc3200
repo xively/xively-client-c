@@ -72,6 +72,7 @@ XI_COMPILER_FLAGS = $(XI_COMPILER_FLAGS_TMP)
 XI_COMPILER_FLAGS += -mv7M4
 XI_COMPILER_FLAGS += -me
 XI_COMPILER_FLAGS += -ms
+XI_COMPILER_FLAGS += --small_enum
 XI_COMPILER_FLAGS += --define=css
 XI_COMPILER_FLAGS += --define=cc3200
 XI_COMPILER_FLAGS += --define=WOLFSSL_NOOS_XIVELY
@@ -87,6 +88,9 @@ XI_COMPILER_FLAGS += --preproc_dependency=$(@:.o=.d)
 XI_COMPILER_FLAGS += --obj_directory=$(dir $@)
 XI_COMPILER_FLAGS += --asm_directory=$(dir $@)
 XI_COMPILER_FLAGS += --output_file=$@
+XI_COMPILER_FLAGS += -pdew
+
+XI_COMPILER_OUTPUT :=
 
 ifneq (,$(findstring release,$(TARGET)))
     XI_COMPILER_FLAGS += -O4

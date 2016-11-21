@@ -25,6 +25,9 @@ read_string( xi_mqtt_parser_t* parser, xi_data_desc_t** dst, xi_data_desc_t* src
 
     /* local state */
     xi_state_t local_state = XI_STATE_OK;
+    size_t to_read         = 0;
+    size_t src_left        = 0;
+    size_t len_to_read     = 0;
 
     /* check for the existance of the data descriptor */
     if ( *dst == NULL )
@@ -33,9 +36,9 @@ read_string( xi_mqtt_parser_t* parser, xi_data_desc_t** dst, xi_data_desc_t* src
     }
 
     /* local variables */
-    size_t to_read     = parser->str_length - ( *dst )->length;
-    size_t src_left    = src->length - src->curr_pos;
-    size_t len_to_read = XI_MIN( to_read, src_left );
+    to_read     = parser->str_length - ( *dst )->length;
+    src_left    = src->length - src->curr_pos;
+    len_to_read = XI_MIN( to_read, src_left );
 
     XI_CR_START( cs );
 
@@ -110,6 +113,9 @@ read_data( xi_mqtt_parser_t* parser, xi_data_desc_t** dst, xi_data_desc_t* src )
 
     /* local state */
     xi_state_t local_state = XI_STATE_OK;
+    size_t to_read         = 0;
+    size_t src_left        = 0;
+    size_t len_to_read     = 0;
 
     if ( *dst == NULL )
     {
@@ -117,9 +123,9 @@ read_data( xi_mqtt_parser_t* parser, xi_data_desc_t** dst, xi_data_desc_t* src )
     }
 
     /* local variables */
-    size_t to_read     = parser->str_length - ( *dst )->length;
-    size_t src_left    = src->length - src->curr_pos;
-    size_t len_to_read = XI_MIN( to_read, src_left );
+    to_read     = parser->str_length - ( *dst )->length;
+    src_left    = src->length - src->curr_pos;
+    len_to_read = XI_MIN( to_read, src_left );
 
     XI_CR_START( cs );
 
@@ -439,7 +445,7 @@ xi_state_t xi_mqtt_parser_execute( xi_mqtt_parser_t* parser,
                         XI_STATE_WANT_READ );
 
         message->subscribe.topics->xi_mqtt_topic_pair_payload_u.qos =
-            src->data_ptr[src->curr_pos];
+            ( xi_mqtt_qos_t )src->data_ptr[src->curr_pos];
         src->curr_pos += 1;
         parser->data_length += 1;
 

@@ -86,6 +86,7 @@ static inline xi_state_t fill_with_connect_data( xi_mqtt_message_t* msg,
     msg->connect.flags_u.flags_bits.will        = 0;
     msg->connect.flags_u.flags_bits.will_retain = 0;
     msg->connect.flags_u.flags_bits.will_qos    = 0;
+    const char* client_id                       = NULL;
 
     XI_CHECK_MEMORY( msg->connect.protocol_name = xi_make_desc_from_string_copy( "MQTT" ),
                      local_state );
@@ -93,7 +94,7 @@ static inline xi_state_t fill_with_connect_data( xi_mqtt_message_t* msg,
 
     /* our brokers require that we send client_id and username as the same
      * value */
-    const char* client_id = username;
+    client_id = username;
 
     if ( NULL != client_id )
     {

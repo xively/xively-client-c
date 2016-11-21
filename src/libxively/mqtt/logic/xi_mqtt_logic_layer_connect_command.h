@@ -30,24 +30,17 @@ static inline xi_state_t get_error_from_connack( int return_code )
     {
         case 0x01:
             return XI_MQTT_UNACCEPTABLE_PROTOCOL_VERSION;
-            break;
         case 0x02:
             return XI_MQTT_IDENTIFIER_REJECTED;
-            break;
         case 0x03:
             return XI_MQTT_SERVER_UNAVAILIBLE;
-            break;
         case 0x04:
             return XI_MQTT_BAD_USERNAME_OR_PASSWORD;
-            break;
         case 0x05:
             return XI_MQTT_NOT_AUTHORIZED;
-            break;
         default:
             return XI_MQTT_CONNECT_UNKNOWN_RETURN_CODE;
     }
-
-    return XI_MQTT_CONNECT_UNKNOWN_RETURN_CODE;
 }
 
 /**

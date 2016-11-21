@@ -121,7 +121,6 @@ xi_state_t xi_mqtt_logic_layer_push( void* context, void* data, xi_state_t in_ou
                 case XI_MQTT_MESSAGE_CLASS_UNKNOWN:
                     in_out_state = XI_MQTT_MESSAGE_CLASS_UNKNOWN_ERROR;
                     goto err_handling;
-                    break;
                 default:
                     assert( 1 == 0 );
                     break;
@@ -229,10 +228,7 @@ xi_state_t xi_mqtt_logic_layer_push( void* context, void* data, xi_state_t in_ou
         }
         break;
         default:
-        {
             return XI_MQTT_LOGIC_WRONG_SCENARIO_TYPE;
-        }
-        break;
     }
 
     run_task( context, task );
@@ -318,7 +314,6 @@ xi_state_t xi_mqtt_logic_layer_pull( void* context, void* data, xi_state_t in_ou
                 default:
                     in_out_state = XI_MQTT_MESSAGE_CLASS_UNKNOWN_ERROR;
                     goto err_handling;
-                    break;
             }
 
             XI_LIST_FIND( xi_mqtt_logic_task_t, task_queue, CMP_TASK_MSG_ID,

@@ -52,6 +52,9 @@ XI_BIN_DIRS := $(XI_BIN_DIR) $(XI_EXAMPLE_BINDIR) $(XI_EXAMPLE_BINDIR)/internal 
 #default test target always present cause tiny test cross-compiles
 XI_TESTS_TARGETS := $(XI_UTESTS) $(XI_TEST_TOOLS_OBJS) $(XI_TEST_TOOLS)
 
+# default output file declaration
+XI_COMPILER_OUTPUT ?= -o $@
+
 ifneq ($(XI_CONST_PLATFORM_CURRENT),$(XI_CONST_PLATFORM_ARM))
 #the integration tests does not cross-compile atm
 	XI_TESTS_TARGETS += $(XI_ITESTS)
@@ -123,7 +126,7 @@ $(XI_OBJDIR)/tests/tools/xi_libxively_driver/%.o : $(LIBXIVELY)/src/tests/tools/
 $(XI_OBJDIR)/%.o : $(LIBXIVELY)/src/%.c $(XI_BUILD_PRECONDITIONS)
 	@-mkdir -p $(dir $@)
 	$(info [$(CC)] $@)
-	$(MD) $(CC) $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) -c $< -o $@
+	$(MD) $(CC) $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) -c $< $(XI_COMPILER_OUTPUT)
 	$(XI_POST_COMPILE_ACTION)
 
 $(XI_OBJDIR)/bsp/platform/$(BSP_FOUND)/%.o : $(XI_BSP_DIR)/platform/$(BSP_FOUND)/%.c $(XI_BUILD_PRECONDITIONS)

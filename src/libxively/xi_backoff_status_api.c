@@ -159,13 +159,11 @@ xi_backoff_class_t xi_backoff_classify_state( const xi_state_t state )
         case XI_MQTT_BAD_USERNAME_OR_PASSWORD:
         case XI_MQTT_NOT_AUTHORIZED:
             return XI_BACKOFF_CLASS_TERMINAL;
-            break;
         case XI_STATE_OK:
         case XI_STATE_WRITTEN:
             return XI_BACKOFF_CLASS_NONE;
         default:
             return XI_BACKOFF_CLASS_RECOVERABLE;
-            break;
     }
 }
 
