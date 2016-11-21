@@ -8,80 +8,7 @@ include make/mt-os/mt-os-common
 # todo: this is common, move it to outside
 XI ?= $(XI_BINDIR)/libxively.a
 
-###
-## COMPILER NAME
-###
-COMPILER ?= arm-none-eabi-gcc
-
-###
-## MAC HOST OS
-###
-ifeq ($(XI_HOST_PLATFORM),Darwin)
-	# osx cross-compilation downloads
-
-	XI_GCC_ARM_NONE_EABI_PATH ?= ~/Downloads/gcc-arm-none-eabi-5_4-2016q2
-
-	CC = $(XI_GCC_ARM_NONE_EABI_PATH)/bin/arm-none-eabi-gcc
-	AR = $(XI_GCC_ARM_NONE_EABI_PATH)/bin/arm-none-eabi-ar
-
-	XI_COMPILER_FLAGS += -I$(XI_GCC_ARM_NONE_EABI_PATH)/arm-none-eabi/include
-###
-## WINDOWS HOST OS
-###
-else ifneq (,$(findstring Windows,$(XI_HOST_PLATFORM)))
-	 # windows cross-compilation
-
-	XI_CC3200_PATH_CCS_TOOLS ?= C:/ti/ccsv6/tools
-	XI_CC3200_PATH_SDK ?= C:/ti/tirex-content/CC3200SDK_1.1.0/cc3200-sdk/
-
-	CC = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armcl
-	AR = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armar
-
-	XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/include
-
-
-###
-## LINUX HOST OS
-###
-else ifeq ($(XI_HOST_PLATFORM),Linux)
-	# linux cross-compilation prerequisite downloads
-
-	XI_CC3200_PATH_CCS_TOOLS ?= $(HOME)/Downloads/xi_artifactory/ti/ccsv6/tools
-	XI_CC3200_PATH_SDK ?= $(HOME)/Downloads/xi_artifactory/ti/CC3200SDK_1.2.0/cc3200-sdk
-
-	CC = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armcl
-	AR = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armar
-
-	XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/include
-
-### TOOLCHAIN AUTODOWNLOAD SECTION --- BEGIN
-	XI_BUILD_PRECONDITIONS := $(CC)
-
-$(CC):
-	git clone https://github.com/atigyi/xi_artifactory.git ~/Downloads/xi_artifactory
-	git -C ~/Downloads/xi_artifactory checkout feature/cc3200_dependencies
-	$@ --version
-### TOOLCHAIN AUTODOWNLOAD SECTION --- END
-endif
-
-
-#XI_COMPILER_FLAGS += -mv7M4
-#XI_COMPILER_FLAGS += -me
-#XI_COMPILER_FLAGS += --define=css
-#XI_COMPILER_FLAGS += --define=cc3200
-#XI_COMPILER_FLAGS += --define=WOLFSSL_NOOS_XIVELY
-#XI_COMPILER_FLAGS += --display_error_number
-#XI_COMPILER_FLAGS += --diag_warning=225
-#XI_COMPILER_FLAGS += --diag_wrap=off
-#XI_COMPILER_FLAGS += --abi=eabi
-#XI_COMPILER_FLAGS += --opt_for_speed=0
-#XI_COMPILER_FLAGS += --code_state=16
-#XI_COMPILER_FLAGS += --float_support=vfplib
-#XI_COMPILER_FLAGS += --preproc_with_compile
-#XI_COMPILER_FLAGS += --preproc_dependency=$(@:.o=.d)
-#XI_COMPILER_FLAGS += --obj_directory=$(dir $@)
-#XI_COMPILER_FLAGS += --asm_directory=$(dir $@)
-#XI_COMPILER_FLAGS += --output_file=$@
+include make/mt-utils/mt-get-gnu-arm-toolchain.mk
 
 #arm-eabi-specific
 
@@ -112,8 +39,6 @@ XI_COMPILER_FLAGS += -DHSE_VALUE=8000000
 #XI_COMPILER_FLAGS += -MMD
 #XI_COMPILER_FLAGS += -MP
 
-XI_COMPILER_FLAGS += -DSINGLE_THREADED
-
 ifneq (,$(findstring release,$(TARGET)))
     XI_COMPILER_FLAGS += -O4
 endif
@@ -128,8 +53,9 @@ XI_CONFIG_FLAGS += -DXI_EMBEDDED_TESTS
 
 # wolfssl API
 XI_CONFIG_FLAGS += -DNO_WRITEV
+XI_COMPILER_FLAGS += -DSINGLE_THREADED
+XI_COMPILER_FLAGS += -DWOLFSSL_NOOS_XIVELY
 
-XI_ARFLAGS := r $(XI)
-XI_LIB_FLAGS := -llibxively.a
+XI_ARFLAGS += -rs -c $(XI)
 
 XI_POST_COMPILE_ACTION =
