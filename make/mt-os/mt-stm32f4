@@ -18,8 +18,7 @@ include make/mt-utils/mt-get-gnu-arm-toolchain.mk
 XI_COMPILER_FLAGS += -mcpu=cortex-m4
 # enable Thumb instruction set ( reduces memory usage )
 XI_COMPILER_FLAGS += -mthumb
-# generates software floating-point ABI
-XI_COMPILER_FLAGS += -mfloat-abi=soft
+XI_COMPILER_FLAGS += -mfloat-abi=hard
 # diagnostic message length
 XI_COMPILER_FLAGS += -fmessage-length=0
 # set char type
