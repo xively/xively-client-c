@@ -1,3 +1,22 @@
+# Xively Client version 1.2.2
+
+#### Nov 24 2016
+
+## Documentation and Ease of Use
+
+- CC3200 tutorials are now accessible on https://developer.xively.com.
+- Added xively_demo application example Code Composer Studio project for CC3200 devices.
+- Removed uses of \r from some debug output statements to be more consistent, and to remove some formatting problems on some platforms. We now always simply use \n.
+- Added error code numbers to comments in xi_error.h to easily map error codes integer values to their corresponding enumerated type.
+
+## Bugfixes
+
+- Fixed a socket descriptor leak on the CC3200.
+
+## Known issues
+
+- When the io input buffer size increased over 64 bytes messages could be stacked and not parsed
+
 # Xively Client version 1.2.1
 #### Nov 04 2016
 
