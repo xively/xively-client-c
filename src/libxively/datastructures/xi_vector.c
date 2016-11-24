@@ -89,31 +89,6 @@ err_handling:
     return NULL;
 }
 
-int8_t xi_vector_assign( xi_vector_t* vector,
-                         xi_vector_index_type_t n,
-                         union xi_vector_selector_u value )
-{
-    assert( NULL != vector );
-    assert( n > 0 );
-
-    int8_t result = xi_vector_realloc( vector, n );
-
-    if ( 0 == result )
-    {
-        return 0;
-    }
-
-    xi_vector_index_type_t i = 0;
-    for ( ; i < n; ++i )
-    {
-        vector->array[i].selector_t = value;
-    }
-
-    vector->elem_no = n;
-
-    return 1;
-}
-
 int8_t xi_vector_reserve( xi_vector_t* vector, xi_vector_index_type_t n )
 {
     assert( NULL != vector );
@@ -203,8 +178,6 @@ void xi_vector_del( xi_vector_t* vector, xi_vector_index_type_t index )
     assert( index >= 0 );
     assert( vector->elem_no > 0 && index < vector->elem_no );
 
-    xi_state_t state = XI_STATE_OK;
-
     if ( vector->elem_no > 0 && index < vector->elem_no )
     {
         if ( index != vector->elem_no - 1 )
@@ -216,17 +189,6 @@ void xi_vector_del( xi_vector_t* vector, xi_vector_index_type_t index )
         memset( &vector->array[vector->elem_no].selector_t, 0,
                 sizeof( vector->array[vector->elem_no].selector_t ) );
     }
-
-    /* if the element number has been decreased below
-     * half of the capacity let's resize it down */
-    xi_vector_index_type_t half_cap = vector->capacity / 2;
-    if ( vector->elem_no < half_cap )
-    {
-        XI_CHECK_MEMORY( xi_vector_realloc( vector, half_cap ), state );
-    }
-
-err_handling:
-    return;
 }
 
 xi_vector_index_type_t xi_vector_find( xi_vector_t* vector,
@@ -249,15 +211,20 @@ xi_vector_index_type_t xi_vector_find( xi_vector_t* vector,
     return -1;
 }
 
-void xi_vector_for_each( xi_vector_t* vector, xi_vector_for_t* fun_for )
+void xi_vector_for_each( xi_vector_t* vector,
+                         xi_vector_for_t* fun_for,
+                         void* arg,
+                         xi_vector_index_type_t offset )
 {
     assert( NULL != vector );
+    assert( offset >= 0 );
+    assert( offset <= vector->elem_no );
 
-    xi_vector_index_type_t i = 0;
+    xi_vector_index_type_t i = offset;
 
-    for ( i = 0; i < vector->elem_no; ++i )
+    for ( ; i < vector->elem_no; ++i )
     {
-        ( *fun_for )( &vector->array[i].selector_t );
+        ( *fun_for )( &vector->array[i].selector_t, arg );
     }
 }
 

@@ -14,7 +14,7 @@ extern "C" {
 enum xi_layer_stack_order_e
 {
     XI_LAYER_TYPE_IO = 0
-#ifndef XI_DEBUG_NO_TLS
+#ifndef XI_NO_TLS_LAYER
     ,
     XI_LAYER_TYPE_TLS
 #endif

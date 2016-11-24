@@ -5,6 +5,7 @@
  */
 
 #include "xi_handle.h"
+#include "xively_types.h"
 
 /* -----------------------------------------------------------------------
  *  INTERNAL FUNCTIONS

@@ -25,6 +25,11 @@ typedef enum xi_protocol_e {
     XI_MQTT,
 } xi_protocol_t;
 
+typedef enum xi_shutdown_state_e {
+    XI_SHUTDOWN_UNINITIALISED,
+    XI_SHUTDOWN_STARTED,
+} xi_shutdown_state_t;
+
 /**
  * @brief holds context sensitive data
  *
@@ -48,13 +53,14 @@ typedef struct xi_context_data_s
                             layers directly */
     uint16_t copy_of_last_msg_id; /* value of the msg_id for continious session */
 #endif
-    /* vector or a list of timeouts
-     * this is the common part */
+    /* this is the common part */
+    xi_time_event_handle_t connect_handler;
+    /* vector or a list of timeouts */
     xi_vector_t* io_timeouts;
     xi_connection_data_t* connection_data;
-    xi_heap_element_t* connect_handler;
     xi_evtd_instance_t* evtd_instance;
     xi_event_handle_t connection_callback;
+    xi_shutdown_state_t shutdown_state;
 } xi_context_data_t;
 
 typedef struct xi_context_s

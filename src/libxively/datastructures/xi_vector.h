@@ -17,6 +17,7 @@
 extern "C" {
 #endif
 
+/* ! This type has to be SIGNED ! */
 typedef int8_t xi_vector_index_type_t;
 
 union xi_vector_selector_u {
@@ -39,7 +40,7 @@ typedef struct
     xi_memory_type_t memory_type;
 } xi_vector_t;
 
-typedef void( xi_vector_for_t )( union xi_vector_selector_u* );
+typedef void( xi_vector_for_t )( union xi_vector_selector_u*, void* arg );
 
 /* helpers for vector data initialization */
 #define XI_VEC_VALUE_UI32( v )                                                           \
@@ -94,20 +95,6 @@ extern xi_vector_t* xi_vector_create_from( xi_vector_elem_t* array,
                                            xi_memory_type_t memory_type );
 
 /**
- * @brief xi_vector_assign
- *
- * Assigns new elements described by value to the vector and tries to allocate space
- * needed for n new elements of type value. Returns 0 if success 1  if failed.
- *
- * @param n
- * @param value
- * @return int8_t
- */
-extern int8_t xi_vector_assign( xi_vector_t* vector,
-                                xi_vector_index_type_t n,
-                                union xi_vector_selector_u value );
-
-/**
  * @brief xi_vector_reserve
  *
  * Changes the capacity of the vector. If the capacity is lower than the previous one
@@ -136,7 +123,10 @@ extern xi_vector_index_type_t xi_vector_find( xi_vector_t* vector,
                                               const union xi_vector_selector_u value,
                                               xi_vector_cmp_t* fun_cmp );
 
-extern void xi_vector_for_each( xi_vector_t* vector, xi_vector_for_t* fun_for );
+extern void xi_vector_for_each( xi_vector_t* vector,
+                                xi_vector_for_t* fun_for,
+                                void* arg,
+                                xi_vector_index_type_t offset );
 
 extern void* xi_vector_get( xi_vector_t* vector, xi_vector_index_type_t index );
 

@@ -41,7 +41,6 @@ else ifneq (,$(findstring Windows,$(XI_HOST_PLATFORM)))
 
 	XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/include
 
-
 ###
 ## LINUX HOST OS
 ###
@@ -72,6 +71,7 @@ XI_COMPILER_FLAGS = $(XI_COMPILER_FLAGS_TMP)
 
 XI_COMPILER_FLAGS += -mv7M4
 XI_COMPILER_FLAGS += -me
+XI_COMPILER_FLAGS += -ms
 XI_COMPILER_FLAGS += --define=css
 XI_COMPILER_FLAGS += --define=cc3200
 XI_COMPILER_FLAGS += --define=WOLFSSL_NOOS_XIVELY

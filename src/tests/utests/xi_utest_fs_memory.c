@@ -13,7 +13,7 @@
 #include "xi_fs_api.h"
 #include "xi_macros.h"
 
-#ifndef XI_DEBUG_NO_TLS
+#ifndef XI_NO_TLS_LAYER
 #include "xi_RootCA_list.h"
 #endif
 
@@ -27,7 +27,7 @@
 
 XI_TT_TESTGROUP_BEGIN( utest_fs_memory )
 
-#ifndef XI_DEBUG_NO_TLS
+#ifndef XI_NO_TLS_LAYER
 XI_TT_TESTCASE( utest__xi_fs_memory_stat__valid_data__stat_returned, {
     xi_fs_stat_t stat = xi_fs_init_stat();
     xi_state_t ret =
@@ -40,7 +40,7 @@ end:;
 } )
 #endif
 
-#ifndef XI_DEBUG_NO_TLS
+#ifndef XI_NO_TLS_LAYER
 XI_TT_TESTCASE( utest__xi_fs_memory_stat__invalid_stat__invalid_parameter_returned, {
     xi_state_t ret =
         xi_fs_stat( NULL, XI_FS_CERTIFICATE, XI_GLOBAL_CERTIFICATE_FILE_NAME, NULL );
@@ -51,7 +51,7 @@ end:;
 #endif
 
 
-#ifndef XI_DEBUG_NO_TLS
+#ifndef XI_NO_TLS_LAYER
 XI_TT_TESTCASE(
     utest__xi_fs_memory_open__valid_parameters__valid_resource_handle_returned, {
         xi_fs_resource_handle_t resource_handle = xi_fs_init_resource_handle();
@@ -68,7 +68,7 @@ XI_TT_TESTCASE(
 #endif
 
 
-#ifndef XI_DEBUG_NO_TLS
+#ifndef XI_NO_TLS_LAYER
 XI_TT_TESTCASE(
     utest__xi_fs_memory_read__valid_existing_resource__pointer_to_the_memory_block_returned,
     {
@@ -98,7 +98,7 @@ XI_TT_TESTCASE(
     } )
 #endif
 
-#ifndef XI_DEBUG_NO_TLS
+#ifndef XI_NO_TLS_LAYER
 XI_TT_TESTCASE(
     utest__xi_fs_memory_read__valid_existing_resource_with_valid_offset__pointer_to_the_memory_block_with_given_offset_returned,
     {
@@ -128,7 +128,7 @@ XI_TT_TESTCASE(
     } )
 #endif
 
-#ifndef XI_DEBUG_NO_TLS
+#ifndef XI_NO_TLS_LAYER
 XI_TT_TESTCASE(
     utest__xi_fs_memory_read__valid_existing_resource_with_invalid_offset__pointer_to_the_memory_block_with_clamped_offset_returned,
     {
@@ -155,7 +155,7 @@ XI_TT_TESTCASE(
     } )
 #endif
 
-#ifndef XI_DEBUG_NO_TLS
+#ifndef XI_NO_TLS_LAYER
 XI_TT_TESTCASE( utest__xi_fs_memory_read__invalid_buffer__invalid_parameter_returned, {
     xi_fs_resource_handle_t resource_handle = xi_fs_init_resource_handle();
 
@@ -176,7 +176,7 @@ end:
 } )
 #endif
 
-#ifndef XI_DEBUG_NO_TLS
+#ifndef XI_NO_TLS_LAYER
 XI_TT_TESTCASE( utest__xi_fs_memory_read__invalid_buffer_size__invalid_parameter_returned,
                 {
                     xi_fs_resource_handle_t resource_handle =
@@ -213,7 +213,7 @@ XI_TT_TESTCASE( utest__xi_fs_memory_write__correct_parameters, {
 end:;
 } )
 
-#ifndef XI_DEBUG_NO_TLS
+#ifndef XI_NO_TLS_LAYER
 XI_TT_TESTCASE( utest__xi_fs_memory_close__valid_resource_handle, {
     xi_fs_resource_handle_t resource_handle = xi_fs_init_resource_handle();
 
@@ -230,7 +230,7 @@ end:;
 } )
 #endif
 
-#ifndef XI_DEBUG_NO_TLS
+#ifndef XI_NO_TLS_LAYER
 XI_TT_TESTCASE( utest__xi_fs_memory_open_twice_close_twice__valid_resource_handle, {
     xi_fs_resource_handle_t resource_handle1 = xi_fs_init_resource_handle();
 
@@ -268,7 +268,7 @@ XI_TT_TESTCASE( utest__xi_fs_memory_remove__incorrect_parameters, {
 end:;
 } )
 
-#ifndef XI_DEBUG_NO_TLS
+#ifndef XI_NO_TLS_LAYER
 XI_TT_TESTCASE( utest__xi_fs_memory_remove__correct_parameters, {
     xi_state_t ret =
         xi_fs_remove( NULL, XI_FS_CONFIG_DATA, XI_GLOBAL_CERTIFICATE_FILE_NAME );

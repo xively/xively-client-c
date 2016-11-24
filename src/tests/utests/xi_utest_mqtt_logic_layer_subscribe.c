@@ -134,14 +134,15 @@ XI_TT_TESTCASE_WITH_SETUP(
         // set the task data
         XI_ALLOC_AT( xi_mqtt_logic_task_t, task, local_state );
 
-        task->cs = 103; // this is very hakish since it depends on the code
+        task->cs = 109; // this is very hakish since it depends on the code
         // so most probably this test will fail everytime we change anything in
         // tested function which is not too good at least you know what to check
         // if the test fails
 
-        task->timeout = xi_evtd_execute_in(
+        xi_evtd_execute_in(
             xi_globals.evtd_instance,
-            xi_make_handle( &do_mqtt_subscribe, 0, &task, XI_STATE_TIMEOUT, 0 ), 10 );
+            xi_make_handle( &do_mqtt_subscribe, 0, &task, XI_STATE_TIMEOUT, 0 ), 10,
+            &task->timeout );
 
         task->data.mqtt_settings.scenario = XI_MQTT_SUBSCRIBE;
         task->data.mqtt_settings.qos      = XI_MQTT_QOS_AT_LEAST_ONCE;
@@ -232,14 +233,15 @@ XI_TT_TESTCASE_WITH_SETUP(
         // set the task data
         XI_ALLOC_AT( xi_mqtt_logic_task_t, task, local_state );
 
-        task->cs = 103; // this is very hakish since it depends on the code
+        task->cs = 109; // this is very hakish since it depends on the code
         // so most probably this test will fail everytime we change anything in
         // tested function which is not too good at least you know what to check
         // if the test fails
 
-        task->timeout = xi_evtd_execute_in(
+        xi_evtd_execute_in(
             xi_globals.evtd_instance,
-            xi_make_handle( &do_mqtt_subscribe, 0, &task, XI_STATE_TIMEOUT, 0 ), 10 );
+            xi_make_handle( &do_mqtt_subscribe, 0, &task, XI_STATE_TIMEOUT, 0 ), 10,
+            &task->timeout );
 
         task->data.mqtt_settings.scenario = XI_MQTT_SUBSCRIBE;
         task->data.mqtt_settings.qos      = XI_MQTT_QOS_AT_LEAST_ONCE;
