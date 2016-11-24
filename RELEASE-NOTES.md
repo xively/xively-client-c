@@ -15,7 +15,7 @@
 
 ## Known issues
 
-- When the io input buffer size increased over 64 bytes messages could be stacked and not parsed
+- When the io input buffer size increased over 64 bytes incoming messages could be stacked in the tls receive buffer and not parsed
 
 # Xively Client version 1.2.1
 #### Nov 04 2016
