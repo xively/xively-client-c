@@ -191,9 +191,11 @@ endif
 .PHONY: static_analysis
 static_analysis:  $(XI_SOURCES:.c=.sa)
 
+NOW:=$(shell date +"%F-%T")
+
 $(LIBXIVELY)/src/%.sa:
 	$(info [clang-tidy] $(@:.sa=.c))
-	@clang-tidy --checks='clang-analyzer-*,-clang-analyzer-cplusplus*,-clang-analyzer-osx*' $(@:.sa=.c) >> static_analysis.log -- $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS)
+	@clang-tidy --checks='clang-analyzer-*,-clang-analyzer-cplusplus*,-clang-analyzer-osx*' $(@:.sa=.c) >> static_analysis_$(NOW).log -- $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS)
 
 $(XI_BIN_DIRS):
 	@mkdir -p $@

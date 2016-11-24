@@ -5,6 +5,7 @@
 *~
 *.zip
 *.pyc
+*.log
 
 obj/
 bin/
