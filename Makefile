@@ -78,7 +78,6 @@ buildtime:
 clean:
 	$(RM) -rf \
 		$(XI_BINDIR) \
-		$(XI_PROTOBUF_GENERATED) \
 		$(XI_OBJDIR) \
 		$(XI_TEST_OBJDIR) \
 		$(filter-out %.o %.a %import,$(wildcard $(XI_OBJDIR)/*))
