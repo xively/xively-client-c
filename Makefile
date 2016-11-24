@@ -188,6 +188,12 @@ $(XI_ITESTS): $(XI) $(CMOCKA_LIBRARY_DEPS) $(XI_ITEST_OBJS)
 
 endif
 
+.PHONY: static_analysis
+static_analysis:  $(XI_SOURCES:.c=.sa)
+
+$(LIBXIVELY)/src/%.sa:
+	$(info clang-tidy --checks='clang-analyzer-*,-clang-analyzer-cplusplus*,-clang-analyzer-osx*' $(@:.sa=.c)) -- -std=c99 $(XI_INCLUDE_FLAGS)
+
 $(XI_BIN_DIRS):
 	@mkdir -p $@
 ifdef XI_PROVIDE_RESOURCE_FILES
