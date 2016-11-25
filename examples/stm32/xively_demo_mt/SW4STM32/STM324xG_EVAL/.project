@@ -71,6 +71,11 @@
 			<locationURI>PARENT-2-PROJECT_LOC/Src/stm32f4xx_it.c</locationURI>
 		</link>
 		<link>
+			<name>Application/User/xively_client.c</name>
+			<type>1</type>
+			<location>/Users/atigyi/git/xi/xc/xively-client-c/examples/stm32/xively_demo_mt/Src/xively_client.c</location>
+		</link>
+		<link>
 			<name>Application/Utilities/lcd_log.c</name>
 			<type>1</type>
 			<locationURI>XI_STMCUBE_PATH/Utilities/Log/lcd_log.c</locationURI>
