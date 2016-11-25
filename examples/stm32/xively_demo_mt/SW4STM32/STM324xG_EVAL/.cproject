@@ -6,7 +6,6 @@
 				<macros>
 					<stringMacro name="XI_STMCUBE_PATH" type="VALUE_PATH_DIR" value="/Users/atigyi/Downloads/STM32Cube_FW_F4_V1.13.0"/>
 					<stringMacro name="XI_CLIENT_PATH" type="VALUE_TEXT" value="/Users/atigyi/git/xi/xc/xively-client-c"/>
-					<stringMacro name="XI_INCLUDE_PATH" type="VALUE_PATH_ANY" value="/Users/atigyi/git/xi/xc/xively-client-c/include"/>
 				</macros>
 				<externalSettings/>
 				<extensions>
@@ -39,7 +38,7 @@
 								<option id="gnu.c.compiler.option.debugging.level.929811254" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.c.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.389311824" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="../../../Inc"/>
-									<listOptionValue builtIn="false" value="${XI_INCLUDE_PATH}"/>
+									<listOptionValue builtIn="false" value="${XI_CLIENT_PATH}/include"/>
 									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/CMSIS/Device/ST/STM32F4xx/Include"/>
 									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/CMSIS/Include"/>
 									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/STM32F4xx_HAL_Driver/Inc"/>
