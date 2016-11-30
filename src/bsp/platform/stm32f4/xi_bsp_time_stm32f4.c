@@ -10,7 +10,7 @@
 #include <FreeRTOS.h>
 #include <task.h>
 
-static xi_time_t timer = 0;
+// static xi_time_t timer = 0;
 
 void xi_bsp_time_init()
 {
