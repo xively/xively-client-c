@@ -71,11 +71,11 @@ osSemaphoreId Netif_LinkSemaphore = NULL;
 struct link_str link_arg;
 
 /* Private function prototypes -----------------------------------------------*/
-static void SystemClock_Config(void);
-static void StartThread(void const * argument);
-static void ToggleLed4(void const * argument);
-static void BSP_Config(void);
-static void Netif_Config(void);
+static void SystemClock_Config( void );
+static void StartThread( void const* argument );
+static void ToggleLed4( void const* argument );
+static void BSP_Config( void );
+static void Netif_Config( void );
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -84,32 +84,33 @@ static void Netif_Config(void);
   * @param  None
   * @retval None
   */
-int main(void)
+int main( void )
 {
-  /* STM32F4xx HAL library initialization:
-       - Configure the Flash prefetch, instruction and Data caches
-       - Configure the Systick to generate an interrupt each 1 msec
-       - Set NVIC Group Priority to 4
-       - Global MSP (MCU Support Package) initialization
-     */
-  HAL_Init();
+    /* STM32F4xx HAL library initialization:
+         - Configure the Flash prefetch, instruction and Data caches
+         - Configure the Systick to generate an interrupt each 1 msec
+         - Set NVIC Group Priority to 4
+         - Global MSP (MCU Support Package) initialization
+       */
+    HAL_Init();
 
-  /* Configure the system clock to 168 MHz */
-  SystemClock_Config();
+    /* Configure the system clock to 168 MHz */
+    SystemClock_Config();
 
-  /* Init task */
-#if defined(__GNUC__)
-  osThreadDef(Start, StartThread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 5);
+/* Init task */
+#if defined( __GNUC__ )
+    osThreadDef( Start, StartThread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 5 );
 #else
-  osThreadDef(Start, StartThread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 2);
+    osThreadDef( Start, StartThread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 2 );
 #endif
-  osThreadCreate (osThread(Start), NULL);
+    osThreadCreate( osThread( Start ), NULL );
 
-  /* Start scheduler */
-  osKernelStart();
+    /* Start scheduler */
+    osKernelStart();
 
-  /* We should never get here as control is now taken by the scheduler */
-  for( ;; );
+    /* We should never get here as control is now taken by the scheduler */
+    for ( ;; )
+        ;
 }
 
 /**
@@ -117,44 +118,46 @@ int main(void)
   * @param  pvParameters not used
   * @retval None
   */
-static void StartThread(void const * argument)
+static void StartThread( void const* argument )
 {
-  /* Initialize LCD and LEDs */
-  BSP_Config();
+    /* Initialize LCD and LEDs */
+    BSP_Config();
 
-  /* Create tcp_ip stack thread */
-  tcpip_init(NULL, NULL);
+    /* Create tcp_ip stack thread */
+    tcpip_init( NULL, NULL );
 
-  /* Initialize the LwIP stack */
-  Netif_Config();
+    /* Initialize the LwIP stack */
+    Netif_Config();
 
-  /* Initialize webserver demo */
-  http_server_socket_init();
+    /* Initialize webserver demo */
+    http_server_socket_init();
 
-  /* Notify user about the network interface config */
-  User_notification(&gnetif);
+    /* Notify user about the network interface config */
+    User_notification( &gnetif );
 
 #ifdef USE_DHCP
-  /* Start DHCPClient */
-#if defined(__GNUC__)
-  osThreadDef(DHCP, DHCP_thread, osPriorityBelowNormal, 0, configMINIMAL_STACK_SIZE * 5);
+/* Start DHCPClient */
+#if defined( __GNUC__ )
+    osThreadDef( DHCP, DHCP_thread, osPriorityBelowNormal, 0,
+                 configMINIMAL_STACK_SIZE * 5 );
 #else
-  osThreadDef(DHCP, DHCP_thread, osPriorityBelowNormal, 0, configMINIMAL_STACK_SIZE * 2);
+    osThreadDef( DHCP, DHCP_thread, osPriorityBelowNormal, 0,
+                 configMINIMAL_STACK_SIZE * 2 );
 #endif
-  osThreadCreate (osThread(DHCP), &gnetif);
+    osThreadCreate( osThread( DHCP ), &gnetif );
 #endif
 
-  /* Start toogleLed4 task : Toggle LED4  every 250ms */
-  osThreadDef(LED4, ToggleLed4, osPriorityLow, 0, configMINIMAL_STACK_SIZE);
-  osThreadCreate (osThread(LED4), NULL);
+    /* Start toogleLed4 task : Toggle LED4  every 250ms */
+    osThreadDef( LED4, ToggleLed4, osPriorityLow, 0, configMINIMAL_STACK_SIZE );
+    osThreadCreate( osThread( LED4 ), NULL );
 
-  xively_client_start( );
+    xively_client_start();
 
-  for( ;; )
-  {
-    /* Delete the Init Thread */
-    osThreadTerminate(NULL);
-  }
+    for ( ;; )
+    {
+        /* Delete the Init Thread */
+        osThreadTerminate( NULL );
+    }
 }
 
 /**
@@ -162,68 +165,70 @@ static void StartThread(void const * argument)
   * @param  None
   * @retval None
   */
-static void Netif_Config(void)
+static void Netif_Config( void )
 {
-  ip_addr_t ipaddr;
-  ip_addr_t netmask;
-  ip_addr_t gw;
+    ip_addr_t ipaddr;
+    ip_addr_t netmask;
+    ip_addr_t gw;
 
 #ifdef USE_DHCP
-  ipaddr.addr = 0;
-  netmask.addr = 0;
-  gw.addr = 0;
+    ipaddr.addr  = 0;
+    netmask.addr = 0;
+    gw.addr      = 0;
 #else
-  /* IP address default setting */
-  IP4_ADDR(&ipaddr, IP_ADDR0, IP_ADDR1, IP_ADDR2, IP_ADDR3);
-  IP4_ADDR(&netmask, NETMASK_ADDR0, NETMASK_ADDR1 , NETMASK_ADDR2, NETMASK_ADDR3);
-  IP4_ADDR(&gw, GW_ADDR0, GW_ADDR1, GW_ADDR2, GW_ADDR3);
+    /* IP address default setting */
+    IP4_ADDR( &ipaddr, IP_ADDR0, IP_ADDR1, IP_ADDR2, IP_ADDR3 );
+    IP4_ADDR( &netmask, NETMASK_ADDR0, NETMASK_ADDR1, NETMASK_ADDR2, NETMASK_ADDR3 );
+    IP4_ADDR( &gw, GW_ADDR0, GW_ADDR1, GW_ADDR2, GW_ADDR3 );
 #endif
 
-  /* - netif_add(struct netif *netif, struct ip_addr *ipaddr,
-  struct ip_addr *netmask, struct ip_addr *gw,
-  void *state, err_t (* init)(struct netif *netif),
-  err_t (* input)(struct pbuf *p, struct netif *netif))
+    /* - netif_add(struct netif *netif, struct ip_addr *ipaddr,
+    struct ip_addr *netmask, struct ip_addr *gw,
+    void *state, err_t (* init)(struct netif *netif),
+    err_t (* input)(struct pbuf *p, struct netif *netif))
 
-  Adds your network interface to the netif_list. Allocate a struct
-  netif and pass a pointer to this structure as the first argument.
-  Give pointers to cleared ip_addr structures when using DHCP,
-  or fill them with sane numbers otherwise. The state pointer may be NULL.
+    Adds your network interface to the netif_list. Allocate a struct
+    netif and pass a pointer to this structure as the first argument.
+    Give pointers to cleared ip_addr structures when using DHCP,
+    or fill them with sane numbers otherwise. The state pointer may be NULL.
 
-  The init function pointer must point to a initialization function for
-  your ethernet netif interface. The following code illustrates it's use.*/
+    The init function pointer must point to a initialization function for
+    your ethernet netif interface. The following code illustrates it's use.*/
 
-  netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &tcpip_input);
+    netif_add( &gnetif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &tcpip_input );
 
-  /*  Registers the default network interface. */
-  netif_set_default(&gnetif);
+    /*  Registers the default network interface. */
+    netif_set_default( &gnetif );
 
-  if (netif_is_link_up(&gnetif))
-  {
-    /* When the netif is fully configured this function must be called.*/
-    netif_set_up(&gnetif);
-  }
-  else
-  {
-    /* When the netif link is down this function must be called */
-    netif_set_down(&gnetif);
-  }
+    if ( netif_is_link_up( &gnetif ) )
+    {
+        /* When the netif is fully configured this function must be called.*/
+        netif_set_up( &gnetif );
+    }
+    else
+    {
+        /* When the netif link is down this function must be called */
+        netif_set_down( &gnetif );
+    }
 
-  /* Set the link callback function, this function is called on change of link status*/
-  netif_set_link_callback(&gnetif, ethernetif_update_config);
+    /* Set the link callback function, this function is called on change of link status*/
+    netif_set_link_callback( &gnetif, ethernetif_update_config );
 
-  /* create a binary semaphore used for informing ethernetif of frame reception */
-  osSemaphoreDef(Netif_SEM);
-  Netif_LinkSemaphore = osSemaphoreCreate(osSemaphore(Netif_SEM) , 1 );
+    /* create a binary semaphore used for informing ethernetif of frame reception */
+    osSemaphoreDef( Netif_SEM );
+    Netif_LinkSemaphore = osSemaphoreCreate( osSemaphore( Netif_SEM ), 1 );
 
-  link_arg.netif = &gnetif;
-  link_arg.semaphore = Netif_LinkSemaphore;
-  /* Create the Ethernet link handler thread */
-#if defined(__GNUC__)
-  osThreadDef(LinkThr, ethernetif_set_link, osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 5);
+    link_arg.netif     = &gnetif;
+    link_arg.semaphore = Netif_LinkSemaphore;
+/* Create the Ethernet link handler thread */
+#if defined( __GNUC__ )
+    osThreadDef( LinkThr, ethernetif_set_link, osPriorityNormal, 0,
+                 configMINIMAL_STACK_SIZE * 5 );
 #else
-  osThreadDef(LinkThr, ethernetif_set_link, osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 2);
+    osThreadDef( LinkThr, ethernetif_set_link, osPriorityNormal, 0,
+                 configMINIMAL_STACK_SIZE * 2 );
 #endif
-  osThreadCreate (osThread(LinkThr), &link_arg);
+    osThreadCreate( osThread( LinkThr ), &link_arg );
 }
 
 /**
@@ -231,42 +236,42 @@ static void Netif_Config(void)
   * @param  None
   * @retval None
   */
-static void BSP_Config(void)
+static void BSP_Config( void )
 {
-  GPIO_InitTypeDef GPIO_InitStructure;
+    GPIO_InitTypeDef GPIO_InitStructure;
 
-   /* Enable PB14 to IT mode: Ethernet Link interrupt */
-   __HAL_RCC_GPIOB_CLK_ENABLE();
-  GPIO_InitStructure.Pin = GPIO_PIN_14;
-  GPIO_InitStructure.Mode = GPIO_MODE_IT_FALLING;
-  GPIO_InitStructure.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
+    /* Enable PB14 to IT mode: Ethernet Link interrupt */
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    GPIO_InitStructure.Pin  = GPIO_PIN_14;
+    GPIO_InitStructure.Mode = GPIO_MODE_IT_FALLING;
+    GPIO_InitStructure.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init( GPIOB, &GPIO_InitStructure );
 
-  /* Enable EXTI Line interrupt */
-  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0xF, 0);
-  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+    /* Enable EXTI Line interrupt */
+    HAL_NVIC_SetPriority( EXTI15_10_IRQn, 0xF, 0 );
+    HAL_NVIC_EnableIRQ( EXTI15_10_IRQn );
 
-  /* Configure LED1, LED2, LED3 and LED4 */
-  BSP_LED_Init(LED1);
-  BSP_LED_Init(LED2);
-  BSP_LED_Init(LED3);
-  BSP_LED_Init(LED4);
+    /* Configure LED1, LED2, LED3 and LED4 */
+    BSP_LED_Init( LED1 );
+    BSP_LED_Init( LED2 );
+    BSP_LED_Init( LED3 );
+    BSP_LED_Init( LED4 );
 
 #ifdef USE_LCD
 
-  /* Initialize the LCD */
-  BSP_LCD_Init();
+    /* Initialize the LCD */
+    BSP_LCD_Init();
 
-  BSP_LCD_SetFont(&LCD_DEFAULT_FONT);
+    BSP_LCD_SetFont( &LCD_DEFAULT_FONT );
 
-  /* Initialize LCD Log module */
-  LCD_LOG_Init();
+    /* Initialize LCD Log module */
+    LCD_LOG_Init();
 
-  /* Show Header and Footer texts */
-  LCD_LOG_SetHeader((uint8_t *)"Webserver Application");
-  LCD_LOG_SetFooter((uint8_t *)"STM324xG-EVAL board");
+    /* Show Header and Footer texts */
+    LCD_LOG_SetHeader( ( uint8_t* )"Webserver Application" );
+    LCD_LOG_SetFooter( ( uint8_t* )"STM324xG-EVAL board" );
 
-  LCD_UsrLog("  State: Ethernet Initialization ...\n");
+    LCD_UsrLog( "  State: Ethernet Initialization ...\n" );
 #endif
 }
 
@@ -275,14 +280,14 @@ static void BSP_Config(void)
   * @param  pvParameters not used
   * @retval None
   */
-static void ToggleLed4(void const * argument)
+static void ToggleLed4( void const* argument )
 {
-  for( ;; )
-  {
-    /* Toggle LED4 each 250ms */
-    BSP_LED_Toggle(LED4);
-    osDelay(250);
-  }
+    for ( ;; )
+    {
+        /* Toggle LED4 each 250ms */
+        BSP_LED_Toggle( LED4 );
+        osDelay( 250 );
+    }
 }
 
 /**
@@ -290,12 +295,12 @@ static void ToggleLed4(void const * argument)
   * @param  GPIO_Pin: Specifies the pins connected EXTI line
   * @retval None
   */
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin )
 {
-  if (GPIO_Pin == GPIO_PIN_14)
-  {
-    osSemaphoreRelease(Netif_LinkSemaphore);
-  }
+    if ( GPIO_Pin == GPIO_PIN_14 )
+    {
+        osSemaphoreRelease( Netif_LinkSemaphore );
+    }
 }
 
 /**
@@ -318,48 +323,49 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
   * @param  None
   * @retval None
   */
-static void SystemClock_Config(void)
+static void SystemClock_Config( void )
 {
-  RCC_ClkInitTypeDef RCC_ClkInitStruct;
-  RCC_OscInitTypeDef RCC_OscInitStruct;
+    RCC_ClkInitTypeDef RCC_ClkInitStruct;
+    RCC_OscInitTypeDef RCC_OscInitStruct;
 
-  /* Enable Power Control clock */
-  __HAL_RCC_PWR_CLK_ENABLE();
+    /* Enable Power Control clock */
+    __HAL_RCC_PWR_CLK_ENABLE();
 
-  /* The voltage scaling allows optimizing the power consumption when the device is
-     clocked below the maximum system frequency, to update the voltage scaling value
-     regarding system frequency refer to product datasheet.  */
-  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+    /* The voltage scaling allows optimizing the power consumption when the device is
+       clocked below the maximum system frequency, to update the voltage scaling value
+       regarding system frequency refer to product datasheet.  */
+    __HAL_PWR_VOLTAGESCALING_CONFIG( PWR_REGULATOR_VOLTAGE_SCALE1 );
 
-  /* Enable HSE Oscillator and activate PLL with HSE as source */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLM = 25;
-  RCC_OscInitStruct.PLL.PLLN = 336;
-  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-  RCC_OscInitStruct.PLL.PLLQ = 7;
-  HAL_RCC_OscConfig(&RCC_OscInitStruct);
+    /* Enable HSE Oscillator and activate PLL with HSE as source */
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
+    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
+    RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
+    RCC_OscInitStruct.PLL.PLLM       = 25;
+    RCC_OscInitStruct.PLL.PLLN       = 336;
+    RCC_OscInitStruct.PLL.PLLP       = RCC_PLLP_DIV2;
+    RCC_OscInitStruct.PLL.PLLQ       = 7;
+    HAL_RCC_OscConfig( &RCC_OscInitStruct );
 
-  /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2
-  clocks dividers */
-  RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
-  HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5);
+    /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2
+    clocks dividers */
+    RCC_ClkInitStruct.ClockType = ( RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK |
+                                    RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2 );
+    RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
+    RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
+    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
+    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
+    HAL_RCC_ClockConfig( &RCC_ClkInitStruct, FLASH_LATENCY_5 );
 
-  /* STM32F405x/407x/415x/417x Revision Z devices: prefetch is supported  */
-  if (HAL_GetREVID() == 0x1001)
-  {
-    /* Enable the Flash prefetch */
-    __HAL_FLASH_PREFETCH_BUFFER_ENABLE();
-  }
+    /* STM32F405x/407x/415x/417x Revision Z devices: prefetch is supported  */
+    if ( HAL_GetREVID() == 0x1001 )
+    {
+        /* Enable the Flash prefetch */
+        __HAL_FLASH_PREFETCH_BUFFER_ENABLE();
+    }
 }
 
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
 /**
   * @brief  Reports the name of the source file and the source line number
   *         where the assert_param error has occurred.
@@ -367,15 +373,15 @@ static void SystemClock_Config(void)
   * @param  line: assert_param error line source number
   * @retval None
   */
-void assert_failed(uint8_t* file, uint32_t line)
+void assert_failed( uint8_t* file, uint32_t line )
 {
-  /* User can add his own implementation to report the file name and line number,
-     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+    /* User can add his own implementation to report the file name and line number,
+       ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
 
-  /* Infinite loop */
-  while (1)
-  {
-  }
+    /* Infinite loop */
+    while ( 1 )
+    {
+    }
 }
 #endif
 

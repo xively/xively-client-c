@@ -4,9 +4,9 @@
 		<cconfiguration id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.334711653">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.334711653" moduleId="org.eclipse.cdt.core.settings" name="Debug">
 				<macros>
-					<stringMacro name="XI_STMCUBE_PATH" type="VALUE_PATH_DIR" value="/Users/atigyi/Downloads/STM32Cube_FW_F4_V1.13.0"/>
-					<stringMacro name="XI_CLIENT_PATH" type="VALUE_TEXT" value="/Users/atigyi/git/xi/xc/xively-client-c"/>
-					<stringMacro name="XI_INCLUDE_PATH" type="VALUE_PATH_ANY" value="/Users/atigyi/git/xi/xc/xively-client-c/include"/>
+					<stringMacro name="XI_STMCUBE_PATH" type="VALUE_PATH_DIR" value="/Users/ohumenczuk/Downloads/STM32Cube_FW_F4_V1.13.0"/>
+					<stringMacro name="XI_CLIENT_PATH" type="VALUE_PATH_ANY" value="/Users/ohumenczuk/workspace/xively/xively-client-c"/>
+					<stringMacro name="XI_INCLUDE_PATH" type="VALUE_PATH_ANY" value="/Users/ohumenczuk/workspace/xively/xively-client-c/include"/>
 				</macros>
 				<externalSettings/>
 				<extensions>
@@ -39,6 +39,7 @@
 								<option id="gnu.c.compiler.option.debugging.level.929811254" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.c.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.389311824" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="../../../Inc"/>
+									<listOptionValue builtIn="false" value="${XI_INCLUDE_PATH}/bsp"/>
 									<listOptionValue builtIn="false" value="${XI_INCLUDE_PATH}"/>
 									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/CMSIS/Device/ST/STM32F4xx/Include"/>
 									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/CMSIS/Include"/>
@@ -55,6 +56,8 @@
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1655035645" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="USE_HAL_DRIVER"/>
+									<listOptionValue builtIn="false" value="USE_DHCP"/>
+									<listOptionValue builtIn="false" value="LWIP_DNS=1"/>
 									<listOptionValue builtIn="false" value="STM32F407xx"/>
 									<listOptionValue builtIn="false" value="USE_STM324xG_EVAL"/>
 									<listOptionValue builtIn="false" value="_SYS_TIME_H_"/>
@@ -73,9 +76,11 @@
 								<option id="fr.ac6.managedbuild.tool.gnu.cross.c.linker.script.1278133913" name="Linker Script (-T)" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.linker.script" value="../STM32F407IGHx_FLASH.ld" valueType="string"/>
 								<option id="gnu.c.link.option.libs.60296607" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="xively"/>
+									<listOptionValue builtIn="false" value="WolfSSL"/>
 								</option>
 								<option id="gnu.c.link.option.paths.435585756" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="&quot;${XI_CLIENT_PATH}/bin/stm32f4&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/WolfSSL/Debug}&quot;"/>
 								</option>
 								<option id="gnu.c.link.option.ldflags.1731214605" name="Linker flags" superClass="gnu.c.link.option.ldflags" value="-specs=nosys.specs -specs=nano.specs" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.1454962544" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
@@ -118,4 +123,6 @@
 			<resource resourceType="PROJECT" workspacePath="/STM324xG_EVAL"/>
 		</configuration>
 	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 </cproject>

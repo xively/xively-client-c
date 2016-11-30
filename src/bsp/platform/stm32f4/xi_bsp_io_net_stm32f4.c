@@ -6,10 +6,10 @@
 
 #include <xi_bsp_io_net.h>
 
-#define LWIP_COMPAT_SOCKETS 1
 #define LWIP_DNS 1
 #include <lwip/netdb.h>
 
+#include <errno.h>
 #include <string.h>
 
 #ifdef __cplusplus
@@ -57,8 +57,8 @@ xi_bsp_io_net_connect( xi_bsp_socket_t* xi_socket, const char* host, uint16_t po
                                    *( ( struct in_addr* )hostinfo->h_addr_list[0] ),
                                .sin_zero = {0}};
 
-    if ( -1 ==
-         connect( *xi_socket, ( struct sockaddr* )&name, sizeof( struct sockaddr ) ) )
+    int ret = connect( *xi_socket, ( struct sockaddr* )&name, sizeof( struct sockaddr ) );
+    if ( -1 == ret )
     {
         return ( EINPROGRESS == errno ) ? XI_BSP_IO_NET_STATE_OK
                                         : XI_BSP_IO_NET_STATE_ERROR;
@@ -83,8 +83,15 @@ xi_bsp_io_net_state_t xi_bsp_io_net_connection_check( xi_bsp_socket_t xi_socket,
     int valopt    = 0;
     socklen_t lon = sizeof( int );
 
-    if ( getsockopt( xi_socket, SOL_SOCKET, SO_ERROR, ( void* )( &valopt ), &lon ) < 0 )
+    printf( "getsockopt\n" );
+
+    int result =
+        getsockopt( xi_socket, SOL_SOCKET, SO_ERROR, ( void* )( &valopt ), &lon );
+
+    if ( result < 0 )
     {
+        int errval = errno;
+        printf( "getsockopt failed with ret %d, errval %d", result, errval );
         return XI_BSP_IO_NET_STATE_ERROR;
     }
 
