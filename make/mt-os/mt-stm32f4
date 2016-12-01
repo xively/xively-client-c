@@ -37,9 +37,8 @@ XI_COMPILER_FLAGS += -mfloat-abi=hard
 XI_COMPILER_FLAGS += -fmessage-length=0
 # set char type
 XI_COMPILER_FLAGS += -fsigned-char
-# linker can optimizie better if we use function and data sections
+# linker can optimizie better if we use function
 XI_COMPILER_FLAGS += -ffunction-sections
-XI_COMPILER_FLAGS += -fdata-sections
 # loop optimization
 XI_COMPILER_FLAGS += -fno-move-loop-invariants
 # define the board type
