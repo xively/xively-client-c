@@ -57,8 +57,8 @@ xi_bsp_io_net_connect( xi_bsp_socket_t* xi_socket, const char* host, uint16_t po
                                    *( ( struct in_addr* )hostinfo->h_addr_list[0] ),
                                .sin_zero = {0}};
 
-    int ret = connect( *xi_socket, ( struct sockaddr* )&name, sizeof( struct sockaddr ) );
-    if ( -1 == ret )
+    if ( -1 ==
+         connect( *xi_socket, ( struct sockaddr* )&name, sizeof( struct sockaddr ) ) )
     {
         return ( EINPROGRESS == errno ) ? XI_BSP_IO_NET_STATE_OK
                                         : XI_BSP_IO_NET_STATE_ERROR;
