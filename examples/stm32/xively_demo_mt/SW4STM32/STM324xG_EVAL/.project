@@ -3,6 +3,7 @@
 	<name>STM324xG_EVAL</name>
 	<comment></comment>
 	<projects>
+		<project>WolfSSL</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
@@ -73,7 +74,7 @@
 		<link>
 			<name>Application/User/xively_client.c</name>
 			<type>1</type>
-			<location>PARENT-2-PROJECT_LOC/Src/xively_client.c</location>
+			<locationURI>PARENT-2-PROJECT_LOC/Src/xively_client.c</locationURI>
 		</link>
 		<link>
 			<name>Application/Utilities/lcd_log.c</name>
@@ -414,7 +415,7 @@
 	<variableList>
 		<variable>
 			<name>XI_STMCUBE_PATH</name>
-			<value>file:/Users/atigyi/Downloads/STM32Cube_FW_F4_V1.13.0</value>
+			<value>file:/Users/ohumenczuk/Downloads/STM32Cube_FW_F4_V1.13.0</value>
 		</variable>
 	</variableList>
 </projectDescription>

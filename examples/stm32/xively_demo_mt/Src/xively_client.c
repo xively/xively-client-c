@@ -13,6 +13,8 @@
 #include "xively.h"
 #include "xively_client.h"
 //#include "test_alloc.h"
+#include "xi_bsp_rng.h"
+#include "xi_bsp_time.h"
 
 /******************************************************************************
  *                                                                            *
@@ -733,7 +735,7 @@ connect_cb (
            */
         case XI_CONNECTION_STATE_OPEN_FAILED:
           {
-            printf("Xively: Connection failed %s:%d, error %d\n",
+            printf("[%d] Xively: Connection failed %s:%d, error %d\n", xi_bsp_time_getcurrenttime_seconds(),
                     conn_data->host, conn_data->port, state );
 
             xi_connect (ctx,
@@ -753,7 +755,7 @@ connect_cb (
            */
         case XI_CONNECTION_STATE_CLOSED:
           {
-            printf ("Xively: Connection closed, error %d\n", state);
+            printf ("[%d] Xively: Connection closed, error %d\n", xi_bsp_time_getcurrenttime_seconds(), state);
 
               /* Connection closed */
             xi_events_stop ();
@@ -768,17 +770,7 @@ connect_cb (
            */
         case XI_CONNECTION_STATE_OPENED:
           {
-            printf ("Xively: Connected %s:%d\n", conn_data->host, conn_data->port);
-            rval = state;
-            xc_subscribe_next_topic = XC_TOPIC_START;
-            xc_subscribe_next (ctx);  /* Subscribe to first topic */
-
-              /*
-               *  Register "check_values" to be called in "XC_CHECK_PERIOD" seconds
-               */
-            monitor_cb_hdl = xi_schedule_timed_task (ctx, monitor_cb, XC_CHECK_PERIOD, 0, NULL);
-
-            force_report ();
+            printf ("[%d] Xively: Connected %s:%d\n", xi_bsp_time_getcurrenttime_seconds(), conn_data->host, conn_data->port);
             rval = XI_STATE_OK;
             break;
           }
@@ -786,7 +778,7 @@ connect_cb (
 
         default:
           {
-            printf ("Xively: Connection invalid, error %d\n", conn_data->connection_state );
+            printf ("[%d] Xively: Connection invalid, error %d\n", xi_bsp_time_getcurrenttime_seconds(), conn_data->connection_state );
             rval = XI_INVALID_PARAMETER;
             break;
           }
@@ -794,6 +786,23 @@ connect_cb (
 
     return rval;
   }
+
+
+/**
+ * @brief Function that is required by TLS library to track the current time.
+ */
+time_t XTIME( time_t* timer )
+{
+    return 1480417489;
+}
+
+/**
+ * @brief Function required by the TLS library.
+ */
+uint32_t xively_ssl_rand_generate()
+{
+    return xi_bsp_rng_get();
+}
 
 
 /******************************************************************************
