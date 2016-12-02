@@ -1224,9 +1224,6 @@
 ../../src/libxively/time/xi_time.h
 ../../src/libxively/tls/certs/xi_RootCA_list.c
 ../../src/libxively/tls/certs/xi_RootCA_list.h
-../../src/libxively/tls/wolfssl/xi_tls_layer.c
-../../src/libxively/tls/wolfssl/xi_tls_layer.h
-../../src/libxively/tls/wolfssl/xi_tls_layer_state.h
 ../../src/libxively/tls/xi_tls_layer.c
 ../../src/libxively/tls/xi_tls_layer.h
 ../../src/libxively/tls/xi_tls_layer_state.h
@@ -1279,8 +1276,6 @@
 ../../src/libxively/xi_layers_ids.h
 ../../src/libxively/xi_macros.h
 ../../src/libxively/xi_mqtt_host_accessor.h
-../../src/libxively/xi_rng.c
-../../src/libxively/xi_rng.h
 ../../src/libxively/xi_timed_task.c
 ../../src/libxively/xi_timed_task.h
 ../../src/libxively/xi_tuple.h
