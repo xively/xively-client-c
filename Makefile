@@ -19,10 +19,10 @@ XI_PROTO_COMPILER ?=
 XI_BSP_DIR ?= $(LIBXIVELY)/src/bsp
 MD ?= @
 
-include make/mt-config/mt-presets.mk
-
 # TLS related configuration
 XI_BSP_TLS ?= wolfssl
+
+include make/mt-config/mt-presets.mk
 
 include make/mt-config/mt-config
 include make/mt-os/mt-os
