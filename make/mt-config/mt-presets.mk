@@ -6,7 +6,7 @@
 include make/mt-config/mt-target-platform.mk
 
 # CONFIG presets
-CONFIG_POSIX_MAX                =bsp_posix-posix_fs-posix_platform-tls_bsp-senml-control_topic-memory_limiter
+CONFIG_POSIX_MAX                =bsp_posix-posix_fs-posix_platform-tls_bsp-control_topic-memory_limiter
 CONFIG_POSIX_MAX_THREADING      =bsp_posix-posix_fs-posix_platform-tls_bsp-senml-control_topic-threading-memory_limiter
 CONFIG_POSIX_MID                =bsp_posix-posix_fs-posix_platform-tls_bsp-senml-control_topic
 CONFIG_POSIX_MID_UNSECURE       =bsp_posix-posix_fs-posix_platform-senml-control_topic
@@ -34,7 +34,7 @@ ifeq ($(PRESET), POSIX_DEV_MIN)
     TARGET = $(TARGET_STATIC_DEV)
     XI_BSP_PLATFORM = posix
 else ifeq ($(PRESET), POSIX_DEV)
-    CONFIG = $(CONFIG_POSIX_MAX)
+    CONFIG = $(CONFIG_POSIX_MAX)_fuzz_test
     TARGET = $(TARGET_STATIC_DEV)
     XI_BSP_PLATFORM = posix
 

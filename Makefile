@@ -31,6 +31,7 @@ include make/mt-config/mt-examples
 include make/mt-config/tests/mt-tests-tools
 include make/mt-config/tests/mt-tests-unit
 include make/mt-config/tests/mt-tests-integration
+include make/mt-config/tests/mt-tests-fuzz.mk
 include make/mt-config/mt-help
 
 ifdef MAKEFILE_DEBUG
@@ -87,7 +88,7 @@ clean_all: clean
 		$(XI_BINDIR_BASE) \
 		$(XI_OBJDIR_BASE)
 	@rm -rf $(CMOCKA_BUILD_DIR)
-	@rm -f $(XI_TEST_OBJDIR)
+	@rm -rf $(XI_TEST_OBJDIR)
 
 libxively: $(XI)
 
@@ -187,6 +188,20 @@ $(XI_ITESTS): $(XI) $(CMOCKA_LIBRARY_DEPS) $(XI_ITEST_OBJS)
 	$(XI_RUN_ITESTS)
 
 endif
+
+$(XI_OBJDIR)/%.cpp.o : $(LIBXIVELY)/src/%.cpp $(XI_BUILD_PRECONDITIONS)
+	@-mkdir -p $(dir $@)
+	$(info [$(CXX)] $@)
+	$(MD) $(CXX) $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) -c $< -o $@
+	$(XI_POST_COMPILE_ACTION)
+
+-include $(XI_FUZZ_TESTS_OBJS:.cpp.o=.d)
+
+$(XI_FUZZ_TESTS): $(XI) $(XI_FUZZ_TESTS_OBJS)
+	$(info [$(CXX)] $@)
+	$(MD) $(CXX) $(XI_CONFIG_FLAGS) $(XI_FUZZ_TESTS_OBJS) -L$(XI_BINDIR) $(XI_LIB_FLAGS) $(XI_FUZZ_TEST_LIBRARY) -o $@
+
+fuzz_tests: $(XI_FUZZ_TESTS)
 
 .PHONY: static_analysis
 static_analysis:  $(XI_SOURCES:.c=.sa)
