@@ -33,7 +33,7 @@ ifneq (,$(findstring release,$(TARGET)))
 endif
 
 ifneq (,$(findstring fuzz_test,$(CONFIG)))
-    XI_CONFIG_FLAGS += -fsanitize=address -fomit-frame-pointer -fsanitize-coverage=trace-pc-guard
+    XI_CONFIG_FLAGS += -fsanitize=address -fomit-frame-pointer -fsanitize-coverage=func
 endif
 
 XI_DEBUG_PRINTF ?=

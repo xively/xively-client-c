@@ -34,7 +34,7 @@ ifeq ($(PRESET), POSIX_DEV_MIN)
     TARGET = $(TARGET_STATIC_DEV)
     XI_BSP_PLATFORM = posix
 else ifeq ($(PRESET), POSIX_DEV)
-    CONFIG = $(CONFIG_POSIX_MAX)_fuzz_test
+    CONFIG = $(CONFIG_POSIX_MAX)
     TARGET = $(TARGET_STATIC_DEV)
     XI_BSP_PLATFORM = posix
 
@@ -87,6 +87,14 @@ else ifeq ($(PRESET), CC3200_TLS_SOCKET)
     TARGET = $(TARGET_STATIC_REL)
     XI_BSP_PLATFORM = cc3200
     XI_TARGET_PLATFORM = cc3200
+
+# -------------------------------------------------------
+# Fuzz Tests
+else ifeq($(PRESET), FUZZ_TESTS
+	CONFIG = $(CONFIG_POSIX_MID_UNSECURE)_fuzz_test
+	TARGET = $(TARGET_STATIC_DEV)
+	XI_BSP_PLATFORM = posix 
+	XI_BSP_TLS =
 
 # -------------------------------------------------------
 # DEFAULT
