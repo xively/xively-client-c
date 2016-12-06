@@ -57,7 +57,7 @@ ifneq (,$(findstring debug,$(TARGET)))
 endif
 
 ifneq (,$(findstring fuzz_test,$(CONFIG)))
-    XI_CONFIG_FLAGS += -fsanitize=address -fomit-frame-pointer -fsanitize-coverage=func -g
+    XI_CONFIG_FLAGS += -fsanitize=address -fomit-frame-pointer -fsanitize-coverage=trace-pc-guard -g
 endif
 
 XI_COMPILER_FLAGS += -Wall
