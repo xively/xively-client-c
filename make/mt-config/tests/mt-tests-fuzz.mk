@@ -16,4 +16,5 @@ XI_FUZZ_TESTS_OBJS := $(subst $(XI_FUZZ_TESTS_SOURCE_DIR), $(XI_FUZZ_TESTS_OBJDI
 XI_FUZZ_TESTS_OBJS := $(subst $(LIBXIVELY)/src, $(XI_OBJDIR), $(XI_FUZZ_TESTS_OBJS))
 XI_FUZZ_TEST_LIBRARY := -lFuzzer
 
+include make/mt-config/tests/mt-native
 
