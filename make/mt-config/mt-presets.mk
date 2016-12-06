@@ -11,6 +11,7 @@ CONFIG_POSIX_MAX_THREADING      =bsp_posix-posix_fs-posix_platform-tls_bsp-senml
 CONFIG_POSIX_MID                =bsp_posix-posix_fs-posix_platform-tls_bsp-senml-control_topic
 CONFIG_POSIX_MID_UNSECURE       =bsp_posix-posix_fs-posix_platform-senml-control_topic
 CONFIG_POSIX_MIN                =bsp_posix-posix_fs-posix_platform-tls_bsp
+CONFIG_POSIX_MIN_UNSECURE       =bsp_posix-posix_fs-posix_platform
 
 # arm configs
 CONFIG_DUMMY_MAX                =bsp_dummy-memory_fs-memory_limiter-control_topic-senml
@@ -90,9 +91,9 @@ else ifeq ($(PRESET), CC3200_TLS_SOCKET)
 
 # -------------------------------------------------------
 # Fuzz Tests
-else ifeq($(PRESET), FUZZ_TESTS
-	CONFIG = $(CONFIG_POSIX_MID_UNSECURE)_fuzz_test
-	TARGET = $(TARGET_STATIC_DEV)
+else ifeq ($(PRESET), FUZZ_TESTS)
+	CONFIG = $(CONFIG_POSIX_MIN_UNSECURE)_fuzz_test
+	TARGET = $(TARGET_STATIC_REL)
 	XI_BSP_PLATFORM = posix 
 	XI_BSP_TLS =
 

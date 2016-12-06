@@ -32,10 +32,6 @@ ifneq (,$(findstring release,$(TARGET)))
 	XI_DEBUG_EXTRA_INFO ?=0
 endif
 
-ifneq (,$(findstring fuzz_test,$(CONFIG)))
-    XI_CONFIG_FLAGS += -fsanitize=address -fomit-frame-pointer -fsanitize-coverage=func
-endif
-
 XI_DEBUG_PRINTF ?=
 
 ifneq (,$(findstring shared,$(TARGET)))
@@ -58,6 +54,10 @@ ifneq (,$(findstring debug,$(TARGET)))
 	XI_DEBUG_OUTPUT ?= 1
 	XI_DEBUG_ASSERT ?= 1
 	XI_DEBUG_EXTRA_INFO ?= 1
+endif
+
+ifneq (,$(findstring fuzz_test,$(CONFIG)))
+    XI_CONFIG_FLAGS += -fsanitize=address -fomit-frame-pointer -fsanitize-coverage=func -g
 endif
 
 XI_COMPILER_FLAGS += -Wall
