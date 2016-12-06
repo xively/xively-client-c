@@ -6,7 +6,7 @@
 include make/mt-config/mt-target-platform.mk
 
 # CONFIG presets
-CONFIG_POSIX_MAX                =bsp_posix-posix_fs-posix_platform-tls_bsp-senml-control_topic-memory_limiter
+CONFIG_POSIX_MAX                =bsp_posix-posix_fs-posix_platform-tls_bsp-control_topic-memory_limiter
 CONFIG_POSIX_MAX_THREADING      =bsp_posix-posix_fs-posix_platform-tls_bsp-senml-control_topic-threading-memory_limiter
 CONFIG_POSIX_MID                =bsp_posix-posix_fs-posix_platform-tls_bsp-senml-control_topic
 CONFIG_POSIX_MID_UNSECURE       =bsp_posix-posix_fs-posix_platform-senml-control_topic
@@ -87,6 +87,14 @@ else ifeq ($(PRESET), CC3200_TLS_SOCKET)
     TARGET = $(TARGET_STATIC_REL)
     XI_BSP_PLATFORM = cc3200
     XI_TARGET_PLATFORM = cc3200
+
+# -------------------------------------------------------
+# Fuzz Tests
+else ifeq($(PRESET), FUZZ_TESTS
+	CONFIG = $(CONFIG_POSIX_MID_UNSECURE)_fuzz_test
+	TARGET = $(TARGET_STATIC_DEV)
+	XI_BSP_PLATFORM = posix 
+	XI_BSP_TLS =
 
 # -------------------------------------------------------
 # DEFAULT
