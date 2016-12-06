@@ -85,3 +85,4 @@ script:
             make -C examples/senml_serializer XI_CLIENT_LIB_PATH=../../bin/linux XI_BSP_TLS=$XI_BSP_TLS;
         fi;
     fi;"
+
