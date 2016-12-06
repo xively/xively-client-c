@@ -6,7 +6,7 @@
 
 #include "xi_backoff_status_api.h"
 #include "xi_globals.h"
-#include "xi_rng.h"
+#include "xi_bsp_rng.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,7 +52,7 @@ uint32_t xi_get_backoff_penalty()
     const int32_t half_range = XI_MAX( full_range / 2, 1 );
 
     /* rand_value = random( 0, full_range ) */
-    const int32_t rand_value = xi_rand() % ( full_range + 1 );
+    const int32_t rand_value = xi_bsp_rng_get() % ( full_range + 1 );
 
     /* backoff_value =
      *      base_value + random( -0.5 * prev_backoff_base_value

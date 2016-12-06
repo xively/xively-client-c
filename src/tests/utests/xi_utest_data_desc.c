@@ -11,10 +11,10 @@
 
 #include "xively.h"
 #include "xi_err.h"
-#include "xi_rng.h"
 #include "xi_data_desc.h"
 #include "xi_macros.h"
 
+#include "xi_bsp_rng.h"
 #include "xi_memory_checks.h"
 
 #include <stdio.h>
@@ -139,7 +139,7 @@ XI_TT_TESTCASE_WITH_SETUP(
         size_t i = 0;
         for ( ; i < size; ++i )
         {
-            test_buffer[i] = xi_rand() % 256;
+            test_buffer[i] = xi_bsp_rng_get() % 256;
         }
 
         xi_data_desc_t* data_desc = xi_make_desc_from_buffer_copy( test_buffer, size );
@@ -175,7 +175,7 @@ XI_TT_TESTCASE_WITH_SETUP(
         size_t i = 0;
         for ( ; i < size; ++i )
         {
-            test_buffer[i] = xi_rand() % 256;
+            test_buffer[i] = xi_bsp_rng_get() % 256;
         }
 
         xi_data_desc_t* data_desc = xi_make_desc_from_buffer_share( test_buffer, size );
@@ -218,7 +218,7 @@ XI_TT_TESTCASE_WITH_SETUP(
             size_t i = 0;
             for ( ; i < size - 1; ++i )
             {
-                origin_string[i] = ( xi_rand() % 255 ) + 1;
+                origin_string[i] = ( xi_bsp_rng_get() % 255 ) + 1;
             }
 
             tt_int_op( strlen( origin_string ), ==, size - 1 );
@@ -290,7 +290,7 @@ XI_TT_TESTCASE_WITH_SETUP(
             size_t i = 0;
             for ( ; i < size - 1; ++i )
             {
-                origin_string[i] = ( xi_rand() % 255 ) + 1;
+                origin_string[i] = ( xi_bsp_rng_get() % 255 ) + 1;
             }
 
             tt_int_op( strlen( origin_string ), ==, size - 1 );
