@@ -60,7 +60,7 @@ else ifeq ($(XI_HOST_PLATFORM),Linux)
 
 $(CC):
 	git clone git@github.com:xively/xively-client-artifactory.git ~/Downloads/xively-client-artifactory
-	$@ --version
+	$@ -version
 ### TOOLCHAIN AUTODOWNLOAD SECTION --- END
 endif
 
