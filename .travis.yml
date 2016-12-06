@@ -1,4 +1,4 @@
-sudo: false
+sudo: true
 language: c
 compiler:
   - clang
@@ -9,34 +9,40 @@ env:
     - XI_BSP_TLS=wolfssl
     - XI_MAKETARGET=tests
   matrix:
-    - PRESET=ARM_REL
-    - PRESET=ARM_REL_MIN
+      #- PRESET=ARM_REL
+      #- PRESET=ARM_REL_MIN
 
-    - PRESET=CC3200
-      XI_MAKETARGET=""
-    - PRESET=CC3200_TLS_SOCKET
-      XI_MAKETARGET=""
+      #- PRESET=CC3200
+      #XI_MAKETARGET=""
+      #- PRESET=CC3200_TLS_SOCKET
+      #XI_MAKETARGET=""
 
-    - PRESET=POSIX_DEV
-    - PRESET=POSIX_DEV_MIN
-    - PRESET=POSIX_REL
-    - PRESET=POSIX_REL_MIN
+      #- PRESET=POSIX_DEV
+      #- PRESET=POSIX_DEV_MIN
+      #- PRESET=POSIX_REL
+      #- PRESET=POSIX_REL_MIN
 
-    - PRESET=POSIX_REL
-      XI_BSP_TLS=mbedtls
+      #- PRESET=POSIX_REL
+      #XI_BSP_TLS=mbedtls
 
-    - PRESET=POSIX_THREADING_REL
-    - PRESET=POSIX_UNSECURE_REL
-      XI_BSP_TLS=""
+      #- PRESET=POSIX_THREADING_REL
+      #- PRESET=POSIX_UNSECURE_REL
+      #XI_BSP_TLS=""
+      - TESTS=fuzztests
+        PRESET=FUZZ_TESTS
+        XI_BSP_TLS=""
+        XI_MAKETARGET="fuzz_tests" 
 cache:
     apt
 addons:
   apt:
     sources:
-      - llvm-toolchain-precise-3.8
+        #- llvm-toolchain-precise-3.8
       - ubuntu-toolchain-r-test
     packages:
-      - clang-3.8
+        #- clang-3.8
+      - gcc-6
+      - g++-6
       - qemu-system
       - libc6:i386
       - expect
@@ -50,13 +56,25 @@ matrix:
       env: PRESET=CC3200 XI_MAKETARGET=""
     - compiler: clang
       env: PRESET=CC3200_TLS_SOCKET XI_MAKETARGET=""
+    - compiler: gcc 
+      env: TESTS=fuzztests PRESET=FUZZ_TESTS XI_BSP_TLS="" XI_MAKETARGET="fuzz_tests"
+before_install:
+    - "if [[ $TESTS == 'fuzztests' ]]; then ( .travis/download_and_install_clang.sh `pwd`/clang_download_dir `pwd`/clang_install_dir ) && ls -al `pwd`/clang_install_dir/bin && export PATH=`pwd`/clang_install_dir/bin:$PATH; fi;"
 before_script:
-  - "if [[ $CC == *'clang'* ]]; then export CC='clang-3.8'; fi"
+  - "if [[ ! $TESTS == 'fuzztests' ]]; then
+        if [[ $CC == *'clang'* ]]; then export CC='clang-3.8'; fi;
+     else 
+        if [[ $CC == *'clang'* ]]; then export CC=clang CXX=clang++; fi;
+     fi"
+  - "if [[ $TESTS == 'fuzztests' ]]; then .travis/download_and_install_libfuzzer.sh `pwd`/libfuzzer_download_dir $HOME/build/xively/xively-client-c/bin/linux; fi;"
 script:
   - "set -e"
+  - "echo $PATH"
+  - "which clang"
+  - "clang --version"
   - "cd $HOME/build/xively/xively-client-c/"
-  - "expect res/travis/travis_build.expect make PRESET=$PRESET XI_DEBUG_OUTPUT=0 $XI_MAKETARGET"
-  - "if [ ! $CC == 'gcc' ]; then
+  - "expect res/travis/travis_build.expect make PRESET=$PRESET XI_DEBUG_OUTPUT=0 $XI_MAKETARGET;"
+  - "if [[ ! $CC == 'gcc' && ! $TESTS == 'fuzztests' ]]; then
         make -C examples/mqtt_logic_example  XI_CLIENT_LIB_PATH=../../bin/linux XI_BSP_TLS=$XI_BSP_TLS;
         make -C examples/mqtt_logic_producer XI_CLIENT_LIB_PATH=../../bin/linux XI_BSP_TLS=$XI_BSP_TLS;
         make -C examples/mqtt_logic_consumer XI_CLIENT_LIB_PATH=../../bin/linux XI_BSP_TLS=$XI_BSP_TLS;
@@ -67,3 +85,4 @@ script:
             make -C examples/senml_serializer XI_CLIENT_LIB_PATH=../../bin/linux XI_BSP_TLS=$XI_BSP_TLS;
         fi;
     fi;"
+
