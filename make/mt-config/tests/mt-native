@@ -6,4 +6,4 @@
 #XI_RUN_UTESTS = $(XI_UTESTS) -l0 --terse
 XI_RUN_UTESTS := (cd $(dir $(XI_UTESTS)) && LD_LIBRARY_PATH=$(dir $(XI)):$$LD_LIBRARY_PATH exec $(XI_UTESTS) -l0)
 XI_RUN_ITESTS := (cd $(dir $(XI_ITESTS)) && LD_LIBRARY_PATH=$(dir $(XI)):$$LD_LIBRARY_PATH exec $(XI_ITESTS))
-XI_RUN_FTESTS := (cd $(dir $(XI_FUZZ_TESTS)) && LD_LIBRARY_PATH=$(dir $(XI)):$$LD_LIBRARY_PATH && $(XI_FUZZ_TESTS) -max_total_time=30 -max_len=256) 
+XI_RUN_FTESTS := (cd $(dir $(XI_FUZZ_TESTS)) && LD_LIBRARY_PATH=$(dir $(XI)):$$LD_LIBRARY_PATH && $(XI_FUZZ_TESTS) $(XI_FUZZ_TESTS_CORPUS_DIR)/$(XI_FUZZ_TEST_SUITE) -max_total_time=30 -max_len=256) 
