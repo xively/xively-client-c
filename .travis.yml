@@ -58,20 +58,14 @@ matrix:
       env: PRESET=CC3200_TLS_SOCKET XI_MAKETARGET=""
     - compiler: gcc 
       env: TESTS=fuzztests PRESET=FUZZ_TESTS XI_BSP_TLS="" XI_MAKETARGET="fuzz_tests"
-before_install:
-    - "if [[ $TESTS == 'fuzztests' ]]; then ( res/travis/download_and_install_clang.sh `pwd`/clang_download_dir `pwd`/clang_install_dir ) && export PATH=`pwd`/clang_install_dir/bin:$PATH; fi;"
 before_script:
   - "if [[ ! $TESTS == 'fuzztests' ]]; then
         if [[ $CC == *'clang'* ]]; then export CC='clang-3.8'; fi;
      else 
         if [[ $CC == *'clang'* ]]; then export CC=clang CXX=clang++; fi;
      fi"
-  - "if [[ $TESTS == 'fuzztests' ]]; then res/travis/download_and_install_libfuzzer.sh `pwd`/libfuzzer_download_dir $HOME/build/xively/xively-client-c/bin/linux; fi;"
 script:
   - "set -e"
-  - "echo $PATH"
-  - "which clang"
-  - "clang --version"
   - "cd $HOME/build/xively/xively-client-c/"
   - "expect res/travis/travis_build.expect make PRESET=$PRESET XI_DEBUG_OUTPUT=0 $XI_MAKETARGET;"
   - "if [[ ! $CC == 'gcc' && ! $TESTS == 'fuzztests' ]]; then

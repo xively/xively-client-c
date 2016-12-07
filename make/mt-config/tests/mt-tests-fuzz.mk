@@ -17,5 +17,45 @@ XI_FUZZ_TESTS := $(foreach fuzztest, $(XI_FUZZ_TESTS), $(XI_FUZZ_TESTS_BINDIR)/$
 
 XI_FUZZ_TEST_LIBRARY := -lFuzzer
 
+#### =========================================================
+
+XI_CLANG_TOOLS_DIR := $(LIBXIVELY)/src/import/clang_tools
+XI_CLANG_COMPILER_DOWNLOAD_DIR := $(XI_CLANG_TOOLS_DIR)/downloaded_clang_compiler
+XI_CLANG_COMPILER_INSTALL_DIR := $(XI_CLANG_TOOLS_DIR)/third_party/llvm-build/Release+Asserts
+XI_CLANG_COMPILER := $(XI_CLANG_COMPILER_INSTALL_DIR)/bin/clang
+
+$(info ----$(XI_CLANG_COMPILER_DOWNLOAD_DIR)----)
+
+#export PATH := $(XI_CLANG_COMPILER_INSTALL_DIR)/bin:$(PATH)
+
+CLANG_REPOSITORY_URL=https://chromium.googlesource.com/chromium/src/tools/clang
+
+$(XI_CLANG_COMPILER_DOWNLOAD_DIR):
+	@-mkdir -p $(XI_CLANG_COMPILER_DOWNLOAD_DIR)
+	(cd $(XI_CLANG_COMPILER_DOWNLOAD_DIR) && git clone $(CLANG_REPOSITORY_URL))
+
+$(XI_CLANG_COMPILER_INSTALL_DIR): $(XI_CLANG_COMPILER_DOWNLOAD_DIR)
+	(cd $(XI_CLANG_COMPILER_DOWNLOAD_DIR) && python2 clang/scripts/update.py) 
+
+$(XI_CLANG_COMPILER): $(XI_CLANG_COMPILER_INSTALL_DIR)
+
+add_clang_to_path: $(XI_CLANG_COMPILER)
+
+clang_compiler: add_clang_to_path
+
+#### =========================================================
+XI_LIBFUZZER_URL := https://chromium.googlesource.com/chromium/llvm-project/llvm/lib/Fuzzer
+XI_LIBFUZZER_DOWNLOAD_DIR := $(XI_CLANG_TOOLS_DIR)/downloaded_libfuzzer
+XI_LIBFUZZER := $(XI_LIBFUZZER_DOWNLOAD_DIR)/libFuzzer.a
+
+$(XI_LIBFUZZER_DOWNLOAD_DIR):
+	@-mkdir -p $(XI_LIBFUZZER_DOWNLOAD_DIR)
+	git clone $(XI_LIBFUZZER_URL) $(XI_LIBFUZZER_DOWNLOAD_DIR)	
+
+$(XI_LIBFUZZER): $(XI_CLANG_COMPILER) $(XI_LIBFUZZER_DOWNLOAD_DIR)
+	(cd $(XI_LIBFUZZER_DOWNLOAD_DIR) && clang++ -c -g -O2 -lstdc++ -std=c++11 *.cpp -IFuzzer && ar ruv libFuzzer.a Fuzzer*.o)
+
+build_libfuzzer: $(XI_LIBFUZZER)
+
 include make/mt-config/tests/mt-native
 

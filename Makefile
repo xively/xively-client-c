@@ -117,7 +117,6 @@ $(XI_OBJDIR)/tests/tools/xi_libxively_driver/%.o : $(LIBXIVELY)/src/tests/tools/
 	@-mkdir -p $(dir $@)
 	$(info [$(CC)] $@)
 	$(MD) $(CC) $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) $(XI_TEST_TOOLS_INCLUDE_FLAGS) -c $< -o $@
-	@$(CC) $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) $(XI_TEST_TOOLS_INCLUDE_FLAGS) -MM $< -MT $@ -MF $(@:.o=.d)
 
 -include $(XI_OBJS:.o=.d)
 
@@ -186,7 +185,6 @@ $(XI_ITESTS): $(XI) $(CMOCKA_LIBRARY_DEPS) $(XI_ITEST_OBJS)
 	$(info [$(CC)] $@)
 	$(MD) $(CC) $(XI_ITEST_OBJS) $(XI_ITESTS_CFLAGS) -L$(XI_BINDIR) $(XI_LIB_FLAGS) $(CMOCKA_LIBRARY) -o $@
 	$(XI_RUN_ITESTS)
-
 endif
 
 $(XI_OBJDIR)/%.cpp.o : $(LIBXIVELY)/src/%.cpp $(XI_BUILD_PRECONDITIONS)
@@ -195,20 +193,18 @@ $(XI_OBJDIR)/%.cpp.o : $(LIBXIVELY)/src/%.cpp $(XI_BUILD_PRECONDITIONS)
 	$(MD) $(CXX) $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) -c $< -o $@
 	$(XI_POST_COMPILE_ACTION
 
--include $(XI_FUZZ_TESTS_OBJS:.cpp.o=.d)
-
 $(XI_FUZZ_TESTS_BINDIR)/%: $(XI_FUZZ_TESTS_SOURCE_DIR)/%.cpp 
 	@-mkdir -p $(dir $@)
 	$(info [$(CXX)] $@)
-	$(MD) $(CXX) $< $(XI_CONFIG_FLAGS) $(XI_INCLUDE_FLAGS) -L$(XI_BINDIR) $(XI_LIB_FLAGS) $(XI_FUZZ_TEST_LIBRARY) -o $@
+	$(MD) $(CXX) $< $(XI_CONFIG_FLAGS) $(XI_INCLUDE_FLAGS) -L$(XI_BINDIR) -L$(XI_LIBFUZZER_DOWNLOAD_DIR) $(XI_LIB_FLAGS) $(XI_FUZZ_TEST_LIBRARY) -o $@
 
 .PHONY: fuzz_tests
 
-fuzz_tests: $(XI) $(XI_FUZZ_TESTS) $(XI_FUZZ_TESTS_CORPUS_DIRS)
+fuzz_tests: $(XI) $(XI_LIBFUZZER) $(XI_FUZZ_TESTS) $(XI_FUZZ_TESTS_CORPUS_DIRS)
 	$(foreach fuzztest, $(XI_FUZZ_TESTS), $(call XI_RUN_FTEST,$(fuzztest)))
 
 $(XI_FUZZ_TESTS_CORPUS_DIRS):
-	mkdir -p $@
+	@-mkdir -p $@
 
 .PHONY: static_analysis
 static_analysis:  $(XI_SOURCES:.c=.sa)
