@@ -108,7 +108,6 @@ ifeq ($(XI_HOST_PLATFORM),Linux)
 
 ### TOOLCHAIN AUTODOWNLOAD SECTION --- BEGIN
 	XI_BUILD_PRECONDITIONS := $(CC)
-
 $(CC):
 	git clone https://github.com/atigyi/xi_artifactory.git ~/Downloads/xi_artifactory
 	git -C ~/Downloads/xi_artifactory checkout feature/cc3200_dependencies
