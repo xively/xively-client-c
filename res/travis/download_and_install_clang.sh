@@ -12,7 +12,7 @@ echo "Downloading clang..."
 git clone $CLANG_REPOSITORY_URL
 
 echo "Installing clang...."
-$CLANG_DOWNLOAD_DIR/clang/scripts/update.py 
+python2 clang/scripts/update.py 
 
 mv ../third_party $CLANG_DOWNLOAD_DIR 
 
