@@ -20,3 +20,4 @@ echo "Testing installation..."
 $CLANG_DOWNLOAD_DIR/third_party/llvm-build/Release+Asserts/bin/clang --version
 ln -s $CLANG_DOWNLOAD_DIR/third_party/llvm-build/Release+Asserts $CLANG_INSTALL_DIR
 
+echo "done"

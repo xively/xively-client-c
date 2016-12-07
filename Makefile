@@ -197,14 +197,15 @@ $(XI_OBJDIR)/%.cpp.o : $(LIBXIVELY)/src/%.cpp $(XI_BUILD_PRECONDITIONS)
 
 -include $(XI_FUZZ_TESTS_OBJS:.cpp.o=.d)
 
-$(XI_FUZZ_TESTS): $(XI) $(XI_FUZZ_TESTS_OBJS)
+$(XI_FUZZ_TESTS_BINDIR)/%: $(XI_FUZZ_TESTS_SOURCE_DIR)/%.cpp 
+	@-mkdir -p $(dir $@)
 	$(info [$(CXX)] $@)
-	$(MD) $(CXX) $(XI_CONFIG_FLAGS) $(XI_FUZZ_TESTS_OBJS) -L$(XI_BINDIR) $(XI_LIB_FLAGS) $(XI_FUZZ_TEST_LIBRARY) -o $@
+	$(MD) $(CXX) $< $(XI_CONFIG_FLAGS) $(XI_INCLUDE_FLAGS) -L$(XI_BINDIR) $(XI_LIB_FLAGS) $(XI_FUZZ_TEST_LIBRARY) -o $@
 
 .PHONY: fuzz_tests
 
-fuzz_tests: $(XI_FUZZ_TESTS)
-	$(XI_RUN_FTESTS)
+fuzz_tests: $(XI) $(XI_FUZZ_TESTS)
+	$(foreach fuzztest, $(XI_FUZZ_TESTS), $(call XI_RUN_FTEST,$(fuzztest)))
 
 .PHONY: static_analysis
 static_analysis:  $(XI_SOURCES:.c=.sa)
