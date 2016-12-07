@@ -52,11 +52,11 @@ XI_COMPILER_FLAGS += -DHSE_VALUE=8000000
 #XI_COMPILER_FLAGS += -MP
 
 ifneq (,$(findstring release,$(TARGET)))
-    XI_COMPILER_FLAGS += -O4
+	XI_COMPILER_FLAGS += -O4
 endif
 
 ifneq (,$(findstring debug,$(TARGET)))
-    XI_COMPILER_FLAGS += -O0 -g
+	XI_COMPILER_FLAGS += -O0 -g
 endif
 
 # Xively Client config flags
@@ -104,15 +104,15 @@ XI_COMPILER_FLAGS += -DALT_ECC_SIZE
 XI_ARFLAGS += -rs -c $(XI)
 
 ifeq ($(XI_HOST_PLATFORM),Linux)
-    # linux cross-compilation prerequisite downloads
+	# linux cross-compilation prerequisite downloads
 
 ### TOOLCHAIN AUTODOWNLOAD SECTION --- BEGIN
-    XI_BUILD_PRECONDITIONS := $(CC)
+	XI_BUILD_PRECONDITIONS := $(CC)
 
 $(CC):
-    git clone https://github.com/atigyi/xi_artifactory.git ~/Downloads/xi_artifactory
-    git -C ~/Downloads/xi_artifactory checkout feature/cc3200_dependencies
-    $@ -version
+	git clone https://github.com/atigyi/xi_artifactory.git ~/Downloads/xi_artifactory
+	git -C ~/Downloads/xi_artifactory checkout feature/cc3200_dependencies
+	$@ -version
 ### TOOLCHAIN AUTODOWNLOAD SECTION --- END
 endif
 
