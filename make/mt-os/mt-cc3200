@@ -55,7 +55,7 @@ else ifeq ($(XI_HOST_PLATFORM),Linux)
 $(CC):
 	git clone https://github.com/atigyi/xi_artifactory.git ~/Downloads/xi_artifactory
 	git -C ~/Downloads/xi_artifactory checkout feature/cc3200_dependencies
-	$@ --version
+	$@ -version
 ### TOOLCHAIN AUTODOWNLOAD SECTION --- END
 endif
 
