@@ -19,7 +19,7 @@
 
 struct CMGroupTest groups[] = {
     cmocka_test_group( xi_itests_clean_session ), cmocka_test_group( xi_itests_tls_error )
-#ifndef XI_DEBUG_NO_TLS
+#ifndef XI_NO_TLS_LAYER
                                                       ,
     cmocka_test_group( xi_itests_tls_layer )
 #endif
