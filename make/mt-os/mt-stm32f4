@@ -10,7 +10,7 @@ XI ?= $(XI_BINDIR)/libxively.a
 
 include make/mt-utils/mt-get-gnu-arm-toolchain.mk
 
-XI_STM32_PATH_SDK = /Users/ohumenczuk/Downloads/STM32Cube_FW_F4_V1.13.0
+XI_STM32_PATH_SDK = $(HOME)/Downloads/xi_artifactory/st/STM32Cube_FW_F4_V1.13.0
 
 #####################
 # LWIP configurations
@@ -102,5 +102,18 @@ XI_COMPILER_FLAGS += -DHAVE_AESGCM
 XI_COMPILER_FLAGS += -DALT_ECC_SIZE
 
 XI_ARFLAGS += -rs -c $(XI)
+
+ifeq ($(XI_HOST_PLATFORM),Linux)
+    # linux cross-compilation prerequisite downloads
+
+### TOOLCHAIN AUTODOWNLOAD SECTION --- BEGIN
+    XI_BUILD_PRECONDITIONS := $(CC)
+
+$(CC):
+    git clone https://github.com/atigyi/xi_artifactory.git ~/Downloads/xi_artifactory
+    git -C ~/Downloads/xi_artifactory checkout feature/cc3200_dependencies
+    $@ -version
+### TOOLCHAIN AUTODOWNLOAD SECTION --- END
+endif
 
 XI_POST_COMPILE_ACTION =
