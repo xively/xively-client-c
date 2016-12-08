@@ -14,8 +14,6 @@ expect {
       send -- "Y"
       exp_continue
     }
-
-    env
 }
 
 catch wait result
