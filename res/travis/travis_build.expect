@@ -15,3 +15,6 @@ expect {
       exp_continue
   }
 }
+
+catch wait result
+exit [lindex $result 3]
