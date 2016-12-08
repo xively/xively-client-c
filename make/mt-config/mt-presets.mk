@@ -93,7 +93,7 @@ else ifeq ($(PRESET), CC3200_TLS_SOCKET)
 # Fuzz Tests
 else ifeq ($(PRESET), FUZZ_TESTS)
 	ifeq ($(XI_HOST_PLATFORM),Darwin)
-		$(error Fuzz testing won\'t work on OSX)
+$(error Fuzz testing won\'t work on OSX)
 	endif
 	CONFIG = $(CONFIG_POSIX_MIN_UNSECURE)_fuzz_test
 	TARGET = $(TARGET_STATIC_REL)
