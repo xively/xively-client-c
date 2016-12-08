@@ -25,7 +25,10 @@ XI_CLANG_COMPILER_INSTALL_DIR := $(XI_CLANG_TOOLS_DIR)/third_party/llvm-build/Re
 XI_CLANG_COMPILER := $(XI_CLANG_COMPILER_INSTALL_DIR)/bin/clang
 
 # This is where the compiler path is being overriden 
-export PATH := $(XI_CLANG_COMPILER_INSTALL_DIR)/bin:$(PATH)
+ifneq (,$(findstring fuzz_test,$(CONFIG)))
+	export PATH := $(XI_CLANG_COMPILER_INSTALL_DIR)/bin:$(PATH)
+endif
+
 
 CLANG_REPOSITORY_URL=https://chromium.googlesource.com/chromium/src/tools/clang
 
