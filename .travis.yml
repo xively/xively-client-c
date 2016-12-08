@@ -67,7 +67,7 @@ before_script:
 script:
   - "set -e"
   - "cd $HOME/build/xively/xively-client-c/"
-  - "expect res/travis/travis_build.expect make -d PRESET=$PRESET XI_DEBUG_OUTPUT=0 $XI_MAKETARGET;"
+  - "expect res/travis/travis_build.expect make PRESET=$PRESET XI_DEBUG_OUTPUT=0 $XI_MAKETARGET;"
   - "if [[ ! $CC == 'gcc' && ! $TESTS == 'fuzztests' ]]; then
         make -C examples/mqtt_logic_example  XI_CLIENT_LIB_PATH=../../bin/linux XI_BSP_TLS=$XI_BSP_TLS;
         make -C examples/mqtt_logic_producer XI_CLIENT_LIB_PATH=../../bin/linux XI_BSP_TLS=$XI_BSP_TLS;
