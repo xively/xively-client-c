@@ -214,8 +214,8 @@ xi_state_t xi_mqtt_parser_execute( xi_mqtt_parser_t* parser,
         src->curr_pos += 1;
         parser->digit_bytes += 1;
 
-        /*XI_CR_YIELD_ON( parser->cs, ( ( src->curr_pos - src->length ) == 0 ),
-                        XI_STATE_WANT_READ );*/
+        XI_CR_YIELD_ON( parser->cs, ( ( src->curr_pos - src->length ) == 0 ),
+                        XI_STATE_WANT_READ );
 
         parser->remaining_length +=
             ( src->data_ptr[src->curr_pos] & 0x7f ) * parser->multiplier;
