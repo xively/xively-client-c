@@ -187,11 +187,11 @@ $(XI_ITESTS): $(XI) $(CMOCKA_LIBRARY_DEPS) $(XI_ITEST_OBJS)
 	$(XI_RUN_ITESTS)
 endif
 
-$(XI_OBJDIR)/%.cpp.o : $(LIBXIVELY)/src/%.cpp $(XI_BUILD_PRECONDITIONS)
-	@-mkdir -p $(dir $@)
-	$(info [$(CXX)] $@)
-	$(MD) $(CXX) $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) -c $< -o $@
-	$(XI_POST_COMPILE_ACTION
+#$(XI_OBJDIR)/%.cpp.o : $(LIBXIVELY)/src/%.cpp $(XI_BUILD_PRECONDITIONS)
+#	@-mkdir -p $(dir $@)
+#	$(info [$(CXX)] $@)
+#	$(MD) $(CXX) $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) -c $< -o $@
+#	$(XI_POST_COMPILE_ACTION
 
 $(XI_FUZZ_TESTS_BINDIR)/%: $(XI_FUZZ_TESTS_SOURCE_DIR)/%.cpp 
 	@-mkdir -p $(dir $@)
@@ -200,11 +200,8 @@ $(XI_FUZZ_TESTS_BINDIR)/%: $(XI_FUZZ_TESTS_SOURCE_DIR)/%.cpp
 
 .PHONY: fuzz_tests
 
-fuzz_tests: $(XI) $(XI_LIBFUZZER) $(XI_FUZZ_TESTS) $(XI_FUZZ_TESTS_CORPUS_DIRS)
+fuzz_tests: $(XI_LIBFUZZER) $(XI_FUZZ_TESTS) $(XI_FUZZ_TESTS_CORPUS_DIRS) $(XI)
 	$(foreach fuzztest, $(XI_FUZZ_TESTS), $(call XI_RUN_FTEST,$(fuzztest)))
-
-$(XI_FUZZ_TESTS_CORPUS_DIRS):
-	@-mkdir -p $@
 
 .PHONY: static_analysis
 static_analysis:  $(XI_SOURCES:.c=.sa)
