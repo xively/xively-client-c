@@ -39,6 +39,9 @@ addons:
       - clang-3.8
       - qemu-system
       - libc6:i386
+      - autoconf
+      - autotools-dev
+      - libtool
       - expect
 matrix:
   exclude:
