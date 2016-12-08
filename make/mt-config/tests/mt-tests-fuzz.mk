@@ -24,8 +24,7 @@ XI_CLANG_COMPILER_DOWNLOAD_DIR := $(XI_CLANG_TOOLS_DIR)/downloaded_clang_compile
 XI_CLANG_COMPILER_INSTALL_DIR := $(XI_CLANG_TOOLS_DIR)/third_party/llvm-build/Release+Asserts
 XI_CLANG_COMPILER := $(XI_CLANG_COMPILER_INSTALL_DIR)/bin/clang
 
-$(info ----$(XI_CLANG_COMPILER_DOWNLOAD_DIR)----)
-
+# This is where the compiler path is being overriden 
 export PATH := $(XI_CLANG_COMPILER_INSTALL_DIR)/bin:$(PATH)
 
 CLANG_REPOSITORY_URL=https://chromium.googlesource.com/chromium/src/tools/clang
