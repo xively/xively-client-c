@@ -59,9 +59,8 @@ else ifeq ($(XI_HOST_PLATFORM),Linux)
 	XI_BUILD_PRECONDITIONS := $(CC)
 
 $(CC):
-	git clone git@github.com:xively/xively-client-artifactory.git ~/Downloads/xively-client-artifactory
+	git clone -b ti git@github.com:xively/xively-client-artifactory.git ~/Downloads/xively-client-artifactory
 	$@ -version
-
 ### TOOLCHAIN AUTODOWNLOAD SECTION --- END
 endif
 
