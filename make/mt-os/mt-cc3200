@@ -13,8 +13,8 @@ XI ?= $(XI_BINDIR)/libxively.a
 ###
 COMPILER ?= arm_15.12.3.LTS
 
-XI_CC3200_SDK ?= "CC3200SDK_1.1.0"
-$(info -- Using [$(XI_CC3200_SDK)])
+XI_CC3200_SDK ?= CC3200SDK_1.1.0
+$(info .    XI_CC3200_SDK:   [$(XI_CC3200_SDK)] )
 
 ###
 ## MAC HOST OS
