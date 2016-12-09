@@ -85,6 +85,8 @@ end:;
 XI_TT_TESTCASE(
     utest__xi_time_event_execute_handle_in__add_TEST_TIME_EVENT_TEST_SIZE_random_time_events,
     {
+        xi_bsp_rng_init();
+
         xi_vector_t* vector = xi_vector_create();
 
         xi_time_event_handle_t time_event_handles[TEST_TIME_EVENT_TEST_SIZE] = {
@@ -118,7 +120,8 @@ XI_TT_TESTCASE(
         xi_vector_destroy( vector );
 
         tt_int_op( xi_is_whole_memory_deallocated(), >, 0 );
-    end:;
+    end:
+        xi_bsp_rng_shutdown();
     } )
 
 
