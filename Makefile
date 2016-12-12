@@ -117,6 +117,7 @@ $(XI_OBJDIR)/tests/tools/xi_libxively_driver/%.o : $(LIBXIVELY)/src/tests/tools/
 	@-mkdir -p $(dir $@)
 	$(info [$(CC)] $@)
 	$(MD) $(CC) $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) $(XI_TEST_TOOLS_INCLUDE_FLAGS) -c $< -o $@
+	@$(CC) $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) $(XI_TEST_TOOLS_INCLUDE_FLAGS) -MM $< -MT $@ -MF $(@:.o=.d)
 
 -include $(XI_OBJS:.o=.d)
 
@@ -186,12 +187,6 @@ $(XI_ITESTS): $(XI) $(CMOCKA_LIBRARY_DEPS) $(XI_ITEST_OBJS)
 	$(MD) $(CC) $(XI_ITEST_OBJS) $(XI_ITESTS_CFLAGS) -L$(XI_BINDIR) $(XI_LIB_FLAGS) $(CMOCKA_LIBRARY) -o $@
 	$(XI_RUN_ITESTS)
 endif
-
-#$(XI_OBJDIR)/%.cpp.o : $(LIBXIVELY)/src/%.cpp $(XI_BUILD_PRECONDITIONS)
-#	@-mkdir -p $(dir $@)
-#	$(info [$(CXX)] $@)
-#	$(MD) $(CXX) $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) -c $< -o $@
-#	$(XI_POST_COMPILE_ACTION
 
 $(XI_FUZZ_TESTS_BINDIR)/%: $(XI_FUZZ_TESTS_SOURCE_DIR)/%.cpp 
 	@-mkdir -p $(dir $@)
