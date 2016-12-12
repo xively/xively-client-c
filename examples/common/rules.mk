@@ -3,6 +3,8 @@
 # This is part of the Xively C Client library,
 # it is licensed under the BSD 3-Clause license.
 
+include ../../make/mt-config/mt-target-platform.mk
+
 CC ?= cc
 AR ?= ar
 
@@ -25,7 +27,12 @@ XI_EXAMPLE_BIN := $(XI_EXAMPLE_BINDIR)/$(XI_EXAMPLE_NAME)
 
 XI_CLIENT_PATH ?= $(CURDIR)/../../
 XI_CLIENT_INC_PATH ?= $(CURDIR)/../../include
-XI_CLIENT_LIB_PATH ?= $(CURDIR)/../../bin/osx
+
+ifeq ($(XI_HOST_PLATFORM),Linux)
+	XI_CLIENT_LIB_PATH ?= $(CURDIR)/../../bin/linux
+else ifeq ($(XI_HOST_PLATFORM),Darwin)
+	XI_CLIENT_LIB_PATH ?= $(CURDIR)/../../bin/osx
+endif
 
 XI_CLIENT_ROOTCA_LIST := $(CURDIR)/../../res/trusted_RootCA_certs/xi_RootCA_list.pem
 
@@ -46,4 +53,4 @@ endif
 
 # -lm is only needed by linux
 # -lpthread only if both linux and multithreading is enabled in the Xively C Client at compile time
-XI_FLAGS_LINKER := -L$(XI_CLIENT_LIB_PATH)  -lxively -lm -lpthread $(TLS_LIB_CONFIG_FLAGS)
+XI_FLAGS_LINKER := -L$(XI_CLIENT_LIB_PATH)  -lxively -lpthread $(TLS_LIB_CONFIG_FLAGS) -lm
