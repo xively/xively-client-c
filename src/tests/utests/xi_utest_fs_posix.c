@@ -12,8 +12,8 @@
 
 #include "xi_fs_header.h"
 #include "xi_fs_filenames.h"
-#include "xi_rng.h"
 #include "xi_macros.h"
+#include "xi_bsp_rng.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -59,7 +59,7 @@ void* xi_utest_fs_posix_create_test_random_file( const char* const file_name,
 
     for ( ; i < file_size; ++i )
     {
-        memory_buffer[i] = ( char )( xi_rand() % 255u );
+        memory_buffer[i] = ( char )( xi_bsp_rng_get() % 255u );
     }
 
     blocks_written = fwrite( memory_buffer, 1, file_size, fd );

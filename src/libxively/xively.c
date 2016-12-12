@@ -39,14 +39,8 @@
 
 #include "xi_user_sub_call_wrapper.h"
 
-#ifdef XI_BSP
 #include <xi_bsp_time.h>
 #include <xi_bsp_rng.h>
-#else
-#define xi_bsp_time_init()
-#define xi_bsp_rng_init()
-#define xi_bsp_rng_shutdown()
-#endif
 
 #ifdef __cplusplus
 extern "C" {
