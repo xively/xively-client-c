@@ -48,4 +48,4 @@ endif
 
 # -lm is only needed by linux
 # -lpthread only if both linux and multithreading is enabled in the Xively C Client at compile time
-XI_FLAGS_LINKER := -L$(XI_CLIENT_LIB_PATH) $(TLS_LIB_CONFIG_FLAGS) -lxively -lpthread -lm
+XI_FLAGS_LINKER := -L$(XI_CLIENT_LIB_PATH)  -lxively -lpthread $(TLS_LIB_CONFIG_FLAGS) -lm
