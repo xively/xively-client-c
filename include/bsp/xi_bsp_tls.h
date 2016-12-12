@@ -185,9 +185,9 @@ xi_bsp_tls_state_t xi_bsp_tls_read( xi_bsp_tls_context_t* tls_context,
  * @function
  * @brief Implements the TLS pending.
  *
- * Implementation of this function should call TLSs library pending function. It should
- * return number of bytes which are buffered and available in the TLS library to be read
- * by TLSs library read function.
+ * Implementation of this function should call TLSs library pending function.
+ * It should return the the number of bytes that are available to be read by the tls
+ * library's read function.
  *
  * @param [in] tls_context - context of the TLS library
  * @return number of bytes available to read
