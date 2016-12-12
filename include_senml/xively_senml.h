@@ -88,7 +88,7 @@ extern xi_state_t xi_senml_serialize( xi_senml_t* senml_structure,
  * @retval XI_STATE_OK if succeeded, other in case of failure,
  *         see xively_error.h for error codes
  */
-extern xi_state_t xi_create_senml_struct( xi_senml_t** senml_ptr, uint8_t count, ... );
+extern xi_state_t xi_create_senml_struct( xi_senml_t** senml_ptr, int count, ... );
 
 /**
  * @name xi_add_senml_entry
@@ -106,7 +106,7 @@ extern xi_state_t xi_create_senml_struct( xi_senml_t** senml_ptr, uint8_t count,
  * @retval XI_STATE_OK if succeeded, other in case of failure,
  *         see xively_error.h for error codes
  */
-extern xi_state_t xi_add_senml_entry( xi_senml_t* senml_ptr, uint8_t count, ... );
+extern xi_state_t xi_add_senml_entry( xi_senml_t* senml_ptr, int count, ... );
 
 /**
  * @name xi_senml_free_buffer
