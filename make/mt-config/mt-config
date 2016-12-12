@@ -169,8 +169,6 @@ else
 	XI_SRCDIRS += $(XI_BSP_DIR)/tls/$(XI_BSP_TLS)
 endif
 
-XI_CONFIG_FLAGS += -DXI_BSP
-
 #
 # SOURCE CONFIGURATIONS
 #

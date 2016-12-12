@@ -56,7 +56,7 @@ We recommend building the Xively Client on OSX or Linux before attempting to cro
 
 On OSX these are available through _brew_:
 
-    - brew update	
+    - brew update
     - brew install autoconf
     - brew install automake
     - brew install libtool
@@ -64,12 +64,12 @@ On OSX these are available through _brew_:
 
  On Ubuntu these are available through _apt-get_:
 
-    - sudo apt-get update	
+    - sudo apt-get update
     - sudo apt-get install autoconf
     - sudo apt-get install autotools-dev
     - sudo apt-get install libtool
     - sudo apt-get install cmake
- 
+
 
 ### Building a TLS static library
 
@@ -146,4 +146,4 @@ See more details in directory ```doc/```
 - *doxygen/* - doxygen generated docs
 - *porting_guide.md* - a detailed description to aid porting process
 - *user_guide.md* - a detailed descript to the Xively C Client
-- *tutorial_ti_cc3200.md* - a tutorial for Texas Instruments CC3200 board
+- *[CC3200 tutorial](https://developer.xively.com/docs/ti-cc3200)* - a tutorial for Texas Instruments CC3200 board

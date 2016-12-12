@@ -78,7 +78,7 @@ void test_time_overflow_function( void )
     const xi_time_t time_max  = LONG_MAX;
     const xi_time_t time_hole = 10;
 
-    printf( "%ld\r\n", time_max );
+    printf( "%ld\n", time_max );
 
     evtd_g_i->current_step = time_max - time_hole;
 

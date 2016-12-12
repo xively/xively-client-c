@@ -315,7 +315,7 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
 
             default:
                 xi_mqtt_message_free( &recvd_msg );
-                xi_debug_printf( "*** *** unhandled message arrived\r\n" );
+                xi_debug_printf( "*** *** unhandled message arrived\n" );
                 break;
         }
     }
