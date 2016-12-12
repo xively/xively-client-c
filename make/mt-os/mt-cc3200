@@ -23,7 +23,7 @@ ifeq ($(XI_HOST_PLATFORM),Darwin)
 	# osx cross-compilation downloads
 
 	XI_CC3200_PATH_CCS_TOOLS ?= /Applications/ti/ccsv6/tools
-	XI_CC3200_PATH_SDK ?= $(HOME)/ti/tirex-content/$(XI_CC3200_SDK)/cc3200-sdk
+	XI_CC3200_PATH_SDK ?= ~/ti/tirex-content/$(XI_CC3200_SDK)/cc3200-sdk
 
 	CC = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armcl
 	AR = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armar
@@ -50,8 +50,8 @@ else ifneq (,$(findstring Windows,$(XI_HOST_PLATFORM)))
 else ifeq ($(XI_HOST_PLATFORM),Linux)
 	# linux cross-compilation prerequisite downloads
 
-	XI_CC3200_PATH_CCS_TOOLS ?= $(HOME)/Downloads/xively-client-artifactory/ti/ccsv6/tools
-	XI_CC3200_PATH_SDK ?= $(HOME)/Downloads/xively-client-artifactory/ti/$(XI_CC3200_SDK)/cc3200-sdk
+	XI_CC3200_PATH_CCS_TOOLS ?= ~/Downloads/xively-client-artifactory/ti/ccsv6/tools
+	XI_CC3200_PATH_SDK ?= ~/Downloads/xively-client-artifactory/ti/$(XI_CC3200_SDK)/cc3200-sdk
 
 	CC = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armcl
 	AR = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armar
