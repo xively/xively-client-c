@@ -107,10 +107,10 @@ ifeq ($(XI_HOST_PLATFORM),Linux)
 	# linux cross-compilation prerequisite downloads
 
 ### TOOLCHAIN AUTODOWNLOAD SECTION --- BEGIN
-	XI_BUILD_PRECONDITIONS := $(CC)
-$(CC):
+	XI_BUILD_PRECONDITIONS += STM32F4_SDK
+.PHONY : STM32F4_SDK
+STM32F4_SDK:
 	git clone -b st git@github.com:xively/xively-client-artifactory.git ~/Downloads/xively-client-artifactory
-	$@ -version
 ### TOOLCHAIN AUTODOWNLOAD SECTION --- END
 endif
 
