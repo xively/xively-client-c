@@ -20,6 +20,10 @@ In order to run the fuzz tests one will need a linux environment - the best will
 
 Using ```make PRESET=FUZZ_TESTS fuzz_tests``` our makefile system will try to download and install ```clang-4.0``` and ```libFuzzer``` under the ```xively-client-c/src/import/clang_tools/``` folder.
 
+* Additional paramters:
+    * ```XI_FTEST_MAX_TOTAL_TIME=``` time of maximum execution of the test in seconds, 0 means run forever
+    * ```XI_FTEST_MAX_LEN=``` maximum size of generated data
+
 ## Writing new fuzz tests:
 
 * To create new fuzz test the appropriate test implementation have to be created under the ```xively-client-c/src/tests/fuzztests/``` folder and it has to have extension \*.cpp.
