@@ -56,6 +56,11 @@ ifneq (,$(findstring debug,$(TARGET)))
 	XI_DEBUG_EXTRA_INFO ?= 1
 endif
 
+# Settings that will work only on linux and only against clang-4.0 and greater
+ifneq (,$(findstring fuzz_test,$(CONFIG)))
+    XI_CONFIG_FLAGS += -fsanitize=address -fomit-frame-pointer -fsanitize-coverage=trace-pc-guard -g
+endif
+
 XI_COMPILER_FLAGS += -Wall -Werror
 
 # TEMPORARILY disable warnings until the code gets changed
