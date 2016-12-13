@@ -31,7 +31,11 @@ include make/mt-config/mt-examples
 include make/mt-config/tests/mt-tests-tools
 include make/mt-config/tests/mt-tests-unit
 include make/mt-config/tests/mt-tests-integration
+
+ifneq (,$(findstring fuzz_test,$(CONFIG)))
 include make/mt-config/tests/mt-tests-fuzz.mk
+endif
+
 include make/mt-config/mt-help
 
 ifdef MAKEFILE_DEBUG
