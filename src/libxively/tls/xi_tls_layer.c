@@ -268,6 +268,7 @@ static xi_state_t recv_handler( void* context, void* data, xi_state_t in_out_sta
 
     int size_left          = 0;
     xi_bsp_tls_state_t ret = XI_BSP_TLS_STATE_READ_ERROR;
+    int bytes_read         = 0;
 
     if ( XI_THIS_LAYER_NOT_OPERATIONAL( context ) || NULL == layer_data )
     {
@@ -304,8 +305,8 @@ static xi_state_t recv_handler( void* context, void* data, xi_state_t in_out_sta
 
         assert( size_left > 0 );
 
-        int bytes_read = 0;
-        ret            = xi_bsp_tls_read( layer_data->tls_context,
+        bytes_read = 0;
+        ret        = xi_bsp_tls_read( layer_data->tls_context,
                                layer_data->decoded_buffer->data_ptr +
                                    layer_data->decoded_buffer->length,
                                size_left, &bytes_read );
