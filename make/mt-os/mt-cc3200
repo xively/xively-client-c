@@ -28,21 +28,17 @@ ifeq ($(XI_HOST_PLATFORM),Darwin)
 	CC = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armcl
 	AR = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armar
 
-	XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/include
-
 ###
 ## WINDOWS HOST OS
 ###
 else ifneq (,$(findstring Windows,$(XI_HOST_PLATFORM)))
-	 # windows cross-compilation
+	# windows cross-compilation
 
 	XI_CC3200_PATH_CCS_TOOLS ?= C:/ti/ccsv6/tools
 	XI_CC3200_PATH_SDK ?= C:/ti/tirex-content/$(XI_CC3200_SDK)/cc3200-sdk/
 
 	CC = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armcl
 	AR = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armar
-
-	XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/include
 
 ###
 ## LINUX HOST OS
@@ -55,8 +51,6 @@ else ifeq ($(XI_HOST_PLATFORM),Linux)
 
 	CC = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armcl
 	AR = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armar
-
-	XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/include
 
 ### TOOLCHAIN AUTODOWNLOAD SECTION --- BEGIN
 	XI_BUILD_PRECONDITIONS := $(CC)
@@ -103,6 +97,8 @@ XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_SDK)/inc
 XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_SDK)/example/common
 XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_SDK)/simplelink/include
 XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_SDK)/simplelink_extlib/provisioninglib
+
+XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/include
 
 # Xively Client config flags
 XI_CONFIG_FLAGS += -DXI_CROSS_TARGET
