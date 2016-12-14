@@ -82,7 +82,7 @@ XI_COMPILER_FLAGS += --preproc_with_compile
 XI_COMPILER_FLAGS += --preproc_dependency=$(@:.o=.d)
 XI_COMPILER_FLAGS += --obj_directory=$(dir $@)
 XI_COMPILER_FLAGS += --asm_directory=$(dir $@)
-XI_COMPILER_FLAGS += --output_file=$@
+XI_COMPILER_OUTPUT = --output_file=$@
 
 ifneq (,$(findstring release,$(TARGET)))
     XI_COMPILER_FLAGS += -O4

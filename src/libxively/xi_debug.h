@@ -63,13 +63,12 @@ void xi_debug_data_logger_impl( const char* msg, const xi_data_desc_t* data_desc
 
 #define XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST()
 #define XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST_OFF()                                    \
-    printf( "[%ld][ libxively  ] %-50s, layerchainid = %p, in_out_state = %d, "          \
-            "layer_type_id = "                                                           \
-            "%d, data = %p\n",                                                           \
-            xi_bsp_time_getcurrenttime_milliseconds(), __func__,                         \
-            XI_THIS_LAYER( context )->context_data, in_out_state,                        \
-            XI_THIS_LAYER( context )->layer_type_id, data );                             \
-    fflush( stdout )
+    __xi_printf( "[%ld][ libxively  ] %-50s, layerchainid = %p, in_out_state = %d, "     \
+                 "layer_type_id = "                                                      \
+                 "%d, data = %p\n",                                                      \
+                 xi_bsp_time_getcurrenttime_milliseconds(), __func__,                    \
+                 XI_THIS_LAYER( context )->context_data, in_out_state,                   \
+                 XI_THIS_LAYER( context )->layer_type_id, data )
 
 #if XI_DEBUG_ASSERT
 #ifdef NDEBUG

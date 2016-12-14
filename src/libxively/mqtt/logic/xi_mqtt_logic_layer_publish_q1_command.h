@@ -163,8 +163,6 @@ do_mqtt_publish_q1( void* ctx /* should be the context of the logic layer */
 
     XI_CR_END();
 
-    return XI_STATE_OK;
-
 err_handling:
     xi_mqtt_logic_task_defer_users_callback( context, task, state );
 
