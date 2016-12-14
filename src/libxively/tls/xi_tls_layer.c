@@ -172,6 +172,13 @@ static xi_state_t connect_handler( void* context, void* data, xi_state_t in_out_
     layer_data->tls_layer_logic_recv_handler = &recv_handler;
     layer_data->tls_layer_logic_send_handler = &send_handler;
 
+    if ( NULL != layer_data->raw_buffer ||
+         xi_bsp_tls_pending( layer_data->tls_context ) > 0 )
+    {
+        xi_debug_logger( "XI_PROCESS_PULL_ON_THIS_LAYER" );
+        XI_PROCESS_PULL_ON_THIS_LAYER( context, NULL, XI_STATE_WANT_READ );
+    }
+
     XI_CR_EXIT( layer_data->tls_layer_conn_cs,
                 XI_PROCESS_CONNECT_ON_NEXT_LAYER( context, data, XI_STATE_OK ) );
 
@@ -264,8 +271,6 @@ static xi_state_t recv_handler( void* context, void* data, xi_state_t in_out_sta
     xi_tls_layer_state_t* layer_data =
         ( xi_tls_layer_state_t* )XI_THIS_LAYER( context )->user_data;
 
-    xi_data_desc_t* data_desc = ( xi_data_desc_t* )data;
-
     int size_left          = 0;
     xi_bsp_tls_state_t ret = XI_BSP_TLS_STATE_READ_ERROR;
     int bytes_read         = 0;
@@ -274,18 +279,6 @@ static xi_state_t recv_handler( void* context, void* data, xi_state_t in_out_sta
     {
         xi_debug_logger( "XI_THIS_LAYER_NOT_OPERATIONAL" );
         return XI_STATE_OK;
-    }
-
-    /* if we suppose to reuse the buffer */
-    if ( XI_STATE_WANT_READ == in_out_state && NULL != data_desc )
-    {
-        assert( NULL == layer_data->decoded_buffer );
-
-        layer_data->decoded_buffer = data_desc;
-        assert( layer_data->decoded_buffer - layer_data->decoded_buffer == 0 );
-        layer_data->decoded_buffer->curr_pos = 0;
-        layer_data->decoded_buffer->length   = 0;
-        memset( layer_data->decoded_buffer->data_ptr, 0, XI_IO_BUFFER_SIZE );
     }
 
     /* if recv buffer is empty than create one */
@@ -333,6 +326,13 @@ static xi_state_t recv_handler( void* context, void* data, xi_state_t in_out_sta
 
     xi_data_desc_t* ret_buffer = layer_data->decoded_buffer;
     layer_data->decoded_buffer = NULL;
+
+    if ( NULL != layer_data->raw_buffer ||
+         xi_bsp_tls_pending( layer_data->tls_context ) > 0 )
+    {
+        xi_debug_logger( "XI_PROCESS_PULL_ON_THIS_LAYER" );
+        XI_PROCESS_PULL_ON_THIS_LAYER( context, NULL, XI_STATE_WANT_READ );
+    }
 
     XI_CR_EXIT( layer_data->tls_layer_recv_cs,
                 XI_PROCESS_PULL_ON_NEXT_LAYER( context, ret_buffer, XI_STATE_OK ) );

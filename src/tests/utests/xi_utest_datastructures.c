@@ -10,9 +10,7 @@
 #include "xi_utest_basic_testcase_frame.h"
 
 #include "xi_vector.h"
-
 #include "xi_memory_checks.h"
-#include "xi_rng.h"
 
 #include <errno.h>
 #include <stdio.h>

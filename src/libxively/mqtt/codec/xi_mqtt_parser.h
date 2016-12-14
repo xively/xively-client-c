@@ -31,6 +31,7 @@ typedef struct xi_mqtt_parser_s
 {
     xi_mqtt_error_t error;
     uint16_t cs;
+    uint16_t read_cs;
     char buffer_pending;
     uint8_t* buffer;
     size_t buffer_length;

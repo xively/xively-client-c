@@ -20,8 +20,9 @@
 static xi_state_t
 read_string( xi_mqtt_parser_t* parser, xi_data_desc_t** dst, xi_data_desc_t* src )
 {
-    /* coroutine state */
-    static uint16_t cs = 0;
+    assert( NULL != parser );
+    assert( NULL != dst );
+    assert( NULL != src );
 
     /* local state */
     xi_state_t local_state = XI_STATE_OK;
@@ -30,7 +31,7 @@ read_string( xi_mqtt_parser_t* parser, xi_data_desc_t** dst, xi_data_desc_t* src
     size_t len_to_read     = 0;
 
     /* check for the existance of the data descriptor */
-    if ( *dst == NULL )
+    if ( NULL == *dst )
     {
         XI_CHECK_MEMORY( *dst = xi_make_empty_desc_alloc( 4 ), local_state );
     }
@@ -40,14 +41,16 @@ read_string( xi_mqtt_parser_t* parser, xi_data_desc_t** dst, xi_data_desc_t* src
     src_left    = src->length - src->curr_pos;
     len_to_read = XI_MIN( to_read, src_left );
 
-    XI_CR_START( cs );
+    XI_CR_START( parser->read_cs );
 
-    XI_CR_YIELD_ON( cs, ( ( src->curr_pos - src->length ) == 0 ), XI_STATE_WANT_READ );
+    XI_CR_YIELD_ON( parser->read_cs, ( ( src->curr_pos - src->length ) == 0 ),
+                    XI_STATE_WANT_READ );
     parser->str_length = ( src->data_ptr[src->curr_pos] << 8 );
     src->curr_pos += 1;
     parser->data_length += 1;
 
-    XI_CR_YIELD_ON( cs, ( ( src->curr_pos - src->length ) == 0 ), XI_STATE_WANT_READ );
+    XI_CR_YIELD_ON( parser->read_cs, ( ( src->curr_pos - src->length ) == 0 ),
+                    XI_STATE_WANT_READ );
     parser->str_length += src->data_ptr[src->curr_pos];
     src->curr_pos += 1;
     parser->data_length += 1;
@@ -56,7 +59,8 @@ read_string( xi_mqtt_parser_t* parser, xi_data_desc_t** dst, xi_data_desc_t* src
     src_left    = src->length - src->curr_pos;
     len_to_read = XI_MIN( to_read, src_left );
 
-    XI_CR_YIELD_ON( cs, ( ( src->curr_pos - src->length ) == 0 ), XI_STATE_WANT_READ );
+    XI_CR_YIELD_ON( parser->read_cs, ( ( src->curr_pos - src->length ) == 0 ),
+                    XI_STATE_WANT_READ );
 
     /* @TODO code duplication with read_data -> solve this via
      * code extraction to separate function */
@@ -70,13 +74,14 @@ read_string( xi_mqtt_parser_t* parser, xi_data_desc_t** dst, xi_data_desc_t* src
         to_read -= len_to_read;
         parser->data_length += len_to_read;
 
-        XI_CR_YIELD_UNTIL( cs, ( to_read > 0 ), XI_STATE_WANT_READ );
+        XI_CR_YIELD_UNTIL( parser->read_cs, ( to_read > 0 ), XI_STATE_WANT_READ );
     }
 
-    XI_CR_RESTART( cs, ( to_read == 0 ? XI_STATE_OK : XI_MQTT_PARSER_ERROR ) );
+    XI_CR_RESTART( parser->read_cs,
+                   ( to_read == 0 ? XI_STATE_OK : XI_MQTT_PARSER_ERROR ) );
 
 err_handling:
-    XI_CR_EXIT( cs, local_state );
+    XI_CR_EXIT( parser->read_cs, local_state );
 
     XI_CR_END();
 }
@@ -84,7 +89,7 @@ err_handling:
 xi_state_t
 xi_mqtt_parse_suback_response( xi_mqtt_suback_status_t* dst, const uint8_t resp )
 {
-    assert( dst != NULL );
+    assert( NULL != dst );
 
     switch ( resp )
     {
@@ -104,12 +109,9 @@ xi_mqtt_parse_suback_response( xi_mqtt_suback_status_t* dst, const uint8_t resp 
 static xi_state_t
 read_data( xi_mqtt_parser_t* parser, xi_data_desc_t** dst, xi_data_desc_t* src )
 {
-    assert( parser != 0 );
-    assert( dst != 0 );
-    assert( src != 0 );
-
-    /* coroutine state */
-    static uint16_t cs = 0;
+    assert( NULL != parser );
+    assert( NULL != dst );
+    assert( NULL != src );
 
     /* local state */
     xi_state_t local_state = XI_STATE_OK;
@@ -117,7 +119,7 @@ read_data( xi_mqtt_parser_t* parser, xi_data_desc_t** dst, xi_data_desc_t* src )
     size_t src_left        = 0;
     size_t len_to_read     = 0;
 
-    if ( *dst == NULL )
+    if ( NULL == *dst )
     {
         XI_CHECK_MEMORY( *dst = xi_make_empty_desc_alloc( 4 ), local_state );
     }
@@ -127,9 +129,10 @@ read_data( xi_mqtt_parser_t* parser, xi_data_desc_t** dst, xi_data_desc_t* src )
     src_left    = src->length - src->curr_pos;
     len_to_read = XI_MIN( to_read, src_left );
 
-    XI_CR_START( cs );
+    XI_CR_START( parser->read_cs );
 
-    XI_CR_YIELD_ON( cs, ( ( src->curr_pos - src->length ) == 0 ), XI_STATE_WANT_READ );
+    XI_CR_YIELD_ON( parser->read_cs, ( ( src->curr_pos - src->length ) == 0 ),
+                    XI_STATE_WANT_READ );
 
     while ( to_read > 0 )
     {
@@ -140,13 +143,14 @@ read_data( xi_mqtt_parser_t* parser, xi_data_desc_t** dst, xi_data_desc_t* src )
         src->curr_pos += len_to_read;
         to_read -= len_to_read;
 
-        XI_CR_YIELD_UNTIL( cs, ( to_read > 0 ), XI_STATE_WANT_READ );
+        XI_CR_YIELD_UNTIL( parser->read_cs, ( to_read > 0 ), XI_STATE_WANT_READ );
     }
 
-    XI_CR_RESTART( cs, ( to_read == 0 ? XI_STATE_OK : XI_MQTT_PARSER_ERROR ) );
+    XI_CR_RESTART( parser->read_cs,
+                   ( to_read == 0 ? XI_STATE_OK : XI_MQTT_PARSER_ERROR ) );
 
 err_handling:
-    XI_CR_EXIT( cs, local_state );
+    XI_CR_EXIT( parser->read_cs, local_state );
 
     XI_CR_END();
 }
@@ -495,6 +499,7 @@ xi_state_t xi_mqtt_parser_execute( xi_mqtt_parser_t* parser,
     {
         xi_debug_logger( "XI_MQTT_ERROR_PARSER_INVALID_MESSAGE_ID" );
         parser->error = XI_MQTT_ERROR_PARSER_INVALID_MESSAGE_ID;
+        XI_CR_RESET( parser->read_cs );
         XI_CR_EXIT( parser->cs, XI_MQTT_PARSER_ERROR );
     }
 

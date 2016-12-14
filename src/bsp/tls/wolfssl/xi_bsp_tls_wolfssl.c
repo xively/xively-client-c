@@ -420,3 +420,14 @@ xi_bsp_tls_state_t xi_bsp_tls_cleanup( xi_bsp_tls_context_t** tls_context )
 
     return XI_BSP_TLS_STATE_OK;
 }
+
+int xi_bsp_tls_pending( xi_bsp_tls_context_t* tls_context )
+{
+    wolfssl_debug_format( "[ %s ]", __FUNCTION__ );
+
+    /* get back the wolfssl_tls_context */
+    wolfssl_tls_context_t* wolfssl_tls_context = tls_context;
+    assert( NULL != wolfssl_tls_context->obj );
+
+    return CyaSSL_pending( wolfssl_tls_context->obj );
+}
