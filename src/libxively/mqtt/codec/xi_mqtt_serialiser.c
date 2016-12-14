@@ -182,14 +182,17 @@ xi_mqtt_serialiser_rc_t xi_mqtt_serialiser_write( xi_mqtt_serialiser_t* serialis
 {
     XI_UNUSED( message_len );
 
+    size_t tmp_remaining_len = 0;
+    uint32_t value           = 0;
+
     WRITE_8( buffer, message->common.common_u.common_value );
 
-    size_t tmp_remaining_len = remaining_len;
+    tmp_remaining_len = remaining_len;
 
     do
     {
         /* mask the least significant 7 bits */
-        uint32_t value = tmp_remaining_len & 0x7f;
+        value = tmp_remaining_len & 0x7f;
 
         /* shift so the rest of the number become availible */
         tmp_remaining_len >>= 7;

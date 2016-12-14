@@ -472,7 +472,13 @@ xi_state_t xi_connect_with_lastwill_to_impl( xi_context_handle_t xih,
                                              xi_mqtt_retain_t will_retain,
                                              xi_user_callback_t* client_callback )
 {
-    xi_state_t state = XI_STATE_OK;
+    xi_state_t state               = XI_STATE_OK;
+    xi_context_t* xi               = NULL;
+    xi_event_handle_t event_handle = xi_make_empty_event_handle();
+    xi_state_t local_state         = XI_STATE_OK;
+    xi_layer_t* input_layer        = NULL;
+    uint32_t new_backoff           = 0;
+    XI_UNUSED( local_state );
 
     XI_CHECK_CND_DBGMESSAGE( NULL == host, XI_NULL_HOST, state,
                              "ERROR: NULL host provided" );
@@ -480,19 +486,17 @@ xi_state_t xi_connect_with_lastwill_to_impl( xi_context_handle_t xih,
     XI_CHECK_CND_DBGMESSAGE( XI_INVALID_CONTEXT_HANDLE >= xih, XI_NULL_CONTEXT, state,
                              "ERROR: invalid context handle provided" );
 
-    xi_context_t* xi = xi_object_for_handle( xi_globals.context_handles_vector, xih );
+    xi = xi_object_for_handle( xi_globals.context_handles_vector, xih );
 
     XI_CHECK_CND_DBGMESSAGE( NULL == xi, XI_NULL_CONTEXT, state,
                              "ERROR: NULL context provided" );
 
     assert( NULL != client_callback );
 
-    xi_event_handle_t event_handle =
+
+    event_handle =
         xi_make_threaded_handle( XI_THREADID_THREAD_0, &xi_user_callback_wrapper, xi,
                                  NULL, XI_STATE_OK, ( void* )client_callback );
-
-    xi_state_t local_state = XI_STATE_OK;
-    XI_UNUSED( local_state );
 
     /* guard against adding two connection requests */
     if ( NULL != xi->context_data.connect_handler.ptr_to_position )
@@ -521,8 +525,7 @@ xi_state_t xi_connect_with_lastwill_to_impl( xi_context_handle_t xih,
 
     xi_debug_format( "connecting with username = \"%s\"", username );
 
-    xi_layer_t* input_layer = xi->layer_chain.top;
-
+    input_layer  = xi->layer_chain.top;
     xi->protocol = XI_MQTT;
 
     if ( NULL != xi->context_data.connection_data )
@@ -554,7 +557,7 @@ xi_state_t xi_connect_with_lastwill_to_impl( xi_context_handle_t xih,
     /* set the connection callback */
     xi->context_data.connection_callback = event_handle;
 
-    const uint32_t new_backoff = xi_get_backoff_penalty();
+    new_backoff = xi_get_backoff_penalty();
 
     xi_debug_format( "new backoff value: %d", new_backoff );
 
@@ -586,8 +589,8 @@ xi_state_t xi_connect( xi_context_handle_t xih,
         xih, XI_MQTT_HOST_ACCESSOR.name, XI_MQTT_HOST_ACCESSOR.port, username, password,
         connection_timeout, keepalive_timeout, session_type, NULL, /* will_topic */
         NULL,                                                      /* will_message */
-        0,                                                         /* will_qos */
-        0,                                                         /* will_retain */
+        ( xi_mqtt_qos_t )0,                                        /* will_qos */
+        ( xi_mqtt_retain_t )0,                                     /* will_retain */
         client_callback );
 }
 
@@ -603,10 +606,10 @@ xi_state_t xi_connect_to( xi_context_handle_t xih,
 {
     return xi_connect_with_lastwill_to_impl( xih, host, port, username, password,
                                              connection_timeout, keepalive_timeout,
-                                             session_type, NULL, /* will_topic */
-                                             NULL,               /* will_message */
-                                             0,                  /* will_qos */
-                                             0,                  /* will_retain */
+                                             session_type, NULL,    /* will_topic */
+                                             NULL,                  /* will_message */
+                                             ( xi_mqtt_qos_t )0,    /* will_qos */
+                                             ( xi_mqtt_retain_t )0, /* will_retain */
                                              client_callback );
 }
 
@@ -818,6 +821,13 @@ xi_state_t xi_publish_formatted_timeseries( xi_context_handle_t xih,
     const char* string_value = NULL;
     const char* category     = NULL;
 
+    const int num_control_chars = 5; /* 3x Commas
+                                      , 1x New Line
+                                      , 1x Null Terminator */
+    static const char* format_template = "%s,%s,%s,%s\n";
+    int final_size                     = 0;
+    int total_size                     = 0;
+
     /* points to the string that we will eventually format using snprintf */
     char* final_buffer = NULL;
 
@@ -911,20 +921,14 @@ xi_state_t xi_publish_formatted_timeseries( xi_context_handle_t xih,
         XI_INVALID_PARAMETER, state,
         "ERROR: Need at least one of category, string value, or numeric_value" );
 
-    const int num_control_chars = 5; /* 3x Commas
-                                      , 1x New Line
-                                      , 1x Null Terminator */
-
-    const int total_size = num_chars_time + num_chars_category + num_chars_string_value +
-                           num_chars_numeric_value + num_control_chars;
+    total_size = num_chars_time + num_chars_category + num_chars_string_value +
+                 num_chars_numeric_value + num_control_chars;
 
     XI_ALLOC_BUFFER_AT( char, final_buffer, total_size, state );
 
     /* format the result */
-    static const char* format_template = "%s,%s,%s,%s\n";
-    const int final_size =
-        snprintf( final_buffer, total_size, format_template, time_string, category,
-                  numeric_string, string_value );
+    final_size = snprintf( final_buffer, total_size, format_template, time_string,
+                           category, numeric_string, string_value );
 
     XI_CHECK_CND_DBGMESSAGE( final_size == total_size, XI_SERIALIZATION_ERROR, state,
                              "ERROR: Final Size / Computed Size Mismatch" );
@@ -984,16 +988,18 @@ xi_state_t xi_subscribe( xi_context_handle_t xih,
         return XI_INVALID_PARAMETER;
     }
 
-    xi_state_t state           = XI_STATE_OK;
-    xi_mqtt_logic_task_t* task = NULL;
-    char* internal_topic       = NULL;
+    xi_state_t state               = XI_STATE_OK;
+    xi_mqtt_logic_task_t* task     = NULL;
+    char* internal_topic           = NULL;
+    xi_layer_t* input_layer        = NULL;
+    xi_event_handle_t event_handle = xi_make_empty_event_handle();
 
     xi_context_t* xi =
         ( xi_context_t* )xi_object_for_handle( xi_globals.context_handles_vector, xih );
 
     XI_CHECK_MEMORY( xi, state );
 
-    xi_event_handle_t event_handle = xi_make_threaded_handle(
+    event_handle = xi_make_threaded_handle(
         XI_THREADID_THREAD_0, &xi_user_sub_call_wrapper, xi, NULL, XI_STATE_OK,
         ( void* )callback, ( void* )user_data, ( void* )NULL );
 
@@ -1011,7 +1017,7 @@ xi_state_t xi_subscribe( xi_context_handle_t xih,
 
     XI_CHECK_MEMORY( internal_topic, state );
 
-    xi_layer_t* input_layer = xi->layer_chain.top;
+    input_layer = xi->layer_chain.top;
 
     event_handle.handlers.h6.a1 = xi;
 
@@ -1076,7 +1082,6 @@ xi_state_t xi_shutdown_connection( xi_context_handle_t xih )
         case XI_SHUTDOWN_STARTED:
             xi_debug_logger( "XI_ALREADY_INITIALIZED" );
             return XI_ALREADY_INITIALIZED;
-            break;
         default:
             return XI_INTERNAL_ERROR;
     }
