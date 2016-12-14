@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+	<storageModule moduleId="org.eclipse.cdt.core.settings">
+		<cconfiguration id="fr.ac6.managedbuild.config.gnu.cross.lib.debug.1350444770">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="fr.ac6.managedbuild.config.gnu.cross.lib.debug.1350444770" moduleId="org.eclipse.cdt.core.settings" name="Debug">
+				<externalSettings>
+					<externalSetting>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/WolfSSL"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/WolfSSL/Debug"/>
+						<entry flags="RESOLVED" kind="libraryFile" name="WolfSSL" srcPrefixMapping="" srcRootPath=""/>
+					</externalSetting>
+				</externalSettings>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="" id="fr.ac6.managedbuild.config.gnu.cross.lib.debug.1350444770" name="Debug" parent="fr.ac6.managedbuild.config.gnu.cross.lib.debug">
+					<folderInfo id="fr.ac6.managedbuild.config.gnu.cross.lib.debug.1350444770." name="/" resourcePath="">
+						<toolChain id="fr.ac6.managedbuild.toolchain.gnu.cross.lib.debug.1553211112" name="Ac6 STM32 MCU GCC" nonInternalBuilderId="cdt.managedbuild.builder.gnu.cross" superClass="fr.ac6.managedbuild.toolchain.gnu.cross.lib.debug">
+							<option id="fr.ac6.managedbuild.option.gnu.cross.mcu.1828910842" name="Mcu" superClass="fr.ac6.managedbuild.option.gnu.cross.mcu" value="STM32F417IGHx" valueType="string"/>
+							<option id="fr.ac6.managedbuild.option.gnu.cross.board.2078449362" name="Board" superClass="fr.ac6.managedbuild.option.gnu.cross.board" value="STM3241G-EVAL" valueType="string"/>
+							<option id="fr.ac6.managedbuild.option.gnu.cross.fpu.1741293032" name="Floating point hardware" superClass="fr.ac6.managedbuild.option.gnu.cross.fpu" value="fr.ac6.managedbuild.option.gnu.cross.fpu.fpv4-sp-d16" valueType="enumerated"/>
+							<option id="fr.ac6.managedbuild.option.gnu.cross.floatabi.1071307105" name="Floating-point ABI" superClass="fr.ac6.managedbuild.option.gnu.cross.floatabi" value="fr.ac6.managedbuild.option.gnu.cross.floatabi.hard" valueType="enumerated"/>
+							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="fr.ac6.managedbuild.targetPlatform.gnu.cross.524568587" isAbstract="false" osList="all" superClass="fr.ac6.managedbuild.targetPlatform.gnu.cross"/>
+							<builder buildPath="${workspace_loc:/WolfSSL}/Debug" id="cdt.managedbuild.builder.gnu.cross.875303408" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" parallelBuildOn="true" parallelizationNumber="optimal" superClass="cdt.managedbuild.builder.gnu.cross"/>
+							<tool id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.1958933703" name="MCU GCC Compiler" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler">
+								<option id="fr.ac6.managedbuild.gnu.c.compiler.option.optimization.level.351840455" name="Optimization Level" superClass="fr.ac6.managedbuild.gnu.c.compiler.option.optimization.level" useByScannerDiscovery="false" value="fr.ac6.managedbuild.gnu.c.optimization.level.none" valueType="enumerated"/>
+								<option id="gnu.c.compiler.option.debugging.level.832274418" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.c.debugging.level.max" valueType="enumerated"/>
+								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1036635083" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="STM32F417IGHx"/>
+									<listOptionValue builtIn="false" value="STM32F4"/>
+									<listOptionValue builtIn="false" value="STM32"/>
+									<listOptionValue builtIn="false" value="STM3241G_EVAL"/>
+									<listOptionValue builtIn="false" value="DEBUG"/>
+									<listOptionValue builtIn="false" value="NO_DH"/>
+									<listOptionValue builtIn="false" value="NO_DES"/>
+									<listOptionValue builtIn="false" value="NO_DES3"/>
+									<listOptionValue builtIn="false" value="NO_DSA"/>
+									<listOptionValue builtIn="false" value="NO_HC128"/>
+									<listOptionValue builtIn="false" value="NO_MD4"/>
+									<listOptionValue builtIn="false" value="NO_OLD_TLS"/>
+									<listOptionValue builtIn="false" value="NO_PSK"/>
+									<listOptionValue builtIn="false" value="NO_PWDBASED"/>
+									<listOptionValue builtIn="false" value="NO_RC4"/>
+									<listOptionValue builtIn="false" value="NO_RABBIT"/>
+									<listOptionValue builtIn="false" value="NO_SHA512"/>
+									<listOptionValue builtIn="false" value="SINGLE_THREADED"/>
+									<listOptionValue builtIn="false" value="CUSTOM_RAND_GENERATE=xively_ssl_rand_generate"/>
+									<listOptionValue builtIn="false" value="HAVE_SNI"/>
+									<listOptionValue builtIn="false" value="HAVE_OCSP"/>
+									<listOptionValue builtIn="false" value="HAVE_CERTIFICATE_STATUS_REQUEST"/>
+									<listOptionValue builtIn="false" value="SMALL_SESSION_CACHE"/>
+									<listOptionValue builtIn="false" value="NO_CLIENT_CACHE"/>
+									<listOptionValue builtIn="false" value="WOLFSSL_SMALL_STACK"/>
+									<listOptionValue builtIn="false" value="WOLFSSL_USER_IO"/>
+									<listOptionValue builtIn="false" value="SIZEOF_LONG_LONG=8"/>
+									<listOptionValue builtIn="false" value="NO_WRITEV"/>
+									<listOptionValue builtIn="false" value="NO_WOLFSSL_DIR"/>
+									<listOptionValue builtIn="false" value="USE_FAST_MATH"/>
+									<listOptionValue builtIn="false" value="TFM_TIMING_RESISTANT"/>
+									<listOptionValue builtIn="false" value="NO_DEV_RANDOM"/>
+									<listOptionValue builtIn="false" value="NO_FILESYSTEM"/>
+									<listOptionValue builtIn="false" value="USE_CERT_BUFFERS_2048"/>
+									<listOptionValue builtIn="false" value="NO_ERROR_STRINGS"/>
+									<listOptionValue builtIn="false" value="NO_SERVER"/>
+									<listOptionValue builtIn="false" value="USER_TIME"/>
+									<listOptionValue builtIn="false" value="HAVE_ECC"/>
+									<listOptionValue builtIn="false" value="HAVE_TLS_EXTENSIONS"/>
+									<listOptionValue builtIn="false" value="HAVE_AESGCM"/>
+									<listOptionValue builtIn="false" value="ALT_ECC_SIZE"/>
+								</option>
+								<option id="gnu.c.compiler.option.include.paths.646785072" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="/Users/ohumenczuk/workspace/tools/wolfssl/wolfssl"/>
+									<listOptionValue builtIn="false" value="/Users/ohumenczuk/workspace/tools/wolfssl/"/>
+									<listOptionValue builtIn="false" value="/Users/ohumenczuk/workspace/tools/wolfssl/wolfssl/wolfcrypt"/>
+								</option>
+								<option id="gnu.c.compiler.option.dialect.std.1603715164" name="Language standard" superClass="gnu.c.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.c.compiler.dialect.default" valueType="enumerated"/>
+								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c.636640763" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c"/>
+								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.s.586174557" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.s"/>
+							</tool>
+							<tool id="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.1914164281" name="MCU G++ Compiler" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler">
+								<option id="fr.ac6.managedbuild.gnu.cpp.compiler.option.optimization.level.517102011" name="Optimization Level" superClass="fr.ac6.managedbuild.gnu.cpp.compiler.option.optimization.level" useByScannerDiscovery="false"/>
+								<option id="gnu.cpp.compiler.option.debugging.level.2009425744" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
+							</tool>
+							<tool id="fr.ac6.managedbuild.tool.gnu.cross.c.linker.814887377" name="MCU GCC Linker" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.linker"/>
+							<tool id="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker.1927276733" name="MCU G++ Linker" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker"/>
+							<tool id="fr.ac6.managedbuild.tool.gnu.archiver.1658727623" name="MCU GCC Archiver" superClass="fr.ac6.managedbuild.tool.gnu.archiver"/>
+							<tool id="fr.ac6.managedbuild.tool.gnu.cross.assembler.369298046" name="MCU GCC Assembler" superClass="fr.ac6.managedbuild.tool.gnu.cross.assembler">
+								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.109658704" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.assembler.input.1710072460" superClass="fr.ac6.managedbuild.tool.gnu.cross.assembler.input"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+		<cconfiguration id="fr.ac6.managedbuild.config.gnu.cross.lib.release.1738121428">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="fr.ac6.managedbuild.config.gnu.cross.lib.release.1738121428" moduleId="org.eclipse.cdt.core.settings" name="Release">
+				<externalSettings>
+					<externalSetting>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/WolfSSL"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/WolfSSL/Release"/>
+						<entry flags="RESOLVED" kind="libraryFile" name="WolfSSL" srcPrefixMapping="" srcRootPath=""/>
+					</externalSetting>
+				</externalSettings>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactExtension="a" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.staticLib" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.staticLib,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release" cleanCommand="rm -rf" description="" id="fr.ac6.managedbuild.config.gnu.cross.lib.release.1738121428" name="Release" parent="fr.ac6.managedbuild.config.gnu.cross.lib.release">
+					<folderInfo id="fr.ac6.managedbuild.config.gnu.cross.lib.release.1738121428." name="/" resourcePath="">
+						<toolChain id="fr.ac6.managedbuild.toolchain.gnu.cross.lib.release.659286730" name="Ac6 STM32 MCU GCC" nonInternalBuilderId="fr.ac6.managedbuild.builder.gnu.cross" superClass="fr.ac6.managedbuild.toolchain.gnu.cross.lib.release">
+							<option id="fr.ac6.managedbuild.option.gnu.cross.mcu.799858877" name="Mcu" superClass="fr.ac6.managedbuild.option.gnu.cross.mcu" value="STM32F417IGHx" valueType="string"/>
+							<option id="fr.ac6.managedbuild.option.gnu.cross.board.529460917" name="Board" superClass="fr.ac6.managedbuild.option.gnu.cross.board" value="STM3241G-EVAL" valueType="string"/>
+							<option id="fr.ac6.managedbuild.option.gnu.cross.fpu.1667573521" name="Floating point hardware" superClass="fr.ac6.managedbuild.option.gnu.cross.fpu" value="fr.ac6.managedbuild.option.gnu.cross.fpu.fpv4-sp-d16" valueType="enumerated"/>
+							<option id="fr.ac6.managedbuild.option.gnu.cross.floatabi.446115552" name="Floating-point ABI" superClass="fr.ac6.managedbuild.option.gnu.cross.floatabi" value="fr.ac6.managedbuild.option.gnu.cross.floatabi.hard" valueType="enumerated"/>
+							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="fr.ac6.managedbuild.targetPlatform.gnu.cross.523488159" isAbstract="false" osList="all" superClass="fr.ac6.managedbuild.targetPlatform.gnu.cross"/>
+							<builder buildPath="${workspace_loc:/WolfSSL}/Release" id="fr.ac6.managedbuild.builder.gnu.cross.1927863664" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="fr.ac6.managedbuild.builder.gnu.cross"/>
+							<tool id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.838089671" name="MCU GCC Compiler" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler">
+								<option id="fr.ac6.managedbuild.gnu.c.compiler.option.optimization.level.487107697" name="Optimization Level" superClass="fr.ac6.managedbuild.gnu.c.compiler.option.optimization.level" useByScannerDiscovery="false" value="fr.ac6.managedbuild.gnu.c.optimization.level.size" valueType="enumerated"/>
+								<option id="gnu.c.compiler.option.debugging.level.2045341652" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.c.debugging.level.none" valueType="enumerated"/>
+								<option id="gnu.c.compiler.option.preprocessor.def.symbols.135258451" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="STM32F417IGHx"/>
+									<listOptionValue builtIn="false" value="STM32F4"/>
+									<listOptionValue builtIn="false" value="STM32"/>
+									<listOptionValue builtIn="false" value="STM3241G_EVAL"/>
+									<listOptionValue builtIn="false" value="NO_DH"/>
+									<listOptionValue builtIn="false" value="NO_DES"/>
+									<listOptionValue builtIn="false" value="NO_DES3"/>
+									<listOptionValue builtIn="false" value="NO_DSA"/>
+									<listOptionValue builtIn="false" value="NO_HC128"/>
+									<listOptionValue builtIn="false" value="NO_MD4"/>
+									<listOptionValue builtIn="false" value="NO_OLD_TLS"/>
+									<listOptionValue builtIn="false" value="NO_PSK"/>
+									<listOptionValue builtIn="false" value="NO_PWDBASED"/>
+									<listOptionValue builtIn="false" value="NO_RC4"/>
+									<listOptionValue builtIn="false" value="NO_RABBIT"/>
+									<listOptionValue builtIn="false" value="NO_SHA512"/>
+									<listOptionValue builtIn="false" value="SINGLE_THREADED"/>
+									<listOptionValue builtIn="false" value="CUSTOM_RAND_GENERATE=xively_ssl_rand_generate"/>
+									<listOptionValue builtIn="false" value="HAVE_SNI"/>
+									<listOptionValue builtIn="false" value="HAVE_OCSP"/>
+									<listOptionValue builtIn="false" value="HAVE_CERTIFICATE_STATUS_REQUEST"/>
+									<listOptionValue builtIn="false" value="SMALL_SESSION_CACHE"/>
+									<listOptionValue builtIn="false" value="NO_CLIENT_CACHE"/>
+									<listOptionValue builtIn="false" value="WOLFSSL_SMALL_STACK"/>
+									<listOptionValue builtIn="false" value="WOLFSSL_USER_IO"/>
+									<listOptionValue builtIn="false" value="SIZEOF_LONG_LONG=8"/>
+									<listOptionValue builtIn="false" value="NO_WRITEV"/>
+									<listOptionValue builtIn="false" value="NO_WOLFSSL_DIR"/>
+									<listOptionValue builtIn="false" value="USE_FAST_MATH"/>
+									<listOptionValue builtIn="false" value="TFM_TIMING_RESISTANT"/>
+									<listOptionValue builtIn="false" value="NO_DEV_RANDOM"/>
+									<listOptionValue builtIn="false" value="NO_FILESYSTEM"/>
+									<listOptionValue builtIn="false" value="USE_CERT_BUFFERS_2048"/>
+									<listOptionValue builtIn="false" value="NO_ERROR_STRINGS"/>
+									<listOptionValue builtIn="false" value="NO_SERVER"/>
+									<listOptionValue builtIn="false" value="USER_TIME"/>
+									<listOptionValue builtIn="false" value="HAVE_ECC"/>
+									<listOptionValue builtIn="false" value="HAVE_TLS_EXTENSIONS"/>
+									<listOptionValue builtIn="false" value="HAVE_AESGCM"/>
+									<listOptionValue builtIn="false" value="ALT_ECC_SIZE"/>
+								</option>
+								<option id="gnu.c.compiler.option.include.paths.1604699825" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="/Users/ohumenczuk/workspace/tools/wolfssl"/>
+								</option>
+								<option id="gnu.c.compiler.option.dialect.std.312199135" name="Language standard" superClass="gnu.c.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.c.compiler.dialect.default" valueType="enumerated"/>
+								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c.1154758766" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c"/>
+								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.s.2124738765" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.s"/>
+							</tool>
+							<tool id="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.505472797" name="MCU G++ Compiler" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler">
+								<option id="fr.ac6.managedbuild.gnu.cpp.compiler.option.optimization.level.1755797286" name="Optimization Level" superClass="fr.ac6.managedbuild.gnu.cpp.compiler.option.optimization.level" useByScannerDiscovery="false" value="fr.ac6.managedbuild.gnu.cpp.optimization.level.most" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.debugging.level.285688662" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.none" valueType="enumerated"/>
+							</tool>
+							<tool id="fr.ac6.managedbuild.tool.gnu.cross.c.linker.2016859477" name="MCU GCC Linker" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.linker"/>
+							<tool id="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker.2094497380" name="MCU G++ Linker" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker"/>
+							<tool id="fr.ac6.managedbuild.tool.gnu.archiver.1030730255" name="MCU GCC Archiver" superClass="fr.ac6.managedbuild.tool.gnu.archiver"/>
+							<tool id="fr.ac6.managedbuild.tool.gnu.cross.assembler.1390252929" name="MCU GCC Assembler" superClass="fr.ac6.managedbuild.tool.gnu.cross.assembler">
+								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.667248031" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.assembler.input.1001180014" superClass="fr.ac6.managedbuild.tool.gnu.cross.assembler.input"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+	</storageModule>
+	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+		<project id="WolfSSL.fr.ac6.managedbuild.target.gnu.cross.lib.775918628" name="Static Library" projectType="fr.ac6.managedbuild.target.gnu.cross.lib"/>
+	</storageModule>
+	<storageModule moduleId="scannerConfiguration">
+		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		<scannerConfigBuildInfo instanceId="fr.ac6.managedbuild.config.gnu.cross.lib.release.1738121428;fr.ac6.managedbuild.config.gnu.cross.lib.release.1738121428.;fr.ac6.managedbuild.tool.gnu.cross.c.compiler.838089671;fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c.1154758766">
+			<autodiscovery enabled="false" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="fr.ac6.managedbuild.config.gnu.cross.lib.debug.1350444770;fr.ac6.managedbuild.config.gnu.cross.lib.debug.1350444770.;fr.ac6.managedbuild.tool.gnu.cross.c.compiler.1958933703;fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c.636640763">
+			<autodiscovery enabled="false" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="Debug">
+			<resource resourceType="PROJECT" workspacePath="/WolfSSL"/>
+		</configuration>
+		<configuration configurationName="Release">
+			<resource resourceType="PROJECT" workspacePath="/WolfSSL"/>
+		</configuration>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets">
+		<buildTargets>
+			<target name="all" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments/>
+				<buildTarget>all</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>true</runAllBuilders>
+			</target>
+		</buildTargets>
+	</storageModule>
+</cproject>

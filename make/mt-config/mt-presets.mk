@@ -20,6 +20,8 @@ CONFIG_DUMMY_MIN                =bsp_dummy-memory_fs
 CONFIG_CC3200                   =bsp_cc3200-memory_fs-tls_bsp
 CONFIG_CC3200_TLS_SOCKET        =bsp_cc3200-memory_fs-tls_socket
 
+CONFIG_STM32F4                  =bsp_stm32f4-memory_fs-tls_bsp
+
 # TARGET presets
 TARGET_STATIC_DEV               =-static-debug
 TARGET_STATIC_REL               =-static-release
@@ -96,6 +98,14 @@ else ifeq ($(PRESET), CC3200_TLS_SOCKET)
     XI_TARGET_PLATFORM = cc3200
 
 # -------------------------------------------------------
+# ST Micro STM32F4
+else ifeq ($(PRESET), STM32F4)
+    CONFIG = $(CONFIG_STM32F4)
+    TARGET = $(TARGET_STATIC_REL)
+    XI_BSP_PLATFORM = stm32f4
+    XI_TARGET_PLATFORM = stm32f4
+
+# -------------------------------------------------------
 # Fuzz Tests
 else ifeq ($(PRESET), FUZZ_TESTS)
 	ifeq ($(XI_HOST_PLATFORM),Darwin)
@@ -103,7 +113,7 @@ $(error Fuzz testing won\'t work on OSX)
 	endif
 	CONFIG = $(CONFIG_POSIX_MIN_UNSECURE)_fuzz_test
 	TARGET = $(TARGET_STATIC_REL)
-	XI_BSP_PLATFORM = posix 
+	XI_BSP_PLATFORM = posix
 	XI_BSP_TLS =
 
 # -------------------------------------------------------
