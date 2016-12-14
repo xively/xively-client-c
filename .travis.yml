@@ -30,11 +30,11 @@ env:
     - PRESET=POSIX_THREADING_REL
     - PRESET=POSIX_UNSECURE_REL
       XI_BSP_TLS=""
-    
+
     - TESTS=fuzztests
       PRESET=FUZZ_TESTS
       XI_BSP_TLS=""
-      XI_MAKETARGET="fuzz_tests" 
+      XI_MAKETARGET="fuzz_tests"
 cache:
     apt
 addons:
@@ -48,9 +48,6 @@ addons:
       - g++-6
       - qemu-system
       - libc6:i386
-      - autoconf
-      - autotools-dev
-      - libtool
       - expect
 matrix:
   exclude:
@@ -64,12 +61,12 @@ matrix:
       env: PRESET=CC3200_SDK120 XI_MAKETARGET=""
     - compiler: clang
       env: PRESET=CC3200_TLS_SOCKET XI_MAKETARGET=""
-    - compiler: gcc 
+    - compiler: gcc
       env: TESTS=fuzztests PRESET=FUZZ_TESTS XI_BSP_TLS="" XI_MAKETARGET="fuzz_tests"
 before_script:
   - "if [[ ! $TESTS == 'fuzztests' ]]; then
         if [[ $CC == *'clang'* ]]; then export CC='clang-3.8'; fi;
-     else 
+     else
         if [[ $CC == *'clang'* ]]; then export CC=clang CXX=clang++; fi;
      fi"
 script:
