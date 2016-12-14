@@ -335,6 +335,15 @@ xi_bsp_tls_state_t xi_bsp_tls_write( xi_bsp_tls_context_t* tls_context,
     return XI_BSP_TLS_STATE_WRITE_ERROR;
 }
 
+int xi_bsp_tls_pending( xi_bsp_tls_context_t* tls_context )
+{
+    assert( NULL != tls_context );
+
+    mbedtls_tls_context_t* mbedtls_tls_context = tls_context;
+
+    return ( int )mbedtls_ssl_get_bytes_avail( &mbedtls_tls_context->ssl );
+}
+
 xi_bsp_tls_state_t xi_bsp_tls_cleanup( xi_bsp_tls_context_t** tls_context )
 {
     assert( NULL != tls_context );

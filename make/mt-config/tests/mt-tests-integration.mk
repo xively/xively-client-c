@@ -6,7 +6,7 @@
 include make/mt-config/tests/mt-tests.mk
 
 XI_ITESTS_OBJDIR := $(XI_TEST_OBJDIR)/itests
-XI_ITESTS_CFLAGS := $(XI_CONFIG_FLAGS)
+XI_ITESTS_CFLAGS := $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS)
 
 # CMOCKA LIBRARY SECTION
 CMOCKA_DIR := $(LIBXIVELY)/src/import/cmocka

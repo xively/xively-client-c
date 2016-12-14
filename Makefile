@@ -24,14 +24,15 @@ XI_BSP_TLS ?= wolfssl
 
 include make/mt-config/mt-presets.mk
 
-include make/mt-config/mt-config.mk
-include make/mt-os/mt-os.mk
-include make/mt-os/mt-$(XI_CONST_PLATFORM_CURRENT).mk
-include make/mt-config/mt-examples.mk
-include make/mt-config/tests/mt-tests-tools.mk
-include make/mt-config/tests/mt-tests-unit.mk
-include make/mt-config/tests/mt-tests-integration.mk
-include make/mt-config/mt-help.mk
+include make/mt-config/mt-config
+include make/mt-os/mt-os
+include make/mt-os/mt-$(XI_CONST_PLATFORM_CURRENT)
+include make/mt-config/mt-examples
+include make/mt-config/tests/mt-tests-tools
+include make/mt-config/tests/mt-tests-unit
+include make/mt-config/tests/mt-tests-integration
+include make/mt-config/tests/mt-tests-fuzz.mk
+include make/mt-config/mt-help
 
 ifdef MAKEFILE_DEBUG
 $(info ----- )
@@ -87,7 +88,7 @@ clean_all: clean
 		$(XI_BINDIR_BASE) \
 		$(XI_OBJDIR_BASE)
 	@rm -rf $(CMOCKA_BUILD_DIR)
-	@rm -f $(XI_TEST_OBJDIR)
+	@rm -rf $(XI_TEST_OBJDIR)
 
 libxively: $(XI)
 
@@ -183,10 +184,30 @@ ifneq ($(XI_CONST_PLATFORM_CURRENT),$(XI_CONST_PLATFORM_ARM))
 
 $(XI_ITESTS): $(XI) $(CMOCKA_LIBRARY_DEPS) $(XI_ITEST_OBJS)
 	$(info [$(CC)] $@)
-	$(MD) $(CC) $(XI_ITEST_OBJS) -L$(XI_BINDIR) $(XI_LIB_FLAGS) $(CMOCKA_LIBRARY) -o $@
+	$(MD) $(CC) $(XI_ITEST_OBJS) $(XI_ITESTS_CFLAGS) -L$(XI_BINDIR) $(XI_LIB_FLAGS) $(CMOCKA_LIBRARY) -o $@
 	$(XI_RUN_ITESTS)
-
 endif
+
+$(XI_FUZZ_TESTS_BINDIR)/%: $(XI_FUZZ_TESTS_SOURCE_DIR)/%.cpp
+	@-mkdir -p $(dir $@)
+	$(info [$(CXX)] $@)
+	$(MD) $(CXX) $< $(XI_CONFIG_FLAGS) $(XI_INCLUDE_FLAGS) -L$(XI_BINDIR) -L$(XI_LIBFUZZER_DOWNLOAD_DIR) $(XI_LIB_FLAGS) $(XI_FUZZ_TEST_LIBRARY) -o $@
+
+.PHONY: fuzz_tests
+
+fuzz_tests: $(XI_LIBFUZZER) $(XI_FUZZ_TESTS) $(XI_FUZZ_TESTS_CORPUS_DIRS) $(XI)
+	$(foreach fuzztest, $(XI_FUZZ_TESTS), $(call XI_RUN_FTEST,$(fuzztest)))
+
+$(XI_FUZZ_TESTS): $(XI)
+
+.PHONY: static_analysis
+static_analysis:  $(XI_SOURCES:.c=.sa)
+
+NOW:=$(shell date +"%F-%T")
+
+$(LIBXIVELY)/src/%.sa:
+	$(info [clang-tidy] $(@:.sa=.c))
+	@clang-tidy --checks='clang-analyzer-*,-clang-analyzer-cplusplus*,-clang-analyzer-osx*' $(@:.sa=.c) >> static_analysis_$(NOW).log -- $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS)
 
 .PHONY: static_analysis
 static_analysis:  $(XI_SOURCES:.c=.sa)
