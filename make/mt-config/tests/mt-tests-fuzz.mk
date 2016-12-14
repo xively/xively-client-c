@@ -24,7 +24,7 @@ XI_CLANG_COMPILER_DOWNLOAD_DIR := $(XI_CLANG_TOOLS_DIR)/downloaded_clang_compile
 XI_CLANG_COMPILER_INSTALL_DIR := $(XI_CLANG_TOOLS_DIR)/third_party/llvm-build/Release+Asserts
 XI_CLANG_COMPILER := $(XI_CLANG_COMPILER_INSTALL_DIR)/bin/clang
 
-# This is where the compiler path is being overriden 
+# This is where the compiler path is being overriden
 ifneq (,$(findstring fuzz_test,$(CONFIG)))
 	export PATH := $(XI_CLANG_COMPILER_INSTALL_DIR)/bin:$(PATH)
 endif
@@ -37,7 +37,7 @@ $(XI_CLANG_COMPILER_DOWNLOAD_DIR):
 	(cd $(XI_CLANG_COMPILER_DOWNLOAD_DIR) && git clone $(CLANG_REPOSITORY_URL))
 
 $(XI_CLANG_COMPILER_INSTALL_DIR): $(XI_CLANG_COMPILER_DOWNLOAD_DIR)
-	(cd $(XI_CLANG_COMPILER_DOWNLOAD_DIR) && python2 clang/scripts/update.py) 
+	(cd $(XI_CLANG_COMPILER_DOWNLOAD_DIR) && python2 clang/scripts/update.py)
 
 $(XI_CLANG_COMPILER): $(XI_CLANG_COMPILER_INSTALL_DIR)
 
@@ -53,7 +53,7 @@ XI_LIBFUZZER := $(XI_LIBFUZZER_DOWNLOAD_DIR)/libFuzzer.a
 
 $(XI_LIBFUZZER_DOWNLOAD_DIR):
 	@-mkdir -p $(XI_LIBFUZZER_DOWNLOAD_DIR)
-	git clone $(XI_LIBFUZZER_URL) $(XI_LIBFUZZER_DOWNLOAD_DIR)	
+	git clone $(XI_LIBFUZZER_URL) $(XI_LIBFUZZER_DOWNLOAD_DIR)
 
 $(XI_LIBFUZZER): $(XI_CLANG_COMPILER) $(XI_LIBFUZZER_DOWNLOAD_DIR)
 	(cd $(XI_LIBFUZZER_DOWNLOAD_DIR) && clang++ -c -g -O2 -lstdc++ -std=c++11 *.cpp -IFuzzer && ar ruv libFuzzer.a Fuzzer*.o)
@@ -66,5 +66,8 @@ $(XI_FUZZ_TESTS_CORPUS_DIRS):
 
 build_libfuzzer: $(XI_LIBFUZZER)
 
-include make/mt-config/tests/mt-native
-
+ifneq (,$(findstring arm,$(TARGET)))
+	include make/mt-config/tests/mt-qemu-cortex-m3
+else
+	include make/mt-config/tests/mt-native
+endif
