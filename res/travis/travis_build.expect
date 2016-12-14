@@ -13,5 +13,8 @@ expect {
     "Do you agree to the license of this third party library?" {
       send -- "Y"
       exp_continue
-  }
+    }
 }
+
+catch wait result
+exit [lindex $result 3]
