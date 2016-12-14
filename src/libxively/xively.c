@@ -844,7 +844,7 @@ xi_state_t xi_publish_formatted_timeseries( xi_context_handle_t xih,
     }
     else
     {
-        num_chars_time = snprintf( compute_size_buf, 1, "%u", *time );
+        num_chars_time = snprintf( compute_size_buf, 1, "%" PRIu32, *time );
         XI_CHECK_CND_DBGMESSAGE( num_chars_time <= 0, XI_SERIALIZATION_ERROR, state,
                                  "ERROR: snprintf returned error for sizing time" );
 
@@ -853,7 +853,7 @@ xi_state_t xi_publish_formatted_timeseries( xi_context_handle_t xih,
         XI_ALLOC_BUFFER_AT( char, time_string, num_chars_time + 1, state );
 
         int num_formatted_chars =
-            snprintf( time_string, num_chars_time + 1, "%u", *time );
+            snprintf( time_string, num_chars_time + 1, "%" PRIu32, *time );
         XI_CHECK_CND_DBGMESSAGE( num_formatted_chars != num_chars_time,
                                  XI_SERIALIZATION_ERROR, state,
                                  "ERROR: Final Size / Computed Size Mismatch" );
