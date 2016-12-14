@@ -91,7 +91,7 @@ XI_CONFIG_FLAGS += -DXI_DEBUG_PRINTF=wmprintf
 
 XI_LIB_FLAGS += $(XI_TLS_LIBFLAGS) -lpthread
 
-include make/mt-os/mt-os-common
+include make/mt-os/mt-os-common.mk
 
 $(warning "Unit tests for wmsdk disabled. They will be re-enabled soon by the XCL-842")
 XI_TEST_OBJS :=

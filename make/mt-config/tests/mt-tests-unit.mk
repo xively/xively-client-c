@@ -3,7 +3,7 @@
 # This is part of the Xively C Client library,
 # it is licensed under the BSD 3-Clause license.
 
-include make/mt-config/tests/mt-tests
+include make/mt-config/tests/mt-tests.mk
 
 XI_UTEST_SUITE ?= xi_utests
 XI_UTEST_FIXTURE ?= xi_utest_basic_testcase_frame
