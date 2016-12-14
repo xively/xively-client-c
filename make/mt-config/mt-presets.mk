@@ -92,10 +92,12 @@ else ifeq ($(PRESET), CC3200_TLS_SOCKET)
 # DEFAULT
 else
     ifndef PRESET
+    # default settings in case of undefined
     CONFIG ?= $(CONFIG_POSIX_MIN)
     TARGET ?= $(TARGET_STATIC_REL)
   	    $(info INFO: '$(PRESET)' not detected, using default CONFIG: [$(CONFIG)] and TARGET: [$(TARGET)])
     else
+    # error in case of unrecognised PRESET
     $(error Invalid PRESET, valid presets are : POSIX_DEV_MIN, POSIX_DEV, POSIX_REL_MIN, POSIX_REL, POSIX_UNSECURE_REL, POSIX_THREADING_REL, ARM_REL_MIN, ARM_REL, CC3200, CC3200_TLS_SOCKET )
     endif
 endif
