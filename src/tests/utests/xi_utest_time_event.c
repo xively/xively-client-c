@@ -7,6 +7,7 @@
 #include "tinytest.h"
 #include "tinytest_macros.h"
 #include "xi_tt_testcase_management.h"
+#include "xi_utest_basic_testcase_frame.h"
 #include "xi_memory_checks.h"
 #include "xi_bsp_rng.h"
 
@@ -64,27 +65,35 @@ err_handling:
 
 XI_TT_TESTGROUP_BEGIN( utest_time_event )
 
-XI_TT_TESTCASE( utest__xi_time_event_execute_handle_in__time_event_added, {
-
-    xi_vector_t* vector                      = xi_vector_create();
-    xi_time_event_t time_event               = xi_make_empty_time_event();
-    xi_time_event_handle_t time_event_handle = xi_make_empty_time_event_handle();
-
-    xi_state_t ret_state = xi_time_event_add( vector, &time_event, &time_event_handle );
-
-    tt_assert( ret_state == XI_STATE_OK );
-    tt_assert( time_event_handle.ptr_to_position != NULL );
-
-    xi_vector_destroy( vector );
-
-    tt_int_op( xi_is_whole_memory_deallocated(), >, 0 );
-end:;
-
-} )
-
-XI_TT_TESTCASE(
-    utest__xi_time_event_execute_handle_in__add_TEST_TIME_EVENT_TEST_SIZE_random_time_events,
+XI_TT_TESTCASE_WITH_SETUP(
+    utest__xi_time_event_execute_handle_in__single_time_event_added,
+    xi_utest_setup_basic,
+    xi_utest_teardown_basic,
+    NULL,
     {
+
+        xi_vector_t* vector                      = xi_vector_create();
+        xi_time_event_t time_event               = xi_make_empty_time_event();
+        xi_time_event_handle_t time_event_handle = xi_make_empty_time_event_handle();
+
+        xi_state_t ret_state =
+            xi_time_event_add( vector, &time_event, &time_event_handle );
+
+        tt_assert( ret_state == XI_STATE_OK );
+        tt_assert( time_event_handle.ptr_to_position != NULL );
+
+        xi_vector_destroy( vector );
+    end:;
+    } )
+
+XI_TT_TESTCASE_WITH_SETUP(
+    utest__xi_time_event_execute_handle_in__add_TEST_TIME_EVENT_TEST_SIZE_random_time_events,
+    xi_utest_setup_basic,
+    xi_utest_teardown_basic,
+    NULL,
+    {
+        xi_bsp_rng_init();
+
         xi_vector_t* vector = xi_vector_create();
 
         xi_time_event_handle_t time_event_handles[TEST_TIME_EVENT_TEST_SIZE] = {
@@ -116,14 +125,17 @@ XI_TT_TESTCASE(
         tt_assert( no_elements == TEST_TIME_EVENT_TEST_SIZE );
 
         xi_vector_destroy( vector );
-
-        tt_int_op( xi_is_whole_memory_deallocated(), >, 0 );
-    end:;
+    end:
+        xi_bsp_rng_shutdown();
     } )
 
 
-XI_TT_TESTCASE(
-    utest__xi_time_event_restart_first_element__event_key_and_position_changed_positive, {
+XI_TT_TESTCASE_WITH_SETUP(
+    utest__xi_time_event_restart_first_element__event_key_and_position_changed_positive,
+    xi_utest_setup_basic,
+    xi_utest_teardown_basic,
+    NULL,
+    {
         xi_time_t original_position = 0;
         for ( ; original_position < TEST_TIME_EVENT_TEST_SIZE; ++original_position )
         {
@@ -161,13 +173,16 @@ XI_TT_TESTCASE(
                        *time_event_handles[original_position].ptr_to_position );
 
             xi_vector_destroy( vector );
-            tt_int_op( xi_is_whole_memory_deallocated(), >, 0 );
         }
     end:;
     } )
 
-XI_TT_TESTCASE(
-    utest__xi_time_event_restart_first_element__event_key_and_position_changed_negative, {
+XI_TT_TESTCASE_WITH_SETUP(
+    utest__xi_time_event_restart_first_element__event_key_and_position_changed_negative,
+    xi_utest_setup_basic,
+    xi_utest_teardown_basic,
+    NULL,
+    {
         xi_time_t original_position = 0;
         for ( ; original_position < TEST_TIME_EVENT_TEST_SIZE; ++original_position )
         {
@@ -204,13 +219,16 @@ XI_TT_TESTCASE(
                        *time_event_handles[original_position].ptr_to_position );
 
             xi_vector_destroy( vector );
-            tt_int_op( xi_is_whole_memory_deallocated(), >, 0 );
         }
     end:;
     } )
 
-XI_TT_TESTCASE(
-    utest__xi_time_event_cancel_all_elements__elements_removed_their_handlers_cleared, {
+XI_TT_TESTCASE_WITH_SETUP(
+    utest__xi_time_event_cancel_all_elements__elements_removed_their_handlers_cleared,
+    xi_utest_setup_basic,
+    xi_utest_teardown_basic,
+    NULL,
+    {
 
         xi_vector_t* vector = xi_vector_create();
 
@@ -248,7 +266,6 @@ XI_TT_TESTCASE(
         }
 
         xi_vector_destroy( vector );
-        tt_int_op( xi_is_whole_memory_deallocated(), >, 0 );
     end:;
     } )
 
