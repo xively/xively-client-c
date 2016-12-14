@@ -13,6 +13,9 @@ XI ?= $(XI_BINDIR)/libxively.a
 ###
 COMPILER ?= arm_15.12.3.LTS
 
+XI_CC3200_SDK ?= CC3200SDK_1.1.0
+$(info .    XI_CC3200_SDK:   [$(XI_CC3200_SDK)] )
+
 ###
 ## MAC HOST OS
 ###
@@ -20,7 +23,7 @@ ifeq ($(XI_HOST_PLATFORM),Darwin)
 	# osx cross-compilation downloads
 
 	XI_CC3200_PATH_CCS_TOOLS ?= /Applications/ti/ccsv6/tools
-	XI_CC3200_PATH_SDK ?= $(HOME)/ti/tirex-content/CC3200SDK_1.1.0/cc3200-sdk
+	XI_CC3200_PATH_SDK ?= $(HOME)/ti/tirex-content/$(XI_CC3200_SDK)/cc3200-sdk
 
 	CC = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armcl
 	AR = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armar
@@ -32,7 +35,7 @@ else ifneq (,$(findstring Windows,$(XI_HOST_PLATFORM)))
 	# windows cross-compilation
 
 	XI_CC3200_PATH_CCS_TOOLS ?= C:/ti/ccsv6/tools
-	XI_CC3200_PATH_SDK ?= C:/ti/tirex-content/CC3200SDK_1.1.0/cc3200-sdk/
+	XI_CC3200_PATH_SDK ?= C:/ti/tirex-content/$(XI_CC3200_SDK)/cc3200-sdk/
 
 	CC = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armcl
 	AR = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armar
@@ -43,8 +46,8 @@ else ifneq (,$(findstring Windows,$(XI_HOST_PLATFORM)))
 else ifeq ($(XI_HOST_PLATFORM),Linux)
 	# linux cross-compilation prerequisite downloads
 
-	XI_CC3200_PATH_CCS_TOOLS ?= $(HOME)/Downloads/xi_artifactory/ti/ccsv6/tools
-	XI_CC3200_PATH_SDK ?= $(HOME)/Downloads/xi_artifactory/ti/CC3200SDK_1.2.0/cc3200-sdk
+	XI_CC3200_PATH_CCS_TOOLS ?= $(HOME)/Downloads/xively-client-artifactory/ti/ccsv6/tools
+	XI_CC3200_PATH_SDK ?= $(HOME)/Downloads/xively-client-artifactory/ti/$(XI_CC3200_SDK)/cc3200-sdk
 
 	CC = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armcl
 	AR = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armar
@@ -53,8 +56,7 @@ else ifeq ($(XI_HOST_PLATFORM),Linux)
 	XI_BUILD_PRECONDITIONS := $(CC)
 
 $(CC):
-	git clone https://github.com/atigyi/xi_artifactory.git ~/Downloads/xi_artifactory
-	git -C ~/Downloads/xi_artifactory checkout feature/cc3200_dependencies
+	git clone -b ti git@github.com:xively/xively-client-artifactory.git $(HOME)/Downloads/xively-client-artifactory
 	$@ -version
 ### TOOLCHAIN AUTODOWNLOAD SECTION --- END
 endif
