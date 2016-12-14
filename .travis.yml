@@ -9,8 +9,8 @@ env:
     - XI_BSP_TLS=wolfssl
     - XI_MAKETARGET=tests
   matrix:
-      # - PRESET=ARM_REL
-      # - PRESET=ARM_REL_MIN
+    - PRESET=ARM_REL
+    - PRESET=ARM_REL_MIN
 
     - PRESET=CC3200
       XI_MAKETARGET=""
