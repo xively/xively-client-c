@@ -85,7 +85,7 @@ XI_INCLUDE_FLAGS += \
 XI_COMPILER_FLAGS += -Wall -MMD \
           -ffunction-sections -fdata-sections \
           -fno-common -ffreestanding \
-          -mcpu=cortex-m3 -mthumb -o $@
+          -mcpu=cortex-m3 -mthumb
 
 XI_CONFIG_FLAGS += -DXI_DEBUG_PRINTF=wmprintf
 

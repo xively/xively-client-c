@@ -21,7 +21,7 @@ XI_EXTRA_ARFLAGS += -Wl,--defsym=__MPLAB_BUILD=1,--defsym=_min_heap_size=16000,-
 
 XI_COMPILER_FLAGS += -I/Users/ddellabitta/microchip_solutions_v2013-06-15/Microchip/Include
 XI_COMPILER_FLAGS += -I"/Users/ddellabitta/microchip_solutions_v2013-06-15/Microchip/Include/TCPIP Stack"
-XI_CONFIG_FLAGS += -DCREDENTIALS_NO_STORE -o $@
+XI_CONFIG_FLAGS += -DCREDENTIALS_NO_STORE
 
 ifdef XI_SHARED
   XI_LIBTLS_EXAMPLE_LIB = $(XI_LIBTLS_SHARED)

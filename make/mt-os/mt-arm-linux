@@ -42,8 +42,6 @@ else ifeq ($(XI_HOST_PLATFORM),Darwin)
 
 endif
 
-XI_COMPILER_FLAGS += -o $@
-
 XI_BUILD_PRECONDITIONS := $(CC)
 
 $(XI_GCC_ARM_NONE_EABI_DOWNLOAD_FILE):

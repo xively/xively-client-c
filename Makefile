@@ -53,6 +53,9 @@ XI_BIN_DIRS := $(XI_BIN_DIR) $(XI_EXAMPLE_BINDIR) $(XI_EXAMPLE_BINDIR)/internal 
 #default test target always present cause tiny test cross-compiles
 XI_TESTS_TARGETS := $(XI_UTESTS) $(XI_TEST_TOOLS_OBJS) $(XI_TEST_TOOLS)
 
+# default output file declaration		
+XI_COMPILER_OUTPUT ?= -o $@
+
 ifneq ($(XI_CONST_PLATFORM_CURRENT),$(XI_CONST_PLATFORM_ARM))
 #the integration tests does not cross-compile atm
 	XI_TESTS_TARGETS += $(XI_ITESTS)
@@ -109,28 +112,28 @@ $(XI_PROTOBUF_GENERATED)/%.pb-c.c : $(XI_PROTO_DIR)/%.proto
 $(XI_UTEST_OBJDIR)/%.o : $(XI_UTEST_SOURCE_DIR)/%.c $(XI_BUILD_PRECONDITIONS)
 	@-mkdir -p $(dir $@)
 	$(info [$(CC)] $@)
-	$(MD) $(CC) $(XI_UTEST_CONFIG_FLAGS) $(XI_UTEST_INCLUDE_FLAGS) -c $<
-	@$(CC) $(XI_UTEST_CONFIG_FLAGS) $(XI_UTEST_INCLUDE_FLAGS) -MM $< -MT $@ -MF $(@:.o=.d)
+	$(MD) $(CC) $(XI_UTEST_CONFIG_FLAGS) $(XI_UTEST_INCLUDE_FLAGS) -c $< $(XI_COMPILER_OUTPUT)
+	$(MD) $(CC) $(XI_UTEST_CONFIG_FLAGS) $(XI_UTEST_INCLUDE_FLAGS) -MM $< -MT $@ -MF $(@:.o=.d)
 
 # specific compiler flags for libxively_driver
 $(XI_OBJDIR)/tests/tools/xi_libxively_driver/%.o : $(LIBXIVELY)/src/tests/tools/xi_libxively_driver/%.c $(XI_BUILD_PRECONDITIONS)
 	@-mkdir -p $(dir $@)
 	$(info [$(CC)] $@)
-	$(MD) $(CC) $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) $(XI_TEST_TOOLS_INCLUDE_FLAGS) -c $<
-	@$(CC) $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) $(XI_TEST_TOOLS_INCLUDE_FLAGS) -MM $< -MT $@ -MF $(@:.o=.d)
+	$(MD) $(CC) $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) $(XI_TEST_TOOLS_INCLUDE_FLAGS) -c $< $(XI_COMPILER_OUTPUT)
+	$(MD) $(CC) $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) $(XI_TEST_TOOLS_INCLUDE_FLAGS) -MM $< -MT $@ -MF $(@:.o=.d)
 
 -include $(XI_OBJS:.o=.d)
 
 $(XI_OBJDIR)/%.o : $(LIBXIVELY)/src/%.c $(XI_BUILD_PRECONDITIONS)
 	@-mkdir -p $(dir $@)
 	$(info [$(CC)] $@)
-	$(MD) $(CC) $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) -c $<
+	$(MD) $(CC) $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) -c $< $(XI_COMPILER_OUTPUT)
 	$(XI_POST_COMPILE_ACTION)
 
 $(XI_OBJDIR)/bsp/platform/$(BSP_FOUND)/%.o : $(XI_BSP_DIR)/platform/$(BSP_FOUND)/%.c $(XI_BUILD_PRECONDITIONS)
 	@-mkdir -p $(dir $@)
 	$(info [$(CC)] $@)
-	$(MD) $(CC) $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) -c $<
+	$(MD) $(CC) $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) -c $< $(XI_COMPILER_OUTPUT)
 	$(XI_POST_COMPILE_ACTION)
 
 # gather all of the binary directories
@@ -148,8 +151,8 @@ endif
 $(XI_EXAMPLE_BINDIR)/internal/%: $(XI)
 	$(info [$(CC)] $@)
 	@-mkdir -p $(XI_EXAMPLE_OBJDIR)/$(subst $(XI_EXAMPLE_BINDIR)/,,$(dir $@))
-	$(MD) $(CC) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) -L$(XI_BINDIR) $(XI) $(LIBXIVELY)/examples/common/src/commandline.c $(XI_EXAMPLE_DIR)/$(subst $(XI_EXAMPLE_BINDIR),,$@).c $(XI_LIB_FLAGS) -o $@
-	@$(CC) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) -MM $(XI_EXAMPLE_DIR)/$(subst $(XI_EXAMPLE_BINDIR),,$@).c -MT $@ -MF $(XI_EXAMPLE_OBJDIR)/$(subst $(XI_EXAMPLE_BINDIR)/,,$@).d
+	$(MD) $(CC) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) -L$(XI_BINDIR) $(XI) $(LIBXIVELY)/examples/common/src/commandline.c $(XI_EXAMPLE_DIR)/$(subst $(XI_EXAMPLE_BINDIR),,$@).c $(XI_LIB_FLAGS) $(XI_COMPILER_OUTPUT)
+	$(MD) $(CC) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) -MM $(XI_EXAMPLE_DIR)/$(subst $(XI_EXAMPLE_BINDIR),,$@).c -MT $@ -MF $(XI_EXAMPLE_OBJDIR)/$(subst $(XI_EXAMPLE_BINDIR)/,,$@).d
 
 ###
 #### TEST TOOLS
@@ -158,9 +161,9 @@ $(XI_EXAMPLE_BINDIR)/internal/%: $(XI)
 
 $(XI_TEST_TOOLS_BINDIR)/%: $(XI) $(XI_TEST_TOOLS_OBJS)
 	$(info [$(CC)] $@)
-	$(MD) $(CC) $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) -L$(XI_BINDIR) $(XI_TEST_TOOLS_OBJS) $(XI_TEST_TOOLS_SRCDIR)/$(notdir $@)/$(notdir $@).c $(XI_LIB_FLAGS) -o $@
+	$(MD) $(CC) $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) -L$(XI_BINDIR) $(XI_TEST_TOOLS_OBJS) $(XI_TEST_TOOLS_SRCDIR)/$(notdir $@)/$(notdir $@).c $(XI_LIB_FLAGS) $(XI_COMPILER_OUTPUT)
 	@-mkdir -p $(XI_TEST_TOOLS_OBJDIR)
-	@$(CC) $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) -MM $(XI_TEST_TOOLS_SRCDIR)/$(notdir $@)/$(notdir $@).c -MT $@ -MF $(XI_TEST_TOOLS_OBJDIR)/$(notdir $@).d
+	$(MD) $(CC) $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) -MM $(XI_TEST_TOOLS_SRCDIR)/$(notdir $@)/$(notdir $@).c -MT $@ -MF $(XI_TEST_TOOLS_OBJDIR)/$(notdir $@).d
 	@#$@
 
 ###
@@ -172,9 +175,9 @@ XI_UTESTS_DEPENDENCIES_FILE = $(XI_UTEST_OBJDIR)/$(notdir $(XI_UTESTS)).d
 
 $(XI_UTESTS): $(XI) $(XI_UTEST_OBJS) $(TINY_TEST_OBJ)
 	$(info [$(CC)] $@)
-	$(MD) $(CC)  $(XI_UTEST_CONFIG_FLAGS) $(XI_UTEST_INCLUDE_FLAGS) -L$(XI_BINDIR) $(XI_UTEST_SUITE_SOURCE) $(XI_UTEST_OBJS) $(TINY_TEST_OBJ) $(XI_LIB_FLAGS) -o $@
 	@-mkdir -p $(XI_UTEST_OBJDIR)
-	@$(CC) $(XI_UTEST_CONFIG_FLAGS) $(XI_UTEST_INCLUDE_FLAGS) -MM $(XI_UTEST_SUITE_SOURCE) -MT $@ -MF $(XI_UTESTS_DEPENDENCIES_FILE)
+	$(MD) $(CC)  $(XI_UTEST_CONFIG_FLAGS) $(XI_UTEST_INCLUDE_FLAGS) -L$(XI_BINDIR) $(XI_UTEST_SUITE_SOURCE) $(XI_UTEST_OBJS) $(TINY_TEST_OBJ) $(XI_LIB_FLAGS) $(XI_COMPILER_OUTPUT)
+	$(MD) $(CC) $(XI_UTEST_CONFIG_FLAGS) $(XI_UTEST_INCLUDE_FLAGS) -MM $(XI_UTEST_SUITE_SOURCE) -MT $@ -MF $(XI_UTESTS_DEPENDENCIES_FILE)
 	$(XI_RUN_UTESTS)
 
 # dependencies for integration test binary
@@ -184,14 +187,14 @@ ifneq ($(XI_CONST_PLATFORM_CURRENT),$(XI_CONST_PLATFORM_ARM))
 
 $(XI_ITESTS): $(XI) $(CMOCKA_LIBRARY_DEPS) $(XI_ITEST_OBJS)
 	$(info [$(CC)] $@)
-	$(MD) $(CC) $(XI_ITEST_OBJS) $(XI_ITESTS_CFLAGS) -L$(XI_BINDIR) $(XI_LIB_FLAGS) $(CMOCKA_LIBRARY)
+	$(MD) $(CC) $(XI_ITEST_OBJS) $(XI_ITESTS_CFLAGS) -L$(XI_BINDIR) $(XI_LIB_FLAGS) $(CMOCKA_LIBRARY) $(XI_COMPILER_OUTPUT)
 	$(XI_RUN_ITESTS)
 endif
 
 $(XI_FUZZ_TESTS_BINDIR)/%: $(XI_FUZZ_TESTS_SOURCE_DIR)/%.cpp
 	@-mkdir -p $(dir $@)
 	$(info [$(CXX)] $@)
-	$(MD) $(CXX) $< $(XI_CONFIG_FLAGS) $(XI_INCLUDE_FLAGS) -L$(XI_BINDIR) -L$(XI_LIBFUZZER_DOWNLOAD_DIR) $(XI_LIB_FLAGS) $(XI_FUZZ_TEST_LIBRARY) -o $@
+	$(MD) $(CXX) $< $(XI_CONFIG_FLAGS) $(XI_INCLUDE_FLAGS) -L$(XI_BINDIR) -L$(XI_LIBFUZZER_DOWNLOAD_DIR) $(XI_LIB_FLAGS) $(XI_FUZZ_TEST_LIBRARY) $(XI_COMPILER_OUTPUT)
 
 .PHONY: fuzz_tests
 
@@ -199,15 +202,6 @@ fuzz_tests: $(XI_LIBFUZZER) $(XI_FUZZ_TESTS) $(XI_FUZZ_TESTS_CORPUS_DIRS) $(XI)
 	$(foreach fuzztest, $(XI_FUZZ_TESTS), $(call XI_RUN_FTEST,$(fuzztest)))
 
 $(XI_FUZZ_TESTS): $(XI)
-
-.PHONY: static_analysis
-static_analysis:  $(XI_SOURCES:.c=.sa)
-
-NOW:=$(shell date +"%F-%T")
-
-$(LIBXIVELY)/src/%.sa:
-	$(info [clang-tidy] $(@:.sa=.c))
-	@clang-tidy --checks='clang-analyzer-*,-clang-analyzer-cplusplus*,-clang-analyzer-osx*' $(@:.sa=.c) >> static_analysis_$(NOW).log -- $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS)
 
 .PHONY: static_analysis
 static_analysis:  $(XI_SOURCES:.c=.sa)

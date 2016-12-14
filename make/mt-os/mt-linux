@@ -23,5 +23,5 @@ else
 endif
 
 # Temporarily disable these warnings until the code gets changed.
-XI_COMPILER_FLAGS += -Wno-format -o $@
+XI_COMPILER_FLAGS += -Wno-format 
 XI_CONFIG_FLAGS += -DXI_MULTI_LEVEL_DIRECTORY_STRUCTURE
