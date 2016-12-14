@@ -208,7 +208,9 @@ xi_insert_time_event( xi_vector_t* vector, xi_time_event_t* time_event )
     assert( NULL != vector );
     assert( NULL != time_event );
 
-    xi_state_t local_state = XI_STATE_OK;
+    xi_state_t local_state                = XI_STATE_OK;
+    xi_vector_index_type_t index          = 0;
+    const xi_vector_elem_t* element_added = NULL;
 
     /* add the element to the end of the vector */
     {
@@ -221,10 +223,9 @@ xi_insert_time_event( xi_vector_t* vector, xi_time_event_t* time_event )
     /* update the time event new position */
     time_event->position = vector->elem_no - 1;
 
-    xi_vector_index_type_t index =
-        xi_time_event_bubble_and_sort_down( vector, vector->elem_no - 1 );
+    index = xi_time_event_bubble_and_sort_down( vector, vector->elem_no - 1 );
 
-    const xi_vector_elem_t* element_added = &vector->array[index];
+    element_added = &vector->array[index];
 
     return element_added;
 
@@ -287,7 +288,8 @@ xi_state_t xi_time_event_add( xi_vector_t* vector,
               NULL == ret_time_event_handle->ptr_to_position ) ||
             ( NULL == ret_time_event_handle ) );
 
-    xi_state_t out_state = XI_STATE_OK;
+    xi_state_t out_state              = XI_STATE_OK;
+    xi_time_event_t* added_time_event = NULL;
 
     /* call the insert at function it will place the new element at the proper place
      */
@@ -297,7 +299,7 @@ xi_state_t xi_time_event_add( xi_vector_t* vector,
     XI_CHECK_MEMORY( elem, out_state );
 
     /* extract the element */
-    xi_time_event_t* added_time_event = ( xi_time_event_t* )elem->selector_t.ptr_value;
+    added_time_event = ( xi_time_event_t* )elem->selector_t.ptr_value;
 
     /* sanity checks */
     assert( added_time_event == time_event );

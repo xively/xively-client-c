@@ -130,12 +130,12 @@ xi_data_desc_t* xi_make_desc_from_float_copy( const float value )
     const char* acc = ( const char* )&value;
 
     xi_state_t state = XI_STATE_OK;
+    size_t i         = 0;
 
     XI_ALLOC( xi_data_desc_t, data_desc, state );
     XI_ALLOC_BUFFER_AT( unsigned char, data_desc->data_ptr, 4, state );
 
-    size_t i = 0;
-    for ( ; i < 4; ++i )
+    for ( i = 0; i < 4; ++i )
     {
         data_desc->data_ptr[i] = acc[i];
     }

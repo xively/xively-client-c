@@ -30,6 +30,7 @@ do_mqtt_subscribe( void* ctx, void* data, xi_state_t state, void* msg )
 
     xi_mqtt_message_t* msg_memory        = ( xi_mqtt_message_t* )msg;
     xi_evtd_instance_t* event_dispatcher = XI_CONTEXT_DATA( ctx )->evtd_instance;
+    xi_state_t local_state               = XI_STATE_OK;
 
     xi_mqtt_logic_layer_data_t* layer_data =
         ( xi_mqtt_logic_layer_data_t* )XI_THIS_LAYER( context )->user_data;
@@ -44,6 +45,7 @@ do_mqtt_subscribe( void* ctx, void* data, xi_state_t state, void* msg )
     }
 
     XI_CR_START( task->cs );
+
     do
     {
         xi_debug_format( "[m.id[%d]]subscribe preparing message", task->msg_id );
@@ -75,7 +77,7 @@ do_mqtt_subscribe( void* ctx, void* data, xi_state_t state, void* msg )
 
             assert( NULL == task->timeout.ptr_to_position );
 
-            xi_state_t local_state = xi_evtd_execute_in(
+            local_state = xi_evtd_execute_in(
                 event_dispatcher, xi_make_handle( &do_mqtt_subscribe, context, task,
                                                   XI_STATE_RESEND, NULL ),
                 1, &task->timeout );
