@@ -52,7 +52,7 @@ else ifeq ($(XI_HOST_PLATFORM),Linux)
 	CC = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armcl
 	AR = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armar
 
-ifdef TRAVIS_OS_NAME
+ifdef XI_TRAVIS_BUILD
 ### TOOLCHAIN AUTODOWNLOAD SECTION --- BEGIN
 	XI_BUILD_PRECONDITIONS := $(CC)
 
@@ -61,7 +61,6 @@ $(CC):
 	$@ -version
 ### TOOLCHAIN AUTODOWNLOAD SECTION --- END
 endif
-
 endif
 
 # removing these compiler flags since they are not parsed and emit warnings

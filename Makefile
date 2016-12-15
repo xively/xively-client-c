@@ -34,6 +34,10 @@ include make/mt-config/tests/mt-tests-integration
 include make/mt-config/tests/mt-tests-fuzz.mk
 include make/mt-config/mt-help
 
+ifdef TRAVIS_OS_NAME
+XI_TRAVIS_BUILD=1
+endif
+
 ifdef MAKEFILE_DEBUG
 $(info ----- )
 $(info -TOOLCHAIN- $$CC is [${CC}])
