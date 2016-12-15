@@ -106,7 +106,7 @@ XI_ARFLAGS += -rs -c $(XI)
 ifeq ($(XI_HOST_PLATFORM),Linux)
 	# linux cross-compilation prerequisite downloads
 
-ifdef TRAVIS_OS_NAME
+ifdef XI_TRAVIS_BUILD
 ### TOOLCHAIN AUTODOWNLOAD SECTION --- BEGIN
 	XI_BUILD_PRECONDITIONS += STM32F4_SDK
 .PHONY : STM32F4_SDK
