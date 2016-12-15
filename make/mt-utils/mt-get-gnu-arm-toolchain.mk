@@ -33,6 +33,6 @@ $(XI_GCC_ARM_NONE_EABI_DOWNLOAD_FILE):
 
 $(CC): $(XI_GCC_ARM_NONE_EABI_DOWNLOAD_FILE)
 	@echo "XI ARM-GCC BUILD: extracting arm-gcc toolchain"
-	@tar -vxf $(XI_GCC_ARM_NONE_EABI_DOWNLOAD_FILE) -C ~/Downloads
+	@tar -xf $(XI_GCC_ARM_NONE_EABI_DOWNLOAD_FILE) -C ~/Downloads
 	@touch $@
 	$@ --version

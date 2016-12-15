@@ -106,12 +106,14 @@ XI_ARFLAGS += -rs -c $(XI)
 ifeq ($(XI_HOST_PLATFORM),Linux)
 	# linux cross-compilation prerequisite downloads
 
+ifdef XI_TRAVIS_BUILD
 ### TOOLCHAIN AUTODOWNLOAD SECTION --- BEGIN
 	XI_BUILD_PRECONDITIONS += STM32F4_SDK
 .PHONY : STM32F4_SDK
 STM32F4_SDK:
 	git clone -b st git@github.com:xively/xively-client-artifactory.git $(HOME)/Downloads/xively-client-artifactory
 ### TOOLCHAIN AUTODOWNLOAD SECTION --- END
+endif
 endif
 
 XI_POST_COMPILE_ACTION =
