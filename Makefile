@@ -22,6 +22,11 @@ MD ?= @
 # TLS related configuration
 XI_BSP_TLS ?= wolfssl
 
+#detect if the build happen on Travis
+ifdef TRAVIS_OS_NAME
+XI_TRAVIS_BUILD=1
+endif
+
 include make/mt-config/mt-presets.mk
 
 include make/mt-config/mt-config
@@ -33,6 +38,7 @@ include make/mt-config/tests/mt-tests-unit
 include make/mt-config/tests/mt-tests-integration
 include make/mt-config/tests/mt-tests-fuzz.mk
 include make/mt-config/mt-help
+
 
 ifdef MAKEFILE_DEBUG
 $(info ----- )
@@ -53,7 +59,7 @@ XI_BIN_DIRS := $(XI_BIN_DIR) $(XI_EXAMPLE_BINDIR) $(XI_EXAMPLE_BINDIR)/internal 
 #default test target always present cause tiny test cross-compiles
 XI_TESTS_TARGETS := $(XI_UTESTS) $(XI_TEST_TOOLS_OBJS) $(XI_TEST_TOOLS)
 
-# default output file declaration		
+# default output file declaration
 XI_COMPILER_OUTPUT ?= -o $@
 
 ifneq ($(XI_CONST_PLATFORM_CURRENT),$(XI_CONST_PLATFORM_ARM))
