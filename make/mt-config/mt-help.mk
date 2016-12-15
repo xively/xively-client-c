@@ -86,7 +86,7 @@ help_makefile_debug:
 	$(info ## Xively C Client MAKEFILE_DEBUG Help )
 	$(info ## )
 	$(info )
-	$(info . The Make system for the Xively Client is made up of Makefiles and .mt files )
+	$(info . The Make system for the Xively Client is made up of Makefiles and .mk files )
 	$(info . for configuring the toolchains and filesets based on the TARGET and CONFIG )
 	$(info . flags.  These form switches that dictate which include directories, source )
 	$(info . directories, and preprocessor defintions are used, and which Xively Client )
