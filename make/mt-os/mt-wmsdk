@@ -101,7 +101,6 @@ $(warning "Integration tests for wmsdk disabled. No story in the backlog!")
 ifdef XI_SHARED
 $(error "No shared target for wmsdk!")
 else
-  XI ?= $(XI_BINDIR)/libxively.a
   XI_ARFLAGS += -rs
   XI_ARFLAGS += $(XI)
 endif

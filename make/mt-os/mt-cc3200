@@ -5,9 +5,6 @@
 
 include make/mt-os/mt-os-common
 
-# todo: this is common, move it to outside
-XI ?= $(XI_BINDIR)/libxively.a
-
 ###
 ## COMPILER NAME
 ###
