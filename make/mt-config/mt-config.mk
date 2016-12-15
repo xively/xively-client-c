@@ -11,7 +11,7 @@ LIBXIVELY_INTERFACE_INCLUDE_DIRS += $(LIBXIVELY)/include_senml
 XI_LIB_FLAGS += -lxively
 
 ifneq (,$(findstring tls_bsp,$(CONFIG)))
-	include make/mt-config/mt-tls
+	include make/mt-config/mt-tls.mk
 endif
 
 XI_UNIT_TEST_TARGET ?= native
@@ -157,7 +157,6 @@ XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/io/net
 XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/memory
 XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/event_loop
 XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/time
-
 
 # if no tls then set proper flag
 ifeq (,$(findstring tls_bsp,$(CONFIG)))

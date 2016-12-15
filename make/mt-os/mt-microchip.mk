@@ -7,7 +7,7 @@ CC = /Applications/microchip/xc32/v1.34/bin/xc32-gcc
 #AR = /Applications/microchip/xc32/v1.34/bin/xc32-ar
 AR = /Applications/microchip/xc32/v1.34/bin/xc32-gcc
 
-include make/mt-os/mt-os-common
+include make/mt-os/mt-os-common.mk
 
 XI ?= $(XI_BINDIR)/libxively.a
 XI_ARFLAGS += -mprocessor=32MX695F512H  -o
