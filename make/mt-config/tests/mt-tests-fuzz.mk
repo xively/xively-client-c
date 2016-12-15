@@ -3,6 +3,8 @@
 # This is part of the Xively C Client library,
 # it is licensed under the BSD 3-Clause license.
 
+include make/mt-config/tests/mt-tests
+
 XI_FUZZ_TESTS_BINDIR := $(XI_TEST_BINDIR)/fuzztets
 XI_FUZZ_TESTS_OBJDIR := $(XI_TEST_OBJDIR)/fuzztests
 XI_FUZZ_TESTS_CFLAGS := $(XI_CONFIG_FLAGS)
@@ -65,9 +67,3 @@ $(XI_FUZZ_TESTS_CORPUS_DIRS):
 
 
 build_libfuzzer: $(XI_LIBFUZZER)
-
-ifneq (,$(findstring arm,$(TARGET)))
-	include make/mt-config/tests/mt-qemu-cortex-m3
-else
-	include make/mt-config/tests/mt-native
-endif
