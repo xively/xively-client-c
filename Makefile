@@ -22,6 +22,11 @@ MD ?= @
 # TLS related configuration
 XI_BSP_TLS ?= wolfssl
 
+#detect if the build happen on Travis
+ifdef TRAVIS_OS_NAME
+XI_TRAVIS_BUILD=1
+endif
+
 include make/mt-config/mt-presets.mk
 
 include make/mt-config/mt-config
@@ -34,9 +39,6 @@ include make/mt-config/tests/mt-tests-integration
 include make/mt-config/tests/mt-tests-fuzz.mk
 include make/mt-config/mt-help
 
-ifdef TRAVIS_OS_NAME
-XI_TRAVIS_BUILD=1
-endif
 
 ifdef MAKEFILE_DEBUG
 $(info ----- )
