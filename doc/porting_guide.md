@@ -133,7 +133,7 @@ The Xively C Client uses _make_ to build for OSX or Linux/Unix. The main makefil
 
 Further build configurations can be found under directory `make/` which contains numerous make target (mt) files which are included by the main makefile. Here `make/mt-config/mt-config.mk` and `make/mt-os/mt-os.mk` files should be your main focus.  These are always included by the main makefile, and further include optional mt files based on the CONFIG and TARGET flags you specify when building.  
 
-For instance, the `make/mt-os/mt-cc3200.mt` file is included by `make/mt-os/mt-os.mk` when building for the TI CC3200.
+For instance, the `make/mt-os/mt-cc3200.mk` file is included by `make/mt-os/mt-os.mk` when building for the TI CC3200.
 
 More information about CONFIG and TARGET flags can be found in the respective sections below.  
 
