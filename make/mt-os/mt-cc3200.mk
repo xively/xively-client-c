@@ -52,6 +52,7 @@ else ifeq ($(XI_HOST_PLATFORM),Linux)
 	CC = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armcl
 	AR = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armar
 
+ifdef XI_TRAVIS_BUILD
 ### TOOLCHAIN AUTODOWNLOAD SECTION --- BEGIN
 	XI_BUILD_PRECONDITIONS := $(CC)
 
@@ -59,6 +60,7 @@ $(CC):
 	git clone -b ti git@github.com:xively/xively-client-artifactory.git $(HOME)/Downloads/xively-client-artifactory
 	$@ -version
 ### TOOLCHAIN AUTODOWNLOAD SECTION --- END
+endif
 endif
 
 # removing these compiler flags since they are not parsed and emit warnings
