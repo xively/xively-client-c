@@ -53,7 +53,7 @@ XI_BIN_DIRS := $(XI_BIN_DIR) $(XI_EXAMPLE_BINDIR) $(XI_EXAMPLE_BINDIR)/internal 
 #default test target always present cause tiny test cross-compiles
 XI_TESTS_TARGETS := $(XI_UTESTS) $(XI_TEST_TOOLS_OBJS) $(XI_TEST_TOOLS)
 
-# default output file declaration		
+# default output file declaration
 XI_COMPILER_OUTPUT ?= -o $@
 
 ifneq ($(XI_CONST_PLATFORM_CURRENT),$(XI_CONST_PLATFORM_ARM))
@@ -199,7 +199,7 @@ $(XI_FUZZ_TESTS_BINDIR)/%: $(XI_FUZZ_TESTS_SOURCE_DIR)/%.cpp
 .PHONY: fuzz_tests
 
 fuzz_tests: $(XI_LIBFUZZER) $(XI_FUZZ_TESTS) $(XI_FUZZ_TESTS_CORPUS_DIRS) $(XI)
-	$(foreach fuzztest, $(XI_FUZZ_TESTS), $(call XI_RUN_FTEST,$(fuzztest)))
+	$(foreach fuzztest, $(XI_FUZZ_TESTS), $(call XI_RUN_FUZZ_TEST,$(fuzztest)))
 
 $(XI_FUZZ_TESTS): $(XI)
 
