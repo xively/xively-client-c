@@ -3,7 +3,7 @@
 # This is part of the Xively C Client library,
 # it is licensed under the BSD 3-Clause license.
 
-include make/mt-config/tests/mt-tests
+include make/mt-config/tests/mt-tests.mk
 
 XI_FUZZ_TESTS_BINDIR := $(XI_TEST_BINDIR)/fuzztets
 XI_FUZZ_TESTS_OBJDIR := $(XI_TEST_OBJDIR)/fuzztests

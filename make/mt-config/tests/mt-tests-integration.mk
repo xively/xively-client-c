@@ -3,7 +3,7 @@
 # This is part of the Xively C Client library,
 # it is licensed under the BSD 3-Clause license.
 
-include make/mt-config/tests/mt-tests
+include make/mt-config/tests/mt-tests.mk
 
 XI_ITESTS_OBJDIR := $(XI_TEST_OBJDIR)/itests
 XI_ITESTS_CFLAGS = $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS)

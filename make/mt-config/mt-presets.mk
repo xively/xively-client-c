@@ -119,10 +119,15 @@ $(error Fuzz testing won\'t work on OSX)
 # -------------------------------------------------------
 # DEFAULT
 else
-# default settings in case of undefined or unrecognised PRESET
-CONFIG ?= $(CONFIG_POSIX_MIN)
-TARGET ?= $(TARGET_STATIC_REL)
-  $(info INFO: PRESET: '$(PRESET)' not recognised, using default CONFIG: [$(CONFIG)] and TARGET: [$(TARGET)])
+    ifndef PRESET
+    # default settings in case of undefined
+    CONFIG ?= $(CONFIG_POSIX_MIN)
+    TARGET ?= $(TARGET_STATIC_REL)
+  	    $(info INFO: '$(PRESET)' not detected, using default CONFIG: [$(CONFIG)] and TARGET: [$(TARGET)])
+    else
+    # error in case of unrecognised PRESET
+    $(error Invalid PRESET, see valid presets in make/mt-config/mt-presets.mk)
+    endif
 endif
 
 TARGET := $(addprefix $(XI_TARGET_PLATFORM), $(TARGET))

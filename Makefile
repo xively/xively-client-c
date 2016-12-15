@@ -29,15 +29,15 @@ endif
 
 include make/mt-config/mt-presets.mk
 
-include make/mt-config/mt-config
-include make/mt-os/mt-os
-include make/mt-os/mt-$(XI_CONST_PLATFORM_CURRENT)
-include make/mt-config/mt-examples
-include make/mt-config/tests/mt-tests-tools
-include make/mt-config/tests/mt-tests-unit
-include make/mt-config/tests/mt-tests-integration
+include make/mt-config/mt-config.mk
+include make/mt-os/mt-os.mk
+include make/mt-os/mt-$(XI_CONST_PLATFORM_CURRENT).mk
+include make/mt-config/mt-examples.mk
+include make/mt-config/tests/mt-tests-tools.mk
+include make/mt-config/tests/mt-tests-unit.mk
+include make/mt-config/tests/mt-tests-integration.mk
 include make/mt-config/tests/mt-tests-fuzz.mk
-include make/mt-config/mt-help
+include make/mt-config/mt-help.mk
 
 
 ifdef MAKEFILE_DEBUG

@@ -9,7 +9,7 @@ AR ?= ar
 XI_COMPILER_FLAGS += -fPIC
 XI_LIB_FLAGS += $(XI_TLS_LIBFLAGS) -lpthread -lm
 
-include make/mt-os/mt-os-common
+include make/mt-os/mt-os-common.mk
 
 ifdef XI_SHARED
   AR = gcc

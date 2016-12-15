@@ -131,9 +131,9 @@ We recommend building the Xively Client on OSX or Linux/Unix before attempting t
 
 The Xively C Client uses _make_ to build for OSX or Linux/Unix. The main makefile is in the root directory of the repository.
 
-Further build configurations can be found under directory `make/` which contains numerous make target (mt) files which are included by the main makefile. Here `make/mt-config/mt-config` and `make/mt-os/mt-os` files should be your main focus.  These are always included by the main makefile, and further include optional mt files based on the CONFIG and TARGET flags you specify when building.
+Further build configurations can be found under directory `make/` which contains numerous make target (mt) files which are included by the main makefile. Here `make/mt-config/mt-config.mk` and `make/mt-os/mt-os.mk` files should be your main focus.  These are always included by the main makefile, and further include optional mt files based on the CONFIG and TARGET flags you specify when building.
 
-For instance, the `make/mt-os/mt-cc3200.mt` file is included by `make/mt-os/mt-os` when building for the TI CC3200.
+For instance, the `make/mt-os/mt-cc3200.mk` file is included by `make/mt-os/mt-os.mk` when building for the TI CC3200.
 
 More information about CONFIG and TARGET flags can be found in the respective sections below.
 
@@ -316,7 +316,7 @@ The examples are command line applications libxively links against. They require
 
 #### Let's Begin
 
-As a rule of thumb if you are stuck or confused, then please use existing platform config files like: `make/mt-os/mt-cc3200` or `make/mt-os/mt-linux` files as examples.
+As a rule of thumb if you are stuck or confused, then please use existing platform config files like: `make/mt-os/mt-cc3200.mk` or `make/mt-os/mt-linux.mk` files as examples.
 
 Let's assume the new platform's name is np2000.
 
@@ -338,10 +338,10 @@ To make this possible, the following steps have to be taken.
 
 #### Porting Checklist
 
-- [x] create a new file `make/mt-os/mt-np2000`
+- [x] create a new file `make/mt-os/mt-np2000.mk`
     - include the common *mt* file
 
-            include make/mt-os/mt-os-common
+            include make/mt-os/mt-os-common.mk
 
     - add the lines
 
@@ -377,7 +377,7 @@ To make this possible, the following steps have to be taken.
                 XI_BSP_PLATFORM = np2000
                 XI_TARGET_PLATFORM = np2000
 
-- [x] extend `make/mt-os/mt-os` to check the TARGET make parameter for 'np2000' and include the `make/mt-os/mt-np2000` config file when the np2000 TARGET is found:
+- [x] extend `make/mt-os/mt-os.mk` to check the TARGET make parameter for 'np2000' and include the `make/mt-os/mt-np2000.mk` config file when the np2000 TARGET is found:
 
         XI_CONST_PLATFORM_NP2000 := np2000
 
@@ -442,9 +442,8 @@ While we cannot completely predict how this process would work for every IDE and
 	- add all of the directories in `src/libxively` to your include path
 	- add the `include` directory to your include path
 	- add the `include/bsp` directory to your include path
-- add any corresonding preprocessor defintions to toggle on/off Xively client features.
-  Using the CONFIG flags in file `make/mt-config/mt-config` as a guide, the compiler flags used in the "Preceding Step" can be looked up and fed to the platform specific build system as well. Another option is to echo the makefile build system variable XI_CONFIG_FLAGS during building on OSX to see which flags are set.
-
+  - add any corresonding preprocessor defintions to toggle on/off Xively client features.
+  Using the CONFIG flags in file `make/mt-config/mt-config.mk` as a guide, the compiler flags used in the "Preceding Step" can be looked up and fed to the platform specific build system as well. Another option is to echo the makefile build system variable XI_CONFIG_FLAGS during building on OSX to see which flags are set.
 
 ## Further Reading
 For more informationa about the Xively Client, check these other documents in the [github repository](https://github.com/xively/xively-client-c):

@@ -9,7 +9,7 @@ AR ?= ar
 XI_CONFIG_FLAGS += -DXI_BUILD_OSX
 XI_LIB_FLAGS += $(XI_TLS_LIBFLAGS) -lpthread -lm
 
-include make/mt-os/mt-os-common
+include make/mt-os/mt-os-common.mk
 
 ifdef XI_SHARED
   XI = $(XI_BINDIR)/libxively.dylib
