@@ -3,7 +3,7 @@
 # This is part of the Xively C Client library,
 # it is licensed under the BSD 3-Clause license.
 
-include make/mt-os/mt-os-common
+include make/mt-os/mt-os-common.mk
 
 # todo: this is common, move it to outside
 XI ?= $(XI_BINDIR)/libxively.a

@@ -6,22 +6,21 @@
 CC ?= gcc
 AR ?= ar
 
-XI_COMPILER_FLAGS += -fPIC
+XI_CONFIG_FLAGS += -DXI_BUILD_OSX
 XI_LIB_FLAGS += $(XI_TLS_LIBFLAGS) -lpthread -lm
 
-include make/mt-os/mt-os-common
+include make/mt-os/mt-os-common.mk
 
 ifdef XI_SHARED
+  XI ?= $(XI_OBJDIR)/libxively.dylib
+  #XI_ARFLAGS := -dynamclib -o $(XI) $(XI_TLS_LIBFLAGS) -L$(dir $(XI_LIBTLS_SHARED))
+  XI_ARFLAGS := -shared -o $(XI) $(XI_TLS_LIBFLAGS) -L$(dir $(XI_LIBTLS_SHARED))
   AR = gcc
-  XI ?= $(XI_BINDIR)/libxively.so
-  XI_ARFLAGS += -fPIC -DXI_SHARED -shared -o $(XI)
-  XI_LIBTLS_EXAMPLE_LIB = $(XI_LIBTLS_SHARED)
+  XI_COMPILER_FLAGS += -fPIC
+  XI_CONFIG_FLAGS += -DXI_SHARED
 else
   XI ?= $(XI_BINDIR)/libxively.a
   XI_ARFLAGS += -rs -c $(XI)
-  XI_LIBTLS_EXAMPLE_LIB = $(XI_LIBTLS_STATIC)
 endif
 
-# Temporarily disable these warnings until the code gets changed.
-XI_COMPILER_FLAGS += -Wno-format 
 XI_CONFIG_FLAGS += -DXI_MULTI_LEVEL_DIRECTORY_STRUCTURE

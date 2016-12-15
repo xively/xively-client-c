@@ -3,7 +3,7 @@
 # This is part of the Xively C Client library,
 # it is licensed under the BSD 3-Clause license.
 
-include make/mt-os/mt-os-common
+include make/mt-os/mt-os-common.mk
 
 XI_COMPILER_FLAGS += -fPIC
 XI_COMPILER_FLAGS += -mcpu=cortex-m3 -mthumb
