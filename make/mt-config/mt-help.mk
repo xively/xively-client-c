@@ -80,7 +80,6 @@ help_build_presets:
 	$(info .   CC3200_SDK120)
 	$(info .   CC3200_TLS_SOCKET)
 	$(info .   STM32F4)
-	$(info .   FUZZ_TESTS)
 	$(info )
  
 help_makefile_debug:
