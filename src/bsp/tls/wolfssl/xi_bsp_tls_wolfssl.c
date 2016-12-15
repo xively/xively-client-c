@@ -62,8 +62,6 @@ int xi_wolfssl_recv( CYASSL* ssl, char* buf, int sz, void* context )
             wolfssl_debug_format( "%s\n", "unexpected state" );
             return CYASSL_CBIO_ERR_GENERAL;
     }
-
-    return CYASSL_CBIO_ERR_GENERAL;
 }
 
 int xi_wolfssl_send( CYASSL* ssl, char* buf, int sz, void* context )
@@ -88,8 +86,6 @@ int xi_wolfssl_send( CYASSL* ssl, char* buf, int sz, void* context )
             wolfssl_debug_format( "%s", "unexpected state" );
             return CYASSL_CBIO_ERR_GENERAL;
     }
-
-    return CYASSL_CBIO_ERR_GENERAL;
 }
 
 xi_bsp_tls_state_t xi_bsp_tls_init( xi_bsp_tls_context_t** tls_context,
@@ -97,8 +93,13 @@ xi_bsp_tls_state_t xi_bsp_tls_init( xi_bsp_tls_context_t** tls_context,
 {
     wolfssl_debug_format( "[ %s ]", __FUNCTION__ );
 
-    int ret                   = 0;
-    xi_bsp_tls_state_t result = XI_BSP_TLS_STATE_OK;
+    int ret                                    = 0;
+    xi_bsp_tls_state_t result                  = XI_BSP_TLS_STATE_OK;
+    wolfssl_tls_context_t* wolfssl_tls_context = NULL;
+
+#ifdef XI_TLS_OCSP_STAPLING
+    const int nonce_options = 0;
+#endif
 
     ret = CyaSSL_Init();
 
@@ -121,7 +122,7 @@ xi_bsp_tls_state_t xi_bsp_tls_init( xi_bsp_tls_context_t** tls_context,
 
     wolfssl_debug_logger( "initialized CyaSSL library" );
 
-    wolfssl_tls_context_t* wolfssl_tls_context =
+    wolfssl_tls_context =
         ( wolfssl_tls_context_t* )wolfSSL_Malloc( sizeof( wolfssl_tls_context_t ) );
 
     /* save tls context, this value will be passed back in other BSP TLS functions */
@@ -191,7 +192,6 @@ xi_bsp_tls_state_t xi_bsp_tls_init( xi_bsp_tls_context_t** tls_context,
     /* change this next statement to:
            nonce_option = WOLFSSL_CSR_OCSP_USE_NONCE
        once the gateway can support it */
-    const int nonce_options = 0;
     ret = wolfSSL_UseOCSPStapling( wolfssl_tls_context->obj, WOLFSSL_CSR_OCSP,
                                    nonce_options );
     if ( SSL_SUCCESS != ret )
@@ -279,7 +279,7 @@ xi_bsp_tls_state_t xi_bsp_tls_connect( xi_bsp_tls_context_t* tls_context )
                                   errorString );
         }
 #endif
-            return XI_BSP_TLS_STATE_CONNECT_ERROR;
+        break;
     }
 
     CyaSSL_UnloadCertsKeys( wolfssl_tls_context->obj );
@@ -419,4 +419,15 @@ xi_bsp_tls_state_t xi_bsp_tls_cleanup( xi_bsp_tls_context_t** tls_context )
     *tls_context = NULL;
 
     return XI_BSP_TLS_STATE_OK;
+}
+
+int xi_bsp_tls_pending( xi_bsp_tls_context_t* tls_context )
+{
+    wolfssl_debug_format( "[ %s ]", __FUNCTION__ );
+
+    /* get back the wolfssl_tls_context */
+    wolfssl_tls_context_t* wolfssl_tls_context = tls_context;
+    assert( NULL != wolfssl_tls_context->obj );
+
+    return CyaSSL_pending( wolfssl_tls_context->obj );
 }
