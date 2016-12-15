@@ -34,6 +34,8 @@ include make/mt-config/tests/mt-tests-integration
 include make/mt-config/tests/mt-tests-fuzz.mk
 include make/mt-config/mt-help
 
+$(info $$TRAVIS_OS_NAME=$(TRAVIS_OS_NAME))
+
 ifdef MAKEFILE_DEBUG
 $(info ----- )
 $(info -TOOLCHAIN- $$CC is [${CC}])
@@ -53,7 +55,7 @@ XI_BIN_DIRS := $(XI_BIN_DIR) $(XI_EXAMPLE_BINDIR) $(XI_EXAMPLE_BINDIR)/internal 
 #default test target always present cause tiny test cross-compiles
 XI_TESTS_TARGETS := $(XI_UTESTS) $(XI_TEST_TOOLS_OBJS) $(XI_TEST_TOOLS)
 
-# default output file declaration		
+# default output file declaration
 XI_COMPILER_OUTPUT ?= -o $@
 
 ifneq ($(XI_CONST_PLATFORM_CURRENT),$(XI_CONST_PLATFORM_ARM))
