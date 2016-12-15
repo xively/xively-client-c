@@ -15,10 +15,8 @@ ifdef XI_SHARED
   AR = gcc
   XI = $(XI_BINDIR)/libxively.so
   XI_ARFLAGS += -fPIC -DXI_SHARED -shared -o $(XI)
-  XI_LIBTLS_EXAMPLE_LIB = $(XI_LIBTLS_SHARED)
 else
   XI_ARFLAGS += -rs -c $(XI)
-  XI_LIBTLS_EXAMPLE_LIB = $(XI_LIBTLS_STATIC)
 endif
 
 # Temporarily disable these warnings until the code gets changed.

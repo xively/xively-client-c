@@ -16,7 +16,6 @@ ifneq (,$(findstring debug,$(TARGET)))
 endif
 
 # warning level
-# -Werror
 XI_COMPILER_FLAGS += -Wall -Wextra
 
 xi_objects = $(filter-out $(XI_SOURCES), $(XI_SOURCES:.c=.o))

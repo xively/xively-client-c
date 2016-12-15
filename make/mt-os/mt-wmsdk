@@ -104,7 +104,3 @@ else
   XI_ARFLAGS += -rs
   XI_ARFLAGS += $(XI)
 endif
-
-# warning level
-
-XI_LIBTLS_EXAMPLE_LIB = $(XI_LIBTLS_STATIC)
