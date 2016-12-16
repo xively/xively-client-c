@@ -7,12 +7,16 @@ include make/mt-os/mt-os-common.mk
 include make/mt-utils/mt-get-gnu-arm-toolchain.mk
 
 XI_STM32_PATH_SDK = $(HOME)/Downloads/xively-client-artifactory/st/STM32Cube_FW_F4_V1.13.0
+XI_STM32_PATH_SDK_ST = $(HOME)/Downloads/STM32F4xx_DSP_StdPeriph_Lib_V1.8.0/Libraries
 
 #####################
 # LWIP configurations
 #####################
 XI_STM32_PATH_SDK_LWIP = $(XI_STM32_PATH_SDK)/Middlewares/Third_Party/LwIP
 
+XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK_ST)/STM32F4xx_StdPeriph_Driver/inc
+XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK_ST)/CMSIS/Device/ST/STM32F4xx/Include
+XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK_ST)/CMSIS/Include
 XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK_LWIP)/src/include
 XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK_LWIP)/system
 XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Middlewares/Third_Party/FreeRTOS/Source/include
@@ -96,6 +100,7 @@ XI_COMPILER_FLAGS += -DHAVE_ECC
 XI_COMPILER_FLAGS += -DHAVE_TLS_EXTENSIONS
 XI_COMPILER_FLAGS += -DHAVE_AESGCM
 XI_COMPILER_FLAGS += -DALT_ECC_SIZE
+XI_COMPILER_FLAGS += -DSTM32F410xx
 
 XI_ARFLAGS += -rs -c $(XI)
 
