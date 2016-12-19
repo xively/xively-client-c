@@ -13,7 +13,6 @@ include make/mt-os/mt-os-common.mk
 
 ifdef XI_SHARED
   XI = $(XI_BINDIR)/libxively.dylib
-  #XI_ARFLAGS := -dynamclib -o $(XI) $(XI_TLS_LIBFLAGS)
   XI_ARFLAGS := -shared -o $(XI) $(XI_TLS_LIBFLAGS)
   AR = gcc
   XI_COMPILER_FLAGS += -fPIC
