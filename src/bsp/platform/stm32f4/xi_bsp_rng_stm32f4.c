@@ -14,7 +14,7 @@ void xi_bsp_rng_init()
 {
     /* Enable RNG clock source */
     RCC->AHB2ENR |= RCC_AHB2ENR_RNGEN;
-    
+
     /* RNG Peripheral enable */
     RNG->CR |= RNG_CR_RNGEN;
 }
@@ -22,7 +22,8 @@ void xi_bsp_rng_init()
 uint32_t xi_bsp_rng_get()
 {
     /* Wait until one RNG number is ready */
-    while (!(RNG->SR & (RNG_SR_DRDY)));
+    while ( !( RNG->SR & ( RNG_SR_DRDY ) ) )
+        ;
 
     /* Get a 32-bit Random number */
     return RNG->DR;
@@ -32,7 +33,7 @@ void xi_bsp_rng_shutdown()
 {
     /* Disable RNG peripheral */
     RNG->CR &= ~RNG_CR_RNGEN;
-    
+
     /* Disable RNG clock source */
     RCC->AHB2ENR &= ~RCC_AHB2ENR_RNGEN;
 }
