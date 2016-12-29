@@ -11,6 +11,8 @@ ifeq ($(XI_HOST_PLATFORM),Linux)
 
 	#export PATH=$PATH:$(XI_GCC_ARM_NONE_EABI_PATH)/bin
 
+	XI_BUILD_PRECONDITIONS := $(CC)
+
 else ifeq ($(XI_HOST_PLATFORM),Darwin)
 	# osx cross-compilation downloads arm-gcc
 
@@ -22,9 +24,15 @@ else ifeq ($(XI_HOST_PLATFORM),Darwin)
 
 	XI_GCC_ARM_TOOLCHAIN_URL := https://launchpad.net/gcc-arm-embedded/5.0/5-2016-q2-update/+download/gcc-arm-none-eabi-5_4-2016q2-20160622-mac.tar.bz2
 
+	XI_BUILD_PRECONDITIONS := $(CC)
+
+else ifeq ($(XI_HOST_PLATFORM),Windows_NT)
+	CC = arm-none-eabi-gcc
+	AR = arm-none-eabi-ar
 endif
 
-XI_BUILD_PRECONDITIONS := $(CC)
+$(info $$(XI_HOST_PLATFORM)=$(XI_HOST_PLATFORM))
+
 
 $(XI_GCC_ARM_NONE_EABI_DOWNLOAD_FILE):
 	@echo "XI ARM-GCC BUILD: downloading arm-gcc toolchain to file $(XI_GCC_ARM_NONE_EABI_DOWNLOAD_FILE)"
