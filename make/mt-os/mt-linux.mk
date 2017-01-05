@@ -13,15 +13,12 @@ include make/mt-os/mt-os-common.mk
 
 ifdef XI_SHARED
   AR = gcc
-  XI ?= $(XI_BINDIR)/libxively.so
+  XI = $(XI_BINDIR)/libxively.so
   XI_ARFLAGS += -fPIC -DXI_SHARED -shared -o $(XI)
-  XI_LIBTLS_EXAMPLE_LIB = $(XI_LIBTLS_SHARED)
 else
-  XI ?= $(XI_BINDIR)/libxively.a
   XI_ARFLAGS += -rs -c $(XI)
-  XI_LIBTLS_EXAMPLE_LIB = $(XI_LIBTLS_STATIC)
 endif
 
 # Temporarily disable these warnings until the code gets changed.
-XI_COMPILER_FLAGS += -Wno-format 
+XI_COMPILER_FLAGS += -Wno-format
 XI_CONFIG_FLAGS += -DXI_MULTI_LEVEL_DIRECTORY_STRUCTURE

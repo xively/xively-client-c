@@ -43,11 +43,11 @@ The Xively Client has been deployed on many different devices already shipping i
   - STM3241G-EVAL
   - Marvell
 
-Porting the Xively C Client to new platforms is accelerated by the Board Support Package (BSP). 
+Porting the Xively C Client to new platforms is accelerated by the Board Support Package (BSP).
 
 ## Board Support Package (BSP)
 
-The Board Support Package (BSP) is the well-defined set of functions that the Xively Client invokes to interact with a platform's specific networking, [TLS](https://en.wikipedia.org/wiki/Transport_Layer_Security), memory, random number generator, and time implementations. 
+The Board Support Package (BSP) is the well-defined set of functions that the Xively Client invokes to interact with a platform's specific networking, [TLS](https://en.wikipedia.org/wiki/Transport_Layer_Security), memory, random number generator, and time implementations.
 
 We've organized the sources of the Xivey Client so that your BSP implementation is in just a few files that reside in the directory (`src/bsp`).  This is where you should focus your attention when writing porting the Xively Client to your device SDK.
 
@@ -68,7 +68,7 @@ BSP Functions are broken down by logical subsystem as follows:
 
 ### Reference Implementations
 
-Reference **function implementations** are separated into two directories: `src/bsp/platform` and `src/bsp/tls`. 
+Reference **function implementations** are separated into two directories: `src/bsp/platform` and `src/bsp/tls`.
 
 The *platform* directory contains networking, memory, random number generator and time implementations.  The *tls* directory contains reference implementations for *wolfSSL* and *mbedTLS* libraries that supply secure connections over TCP/IP.
 
@@ -96,8 +96,8 @@ Before selecting another TLS solution other than those mentioned above, be sure 
 
 - asynchronous networking
 - loading custom root CA certs from a buffer
-- Online Certificate Status Protocol [(OCSP)](https://en.wikipedia.org/wiki/Online_Certificate_Status_Protocol) 
-	- The added functionality of [OCSP Stapling](https://en.wikipedia.org/wiki/OCSP_stapling) is prefered. 
+- Online Certificate Status Protocol [(OCSP)](https://en.wikipedia.org/wiki/Online_Certificate_Status_Protocol)
+	- The added functionality of [OCSP Stapling](https://en.wikipedia.org/wiki/OCSP_stapling) is prefered.
 
 To create a new BSP implementation for TLS:
 
@@ -108,7 +108,7 @@ To create a new BSP implementation for TLS:
 
 #### Customizing Both: Platform and TLS BSPs
 
-Invoking `make` without parameters will silently default the configuration to `make XI_BSP_PLATFORM=posix XI_BSP_TLS=wolfssl`. 
+Invoking `make` without parameters will silently default the configuration to `make XI_BSP_PLATFORM=posix XI_BSP_TLS=wolfssl`.
 
 This is fine for building on OSX or Linux/Unix using wolfSSL for a TLS library.  However, for cross-compilation you will most likely need to define both parameters explicitly. For instance:
 
@@ -116,7 +116,7 @@ This is fine for building on OSX or Linux/Unix using wolfSSL for a TLS library. 
 
 *Note: microSSL is a fictional TLS library we've conjured-up as a quick custom example.*
 
-This command assumes directory `src/bsp/platform/cc3200` containing networking, memory, random and time implementations as well as directory `src/bsp/tls/microSSL` covering the TLS calls.  
+This command assumes directory `src/bsp/platform/cc3200` containing networking, memory, random and time implementations as well as directory `src/bsp/tls/microSSL` covering the TLS calls.
 
 
 ## Porting the C Client
@@ -129,13 +129,13 @@ We recommend building the Xively Client on OSX or Linux/Unix before attempting t
 
 #### Build System: make
 
-The Xively C Client uses _make_ to build for OSX or Linux/Unix. The main makefile is in the root directory of the repository. 
+The Xively C Client uses _make_ to build for OSX or Linux/Unix. The main makefile is in the root directory of the repository.
 
-Further build configurations can be found under directory `make/` which contains numerous make target (mt) files which are included by the main makefile. Here `make/mt-config/mt-config.mk` and `make/mt-os/mt-os.mk` files should be your main focus.  These are always included by the main makefile, and further include optional mt files based on the CONFIG and TARGET flags you specify when building.  
+Further build configurations can be found under directory `make/` which contains numerous make target (mt) files which are included by the main makefile. Here `make/mt-config/mt-config.mk` and `make/mt-os/mt-os.mk` files should be your main focus.  These are always included by the main makefile, and further include optional mt files based on the CONFIG and TARGET flags you specify when building.
 
 For instance, the `make/mt-os/mt-cc3200.mk` file is included by `make/mt-os/mt-os.mk` when building for the TI CC3200.
 
-More information about CONFIG and TARGET flags can be found in the respective sections below.  
+More information about CONFIG and TARGET flags can be found in the respective sections below.
 
 Additionally you can run with `make MAKE_DEBUG=1` defined and our makefiles will log many of the source, include and flag variables that it's compiling so you can see where certain flags reside.
 
@@ -144,13 +144,13 @@ Additionally you can run with `make MAKE_DEBUG=1` defined and our makefiles will
 
 Although the _make_ build system is suitable for OSX or Linux/Unix builds, some MCU platforms may not support building via make. Often these devices supply their own Integrated Development Environment (IDE). For instance, the IAR toolchain uses their own graphical IDE.
 
-The key to building the Xively Client with an IDE is to ensure that you have the correct Preprocessor Definitions defined and to import the correct set of files.  
+The key to building the Xively Client with an IDE is to ensure that you have the correct Preprocessor Definitions defined and to import the correct set of files.
 
 Here's a a suggestion on how to determine which flags and files you should import:
 
 ##### Preprocessor Definitions
 
-Executing a makefile build on OSX or Linux/Unix with your desired config flags (see below) and then examining the make output is highly recommended.  
+Executing a makefile build on OSX or Linux/Unix with your desired config flags (see below) and then examining the make output is highly recommended.
 
 Additionally, by calling make with attribute 'MD=' you can reveal compiler and linker parameters, showing you which Preprocessor Definitions need to be migrated to your IDE environment.
 
@@ -203,17 +203,17 @@ On OSX these are available through `brew`:
     - brew install cmake
 
 On Ubuntu these are available through `apt-get`:
-	
+
 	- sudo apt-get update
 	- sudo apt-get install autoconf
 	- sudo apt-get install autotools-dev
 	- sudo apt-get install libtool
 	- sudo apt-get install cmake
-   
+
 
 #### Xively C Client Build Flags
 
-The make system uses dash '-' separated string to define the TARGET and CONFIGuration for a build. 
+The make system uses dash '-' separated string to define the TARGET and CONFIGuration for a build.
 
 TARGET defines the build environment for specific platforms and toolchains.
 
@@ -245,7 +245,7 @@ A typical TARGET flag looks like this:
 
 A typical CONFIG flag:
 
-	bsp_posix-posix_fs-posix_platform-tls_bsp-senml-control_topic-memory_limiter
+	posix_fs-posix_platform-tls_bsp-senml-control_topic-memory_limiter
 
 ###### Xively Client Feature flags
 
@@ -267,14 +267,14 @@ A typical CONFIG flag:
 
 ###### Development flags
 
-    - memory_limiter    - turns on memory limiting and monitoring functionality. 
+    - memory_limiter    - turns on memory limiting and monitoring functionality.
 						  The purpose of this configuration is to aid development processes by simulating low-memory environment behavior.
                           The memory monitor part is useful for memory consumption tracking and to hunt down memory
                           leaks.  When a leak occurs a stack trace of the initial allocation will be logged.
     - mqtt_localhost    - the Client will connect to localhost MQTT server. The purpose of this configuration option
                           is to help development processes.
     - no_certverify     - lowers security by disabling TLS certificate verification
-    - tls_bsp           - the Client will use third party TLS 1.2 implementations to encrypt data before it's sent over network sockets.   
+    - tls_bsp           - the Client will use third party TLS 1.2 implementations to encrypt data before it's sent over network sockets.
 					      The lack of this flag will skip the TLS handshaking.  This be may helpful in connecting to mosquitto to test,
                           but may not be supported on some secure services and is not recommend for production
                           deployment.  The Xively Gateway will not accept connections without TLS.
@@ -284,7 +284,7 @@ A typical CONFIG flag:
     - posix_platform    - selects implementation for non-BSP time and non-BSP memory solutions
     - wmsdk_platform    - selects implementation for non-BSP time and non-BSP memory solutions
 
-The Platform Selector configurations will eventually be sunset.  Currently these configure the build system to include Critical Section implementations for invoking callbacks on new threads.  
+The Platform Selector configurations will eventually be sunset.  Currently these configure the build system to include Critical Section implementations for invoking callbacks on new threads.
 
 We suggest defining `posix_platform` and omit `threading` from your CONFIG options when building for custom platforms.  `threading` is currently ommitted by default.
 
@@ -294,7 +294,7 @@ For more information about thread safe callback support please see the Xively C 
 
 By executing a simple 'make' under the base directory of the repository should be sufficient on OSX or Linux/Unix. This will result in build configuration with the following default flags:
 
-    - CONFIG: bsp_posix-posix_fs-posix_platform-tls-senml-control_topic-memory_limiter
+    - CONFIG: posix_fs-posix_platform-tls-senml-control_topic-memory_limiter
     - TARGET: osx-static-release
 
 The result will be a release version Xively C Client static library with debug outputs, secure TLS connection, POSIX networking and file system, artificial memory limits and memory guards turned on and with SENML support for timeseries formatting.
@@ -318,7 +318,7 @@ The examples are command line applications libxively links against. They require
 
 As a rule of thumb if you are stuck or confused, then please use existing platform config files like: `make/mt-os/mt-cc3200.mk` or `make/mt-os/mt-linux.mk` files as examples.
 
-Let's assume the new platform's name is np2000. 
+Let's assume the new platform's name is np2000.
 
 
 #### The Goal: Cross Compilation with the _make_ Build System
@@ -366,7 +366,7 @@ To make this possible, the following steps have to be taken.
 
     - define a Xively Client feature and target configurations which will be used in this same file afterwards
 
-            CONFIG_NP2000_MIN = bsp_np2000-memory_fs-tls
+            CONFIG_NP2000_MIN = memory_fs-tls
             TARGET_NP2000_REL = -static-release
 
     - define make system variables for PRESET *np2000*
@@ -385,7 +385,7 @@ To make this possible, the following steps have to be taken.
             XI_CONST_PLATFORM_CURRENT := $(XI_CONST_PLATFORM_NP2000)
         endif
 
-- [x] provide BSP implementations for all modules. 
+- [x] provide BSP implementations for all modules.
 
 	- Create the following source files:
 	 - `src/bsp/np2000/xi_bsp_io_net_np2000.c`
@@ -397,7 +397,7 @@ To make this possible, the following steps have to be taken.
  		- **memory** (`include/bsp/xi_bsp_mem.h`)
  		- **time** (`include/bsp/xi_bsp_time.h`)
  		- **random** (`include/bsp/xi_bsp_rng.h`)
- 
+
     Hint: to reach successful build just create the files and implement all the BSP API functions with **empty body**.  You may use files under `src/bsp/platform/dummy` as empty starting point. While this wont execute properly, it should link and run.
 
 - [x] select TLS implementation
@@ -422,19 +422,19 @@ To make this possible, the following steps have to be taken.
 
 #### Using a Third Party IDE (non-make)
 
-In the case that the _make_ build system is unavailable for your platform you can migrate the 
+In the case that the _make_ build system is unavailable for your platform you can migrate the
 Xively C Client build environment to your platform's own Integrated Development Environment (IDE).
 
 While we cannot completely predict how this process would work for every IDE and toolchain, here are some suggested steps to follow when working through this process:
 
-- import all of the Xively C Client source files in the `src/libxively` directory into your project workspace. This is where all of the Xively Client's platform independent code resides. 
+- import all of the Xively C Client source files in the `src/libxively` directory into your project workspace. This is where all of the Xively Client's platform independent code resides.
 	- Some of these files might not be required depending on your desired library configuration.  You could prune some files later by comparing the fileset against a mac / linux build log.
-- import all of the source files in one of the subdirectories of `src/bsp/platform`.  
-  The Xively C Client BSPs contain all of the missing hooks which tie the platform independent 
+- import all of the source files in one of the subdirectories of `src/bsp/platform`.
+  The Xively C Client BSPs contain all of the missing hooks which tie the platform independent
   code to a particular device. Complete implementations should include a source file for each
   of the BSP subsystems (networking, memory, time, etc).
-	- NOTE: The Xively C Client contains reference BSP implementations for POSIX and CC3200. We also have partial implementations for specific networking APIs. 
-    Modules from these 'incomplete' BSP implementations could be used as substitutes. For instance, on devices that mirror POSIX completely except for networking, like Simplelink, the networking module from `src/bsp/platform/posix` could be ovewritten with the one from `src/bsp/platform/simplelink_incomplete`. 
+	- NOTE: The Xively C Client contains reference BSP implementations for POSIX and CC3200. We also have partial implementations for specific networking APIs.
+    Modules from these 'incomplete' BSP implementations could be used as substitutes. For instance, on devices that mirror POSIX completely except for networking, like Simplelink, the networking module from `src/bsp/platform/posix` could be ovewritten with the one from `src/bsp/platform/simplelink_incomplete`.
 - import one of the BSP TLS implementations in `src/bsp/tls`.  Currently we provide two different TLS BSP implementations: WolfSSL or mbedTLS.
 
 
@@ -442,9 +442,8 @@ While we cannot completely predict how this process would work for every IDE and
 	- add all of the directories in `src/libxively` to your include path
 	- add the `include` directory to your include path
 	- add the `include/bsp` directory to your include path
-- add any corresonding preprocessor defintions to toggle on/off Xively client features. 
+  - add any corresonding preprocessor defintions to toggle on/off Xively client features.
   Using the CONFIG flags in file `make/mt-config/mt-config.mk` as a guide, the compiler flags used in the "Preceding Step" can be looked up and fed to the platform specific build system as well. Another option is to echo the makefile build system variable XI_CONFIG_FLAGS during building on OSX to see which flags are set.
-
 
 ## Further Reading
 For more informationa about the Xively Client, check these other documents in the [github repository](https://github.com/xively/xively-client-c):
@@ -458,7 +457,7 @@ Contains general information about the file structure of the sources, how to bui
 
 Contains an in-depth description of the Client Design and IoT Features, including MQTT logic, Event System, Back-Off Logic, Platform Security Requirements, etc.
 
-### doxygen/api 
+### doxygen/api
 
 Contains the function specifications for communicating with the Xively C Client from our application.  Functionality such as Connect, Subscribe, and Publish are outlined here.
 
