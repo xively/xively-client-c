@@ -31,9 +31,6 @@ else ifeq ($(XI_HOST_PLATFORM),Windows_NT)
 	AR = arm-none-eabi-ar
 endif
 
-$(info $$(XI_HOST_PLATFORM)=$(XI_HOST_PLATFORM))
-
-
 $(XI_GCC_ARM_NONE_EABI_DOWNLOAD_FILE):
 	@echo "XI ARM-GCC BUILD: downloading arm-gcc toolchain to file $(XI_GCC_ARM_NONE_EABI_DOWNLOAD_FILE)"
 	@-mkdir -p $(dir $@)
