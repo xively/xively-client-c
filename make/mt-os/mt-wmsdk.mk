@@ -95,17 +95,11 @@ include make/mt-os/mt-os-common.mk
 
 $(warning "Unit tests for wmsdk disabled. They will be re-enabled soon by the XCL-842")
 XI_TEST_OBJS :=
-XI_TEST_DEPS :=
 $(warning "Integration tests for wmsdk disabled. No story in the backlog!")
 
 ifdef XI_SHARED
 $(error "No shared target for wmsdk!")
 else
-  XI ?= $(XI_BINDIR)/libxively.a
   XI_ARFLAGS += -rs
   XI_ARFLAGS += $(XI)
 endif
-
-# warning level
-
-XI_LIBTLS_EXAMPLE_LIB = $(XI_LIBTLS_STATIC)

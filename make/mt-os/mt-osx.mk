@@ -12,14 +12,12 @@ XI_LIB_FLAGS += $(XI_TLS_LIBFLAGS) -lpthread -lm
 include make/mt-os/mt-os-common.mk
 
 ifdef XI_SHARED
-  XI ?= $(XI_OBJDIR)/libxively.dylib
-  #XI_ARFLAGS := -dynamclib -o $(XI) $(XI_TLS_LIBFLAGS) -L$(dir $(XI_LIBTLS_SHARED))
-  XI_ARFLAGS := -shared -o $(XI) $(XI_TLS_LIBFLAGS) -L$(dir $(XI_LIBTLS_SHARED))
+  XI = $(XI_BINDIR)/libxively.dylib
+  XI_ARFLAGS := -shared -o $(XI) $(XI_TLS_LIBFLAGS)
   AR = gcc
   XI_COMPILER_FLAGS += -fPIC
   XI_CONFIG_FLAGS += -DXI_SHARED
 else
-  XI ?= $(XI_BINDIR)/libxively.a
   XI_ARFLAGS += -rs -c $(XI)
 endif
 

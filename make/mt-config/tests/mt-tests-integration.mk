@@ -71,9 +71,3 @@ XI_INCLUDE_FLAGS += $(XI_ITESTS_INCLUDE_FLAGS)
 ifdef MAKEFILE_DEBUG
 $(info "--mt-tests-intergration-- Platform base: ${XI_PLATFORM_BASE})
 endif
-
-ifneq (,$(findstring arm,$(TARGET)))
-    include make/mt-config/tests/mt-qemu-cortex-m3.mk
-else
-    include make/mt-config/tests/mt-native.mk
-endif
