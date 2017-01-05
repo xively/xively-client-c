@@ -12,8 +12,6 @@ XI_COMPILER_FLAGS += -Wno-format
 XI_COMPILER_FLAGS  += -specs=rdimon.specs
 XI_LIBS_FLAGS += lrdimon
 
-XI ?= $(XI_BINDIR)/libxively.a
 XI_ARFLAGS += -rs -c $(XI)
-XI_LIBTLS_EXAMPLE_LIB = $(XI_LIBTLS_STATIC)
 
 include make/mt-utils/mt-get-gnu-arm-toolchain.mk

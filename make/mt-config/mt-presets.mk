@@ -6,21 +6,21 @@
 include make/mt-config/mt-target-platform.mk
 
 # CONFIG presets
-CONFIG_POSIX_MAX                =bsp_posix-posix_fs-posix_platform-tls_bsp-senml-control_topic-memory_limiter
-CONFIG_POSIX_MAX_THREADING      =bsp_posix-posix_fs-posix_platform-tls_bsp-senml-control_topic-threading-memory_limiter
-CONFIG_POSIX_MID                =bsp_posix-posix_fs-posix_platform-tls_bsp-senml-control_topic
-CONFIG_POSIX_MID_UNSECURE       =bsp_posix-posix_fs-posix_platform-senml-control_topic
-CONFIG_POSIX_MIN                =bsp_posix-posix_fs-posix_platform-tls_bsp
-CONFIG_POSIX_MIN_UNSECURE       =bsp_posix-posix_fs-posix_platform
+CONFIG_POSIX_MAX                =posix_fs-posix_platform-tls_bsp-senml-control_topic-memory_limiter
+CONFIG_POSIX_MAX_THREADING      =posix_fs-posix_platform-tls_bsp-senml-control_topic-threading-memory_limiter
+CONFIG_POSIX_MID                =posix_fs-posix_platform-tls_bsp-senml-control_topic
+CONFIG_POSIX_MID_UNSECURE       =posix_fs-posix_platform-senml-control_topic
+CONFIG_POSIX_MIN                =posix_fs-posix_platform-tls_bsp
+CONFIG_POSIX_MIN_UNSECURE       =posix_fs-posix_platform
 
 # arm configs
-CONFIG_DUMMY_MAX                =bsp_dummy-memory_fs-memory_limiter-control_topic-senml
-CONFIG_DUMMY_MIN                =bsp_dummy-memory_fs
+CONFIG_DUMMY_MAX                =memory_fs-memory_limiter-control_topic-senml
+CONFIG_DUMMY_MIN                =memory_fs
 
-CONFIG_CC3200                   =bsp_cc3200-memory_fs-tls_bsp
-CONFIG_CC3200_TLS_SOCKET        =bsp_cc3200-memory_fs-tls_socket
+CONFIG_CC3200                   =memory_fs-tls_bsp
+CONFIG_CC3200_TLS_SOCKET        =memory_fs-tls_socket
 
-CONFIG_STM32F4                  =bsp_stm32f4-memory_fs-tls_bsp
+CONFIG_STM32F4                  =memory_fs-tls_bsp
 
 # TARGET presets
 TARGET_STATIC_DEV               =-static-debug

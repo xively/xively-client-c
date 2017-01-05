@@ -4,10 +4,6 @@
 # it is licensed under the BSD 3-Clause license.
 
 include make/mt-os/mt-os-common.mk
-
-# todo: this is common, move it to outside
-XI ?= $(XI_BINDIR)/libxively.a
-
 include make/mt-utils/mt-get-gnu-arm-toolchain.mk
 
 XI_STM32_PATH_SDK = $(HOME)/Downloads/xively-client-artifactory/st/STM32Cube_FW_F4_V1.13.0
