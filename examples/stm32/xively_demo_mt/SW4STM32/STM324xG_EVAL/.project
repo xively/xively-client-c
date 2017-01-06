@@ -29,32 +29,32 @@
 		<link>
 			<name>Application/SW4STM32/startup_stm32f407xx.s</name>
 			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/startup_stm32f407xx.s</locationURI>
+			<locationURI>XI_STMCUBE_PATH/Projects/STM324xG_EVAL/Applications/LwIP/LwIP_HTTP_Server_Socket_RTOS/SW4STM32/startup_stm32f407xx.s</locationURI>
 		</link>
 		<link>
 			<name>Application/SW4STM32/syscalls.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/syscalls.c</locationURI>
+			<locationURI>XI_STMCUBE_PATH/Projects/STM324xG_EVAL/Applications/LwIP/LwIP_HTTP_Server_Socket_RTOS/SW4STM32/syscalls.c</locationURI>
 		</link>
 		<link>
 			<name>Application/User/app_ethernet.c</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Src/app_ethernet.c</locationURI>
+			<locationURI>XI_STMCUBE_PATH/Projects/STM324xG_EVAL/Applications/LwIP/LwIP_HTTP_Server_Socket_RTOS/Src/app_ethernet.c</locationURI>
 		</link>
 		<link>
 			<name>Application/User/ethernetif.c</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Src/ethernetif.c</locationURI>
+			<locationURI>XI_STMCUBE_PATH/Projects/STM324xG_EVAL/Applications/LwIP/LwIP_HTTP_Server_Socket_RTOS/Src/ethernetif.c</locationURI>
 		</link>
 		<link>
 			<name>Application/User/fs.c</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Src/fs.c</locationURI>
+			<locationURI>XI_STMCUBE_PATH/Projects/STM324xG_EVAL/Applications/LwIP/LwIP_HTTP_Server_Socket_RTOS/Src/fs.c</locationURI>
 		</link>
 		<link>
 			<name>Application/User/httpserver-socket.c</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Src/httpserver-socket.c</locationURI>
+			<locationURI>XI_STMCUBE_PATH/Projects/STM324xG_EVAL/Applications/LwIP/LwIP_HTTP_Server_Socket_RTOS/Src/httpserver-socket.c</locationURI>
 		</link>
 		<link>
 			<name>Application/User/main.c</name>
@@ -64,12 +64,12 @@
 		<link>
 			<name>Application/User/stm32f4xx_hal_timebase_tim.c</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Src/stm32f4xx_hal_timebase_tim.c</locationURI>
+			<locationURI>XI_STMCUBE_PATH/Projects/STM324xG_EVAL/Applications/LwIP/LwIP_HTTP_Server_Socket_RTOS/Src/stm32f4xx_hal_timebase_tim.c</locationURI>
 		</link>
 		<link>
 			<name>Application/User/stm32f4xx_it.c</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Src/stm32f4xx_it.c</locationURI>
+			<locationURI>XI_STMCUBE_PATH/Projects/STM324xG_EVAL/Applications/LwIP/LwIP_HTTP_Server_Socket_RTOS/Src/stm32f4xx_it.c</locationURI>
 		</link>
 		<link>
 			<name>Application/User/xively_client.c</name>
@@ -84,7 +84,7 @@
 		<link>
 			<name>Drivers/CMSIS/system_stm32f4xx.c</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Src/system_stm32f4xx.c</locationURI>
+			<locationURI>XI_STMCUBE_PATH/Projects/STM324xG_EVAL/Applications/LwIP/LwIP_HTTP_Server_Socket_RTOS/Src/system_stm32f4xx.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal.c</name>
