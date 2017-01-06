@@ -735,7 +735,7 @@ connect_cb (
            */
         case XI_CONNECTION_STATE_OPEN_FAILED:
           {
-            printf("[%d] Xively: Connection failed %s:%d, error %d\n", xi_bsp_time_getcurrenttime_seconds(),
+            printf("[%d] Xively: Connection failed to %s:%d, error %d\n", xi_bsp_time_getcurrenttime_seconds(),
                     conn_data->host, conn_data->port, state );
 
             xi_connect (ctx,
@@ -793,7 +793,7 @@ connect_cb (
  */
 time_t XTIME( time_t* timer )
 {
-    return 1480417489;
+    return 1483536991; /* Wed, 04 Jan 2017 13:36:31 GMT */
 }
 
 /**
@@ -911,7 +911,7 @@ xc_task (
       /*
        * Sleep for 10 seconds to let the network start
        */
-    osDelay (10000);
+    osDelay (2000);
 
       /*
        * Call the Xively "main" loop. This will never return.

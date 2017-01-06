@@ -268,7 +268,7 @@ static void BSP_Config( void )
     LCD_LOG_Init();
 
     /* Show Header and Footer texts */
-    LCD_LOG_SetHeader( ( uint8_t* )"Webserver Application" );
+    LCD_LOG_SetHeader( ( uint8_t* )"Xively C Client for STM32" );
     LCD_LOG_SetFooter( ( uint8_t* )"STM324xG-EVAL board" );
 
     LCD_UsrLog( "  State: Ethernet Initialization ...\n" );
