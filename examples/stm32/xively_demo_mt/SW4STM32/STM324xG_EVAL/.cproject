@@ -4,8 +4,8 @@
 		<cconfiguration id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.334711653">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.334711653" moduleId="org.eclipse.cdt.core.settings" name="Debug">
 				<macros>
-					<stringMacro name="XI_STMCUBE_PATH" type="VALUE_PATH_DIR" value="/Users/ohumenczuk/Downloads/STM32Cube_FW_F4_V1.13.0"/>
-					<stringMacro name="XI_CLIENT_PATH" type="VALUE_PATH_ANY" value="/Users/ohumenczuk/workspace/xively/xively-client-c"/>
+					<stringMacro name="XI_STMCUBE_PATH" type="VALUE_PATH_DIR" value="/Users/atigyi/Downloads/STM32Cube_FW_F4_V1.14.0"/>
+					<stringMacro name="XI_CLIENT_PATH" type="VALUE_PATH_ANY" value="/Users/atigyi/git/xi/xc/xively-client-c"/>
 				</macros>
 				<externalSettings/>
 				<extensions>
