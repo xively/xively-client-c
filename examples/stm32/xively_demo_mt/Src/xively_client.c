@@ -793,7 +793,7 @@ connect_cb (
  */
 time_t XTIME( time_t* timer )
 {
-    return 1483536991; /* Wed, 04 Jan 2017 13:36:31 GMT */
+    return 1483962306; /* Mon, 09 Jan 2017 11:45:06 GMT */
 }
 
 /**
