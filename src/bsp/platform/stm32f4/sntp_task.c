@@ -5,24 +5,23 @@
  ******************************************************************************/
 
 /* Standard includes */
+#define timeval timeval_std
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
+// #include <time.h>
 #include <stdint.h>
+#include <stdio.h>
+#undef timeval
 
-/* TI  includes */
-/*#include "simplelink.h"
-#include "osi.h"
-#include "hw_types.h"
-#include "hw_memmap.h"
-#include "rom_map.h"
-#include "prcm.h"
-#include "timer_if.h"
-#include "timer.h"*/
+#undef BYTE_ORDER
+/* STM includes */
+#include <lwip/netdb.h>
+// #include <FreeRTOS.h>
+// #include <task.h>
+
 
 /* Local includes */
 #include "sntp.h"
-// #include "main.h"
 
 /******************************************************************************
  *                                                                            *
@@ -167,7 +166,7 @@ static ntp_time_t start_time_ntp = 0;
 static uint32_t uptime           = 0;
 static int ntp_server_index      = 0;
 static char* ntp_server_names[]  = NTP_SERVER_NAMES;
-static int errno;
+// static int errno;
 
 #define NTP_SERVER_COUNT ( sizeof( ntp_server_names ) / sizeof( char* ) )
 
@@ -199,6 +198,7 @@ static char* get_status_msg( int status )
 
 static uint32_t dns_lookup( char* host_name )
 {
+#if 0
     int status;
     uint32_t rval;
 
@@ -226,6 +226,21 @@ static uint32_t dns_lookup( char* host_name )
     }
 
     return rval;
+#else
+
+    struct hostent* hostinfo = gethostbyname( host_name );
+
+    /* if null it means that the address has not been found */
+    if ( NULL == hostinfo )
+    {
+        printf( "  errno: %d: %s\n", errno, strerror( errno ) );
+
+        return 0;
+    }
+
+    return ( ( struct in_addr* )hostinfo->h_addr_list[0] )->s_addr;
+
+#endif
 }
 
 
@@ -239,11 +254,11 @@ static ntp_time_t sntp_get( uint32_t server_addr )
 {
     uint8_t sntp_request[SNTP_MSG_LEN];
     uint8_t sntp_response[SNTP_MSG_LEN];
-    int s;
+    int s = 0;
     struct sockaddr_in local_sa;
     struct sockaddr_in ntp_sa;
     socklen_t sa_len;
-    struct timeval rcv_to;
+    // struct timeval rcv_to;
     ntp_time_t timestamp;
     int status;
     ntp_time_t rval;
@@ -299,15 +314,15 @@ static ntp_time_t sntp_get( uint32_t server_addr )
         /*
          *  Set receive timeout
          */
-        rcv_to.tv_sec = SNTP_RCV_TO_SEC;
+        /*rcv_to.tv_sec = SNTP_RCV_TO_SEC;
 
         if ( ( status = setsockopt( s, SOL_SOCKET, SO_RCVTIMEO, &rcv_to,
                                     sizeof( rcv_to ) ) ) != 0 )
         {
-            errno  = status;
+            // errno  = status;
             status = SNTP_SETSOCKOPT_ERR;
             break;
-        }
+        }*/
 
         /*
          *  Send SNTP request
@@ -382,45 +397,20 @@ static ntp_time_t sntp_get( uint32_t server_addr )
 
 /******************************************************************************
  *                                                                            *
- *  timer_int_handler ()                                                      *
- *                                                                            *
- ******************************************************************************/
-
-static void timer_int_handler( void )
-{
-    MAP_TimerIntClear( TIMERA0_BASE, MAP_TimerIntStatus( TIMERA0_BASE, true ) );
-    uptime++;
-}
-
-
-/******************************************************************************
- *                                                                            *
- *  timer_start ()                                                            *
- *                                                                            *
- ******************************************************************************/
-
-static void timer_start( void )
-{
-    Timer_IF_Init( PRCM_TIMERA0, TIMERA0_BASE, TIMER_CFG_PERIODIC, TIMER_A, 0 );
-    Timer_IF_IntSetup( TIMERA0_BASE, TIMER_A, timer_int_handler );
-    Timer_IF_Start( TIMERA0_BASE, TIMER_A, 1000 );
-}
-
-
-/******************************************************************************
- *                                                                            *
  *  sntp_task ()                                                              *
  *                                                                            *
  ******************************************************************************/
 
 static void sntp_task( void* pvParameters )
 {
+    ( void )pvParameters;
+
     uint32_t server_addr;
     ntp_time_t t;
     uint32_t sleep_ms;
-    int i;
+    uint8_t i;
 
-    while ( 1 )
+    // while ( 1 )
     {
         for ( i = 0; i < NTP_SERVER_COUNT; i++ )
         {
@@ -446,8 +436,10 @@ static void sntp_task( void* pvParameters )
             sleep_ms = NTP_RETRY_MS;
         }
 
-        osi_Sleep( sleep_ms );
-        printf( "SNTP_L: %d, UT %d\n", sntp_time_posix(), uptime );
+        ( void )sleep_ms;
+        // const TickType_t xDelayTime = sleep_ms / portTICK_PERIOD_MS;
+        // vTaskDelay( xDelayTime );
+        // printf( "SNTP_L: %d, UT %d\n", sntp_time_posix(), uptime );
     }
 }
 
@@ -502,12 +494,18 @@ posix_time_t sntp_time_posix( void )
 
 void sntp_init( void )
 {
+    sntp_task( NULL );
+
+#if 0
     static int once = 0;
+
+    // call this as blocking since loading certificate already requires accurate time in
+    // Xively C Client
 
     if ( !once )
     {
-        timer_start();
-        osi_TaskCreate( sntp_task, TASK_NAME, STACK_SIZE, NULL, 1, NULL );
+        xTaskCreate( sntp_task, TASK_NAME, STACK_SIZE, NULL, 1, NULL );
         once = 1;
     }
+#endif
 }

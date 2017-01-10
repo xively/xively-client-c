@@ -10,7 +10,7 @@ XI ?= $(XI_BINDIR)/libxively.a
 
 include make/mt-utils/mt-get-gnu-arm-toolchain.mk
 
-XI_STM32_PATH_SDK = $(HOME)/Downloads/xively-client-artifactory/st/STM32Cube_FW_F4_V1.13.0
+XI_STM32_PATH_SDK = $(HOME)/Downloads/STM32Cube_FW_F4_V1.14.0
 
 #####################
 # LWIP configurations
@@ -20,7 +20,10 @@ XI_STM32_PATH_SDK_LWIP = $(XI_STM32_PATH_SDK)/Middlewares/Third_Party/LwIP
 XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK_LWIP)/src/include
 XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK_LWIP)/system
 XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Middlewares/Third_Party/FreeRTOS/Source/include
-XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/
+XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F
+XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/STM32F4xx_HAL_Driver/Inc
+XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/CMSIS/Device/ST/STM32F4xx/Include
+XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/CMSIS/Include
 XI_COMPILER_FLAGS += -I$(LIBXIVELY)/examples/stm32/xively_demo_mt/Inc
 
 ####################

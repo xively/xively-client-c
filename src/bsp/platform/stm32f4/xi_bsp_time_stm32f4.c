@@ -6,24 +6,20 @@
 
 #include <xi_bsp_time.h>
 
-#include <lwip/apps/sntp.h>
-#include <FreeRTOS.h>
-#include <task.h>
-
-// static xi_time_t timer = 0;
+#include <stm32f4xx_hal.h>
+#include <sntp.h>
 
 void xi_bsp_time_init()
 {
-    /* empty */
-    // sntp_init();
+    sntp_init();
 }
 
 xi_time_t xi_bsp_time_getcurrenttime_seconds()
 {
-    return xTaskGetTickCount() / 1000;
+    return sntp_time_posix() + HAL_GetTick() / 1000;
 }
 
 xi_time_t xi_bsp_time_getcurrenttime_milliseconds()
 {
-    return xTaskGetTickCount();
+    return HAL_GetTick();
 }
