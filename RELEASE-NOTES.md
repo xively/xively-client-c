@@ -1,5 +1,20 @@
-# Xively Client version 1.2.2
+# Xively Client version 1.2.3
+#### Jan 10 2017
 
+## Features
+
+- TI CC3200: fixed all compiler warnings so that the client compiles cleanly for that platform.
+- The library now supports fuzz tests! For more details refer to ```doc/dev/FuzzTestsProgrammerManual.md```.
+- Makefile support files in the ```make/``` directory now have the .mk extension.
+- Makefile updates for better Linux compatibility.
+- Travis CI maintenance, Internal Storage Infrastructure and Build changes for Continuous Integration tools.
+  - End result: We'll be to support more platforms.
+- Removed legacy TLS BSP files for WolfSSL. These were from a previous Xively C Client BSP architecture.
+  - The new BSP files remain in ```src/bsp/tls/wolfssl```.
+
+
+
+# Xively Client version 1.2.2
 #### Nov 24 2016
 
 ## Documentation and Ease of Use
