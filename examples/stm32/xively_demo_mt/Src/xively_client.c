@@ -30,7 +30,7 @@
 #define  XC_CHECK_PERIOD          1 /* Seconds. Check period for publication changes. */
 #define  XC_MAX_PUBS_IN_FLIGHT    1
 
-#define  XC_TASK_STACK          (512 * 4)
+#define  XC_TASK_STACK          (512 * 6)
 #define  XC_TASK_NAME           ((signed char*)"XC Thread")
 
   /*
@@ -787,13 +787,12 @@ connect_cb (
     return rval;
   }
 
-
 /**
  * @brief Function that is required by TLS library to track the current time.
  */
 time_t XTIME( time_t* timer )
 {
-    return 1483962306; /* Mon, 09 Jan 2017 11:45:06 GMT */
+    return xi_bsp_time_getcurrenttime_seconds();
 }
 
 /**

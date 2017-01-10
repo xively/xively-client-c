@@ -282,11 +282,12 @@ static void BSP_Config( void )
   */
 static void ToggleLed4( void const* argument )
 {
-    for ( ;; )
+    uint32_t ledID = 0;
+    for ( ;; ++ledID )
     {
         /* Toggle LED4 each 250ms */
-        BSP_LED_Toggle( LED4 );
-        osDelay( 250 );
+        BSP_LED_Toggle( ledID % 4 );
+        osDelay( 150 );
     }
 }
 
