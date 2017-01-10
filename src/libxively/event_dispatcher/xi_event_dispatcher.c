@@ -307,23 +307,18 @@ xi_event_handle_return_t xi_evtd_execute_handle( xi_event_handle_t* handle )
     {
         case XI_EVENT_HANDLE_ARGC0:
             return ( *handle->handlers.h0.fn_argc0 )();
-            break;
         case XI_EVENT_HANDLE_ARGC1:
             return ( *handle->handlers.h1.fn_argc1 )( handle->handlers.h1.a1 );
-            break;
         case XI_EVENT_HANDLE_ARGC2:
             return ( *handle->handlers.h2.fn_argc2 )( handle->handlers.h2.a1,
                                                       handle->handlers.h2.a2 );
-            break;
         case XI_EVENT_HANDLE_ARGC3:
             return ( *handle->handlers.h3.fn_argc3 )(
                 handle->handlers.h3.a1, handle->handlers.h3.a2, handle->handlers.h3.a3 );
-            break;
         case XI_EVENT_HANDLE_ARGC4:
             return ( *handle->handlers.h4.fn_argc4 )(
                 handle->handlers.h4.a1, handle->handlers.h4.a2, handle->handlers.h4.a3,
                 handle->handlers.h4.a4 );
-            break;
         case XI_EVENT_HANDLE_ARGC5:
             return ( *handle->handlers.h5.fn_argc5 )(
                 handle->handlers.h5.a1, handle->handlers.h5.a2, handle->handlers.h5.a3,

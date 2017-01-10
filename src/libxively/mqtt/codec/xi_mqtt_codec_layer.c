@@ -277,10 +277,16 @@ xi_state_t xi_mqtt_codec_layer_pull( void* context, void* data, xi_state_t in_ou
         layer_data->local_state =
             xi_mqtt_parser_execute( &layer_data->parser, layer_data->msg, data_desc );
 
+        xi_debug_format( "local_state = %d", ( int )layer_data->local_state );
+
+        if ( layer_data->local_state == XI_STATE_WANT_READ )
+        {
+            xi_free_desc( &data_desc );
+        }
+
         XI_CR_YIELD_UNTIL( layer_data->pull_cs,
                            ( layer_data->local_state == XI_STATE_WANT_READ ),
-                           XI_PROCESS_PULL_ON_PREV_LAYER( context, data_desc,
-                                                          layer_data->local_state ) );
+                           XI_STATE_OK );
     } while ( in_out_state == XI_STATE_OK &&
               layer_data->local_state == XI_STATE_WANT_READ );
 

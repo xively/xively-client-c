@@ -26,8 +26,6 @@ xi_resource_manager_get_callback_state( xi_event_handle_t* event_handle )
         default:
             return XI_INVALID_PARAMETER;
     }
-
-    return XI_INVALID_PARAMETER;
 }
 
 static xi_state_t xi_resource_manager_set_callback_state( xi_event_handle_t* event_handle,
@@ -190,11 +188,10 @@ static xi_state_t xi_resource_manager_open_coroutine( void* context,
                                                      context, res_type, state, res_name );
 
     /* local variables <- parameters */
-    xi_resource_manager_context_t* const ctx =
-        ( xi_resource_manager_context_t * const )context;
+    xi_resource_manager_context_t* const ctx = context;
     const xi_fs_resource_type_t resource_type =
-        ( const xi_fs_resource_type_t )( intptr_t )res_type;
-    const char* const resource_name = ( const char* const )res_name;
+        ( xi_fs_resource_type_t )( intptr_t )res_type;
+    const char* const resource_name = ( char* )res_name;
 
     XI_CR_START( ctx->cs );
 
@@ -245,8 +242,7 @@ xi_state_t xi_resource_manager_read_coroutine( void* context )
     size_t buffer_size    = 0;
 
     /* local variables <- parameters */
-    xi_resource_manager_context_t* const ctx =
-        ( xi_resource_manager_context_t * const )context;
+    xi_resource_manager_context_t* const ctx = ( xi_resource_manager_context_t* )context;
 
     XI_CR_START( ctx->cs );
 
@@ -292,7 +288,7 @@ xi_state_t xi_resource_manager_read_coroutine( void* context )
           {
               /* accumulate */
               XI_CHECK_STATE( xi_data_desc_append_data_resize(
-                  ctx->data_buffer, ( const char* const )buffer, buffer_size ) );
+                  ctx->data_buffer, ( char* )buffer, buffer_size ) );
           }
 
           /* if it's not the whole file than let's keep reading */
@@ -333,8 +329,7 @@ xi_state_t xi_resource_manager_close_coroutine( void* context )
         xi_make_handle( &xi_resource_manager_close_coroutine, context );
 
     /* local variables <- parameters */
-    xi_resource_manager_context_t* const ctx =
-        ( xi_resource_manager_context_t * const )context;
+    xi_resource_manager_context_t* const ctx = ( xi_resource_manager_context_t* )context;
 
     XI_CR_START( ctx->cs );
 

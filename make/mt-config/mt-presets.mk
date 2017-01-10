@@ -6,18 +6,21 @@
 include make/mt-config/mt-target-platform.mk
 
 # CONFIG presets
-CONFIG_POSIX_MAX                =bsp_posix-posix_fs-posix_platform-tls_bsp-senml-control_topic-memory_limiter
-CONFIG_POSIX_MAX_THREADING      =bsp_posix-posix_fs-posix_platform-tls_bsp-senml-control_topic-threading-memory_limiter
-CONFIG_POSIX_MID                =bsp_posix-posix_fs-posix_platform-tls_bsp-senml-control_topic
-CONFIG_POSIX_MID_UNSECURE       =bsp_posix-posix_fs-posix_platform-senml-control_topic
-CONFIG_POSIX_MIN                =bsp_posix-posix_fs-posix_platform-tls_bsp
+CONFIG_POSIX_MAX                =posix_fs-posix_platform-tls_bsp-senml-control_topic-memory_limiter
+CONFIG_POSIX_MAX_THREADING      =posix_fs-posix_platform-tls_bsp-senml-control_topic-threading-memory_limiter
+CONFIG_POSIX_MID                =posix_fs-posix_platform-tls_bsp-senml-control_topic
+CONFIG_POSIX_MID_UNSECURE       =posix_fs-posix_platform-senml-control_topic
+CONFIG_POSIX_MIN                =posix_fs-posix_platform-tls_bsp
+CONFIG_POSIX_MIN_UNSECURE       =posix_fs-posix_platform
 
 # arm configs
-CONFIG_DUMMY_MAX                =bsp_dummy-memory_fs-memory_limiter-control_topic-senml
-CONFIG_DUMMY_MIN                =bsp_dummy-memory_fs
+CONFIG_DUMMY_MAX                =memory_fs-memory_limiter-control_topic-senml
+CONFIG_DUMMY_MIN                =memory_fs
 
-CONFIG_CC3200                   =bsp_cc3200-memory_fs-tls_bsp
-CONFIG_CC3200_TLS_SOCKET        =bsp_cc3200-memory_fs-tls_socket
+CONFIG_CC3200                   =memory_fs-tls_bsp
+CONFIG_CC3200_TLS_SOCKET        =memory_fs-tls_socket
+
+CONFIG_STM32F4                  =memory_fs-tls_bsp
 
 # TARGET presets
 TARGET_STATIC_DEV               =-static-debug
@@ -82,6 +85,12 @@ else ifeq ($(PRESET), CC3200)
     TARGET = $(TARGET_STATIC_REL)
     XI_BSP_PLATFORM = cc3200
     XI_TARGET_PLATFORM = cc3200
+else ifeq ($(PRESET), CC3200_SDK120)
+    CONFIG = $(CONFIG_CC3200)
+    TARGET = $(TARGET_STATIC_REL)
+    XI_BSP_PLATFORM = cc3200
+    XI_TARGET_PLATFORM = cc3200
+    XI_CC3200_SDK = CC3200SDK_1.2.0
 else ifeq ($(PRESET), CC3200_TLS_SOCKET)
     CONFIG = $(CONFIG_CC3200_TLS_SOCKET)
     TARGET = $(TARGET_STATIC_REL)
@@ -89,12 +98,36 @@ else ifeq ($(PRESET), CC3200_TLS_SOCKET)
     XI_TARGET_PLATFORM = cc3200
 
 # -------------------------------------------------------
+# ST Micro STM32F4
+else ifeq ($(PRESET), STM32F4)
+    CONFIG = $(CONFIG_STM32F4)
+    TARGET = $(TARGET_STATIC_REL)
+    XI_BSP_PLATFORM = stm32f4
+    XI_TARGET_PLATFORM = stm32f4
+
+# -------------------------------------------------------
+# Fuzz Tests
+else ifeq ($(PRESET), FUZZ_TESTS)
+	ifeq ($(XI_HOST_PLATFORM),Darwin)
+$(error Fuzz testing won\'t work on OSX)
+	endif
+	CONFIG = $(CONFIG_POSIX_MIN_UNSECURE)_fuzz_test
+	TARGET = $(TARGET_STATIC_REL)
+	XI_BSP_PLATFORM = posix
+	XI_BSP_TLS =
+
+# -------------------------------------------------------
 # DEFAULT
 else
-# default settings in case of undefined or unrecognised PRESET
-CONFIG ?= $(CONFIG_POSIX_MIN)
-TARGET ?= $(TARGET_STATIC_REL)
-  $(info INFO: PRESET: '$(PRESET)' not recognised, using default CONFIG: [$(CONFIG)] and TARGET: [$(TARGET)])
+    ifndef PRESET
+    # default settings in case of undefined
+    CONFIG ?= $(CONFIG_POSIX_MIN)
+    TARGET ?= $(TARGET_STATIC_REL)
+  	    $(info INFO: '$(PRESET)' not detected, using default CONFIG: [$(CONFIG)] and TARGET: [$(TARGET)])
+    else
+    # error in case of unrecognised PRESET
+    $(error Invalid PRESET, see valid presets in make/mt-config/mt-presets.mk)
+    endif
 endif
 
 TARGET := $(addprefix $(XI_TARGET_PLATFORM), $(TARGET))

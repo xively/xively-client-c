@@ -144,8 +144,6 @@ do_mqtt_keepalive_task( void* ctx, void* data, xi_state_t state, void* msg_data 
 
     XI_CR_END();
 
-    return XI_STATE_OK;
-
 err_handling:
     xi_mqtt_message_free( &msg_memory );
     XI_CR_RESET( task->cs );

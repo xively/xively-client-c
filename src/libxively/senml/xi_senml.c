@@ -101,10 +101,10 @@ void xi_senml_destroy( xi_senml_t** senml_structure )
     XI_SAFE_FREE( *senml_structure );
 }
 
-xi_state_t xi_create_senml_struct( xi_senml_t** senml_ptr, uint8_t count, ... )
+xi_state_t xi_create_senml_struct( xi_senml_t** senml_ptr, int count, ... )
 {
     xi_state_t state = XI_STATE_OK;
-
+ 
     XI_CHECK_CND( NULL == senml_ptr, XI_INVALID_PARAMETER, state );
     XI_CHECK_CND( NULL != *senml_ptr, XI_INVALID_PARAMETER, state );
 
@@ -204,7 +204,7 @@ void xi_debug_dump_senml_entry( const xi_senml_entry_t* entry, const char* prefi
     }
 }
 
-xi_state_t xi_add_senml_entry( xi_senml_t* senml_ptr, uint8_t count, ... )
+xi_state_t xi_add_senml_entry( xi_senml_t* senml_ptr, int count, ... )
 {
     xi_state_t state = XI_STATE_OK;
 

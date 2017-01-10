@@ -6,7 +6,7 @@
 
 #include "xi_backoff_status_api.h"
 #include "xi_globals.h"
-#include "xi_rng.h"
+#include "xi_bsp_rng.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,7 +52,7 @@ uint32_t xi_get_backoff_penalty()
     const int32_t half_range = XI_MAX( full_range / 2, 1 );
 
     /* rand_value = random( 0, full_range ) */
-    const int32_t rand_value = xi_rand() % ( full_range + 1 );
+    const int32_t rand_value = xi_bsp_rng_get() % ( full_range + 1 );
 
     /* backoff_value =
      *      base_value + random( -0.5 * prev_backoff_base_value
@@ -159,13 +159,11 @@ xi_backoff_class_t xi_backoff_classify_state( const xi_state_t state )
         case XI_MQTT_BAD_USERNAME_OR_PASSWORD:
         case XI_MQTT_NOT_AUTHORIZED:
             return XI_BACKOFF_CLASS_TERMINAL;
-            break;
         case XI_STATE_OK:
         case XI_STATE_WRITTEN:
             return XI_BACKOFF_CLASS_NONE;
         default:
             return XI_BACKOFF_CLASS_RECOVERABLE;
-            break;
     }
 }
 

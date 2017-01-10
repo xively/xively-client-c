@@ -24,14 +24,15 @@ xi_state_t xi_io_timeouts_create( xi_evtd_instance_t* event_dispatcher,
     assert( NULL != ret_time_event_handle &&
             NULL == ret_time_event_handle->ptr_to_position );
 
+    const xi_vector_elem_t* elem = NULL;
+
     xi_state_t ret_state =
         xi_evtd_execute_in( event_dispatcher, handle, time_diff, ret_time_event_handle );
 
     XI_CHECK_STATE( ret_state );
 
-    const xi_vector_elem_t* elem = xi_vector_push(
-        io_timeouts,
-        XI_VEC_CONST_VALUE_PARAM( XI_VEC_VALUE_PTR( ret_time_event_handle ) ) );
+    elem = xi_vector_push( io_timeouts, XI_VEC_CONST_VALUE_PARAM(
+                                            XI_VEC_VALUE_PTR( ret_time_event_handle ) ) );
 
     XI_CHECK_MEMORY( elem, ret_state );
 
