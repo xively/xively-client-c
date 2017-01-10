@@ -134,7 +134,7 @@ XI_TT_TESTCASE_WITH_SETUP(
         // set the task data
         XI_ALLOC_AT( xi_mqtt_logic_task_t, task, local_state );
 
-        task->cs = 109; // this is very hakish since it depends on the code
+        task->cs = 111; // this is very hakish since it depends on the code
         // so most probably this test will fail everytime we change anything in
         // tested function which is not too good at least you know what to check
         // if the test fails
@@ -233,7 +233,7 @@ XI_TT_TESTCASE_WITH_SETUP(
         // set the task data
         XI_ALLOC_AT( xi_mqtt_logic_task_t, task, local_state );
 
-        task->cs = 109; // this is very hakish since it depends on the code
+        task->cs = 111; // this is very hakish since it depends on the code
         // so most probably this test will fail everytime we change anything in
         // tested function which is not too good at least you know what to check
         // if the test fails
