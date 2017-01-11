@@ -9,7 +9,6 @@ AR = /Applications/microchip/xc32/v1.34/bin/xc32-gcc
 
 include make/mt-os/mt-os-common.mk
 
-XI ?= $(XI_BINDIR)/libxively.a
 XI_ARFLAGS += -mprocessor=32MX695F512H  -o
 XI_ARFLAGS += $(XI)
 #XI_EXTRA_ARFLAGS += -mdebugger -D__MPLAB_DEBUGGER_REAL_ICE=1 -mprocessor=$(MP_PROCESSOR_OPTION)
@@ -22,9 +21,3 @@ XI_EXTRA_ARFLAGS += -Wl,--defsym=__MPLAB_BUILD=1,--defsym=_min_heap_size=16000,-
 XI_COMPILER_FLAGS += -I/Users/ddellabitta/microchip_solutions_v2013-06-15/Microchip/Include
 XI_COMPILER_FLAGS += -I"/Users/ddellabitta/microchip_solutions_v2013-06-15/Microchip/Include/TCPIP Stack"
 XI_CONFIG_FLAGS += -DCREDENTIALS_NO_STORE
-
-ifdef XI_SHARED
-  XI_LIBTLS_EXAMPLE_LIB = $(XI_LIBTLS_SHARED)
-else
-  XI_LIBTLS_EXAMPLE_LIB = $(XI_LIBTLS_STATIC)
-endif
