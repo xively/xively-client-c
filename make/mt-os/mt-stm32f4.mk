@@ -6,7 +6,8 @@
 include make/mt-os/mt-os-common.mk
 include make/mt-utils/mt-get-gnu-arm-toolchain.mk
 
-XI_STM32_PATH_SDK = $(HOME)/Downloads/STM32Cube_FW_F4_V1.14.0
+XI_STM32_PATH_SDK = $(HOME)/Downloads/xively-client-artifactory/st/STM32Cube_FW_F4_V1.13.0
+
 
 #####################
 # LWIP configurations
