@@ -7,19 +7,19 @@
 #include <xi_bsp_time.h>
 
 #include <stm32f4xx_hal.h>
-#include <sntp.h>
+#include <xi_bsp_time_stm32_sntp.h>
 
 void xi_bsp_time_init()
 {
-    sntp_init();
+    xi_bsp_time_sntp_init( NULL );
 }
 
 xi_time_t xi_bsp_time_getcurrenttime_seconds()
 {
-    return sntp_time_posix() + HAL_GetTick() / 1000;
+    return xi_bsp_time_sntp_getseconds_posix() + HAL_GetTick() / 1000;
 }
 
 xi_time_t xi_bsp_time_getcurrenttime_milliseconds()
 {
-    return HAL_GetTick();
+    return xi_bsp_time_sntp_getseconds_posix() + HAL_GetTick() / 1000;
 }
