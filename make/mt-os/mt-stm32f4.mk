@@ -18,6 +18,7 @@ XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK_LWIP)/system
 XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Middlewares/Third_Party/FreeRTOS/Source/include
 XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/
 XI_COMPILER_FLAGS += -I$(LIBXIVELY)/examples/stm32/xively_demo_mt/Inc
+XI_COMPILER_FLAGS += -I$(LIBXIVELY)/src/bsp/platform/stm32f4/includes
 
 ####################
 # arm-eabi-specifics
