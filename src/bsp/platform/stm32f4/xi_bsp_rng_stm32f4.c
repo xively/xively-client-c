@@ -8,19 +8,34 @@
 
 #if !defined( XI_TLS_LIB_WOLFSSL )
 
+#include "stm32f4xx_rng.h"
+
 void xi_bsp_rng_init()
 {
+    /* Enable RNG clock source */
+    RCC->AHB2ENR |= RCC_AHB2ENR_RNGEN;
+
+    /* RNG Peripheral enable */
+    RNG->CR |= RNG_CR_RNGEN;
 }
 
 uint32_t xi_bsp_rng_get()
 {
-    uint32_t random = 0;
+    /* Wait until one RNG number is ready */
+    while ( !( RNG->SR & ( RNG_SR_DRDY ) ) )
+        ;
 
-    return random;
+    /* Get a 32-bit Random number */
+    return RNG->DR;
 }
 
 void xi_bsp_rng_shutdown()
 {
+    /* Disable RNG peripheral */
+    RNG->CR &= ~RNG_CR_RNGEN;
+
+    /* Disable RNG clock source */
+    RCC->AHB2ENR &= ~RCC_AHB2ENR_RNGEN;
 }
 
 #elif defined( XI_TLS_LIB_WOLFSSL ) /* WOLFSSL version of RNG implementation */
@@ -45,7 +60,6 @@ void xi_bsp_rng_init()
 uint32_t xi_bsp_rng_get()
 {
     uint32_t random = 0;
-
     wc_RNG_GenerateBlock( &wolfcrypt_rng, ( byte* )&random, 4 );
 
     return random;
