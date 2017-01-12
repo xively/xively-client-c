@@ -96,7 +96,7 @@ extern uint32_t SystemCoreClock;
 #if defined( __GNUC__ )
 #define configTOTAL_HEAP_SIZE ( ( size_t )( 55 * 1024 ) )
 #else
-#define configTOTAL_HEAP_SIZE ( ( size_t )( 32 * 1024 ) ) off
+#define configTOTAL_HEAP_SIZE ( ( size_t )( 55 * 1024 ) )
 #endif
 #define configMAX_TASK_NAME_LEN ( 16 )
 #define configUSE_TRACE_FACILITY 1
