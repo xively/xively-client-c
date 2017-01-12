@@ -8,34 +8,30 @@
 
 #if !defined( XI_TLS_LIB_WOLFSSL )
 
-#include "stm32f4xx_rng.h"
+#include "stm32f4xx_hal.h"
+#include "stm32f4xx_hal_rng.h"
+
+RNG_HandleTypeDef xi_stm_rng_handle;
 
 void xi_bsp_rng_init()
 {
-    /* Enable RNG clock source */
-    RCC->AHB2ENR |= RCC_AHB2ENR_RNGEN;
+    // The next 2 lines copied from the STMCube-RNG Example
+    /* ##-1- Configure the RNG peripheral ####################################### */
+    xi_stm_rng_handle.Instance = RNG;
 
-    /* RNG Peripheral enable */
-    RNG->CR |= RNG_CR_RNGEN;
+    HAL_RNG_Init( &xi_stm_rng_handle );
 }
 
 uint32_t xi_bsp_rng_get()
 {
-    /* Wait until one RNG number is ready */
-    while ( !( RNG->SR & ( RNG_SR_DRDY ) ) )
-        ;
-
-    /* Get a 32-bit Random number */
-    return RNG->DR;
+    uint32_t random32 = 0;
+    HAL_RNG_GenerateRandomNumber( &xi_stm_rng_handle, &random32 );
+    return random32;
 }
 
 void xi_bsp_rng_shutdown()
 {
-    /* Disable RNG peripheral */
-    RNG->CR &= ~RNG_CR_RNGEN;
-
-    /* Disable RNG clock source */
-    RCC->AHB2ENR &= ~RCC_AHB2ENR_RNGEN;
+    HAL_RNG_DeInit( &xi_stm_rng_handle );
 }
 
 #elif defined( XI_TLS_LIB_WOLFSSL ) /* WOLFSSL version of RNG implementation */
