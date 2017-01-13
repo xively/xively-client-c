@@ -158,7 +158,7 @@ XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/memory
 XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/event_loop
 XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/time
 
-# if no tls then set proper flag
+# if no tls_bsp then set proper flag
 ifeq (,$(findstring tls_bsp,$(CONFIG)))
 	XI_CONFIG_FLAGS += -DXI_NO_TLS_LAYER
 
