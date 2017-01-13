@@ -1,0 +1,113 @@
+# Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+#
+# This is part of the Xively C Client library,
+# it is licensed under the BSD 3-Clause license.
+
+include make/mt-os/mt-os-common.mk
+include make/mt-utils/mt-get-gnu-arm-toolchain.mk
+
+XI_STM32_PATH_SDK = $(HOME)/Downloads/xively-client-artifactory/st/STM32CubeExpansion_WIFI1_V2.1.1
+
+XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Middlewares/ST/STM32_SPWF01SA/Utils
+XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Middlewares/ST/STM32_SPWF01SA/Inc
+XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/BSP/X-NUCLEO-IDW01M1
+XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/CMSIS/Include
+XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/CMSIS/Device/ST/STM32F4xx/Include
+XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/STM32F4xx_HAL_Driver/Inc
+XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/BSP/STM32F4xx-Nucleo
+
+####################
+# arm-eabi-specifics
+####################
+# create dummy fsctl and unistd methods for gnu newlib
+#XI_COMPILER_FLAGS += -ffreestanding
+# stm32f4 uses cortex m4
+XI_COMPILER_FLAGS += -mcpu=cortex-m4
+# enable Thumb instruction set ( reduces memory usage )
+XI_COMPILER_FLAGS += -mthumb
+XI_COMPILER_FLAGS += -mfloat-abi=hard
+# diagnostic message length
+XI_COMPILER_FLAGS += -fmessage-length=0
+# set char type
+XI_COMPILER_FLAGS += -fsigned-char
+# linker can optimizie better if we use function
+XI_COMPILER_FLAGS += -ffunction-sections
+# loop optimization
+XI_COMPILER_FLAGS += -fno-move-loop-invariants
+# define the board type
+XI_COMPILER_FLAGS += -DSTM32F401xE
+XI_COMPILER_FLAGS += -DUSE_STM32F4XX_NUCLEO
+# we need HAL for random & networking
+XI_COMPILER_FLAGS += -DUSE_HAL_DRIVER
+# HSE crystal fequency in Hz
+XI_COMPILER_FLAGS += -DHSE_VALUE=8000000
+#XI_COMPILER_FLAGS += -std=gnu11
+#XI_COMPILER_FLAGS += -MMD
+#XI_COMPILER_FLAGS += -MP
+
+ifneq (,$(findstring release,$(TARGET)))
+	XI_COMPILER_FLAGS += -O4
+endif
+
+ifneq (,$(findstring debug,$(TARGET)))
+	XI_COMPILER_FLAGS += -O0 -g
+endif
+
+# Xively Client config flags
+XI_CONFIG_FLAGS += -DXI_CROSS_TARGET
+XI_CONFIG_FLAGS += -DXI_EMBEDDED_TESTS
+
+# wolfssl's settings
+XI_COMPILER_FLAGS += -DNO_DH
+XI_COMPILER_FLAGS += -DNO_DES
+XI_COMPILER_FLAGS += -DNO_DES3
+XI_COMPILER_FLAGS += -DNO_DSA
+XI_COMPILER_FLAGS += -DNO_HC128
+XI_COMPILER_FLAGS += -DNO_MD4
+XI_COMPILER_FLAGS += -DNO_OLD_TLS
+XI_COMPILER_FLAGS += -DNO_PSK
+XI_COMPILER_FLAGS += -DNO_PWDBASED
+XI_COMPILER_FLAGS += -DNO_RC4
+XI_COMPILER_FLAGS += -DNO_RABBIT
+XI_COMPILER_FLAGS += -DNO_SHA512
+XI_COMPILER_FLAGS += -DSINGLE_THREADED
+XI_COMPILER_FLAGS += -DCUSTOM_RAND_GENERATE=xively_ssl_rand_generate
+XI_COMPILER_FLAGS += -DHAVE_SNI
+XI_COMPILER_FLAGS += -DHAVE_OCSP
+XI_COMPILER_FLAGS += -DHAVE_CERTIFICATE_STATUS_REQUEST
+XI_COMPILER_FLAGS += -DSMALL_SESSION_CACHE
+XI_COMPILER_FLAGS += -DNO_CLIENT_CACHE
+XI_COMPILER_FLAGS += -DWOLFSSL_SMALL_STACK
+XI_COMPILER_FLAGS += -DWOLFSSL_USER_IO
+XI_COMPILER_FLAGS += -DSIZEOF_LONG_LONG=8
+XI_COMPILER_FLAGS += -DNO_WRITEV
+XI_COMPILER_FLAGS += -DNO_WOLFSSL_DIR
+XI_COMPILER_FLAGS += -DUSE_FAST_MATH
+XI_COMPILER_FLAGS += -DTFM_TIMING_RESISTANT
+XI_COMPILER_FLAGS += -DNO_DEV_RANDOM
+XI_COMPILER_FLAGS += -DNO_FILESYSTEM
+XI_COMPILER_FLAGS += -DUSE_CERT_BUFFERS_2048
+XI_COMPILER_FLAGS += -DNO_ERROR_STRINGS
+XI_COMPILER_FLAGS += -DNO_SERVER
+XI_COMPILER_FLAGS += -DUSER_TIME
+XI_COMPILER_FLAGS += -DHAVE_ECC
+XI_COMPILER_FLAGS += -DHAVE_TLS_EXTENSIONS
+XI_COMPILER_FLAGS += -DHAVE_AESGCM
+XI_COMPILER_FLAGS += -DALT_ECC_SIZE
+
+XI_ARFLAGS += -rs -c $(XI)
+
+ifeq ($(XI_HOST_PLATFORM),Linux)
+	# linux cross-compilation prerequisite downloads
+
+ifdef XI_TRAVIS_BUILD
+### TOOLCHAIN AUTODOWNLOAD SECTION --- BEGIN
+	XI_BUILD_PRECONDITIONS += STM32F4_SDK
+.PHONY : STM32F4_SDK
+STM32F4_SDK:
+	git clone -b st git@github.com:xively/xively-client-artifactory.git $(HOME)/Downloads/xively-client-artifactory
+### TOOLCHAIN AUTODOWNLOAD SECTION --- END
+endif
+endif
+
+XI_POST_COMPILE_ACTION =

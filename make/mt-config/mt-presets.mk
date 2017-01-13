@@ -21,6 +21,7 @@ CONFIG_CC3200                   =memory_fs-tls_bsp
 CONFIG_CC3200_TLS_SOCKET        =memory_fs-tls_socket
 
 CONFIG_STM32F4                  =memory_fs-tls_bsp
+CONFIG_STM32F4_NUCLEO_WIFI      =memory_fs
 
 # TARGET presets
 TARGET_STATIC_DEV               =-static-debug
@@ -104,6 +105,13 @@ else ifeq ($(PRESET), STM32F4)
     TARGET = $(TARGET_STATIC_REL)
     XI_BSP_PLATFORM = stm32f4
     XI_TARGET_PLATFORM = stm32f4
+
+# ST Micro STM32F4_NUCLEO_WIFI
+else ifeq ($(PRESET), STM32F4_NUCLEO_WIFI)
+    CONFIG = $(CONFIG_STM32F4_NUCLEO_WIFI)
+    TARGET = $(TARGET_STATIC_REL)
+    XI_BSP_PLATFORM = stm32f4_nucleo_wifi
+    XI_TARGET_PLATFORM = stm32f4_nucleo_wifi
 
 # -------------------------------------------------------
 # Fuzz Tests
