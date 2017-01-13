@@ -258,7 +258,7 @@ xi_bsp_tls_state_t xi_bsp_tls_connect( xi_bsp_tls_context_t* tls_context )
     // CyaSSL_connect
     int ret = CyaSSL_connect( wolfssl_tls_context->obj );
     int cyastate =
-        ret <= 0 ? CyaSSL_get_error( wolfssl_tls_context->obj, ret ) : SSL_SUCCESS;
+        ( ret <= 0 ) ? CyaSSL_get_error( wolfssl_tls_context->obj, ret ) : SSL_SUCCESS;
 
     switch ( cyastate )
     {
