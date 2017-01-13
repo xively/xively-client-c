@@ -230,5 +230,9 @@
 			<name>STM_CUBE_WIFI_PATH</name>
 			<value>file:/Users/milgra/Downloads/STM32CubeExpansion_WIFI1_V2.1.1</value>
 		</variable>
+		<variable>
+			<name>XI_CLIENT_PATH</name>
+			<value>file:/Users/milgra/Desktop/Projects/xively-client-c</value>
+		</variable>
 	</variableList>
 </projectDescription>

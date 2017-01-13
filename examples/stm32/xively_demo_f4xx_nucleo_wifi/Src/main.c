@@ -39,6 +39,7 @@
 #include "wifi_interface.h"
 #include "stdio.h"
 #include "string.h"
+#include "xively.h"
 
 /**
    * @mainpage Documentation for X-CUBE-WIFI Software for STM32, Expansion for STM32Cube 
@@ -83,11 +84,22 @@ WiFi_Priv_Mode mode = WPA_Personal;
 char *hostname = "index.hu";
 uint8_t socket_id;
 
+xi_context_handle_t gXivelyContextHandle = -1;
+
+
 /**
   * @brief  Main program
   * @param  None
   * @retval None
   */
+
+void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t state )
+{
+    xi_connection_data_t* conn_data = ( xi_connection_data_t* )data;
+
+    printf( "\r\nconnected, state : %i" , conn_data->connection_state  );
+}
+
 
 int main(void)
 {
@@ -144,6 +156,8 @@ int main(void)
 
   while (1)
   {
+  	xi_events_process_tick( );
+	printf("\r\nwifi state %i",wifi_state);
     switch (wifi_state) 
     {
       case wifi_state_reset:
@@ -201,25 +215,46 @@ int main(void)
         if(socket_open == 0)
           {
             /* Read Write Socket data */
-            WiFi_Status_t status = WiFi_MODULE_SUCCESS;
-            status = wifi_socket_client_open((uint8_t *)console_host, portnumber, (uint8_t *)protocol, &socket_id);
-              
-            if(status == WiFi_MODULE_SUCCESS)
-              {
-                printf("\r\n >>Socket Open OK\r\n");
-                printf("\r\n >>Socket ID: %d",socket_id);
-                socket_open = 1;
-                status = wifi_socket_client_write(socket_id, len, data);
+            xi_state_t ret_state = xi_initialize( "account_id", "xi_username", 0 );
 
-                if(status == WiFi_MODULE_SUCCESS)
-                  {
-                    printf("\r\n >>Socket Write OK\r\n");
-                  }
-              }
-            else
-              {
-                printf("Socket connection Error");
-              }
+            if ( XI_STATE_OK != ret_state )
+            {
+                printf( "\r\n xi failed to initialise\n" );
+                return -1;
+            }
+
+            gXivelyContextHandle = xi_create_context();
+
+            if ( XI_INVALID_CONTEXT_HANDLE == gXivelyContextHandle )
+            {
+                printf( "\r\n xi failed to create context, error: %d\n",
+                                   -gXivelyContextHandle );
+                return -1;
+            }
+
+            xi_state_t connect_result = xi_connect( gXivelyContextHandle, "d", "p", 10, 0, XI_SESSION_CLEAN, &on_connected );
+
+            printf("\r\n >>connecte result %i\r\n", connect_result );
+
+//            WiFi_Status_t status = WiFi_MODULE_SUCCESS;
+//            status = wifi_socket_client_open((uint8_t *)console_host, portnumber, (uint8_t *)protocol, &socket_id);
+//
+//            if(status == WiFi_MODULE_SUCCESS)
+//              {
+//                printf("\r\n >>Socket Open OK\r\n");
+//                printf("\r\n >>Socket ID: %d",socket_id);
+//                socket_open = 1;
+//                status = wifi_socket_client_write(socket_id, len, data);
+//
+//                if(status == WiFi_MODULE_SUCCESS)
+//                  {
+//                    printf("\r\n >>Socket Write OK\r\n");
+//                  }
+//              }
+//            else
+//              {
+//                printf("Socket connection Error");
+//              }
           }
         else
           {
@@ -545,6 +580,7 @@ WiFi_Status_t wifi_get_AP_settings(void)
 }
 
 /******** Wi-Fi Indication User Callback *********/
+
 
 void ind_wifi_socket_data_received(uint8_t socket_id, uint8_t * data_ptr, uint32_t message_size, uint32_t chunk_size)
 {

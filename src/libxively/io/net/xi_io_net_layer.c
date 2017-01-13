@@ -66,6 +66,7 @@ xi_state_t xi_io_net_layer_connect( void* context, void* data, xi_state_t in_out
     XI_CHECK_CND_DBGMESSAGE( XI_BSP_IO_NET_STATE_OK != state, XI_SOCKET_CONNECTION_ERROR,
                              in_out_state, "Connecting to the endpoint [failed]" );
 
+#if 0
     // return here whenever we can write
     XI_CR_YIELD( layer_data->layer_connect_cs, XI_STATE_OK );
 
@@ -74,7 +75,7 @@ xi_state_t xi_io_net_layer_connect( void* context, void* data, xi_state_t in_out
 
     XI_CHECK_CND_DBGMESSAGE( XI_BSP_IO_NET_STATE_OK != state, XI_SOCKET_GETSOCKOPT_ERROR,
                              in_out_state, "Error while calling getsockopt." );
-
+#endif
     xi_debug_logger( "Connection successful!" );
 
     XI_CR_EXIT( layer_data->layer_connect_cs,
