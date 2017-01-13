@@ -69,7 +69,7 @@
 		<link>
 			<name>Application/User/stm32f4xx_hal_rng.c</name>
 			<type>1</type>
-			<locationURI>PARENT-6-PROJECT_LOC/STM32Cube_FW_F4_V1.14.0/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rng.c</locationURI>
+			<locationURI>XI_STMCUBE_PATH/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rng.c</locationURI>
 		</link>
 		<link>
 			<name>Application/User/stm32f4xx_hal_timebase_tim.c</name>
@@ -425,7 +425,7 @@
 	<variableList>
 		<variable>
 			<name>XI_STMCUBE_PATH</name>
-			<value>file:/Users/kotyo/lmi/STM32Cube_FW_F4_V1.14.0</value>
+			<value>~</value>
 		</variable>
 	</variableList>
 </projectDescription>
