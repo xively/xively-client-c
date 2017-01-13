@@ -98,9 +98,9 @@ extern "C" {
   */
 #if !defined( HSE_VALUE )
 #define HSE_VALUE                                                                        \
-    ( ( uint32_t )25000000 ) /*!< Value of the External oscillator in Hz   \ \ \ \                                                                                       \
+    ( ( uint32_t )25000000 ) /*!< Value of the External oscillator in Hz   \ \ \ \       \
                                 */
-#endif /* HSE_VALUE */
+#endif                       /* HSE_VALUE */
 
 #if !defined( HSE_STARTUP_TIMEOUT )
 #define HSE_STARTUP_TIMEOUT ( ( uint32_t )100 ) /*!< Time out for HSE start up, in ms */
@@ -120,8 +120,8 @@ extern "C" {
   */
 #if !defined( LSI_VALUE )
 #define LSI_VALUE ( ( uint32_t )32000 )
-#endif /* LSI_VALUE */ /*!< Value of the Internal Low Speed oscillator in Hz \ \ \ \                                                                                       \
-                        The real value may vary depending on the variations \ \ \ \                                                                                       \
+#endif /* LSI_VALUE */ /*!< Value of the Internal Low Speed oscillator in Hz \ \ \ \     \
+                        The real value may vary depending on the variations \ \ \ \      \
                         in voltage and temperature.  */
 /**
   * @brief External Low Speed oscillator (LSE) value.
@@ -133,9 +133,9 @@ extern "C" {
 
 #if !defined( LSE_STARTUP_TIMEOUT )
 #define LSE_STARTUP_TIMEOUT                                                              \
-    ( ( uint32_t )5000 ) /*!< Time out for LSE start up, in ms   \ \ \ \                                                                                       \
+    ( ( uint32_t )5000 ) /*!< Time out for LSE start up, in ms   \ \ \ \                 \
                             */
-#endif /* LSE_STARTUP_TIMEOUT */
+#endif                   /* LSE_STARTUP_TIMEOUT */
 
 /**
   * @brief External clock source for I2S peripheral
@@ -160,12 +160,12 @@ extern "C" {
 #define PREFETCH_ENABLE                                                                  \
     0 /* The prefetch will be enabled in SystemClock_Config(), depending on the used \ \ \
          \                                                                               \
-         \ \                                                                                       \
+         \ \                                                                             \
          STM32F405/415/07/417 device: RevA (prefetch must be off) or RevZ (prefetch can  \
          \                                                                               \
-         \ \                                                                                       \
-         \ \ \                                                                                       \
-         \ \ \ \                                                                                       \
+         \ \                                                                             \
+         \ \ \                                                                           \
+         \ \ \ \                                                                         \
          be on/off) */
 #define INSTRUCTION_CACHE_ENABLE 1
 #define DATA_CACHE_ENABLE 1
@@ -182,12 +182,12 @@ extern "C" {
 /* Section 1 : Ethernet peripheral configuration */
 
 /* MAC ADDRESS: MAC_ADDR0:MAC_ADDR1:MAC_ADDR2:MAC_ADDR3:MAC_ADDR4:MAC_ADDR5 */
-#define MAC_ADDR0 2
-#define MAC_ADDR1 0
-#define MAC_ADDR2 0
-#define MAC_ADDR3 0
-#define MAC_ADDR4 0
-#define MAC_ADDR5 0
+#define MAC_ADDR0 0x0a
+#define MAC_ADDR1 0x1b
+#define MAC_ADDR2 0x2c
+#define MAC_ADDR3 0x3d
+#define MAC_ADDR4 0x4e
+#define MAC_ADDR5 0x5f
 
 /* Definition of the Ethernet driver buffers size and count */
 #define ETH_RX_BUF_SIZE ETH_MAX_PACKET_SIZE /* buffer size for receive               */

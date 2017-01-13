@@ -4,8 +4,8 @@
 		<cconfiguration id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.334711653">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.334711653" moduleId="org.eclipse.cdt.core.settings" name="Debug">
 				<macros>
-					<stringMacro name="XI_STMCUBE_PATH" type="VALUE_PATH_DIR" value="/Users/ohumenczuk/Downloads/STM32Cube_FW_F4_V1.13.0"/>
-					<stringMacro name="XI_CLIENT_PATH" type="VALUE_PATH_ANY" value="/Users/ohumenczuk/workspace/xively/xively-client-c"/>
+					<stringMacro name="XI_STMCUBE_PATH" type="VALUE_PATH_DIR" value="/Users/atigyi/Downloads/STM32Cube_FW_F4_V1.14.0"/>
+					<stringMacro name="XI_CLIENT_PATH" type="VALUE_PATH_ANY" value="/Users/atigyi/git/xi/xc/xively-client-c"/>
 				</macros>
 				<externalSettings/>
 				<extensions>
@@ -40,6 +40,7 @@
 									<listOptionValue builtIn="false" value="../../../Inc"/>
 									<listOptionValue builtIn="false" value="${XI_CLIENT_PATH}/include"/>
 									<listOptionValue builtIn="false" value="&quot;${XI_CLIENT_PATH}/include/bsp&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${XI_CLIENT_PATH}/src/bsp/platform/stm32f4/includes&quot;"/>
 									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/CMSIS/Device/ST/STM32F4xx/Include"/>
 									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/CMSIS/Include"/>
 									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/STM32F4xx_HAL_Driver/Inc"/>
@@ -52,6 +53,7 @@
 									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS"/>
 									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Utilities"/>
 									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Utilities/Log"/>
+									<listOptionValue builtIn="false" value="/Users/atigyi/Downloads/STM32Cube_FW_F4_V1.14.0/Projects/STM324xG_EVAL/Applications/LwIP/LwIP_HTTP_Server_Socket_RTOS/Inc"/>
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1655035645" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="USE_HAL_DRIVER"/>

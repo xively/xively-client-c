@@ -268,7 +268,7 @@ static void BSP_Config( void )
     LCD_LOG_Init();
 
     /* Show Header and Footer texts */
-    LCD_LOG_SetHeader( ( uint8_t* )"Webserver Application" );
+    LCD_LOG_SetHeader( ( uint8_t* )"Xively C Client for STM32" );
     LCD_LOG_SetFooter( ( uint8_t* )"STM324xG-EVAL board" );
 
     LCD_UsrLog( "  State: Ethernet Initialization ...\n" );
@@ -282,11 +282,12 @@ static void BSP_Config( void )
   */
 static void ToggleLed4( void const* argument )
 {
-    for ( ;; )
+    uint32_t ledID = 0;
+    for ( ;; ++ledID )
     {
         /* Toggle LED4 each 250ms */
-        BSP_LED_Toggle( LED4 );
-        osDelay( 250 );
+        BSP_LED_Toggle( ledID % 4 );
+        osDelay( 150 );
     }
 }
 
