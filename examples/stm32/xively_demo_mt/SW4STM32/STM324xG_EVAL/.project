@@ -64,7 +64,7 @@
 		<link>
 			<name>Application/User/stm32f4xx_hal_msp.c</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Src/stm32f4xx_hal_msp.c</locationURI>
+			<locationURI>XI_STMCUBE_PATH/Projects/STM324xG_EVAL/Examples/RNG/RNG_MultiRNG/Src/stm32f4xx_hal_msp.c</locationURI>
 		</link>
 		<link>
 			<name>Application/User/stm32f4xx_hal_rng.c</name>
