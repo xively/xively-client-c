@@ -21,7 +21,7 @@ CONFIG_CC3200                   =memory_fs-tls_bsp
 CONFIG_CC3200_TLS_SOCKET        =memory_fs-tls_socket
 
 CONFIG_STM32F4                  =memory_fs-tls_bsp
-CONFIG_STM32F4_NUCLEO_WIFI      =memory_fs
+CONFIG_STM32F4_NUCLEO_WIFI      =memory_fs-tls_socket
 
 # TARGET presets
 TARGET_STATIC_DEV               =-static-debug
