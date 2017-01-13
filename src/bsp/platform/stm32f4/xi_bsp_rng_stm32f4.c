@@ -5,6 +5,7 @@
  */
 
 #include <xi_bsp_rng.h>
+#include <xi_debug.h>
 
 #if !defined( XI_TLS_LIB_WOLFSSL )
 
@@ -19,13 +20,22 @@ void xi_bsp_rng_init()
     /* ##-1- Configure the RNG peripheral ####################################### */
     xi_stm_rng_handle.Instance = RNG;
 
-    HAL_RNG_Init( &xi_stm_rng_handle );
+    HAL_StatusTypeDef rng_status = HAL_RNG_Init( &xi_stm_rng_handle );
+    if ( rng_status != HAL_OK )
+    {
+        xi_debug_format( "Can't initialize HAL RNG: %d", rng_status );
+    }
 }
 
 uint32_t xi_bsp_rng_get()
 {
     uint32_t random32 = 0;
-    HAL_RNG_GenerateRandomNumber( &xi_stm_rng_handle, &random32 );
+    HAL_StatusTypeDef rng_status =
+        HAL_RNG_GenerateRandomNumber( &xi_stm_rng_handle, &random32 );
+    if ( rng_status != HAL_OK )
+    {
+        xi_debug_format( "Can't obtain random number from HAL RNG: %d", rng_status );
+    }
     return random32;
 }
 
