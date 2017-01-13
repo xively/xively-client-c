@@ -451,7 +451,7 @@ xi_state_t xi_events_process_tick()
 {
     if ( xi_evtd_dispatcher_continue( xi_globals.evtd_instance ) == 1 )
     {
-        xi_event_loop_with_evtds( 0, &xi_globals.evtd_instance, 1 );
+        xi_event_loop_with_evtds( 1, &xi_globals.evtd_instance, 1 );
         return XI_STATE_OK;
     }
 

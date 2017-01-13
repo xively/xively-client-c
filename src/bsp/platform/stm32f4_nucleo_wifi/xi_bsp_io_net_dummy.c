@@ -21,6 +21,8 @@ xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
 {
     ( void )xi_socket;
 
+    printf( "\r\n create socket " );
+
     *xi_socket = 0;
 
     return XI_BSP_IO_NET_STATE_OK;
@@ -33,7 +35,15 @@ xi_bsp_io_net_connect( xi_bsp_socket_t* xi_socket, const char* host, uint16_t po
     ( void )host;
     ( void )port;
 
-    return XI_BSP_IO_NET_STATE_OK;
+    printf( "\r\n connect %s %i" , host , port );
+
+    char *protocol = "s";//t -> tcp , s-> secure tcp
+    WiFi_Status_t status = WiFi_MODULE_SUCCESS;
+    status = wifi_socket_client_open((uint8_t *)host, port, (uint8_t *)protocol, (uint8_t *)xi_socket);
+
+    if ( status == WiFi_MODULE_SUCCESS ) return XI_BSP_IO_NET_STATE_OK;
+
+    return XI_BSP_IO_NET_STATE_ERROR;
 }
 
 xi_bsp_io_net_state_t xi_bsp_io_net_connection_check( xi_bsp_socket_t xi_socket,
@@ -56,12 +66,12 @@ xi_bsp_io_net_state_t xi_bsp_io_net_write( xi_bsp_socket_t xi_socket,
     ( void )buf;
     *out_written_count = count;
 
-  char *data = "Hello World!\r\n";
+    WiFi_Status_t status = WiFi_MODULE_SUCCESS;
+    status = wifi_socket_client_write(xi_socket, count, (char*) buf);
 
-  wifi_socket_client_write(1, strlen(data), data);
+    if ( status == WiFi_MODULE_SUCCESS ) return XI_BSP_IO_NET_STATE_OK;
 
-
-    return XI_BSP_IO_NET_STATE_OK;
+    return XI_BSP_IO_NET_STATE_ERROR;
 }
 
 xi_bsp_io_net_state_t xi_bsp_io_net_read( xi_bsp_socket_t xi_socket,

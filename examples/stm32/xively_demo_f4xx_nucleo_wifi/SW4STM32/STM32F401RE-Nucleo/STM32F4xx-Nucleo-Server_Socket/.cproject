@@ -39,6 +39,8 @@
 									<listOptionValue builtIn="false" value="/Users/milgra/Downloads/STM32CubeExpansion_WIFI1_V2.1.1/Drivers/CMSIS/Device/ST/STM32F4xx/Include"/>
 									<listOptionValue builtIn="false" value="/Users/milgra/Downloads/STM32CubeExpansion_WIFI1_V2.1.1/Drivers/STM32F4xx_HAL_Driver/Inc"/>
 									<listOptionValue builtIn="false" value="/Users/milgra/Downloads/STM32CubeExpansion_WIFI1_V2.1.1/Drivers/BSP/STM32F4xx-Nucleo"/>
+									<listOptionValue builtIn="false" value="/Users/milgra/Desktop/Projects/xively-client-c/include"/>
+									<listOptionValue builtIn="false" value="/Users/milgra/Desktop/Projects/xively-client-c/include/bsp"/>
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.675701715" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="USE_HAL_DRIVER"/>
@@ -59,10 +61,14 @@
 							<tool id="fr.ac6.managedbuild.tool.gnu.cross.c.linker.1950630544" name="MCU GCC Linker" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.linker">
 								<option id="fr.ac6.managedbuild.tool.gnu.cross.c.linker.script.944791166" name="Linker Script (-T)" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.linker.script" useByScannerDiscovery="false" value="../LinkerScript.ld" valueType="string"/>
 								<option id="gnu.c.link.option.libs.1626259471" name="Libraries (-l)" superClass="gnu.c.link.option.libs" useByScannerDiscovery="false" valueType="libs">
+									<listOptionValue builtIn="false" value="xively"/>
 									<listOptionValue builtIn="false" value="m"/>
 									<listOptionValue builtIn="false" value="c"/>
 								</option>
 								<option id="gnu.c.link.option.ldflags.960810064" name="Linker flags" superClass="gnu.c.link.option.ldflags" useByScannerDiscovery="false" value="-specs=nano.specs" valueType="string"/>
+								<option id="gnu.c.link.option.paths.1616543337" name="Library search path (-L)" superClass="gnu.c.link.option.paths" useByScannerDiscovery="false" valueType="libPaths">
+									<listOptionValue builtIn="false" value="/Users/milgra/Desktop/Projects/xively-client-c/bin/stm32f4_nucleo_wifi"/>
+								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.1510740212" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
