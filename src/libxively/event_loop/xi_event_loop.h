@@ -13,9 +13,9 @@
 extern "C" {
 #endif
 
-void xi_event_loop_with_evtds( uint32_t num_iterations,
-                               xi_evtd_instance_t** event_dispatchers,
-                               uint8_t num_evtds );
+xi_state_t xi_event_loop_with_evtds( uint32_t num_iterations,
+                                     xi_evtd_instance_t** event_dispatchers,
+                                     uint8_t num_evtds );
 
 #ifdef __cplusplus
 }
