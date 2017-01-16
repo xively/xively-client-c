@@ -20,7 +20,7 @@ void xi_bsp_rng_init()
     /* ##-1- Configure the RNG peripheral ####################################### */
     xi_stm_rng_handle.Instance = RNG;
 
-    HAL_StatusTypeDef rng_status = HAL_RNG_Init( &xi_stm_rng_handle );
+    const HAL_StatusTypeDef rng_status = HAL_RNG_Init( &xi_stm_rng_handle );
     if ( rng_status != HAL_OK )
     {
         xi_debug_format( "Can't initialize HAL RNG: %d", rng_status );
@@ -30,7 +30,7 @@ void xi_bsp_rng_init()
 uint32_t xi_bsp_rng_get()
 {
     uint32_t random32 = 0;
-    HAL_StatusTypeDef rng_status =
+    const HAL_StatusTypeDef rng_status =
         HAL_RNG_GenerateRandomNumber( &xi_stm_rng_handle, &random32 );
     if ( rng_status != HAL_OK )
     {
