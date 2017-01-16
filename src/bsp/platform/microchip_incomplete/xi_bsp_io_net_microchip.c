@@ -173,7 +173,7 @@ xi_bsp_io_net_state_t xi_bsp_io_net_select( xi_bsp_socket_events_t* socket_event
 
         if ( 1 == socket_events->in_socket_want_connect )
         {
-            if ( TRUE == TCPIsConnected( socket_events->socket ) )
+            if ( TRUE == TCPIsConnected( socket_events->xi_socket ) )
             {
                 socket_events->out_socket_connect_finished = 1;
             }
@@ -181,16 +181,16 @@ xi_bsp_io_net_state_t xi_bsp_io_net_select( xi_bsp_socket_events_t* socket_event
         }
 
         if ( 1 == socket_events->in_socket_want_read &&
-             ( TCPIsGetReady( socket_events->socket ) > 0 ||
-               0 == TCPIsConnected( socket_events->socket ) ) )
+             ( TCPIsGetReady( socket_events->xi_socket ) > 0 ||
+               0 == TCPIsConnected( socket_events->xi_socket ) ) )
         {
             socket_events->out_socket_can_read = 1;
             continue;
         }
 
         if ( 1 == socket_events->in_socket_want_write &&
-             ( TCPIsPutReady( socket_events->socket ) > 0 ||
-               0 == TCPIsConnected( socket_events->socket ) ) )
+             ( TCPIsPutReady( socket_events->xi_socket ) > 0 ||
+               0 == TCPIsConnected( socket_events->xi_socket ) ) )
         {
             socket_events->out_socket_can_write = 1;
             continue;
