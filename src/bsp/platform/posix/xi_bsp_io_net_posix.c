@@ -230,24 +230,27 @@ xi_bsp_io_net_state_t xi_bsp_io_net_select( xi_bsp_socket_events_t* socket_event
 
         if ( 1 == socket_events->in_socket_want_read )
         {
-            FD_SET( socket_events->socket, &rfds );
-            max_fd_read =
-                socket_events->socket > max_fd_read ? socket_events->socket : max_fd_read;
+            FD_SET( socket_events->xi_socket, &rfds );
+            max_fd_read = socket_events->xi_socket > max_fd_read
+                              ? socket_events->xi_socket
+                              : max_fd_read;
         }
 
         if ( ( 1 == socket_events->in_socket_want_write ) ||
              ( 1 == socket_events->in_socket_want_connect ) )
         {
-            FD_SET( socket_events->socket, &wfds );
-            max_fd_write = socket_events->socket > max_fd_write ? socket_events->socket
-                                                                : max_fd_write;
+            FD_SET( socket_events->xi_socket, &wfds );
+            max_fd_write = socket_events->xi_socket > max_fd_write
+                               ? socket_events->xi_socket
+                               : max_fd_write;
         }
 
         if ( 1 == socket_events->in_socket_want_error )
         {
-            FD_SET( socket_events->socket, &efds );
-            max_fd_error = socket_events->socket > max_fd_error ? socket_events->socket
-                                                                : max_fd_error;
+            FD_SET( socket_events->xi_socket, &efds );
+            max_fd_error = socket_events->xi_socket > max_fd_error
+                               ? socket_events->xi_socket
+                               : max_fd_error;
         }
     }
 
@@ -266,12 +269,12 @@ xi_bsp_io_net_state_t xi_bsp_io_net_select( xi_bsp_socket_events_t* socket_event
         {
             xi_bsp_socket_events_t* socket_events = &socket_events_array[socket_id];
 
-            if ( FD_ISSET( socket_events->socket, &rfds ) )
+            if ( FD_ISSET( socket_events->xi_socket, &rfds ) )
             {
                 socket_events->out_socket_can_read = 1;
             }
 
-            if ( FD_ISSET( socket_events->socket, &wfds ) )
+            if ( FD_ISSET( socket_events->xi_socket, &wfds ) )
             {
                 if ( 1 == socket_events->in_socket_want_connect )
                 {
@@ -284,7 +287,7 @@ xi_bsp_io_net_state_t xi_bsp_io_net_select( xi_bsp_socket_events_t* socket_event
                 }
             }
 
-            if ( FD_ISSET( socket_events->socket, &efds ) )
+            if ( FD_ISSET( socket_events->xi_socket, &efds ) )
             {
                 socket_events->out_socket_error = 1;
             }
