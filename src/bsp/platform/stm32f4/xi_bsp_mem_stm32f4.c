@@ -6,18 +6,36 @@
 
 #include <xi_bsp_mem.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <FreeRTOS.h>
+#include <portable.h>
 
 void* xi_bsp_mem_alloc( size_t byte_count )
 {
-    return ( void* )malloc( byte_count );
+    void* ptr = ( void* )pvPortMalloc( byte_count );
+
+    if ( NULL == ptr )
+    {
+        printf( "Failed to allocate %d\n", byte_count );
+    }
+
+    return ptr;
 }
 
 void* xi_bsp_mem_realloc( void* ptr, size_t byte_count )
 {
-    return ( void* )realloc( ptr, byte_count );
+    ( void )ptr;
+    void* new_ptr = NULL;
+
+    if ( NULL == new_ptr )
+    {
+        printf( "Failed to reallocate %d\n", byte_count );
+    }
+
+    return new_ptr;
 }
 
 void xi_bsp_mem_free( void* ptr )
 {
-    free( ptr );
+    vPortFree( ptr );
 }
