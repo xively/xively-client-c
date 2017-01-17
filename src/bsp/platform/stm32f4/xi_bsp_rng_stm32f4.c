@@ -5,7 +5,29 @@
  */
 
 #include <xi_bsp_rng.h>
-#include <xi_debug.h>
+
+#define BSP_RNG_DEBUG_LOG 1
+
+#ifndef XI_DEBUG_PRINTF
+#include <stdio.h>
+#define __xi_printf( ... )                                                               \
+    printf( __VA_ARGS__ );                                                               \
+    fflush( stdout )
+#else /* XI_DEBUG_PRINTF */
+#define __xi_printf( ... ) XI_DEBUG_PRINTF( __VA_ARGS__ );
+#endif /* XI_DEBUG_PRINTF */
+
+#if BSP_RNG_DEBUG_LOG
+#define bsp_rng_debug_logger( format_string )                                            \
+    __xi_printf( "%s@%d[  BSP RNG   ] [ STM32F4 ] " format_string "\n", __FILE__,        \
+                 __LINE__ )
+#define bsp_rng_debug_format( format_string, ... )                                       \
+    __xi_printf( "%s@%d[  BSP RNG   ] [ STM32F4 ] " format_string "\n", __FILE__,        \
+                 __LINE__, __VA_ARGS__ )
+#else /* BSP_RNG_DEBUG_LOG */
+#define bsp_rng_debug_logger( ... )
+#define bsp_rng_debug_format( ... )
+#endif /* BSP_RNG_DEBUG_LOG */
 
 #if !defined( XI_TLS_LIB_WOLFSSL )
 
@@ -23,7 +45,7 @@ void xi_bsp_rng_init()
     const HAL_StatusTypeDef rng_status = HAL_RNG_Init( &xi_stm_rng_handle );
     if ( rng_status != HAL_OK )
     {
-        xi_debug_format( "Can't initialize HAL RNG: %d", rng_status );
+        bsp_rng_debug_format( "Can't initialize HAL RNG: %d", rng_status );
     }
 }
 
@@ -34,7 +56,7 @@ uint32_t xi_bsp_rng_get()
         HAL_RNG_GenerateRandomNumber( &xi_stm_rng_handle, &random32 );
     if ( rng_status != HAL_OK )
     {
-        xi_debug_format( "Can't obtain random number from HAL RNG: %d", rng_status );
+        bsp_rng_debug_format( "Can't obtain random number from HAL RNG: %d", rng_status );
     }
     return random32;
 }
