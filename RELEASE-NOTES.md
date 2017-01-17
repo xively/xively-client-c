@@ -1,3 +1,14 @@
+# Xively Client version 1.2.4
+#### Jan 17 2017
+
+## Bugfixes
+
+- Fixing two build errors for CC3200's Tutorial project: xively_demo (linker optimization problems with two functions: xi_event_loop_with_evtds and xi_bsp_io_net_select)
+
+## Features
+
+- Providing accurate time for STM32 boards at board startup. Done in the BSP TIME module. Using SNTP servers.
+
 # Xively Client version 1.2.3
 #### Jan 10 2017
 
