@@ -101,7 +101,7 @@ xi_bsp_event_loop_transform_to_bsp_select( xi_evtd_instance_t** in_event_dispatc
             xi_bsp_socket_events_t* socket_to_update = &in_socket_events_array[socket_id];
             assert( NULL != socket_to_update );
 
-            socket_to_update->socket = tuple->fd;
+            socket_to_update->xi_socket = tuple->fd;
             socket_to_update->in_socket_want_read =
                 ( ( tuple->event_type & XI_EVENT_WANT_READ ) > 0 ) ? 1 : 0;
             socket_to_update->in_socket_want_write =
@@ -191,7 +191,7 @@ xi_bsp_event_loop_update_event_dispatcher( xi_evtd_instance_t** in_event_dispatc
             assert( NULL != socket_to_update );
 
             /* sanity check on socket id */
-            assert( tuple->fd == socket_to_update->socket );
+            assert( tuple->fd == socket_to_update->xi_socket );
 
             if ( 0 != socket_to_update->out_socket_can_read ||
                  0 != socket_to_update->out_socket_can_write ||
@@ -199,7 +199,7 @@ xi_bsp_event_loop_update_event_dispatcher( xi_evtd_instance_t** in_event_dispatc
                  0 != socket_to_update->out_socket_error )
             {
                 state = xi_evtd_update_event_on_socket( event_dispatcher,
-                                                        socket_to_update->socket );
+                                                        socket_to_update->xi_socket );
                 XI_CHECK_STATE( state );
             }
 
