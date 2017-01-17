@@ -93,11 +93,37 @@ xi_context_handle_t gXivelyContextHandle = -1;
   * @retval None
   */
 
+void user_callback_t ( xi_context_handle_t in_context_handle,
+                                    void* data,
+                                    xi_state_t state )
+									{
+printf( "\r\npublished" );
+									}
+
+void user_subscription_callback_t( xi_context_handle_t in_context_handle,
+                                                 xi_sub_call_type_t call_type,
+                                                 const xi_sub_call_params_t* const params,
+                                                 xi_state_t state,
+                                                 void* user_data )
+												 {
+	printf( "\r\nsubscribed, state : %i" , state );
+
+	xi_publish( gXivelyContextHandle,
+			"xi/blue/v1/15710fc1-7840-4a40-bbfa-ee80fbc38f78/d/f9f8dee6-0bcc-4127-8665-04c9b7afe056/_log",
+	                              "HEHE",
+	                              0,
+								  XI_MQTT_RETAIN_FALSE,
+	                              &user_callback_t,
+	                              NULL );												 }
+
+
 void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t state )
 {
     xi_connection_data_t* conn_data = ( xi_connection_data_t* )data;
 
     printf( "\r\nconnected, state : %i" , conn_data->connection_state  );
+
+    xi_subscribe(gXivelyContextHandle,"xi/blue/v1/15710fc1-7840-4a40-bbfa-ee80fbc38f78/d/f9f8dee6-0bcc-4127-8665-04c9b7afe056/_log",0,&user_subscription_callback_t,NULL);
 }
 
 
@@ -215,7 +241,7 @@ int main(void)
         if(socket_open == 0)
           {
             /* Read Write Socket data */
-            xi_state_t ret_state = xi_initialize( "account_id", "xi_username", 0 );
+            xi_state_t ret_state = xi_initialize( "15710fc1-7840-4a40-bbfa-ee80fbc38f78", "mtoth@logmein.com", 0 );
 
             if ( XI_STATE_OK != ret_state )
             {
@@ -232,9 +258,9 @@ int main(void)
                 return -1;
             }
 
-            xi_state_t connect_result = xi_connect( gXivelyContextHandle, "d", "p", 10, 0, XI_SESSION_CLEAN, &on_connected );
+            xi_state_t connect_result = xi_connect( gXivelyContextHandle, "f9f8dee6-0bcc-4127-8665-04c9b7afe056", "K9N14DhRtHOJFtRfoJoEJTQWq26XQzs3bUY7tc/ZCKE=", 10, 0, XI_SESSION_CLEAN, &on_connected );
 
-            printf("\r\n >>connecte result %i\r\n", connect_result );
+            printf("\r\n >>connected result %i\r\n", connect_result );
 
 //            WiFi_Status_t status = WiFi_MODULE_SUCCESS;
 //            status = wifi_socket_client_open((uint8_t *)console_host, portnumber, (uint8_t *)protocol, &socket_id);
@@ -582,24 +608,29 @@ WiFi_Status_t wifi_get_AP_settings(void)
 /******** Wi-Fi Indication User Callback *********/
 
 
-void ind_wifi_socket_data_received(uint8_t socket_id, uint8_t * data_ptr, uint32_t message_size, uint32_t chunk_size)
-{
-  printf("\r\nData Receive Callback...\r\n");
-  printf((const char*)data_ptr);
-  printf("\r\nsocket ID: %d\r\n",socket_id);
-  printf("msg size: %lu\r\n",(unsigned long)message_size);
-  printf("chunk size: %lu\r\n",(unsigned long)chunk_size);
-  fflush(stdout);
-}
+//void ind_wifi_socket_data_received(uint8_t socket_id, uint8_t * data_ptr, uint32_t message_size, uint32_t chunk_size)
+//{
+//  printf("\r\nData Receive Callback...\r\n");
+//  printf((const char*)data_ptr);
+//  printf("\r\nsocket ID: %d\r\n",socket_id);
+//  printf("msg size: %lu\r\n",(unsigned long)message_size);
+//  printf("chunk size: %lu\r\n",(unsigned long)chunk_size);
+//
+//
+//  uint8_t* chunk = malloc( message_size );
+//  memcpy( chunk , data_ptr, message_size );
+//
+//  fflush(stdout);
+//}
 
-void ind_wifi_socket_client_remote_server_closed(uint8_t * socket_closed_id)
-{
-  uint8_t id = *socket_closed_id;
-  printf("\r\n>>User Callback>>remote server socket closed\r\n");
-  printf("Socket ID closed: %d",id);//this will actually print the character/string, not the number
-  fflush(stdout);
-
-}
+//void ind_wifi_socket_client_remote_server_closed(uint8_t * socket_closed_id)
+//{
+//  uint8_t id = *socket_closed_id;
+//  printf("\r\n>>User Callback>>remote server socket closed\r\n");
+//  printf("Socket ID closed: %d",id);//this will actually print the character/string, not the number
+//  fflush(stdout);
+//
+//}
 
 void ind_wifi_on()
 {
