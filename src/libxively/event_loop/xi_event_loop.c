@@ -4,6 +4,7 @@
  * it is licensed under the BSD 3-Clause license.
  */
 
+#include "xi_event_loop.h"
 #include "xi_bsp_io_net.h"
 #include "xi_bsp_time.h"
 #include "xi_event_dispatcher_api.h"
