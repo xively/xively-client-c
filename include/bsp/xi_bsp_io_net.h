@@ -157,7 +157,7 @@ typedef intptr_t xi_bsp_socket_t;
 typedef struct xi_bsp_socket_events_s
 {
     /** platform specific value of socket */
-    xi_bsp_socket_t socket;
+    xi_bsp_socket_t xi_socket;
     /** 1 if socket wants to read 0 otherwise */
     uint8_t in_socket_want_read : 1;
     /** 1 if socket wants to write 0 otherwise */
