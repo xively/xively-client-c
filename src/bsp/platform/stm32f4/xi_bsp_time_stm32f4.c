@@ -8,6 +8,7 @@
 #include <xi_bsp_time_stm32_sntp.h>
 #include <stddef.h>
 
+// Forward declaration of external function from STMCube stm32f4xx_hal.h
 uint32_t HAL_GetTick( void );
 
 void xi_bsp_time_init()
