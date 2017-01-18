@@ -27,9 +27,9 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>Application/SW4STM32/startup_stm32f407xx.s</name>
+			<name>Application/SW4STM32/startup_stm32f417xx.s</name>
 			<type>1</type>
-			<locationURI>XI_STMCUBE_PATH/Projects/STM324xG_EVAL/Applications/LwIP/LwIP_HTTP_Server_Socket_RTOS/SW4STM32/startup_stm32f407xx.s</locationURI>
+			<locationURI>XI_STMCUBE_PATH/Projects/STM324xG_EVAL/Applications/PolarSSL/SSL_Client/SW4STM32/startup_stm32f417xx.s</locationURI>
 		</link>
 		<link>
 			<name>Application/SW4STM32/syscalls.c</name>
