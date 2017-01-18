@@ -81,8 +81,12 @@ char * ssid = "SSID";
 char * seckey = "PASSWORD";
 WiFi_Priv_Mode mode = WPA_Personal;
 
-xi_context_handle_t gXivelyContextHandle = -1;
+char* XI_ACCOUNT_ID = "XIVELY ACCOUNT ID";
+char* XI_USER = "XIVELY USER";
+char* XI_DEVICE_ID = "DEVICE ID";
+char* XI_DEVICE_PASS = "DEVICE PASSWORD";
 
+xi_context_handle_t gXivelyContextHandle = -1;
 
 /**
   * @brief  Main program
@@ -90,39 +94,11 @@ xi_context_handle_t gXivelyContextHandle = -1;
   * @retval None
   */
 
-void user_callback_t ( xi_context_handle_t in_context_handle,
-                                    void* data,
-                                    xi_state_t state )
-									{
-printf( "\r\npublished" );
-									}
-
-void user_subscription_callback_t( xi_context_handle_t in_context_handle,
-                                                 xi_sub_call_type_t call_type,
-                                                 const xi_sub_call_params_t* const params,
-                                                 xi_state_t state,
-                                                 void* user_data )
-												 {
-	printf( "\r\nsubscribed, state : %i" , state );
-
-	xi_publish( gXivelyContextHandle,
-			"xi/blue/v1/15710fc1-7840-4a40-bbfa-ee80fbc38f78/d/f9f8dee6-0bcc-4127-8665-04c9b7afe056/_log",
-	                              "HEHE",
-	                              0,
-								  XI_MQTT_RETAIN_FALSE,
-	                              &user_callback_t,
-	                              NULL );												 }
-
-
 void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t state )
 {
     xi_connection_data_t* conn_data = ( xi_connection_data_t* )data;
-
     printf( "\r\nconnected, state : %i" , conn_data->connection_state  );
-
-    xi_subscribe(gXivelyContextHandle,"xi/blue/v1/15710fc1-7840-4a40-bbfa-ee80fbc38f78/d/f9f8dee6-0bcc-4127-8665-04c9b7afe056/_log",0,&user_subscription_callback_t,NULL);
 }
-
 
 int main(void)
 {
@@ -230,7 +206,7 @@ int main(void)
         if(socket_open == 0)
           {
             /* Read Write Socket data */
-            xi_state_t ret_state = xi_initialize( "15710fc1-7840-4a40-bbfa-ee80fbc38f78", "mtoth@logmein.com", 0 );
+            xi_state_t ret_state = xi_initialize( XI_ACCOUNT_ID, XI_USER, 0 );
 
             if ( XI_STATE_OK != ret_state )
             {
@@ -246,7 +222,7 @@ int main(void)
                 return -1;
             }
 
-            xi_connect( gXivelyContextHandle, "f9f8dee6-0bcc-4127-8665-04c9b7afe056", "K9N14DhRtHOJFtRfoJoEJTQWq26XQzs3bUY7tc/ZCKE=", 10, 0, XI_SESSION_CLEAN, &on_connected );
+            xi_connect( gXivelyContextHandle, XI_DEVICE_ID, XI_DEVICE_PASS, 10, 0, XI_SESSION_CLEAN, &on_connected );
           }
         else
           {
