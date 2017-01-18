@@ -22,7 +22,6 @@ XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/CMSIS/Device/ST/STM32F4xx/In
 XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/BSP/STM324xG_EVAL
 XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/CMSIS/Include
 
-XI_COMPILER_FLAGS += -I$(LIBXIVELY)/examples/stm32/xively_demo_mt/Inc
 XI_COMPILER_FLAGS += -I$(LIBXIVELY)/src/bsp/platform/stm32f4/includes
 
 ####################
