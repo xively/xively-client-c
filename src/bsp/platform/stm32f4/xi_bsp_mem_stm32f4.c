@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+// Forward declarations of external funcitons from FreeRTOS portable.h
 void* pvPortMalloc( size_t );
 void vPortFree( void* );
 
