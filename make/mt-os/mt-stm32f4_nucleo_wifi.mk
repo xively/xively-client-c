@@ -20,7 +20,6 @@ XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/BSP/STM32F4xx-Nucleo
 # arm-eabi-specifics
 ####################
 # create dummy fsctl and unistd methods for gnu newlib
-#XI_COMPILER_FLAGS += -ffreestanding
 # stm32f4 uses cortex m4
 XI_COMPILER_FLAGS += -mcpu=cortex-m4
 # enable Thumb instruction set ( reduces memory usage )
@@ -41,9 +40,6 @@ XI_COMPILER_FLAGS += -DUSE_STM32F4XX_NUCLEO
 XI_COMPILER_FLAGS += -DUSE_HAL_DRIVER
 # HSE crystal fequency in Hz
 XI_COMPILER_FLAGS += -DHSE_VALUE=8000000
-#XI_COMPILER_FLAGS += -std=gnu11
-#XI_COMPILER_FLAGS += -MMD
-#XI_COMPILER_FLAGS += -MP
 
 ifneq (,$(findstring release,$(TARGET)))
 	XI_COMPILER_FLAGS += -O4
