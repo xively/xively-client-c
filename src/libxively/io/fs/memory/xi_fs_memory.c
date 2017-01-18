@@ -263,7 +263,7 @@ xi_state_t xi_fs_read( const void* context,
 
 xi_state_t xi_fs_write( const void* context,
                         const xi_fs_resource_handle_t resource_handle,
-                        const uint8_t* buffer,
+                        const uint8_t* const buffer,
                         const size_t buffer_size,
                         const size_t offset,
                         size_t* const bytes_written )
