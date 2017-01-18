@@ -7,8 +7,7 @@
 #include <xi_bsp_rng.h>
 
 void xi_bsp_rng_init()
-{
-    /* check if already initialized */
+{ /* check if already initialized */
 }
 
 uint32_t xi_bsp_rng_get()
@@ -19,5 +18,4 @@ uint32_t xi_bsp_rng_get()
 
 void xi_bsp_rng_shutdown()
 {
-    
 }

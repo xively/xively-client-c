@@ -40,6 +40,7 @@
 #include "stdio.h"
 #include "string.h"
 #include "xively.h"
+#include "xi_bsp_io_net_socket_proxy.h"
 
 /**
    * @mainpage Documentation for X-CUBE-WIFI Software for STM32, Expansion for STM32Cube 
@@ -534,9 +535,6 @@ WiFi_Status_t wifi_get_AP_settings(void)
 }
 
 /******** Wi-Fi Indication User Callback *********/
-
-void xi_bsp_io_net_socket_data_received_proxy(uint8_t socket_id, uint8_t * data_ptr, uint32_t message_size, uint32_t chunk_size);
-void xi_bsp_io_net_socket_client_remote_server_closed_proxy(uint8_t * socket_closed_id);
 
 void ind_wifi_socket_data_received(uint8_t socket_id, uint8_t * data_ptr, uint32_t message_size, uint32_t chunk_size)
 {
