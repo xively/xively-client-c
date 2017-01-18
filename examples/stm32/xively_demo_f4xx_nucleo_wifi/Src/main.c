@@ -76,13 +76,10 @@ wifi_scan net_scan[WIFI_SCAN_BUFFER_LIST];
 
 char console_ssid[40];
 char console_psk[20];
-char console_host[20];
 
-char * ssid = "LMI-GUEST";
-char * seckey = "21SimplyPossible!";
+char * ssid = "SSID";
+char * seckey = "PASSWORD";
 WiFi_Priv_Mode mode = WPA_Personal;
-char *hostname = "index.hu";
-uint8_t socket_id;
 
 xi_context_handle_t gXivelyContextHandle = -1;
 
@@ -131,14 +128,7 @@ int main(void)
 {
   uint8_t i=0;
   uint8_t socket_open = 0;
-  uint32_t portnumber = 80;
-  uint16_t len; /*Take care to change the length of the text we are sending*/
-  char *protocol = "t";//t -> tcp , s-> secure tcp
-  char *data = "Hello World!\r\n";
-   wifi_bool SSID_found = WIFI_FALSE;
-
-  len = strlen(data);
-
+  wifi_bool SSID_found = WIFI_FALSE;
   WiFi_Status_t status = WiFi_MODULE_SUCCESS;
   __GPIOA_CLK_ENABLE();
   HAL_Init();
@@ -183,7 +173,6 @@ int main(void)
   while (1)
   {
   	xi_events_process_tick( );
-	printf("\r\nwifi state %i",wifi_state);
     switch (wifi_state) 
     {
       case wifi_state_reset:
@@ -253,34 +242,11 @@ int main(void)
 
             if ( XI_INVALID_CONTEXT_HANDLE == gXivelyContextHandle )
             {
-                printf( "\r\n xi failed to create context, error: %d\n",
-                                   -gXivelyContextHandle );
+                printf( "\r\n xi failed to create context, error: %li\n", -gXivelyContextHandle );
                 return -1;
             }
 
-            xi_state_t connect_result = xi_connect( gXivelyContextHandle, "f9f8dee6-0bcc-4127-8665-04c9b7afe056", "K9N14DhRtHOJFtRfoJoEJTQWq26XQzs3bUY7tc/ZCKE=", 10, 0, XI_SESSION_CLEAN, &on_connected );
-
-            printf("\r\n >>connected result %i\r\n", connect_result );
-
-//            WiFi_Status_t status = WiFi_MODULE_SUCCESS;
-//            status = wifi_socket_client_open((uint8_t *)console_host, portnumber, (uint8_t *)protocol, &socket_id);
-//
-//            if(status == WiFi_MODULE_SUCCESS)
-//              {
-//                printf("\r\n >>Socket Open OK\r\n");
-//                printf("\r\n >>Socket ID: %d",socket_id);
-//                socket_open = 1;
-//                status = wifi_socket_client_write(socket_id, len, data);
-//
-//                if(status == WiFi_MODULE_SUCCESS)
-//                  {
-//                    printf("\r\n >>Socket Write OK\r\n");
-//                  }
-//              }
-//            else
-//              {
-//                printf("Socket connection Error");
-//              }
+            xi_connect( gXivelyContextHandle, "f9f8dee6-0bcc-4127-8665-04c9b7afe056", "K9N14DhRtHOJFtRfoJoEJTQWq26XQzs3bUY7tc/ZCKE=", 10, 0, XI_SESSION_CLEAN, &on_connected );
           }
         else
           {
@@ -576,30 +542,16 @@ WiFi_Status_t wifi_get_AP_settings(void)
                   return WiFi_NOT_SUPPORTED;              
               }
 
-              printf("Enter the Hostname (Apache Server): ");
-              fflush(stdout);
-              console_count=0;
-              
-              console_count=scanf("%s",console_host);
-              printf("\r\n");
-              //printf("entered =%s\r\n",console_host);
-                if(console_count==19) 
-                    {
-                        printf("Exceeded number of host characters permitted");
-                        return WiFi_NOT_SUPPORTED;
-                    }
         } else 
             {
                 printf("\r\n\n Module will connect with default settings.");
                 memcpy(console_ssid, (const char*)ssid, strlen((char*)ssid));
                 memcpy(console_psk,  (const char*)seckey, strlen((char*)seckey));
-                memcpy(console_host, (const char*)hostname, strlen((char*)hostname));
             }
 
   printf("\r\n\n/**************************************************************\n");
   printf("\r * Configuration Complete                                     *\n");
   printf("\r * Port Number:32000, Protocol: TCP/IP                        *\n");
-  printf("\r * Please make sure a server is listening at given hostname   *\n");
   printf("\r *************************************************************/\n");
   
   return status;
@@ -607,30 +559,18 @@ WiFi_Status_t wifi_get_AP_settings(void)
 
 /******** Wi-Fi Indication User Callback *********/
 
+void xi_bsp_io_net_socket_data_received_proxy(uint8_t socket_id, uint8_t * data_ptr, uint32_t message_size, uint32_t chunk_size);
+void xi_bsp_io_net_socket_client_remote_server_closed_proxy(uint8_t * socket_closed_id);
 
-//void ind_wifi_socket_data_received(uint8_t socket_id, uint8_t * data_ptr, uint32_t message_size, uint32_t chunk_size)
-//{
-//  printf("\r\nData Receive Callback...\r\n");
-//  printf((const char*)data_ptr);
-//  printf("\r\nsocket ID: %d\r\n",socket_id);
-//  printf("msg size: %lu\r\n",(unsigned long)message_size);
-//  printf("chunk size: %lu\r\n",(unsigned long)chunk_size);
-//
-//
-//  uint8_t* chunk = malloc( message_size );
-//  memcpy( chunk , data_ptr, message_size );
-//
-//  fflush(stdout);
-//}
+void ind_wifi_socket_data_received(uint8_t socket_id, uint8_t * data_ptr, uint32_t message_size, uint32_t chunk_size)
+{
+	xi_bsp_io_net_socket_data_received_proxy( socket_id , data_ptr , message_size , chunk_size );
+}
 
-//void ind_wifi_socket_client_remote_server_closed(uint8_t * socket_closed_id)
-//{
-//  uint8_t id = *socket_closed_id;
-//  printf("\r\n>>User Callback>>remote server socket closed\r\n");
-//  printf("Socket ID closed: %d",id);//this will actually print the character/string, not the number
-//  fflush(stdout);
-//
-//}
+void ind_wifi_socket_client_remote_server_closed(uint8_t * socket_closed_id)
+{
+	xi_bsp_io_net_socket_client_remote_server_closed_proxy( socket_closed_id );
+}
 
 void ind_wifi_on()
 {
