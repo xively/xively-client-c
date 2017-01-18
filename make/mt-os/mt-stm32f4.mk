@@ -8,11 +8,9 @@ include make/mt-utils/mt-get-gnu-arm-toolchain.mk
 
 XI_STM32_PATH_SDK = $(HOME)/Downloads/xively-client-artifactory/st/STM32Cube_FW_F4_V1.14.0
 
-
 #####################
 # LWIP configurations
 #####################
-
 XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Middlewares/Third_Party/LwIP/src/include
 XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Middlewares/Third_Party/LwIP/system
 
@@ -21,6 +19,7 @@ XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Middlewares/Third_Party/FreeRTOS/Sou
 
 XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/STM32F4xx_HAL_Driver/Inc
 XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/CMSIS/Device/ST/STM32F4xx/Include
+XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/BSP/STM324xG_EVAL
 XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/CMSIS/Include
 
 XI_COMPILER_FLAGS += -I$(LIBXIVELY)/examples/stm32/xively_demo_mt/Inc
