@@ -3,6 +3,10 @@
 	<storageModule moduleId="org.eclipse.cdt.core.settings">
 		<cconfiguration id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.1474710539">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.1474710539" moduleId="org.eclipse.cdt.core.settings" name="Debug">
+				<macros>
+					<stringMacro name="XI_STMCUBE_PATH" type="VALUE_PATH_DIR" value="/Users/milgra/Downloads/xively-client-artifactory/st/STM32CubeExpansion_WIFI1_V2.1.1"/>
+					<stringMacro name="XI_CLIENT_PATH" type="VALUE_PATH_ANY" value="/Users/milgra/Desktop/Projects/xively-client-c"/>
+				</macros>
 				<externalSettings>
 					<externalSetting/>
 				</externalSettings>
@@ -32,15 +36,15 @@
 								<option id="gnu.c.compiler.option.debugging.level.1626214277" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.c.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.173426146" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="../../../../Inc"/>
-									<listOptionValue builtIn="false" value="/Users/milgra/Downloads/STM32CubeExpansion_WIFI1_V2.1.1/Middlewares/ST/STM32_SPWF01SA/Utils"/>
-									<listOptionValue builtIn="false" value="/Users/milgra/Downloads/STM32CubeExpansion_WIFI1_V2.1.1/Middlewares/ST/STM32_SPWF01SA/Inc"/>
-									<listOptionValue builtIn="false" value="/Users/milgra/Downloads/STM32CubeExpansion_WIFI1_V2.1.1/Drivers/BSP/X-NUCLEO-IDW01M1"/>
-									<listOptionValue builtIn="false" value="/Users/milgra/Downloads/STM32CubeExpansion_WIFI1_V2.1.1/Drivers/CMSIS/Include"/>
-									<listOptionValue builtIn="false" value="/Users/milgra/Downloads/STM32CubeExpansion_WIFI1_V2.1.1/Drivers/CMSIS/Device/ST/STM32F4xx/Include"/>
-									<listOptionValue builtIn="false" value="/Users/milgra/Downloads/STM32CubeExpansion_WIFI1_V2.1.1/Drivers/STM32F4xx_HAL_Driver/Inc"/>
-									<listOptionValue builtIn="false" value="/Users/milgra/Downloads/STM32CubeExpansion_WIFI1_V2.1.1/Drivers/BSP/STM32F4xx-Nucleo"/>
-									<listOptionValue builtIn="false" value="/Users/milgra/Desktop/Projects/xively-client-c/include"/>
-									<listOptionValue builtIn="false" value="/Users/milgra/Desktop/Projects/xively-client-c/include/bsp"/>
+									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Middlewares/ST/STM32_SPWF01SA/Utils"/>
+									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Middlewares/ST/STM32_SPWF01SA/Inc"/>
+									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/BSP/X-NUCLEO-IDW01M1"/>
+									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/CMSIS/Include"/>
+									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/CMSIS/Device/ST/STM32F4xx/Include"/>
+									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/STM32F4xx_HAL_Driver/Inc"/>
+									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/BSP/STM32F4xx-Nucleo"/>
+									<listOptionValue builtIn="false" value="${XI_CLIENT_PATH}/include"/>
+									<listOptionValue builtIn="false" value="${XI_CLIENT_PATH}/include/bsp"/>
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.675701715" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="USE_HAL_DRIVER"/>

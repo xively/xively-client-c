@@ -188,7 +188,7 @@
 		<link>
 			<name>Drivers/BSP/X-NUCLEO-IDW01M1/stm32_spwf_wifi.c</name>
 			<type>1</type>
-			<locationURI>STM_CUBE_WIFI_PATH/Drivers/BSP/X-NUCLEO-IDW01M1/stm32_spwf_wifi.c</locationURI>
+			<locationURI>STM_CUBE_PATH/Drivers/BSP/X-NUCLEO-IDW01M1/stm32_spwf_wifi.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/ST/STM32_SPWF01SA/Utils</name>
@@ -198,37 +198,33 @@
 		<link>
 			<name>Middlewares/ST/STM32_SPWF01SA/wifi_interface.c</name>
 			<type>1</type>
-			<locationURI>STM_CUBE_WIFI_PATH/Middlewares/ST/STM32_SPWF01SA/wifi_interface.c</locationURI>
+			<locationURI>STM_CUBE_PATH/Middlewares/ST/STM32_SPWF01SA/wifi_interface.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/ST/STM32_SPWF01SA/wifi_module.c</name>
 			<type>1</type>
-			<locationURI>STM_CUBE_WIFI_PATH/Middlewares/ST/STM32_SPWF01SA/wifi_module.c</locationURI>
+			<locationURI>STM_CUBE_PATH/Middlewares/ST/STM32_SPWF01SA/wifi_module.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/ST/STM32_SPWF01SA/Utils/event_buffer.c</name>
 			<type>1</type>
-			<locationURI>STM_CUBE_WIFI_PATH/Middlewares/ST/STM32_SPWF01SA/Utils/event_buffer.c</locationURI>
+			<locationURI>STM_CUBE_PATH/Middlewares/ST/STM32_SPWF01SA/Utils/event_buffer.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/ST/STM32_SPWF01SA/Utils/ring_buffer.c</name>
 			<type>1</type>
-			<locationURI>STM_CUBE_WIFI_PATH/Middlewares/ST/STM32_SPWF01SA/Utils/ring_buffer.c</locationURI>
+			<locationURI>STM_CUBE_PATH/Middlewares/ST/STM32_SPWF01SA/Utils/ring_buffer.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/ST/STM32_SPWF01SA/Utils/wifi_globals.c</name>
 			<type>1</type>
-			<locationURI>STM_CUBE_WIFI_PATH/Middlewares/ST/STM32_SPWF01SA/Utils/wifi_globals.c</locationURI>
+			<locationURI>STM_CUBE_PATH/Middlewares/ST/STM32_SPWF01SA/Utils/wifi_globals.c</locationURI>
 		</link>
 	</linkedResources>
 	<variableList>
 		<variable>
 			<name>STM_CUBE_PATH</name>
-			<value>file:/Users/milgra/Downloads/STM32CubeExpansion_WIFI1_V2.1.1</value>
-		</variable>
-		<variable>
-			<name>STM_CUBE_WIFI_PATH</name>
-			<value>file:/Users/milgra/Downloads/STM32CubeExpansion_WIFI1_V2.1.1</value>
+			<value>file:/Users/milgra/Downloads/xively-client-artifactory/st/STM32CubeExpansion_WIFI1_V2.1.1</value>
 		</variable>
 		<variable>
 			<name>XI_CLIENT_PATH</name>
