@@ -7,8 +7,9 @@
 #include <xi_bsp_mem.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <FreeRTOS.h>
-#include <portable.h>
+
+void* pvPortMalloc( size_t );
+void vPortFree( void* );
 
 void* xi_bsp_mem_alloc( size_t byte_count )
 {

@@ -5,9 +5,10 @@
  */
 
 #include <xi_bsp_time.h>
-
-#include <stm32f4xx_hal.h>
 #include <xi_bsp_time_stm32_sntp.h>
+#include <stddef.h>
+
+uint32_t HAL_GetTick( void );
 
 void xi_bsp_time_init()
 {
