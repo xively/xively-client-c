@@ -150,7 +150,7 @@ endif
 # platform specific BSP implementations
 XI_SRCDIRS += $(XI_BSP_DIR)/platform/$(XI_BSP_PLATFORM)
 
-XI_INCLUDE_FLAGS += -I$(LIBXIVELY)/include/bsp
+XI_INCLUDE_FLAGS += -I$(LIBXIVELY)/include/bsp -I$(LIBXIVELY)/src/bsp
 
 # platform independent BSP drivers
 XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/io/net
