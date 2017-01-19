@@ -9,6 +9,7 @@
 #include <cyassl/ssl.h>
 #include <wolfssl/error-ssl.h>
 #include <xi_bsp_tls.h>
+#include <xi_bsp_debug.h>
 
 #include <stdio.h>
 
@@ -21,30 +22,9 @@ typedef struct wolfssl_tls_context_s
 } wolfssl_tls_context_t;
 
 
-#ifndef XI_DEBUG_PRINTF
-#include <stdio.h>
-#define __xi_printf( ... )                                                               \
-    printf( __VA_ARGS__ );                                                               \
-    fflush( stdout )
-#else /* XI_DEBUG_PRINTF */
-#define __xi_printf( ... ) XI_DEBUG_PRINTF( __VA_ARGS__ );
-#endif /* XI_DEBUG_PRINTF */
-
-#if WOLFSSL_DEBUG_LOG
-#define wolfssl_debug_logger( format_string )                                            \
-    __xi_printf( "%s@%d[  BSP TLS   ] [ WOLFSSL ] " format_string "\n", __FILE__,        \
-                 __LINE__ )
-#define wolfssl_debug_format( format_string, ... )                                       \
-    __xi_printf( "%s@%d[  BSP TLS   ] [ WOLFSSL ] " format_string "\n", __FILE__,        \
-                 __LINE__, __VA_ARGS__ )
-#else /* WOLFSSL_DEBUG_LOG */
-#define wolfssl_debug_logger( ... )
-#define wolfssl_debug_format( ... )
-#endif /* WOLFSSL_DEBUG_LOG */
-
 int xi_wolfssl_recv( CYASSL* ssl, char* buf, int sz, void* context )
 {
-    wolfssl_debug_format( "[ %s ]", __FUNCTION__ );
+    xi_bsp_debug_format( "[ %s ]", __FUNCTION__ );
 
     ( void )ssl;
 
@@ -59,7 +39,7 @@ int xi_wolfssl_recv( CYASSL* ssl, char* buf, int sz, void* context )
         case XI_BSP_TLS_STATE_WANT_READ:
             return CYASSL_CBIO_ERR_WANT_READ;
         default:
-            wolfssl_debug_format( "%s\n", "unexpected state" );
+            xi_bsp_debug_format( "%s\n", "unexpected state" );
             return CYASSL_CBIO_ERR_GENERAL;
     }
 }
@@ -68,7 +48,7 @@ int xi_wolfssl_send( CYASSL* ssl, char* buf, int sz, void* context )
 {
     ( void )ssl;
 
-    wolfssl_debug_format( "[ %s ]", __FUNCTION__ );
+    xi_bsp_debug_format( "[ %s ]", __FUNCTION__ );
 
     // here context is the xi_layer_connectivity_t* on the BSP TLS stub layer
     int bytes_sent         = 0;
@@ -77,13 +57,13 @@ int xi_wolfssl_send( CYASSL* ssl, char* buf, int sz, void* context )
     switch ( ret )
     {
         case XI_BSP_TLS_STATE_OK:
-            wolfssl_debug_format( "bytes_sent=%d", bytes_sent );
+            xi_bsp_debug_format( "bytes_sent=%d", bytes_sent );
             return bytes_sent;
         case XI_BSP_TLS_STATE_WANT_WRITE:
-            wolfssl_debug_logger( "Want write" );
+            xi_bsp_debug_logger( "Want write" );
             return CYASSL_CBIO_ERR_WANT_WRITE;
         default:
-            wolfssl_debug_format( "%s", "unexpected state" );
+            xi_bsp_debug_format( "%s", "unexpected state" );
             return CYASSL_CBIO_ERR_GENERAL;
     }
 }
@@ -91,7 +71,7 @@ int xi_wolfssl_send( CYASSL* ssl, char* buf, int sz, void* context )
 xi_bsp_tls_state_t xi_bsp_tls_init( xi_bsp_tls_context_t** tls_context,
                                     xi_bsp_tls_init_params_t* init_params )
 {
-    wolfssl_debug_format( "[ %s ]", __FUNCTION__ );
+    xi_bsp_debug_format( "[ %s ]", __FUNCTION__ );
 
     int ret                                    = 0;
     xi_bsp_tls_state_t result                  = XI_BSP_TLS_STATE_OK;
@@ -105,7 +85,7 @@ xi_bsp_tls_state_t xi_bsp_tls_init( xi_bsp_tls_context_t** tls_context,
 
     if ( ret != SSL_SUCCESS )
     {
-        wolfssl_debug_logger( "failed to initialize CyaSSL library" );
+        xi_bsp_debug_logger( "failed to initialize CyaSSL library" );
         result = XI_BSP_TLS_STATE_INIT_ERROR;
         goto err_handling;
     }
@@ -115,12 +95,12 @@ xi_bsp_tls_state_t xi_bsp_tls_init( xi_bsp_tls_context_t** tls_context,
 
     if ( 0 != ret )
     {
-        wolfssl_debug_logger( "failed to initialize CyaSSL library" );
+        xi_bsp_debug_logger( "failed to initialize CyaSSL library" );
         result = XI_BSP_TLS_STATE_INIT_ERROR;
         goto err_handling;
     }
 
-    wolfssl_debug_logger( "initialized CyaSSL library" );
+    xi_bsp_debug_logger( "initialized CyaSSL library" );
 
     wolfssl_tls_context =
         ( wolfssl_tls_context_t* )wolfSSL_Malloc( sizeof( wolfssl_tls_context_t ) );
@@ -132,12 +112,12 @@ xi_bsp_tls_state_t xi_bsp_tls_init( xi_bsp_tls_context_t** tls_context,
 
     if ( NULL == wolfssl_tls_context->ctx )
     {
-        wolfssl_debug_logger( "failed to create CyaSSL context" );
+        xi_bsp_debug_logger( "failed to create CyaSSL context" );
         result = XI_BSP_TLS_STATE_INIT_ERROR;
         goto err_handling;
     }
 
-    wolfssl_debug_logger( "CyaSSL context created" );
+    xi_bsp_debug_logger( "CyaSSL context created" );
 
     CyaSSL_SetIORecv( wolfssl_tls_context->ctx, xi_wolfssl_recv );
     CyaSSL_SetIOSend( wolfssl_tls_context->ctx, xi_wolfssl_send );
@@ -151,19 +131,19 @@ xi_bsp_tls_state_t xi_bsp_tls_init( xi_bsp_tls_context_t** tls_context,
 
     if ( NULL == wolfssl_tls_context->obj )
     {
-        wolfssl_debug_logger( "failed to create CYASSL object" );
+        xi_bsp_debug_logger( "failed to create CYASSL object" );
         result = XI_BSP_TLS_STATE_INIT_ERROR;
         goto err_handling;
     }
 
-    wolfssl_debug_logger( "CyaSSL object created" );
+    xi_bsp_debug_logger( "CyaSSL object created" );
 
     /* enable domain name check */
     if ( SSL_SUCCESS !=
          CyaSSL_check_domain_name( wolfssl_tls_context->obj, init_params->domain_name ) )
     {
-        wolfssl_debug_format( "failed to set domain name check against host: %s",
-                              init_params->domain_name );
+        xi_bsp_debug_format( "failed to set domain name check against host: %s",
+                             init_params->domain_name );
         result = XI_BSP_TLS_STATE_INIT_ERROR;
         goto err_handling;
     }
@@ -179,8 +159,8 @@ xi_bsp_tls_state_t xi_bsp_tls_init( xi_bsp_tls_context_t** tls_context,
                                        init_params->domain_name,
                                        strlen( init_params->domain_name ) ) )
     {
-        wolfssl_debug_format( "failed to set SNI Host Name: %s",
-                              init_params->domain_name );
+        xi_bsp_debug_format( "failed to set SNI Host Name: %s",
+                             init_params->domain_name );
         result = XI_BSP_TLS_STATE_INIT_ERROR;
         goto err_handling;
     }
@@ -196,7 +176,7 @@ xi_bsp_tls_state_t xi_bsp_tls_init( xi_bsp_tls_context_t** tls_context,
                                    nonce_options );
     if ( SSL_SUCCESS != ret )
     {
-        wolfssl_debug_format( "failed to enable OCSP Stapling, reason: %d", ret );
+        xi_bsp_debug_format( "failed to enable OCSP Stapling, reason: %d", ret );
         result = XI_BSP_TLS_STATE_INIT_ERROR;
         goto err_handling;
     }
@@ -209,7 +189,7 @@ xi_bsp_tls_state_t xi_bsp_tls_init( xi_bsp_tls_context_t** tls_context,
     ret                  = wolfSSL_EnableOCSP( wolfssl_tls_context->obj, no_options );
     if ( SSL_SUCCESS != ret )
     {
-        wolfssl_debug_format( "failed to enable OCSP support, reason: %d", ret );
+        xi_bsp_debug_format( "failed to enable OCSP support, reason: %d", ret );
         result = XI_BSP_TLS_STATE_INIT_ERROR;
         goto err_handling;
     }
@@ -238,7 +218,7 @@ xi_bsp_tls_state_t xi_bsp_tls_init( xi_bsp_tls_context_t** tls_context,
 
     if ( SSL_SUCCESS != ret )
     {
-        wolfssl_debug_format( "failed to load CA certificate, reason: %d", ret );
+        xi_bsp_debug_format( "failed to load CA certificate, reason: %d", ret );
         result = XI_BSP_TLS_STATE_CERT_ERROR;
         goto err_handling;
     }
@@ -250,7 +230,7 @@ err_handling:
 
 xi_bsp_tls_state_t xi_bsp_tls_connect( xi_bsp_tls_context_t* tls_context )
 {
-    wolfssl_debug_format( "[ %s ]", __FUNCTION__ );
+    xi_bsp_debug_format( "[ %s ]", __FUNCTION__ );
 
     /* get back the wolfssl_tls_context */
     wolfssl_tls_context_t* wolfssl_tls_context = tls_context;
@@ -275,8 +255,8 @@ xi_bsp_tls_state_t xi_bsp_tls_connect( xi_bsp_tls_context_t* tls_context )
         {
             char errorString[80] = {'\0'};
             CyaSSL_ERR_error_string( cyastate, errorString );
-            wolfssl_debug_format( "CyaSSL_connect failed reason [%d]: %s\n", cyastate,
-                                  errorString );
+            xi_bsp_debug_format( "CyaSSL_connect failed reason [%d]: %s\n", cyastate,
+                                 errorString );
         }
 #endif
         break;
@@ -297,7 +277,7 @@ xi_bsp_tls_state_t xi_bsp_tls_read( xi_bsp_tls_context_t* tls_context,
     assert( data_size >= 1 );
     assert( NULL != ret_bytes_read );
 
-    wolfssl_debug_format( "[ %s ]", __FUNCTION__ );
+    xi_bsp_debug_format( "[ %s ]", __FUNCTION__ );
 
     int cyastate = 0;
     int ret      = 0;
@@ -330,7 +310,7 @@ xi_bsp_tls_state_t xi_bsp_tls_read( xi_bsp_tls_context_t* tls_context,
 #if WOLFSSL_DEBUG_LOG
         char errorString[80] = {'\0'};
         CyaSSL_ERR_error_string( cyastate, errorString );
-        wolfssl_debug_format( "CyaSSL_read failed reason: %s", errorString );
+        xi_bsp_debug_format( "CyaSSL_read failed reason: %s", errorString );
 #endif
 
         return XI_BSP_TLS_STATE_READ_ERROR;
@@ -350,7 +330,7 @@ xi_bsp_tls_state_t xi_bsp_tls_write( xi_bsp_tls_context_t* tls_context,
     assert( NULL != data_ptr );
     assert( data_size >= 1 );
 
-    wolfssl_debug_format( "[ %s ], size=%zu", __FUNCTION__, data_size );
+    xi_bsp_debug_format( "[ %s ], size=%zu", __FUNCTION__, data_size );
 
     int ret      = 0;
     int cyastate = 0;
@@ -362,7 +342,7 @@ xi_bsp_tls_state_t xi_bsp_tls_write( xi_bsp_tls_context_t* tls_context,
     /* call TLS library write function */
     ret = CyaSSL_write( wolfssl_tls_context->obj, data_ptr, data_size );
 
-    wolfssl_debug_format( "return value - %d", ret );
+    xi_bsp_debug_format( "return value - %d", ret );
 
     /* check the result of the write operation */
     if ( ret <= 0 )
@@ -371,7 +351,7 @@ xi_bsp_tls_state_t xi_bsp_tls_write( xi_bsp_tls_context_t* tls_context,
     }
     else
     {
-        wolfssl_debug_format( "written %d bytes", ret );
+        xi_bsp_debug_format( "written %d bytes", ret );
         cyastate = SSL_SUCCESS;
     }
 
@@ -389,7 +369,7 @@ xi_bsp_tls_state_t xi_bsp_tls_write( xi_bsp_tls_context_t* tls_context,
 #if WOLFSSL_DEBUG_LOG
         char errorString[80] = {'\0'};
         CyaSSL_ERR_error_string( cyastate, errorString );
-        wolfssl_debug_format( "CyaSSL_write failed reason: %s", errorString );
+        xi_bsp_debug_format( "CyaSSL_write failed reason: %s", errorString );
 #endif
 
         return XI_BSP_TLS_STATE_WRITE_ERROR;
@@ -400,7 +380,7 @@ xi_bsp_tls_state_t xi_bsp_tls_write( xi_bsp_tls_context_t* tls_context,
 
 xi_bsp_tls_state_t xi_bsp_tls_cleanup( xi_bsp_tls_context_t** tls_context )
 {
-    wolfssl_debug_format( "[ %s ]", __FUNCTION__ );
+    xi_bsp_debug_format( "[ %s ]", __FUNCTION__ );
 
     if ( NULL == tls_context || NULL == *tls_context )
     {
@@ -423,7 +403,7 @@ xi_bsp_tls_state_t xi_bsp_tls_cleanup( xi_bsp_tls_context_t** tls_context )
 
 int xi_bsp_tls_pending( xi_bsp_tls_context_t* tls_context )
 {
-    wolfssl_debug_format( "[ %s ]", __FUNCTION__ );
+    xi_bsp_debug_format( "[ %s ]", __FUNCTION__ );
 
     /* get back the wolfssl_tls_context */
     wolfssl_tls_context_t* wolfssl_tls_context = tls_context;
