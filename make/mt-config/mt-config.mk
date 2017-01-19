@@ -147,10 +147,12 @@ ifeq ($(BSP_PLATFORM_DIR_EXIST),0)
 	$(error The platform with BSP implementation - [$(XI_BSP_PLATFORM)] couldn't be found. Please check your $(XI_BSP_DIR)/platform/ directory.)
 endif
 
+XI_SRCDIRS += $(XI_BSP_DIR)
+
 # platform specific BSP implementations
 XI_SRCDIRS += $(XI_BSP_DIR)/platform/$(XI_BSP_PLATFORM)
 
-XI_INCLUDE_FLAGS += -I$(LIBXIVELY)/include/bsp -I$(LIBXIVELY)/src/bsp
+XI_INCLUDE_FLAGS += -I$(LIBXIVELY)/include/bsp
 
 # platform independent BSP drivers
 XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/io/net
