@@ -7,7 +7,7 @@
 #ifndef __XI_BSP_DEBUG__
 #define __XI_BSP_DEBUG__
 
-#define BSP_DEBUG_LOG 1
+#define BSP_DEBUG_LOG 0
 
 #ifndef XI_DEBUG_PRINTF
 #include <stdio.h>
