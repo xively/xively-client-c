@@ -36,8 +36,6 @@ xi_bsp_stm_wifi_buffer_t xi_wifi_buffer = {0};
 
 xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
 {
-    ( void )xi_socket;
-
     *xi_socket = 0;
 
     return XI_BSP_IO_NET_STATE_OK;
@@ -46,14 +44,10 @@ xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
 xi_bsp_io_net_state_t
 xi_bsp_io_net_connect( xi_bsp_socket_t* xi_socket, const char* host, uint16_t port )
 {
-    ( void )xi_socket;
-    ( void )host;
-    ( void )port;
-
     char* protocol = "s"; // t -> tcp , s-> secure tcp, c-> secure tcp with certs
 
     WiFi_Status_t status = WiFi_MODULE_SUCCESS;
-    status = wifi_socket_client_open( ( uint8_t* )"broker.dev.xively.io", port,
+    status = wifi_socket_client_open( ( uint8_t* )host, port,
                                       ( uint8_t* )protocol, ( uint8_t* )xi_socket );
 
     if ( status == WiFi_MODULE_SUCCESS )
@@ -89,8 +83,6 @@ xi_bsp_io_net_state_t xi_bsp_io_net_write( xi_bsp_socket_t xi_socket,
                                            const uint8_t* buf,
                                            size_t count )
 {
-    ( void )xi_socket;
-    ( void )buf;
     *out_written_count = count;
 
     WiFi_Status_t status = WiFi_MODULE_SUCCESS;
@@ -112,8 +104,6 @@ xi_bsp_io_net_state_t xi_bsp_io_net_read( xi_bsp_socket_t xi_socket,
                                           size_t count )
 {
     ( void )xi_socket;
-    ( void )buf;
-    ( void )count;
 
     *out_read_count = 0;
 
