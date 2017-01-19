@@ -147,6 +147,8 @@ ifeq ($(BSP_PLATFORM_DIR_EXIST),0)
 	$(error The platform with BSP implementation - [$(XI_BSP_PLATFORM)] couldn't be found. Please check your $(XI_BSP_DIR)/platform/ directory.)
 endif
 
+XI_SRCDIRS += $(XI_BSP_DIR)
+
 # platform specific BSP implementations
 XI_SRCDIRS += $(XI_BSP_DIR)/platform/$(XI_BSP_PLATFORM)
 
