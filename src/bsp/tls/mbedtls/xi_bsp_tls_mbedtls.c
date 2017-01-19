@@ -9,6 +9,7 @@
 #include <string.h>
 #include <xi_allocator.h>
 #include <xi_bsp_tls.h>
+#include <xi_bsp_debug.h>
 
 #define MBEDTLS_PLATFORM_MEMORY
 #define MBEDTLS_DEBUG_LOG 1
@@ -18,21 +19,6 @@
 #include <mbedtls/error.h>
 #include <mbedtls/platform.h>
 #include <mbedtls/ssl.h>
-
-#if MBEDTLS_DEBUG_LOG
-#define mbedtls_debug_logger( format_string )                                            \
-    printf( "%s@%d[  MBED TLS   ] [ MBEDTLS ] " format_string "\n", __FILE__,            \
-            __LINE__ );                                                                  \
-    fflush( stdout )
-#define mbedtls_debug_format( format_string, ... )                                       \
-    printf( "%s@%d[  MBED TLS   ] [ MBEDTLS ] " format_string "\n", __FILE__, __LINE__,  \
-            __VA_ARGS__ );                                                               \
-    fflush( stdout )
-#else
-#define mbedtls_debug_logger( ... )
-#define mbedtls_debug_format( ... )
-#endif
-
 
 /**
  * @brief Function makes the Xivelys certificate buffer to work against mbedtls
@@ -70,7 +56,7 @@ int xi_mbedtls_recv( void* xively_io_callback_context, unsigned char* buf, size_
     assert( NULL != buf );
     assert( 0 < len );
 
-    mbedtls_debug_format( "[ %s ]", __FUNCTION__ );
+    xi_bsp_debug_format( "[ %s ]", __FUNCTION__ );
 
     int bytes_read         = 0;
     xi_bsp_tls_state_t ret = xi_bsp_tls_recv_callback(
@@ -83,11 +69,11 @@ int xi_mbedtls_recv( void* xively_io_callback_context, unsigned char* buf, size_
         case XI_BSP_TLS_STATE_WANT_READ:
             return MBEDTLS_ERR_SSL_WANT_READ;
         default:
-            mbedtls_debug_format( "unexpected state %d", ret );
+            xi_bsp_debug_format( "unexpected state %d", ret );
 #if MBEDTLS_DEBUG_LOG
             char errorString[80] = {'\0'};
             mbedtls_strerror( ret, errorString, sizeof( errorString ) );
-            mbedtls_debug_format( "Recv error - %s", errorString );
+            xi_bsp_debug_format( "Recv error - %s", errorString );
 #endif
             return MBEDTLS_ERR_SSL_INTERNAL_ERROR;
     }
@@ -103,7 +89,7 @@ int xi_mbedtls_send( void* xively_io_callback_context,
     assert( NULL != buf );
     assert( 0 < len );
 
-    mbedtls_debug_format( "[ %s ]", __FUNCTION__ );
+    xi_bsp_debug_format( "[ %s ]", __FUNCTION__ );
 
     int bytes_sent         = 0;
     xi_bsp_tls_state_t ret = xi_bsp_tls_send_callback(
@@ -116,11 +102,11 @@ int xi_mbedtls_send( void* xively_io_callback_context,
         case XI_BSP_TLS_STATE_WANT_WRITE:
             return MBEDTLS_ERR_SSL_WANT_WRITE;
         default:
-            mbedtls_debug_format( "unexpected state %d", ret );
+            xi_bsp_debug_format( "unexpected state %d", ret );
 #if MBEDTLS_DEBUG_LOG
             char errorString[80] = {'\0'};
             mbedtls_strerror( ret, errorString, sizeof( errorString ) );
-            mbedtls_debug_format( "Send error - %s", errorString );
+            xi_bsp_debug_format( "Send error - %s", errorString );
 #endif
             return MBEDTLS_ERR_SSL_INTERNAL_ERROR;
     }
@@ -135,7 +121,7 @@ xi_bsp_tls_state_t xi_bsp_tls_init( xi_bsp_tls_context_t** tls_context,
     assert( NULL == *tls_context );
     assert( NULL != init_params );
 
-    mbedtls_debug_format( "[ %s ]", __FUNCTION__ );
+    xi_bsp_debug_format( "[ %s ]", __FUNCTION__ );
 
     if ( NULL == tls_context || NULL != *tls_context )
     {
@@ -170,7 +156,7 @@ xi_bsp_tls_state_t xi_bsp_tls_init( xi_bsp_tls_context_t** tls_context,
                &mbedtls_tls_context->entropy, ( const unsigned char* )personalization,
                sizeof( personalization ) ) ) != 0 )
     {
-        mbedtls_debug_format( " failed ! mbedtls_ctr_drbg_seed returned %d", ret_state );
+        xi_bsp_debug_format( " failed ! mbedtls_ctr_drbg_seed returned %d", ret_state );
         goto err_handling;
     }
 
@@ -203,7 +189,7 @@ xi_bsp_tls_state_t xi_bsp_tls_init( xi_bsp_tls_context_t** tls_context,
 
     if ( ret_state < 0 )
     {
-        mbedtls_debug_format( "failed ! mbedtls_x509_crt_parse returned %d", ret_state );
+        xi_bsp_debug_format( "failed ! mbedtls_x509_crt_parse returned %d", ret_state );
         goto err_handling;
     }
 
@@ -216,7 +202,7 @@ xi_bsp_tls_state_t xi_bsp_tls_init( xi_bsp_tls_context_t** tls_context,
     if ( ( ret_state = mbedtls_ssl_setup( &mbedtls_tls_context->ssl,
                                           &mbedtls_tls_context->conf ) ) != 0 )
     {
-        mbedtls_debug_format( " failed  ! mbedtls_ssl_setup returned %d", ret_state );
+        xi_bsp_debug_format( " failed  ! mbedtls_ssl_setup returned %d", ret_state );
         goto err_handling;
     }
 
@@ -224,8 +210,8 @@ xi_bsp_tls_state_t xi_bsp_tls_init( xi_bsp_tls_context_t** tls_context,
     if ( ( ret_state = mbedtls_ssl_set_hostname( &mbedtls_tls_context->ssl,
                                                  init_params->domain_name ) ) != 0 )
     {
-        mbedtls_debug_format( " failed  ! mbedtls_ssl_set_hostname returned %d",
-                              ret_state );
+        xi_bsp_debug_format( " failed  ! mbedtls_ssl_set_hostname returned %d",
+                             ret_state );
         goto err_handling;
     }
 
@@ -239,7 +225,7 @@ xi_bsp_tls_state_t xi_bsp_tls_connect( xi_bsp_tls_context_t* tls_context )
 {
     assert( NULL != tls_context );
 
-    mbedtls_debug_format( "[ %s ]", __FUNCTION__ );
+    xi_bsp_debug_format( "[ %s ]", __FUNCTION__ );
 
     mbedtls_tls_context_t* mbedtls_tls_context = tls_context;
 
@@ -260,7 +246,7 @@ xi_bsp_tls_state_t xi_bsp_tls_connect( xi_bsp_tls_context_t* tls_context )
         {
             char errorString[80] = {'\0'};
             mbedtls_strerror( ret_state, errorString, sizeof( errorString ) );
-            mbedtls_debug_format( "Connection error - %s (%d)", errorString, ret_state );
+            xi_bsp_debug_format( "Connection error - %s (%d)", errorString, ret_state );
         }
 #endif
             return XI_BSP_TLS_STATE_CONNECT_ERROR;
@@ -282,7 +268,7 @@ xi_bsp_tls_state_t xi_bsp_tls_read( xi_bsp_tls_context_t* tls_context,
     assert( 0 < data_size );
     assert( NULL != bytes_read );
 
-    mbedtls_debug_format( "[ %s ]", __FUNCTION__ );
+    xi_bsp_debug_format( "[ %s ]", __FUNCTION__ );
 
     mbedtls_tls_context_t* mbedtls_tls_context = tls_context;
 
@@ -299,7 +285,7 @@ xi_bsp_tls_state_t xi_bsp_tls_read( xi_bsp_tls_context_t* tls_context,
         return XI_BSP_TLS_STATE_WANT_READ;
     }
 
-    mbedtls_debug_format( "mbetls error during reading ret=%d", ret_state );
+    xi_bsp_debug_format( "mbetls error during reading ret=%d", ret_state );
     return XI_BSP_TLS_STATE_READ_ERROR;
 }
 
@@ -313,7 +299,7 @@ xi_bsp_tls_state_t xi_bsp_tls_write( xi_bsp_tls_context_t* tls_context,
     assert( 0 < data_size );
     assert( NULL != bytes_written );
 
-    mbedtls_debug_format( "[ %s ]", __FUNCTION__ );
+    xi_bsp_debug_format( "[ %s ]", __FUNCTION__ );
 
     mbedtls_tls_context_t* mbedtls_tls_context = tls_context;
 
@@ -331,7 +317,7 @@ xi_bsp_tls_state_t xi_bsp_tls_write( xi_bsp_tls_context_t* tls_context,
     }
 
 
-    mbedtls_debug_format( "mbetls error during writing ret=%d", ret_state );
+    xi_bsp_debug_format( "mbetls error during writing ret=%d", ret_state );
     return XI_BSP_TLS_STATE_WRITE_ERROR;
 }
 
@@ -348,7 +334,7 @@ xi_bsp_tls_state_t xi_bsp_tls_cleanup( xi_bsp_tls_context_t** tls_context )
 {
     assert( NULL != tls_context );
 
-    mbedtls_debug_format( "[ %s ]", __FUNCTION__ );
+    xi_bsp_debug_format( "[ %s ]", __FUNCTION__ );
 
     mbedtls_tls_context_t* mbedtls_tls_context = *tls_context;
 
