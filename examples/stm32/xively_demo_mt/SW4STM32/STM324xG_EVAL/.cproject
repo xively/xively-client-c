@@ -39,8 +39,8 @@
 								<option id="gnu.c.compiler.option.include.paths.389311824" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="../../../Inc"/>
 									<listOptionValue builtIn="false" value="${XI_CLIENT_PATH}/include"/>
-									<listOptionValue builtIn="false" value="&quot;${XI_CLIENT_PATH}/include/bsp&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${XI_CLIENT_PATH}/src/bsp/platform/stm32f4/includes&quot;"/>
+									<listOptionValue builtIn="false" value="${XI_CLIENT_PATH}/include/bsp"/>
+									<listOptionValue builtIn="false" value="${XI_CLIENT_PATH}/src/bsp/platform/stm32fx/include"/>
 									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/CMSIS/Device/ST/STM32F4xx/Include"/>
 									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/CMSIS/Include"/>
 									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/STM32F4xx_HAL_Driver/Inc"/>
