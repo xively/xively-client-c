@@ -80,7 +80,7 @@
 									<listOptionValue builtIn="false" value="WolfSSL"/>
 								</option>
 								<option id="gnu.c.link.option.paths.435585756" name="Library search path (-L)" superClass="gnu.c.link.option.paths" useByScannerDiscovery="false" valueType="libPaths">
-									<listOptionValue builtIn="false" value="&quot;${XI_CLIENT_PATH}/bin/stm32f4&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${XI_CLIENT_PATH}/bin/stm32fx&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/WolfSSL/Debug}&quot;"/>
 								</option>
 								<option id="gnu.c.link.option.ldflags.1731214605" name="Linker flags" superClass="gnu.c.link.option.ldflags" useByScannerDiscovery="false" value="-specs=nosys.specs -specs=nano.specs" valueType="string"/>

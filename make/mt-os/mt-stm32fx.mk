@@ -6,7 +6,7 @@
 include make/mt-os/mt-os-common.mk
 include make/mt-utils/mt-get-gnu-arm-toolchain.mk
 
-XI_STM32_PATH_SDK = $(HOME)/Downloads/xively-client-artifactory/st/STM32Cube_FW_F4_V1.14.0
+XI_STM32_PATH_SDK = $(HOME)/Downloads/STM32Cube_FW_F4_V1.14.0
 
 #####################
 # LWIP configurations
@@ -23,7 +23,7 @@ XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/CMSIS/Device/ST/STM32F4xx/In
 XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/BSP/STM324xG_EVAL
 XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/CMSIS/Include
 
-XI_COMPILER_FLAGS += -I$(LIBXIVELY)/src/bsp/platform/stm32f4/includes
+XI_COMPILER_FLAGS += -I$(LIBXIVELY)/src/bsp/platform/stm32fx/includes
 
 ####################
 # arm-eabi-specifics
@@ -77,9 +77,9 @@ ifeq ($(XI_HOST_PLATFORM),Linux)
 ifdef XI_TRAVIS_BUILD
 ### TOOLCHAIN AUTODOWNLOAD SECTION --- BEGIN
 
-	XI_BUILD_PRECONDITIONS += STM32F4_SDK
-.PHONY : STM32F4_SDK
-STM32F4_SDK:
+	XI_BUILD_PRECONDITIONS += STM32FX_SDK
+.PHONY : STM32FX_SDK
+STM32FX_SDK:
 	git clone -b st git@github.com:xively/xively-client-artifactory.git $(HOME)/Downloads/xively-client-artifactory
 
 ### TOOLCHAIN AUTODOWNLOAD SECTION --- END

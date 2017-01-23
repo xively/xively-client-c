@@ -60,9 +60,9 @@ ifeq ($(XI_HOST_PLATFORM),Linux)
 
 ifdef XI_TRAVIS_BUILD
 ### TOOLCHAIN AUTODOWNLOAD SECTION --- BEGIN
-	XI_BUILD_PRECONDITIONS += STM32F4_SDK
-.PHONY : STM32F4_SDK
-STM32F4_SDK:
+	XI_BUILD_PRECONDITIONS += STM32FX_SDK
+.PHONY : STM32FX_SDK
+STM32FX_SDK:
 	git clone -b st git@github.com:xively/xively-client-artifactory.git $(HOME)/Downloads/xively-client-artifactory
 ### TOOLCHAIN AUTODOWNLOAD SECTION --- END
 endif
