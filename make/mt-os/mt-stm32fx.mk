@@ -23,7 +23,7 @@ XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/CMSIS/Device/ST/STM32F4xx/In
 XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/BSP/STM324xG_EVAL
 XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/CMSIS/Include
 
-XI_COMPILER_FLAGS += -I$(LIBXIVELY)/src/bsp/platform/stm32fx/includes
+XI_COMPILER_FLAGS += -I$(LIBXIVELY)/src/bsp/platform/stm32fx/include
 
 ####################
 # arm-eabi-specifics
