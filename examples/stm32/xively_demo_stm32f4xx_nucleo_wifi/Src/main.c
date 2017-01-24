@@ -40,6 +40,7 @@
 #include "stdio.h"
 #include "string.h"
 #include "xively.h"
+#include "ntp.h"
 #include "xi_bsp_io_net_socket_proxy.h"
 
 /**
@@ -88,6 +89,9 @@ char* XI_DEVICE_ID = "DEVICE ID";
 char* XI_DEVICE_PASS = "DEVICE PASSWORD";
 
 xi_context_handle_t gXivelyContextHandle = -1;
+
+uint8_t* sntp_sock_id = NULL;
+wifi_bool GOT_SNTP_TIME = WIFI_FALSE;
 
 /**
   * @brief  Main program
@@ -138,6 +142,9 @@ int main(void)
   }
 
   printf("\r\n\nInitializing the wifi module...");
+
+  /* Init SNTP socket id global */
+  sntp_sock_id = calloc(1, sizeof(uint8_t));
 
   /* Init the wi-fi module */  
   status = wifi_init(&config);
@@ -202,7 +209,19 @@ int main(void)
         break;
 
       case wifi_state_socket:
-        printf("\r\n >>Connecting to socket\r\n");
+        /* TODO: Move SNTP stuff to a different state in the state machine */
+        printf("\r\n>>Getting date and time from SNTP server...");
+        //sntp_get_datetime();
+        sntp_start(sntp_sock_id);
+        printf("\r\n\tSNTP Socket ID: %d ", *sntp_sock_id);
+        while(GOT_SNTP_TIME == WIFI_FALSE)
+        {
+            sntp_await_response(*sntp_sock_id);
+            printf(".");
+        }
+
+        /* XIVELY */
+        printf("\r\n >>Connecting to Xively socket\r\n");
 
         if(socket_open == 0)
           {
@@ -536,8 +555,36 @@ WiFi_Status_t wifi_get_AP_settings(void)
 
 /******** Wi-Fi Indication User Callback *********/
 
-void ind_wifi_socket_data_received(uint8_t socket_id, uint8_t * data_ptr, uint32_t message_size, uint32_t chunk_size)
+#define MAX_SNTP_RESPONSE_SIZE 128
+void ind_wifi_socket_data_received(uint8_t socket_id, uint8_t* data_ptr,
+                                   uint32_t message_size, uint32_t chunk_size)
 {
+    if(socket_id == *sntp_sock_id)
+    {
+        int32_t current_time = 0;
+        char sntp_response[MAX_SNTP_RESPONSE_SIZE] = "";
+        memset(sntp_response, 0, MAX_SNTP_RESPONSE_SIZE);
+        /* Print debug message with the message data */
+        printf("\r\n\tSocket data recv callback returned %lu/%lu bytes of data: ",
+               chunk_size, message_size);
+        for(uint8_t i=0; i<chunk_size; i++)
+        {
+            printf("0x%02x ", *(data_ptr+i));
+        }
+        
+        /* Store SNTP response */
+        if(chunk_size < MAX_SNTP_RESPONSE_SIZE)
+        {
+        }
+        memcpy(sntp_response, data_ptr, chunk_size);
+        sntp_response[MAX_SNTP_RESPONSE_SIZE-1] = '\0';
+        /* Close connection to SNTP server */
+        sntp_disconnect(socket_id);
+        /* Parse server response */
+        current_time = sntp_parse_response(data_ptr, chunk_size);
+        GOT_SNTP_TIME = WIFI_TRUE;
+        return;
+    }
 	xi_bsp_io_net_socket_data_received_proxy( socket_id , data_ptr , message_size , chunk_size );
 }
 
