@@ -6,11 +6,16 @@
 
 #include "ntp.h"
 
-#define SNTP_MSG_SIZE 48
-#define MAX_AT_CMD_SIZE 128
-
 #define SNTP_SERVER "3.pool.ntp.org"
 #define SNTP_PORT   123
+
+uint32_t sntp_ntohl(uint32_t n)
+{
+    return ((n & 0xff) << 24)      |
+           ((n & 0xff00) << 8)     |
+           ((n & 0xff0000UL) >> 8) |
+           ((n & 0xff000000UL) >> 24);
+}
 
 /**
    * @brief  
@@ -129,9 +134,8 @@ WiFi_Status_t sntp_read_response( uint8_t sock_id, char* sntp_response )
 {
     WiFi_Status_t status = WiFi_MODULE_SUCCESS;
     printf("\r\n>>Reading SNTP response from the server");
-    //status = Socket_Read(SNTP_MSG_SIZE);
-    Socket_Pending_Data();
-    status = Socket_Read(SNTP_MSG_SIZE);
+    //Socket_Pending_Data();
+    status = Socket_Read(WiFi_Counter_Variables.Socket_Data_Length);
     if(status != WiFi_MODULE_SUCCESS)
     {
         printf("\r\n\tUDP Socket Read [FAIL] Status code: %d", status);
@@ -157,7 +161,7 @@ WiFi_Status_t sntp_read_response( uint8_t sock_id, char* sntp_response )
 /**
    * @brief  Parses SNTP response and returns current date and time
    * @param  48 byte array with the SNTP response
-   * @retval Current date and time in epoch format
+   * @retval Current date and time in epoch format, -1 on error
    */
 int32_t sntp_parse_response( uint8_t* response, uint32_t msg_size )
 {
@@ -173,11 +177,8 @@ int32_t sntp_parse_response( uint8_t* response, uint32_t msg_size )
 
     printf("\r\n>>Parsing SNTP response...");
     memcpy(&current_ntp_time, response+40, 4);
+    current_ntp_time = sntp_ntohl(current_ntp_time);
     current_epoch_time = current_ntp_time - 2208988800;
-    printf("\r\n\tParsed NTP time: %ld", current_ntp_time);
-
-    printf("\r\n>>Calculating epoch time...");
-    printf("\r\n\tepoch time: %ld", current_epoch_time);
     return current_epoch_time;
 }
 
@@ -200,7 +201,6 @@ WiFi_Status_t sntp_start(uint8_t* sock_id)
         goto abort;
     }
 
-    Socket_Pending_Data();
     return WiFi_MODULE_SUCCESS;
 
 abort:
