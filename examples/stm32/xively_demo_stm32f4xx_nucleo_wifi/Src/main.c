@@ -91,13 +91,42 @@ char* XI_DEVICE_PASS = "DEVICE PASSWORD";
 xi_context_handle_t gXivelyContextHandle = -1;
 
 uint8_t* sntp_sock_id = NULL;
+int32_t current_time = 0;
 wifi_bool GOT_SNTP_TIME = WIFI_FALSE;
 
-/**
-  * @brief  Main program
-  * @param  None
-  * @retval None
-  */
+void on_sntp_response(uint8_t socket_id, uint8_t* data_ptr,
+                      uint32_t message_size, uint32_t chunk_size)
+{
+    char* sntp_response = NULL;
+    //sntp_response = calloc(1, (SNTP_MSG_SIZE+1)*sizeof(char));
+    sntp_response = malloc(SNTP_MSG_SIZE+1);
+    memset(sntp_response, 0, SNTP_MSG_SIZE+1);
+    
+    if((message_size != SNTP_MSG_SIZE) || (chunk_size != SNTP_MSG_SIZE))
+    {
+        printf("\r\n\tERROR: SNTP Response expected [%d] bytes, got [%lu]",
+               SNTP_MSG_SIZE, message_size);
+        return;
+    }
+
+    /* Store SNTP response */
+    printf("\r\n\tCopying SNTP response into non-volatile buffer");
+    memcpy(sntp_response, (char*)data_ptr, SNTP_MSG_SIZE);
+    printf("\r\n\tNull terminating SNTP response");
+    sntp_response[SNTP_MSG_SIZE] = '\0';
+    /* Parse server response */
+    printf("\r\n\tParsing and converting SNTP response");
+    current_time = sntp_parse_response(data_ptr, chunk_size);
+    if( -1 == current_time )
+    {
+        printf("\r\n\tSNTP Parsing and conversion failed");
+        GOT_SNTP_TIME = WIFI_FALSE;
+        return;
+    }
+    printf("\r\n\tReceived epoch time: %ld", current_time);
+    GOT_SNTP_TIME = WIFI_TRUE;
+    return;
+}
 
 void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t state )
 {
@@ -105,6 +134,11 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
     printf( "\r\nconnected, state : %i" , conn_data->connection_state  );
 }
 
+/**
+  * @brief  Main program
+  * @param  None
+  * @retval None
+  */
 int main(void)
 {
   uint8_t i=0;
@@ -208,7 +242,7 @@ int main(void)
         wifi_state = wifi_state_reset;
         break;
 
-      case wifi_state_socket:
+      case wifi_state_sntp_gettime:
         /* TODO: Move SNTP stuff to a different state in the state machine */
         printf("\r\n>>Getting date and time from SNTP server...");
         //sntp_get_datetime();
@@ -216,11 +250,18 @@ int main(void)
         printf("\r\n\tSNTP Socket ID: %d ", *sntp_sock_id);
         while(GOT_SNTP_TIME == WIFI_FALSE)
         {
-            sntp_await_response(*sntp_sock_id);
             printf(".");
+            HAL_Delay(500);
         }
+        /* Close connection to SNTP server */
+        printf("\r\n>>Disconnecting from the SNTP Server");
+        sntp_disconnect(*sntp_sock_id);
 
-        /* XIVELY */
+        /* Next in the state machine: Xively init */
+        wifi_state = wifi_state_socket;
+        break;
+
+      case wifi_state_socket:
         printf("\r\n >>Connecting to Xively socket\r\n");
 
         if(socket_open == 0)
@@ -238,11 +279,13 @@ int main(void)
 
             if ( XI_INVALID_CONTEXT_HANDLE == gXivelyContextHandle )
             {
-                printf( "\r\n xi failed to create context, error: %li\n", -gXivelyContextHandle );
+                printf( "\r\n xi failed to create context, error: %li\n",
+                        -gXivelyContextHandle );
                 return -1;
             }
 
-            xi_connect( gXivelyContextHandle, XI_DEVICE_ID, XI_DEVICE_PASS, 10, 0, XI_SESSION_CLEAN, &on_connected );
+            xi_connect( gXivelyContextHandle, XI_DEVICE_ID, XI_DEVICE_PASS, 10,
+                        0, XI_SESSION_CLEAN, &on_connected );
           }
         else
           {
@@ -555,42 +598,39 @@ WiFi_Status_t wifi_get_AP_settings(void)
 
 /******** Wi-Fi Indication User Callback *********/
 
-#define MAX_SNTP_RESPONSE_SIZE 128
+#define MAX_SNTP_RESPONSE_SIZE 48
 void ind_wifi_socket_data_received(uint8_t socket_id, uint8_t* data_ptr,
                                    uint32_t message_size, uint32_t chunk_size)
 {
+    printf("\r\n>>Socket [%d] received [%lu] bytes of a [%lu] byte message: ",
+           socket_id, chunk_size, message_size);
+    for(uint8_t i=0; i<chunk_size; i++)
+    {
+        printf("0x%02x ", *(data_ptr+i));
+    }
+
     if(socket_id == *sntp_sock_id)
     {
-        int32_t current_time = 0;
-        char sntp_response[MAX_SNTP_RESPONSE_SIZE] = "";
-        memset(sntp_response, 0, MAX_SNTP_RESPONSE_SIZE);
-        /* Print debug message with the message data */
-        printf("\r\n\tSocket data recv callback returned %lu/%lu bytes of data: ",
-               chunk_size, message_size);
-        for(uint8_t i=0; i<chunk_size; i++)
-        {
-            printf("0x%02x ", *(data_ptr+i));
-        }
-        
-        /* Store SNTP response */
-        if(chunk_size < MAX_SNTP_RESPONSE_SIZE)
-        {
-        }
-        memcpy(sntp_response, data_ptr, chunk_size);
-        sntp_response[MAX_SNTP_RESPONSE_SIZE-1] = '\0';
-        /* Close connection to SNTP server */
-        sntp_disconnect(socket_id);
-        /* Parse server response */
-        current_time = sntp_parse_response(data_ptr, chunk_size);
-        GOT_SNTP_TIME = WIFI_TRUE;
+        /* SNTP */
+        printf("\r\n>>SNTP Response received! Parsing it and converting to epoch");
+        on_sntp_response(socket_id, data_ptr, message_size, chunk_size);
         return;
     }
-	xi_bsp_io_net_socket_data_received_proxy( socket_id , data_ptr , message_size , chunk_size );
+    /* Xively */
+    xi_bsp_io_net_socket_data_received_proxy( socket_id , data_ptr ,
+                                              message_size , chunk_size );
 }
 
 void ind_wifi_socket_client_remote_server_closed(uint8_t * socket_closed_id)
 {
-	xi_bsp_io_net_socket_client_remote_server_closed_proxy( socket_closed_id );
+    if(*socket_closed_id == *sntp_sock_id)
+    {
+        /* SNTP */
+        printf("\r\n\tSNTP connection closed by the server");
+        return;
+    }
+    /* Xively */
+    xi_bsp_io_net_socket_client_remote_server_closed_proxy( socket_closed_id );
 }
 
 void ind_wifi_on()
@@ -608,7 +648,7 @@ void ind_wifi_resuming()
 {
   printf("\r\nwifi resuming from sleep user callback... \r\n");
   //Change the state to connect to socket if not connected
-  wifi_state = wifi_state_socket;
+  wifi_state = wifi_state_sntp_gettime;
 }
 
 /**
