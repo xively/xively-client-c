@@ -65,7 +65,7 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
-#define WIFI_SCAN_BUFFER_LIST           15
+#define WIFI_SCAN_BUFFER_LIST           25
 
 /* Private variables ---------------------------------------------------------*/
 
@@ -79,54 +79,20 @@ wifi_scan net_scan[WIFI_SCAN_BUFFER_LIST];
 char console_ssid[40];
 char console_psk[20];
 
-char * ssid = "SSID";
-char * seckey = "PASSWORD";
+char * ssid = "palantir";
+char * seckey = "palantir555";
 WiFi_Priv_Mode mode = WPA_Personal;
 
-char* XI_ACCOUNT_ID = "XIVELY ACCOUNT ID";
+char* XI_ACCOUNT_ID = "f8baa7b0-01a7-4541-92c1-b7b1dd276e7c";
 char* XI_USER = "XIVELY USER";
-char* XI_DEVICE_ID = "DEVICE ID";
-char* XI_DEVICE_PASS = "DEVICE PASSWORD";
+char* XI_DEVICE_ID = "14eee142-9c98-4474-b165-e235400ccc21";
+char* XI_DEVICE_PASS = "rUAi6K/USyLl9s2LwX8Uaz+2geMuxJOolOokVq6eHMs=";
 
 xi_context_handle_t gXivelyContextHandle = -1;
 
 uint8_t* sntp_sock_id = NULL;
 int32_t current_time = 0;
 wifi_bool GOT_SNTP_TIME = WIFI_FALSE;
-
-void on_sntp_response(uint8_t socket_id, uint8_t* data_ptr,
-                      uint32_t message_size, uint32_t chunk_size)
-{
-    char* sntp_response = NULL;
-    //sntp_response = calloc(1, (SNTP_MSG_SIZE+1)*sizeof(char));
-    sntp_response = malloc(SNTP_MSG_SIZE+1);
-    memset(sntp_response, 0, SNTP_MSG_SIZE+1);
-    
-    if((message_size != SNTP_MSG_SIZE) || (chunk_size != SNTP_MSG_SIZE))
-    {
-        printf("\r\n\tERROR: SNTP Response expected [%d] bytes, got [%lu]",
-               SNTP_MSG_SIZE, message_size);
-        return;
-    }
-
-    /* Store SNTP response */
-    printf("\r\n\tCopying SNTP response into non-volatile buffer");
-    memcpy(sntp_response, (char*)data_ptr, SNTP_MSG_SIZE);
-    printf("\r\n\tNull terminating SNTP response");
-    sntp_response[SNTP_MSG_SIZE] = '\0';
-    /* Parse server response */
-    printf("\r\n\tParsing and converting SNTP response");
-    current_time = sntp_parse_response(data_ptr, chunk_size);
-    if( -1 == current_time )
-    {
-        printf("\r\n\tSNTP Parsing and conversion failed");
-        GOT_SNTP_TIME = WIFI_FALSE;
-        return;
-    }
-    printf("\r\n\tReceived epoch time: %ld", current_time);
-    GOT_SNTP_TIME = WIFI_TRUE;
-    return;
-}
 
 void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t state )
 {
@@ -598,6 +564,32 @@ WiFi_Status_t wifi_get_AP_settings(void)
 
 /******** Wi-Fi Indication User Callback *********/
 
+void on_sntp_response(uint8_t socket_id, uint8_t* data_ptr,
+                      uint32_t message_size, uint32_t chunk_size)
+{
+    char* sntp_response = NULL;
+    //sntp_response = calloc(1, (SNTP_MSG_SIZE+1)*sizeof(char));
+    sntp_response = malloc(SNTP_MSG_SIZE+1);
+    memset(sntp_response, 0, SNTP_MSG_SIZE+1);
+
+    /* Store SNTP response */
+    printf("\r\n\tCopying SNTP response into non-volatile buffer");
+    memcpy(sntp_response, (char*)data_ptr, SNTP_MSG_SIZE);
+    sntp_response[SNTP_MSG_SIZE] = '\0';
+    /* Parse server response */
+    printf("\r\n\tParsing and converting SNTP response");
+    current_time = sntp_parse_response(data_ptr, chunk_size);
+    if( -1 == current_time )
+    {
+        printf("\r\n\tSNTP Parsing and conversion failed");
+        GOT_SNTP_TIME = WIFI_FALSE;
+        return;
+    }
+    printf("\r\n\tReceived epoch time: %ld", current_time);
+    GOT_SNTP_TIME = WIFI_TRUE;
+    return;
+}
+
 #define MAX_SNTP_RESPONSE_SIZE 48
 void ind_wifi_socket_data_received(uint8_t socket_id, uint8_t* data_ptr,
                                    uint32_t message_size, uint32_t chunk_size)
@@ -613,6 +605,11 @@ void ind_wifi_socket_data_received(uint8_t socket_id, uint8_t* data_ptr,
     {
         /* SNTP */
         printf("\r\n>>SNTP Response received! Parsing it and converting to epoch");
+        if(chunk_size != SNTP_MSG_SIZE)
+        {
+            printf("\r\n\tThe received message isn't an SNTP respone. [ignored]");
+            return;
+        }
         on_sntp_response(socket_id, data_ptr, message_size, chunk_size);
         return;
     }
