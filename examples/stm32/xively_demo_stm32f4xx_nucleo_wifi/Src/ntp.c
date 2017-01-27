@@ -18,6 +18,39 @@ uint32_t sntp_ntohl(uint32_t n)
 }
 
 /**
+   * @brief  Builds a char array with a basic SNTP request to be sent via UDP
+             Packet description:
+               - Flags 1 byte
+                   * Leap: 3 bits
+                   * Version: 3 bits
+                   * Mode: 2 bits
+               - Stratum 1 byte
+               - Polling 1 byte
+               - Precision 1 byte
+               - Root Delay 4 bytes
+               - Root Dispersion 4 bytes
+               - Reference Identifier 4 bytes
+               - Reference Timestamp 8 bytes
+               - Origin Timestamp 8 bytes
+               - Receive Timestamp 8 bytes
+               - Transmit Timestamp 8 bytes
+   * @param  request_buf is a pointer to a pre-allocated 48 byte char array
+   * @retval void
+   */
+void build_sntp_request( char* request_buf )
+{
+    char sntp_pkt[SNTP_MSG_SIZE] = {
+    0xe3, 0x00, 0x03, 0xfa, 0x00, 0x01, 0x00, 0x00,
+    0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0xd5, 0x22, 0x0e, 0x35, 0xb8, 0x76, 0xab, 0xea};
+    memset(request_buf, 0, SNTP_MSG_SIZE);
+    memcpy(request_buf, sntp_pkt, SNTP_MSG_SIZE);
+}
+
+/**
    * @brief  
    * @param  
    * @retval 
@@ -78,26 +111,8 @@ WiFi_Status_t sntp_disconnect( uint8_t sock_id )
 WiFi_Status_t sntp_send_request( uint8_t sock_id )
 {
     WiFi_Status_t status = WiFi_MODULE_SUCCESS;
-    char sntp_request[SNTP_MSG_SIZE+1];
-
-    /* Build SNTP request message - Most of the message can be left as 0 */
-    memset(sntp_request, 0, SNTP_MSG_SIZE+1);
-    sntp_request[0] = '\xe3';
-    sntp_request[1] = '\x00';
-    sntp_request[2] = '\x03';
-    sntp_request[3] = '\xfa';
-    sntp_request[4] = '\x00';
-    sntp_request[5] = '\x01';
-    sntp_request[9] = '\x01';
-    sntp_request[40] = '\xd5';
-    sntp_request[41] = '\x22';
-    sntp_request[42] = '\x0e';
-    sntp_request[43] = '\x35';
-    sntp_request[44] = '\xb8';
-    sntp_request[45] = '\x76';
-    sntp_request[46] = '\xab';
-    sntp_request[47] = '\xea';
-    sntp_request[SNTP_MSG_SIZE] = '\0';
+    char sntp_request[SNTP_MSG_SIZE];
+    build_sntp_request(sntp_request);
 
     /* Send the "Socket Write" AT command to the WiFi module */
     printf("\r\n>>Sending SNTP request to the server");
@@ -144,16 +159,6 @@ WiFi_Status_t sntp_read_response( uint8_t sock_id, char* sntp_response )
     else
     {
         printf("\r\n\tUDP Socket Read [OK]");
-        /* Print the received data */
-        //printf("\r\n\tSocket Read returned %d bytes of data: ",
-        //       WiFi_Counter_Variables.curr_DataLength);
-        //for(uint8_t i=0; i<WiFi_Counter_Variables.curr_DataLength; i++)
-        //{
-        //    printf("0x%02x ", *(WiFi_Counter_Variables.curr_data+i));
-        //}
-        ///* Store SNTP response */
-        //memcpy(sntp_response, WiFi_Counter_Variables.curr_data, SNTP_MSG_SIZE);
-        //sntp_response[SNTP_MSG_SIZE] = '\0';
     }
     return status;
 }
@@ -213,94 +218,3 @@ abort:
     /* Return WiFi status - TODO: Return something else? the datetime? */
     return 0;
 }
-
-#if 0
-/**
-   * @brief  
-   * @param  
-   * @retval 
-   */
-//TODO: Return values in this function are all sorts of inconsistent
-int sntp_get_datetime(void)
-{
-    /* SNTP Variables */
-    char sntp_response[SNTP_MSG_SIZE+1];
-    memset(sntp_response, 0, SNTP_MSG_SIZE+1);
-
-    /* Socket Variables */
-    uint8_t socket_id = 0; //Will be filled in on connection success
-
-    /* Connect to SNTP server */
-    if(sntp_connect(SNTP_SERVER, SNTP_PORT, &socket_id) != WiFi_MODULE_SUCCESS)
-    {
-        goto abort;
-    }
-    /* Send SNTP request */
-    if(sntp_send_request(socket_id) != WiFi_MODULE_SUCCESS)
-    {
-        goto abort;
-    }
-    /* Read the response from the SNTP server */
-    if(sntp_read_response(socket_id, sntp_response) != WiFi_MODULE_SUCCESS)
-    {
-        goto abort;
-    }
-    /* Close the UDP Socket */
-    if(sntp_disconnect(socket_id) != WiFi_MODULE_SUCCESS)
-    {
-        return 0; //TODO: Remove sth else. this is WiFi_MODULE_SUCCESS
-    }
-    return sntp_parse_response((uint8_t*)sntp_response, SNTP_MSG_SIZE);
-
-abort:
-    printf("\r\n>>SNTP abort routine initialized");
-    if(socket_id != 0)
-    {
-        sntp_disconnect(socket_id);
-    }
-    /* Return WiFi status - TODO: Return something else? the datetime? */
-    return 0; //TODO: Remove sth else. this is WiFi_MODULE_SUCCESS
-}
-#endif
-
-#if 0
-//TODO: Remove this function; for testing purposes only
-inline void print_input_buffer(void)
-{
-    printf("\r\n>>===============[SNTP Response Buffer?]==================<<");
-    printf("\r\n>>== curr_DataLength: %d", WiFi_Counter_Variables.curr_DataLength);
-    printf("\r\n>>== curr_data:       ");
-    for(uint8_t i=0; i<WiFi_Counter_Variables.curr_DataLength; i++)
-    {
-        printf("0x%02x ", *(WiFi_Counter_Variables.curr_data+i));
-    }
-    printf("\r\n>>==");
-    printf("\r\n>>== sockon_id_user:  %d", WiFi_Counter_Variables.sockon_id_user);
-    printf("\r\n>>== message_size:    %lu", WiFi_Counter_Variables.message_size);
-    printf("\r\n>>== chunk_size:      %lu", WiFi_Counter_Variables.chunk_size);
-    printf("\r\n>>================[---------------------]=====================<<");
-}
-#endif
-
-#if 0
-/**
-   * @brief  Callback function for incoming data
-   * @param  
-   * @retval 
-   */
-void ind_wifi_socket_data_received( uint8_t socket_id,
-                                    uint8_t * data_ptr,
-                                    uint32_t message_size,
-                                    uint32_t chunk_size )
-{
-    printf("\r\n!!!!!!!!!!!!!!!!!!!!!!!!!!");
-    printf("\r\n>>Received new socket data. Message size [%ld], Chunk size [%ld]",
-           message_size, chunk_size);
-    printf("\r\n\tData: ");
-    for(uint8_t i=0; i<chunk_size; i++)
-    {
-        printf("0x%02x ", *(data_ptr+i));
-    }
-    printf("\r\n00000000000000000000000000");
-}
-#endif
