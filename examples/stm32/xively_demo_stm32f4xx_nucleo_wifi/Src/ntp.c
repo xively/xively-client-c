@@ -6,9 +6,6 @@
 
 #include "ntp.h"
 
-#define SNTP_SERVER "3.pool.ntp.org"
-#define SNTP_PORT   123
-
 uint32_t sntp_ntohl(uint32_t n)
 {
     return ((n & 0xff) << 24)      |
@@ -138,29 +135,6 @@ WiFi_Status_t sntp_send_request( uint8_t sock_id )
 void sntp_await_response( uint8_t sock_id )
 {
     Socket_Pending_Data();
-}
-
-/**
-   * @brief  
-   * @param  
-   * @retval 
-   */
-WiFi_Status_t sntp_read_response( uint8_t sock_id, char* sntp_response )
-{
-    WiFi_Status_t status = WiFi_MODULE_SUCCESS;
-    printf("\r\n>>Reading SNTP response from the server");
-    //Socket_Pending_Data();
-    status = Socket_Read(WiFi_Counter_Variables.Socket_Data_Length);
-    if(status != WiFi_MODULE_SUCCESS)
-    {
-        printf("\r\n\tUDP Socket Read [FAIL] Status code: %d", status);
-        return status;
-    }
-    else
-    {
-        printf("\r\n\tUDP Socket Read [OK]");
-    }
-    return status;
 }
 
 /**
