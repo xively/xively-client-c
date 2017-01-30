@@ -90,7 +90,6 @@ char* XI_DEVICE_PASS = "DEVICE PASSWORD";
 
 xi_context_handle_t gXivelyContextHandle = -1;
 uint8_t* sntp_sock_id = NULL;
-int32_t sntp_time;
 
 void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t state )
 {
@@ -107,6 +106,7 @@ int main(void)
 {
   uint8_t i=0;
   uint8_t socket_open = 0;
+  int32_t sntp_time; //epoch time to be obtained via SNTP
   wifi_bool SSID_found = WIFI_FALSE;
   WiFi_Status_t status = WiFi_MODULE_SUCCESS;
   __GPIOA_CLK_ENABLE();
@@ -209,6 +209,10 @@ int main(void)
             printf("\r\n>>SNTP Failed");
             //TODO: Set hardcoded datetime to known valid time at time of writing??
             //      Implement retry logic?
+        }
+        else
+        {
+            printf("\r\n>>SNTP datetime update [OK] Epoch time: %ld", sntp_time);
         }
         wifi_state = wifi_state_socket;
         break;
