@@ -8,11 +8,21 @@
 #include "wifi_interface.h"
 #include "wifi_module.h"
 #include "wifi_globals.h"
-
 #include "ntp.h"
 
-int32_t sntp_current_time = 0;
+#define SNTP_MSG_SIZE 48
+#define SNTP_TIMEOUT_MS 5000
+#define SNTP_SERVER_TIME_OFFSET 2208988800
+#define SNTP_RESPONSE_TIMESTAMP_OFFSET 40
+#define SNTP_DISCONNECTION_MSG  "\x20\x02\x00\x03"
+
+typedef struct {
+    uint8_t socket_id;
+    char* response;
+} sntp_response_t;
+
 sntp_response_t* last_sntp_response = NULL;
+int32_t sntp_current_time = 0;
 
 /**
    * Packet description:
@@ -186,13 +196,13 @@ static uint32_t sntp_ntohl(uint32_t n)
    */
 static int32_t sntp_parse_response( char* response )
 {
-    int32_t current_ntp_time = 0; //epoch + 2208988800
+    int32_t current_ntp_time = 0;
     int32_t current_epoch_time = 0;
 
     printf("\r\n>>Parsing SNTP response...");
-    memcpy(&current_ntp_time, response+40, 4); //timestamp starts at byte 40
-    current_ntp_time = sntp_ntohl(current_ntp_time); //Convert endianness
-    current_epoch_time = current_ntp_time - 2208988800; //Remove NTP offset
+    memcpy(&current_ntp_time, response+SNTP_RESPONSE_TIMESTAMP_OFFSET, sizeof(int32_t));
+    current_ntp_time = sntp_ntohl(current_ntp_time);
+    current_epoch_time = current_ntp_time - SNTP_SERVER_TIME_OFFSET;
     return current_epoch_time;
 }
 
