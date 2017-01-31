@@ -1,7 +1,7 @@
 /*TODO: This interface is currently blocking at sntp_get_datetime() and only
  *      supports 1 concurrent request. Change last_sntp_response to use a
  *      flexible array and we can make it non-blocking and support as many
- *      concurrent connections as necessary
+ *      concurrent requests as necessary
  */
 #include "stdio.h"
 #include "string.h"
@@ -39,14 +39,14 @@ static const char SNTP_REQUEST[SNTP_MSG_SIZE] = {
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 0xd5, 0x22, 0x0e, 0x35, 0xb8, 0x76, 0xab, 0xea};
 
-static WiFi_Status_t sntp_connect( char* sntp_server, uint32_t sntp_port, uint8_t* sock_id );
+static WiFi_Status_t sntp_start( char* sntp_server, uint32_t sntp_port, uint8_t* sock_id );
 static WiFi_Status_t sntp_send_request( uint8_t sock_id );
 static sntp_status_t sntp_await_response( uint8_t sock_id );
-static WiFi_Status_t sntp_disconnect( uint8_t sock_id );
+static int32_t       sntp_parse_response( char* response );
+static void          sntp_free_response( sntp_response** r );
+static WiFi_Status_t sntp_stop( uint8_t sock_id );
 
 static uint32_t sntp_ntohl( uint32_t n );
-static int32_t  sntp_parse_response( char* response );
-static void     sntp_free_response( sntp_response** r );
 
 /**
    * @brief  free the space used by an sntp_response
@@ -68,18 +68,18 @@ void sntp_free_response( sntp_response** r )
 }
 
 /**
-   * @brief  Create a UDP socket to the SNTP server, connect to it and return
-   *         its ID by setting *sock_id
+   * @brief  Create a UDP socket to the SNTP server and return its ID by
+   *         setting *sock_id
    * @param  *sntp_server is a char array with the relevant URL
    *         sntp_port is the port to be used for SNTP communication
    *         *sock_id will be set to the appropriate socket ID
    * @retval WiFi_Status_t: WiFi_MODULE_SUCCESS on success, see wifi_interface.h
    */
-WiFi_Status_t sntp_connect( char* sntp_server, uint32_t sntp_port, uint8_t* sock_id )
+WiFi_Status_t sntp_start( char* sntp_server, uint32_t sntp_port, uint8_t* sock_id )
 {
     WiFi_Status_t status = WiFi_MODULE_SUCCESS;
     uint8_t sntp_protocol = 'u'; //UDP
-    printf("\r\n\tStablishing UDP connection to SNTP server %s:%lu",
+    printf("\r\n\tOpening UDP socket to SNTP server %s:%lu",
            sntp_server,
            sntp_port);
     status = wifi_socket_client_open((uint8_t*)sntp_server, sntp_port,
@@ -90,13 +90,13 @@ WiFi_Status_t sntp_connect( char* sntp_server, uint32_t sntp_port, uint8_t* sock
 
 /**
    * @brief
-   * @param  sock_id is the socket ID set by sntp_connect() in stnp_start()
+   * @param  sock_id is the socket ID set by sntp_start() in stnp_start()
    * @retval WiFi_Status_t: WiFi_MODULE_SUCCESS on success, see wifi_interface.h
    */
-WiFi_Status_t sntp_disconnect( uint8_t sock_id )
+WiFi_Status_t sntp_stop( uint8_t sock_id )
 {
     WiFi_Status_t status = WiFi_MODULE_SUCCESS;
-    printf("\r\n>>Closing UDP connection to SNTP server...");
+    printf("\r\n>>Closing UDP socket to SNTP server...");
     status = wifi_socket_client_close(sock_id);
     if(status != WiFi_MODULE_SUCCESS)
     {
@@ -111,9 +111,9 @@ WiFi_Status_t sntp_disconnect( uint8_t sock_id )
 }
 
 /**
-   * @brief  Send SNTP packet to the Server. Must be called after a connection
-   *         has been stablished using sntp_get_datetime()
-   * @param  sock_id is the socket ID set by sntp_connect() in stnp_start()
+   * @brief  Send SNTP packet to the Server. Must be called after a socket has
+   *         has been created from sntp_get_datetime()->sntp_start()
+   * @param  sock_id is the socket ID set by sntp_start()
    * @retval WiFi_Status_t: WiFi_MODULE_SUCCESS on success, see wifi_interface.h
    */
 WiFi_Status_t sntp_send_request( uint8_t sock_id )
@@ -171,7 +171,7 @@ int32_t sntp_parse_response( char* response )
    * @brief  Create new UDP socket to SNTP server, send SNTP request, await
    *         response for up to SNTP_TIMEOUT_MS, close socket and return
    * @param  - sock_id is a pre-allocated uint8_t pointer used to filter the WiFi
-   *         API callbacks. It will be set to the socket ID returned by connect()
+   *         API callbacks. It will be set to the socket ID returned by open()
    *         - epoch_time will be set to the current epoch time as returned by the
    *         SNTP server
    * @retval sntp_status_t: 0 means SNTP_SUCCESS, <0 means something failed.
@@ -184,20 +184,20 @@ sntp_status_t sntp_get_datetime( uint8_t* sock_id, int32_t* epoch_time )
 
     /* Create socket */
     printf("\r\n>>Getting date and time from SNTP server...");
-    wifi_retval = sntp_connect(SNTP_SERVER, SNTP_PORT, sock_id);
+    wifi_retval = sntp_start(SNTP_SERVER, SNTP_PORT, sock_id);
     if( wifi_retval != WiFi_MODULE_SUCCESS )
     {
-        printf("\r\n\tSNTP socket connection [FAIL] Retval: %d", wifi_retval);
-        retval = SNTP_CONNECTION_FAILURE;
+        printf("\r\n\tSNTP socket creation [FAIL] Retval: %d", wifi_retval);
+        retval = SNTP_SOCKET_ERROR;
         goto terminate;
     }
     else if(*sock_id < 0)
     {
-        printf("\r\n\tUDP Connection [FAIL] Socket ID<0: %d", *sock_id);
-        retval = SNTP_CONNECTION_FAILURE;
+        printf("\r\n\tUDP socket creation [FAIL] Socket ID<0: %d", *sock_id);
+        retval = SNTP_SOCKET_ERROR;
         goto terminate;
     }
-    printf("\r\n\tUDP Connection [OK] Assigned socket ID: %d", *sock_id);
+    printf("\r\n\tUDP socket creation [OK] Assigned socket ID: %d", *sock_id);
 
     /* Send SNTP request */
     wifi_retval = sntp_send_request(*sock_id);
@@ -244,7 +244,7 @@ terminate:
     /* Close socket */
     if( *sock_id > 0 )
     {
-        sntp_disconnect(*sock_id);
+        sntp_stop(*sock_id);
     }
     return retval;
 }
