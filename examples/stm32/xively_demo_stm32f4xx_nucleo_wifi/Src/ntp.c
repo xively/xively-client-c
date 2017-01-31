@@ -46,20 +46,25 @@ static WiFi_Status_t sntp_disconnect( uint8_t sock_id );
 
 static uint32_t sntp_ntohl( uint32_t n );
 static int32_t  sntp_parse_response( char* response );
-static void     sntp_free_response( sntp_response* r );
+static void     sntp_free_response( sntp_response** r );
 
 /**
    * @brief  free the space used by an sntp_response
    * @param  *sntp_server is a char array with the relevant URL
    * @retval WiFi_Status_t: WiFi_MODULE_SUCCESS on success, see wifi_interface.h
    */
-void sntp_free_response( sntp_response* r )
+void sntp_free_response( sntp_response** r )
 {
-    if( NULL != r->response )
+    if( NULL == *r )
     {
-        free(r->response);
+        return;
     }
-    free(r);
+    if( NULL != (*r)->response )
+    {
+        free((*r)->response);
+    }
+    free(*r);
+    *r = NULL;
 }
 
 /**
@@ -234,12 +239,7 @@ sntp_status_t sntp_get_datetime( uint8_t* sock_id, int32_t* epoch_time )
     }
 
 terminate:
-    /* free() SNTP Response */
-    if( NULL != last_sntp_response )
-    {
-        sntp_free_response(last_sntp_response);
-        last_sntp_response = NULL;
-    }
+    sntp_free_response(&last_sntp_response);
 
     /* Close socket */
     if( *sock_id > 0 )
@@ -290,7 +290,7 @@ void sntp_socket_data_callback(uint8_t sock_id, uint8_t* data_ptr,
     /* Store SNTP response */
     if( NULL != last_sntp_response )
     {
-        sntp_free_response(last_sntp_response);
+        sntp_free_response(&last_sntp_response);
     }
     last_sntp_response = calloc(1, sizeof(last_sntp_response));
     last_sntp_response->response = calloc(SNTP_MSG_SIZE, sizeof(char));
