@@ -15,6 +15,32 @@ int32_t sntp_current_time = 0;
 sntp_response* last_sntp_response = NULL;
 
 /**
+   * Packet description:
+   *  - Flags 1 byte
+   *      * Leap: 3 bits
+   *      * Version: 3 bits
+   *      * Mode: 2 bits
+   *  - Stratum 1 byte
+   *  - Polling 1 byte
+   *  - Precision 1 byte
+   *  - Root Delay 4 bytes
+   *  - Root Dispersion 4 bytes
+   *  - Reference Identifier 4 bytes
+   *  - Reference Timestamp 8 bytes
+   *  - Origin Timestamp 8 bytes
+   *  - Receive Timestamp 8 bytes
+   *  - Transmit Timestamp 8 bytes
+   */
+const char SNTP_REQUEST[SNTP_MSG_SIZE] = {
+0xe3, 0x00, 0x03, 0xfa, 0x00, 0x01, 0x00, 0x00,
+0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0xd5, 0x22, 0x0e, 0x35, 0xb8, 0x76, 0xab, 0xea};
+
+
+/**
    * @brief  free the space used by an sntp_response
    * @param  *sntp_server is a char array with the relevant URL
    * @retval WiFi_Status_t: WiFi_MODULE_SUCCESS on success, see wifi_interface.h
@@ -26,39 +52,6 @@ void sntp_free_response( sntp_response* r )
         free(r->response);
     }
     free(r);
-}
-
-/**
-   * @brief  Builds a char array with a basic SNTP request to be sent via UDP
-   *         Packet description:
-   *           - Flags 1 byte
-   *               * Leap: 3 bits
-   *               * Version: 3 bits
-   *               * Mode: 2 bits
-   *           - Stratum 1 byte
-   *           - Polling 1 byte
-   *           - Precision 1 byte
-   *           - Root Delay 4 bytes
-   *           - Root Dispersion 4 bytes
-   *           - Reference Identifier 4 bytes
-   *           - Reference Timestamp 8 bytes
-   *           - Origin Timestamp 8 bytes
-   *           - Receive Timestamp 8 bytes
-   *           - Transmit Timestamp 8 bytes
-   * @param  request_buf is a pointer to a pre-allocated 48 byte char array
-   * @retval void
-   */
-void sntp_build_request( char* request_buf )
-{
-    char sntp_pkt[SNTP_MSG_SIZE] = {
-    0xe3, 0x00, 0x03, 0xfa, 0x00, 0x01, 0x00, 0x00,
-    0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0xd5, 0x22, 0x0e, 0x35, 0xb8, 0x76, 0xab, 0xea};
-    memset(request_buf, 0, SNTP_MSG_SIZE);
-    memcpy(request_buf, sntp_pkt, SNTP_MSG_SIZE);
 }
 
 /**
@@ -113,11 +106,9 @@ WiFi_Status_t sntp_disconnect( uint8_t sock_id )
 WiFi_Status_t sntp_send_request( uint8_t sock_id )
 {
     WiFi_Status_t status = WiFi_MODULE_SUCCESS;
-    char sntp_request[SNTP_MSG_SIZE];
-    sntp_build_request(sntp_request);
 
     printf("\r\n>>Sending SNTP request to the server");
-    status = wifi_socket_client_write(sock_id, SNTP_MSG_SIZE, sntp_request);
+    status = wifi_socket_client_write(sock_id, SNTP_MSG_SIZE, (char*)SNTP_REQUEST);
 
     if(status != WiFi_MODULE_SUCCESS)
     {
