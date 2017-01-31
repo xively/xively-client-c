@@ -22,6 +22,7 @@ typedef struct {
 } sntp_response_t;
 
 sntp_response_t* last_sntp_response = NULL;
+wifi_bool sntp_awaiting_response = WIFI_FALSE;
 int32_t sntp_current_time = 0;
 
 /**
@@ -246,6 +247,7 @@ sntp_status_t sntp_get_datetime( uint8_t* sock_id, int32_t* epoch_time )
         retval = SNTP_REQUEST_FAILURE;
         goto terminate;
     }
+    sntp_awaiting_response = WIFI_TRUE;
 
     /* Await SNTP Response */
     printf("\r\n\tAwaiting server response");
@@ -301,6 +303,7 @@ static sntp_status_t sntp_await_response( uint8_t sock_id )
     {
         if( sntp_timeout_ms <= 0 )
         {
+            sntp_awaiting_response = WIFI_FALSE;
             return SNTP_TIMEOUT;
         }
         printf(".");
@@ -326,6 +329,13 @@ void sntp_socket_data_callback(uint8_t sock_id, uint8_t* data_ptr,
         return;
     }
 
+    if( WIFI_FALSE == sntp_awaiting_response )
+    {
+        printf("\r\n\tGot an [UNEXPECTED] SNTP response. It will be ignored");
+        return;
+    }
+    sntp_awaiting_response = WIFI_FALSE;
+
     /* Store SNTP response */
     sntp_free_response(&last_sntp_response);
     last_sntp_response = sntp_malloc_response();
@@ -336,5 +346,4 @@ void sntp_socket_data_callback(uint8_t sock_id, uint8_t* data_ptr,
     }
     memcpy(last_sntp_response->response, (char*)data_ptr, SNTP_MSG_SIZE);
     last_sntp_response->socket_id = sock_id;
-
 }
