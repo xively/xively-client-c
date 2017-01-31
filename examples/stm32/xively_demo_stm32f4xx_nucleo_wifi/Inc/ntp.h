@@ -14,7 +14,7 @@ typedef enum {
     SNTP_NOT_AVAILABLE      = -5,
     SNTP_PARSER_ERROR       = -4,
     SNTP_REQUEST_FAILURE    = -3,
-    SNTP_CONNECTION_FAILURE = -2,
+    SNTP_SOCKET_ERROR       = -2,
     SNTP_TIMEOUT            = -1,
     SNTP_SUCCESS            = 0,
 } sntp_status_t;
