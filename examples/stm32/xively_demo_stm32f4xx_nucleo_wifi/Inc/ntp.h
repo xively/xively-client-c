@@ -24,18 +24,8 @@ typedef struct {
     char* response;
 } sntp_response;
 
-/* User API */
 sntp_status_t sntp_get_datetime( uint8_t* socket_id, int32_t* epoch_time );
 void sntp_socket_data_callback( uint8_t socket_id, uint8_t* data_ptr,
                                 uint32_t message_size, uint32_t chunk_size );
-
-/* Internal usage */
-WiFi_Status_t sntp_connect( char* sntp_server, uint32_t sntp_port, uint8_t* sock_id );
-WiFi_Status_t sntp_send_request( uint8_t sock_id );
-WiFi_Status_t sntp_disconnect( uint8_t sock_id );
-int32_t sntp_parse_response( char* response );
-uint32_t sntp_ntohl( uint32_t n );
-
-sntp_status_t sntp_await_response( uint8_t sock_id );
 
 #endif

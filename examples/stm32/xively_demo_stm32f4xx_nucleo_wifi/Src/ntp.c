@@ -31,7 +31,7 @@ sntp_response* last_sntp_response = NULL;
    *  - Receive Timestamp 8 bytes
    *  - Transmit Timestamp 8 bytes
    */
-const char SNTP_REQUEST[SNTP_MSG_SIZE] = {
+static const char SNTP_REQUEST[SNTP_MSG_SIZE] = {
 0xe3, 0x00, 0x03, 0xfa, 0x00, 0x01, 0x00, 0x00,
 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -39,6 +39,14 @@ const char SNTP_REQUEST[SNTP_MSG_SIZE] = {
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 0xd5, 0x22, 0x0e, 0x35, 0xb8, 0x76, 0xab, 0xea};
 
+static WiFi_Status_t sntp_connect( char* sntp_server, uint32_t sntp_port, uint8_t* sock_id );
+static WiFi_Status_t sntp_send_request( uint8_t sock_id );
+static sntp_status_t sntp_await_response( uint8_t sock_id );
+static WiFi_Status_t sntp_disconnect( uint8_t sock_id );
+
+static uint32_t sntp_ntohl( uint32_t n );
+static int32_t  sntp_parse_response( char* response );
+static void     sntp_free_response( sntp_response* r );
 
 /**
    * @brief  free the space used by an sntp_response
