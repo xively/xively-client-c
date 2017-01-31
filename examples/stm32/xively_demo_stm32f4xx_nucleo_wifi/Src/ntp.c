@@ -12,7 +12,7 @@
 #include "ntp.h"
 
 int32_t sntp_current_time = 0;
-sntp_response* last_sntp_response = NULL;
+sntp_response_t* last_sntp_response = NULL;
 
 /**
    * Packet description:
@@ -39,21 +39,50 @@ static const char SNTP_REQUEST[SNTP_MSG_SIZE] = {
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 0xd5, 0x22, 0x0e, 0x35, 0xb8, 0x76, 0xab, 0xea};
 
-static WiFi_Status_t sntp_start( char* sntp_server, uint32_t sntp_port, uint8_t* sock_id );
-static WiFi_Status_t sntp_send_request( uint8_t sock_id );
-static sntp_status_t sntp_await_response( uint8_t sock_id );
-static int32_t       sntp_parse_response( char* response );
-static void          sntp_free_response( sntp_response** r );
-static WiFi_Status_t sntp_stop( uint8_t sock_id );
+static WiFi_Status_t    sntp_start( char* sntp_server, uint32_t sntp_port, uint8_t* sock_id );
+static WiFi_Status_t    sntp_send_request( uint8_t sock_id );
+static sntp_status_t    sntp_await_response( uint8_t sock_id );
+static sntp_response_t* sntp_malloc_response( void );
+static int32_t          sntp_parse_response( char* response );
+static void             sntp_free_response( sntp_response_t** r );
+static WiFi_Status_t    sntp_stop( uint8_t sock_id );
 
 static uint32_t sntp_ntohl( uint32_t n );
 
 /**
-   * @brief  free the space used by an sntp_response
-   * @param  *sntp_server is a char array with the relevant URL
+   * @brief  initialize a new sntp_response_t. malloc() the struct and the
+   *         48 byte char* response inside it.
+   * @param  None
    * @retval WiFi_Status_t: WiFi_MODULE_SUCCESS on success, see wifi_interface.h
    */
-void sntp_free_response( sntp_response** r )
+static sntp_response_t* sntp_malloc_response( void )
+{
+    sntp_response_t* new_response = NULL;
+    new_response = malloc(sizeof(sntp_response_t));
+    if( NULL == new_response )
+    {
+        goto malloc_error;
+    }
+    new_response->socket_id = -1; //Default to invalid socket ID
+    new_response->response = malloc(SNTP_MSG_SIZE);
+    if( NULL == new_response->response )
+    {
+        goto malloc_error;
+    }
+    memset(new_response->response, 0, sizeof(sntp_response_t));
+    return new_response;
+
+malloc_error:
+    sntp_free_response(&new_response);
+    return NULL;
+}
+
+/**
+   * @brief  free the space used by an sntp_response_t and set it to NULL
+   * @param  **sntp_response_t we want to free()
+   * @retval None
+   */
+static void sntp_free_response( sntp_response_t** r )
 {
     if( NULL == *r )
     {
@@ -75,7 +104,7 @@ void sntp_free_response( sntp_response** r )
    *         *sock_id will be set to the appropriate socket ID
    * @retval WiFi_Status_t: WiFi_MODULE_SUCCESS on success, see wifi_interface.h
    */
-WiFi_Status_t sntp_start( char* sntp_server, uint32_t sntp_port, uint8_t* sock_id )
+static WiFi_Status_t sntp_start( char* sntp_server, uint32_t sntp_port, uint8_t* sock_id )
 {
     WiFi_Status_t status = WiFi_MODULE_SUCCESS;
     uint8_t sntp_protocol = 'u'; //UDP
@@ -93,7 +122,7 @@ WiFi_Status_t sntp_start( char* sntp_server, uint32_t sntp_port, uint8_t* sock_i
    * @param  sock_id is the socket ID set by sntp_start() in stnp_start()
    * @retval WiFi_Status_t: WiFi_MODULE_SUCCESS on success, see wifi_interface.h
    */
-WiFi_Status_t sntp_stop( uint8_t sock_id )
+static WiFi_Status_t sntp_stop( uint8_t sock_id )
 {
     WiFi_Status_t status = WiFi_MODULE_SUCCESS;
     printf("\r\n>>Closing UDP socket to SNTP server...");
@@ -116,7 +145,7 @@ WiFi_Status_t sntp_stop( uint8_t sock_id )
    * @param  sock_id is the socket ID set by sntp_start()
    * @retval WiFi_Status_t: WiFi_MODULE_SUCCESS on success, see wifi_interface.h
    */
-WiFi_Status_t sntp_send_request( uint8_t sock_id )
+static WiFi_Status_t sntp_send_request( uint8_t sock_id )
 {
     WiFi_Status_t status = WiFi_MODULE_SUCCESS;
 
@@ -141,7 +170,7 @@ WiFi_Status_t sntp_send_request( uint8_t sock_id )
    * @param  n is a 32bit integer in network order
    * @retval Returns a 32bit integer in host order (ready to be used by the uC)
    */
-uint32_t sntp_ntohl(uint32_t n)
+static uint32_t sntp_ntohl(uint32_t n)
 {
     return ((n & 0xff) << 24)      |
            ((n & 0xff00) << 8)     |
@@ -155,7 +184,7 @@ uint32_t sntp_ntohl(uint32_t n)
    *         before calling this function
    * @retval Current date and time in epoch format, -1 on error
    */
-int32_t sntp_parse_response( char* response )
+static int32_t sntp_parse_response( char* response )
 {
     int32_t current_ntp_time = 0; //epoch + 2208988800
     int32_t current_epoch_time = 0;
@@ -254,7 +283,7 @@ terminate:
    * @param  sock_id we're interested in
    * @retval SNTP_SUCCESS (0) or SNTP_TIMEOUT(-1)
    */
-sntp_status_t sntp_await_response( uint8_t sock_id )
+static sntp_status_t sntp_await_response( uint8_t sock_id )
 {
     int32_t sntp_timeout_ms = SNTP_TIMEOUT_MS;
     const int32_t timeout_step = 250;
@@ -288,12 +317,13 @@ void sntp_socket_data_callback(uint8_t sock_id, uint8_t* data_ptr,
     }
 
     /* Store SNTP response */
-    if( NULL != last_sntp_response )
+    sntp_free_response(&last_sntp_response);
+    last_sntp_response = sntp_malloc_response();
+    if( NULL == last_sntp_response )
     {
-        sntp_free_response(&last_sntp_response);
+        printf("\r\n\tMemory allocation for SNTP response [FAIL] Msg ignored");
+        return;
     }
-    last_sntp_response = calloc(1, sizeof(last_sntp_response));
-    last_sntp_response->response = calloc(SNTP_MSG_SIZE, sizeof(char));
     memcpy(last_sntp_response->response, (char*)data_ptr, SNTP_MSG_SIZE);
     last_sntp_response->socket_id = sock_id;
 
