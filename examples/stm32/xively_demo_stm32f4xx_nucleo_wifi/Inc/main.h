@@ -65,7 +65,6 @@ typedef enum {
   wifi_state_connected,
   wifi_state_connecting,
   wifi_state_disconnected,
-  wifi_state_sntp_gettime,
   wifi_state_socket,
   wifi_state_write,
   wifi_state_error,
