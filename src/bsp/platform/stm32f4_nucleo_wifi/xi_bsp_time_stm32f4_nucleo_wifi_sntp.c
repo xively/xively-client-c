@@ -1,14 +1,15 @@
-/*TODO: This interface is currently blocking at sntp_get_datetime() and only
+/*TODO: This interface is currently blocking at xi_bsp_time_sntp_init() and only
  *      supports 1 concurrent request. Change last_sntp_response to use a
  *      flexible array and we can make it non-blocking and support as many
  *      concurrent requests as necessary
  */
-#include "stdio.h"
-#include "string.h"
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
 #include "wifi_interface.h"
 #include "wifi_module.h"
 #include "wifi_globals.h"
-#include "ntp.h"
+#include "includes/xi_bsp_time_stm32f4_nucleo_wifi_sntp.h"
 
 #define SNTP_MSG_SIZE 48
 #define SNTP_TIMEOUT_MS 5000
@@ -57,8 +58,17 @@ static sntp_response_t* sntp_malloc_response( void );
 static int32_t          sntp_parse_response( char* response );
 static void             sntp_free_response( sntp_response_t** r );
 static WiFi_Status_t    sntp_stop( uint8_t sock_id );
-
 static uint32_t sntp_ntohl( uint32_t n );
+
+/**
+ * @function
+ * @brief Returns epoch time (seconds since 1970/01/01 00:00:00)
+ * @retval epoch time as an int32_t
+ */
+posix_time_t* xi_bsp_time_sntp_getseconds_posix( void )
+{
+    return sntp_current_time;
+}
 
 /**
    * @brief  initialize a new sntp_response_t. malloc() the struct and the
@@ -152,7 +162,7 @@ static WiFi_Status_t sntp_stop( uint8_t sock_id )
 
 /**
    * @brief  Send SNTP packet to the Server. Must be called after a socket has
-   *         has been created from sntp_get_datetime()->sntp_start()
+   *         has been created from xi_bsp_time_sntp_init()->sntp_start()
    * @param  sock_id is the socket ID set by sntp_start()
    * @retval WiFi_Status_t: WiFi_MODULE_SUCCESS on success, see wifi_interface.h
    */
@@ -217,7 +227,7 @@ static int32_t sntp_parse_response( char* response )
    * @retval sntp_status_t: 0 means SNTP_SUCCESS, <0 means something failed.
    *         See ntp.h to handle different failure reasons in different ways
    */
-sntp_status_t sntp_get_datetime( uint8_t* sock_id, int32_t* epoch_time )
+sntp_status_t xi_bsp_time_sntp_init( uint8_t* sock_id, int32_t* epoch_time )
 {
     sntp_status_t retval = SNTP_SUCCESS; //Returned by this function
     WiFi_Status_t wifi_retval = WiFi_MODULE_SUCCESS;
@@ -315,7 +325,7 @@ static sntp_status_t sntp_await_response( uint8_t sock_id )
 
 /**
    * @brief  This function shall be called from ind_wifi_socket_data_received(),
-   *         when the sock_id is the one we got from sntp_get_datetime()
+   *         when the sock_id is the one we got from xi_bsp_time_sntp_init()
    * @param  See description for ind_wifi_socket_data_received
    * @retval None
    */
