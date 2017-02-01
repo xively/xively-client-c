@@ -9,6 +9,12 @@
 #include "../sha256/sha256.h"
 #include "xi_sft.h"
 
+#define XI_DEBUGSFT
+
+#ifdef XI_DEBUGSFT
+void dump( const cn_cbor* cb, char* out, char** end, int indent );
+#endif
+
 ///// Test these individually
 int filelength                 = 0;
 int offset                     = 0;
@@ -40,6 +46,7 @@ ssize_t enc_sz;
 char xi_stopic[128];
 char xi_logtopic[128];
 char xi_ctopic[128];
+char incomingfilename[50];
 
 void xi_parse_file_chunk( cn_cbor* cb );
 void xi_parse_file_update_available( cn_cbor* cb );
@@ -83,7 +90,7 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                 printf( "topic:%s. Subscription granted %d.\n", params->suback.topic,
                         ( int )params->suback.suback_status );
             }
-            // xi_publish_file_info(in_context_handle);
+            xi_publish_file_info( in_context_handle );
             return;
         case XI_SUB_CALL_MESSAGE:
             // printf( "topic:%s. message received.\n", params->message.topic );
@@ -92,12 +99,16 @@ void on_sft_message( xi_context_handle_t in_context_handle,
             payload_data   = params->message.temporary_payload_data;
             payload_length = params->message.temporary_payload_data_length;
 
+            printf( "received on %s topic %d bytes\n", params->suback.topic,
+                    params->message.temporary_payload_data_length );
+
             /* Figure out what the packet type is and then call the appropriate parser */
             cb = cn_cbor_decode( payload_data, payload_length, 0 );
 
             if ( cb )
             {
 #ifdef XI_DEBUGSFT
+                char* bufend = buffer + params->message.temporary_payload_data_length;
                 dump( cb, buffer, &bufend, 0 );
                 *bufend = 0;
                 printf( "%s\n", buffer );
@@ -142,9 +153,9 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                                         NULL, NULL );
                             sha256_init( &ctx );
                             offset = 0;
-                            retVal = openFileForWrite( "/sys/mcuimgA.bin", filelength,
+                            retVal = openFileForWrite( incomingfilename, filelength,
                                                        &lFileHandle );
-                            printf( "mcuimgA.bin open returned %d\n", retVal );
+                            printf( "%s open returned %d\n", incomingfilename, retVal );
                             if ( retVal < 0 )
                                 downloading = 0;
                             break;
@@ -188,7 +199,7 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                                     closeFile( &lFileHandle );
                                     printf( "*** Setting image to TEST \r\n" );
                                     testFirmware();
-                                    reboot();
+                                    rebootDevice();
                                 }
                             }
                             break;
@@ -260,7 +271,6 @@ void xi_parse_file_update_available( cn_cbor* cb )
     cn_cbor* cb_file;
     int filelistlength = 0;
     int i, index;
-    char incomingfilename[50];
 
     cb_item = cn_cbor_mapget_string( cb, "msgver" );
     if ( cb_item )
@@ -359,7 +369,7 @@ void xi_parse_file_update_available( cn_cbor* cb )
     cn_cbor_map_put( cb_map, cn_cbor_string_create( "msgver", &err ),
                      cn_cbor_int_create( 1, &err ), &err );
     cn_cbor_map_put( cb_map, cn_cbor_string_create( "N", &err ),
-                     cn_cbor_string_create( filename, &err ), &err );
+                     cn_cbor_string_create( incomingfilename, &err ), &err );
     cn_cbor_map_put( cb_map, cn_cbor_string_create( "R", &err ),
                      cn_cbor_string_create( filerevision, &err ), &err );
     cn_cbor_map_put( cb_map, cn_cbor_string_create( "O", &err ),
@@ -429,6 +439,7 @@ void xi_parse_file_chunk( cn_cbor* cb )
         }
         else
         {
+            printf( "no cb_item\n" );
             downloading = 0;
             closeFile( lFileHandle );
         }
