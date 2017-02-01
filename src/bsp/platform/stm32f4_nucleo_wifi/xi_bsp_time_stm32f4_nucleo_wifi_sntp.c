@@ -48,7 +48,7 @@ static const char SNTP_REQUEST[SNTP_MSG_SIZE] = {
 0xd5, 0x22, 0x0e, 0x35, 0xb8, 0x76, 0xab, 0xea};
 
 extern void HAL_Delay(uint32_t delay_ms);
-static WiFi_Status_t    sntp_start( char* sntp_server, uint32_t sntp_port, uint8_t* sock_id );
+static WiFi_Status_t    sntp_start( uint32_t sntp_port, uint8_t* sock_id );
 static WiFi_Status_t    sntp_send_request( uint8_t sock_id );
 static sntp_status_t    sntp_await_response( uint8_t sock_id );
 static sntp_response_t* sntp_malloc_response( void );
@@ -102,6 +102,10 @@ malloc_error:
    */
 static void sntp_free_response( sntp_response_t** r )
 {
+    if( NULL == r )
+    {
+        return;
+    }
     if( NULL == *r )
     {
         return;
@@ -122,14 +126,14 @@ static void sntp_free_response( sntp_response_t** r )
    *         *sock_id will be set to the appropriate socket ID
    * @retval WiFi_Status_t: WiFi_MODULE_SUCCESS on success, see wifi_interface.h
    */
-static WiFi_Status_t sntp_start( char* sntp_server, uint32_t sntp_port, uint8_t* sock_id )
+static WiFi_Status_t sntp_start( uint32_t sntp_port, uint8_t* sock_id )
 {
     WiFi_Status_t status = WiFi_MODULE_SUCCESS;
     uint8_t sntp_protocol = 'u'; //UDP
     xi_bsp_debug_format("\tOpening UDP socket to SNTP server %s:%lu",
-           sntp_server,
+           SNTP_SERVER,
            sntp_port);
-    status = wifi_socket_client_open((uint8_t*)sntp_server, sntp_port,
+    status = wifi_socket_client_open((uint8_t*)SNTP_SERVER, sntp_port,
                                      &sntp_protocol, sock_id);
 
     return status;
@@ -236,7 +240,7 @@ sntp_status_t xi_bsp_time_sntp_init( void )
 
     /* Create socket */
     xi_bsp_debug_logger(">>Getting date and time from SNTP server...");
-    wifi_retval = sntp_start(SNTP_SERVER, SNTP_PORT, &sock_id);
+    wifi_retval = sntp_start(SNTP_PORT, &sock_id);
     if( wifi_retval != WiFi_MODULE_SUCCESS )
     {
         xi_bsp_debug_format("\tSNTP socket creation [FAIL] Retval: %d", wifi_retval);
