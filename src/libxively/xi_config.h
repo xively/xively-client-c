@@ -39,7 +39,7 @@
 #ifndef XI_MQTT_HOST
 #define XI_MQTT_HOST                                                                     \
     {                                                                                    \
-        "broker.xively.com", XI_MQTT_PORT                                                \
+        "broker.xively.eu", XI_MQTT_PORT                                                \
     }
 #endif
 
