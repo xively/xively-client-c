@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <xi_bsp_io_net.h>
-#include <xi_bsp_mem.h>
 #include <xi_data_desc.h>
 #include "wifi_interface.h"
 #include <string.h>
@@ -28,44 +27,15 @@ typedef enum
 
 } xi_bsp_stm_wifi_state_t;
 
-typedef struct _xi_buffer_t
-{
-    uint8_t* bytes;
-    uint32_t size;
-    uint32_t position;
-    void* next;
-
-} xi_buffer_t;
-
 typedef struct _xi_bsp_stm_net_state_t
 {
-    xi_buffer_t* head;
-    xi_buffer_t* tail;
+    xi_data_desc_t* head;
+    xi_data_desc_t* tail;
     xi_bsp_stm_wifi_state_t wifi_state;
 
 } xi_bsp_stm_net_state_t;
 
 xi_bsp_stm_net_state_t xi_net_state = {0};
-
-xi_buffer_t* xi_bsp_io_net_create_buffer( uint8_t* data, uint32_t size )
-{
-    xi_buffer_t* buffer = xi_bsp_mem_alloc( sizeof( xi_buffer_t ) );
-    buffer->bytes = xi_bsp_mem_alloc( size );
-
-    memcpy( buffer->bytes , data , size );
-
-    buffer->position = 0;
-    buffer->size = size;
-    buffer->next = NULL;
-
-    return buffer;
-}
-
-void xi_bsp_io_net_delete_buffer( xi_buffer_t* buffer )
-{
-    xi_bsp_mem_free( buffer->bytes );
-    xi_bsp_mem_free( buffer );
-}
 
 xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
 {
@@ -150,29 +120,29 @@ xi_bsp_io_net_state_t xi_bsp_io_net_read( xi_bsp_socket_t xi_socket,
         }
         else
         {
-            xi_buffer_t* head = xi_net_state.head;
+            xi_data_desc_t* head = xi_net_state.head;
 
-            size_t bytes_available = head->size - head->position;
+            size_t bytes_available = head->length - head->curr_pos;
             size_t bytes_to_copy = bytes_available > count ? count : bytes_available;
 
             printf("wants to read %u, giving back %u\n", count , bytes_to_copy);
 
-            memcpy( buf, head->bytes + head->position , bytes_to_copy );
+            memcpy( buf, head->data_ptr + head->curr_pos , bytes_to_copy );
 
-            head->position += bytes_to_copy;
+            head->curr_pos += bytes_to_copy;
             *out_read_count = bytes_to_copy;
 
-            printf("head->position %u head->size %u\n", head->position , head->size );
+            printf("head->position %u head->size %u\n", head->curr_pos , head->length );
 
-            if ( head->position == head->size ) 
+            if ( head->curr_pos == head->length ) 
             {
-                xi_buffer_t* temp = head;
-                xi_net_state.head = head->next;
+                xi_data_desc_t* temp = head;
+                xi_net_state.head = head->__next;
                 if ( xi_net_state.head == NULL ) xi_net_state.tail = NULL;
 
                 printf("buffer empty, deleting\n");
 
-                xi_bsp_io_net_delete_buffer( temp );
+                xi_free_desc( &temp );
             }
         }
     }
@@ -195,12 +165,12 @@ xi_bsp_io_net_state_t xi_bsp_io_net_close_socket( xi_bsp_socket_t* xi_socket )
 
     /* free all buffers */
 
-    xi_buffer_t* head = xi_net_state.head;
+    xi_data_desc_t* head = xi_net_state.head;
     while ( head != NULL )
     {
-        xi_buffer_t* temp = head;
-        head = head->next;
-        xi_bsp_io_net_delete_buffer( temp );
+        xi_data_desc_t* temp = head;
+        head = head->__next;
+        xi_free_desc( &temp );
     }
 
     if ( status == WiFi_MODULE_SUCCESS )
@@ -264,11 +234,11 @@ void xi_bsp_io_net_socket_data_received_proxy( uint8_t socket_id,
 
     printf("data received, allocating buffer %u\n", chunk_size );
 
-    xi_buffer_t* tail = xi_bsp_io_net_create_buffer( data_ptr , chunk_size );
+    xi_data_desc_t* tail = xi_make_desc_from_buffer_copy( data_ptr , chunk_size );
 
     if ( xi_net_state.head == NULL ) xi_net_state.head = tail;
     if ( xi_net_state.tail == NULL ) xi_net_state.tail = tail;
-    else xi_net_state.tail->next = tail;
+    else xi_net_state.tail->__next = tail;
 }
 
 void xi_bsp_io_net_socket_client_remote_server_closed_proxy( uint8_t* socket_closed_id )
