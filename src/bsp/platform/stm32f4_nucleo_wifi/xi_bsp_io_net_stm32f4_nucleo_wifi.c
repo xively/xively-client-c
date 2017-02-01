@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <xi_bsp_io_net.h>
-#include "xi_debug.h"
+#include "xi_bsp_debug.h"
 #include "wifi_interface.h"
 #include "xi_bsp_time_stm32f4_nucleo_wifi_sntp.h"
 
@@ -200,7 +200,7 @@ void xi_bsp_io_net_socket_data_received_proxy( uint8_t socket_id,
 {
     if(socket_id == sntp_sock_id)
     {
-        xi_debug_printf("\r\n>>Received message from SNTP socket");
+        xi_bsp_debug_logger(">>Received message from SNTP socket");
         sntp_socket_data_callback(socket_id, data_ptr, message_size, chunk_size);
         return;
     }
@@ -229,7 +229,7 @@ void xi_bsp_io_net_socket_client_remote_server_closed_proxy( uint8_t* socket_clo
 {
     if(*socket_closed_id == sntp_sock_id)
     {
-        xi_debug_printf("\r\n\tUnexpected 'remote disconnection' by SNTP server");
+        xi_bsp_debug_logger("\tUnexpected 'remote disconnection' by SNTP server");
         return;
     }
 
