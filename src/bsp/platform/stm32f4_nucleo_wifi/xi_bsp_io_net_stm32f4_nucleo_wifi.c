@@ -198,7 +198,7 @@ void xi_bsp_io_net_socket_data_received_proxy( uint8_t socket_id,
                                                uint32_t message_size,
                                                uint32_t chunk_size )
 {
-    if(socket_id == *sntp_sock_id_ptr)
+    if(socket_id == sntp_sock_id)
     {
         xi_debug_printf("\r\n>>Received message from SNTP socket");
         sntp_socket_data_callback(socket_id, data_ptr, message_size, chunk_size);
@@ -227,7 +227,7 @@ void xi_bsp_io_net_socket_data_received_proxy( uint8_t socket_id,
 
 void xi_bsp_io_net_socket_client_remote_server_closed_proxy( uint8_t* socket_closed_id )
 {
-    if(*socket_closed_id == *sntp_sock_id_ptr)
+    if(*socket_closed_id == sntp_sock_id)
     {
         xi_debug_printf("\r\n\tUnexpected 'remote disconnection' by SNTP server");
         return;

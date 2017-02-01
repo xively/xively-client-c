@@ -17,7 +17,7 @@ typedef enum {
     SNTP_SUCCESS         = 0,
 } sntp_status_t;
 
-uint8_t* sntp_sock_id_ptr;
+extern uint8_t sntp_sock_id; //0xff means no SNTP socket ID available
 
 /**
  * @function
