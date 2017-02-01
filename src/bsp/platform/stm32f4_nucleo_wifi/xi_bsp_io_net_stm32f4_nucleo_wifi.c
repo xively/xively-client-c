@@ -18,8 +18,7 @@ extern "C" {
 #define MAX( a, b ) ( ( ( a ) > ( b ) ) ? ( a ) : ( b ) )
 #endif
 
-typedef enum 
-{
+typedef enum {
     xi_wifi_state_connected = 0,
     xi_wifi_state_disconnected,
     xi_wifi_state_error,
@@ -48,8 +47,8 @@ xi_bsp_io_net_connect( xi_bsp_socket_t* xi_socket, const char* host, uint16_t po
     char* protocol = "s"; // t -> tcp , s-> secure tcp, c-> secure tcp with certs
 
     WiFi_Status_t status = WiFi_MODULE_SUCCESS;
-    status = wifi_socket_client_open( ( uint8_t* )host, port,
-                                      ( uint8_t* )protocol, ( uint8_t* )xi_socket );
+    status = wifi_socket_client_open( ( uint8_t* )host, port, ( uint8_t* )protocol,
+                                      ( uint8_t* )xi_socket );
 
     if ( status == WiFi_MODULE_SUCCESS )
     {
@@ -119,19 +118,18 @@ xi_bsp_io_net_state_t xi_bsp_io_net_read( xi_bsp_socket_t xi_socket,
             xi_data_desc_t* head = xi_net_state.head;
 
             const size_t bytes_available = head->length - head->curr_pos;
-            const size_t bytes_to_copy = ( bytes_available > count ) ? count : bytes_available;
+            const size_t bytes_to_copy =
+                ( bytes_available > count ) ? count : bytes_available;
 
-            memcpy( buf, head->data_ptr + head->curr_pos , bytes_to_copy );
+            memcpy( buf, head->data_ptr + head->curr_pos, bytes_to_copy );
 
             head->curr_pos += bytes_to_copy;
             *out_read_count = bytes_to_copy;
 
-            if ( head->curr_pos == head->length ) 
+            if ( head->curr_pos == head->length )
             {
-                xi_data_desc_t* temp = head;
                 xi_net_state.head = head->__next;
-
-                xi_free_desc( &temp );
+                xi_free_desc( &head );
             }
         }
     }
@@ -158,7 +156,7 @@ xi_bsp_io_net_state_t xi_bsp_io_net_close_socket( xi_bsp_socket_t* xi_socket )
     while ( NULL != head )
     {
         xi_data_desc_t* temp = head;
-        head = head->__next;
+        head                 = head->__next;
         xi_free_desc( &temp );
     }
 
@@ -221,13 +219,19 @@ void xi_bsp_io_net_socket_data_received_proxy( uint8_t socket_id,
     ( void )socket_id;
     ( void )message_size;
 
-    xi_data_desc_t* tail = xi_make_desc_from_buffer_copy( data_ptr , chunk_size );
+    xi_data_desc_t* tail = xi_make_desc_from_buffer_copy( data_ptr, chunk_size );
 
-    if ( NULL == xi_net_state.head ) xi_net_state.head = tail;
+    if ( NULL == xi_net_state.head )
+    {
+        xi_net_state.head = tail;
+    }
     else
     {
         xi_data_desc_t* last = xi_net_state.head;
-        while ( NULL != last->__next ) last = last->__next;
+        while ( NULL != last->__next )
+        {
+            last = last->__next;
+        }
         last->__next = tail;
     }
 }
