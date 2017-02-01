@@ -26,7 +26,7 @@ uint8_t* sntp_sock_id_ptr;
  * @param pvParameters ?
  * 
  */
-sntp_status_t xi_bsp_time_sntp_init( uint8_t* sock_id, int32_t* epoch_time );
+sntp_status_t xi_bsp_time_sntp_init( uint8_t* sock_id );
 
 
 /**
@@ -42,5 +42,5 @@ void sntp_socket_data_callback( uint8_t socket_id, uint8_t* data_ptr,
  * @brief Returns seconds since 1970/01/01 00:00:00. Must be called after a
  *        successful init()
  */
-extern posix_time_t xi_bsp_time_sntp_getseconds_posix( void );
+posix_time_t xi_bsp_time_sntp_getseconds_posix( void );
 #endif

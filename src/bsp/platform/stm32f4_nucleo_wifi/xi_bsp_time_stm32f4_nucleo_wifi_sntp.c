@@ -6,9 +6,8 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include "xi_debug.h"
 #include "wifi_interface.h"
-#include "wifi_module.h"
-#include "wifi_globals.h"
 #include "xi_bsp_time_stm32f4_nucleo_wifi_sntp.h"
 
 #define SNTP_MSG_SIZE 48
@@ -51,6 +50,7 @@ static const char SNTP_REQUEST[SNTP_MSG_SIZE] = {
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 0xd5, 0x22, 0x0e, 0x35, 0xb8, 0x76, 0xab, 0xea};
 
+extern void HAL_Delay(uint32_t delay_ms);
 static WiFi_Status_t    sntp_start( char* sntp_server, uint32_t sntp_port, uint8_t* sock_id );
 static WiFi_Status_t    sntp_send_request( uint8_t sock_id );
 static sntp_status_t    sntp_await_response( uint8_t sock_id );
@@ -65,7 +65,7 @@ static uint32_t sntp_ntohl( uint32_t n );
  * @brief Returns epoch time (seconds since 1970/01/01 00:00:00)
  * @retval epoch time as an int32_t
  */
-posix_time_t* xi_bsp_time_sntp_getseconds_posix( void )
+posix_time_t xi_bsp_time_sntp_getseconds_posix( void )
 {
     return sntp_current_time;
 }
@@ -129,7 +129,7 @@ static WiFi_Status_t sntp_start( char* sntp_server, uint32_t sntp_port, uint8_t*
 {
     WiFi_Status_t status = WiFi_MODULE_SUCCESS;
     uint8_t sntp_protocol = 'u'; //UDP
-    printf("\r\n\tOpening UDP socket to SNTP server %s:%lu",
+    xi_debug_printf("\r\n\tOpening UDP socket to SNTP server %s:%lu",
            sntp_server,
            sntp_port);
     status = wifi_socket_client_open((uint8_t*)sntp_server, sntp_port,
@@ -146,16 +146,16 @@ static WiFi_Status_t sntp_start( char* sntp_server, uint32_t sntp_port, uint8_t*
 static WiFi_Status_t sntp_stop( uint8_t sock_id )
 {
     WiFi_Status_t status = WiFi_MODULE_SUCCESS;
-    printf("\r\n>>Closing UDP socket to SNTP server...");
+    xi_debug_printf("\r\n>>Closing UDP socket to SNTP server...");
     status = wifi_socket_client_close(sock_id);
     if(status != WiFi_MODULE_SUCCESS)
     {
-        printf("\r\n\tUDP Socket Close [FAIL] Status code: %d", status);
+        xi_debug_printf("\r\n\tUDP Socket Close [FAIL] Status code: %d", status);
         return status;
     }
     else
     {
-        printf("\r\n\tUDP Socket Close [OK]");
+        xi_debug_printf("\r\n\tUDP Socket Close [OK]");
     }
     return status;
 }
@@ -170,16 +170,16 @@ static WiFi_Status_t sntp_send_request( uint8_t sock_id )
 {
     WiFi_Status_t status = WiFi_MODULE_SUCCESS;
 
-    printf("\r\n>>Sending SNTP request to the server");
+    xi_debug_printf("\r\n>>Sending SNTP request to the server");
     status = wifi_socket_client_write(sock_id, SNTP_MSG_SIZE, (char*)SNTP_REQUEST);
 
     if(status != WiFi_MODULE_SUCCESS)
     {
-        printf("\r\n\tSNTP Message Write [FAIL] Status code: %d", status);
+        xi_debug_printf("\r\n\tSNTP Message Write [FAIL] Status code: %d", status);
     }
     else
     {
-        printf("\r\n\tSNTP Message Write [OK]");
+        xi_debug_printf("\r\n\tSNTP Message Write [OK]");
     }
     return status;
 }
@@ -210,7 +210,7 @@ static int32_t sntp_parse_response( char* response )
     int32_t current_ntp_time = 0;
     int32_t current_epoch_time = 0;
 
-    printf("\r\n>>Parsing SNTP response...");
+    xi_debug_printf("\r\n>>Parsing SNTP response...");
     memcpy(&current_ntp_time, response+SNTP_RESPONSE_TIMESTAMP_OFFSET, sizeof(int32_t));
     current_ntp_time = sntp_ntohl(current_ntp_time);
     current_epoch_time = current_ntp_time - SNTP_SERVER_TIME_OFFSET;
@@ -226,66 +226,64 @@ static int32_t sntp_parse_response( char* response )
    *         SNTP server
    * @retval sntp_status_t: 0 means SNTP_SUCCESS, <0 means something failed.
    *         See ntp.h to handle different failure reasons in different ways
+   *
+   * @TODO: sntp.h should have a list of SNTP servers. This function should
+   *               rotate through them, changing to the next one every time this
+   *               function is called
    */
-sntp_status_t xi_bsp_time_sntp_init( uint8_t* sock_id, int32_t* epoch_time )
+sntp_status_t xi_bsp_time_sntp_init( uint8_t* sock_id )
 {
     sntp_status_t retval = SNTP_SUCCESS; //Returned by this function
     WiFi_Status_t wifi_retval = WiFi_MODULE_SUCCESS;
 
     /* Create socket */
-    printf("\r\n>>Getting date and time from SNTP server...");
+    xi_debug_printf("\r\n>>Getting date and time from SNTP server...");
     wifi_retval = sntp_start(SNTP_SERVER, SNTP_PORT, sock_id);
     if( wifi_retval != WiFi_MODULE_SUCCESS )
     {
-        printf("\r\n\tSNTP socket creation [FAIL] Retval: %d", wifi_retval);
+        xi_debug_printf("\r\n\tSNTP socket creation [FAIL] Retval: %d", wifi_retval);
         retval = SNTP_SOCKET_ERROR;
         goto terminate;
     }
-    else if(*sock_id < 0)
-    {
-        printf("\r\n\tUDP socket creation [FAIL] Socket ID<0: %d", *sock_id);
-        retval = SNTP_SOCKET_ERROR;
-        goto terminate;
-    }
-    printf("\r\n\tUDP socket creation [OK] Assigned socket ID: %d", *sock_id);
+    xi_debug_printf("\r\n\tUDP socket creation [OK] Assigned socket ID: %d", *sock_id);
 
     /* Send SNTP request */
     wifi_retval = sntp_send_request(*sock_id);
     if( wifi_retval != WiFi_MODULE_SUCCESS )
     {
-        printf("\r\n\tSNTP send_request [FAIL] Retval: %d", wifi_retval);
+        xi_debug_printf("\r\n\tSNTP send_request [FAIL] Retval: %d", wifi_retval);
         retval = SNTP_REQUEST_FAILURE;
         goto terminate;
     }
     sntp_awaiting_response = WIFI_TRUE;
 
     /* Await SNTP Response */
-    printf("\r\n\tAwaiting server response");
+    xi_debug_printf("\r\n\tAwaiting server response");
     if( sntp_await_response(*sock_id) < 0 )
     {
-        printf("\r\n\tSNTP response [FAIL] Response timed out");
+        xi_debug_printf("\r\n\tSNTP response [FAIL] Response timed out");
         retval = SNTP_TIMEOUT;
         goto terminate;
     }
 
     if( *sock_id != last_sntp_response->socket_id )
     {
-        printf("\r\n\tSocket ID assertion [FAIL] Bug in ntp.c?");
+        xi_debug_printf("\r\n\tSocket ID assertion [FAIL] Bug in ntp.c?");
         retval = SNTP_INTERNAL_ERROR;
         goto terminate;
     }
 
     /* Parse server response */
-    printf("\r\n\tParsing and converting SNTP response");
+    xi_debug_printf("\r\n\tParsing and converting SNTP response");
     sntp_current_time = sntp_parse_response(last_sntp_response->response);
     if( sntp_current_time < 0 )
     {
-        printf("\r\n\tSNTP Parsing and conversion [FAIL]");
+        xi_debug_printf("\r\n\tSNTP Parsing and conversion [FAIL]");
         retval = SNTP_PARSER_ERROR;
     }
     else
     {
-        printf("\r\n\tReceived epoch time: %ld", sntp_current_time);
+        xi_debug_printf("\r\n\tReceived epoch time: %ld", sntp_current_time);
         retval = SNTP_SUCCESS;
     }
 
@@ -307,6 +305,7 @@ terminate:
    */
 static sntp_status_t sntp_await_response( uint8_t sock_id )
 {
+    (void)sock_id;
     int32_t sntp_timeout_ms = SNTP_TIMEOUT_MS;
     const int32_t timeout_step = 250;
     while( NULL == last_sntp_response )
@@ -316,7 +315,7 @@ static sntp_status_t sntp_await_response( uint8_t sock_id )
             sntp_awaiting_response = WIFI_FALSE;
             return SNTP_TIMEOUT;
         }
-        printf(".");
+        xi_debug_printf(".");
         HAL_Delay(timeout_step);
         sntp_timeout_ms -= timeout_step;
     }
@@ -335,13 +334,13 @@ void sntp_socket_data_callback(uint8_t sock_id, uint8_t* data_ptr,
     /* Verify we got an SNTP response, not just protocol data */
     if( (SNTP_MSG_SIZE != message_size) || (SNTP_MSG_SIZE != chunk_size) )
     {
-        printf("\r\n\tMessage isn't an SNTP respone. It will be ignored");
+        xi_debug_printf("\r\n\tMessage isn't an SNTP respone. It will be ignored");
         return;
     }
 
     if( WIFI_FALSE == sntp_awaiting_response )
     {
-        printf("\r\n\tGot an [UNEXPECTED] SNTP response. It will be ignored");
+        xi_debug_printf("\r\n\tGot an [UNEXPECTED] SNTP response. It will be ignored");
         return;
     }
     sntp_awaiting_response = WIFI_FALSE;
@@ -351,7 +350,7 @@ void sntp_socket_data_callback(uint8_t sock_id, uint8_t* data_ptr,
     last_sntp_response = sntp_malloc_response();
     if( NULL == last_sntp_response )
     {
-        printf("\r\n\tMemory allocation for SNTP response [FAIL] Msg ignored");
+        xi_debug_printf("\r\n\tMemory allocation for SNTP response [FAIL] Msg ignored");
         return;
     }
     memcpy(last_sntp_response->response, (char*)data_ptr, SNTP_MSG_SIZE);
