@@ -17,7 +17,7 @@ typedef enum {
     SNTP_SUCCESS         = 0,
 } sntp_status_t;
 
-extern uint8_t* sntp_sock_id_ptr;
+uint8_t* sntp_sock_id_ptr;
 
 /**
  * @function

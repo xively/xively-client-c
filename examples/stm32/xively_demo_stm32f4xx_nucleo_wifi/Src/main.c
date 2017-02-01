@@ -40,7 +40,6 @@
 #include "stdio.h"
 #include "string.h"
 #include "xively.h"
-#include "ntp.h"
 #include "xi_bsp_io_net_socket_proxy.h"
 
 /**
@@ -89,7 +88,6 @@ char* XI_DEVICE_ID = "DEVICE ID";
 char* XI_DEVICE_PASS = "DEVICE PASSWORD";
 
 xi_context_handle_t gXivelyContextHandle = -1;
-uint8_t* sntp_sock_id = NULL;
 
 void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t state )
 {
@@ -106,7 +104,6 @@ int main(void)
 {
   uint8_t i=0;
   uint8_t socket_open = 0;
-  int32_t sntp_time; //epoch time to be obtained via SNTP
   wifi_bool SSID_found = WIFI_FALSE;
   WiFi_Status_t status = WiFi_MODULE_SUCCESS;
   __GPIOA_CLK_ENABLE();
@@ -201,20 +198,6 @@ int main(void)
 
       case wifi_state_disconnected:
         wifi_state = wifi_state_reset;
-        break;
-
-      case wifi_state_sntp_gettime:
-        if( sntp_get_datetime(sntp_sock_id, &sntp_time) < 0 )
-        {
-            printf("\r\n>>SNTP Failed");
-            //TODO: Set hardcoded datetime to known valid time at time of writing??
-            //      Implement retry logic?
-        }
-        else
-        {
-            printf("\r\n>>SNTP datetime update [OK] Epoch time: %ld", sntp_time);
-        }
-        wifi_state = wifi_state_socket;
         break;
 
       case wifi_state_socket:
@@ -564,13 +547,6 @@ void ind_wifi_socket_data_received(uint8_t socket_id, uint8_t* data_ptr,
         printf("0x%02x ", *(data_ptr+i));
     }
 
-    if(socket_id == *sntp_sock_id)
-    {
-        /* SNTP */
-        printf("\r\n>>Message came from the SNTP socket");
-        sntp_socket_data_callback(socket_id, data_ptr, message_size, chunk_size);
-        return;
-    }
     /* Xively */
     xi_bsp_io_net_socket_data_received_proxy( socket_id , data_ptr ,
                                               message_size , chunk_size );
@@ -578,12 +554,6 @@ void ind_wifi_socket_data_received(uint8_t socket_id, uint8_t* data_ptr,
 
 void ind_wifi_socket_client_remote_server_closed(uint8_t * socket_closed_id)
 {
-    if(*socket_closed_id == *sntp_sock_id)
-    {
-        /* SNTP */
-        printf("\r\n\tSNTP connection closed by the server");
-        return;
-    }
     /* Xively */
     xi_bsp_io_net_socket_client_remote_server_closed_proxy( socket_closed_id );
 }
@@ -603,7 +573,7 @@ void ind_wifi_resuming()
 {
   printf("\r\nwifi resuming from sleep user callback... \r\n");
   //Change the state to connect to socket if not connected
-  wifi_state = wifi_state_sntp_gettime;
+  wifi_state = wifi_state_socket;
 }
 
 /**

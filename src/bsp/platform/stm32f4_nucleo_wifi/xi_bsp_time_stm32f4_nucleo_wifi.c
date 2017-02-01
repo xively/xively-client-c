@@ -5,15 +5,15 @@
  */
 
 #include <xi_bsp_time.h>
-#include "includes/xi_bsp_time_stm32f4_nucleo_wifi_sntp.h"
+#include "xi_bsp_time_stm32f4_nucleo_wifi_sntp.h"
 
-uint8_t* sntp_sock_id_ptr = NULL;
+extern uint32_t HAL_GetTick(void);
 
 void xi_bsp_time_init()
 {
     uint8_t sock_id = -1;
     posix_time_t epoch_time = 0;
-    sntp_sock_id = &sock_id;
+    sntp_sock_id_ptr = &sock_id;
     while( xi_bsp_time_sntp_init(&sock_id, &epoch_time) < 0 )
     {
         printf("\r\n>>SNTP Failed");
