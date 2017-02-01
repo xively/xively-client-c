@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <xi_bsp_io_net.h>
+#include <xi_bsp_mem.h>
+#include <xi_data_desc.h>
 #include "wifi_interface.h"
 #include <string.h>
 
@@ -47,8 +49,8 @@ xi_bsp_stm_net_state_t xi_net_state = {0};
 
 xi_buffer_t* xi_bsp_io_net_create_buffer( uint8_t* data, uint32_t size )
 {
-    xi_buffer_t* buffer = malloc( sizeof( xi_buffer_t ) );
-    buffer->bytes = malloc( size );
+    xi_buffer_t* buffer = xi_bsp_mem_alloc( sizeof( xi_buffer_t ) );
+    buffer->bytes = xi_bsp_mem_alloc( size );
 
     memcpy( buffer->bytes , data , size );
 
@@ -61,10 +63,9 @@ xi_buffer_t* xi_bsp_io_net_create_buffer( uint8_t* data, uint32_t size )
 
 void xi_bsp_io_net_delete_buffer( xi_buffer_t* buffer )
 {
-    free( buffer->bytes );
-    free( buffer );
+    xi_bsp_mem_free( buffer->bytes );
+    xi_bsp_mem_free( buffer );
 }
-
 
 xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
 {
@@ -116,6 +117,8 @@ xi_bsp_io_net_state_t xi_bsp_io_net_write( xi_bsp_socket_t xi_socket,
                                            size_t count )
 {
     *out_written_count = count;
+
+    printf("bsp write\n", count);
 
     WiFi_Status_t status = WiFi_MODULE_SUCCESS;
     status               = wifi_socket_client_write( xi_socket, count, ( char* )buf );
@@ -190,6 +193,16 @@ xi_bsp_io_net_state_t xi_bsp_io_net_close_socket( xi_bsp_socket_t* xi_socket )
     WiFi_Status_t status = WiFi_MODULE_SUCCESS;
     status               = wifi_socket_client_close( *xi_socket );
 
+    /* free all buffers */
+
+    xi_buffer_t* head = xi_net_state.head;
+    while ( head != NULL )
+    {
+        xi_buffer_t* temp = head;
+        head = head->next;
+        xi_bsp_io_net_delete_buffer( temp );
+    }
+
     if ( status == WiFi_MODULE_SUCCESS )
     {
         return XI_BSP_IO_NET_STATE_OK;
@@ -218,7 +231,6 @@ xi_bsp_io_net_state_t xi_bsp_io_net_select( xi_bsp_socket_events_t* socket_event
             {
                 if ( xi_net_state.head != NULL )
                 {
-                    printf("state.head is not null, can read\n");
                     socket_events->out_socket_can_read = 1;
                 }
             }
