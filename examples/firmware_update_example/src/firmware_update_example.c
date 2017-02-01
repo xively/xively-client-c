@@ -5,6 +5,8 @@
  */
 
 #include "../../common/src/commandline.h"
+#include "xi_sft.h"
+
 #include <xively.h>
 
 #include <stdio.h>
@@ -16,10 +18,51 @@
 
 xi_context_handle_t xi_context = XI_INVALID_CONTEXT_HANDLE;
 
-static const char* const test_topic2 = "test_topic_2";
-static char* shutdown_topic          = NULL;
-
 static xi_timed_task_handle_t delayed_publish_task = XI_INVALID_TIMED_TASK_HANDLE;
+
+void reboot()
+{
+}
+
+
+int openFileForWrite( const char* fileName, size_t fileLength, void** fileHandle )
+{
+    ( void )fileName;
+    ( void )fileLength;
+    ( void )fileHandle;
+    return -1;
+}
+
+int closeFile( void** fileHandle )
+{
+    ( void )fileHandle;
+    return -1;
+}
+
+int writeChunk( void* fileHandle,
+                size_t chunkOffset,
+                const unsigned char* const bytes,
+                size_t bytes_length )
+{
+    ( void )fileHandle;
+    ( void )chunkOffset;
+    ( void )bytes;
+    ( void )bytes_length;
+
+    return -1;
+}
+
+int32_t commitFirmware( int32_t commitFlags )
+{
+    ( void )commitFlags;
+    return 0;
+}
+
+int32_t testFirmware( void )
+{
+    return 0;
+}
+
 
 void on_test_message( xi_context_handle_t in_context_handle,
                       xi_sub_call_type_t call_type,
@@ -47,40 +90,6 @@ void on_test_message( xi_context_handle_t in_context_handle,
         case XI_SUB_CALL_MESSAGE:
             printf( "topic:%s. message received.\n", params->message.topic );
             return;
-        default:
-            return;
-    }
-}
-
-void on_shutdown_message( xi_context_handle_t in_context_handle,
-                          xi_sub_call_type_t call_type,
-                          const xi_sub_call_params_t* const params,
-                          xi_state_t state,
-                          void* user_data )
-{
-    XI_UNUSED( state );
-    XI_UNUSED( user_data );
-
-    switch ( call_type )
-    {
-        case XI_SUB_CALL_SUBACK:
-            if ( params->suback.suback_status == XI_MQTT_SUBACK_FAILED )
-            {
-                printf( "topic:%s. Subscription failed.\n", params->suback.topic );
-            }
-            else
-            {
-                printf( "topic:%s. Subscription granted %d.\n", params->suback.topic,
-                        ( int )params->suback.suback_status );
-            }
-            return;
-        case XI_SUB_CALL_MESSAGE:
-        {
-            printf( "received shutdown message\n" );
-            xi_shutdown_connection( in_context_handle );
-
-            return;
-        }
         default:
             return;
     }
@@ -124,10 +133,6 @@ void delayed_publish( xi_context_handle_t context_handle,
         xi_publish( context_handle, xi_publishtopic, msg, xi_example_qos,
                     XI_MQTT_RETAIN_FALSE, on_publish_delivered, ( void* )( intptr_t )i );
     }
-
-    xi_publish_timeseries( context_handle, xi_publishtopic,
-                           ( rand() / ( float )RAND_MAX ) * 256, xi_example_qos, NULL,
-                           NULL );
 }
 
 void first_delay_before_publish( xi_context_handle_t context_handle,
@@ -194,6 +199,17 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
             return;
     }
 
+    const int xi_sft_init_res  = xi_sft_init( in_context_handle, xi_account_id, xi_username );
+    if( xi_sft_init_res == 0 )
+    {
+        printf( "xi_sft_init SUCCESS!\n" );
+    }
+    else 
+    {
+        printf ("xi_sft_init ERROR! %d\n", xi_sft_init_res );
+    }
+
+
     /* publish a test message */
     xi_publish( in_context_handle, xi_publishtopic, "test message.", xi_example_qos,
                 XI_MQTT_RETAIN_FALSE, NULL, NULL );
@@ -207,22 +223,6 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
 
     xi_subscribe( in_context_handle, xi_publishtopic, xi_example_qos, &on_test_message,
                   NULL );
-
-    /* here we subscribe for second topic that will use the same callback function */
-    if ( NULL != test_topic2 )
-    {
-        xi_subscribe( in_context_handle, test_topic2, xi_example_qos, &on_test_message,
-                      NULL );
-    }
-
-    /* here we subscribe for the third topic that uses separate callback function, you
-     * might want to separate different types of logic from each other so sometimes it's
-     * easier to use separate callback function */
-    if ( NULL != shutdown_topic )
-    {
-        xi_subscribe( in_context_handle, shutdown_topic, xi_example_qos,
-                      &on_shutdown_message, NULL );
-    }
 }
 
 /*
@@ -245,7 +245,6 @@ int main( int argc, char* argv[] )
 int xi_firmware_update_example_main( xi_embedded_args_t* xi_embedded_args )
 #endif
 {
-    char* local_shutdown_topic        = "shutdown_topic";
     const uint16_t connection_timeout = 10;
     const uint16_t keepalive_timeout  = 20;
     char options[]                    = "ha:u:P:t:p:";
@@ -330,9 +329,6 @@ int xi_firmware_update_example_main( xi_embedded_args_t* xi_embedded_args )
         printf( " xi failed to create context, error: %d\n", -xi_context );
         return -1;
     }
-
-    shutdown_topic = local_shutdown_topic;
-
 
     xi_connect( xi_context, xi_username, xi_password, connection_timeout,
                 keepalive_timeout, XI_SESSION_CLEAN, &on_connected );

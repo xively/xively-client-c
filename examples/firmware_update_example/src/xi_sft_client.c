@@ -1,7 +1,6 @@
 /*  Copyright (c) 2003-2017, LogMeIn, Inc. All rights reserved.
     This is part of Xively C library. */
 
-#include <xively.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -9,31 +8,6 @@
 #include "../cbor/cn-cbor/cn-cbor.h"
 #include "../sha256/sha256.h"
 #include "xi_sft.h"
-
-#if defined( CC3200 )
-#include "CC3200flash/flc_api.h"
-#include "hw_memmap.h"
-#include "hw_common_reg.h"
-#include "hw_types.h"
-#include "hw_ints.h"
-#include "interrupt.h"
-#include "rom.h"
-#include "rom_map.h"
-#include "uart.h"
-#include "prcm.h"
-#include "utils.h"
-#include "uart_if.h"
-#define UART_PRINT Report
-#undef printf
-#define printf Report
-#endif
-
-#if ( 0 )
-#include "rom_map.h"
-#include "hw_types.h"
-#include "prcm.h"
-#endif
-
 
 ///// Test these individually
 int filelength                 = 0;
@@ -77,104 +51,6 @@ void print_hash( unsigned char ( *hash )[32] )
     for ( idx = 0; idx < 32; idx++ )
         printf( "%02x", hash[idx] );
     printf( "\n" );
-}
-
-#define WEAK __attribute__( ( weak ) )
-
-//****************************************************************************
-//
-//! Reboot the MCU by requesting hibernate for a short duration
-//!
-//! \return None
-//
-//****************************************************************************
-void WEAK RebootMCU()
-{
-#ifdef CC3200
-    //
-    // Configure hibernate RTC wakeup
-    //
-    PRCMHibernateWakeupSourceEnable( PRCM_HIB_SLOW_CLK_CTR );
-
-    //
-    // Delay loop
-    //
-    MAP_UtilsDelay( 8000000 );
-
-    //
-    // Set wake up time
-    //
-    PRCMHibernateIntervalSet( 330 );
-
-    //
-    // Request hibernate
-    //
-    PRCMHibernateEnter();
-
-    //
-    // Control should never reach here
-    //
-    while ( 1 )
-    {
-    }
-#endif
-}
-
-
-/**
- * Opens the file of a given name for writing
- *
- * @param fileName
- * @param fileLength
- * @param fileHandle - return argument passes the pointer to the platform specific file
- * handle
- * @returns 0 if no errors <0 in case of error the negative number is an error code
- */
-int WEAK openFileForWrite( const char* fileName, size_t fileLength, void** fileHandle )
-{
-    ( void )fileName;
-    ( void )fileLength;
-    ( void )fileHandle;
-    return -1;
-}
-
-/**
- * @param fileHandle
- * @return 0 in case of success <0 in case of an error
- */
-int WEAK closeFile( void** fileHandle )
-{
-    ( void )fileHandle;
-    return -1;
-}
-
-int WEAK writeChunk( void* fileHandle,
-                     size_t chunkOffset,
-                     const unsigned char* const bytes,
-                     size_t bytes_length )
-{
-    ( void )fileHandle;
-    ( void )chunkOffset;
-    ( void )bytes;
-    ( void )bytes_length;
-
-    return -1;
-}
-
-typedef enum xi_commiti_firmware_flags_e {
-    XI_FIRMWARE_COMMITED     = 1,
-    XI_FIRMWARE_NOT_COMMITED = 2
-} xi_commit_firmware_flags_t;
-
-int32_t WEAK commitFirmware( int32_t commitFlags )
-{
-    ( void )commitFlags;
-    return 0;
-}
-
-int32_t WEAK testFirmware( void )
-{
-    return 0;
 }
 
 void on_sft_message( xi_context_handle_t in_context_handle,
@@ -312,7 +188,7 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                                     closeFile( &lFileHandle );
                                     printf( "*** Setting image to TEST \r\n" );
                                     testFirmware();
-                                    RebootMCU();
+                                    reboot();
                                 }
                             }
                             break;
@@ -605,8 +481,8 @@ void xi_parse_file_chunk( cn_cbor* cb )
 }
 
 int xi_sft_init( xi_context_handle_t in_context_handle,
-                 char* account_id,
-                 char* device_id )
+                 const char* const account_id,
+                 const char* const device_id )
 {
     int r = -1;
 
