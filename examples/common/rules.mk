@@ -28,12 +28,15 @@ XI_EXAMPLE_OBJS := $(addprefix $(XI_EXAMPLE_OBJDIR)/,$(XI_EXAMPLE_OBJS))
 XI_EXAMPLE_BIN := $(XI_EXAMPLE_BINDIR)/$(XI_EXAMPLE_NAME)
 
 XI_CLIENT_PATH ?= $(CURDIR)/../../
-XI_CLIENT_INC_PATH ?= $(CURDIR)/../../include
+XI_CLIENT_INC_PATH += $(CURDIR)/../../include
 XI_CLIENT_LIB_PATH ?= $(CURDIR)/../../bin/$(XI_TARGET_PLATFORM)
 
 XI_CLIENT_ROOTCA_LIST := $(CURDIR)/../../res/trusted_RootCA_certs/xi_RootCA_list.pem
 
-XI_FLAGS_INCLUDE += -I$(XI_CLIENT_INC_PATH)
+XI_FLAGS_INCLUDE += $(foreach i,$(XI_CLIENT_INC_PATH),-I$i)
+
+$(info $$(XI_FLAGS_INCLUDE)=$(XI_FLAGS_INCLUDE))
+
 XI_FLAGS_COMPILER ?= -Wall -Werror -Wno-pointer-arith -Wno-format -fstrict-aliasing -Os -Wextra
 
 # TLS BSP related configuration
