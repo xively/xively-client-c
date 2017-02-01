@@ -20,23 +20,43 @@ xi_context_handle_t xi_context = XI_INVALID_CONTEXT_HANDLE;
 
 static xi_timed_task_handle_t delayed_publish_task = XI_INVALID_TIMED_TASK_HANDLE;
 
-void reboot()
+void rebootDevice()
 {
 }
 
-
 int openFileForWrite( const char* fileName, size_t fileLength, void** fileHandle )
 {
-    ( void )fileName;
     ( void )fileLength;
     ( void )fileHandle;
+
+
+    printf( "entering.. openFileForWrite: %s\n", fileName );
+    fflush( stdout );
+
+    FILE* fp = fopen( fileName, "wb" );
+
+    if ( fp != NULL )
+    {
+        *fileHandle = ( void* )fp;
+        return 0;
+    }
+
     return -1;
 }
 
 int closeFile( void** fileHandle )
 {
     ( void )fileHandle;
-    return -1;
+    printf( "entering.. closeFile \n" );
+    fflush( stdout );
+
+    if ( NULL != fileHandle && NULL != *fileHandle )
+    {
+        FILE* fp = ( FILE* )*fileHandle;
+        fclose( fp );
+    }
+
+    return 0;
 }
 
 int writeChunk( void* fileHandle,
@@ -48,6 +68,9 @@ int writeChunk( void* fileHandle,
     ( void )chunkOffset;
     ( void )bytes;
     ( void )bytes_length;
+
+    printf( "entering writeChunk\n" );
+    fflush( stdout );
 
     return -1;
 }
@@ -199,14 +222,15 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
             return;
     }
 
-    const int xi_sft_init_res  = xi_sft_init( in_context_handle, xi_account_id, xi_username );
-    if( xi_sft_init_res == 0 )
+    const int xi_sft_init_res =
+        xi_sft_init( in_context_handle, xi_account_id, xi_username );
+    if ( xi_sft_init_res == 0 )
     {
         printf( "xi_sft_init SUCCESS!\n" );
     }
-    else 
+    else
     {
-        printf ("xi_sft_init ERROR! %d\n", xi_sft_init_res );
+        printf( "xi_sft_init ERROR! %d\n", xi_sft_init_res );
     }
 
 
@@ -215,11 +239,11 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
                 XI_MQTT_RETAIN_FALSE, NULL, NULL );
 
     /* You can pass any custom data to your callbacks if you want. */
-    void* user_data = NULL;
+    // void* user_data = NULL;
 
     /* register delayed publish */
-    delayed_publish_task = xi_schedule_timed_task(
-        in_context_handle, first_delay_before_publish, 3, 0, user_data );
+    /*delayed_publish_task = xi_schedule_timed_task(
+        in_context_handle, first_delay_before_publish, 3, 0, user_data );*/
 
     xi_subscribe( in_context_handle, xi_publishtopic, xi_example_qos, &on_test_message,
                   NULL );

@@ -68,7 +68,7 @@ void xi_publish_file_info( xi_context_handle_t in_context_handle );
 /**
  * Reboot the MCU by requesting hibernate for a short duration
  */
-extern void reboot();
+extern void rebootDevice();
 
 /**
  * Opens the file of a given name for writing
@@ -79,9 +79,7 @@ extern void reboot();
  * handle
  * @returns 0 if no errors <0 in case of error the negative number is an error code
  */
-extern int openFileForWrite( const char* fileName,
-                                       size_t fileLength,
-                                       void** fileHandle );
+extern int openFileForWrite( const char* fileName, size_t fileLength, void** fileHandle );
 
 /**
  * Closes previously opened file
@@ -95,18 +93,19 @@ extern int closeFile( void** fileHandle );
  * Writes one chunk of data to the previously opened file using fileHandle.
  *
  * @param fileHandle - handle of the previously opened file
- * @param chunkOffset - offset in bytes from the beginning of the file points to where the bytes in opened file should be written
+ * @param chunkOffset - offset in bytes from the beginning of the file points to where the
+ * bytes in opened file should be written
  * @param bytes - bytes to write in the file
  * @param bytesLength - number of bytes to write
  */
 extern int writeChunk( void* fileHandle,
-                                 size_t chunkOffset,
-                                 const unsigned char* const bytes,
-                                 size_t bytesLength );
+                       size_t chunkOffset,
+                       const unsigned char* const bytes,
+                       size_t bytesLength );
 
 /**
  * @enum xi_commit_firmware_flags_e
- * 
+ *
  * XI_FIRMWARE_COMMITED - means that the firmware was tested and can be used
  * XI_FIRMWARE_NOT_COMMITED - firmare should be rejected
  */
@@ -116,7 +115,8 @@ typedef enum xi_commit_firmware_flags_e {
 } xi_commit_firmware_flags_t;
 
 /**
- * If the firmware was sucesfully updated the MCU will be able to store it and use it as a main firmware
+ * If the firmware was sucesfully updated the MCU will be able to store it and use it as a
+ * main firmware
  */
 extern int32_t commitFirmware( int32_t commitFlags );
 
