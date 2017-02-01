@@ -6,21 +6,18 @@
 
 #include <xi_bsp_time.h>
 #include "xi_bsp_time_stm32f4_nucleo_wifi_sntp.h"
+#include "xi_debug.h"
 
 extern uint32_t HAL_GetTick(void);
 
 void xi_bsp_time_init()
 {
     uint8_t sock_id = -1;
-    posix_time_t epoch_time = 0;
     sntp_sock_id_ptr = &sock_id;
-    while( xi_bsp_time_sntp_init(&sock_id, &epoch_time) < 0 )
+    while( xi_bsp_time_sntp_init(&sock_id) < 0 )
     {
-        printf("\r\n>>SNTP Failed");
-        //TODO: 1. pass server as a parameter to sntp_init
-        //TODO: 2. cycle through multiple servers until we succeed
+        xi_debug_printf("\r\n>>SNTP Failed. Retrying...");
     }
-    printf("\r\n>>SNTP datetime update [OK] Epoch time: %ld", epoch_time);
 }
 
 xi_time_t xi_bsp_time_getcurrenttime_seconds()
