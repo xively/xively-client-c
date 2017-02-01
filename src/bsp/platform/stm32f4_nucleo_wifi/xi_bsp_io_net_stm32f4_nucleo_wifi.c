@@ -30,7 +30,6 @@ typedef enum
 typedef struct _xi_bsp_stm_net_state_t
 {
     xi_data_desc_t* head;
-    xi_data_desc_t* tail;
     xi_bsp_stm_wifi_state_t wifi_state;
 
 } xi_bsp_stm_net_state_t;
@@ -88,8 +87,6 @@ xi_bsp_io_net_state_t xi_bsp_io_net_write( xi_bsp_socket_t xi_socket,
 {
     *out_written_count = count;
 
-    printf("bsp write\n", count);
-
     WiFi_Status_t status = WiFi_MODULE_SUCCESS;
     status               = wifi_socket_client_write( xi_socket, count, ( char* )buf );
 
@@ -125,22 +122,15 @@ xi_bsp_io_net_state_t xi_bsp_io_net_read( xi_bsp_socket_t xi_socket,
             size_t bytes_available = head->length - head->curr_pos;
             size_t bytes_to_copy = bytes_available > count ? count : bytes_available;
 
-            printf("wants to read %u, giving back %u\n", count , bytes_to_copy);
-
             memcpy( buf, head->data_ptr + head->curr_pos , bytes_to_copy );
 
             head->curr_pos += bytes_to_copy;
             *out_read_count = bytes_to_copy;
 
-            printf("head->position %u head->size %u\n", head->curr_pos , head->length );
-
             if ( head->curr_pos == head->length ) 
             {
                 xi_data_desc_t* temp = head;
                 xi_net_state.head = head->__next;
-                if ( xi_net_state.head == NULL ) xi_net_state.tail = NULL;
-
-                printf("buffer empty, deleting\n");
 
                 xi_free_desc( &temp );
             }
@@ -232,13 +222,15 @@ void xi_bsp_io_net_socket_data_received_proxy( uint8_t socket_id,
     ( void )socket_id;
     ( void )message_size;
 
-    printf("data received, allocating buffer %u\n", chunk_size );
-
     xi_data_desc_t* tail = xi_make_desc_from_buffer_copy( data_ptr , chunk_size );
 
     if ( xi_net_state.head == NULL ) xi_net_state.head = tail;
-    if ( xi_net_state.tail == NULL ) xi_net_state.tail = tail;
-    else xi_net_state.tail->__next = tail;
+    else
+    {
+        xi_data_desc_t* last = xi_net_state.head;
+        while ( last->__next != NULL ) last = last->__next;
+        last->__next = tail;
+    }
 }
 
 void xi_bsp_io_net_socket_client_remote_server_closed_proxy( uint8_t* socket_closed_id )
