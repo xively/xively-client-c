@@ -1,8 +1,3 @@
-/*TODO: This interface is currently blocking at xi_bsp_time_sntp_init() and only
- *      supports 1 concurrent request. Change last_sntp_response to use a
- *      flexible array and we can make it non-blocking and support as many
- *      concurrent requests as necessary
- */
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -231,24 +226,25 @@ static int32_t sntp_parse_response( char* response )
    *               rotate through them, changing to the next one every time this
    *               function is called
    */
-sntp_status_t xi_bsp_time_sntp_init( uint8_t* sock_id )
+sntp_status_t xi_bsp_time_sntp_init( void )
 {
+    uint8_t sock_id;
     sntp_status_t retval = SNTP_SUCCESS; //Returned by this function
     WiFi_Status_t wifi_retval = WiFi_MODULE_SUCCESS;
 
     /* Create socket */
     xi_debug_printf("\r\n>>Getting date and time from SNTP server...");
-    wifi_retval = sntp_start(SNTP_SERVER, SNTP_PORT, sock_id);
+    wifi_retval = sntp_start(SNTP_SERVER, SNTP_PORT, &sock_id);
     if( wifi_retval != WiFi_MODULE_SUCCESS )
     {
         xi_debug_printf("\r\n\tSNTP socket creation [FAIL] Retval: %d", wifi_retval);
-        retval = SNTP_SOCKET_ERROR;
-        goto terminate;
+        return SNTP_SOCKET_ERROR;
     }
-    xi_debug_printf("\r\n\tUDP socket creation [OK] Assigned socket ID: %d", *sock_id);
+    xi_debug_printf("\r\n\tUDP socket creation [OK] Assigned socket ID: %d", sock_id);
+    sntp_sock_id_ptr = &sock_id;
 
     /* Send SNTP request */
-    wifi_retval = sntp_send_request(*sock_id);
+    wifi_retval = sntp_send_request(sock_id);
     if( wifi_retval != WiFi_MODULE_SUCCESS )
     {
         xi_debug_printf("\r\n\tSNTP send_request [FAIL] Retval: %d", wifi_retval);
@@ -259,14 +255,14 @@ sntp_status_t xi_bsp_time_sntp_init( uint8_t* sock_id )
 
     /* Await SNTP Response */
     xi_debug_printf("\r\n\tAwaiting server response");
-    if( sntp_await_response(*sock_id) < 0 )
+    if( sntp_await_response(sock_id) < 0 )
     {
         xi_debug_printf("\r\n\tSNTP response [FAIL] Response timed out");
         retval = SNTP_TIMEOUT;
         goto terminate;
     }
 
-    if( *sock_id != last_sntp_response->socket_id )
+    if( sock_id != last_sntp_response->socket_id )
     {
         xi_debug_printf("\r\n\tSocket ID assertion [FAIL] Bug in ntp.c?");
         retval = SNTP_INTERNAL_ERROR;
@@ -291,10 +287,8 @@ terminate:
     sntp_free_response(&last_sntp_response);
 
     /* Close socket */
-    if( *sock_id > 0 )
-    {
-        sntp_stop(*sock_id);
-    }
+    sntp_stop(sock_id);
+    sntp_sock_id_ptr = NULL;
     return retval;
 }
 

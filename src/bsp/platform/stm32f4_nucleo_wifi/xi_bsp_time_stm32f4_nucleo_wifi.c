@@ -12,9 +12,7 @@ extern uint32_t HAL_GetTick(void);
 
 void xi_bsp_time_init()
 {
-    uint8_t sock_id = -1;
-    sntp_sock_id_ptr = &sock_id;
-    while( xi_bsp_time_sntp_init(&sock_id) < 0 )
+    while( xi_bsp_time_sntp_init() < 0 )
     {
         xi_debug_printf("\r\n>>SNTP Failed. Retrying...");
     }

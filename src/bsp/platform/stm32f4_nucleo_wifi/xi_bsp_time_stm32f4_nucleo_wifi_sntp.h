@@ -26,7 +26,7 @@ uint8_t* sntp_sock_id_ptr;
  * @param pvParameters ?
  * 
  */
-sntp_status_t xi_bsp_time_sntp_init( uint8_t* sock_id );
+sntp_status_t xi_bsp_time_sntp_init( void );
 
 
 /**
