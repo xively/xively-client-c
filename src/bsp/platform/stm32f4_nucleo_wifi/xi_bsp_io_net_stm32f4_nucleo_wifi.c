@@ -110,7 +110,7 @@ xi_bsp_io_net_state_t xi_bsp_io_net_read( xi_bsp_socket_t xi_socket,
 
     if ( xi_net_state.wifi_state == xi_wifi_state_connected )
     {
-        if ( xi_net_state.head == NULL )
+        if ( NULL == xi_net_state.head )
         {
             return XI_BSP_IO_NET_STATE_BUSY;
         }
@@ -155,7 +155,7 @@ xi_bsp_io_net_state_t xi_bsp_io_net_close_socket( xi_bsp_socket_t* xi_socket )
     /* free all buffers */
 
     xi_data_desc_t* head = xi_net_state.head;
-    while ( head != NULL )
+    while ( NULL != head )
     {
         xi_data_desc_t* temp = head;
         head = head->__next;
@@ -188,7 +188,7 @@ xi_bsp_io_net_state_t xi_bsp_io_net_select( xi_bsp_socket_events_t* socket_event
 
             if ( 1 == socket_events->in_socket_want_read )
             {
-                if ( xi_net_state.head != NULL )
+                if ( NULL != xi_net_state.head )
                 {
                     socket_events->out_socket_can_read = 1;
                 }
@@ -223,11 +223,11 @@ void xi_bsp_io_net_socket_data_received_proxy( uint8_t socket_id,
 
     xi_data_desc_t* tail = xi_make_desc_from_buffer_copy( data_ptr , chunk_size );
 
-    if ( xi_net_state.head == NULL ) xi_net_state.head = tail;
+    if ( NULL == xi_net_state.head ) xi_net_state.head = tail;
     else
     {
         xi_data_desc_t* last = xi_net_state.head;
-        while ( last->__next != NULL ) last = last->__next;
+        while ( NULL != last->__next ) last = last->__next;
         last->__next = tail;
     }
 }
