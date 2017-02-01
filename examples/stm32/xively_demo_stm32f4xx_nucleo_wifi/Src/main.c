@@ -540,13 +540,6 @@ WiFi_Status_t wifi_get_AP_settings(void)
 void ind_wifi_socket_data_received(uint8_t socket_id, uint8_t* data_ptr,
                                    uint32_t message_size, uint32_t chunk_size)
 {
-    printf("\r\n>>Socket [%d] received [%lu] bytes of a [%lu] byte message: ",
-           socket_id, chunk_size, message_size);
-    for(uint8_t i=0; i<chunk_size; i++)
-    {
-        printf("0x%02x ", *(data_ptr+i));
-    }
-
     /* Xively */
     xi_bsp_io_net_socket_data_received_proxy( socket_id , data_ptr ,
                                               message_size , chunk_size );
