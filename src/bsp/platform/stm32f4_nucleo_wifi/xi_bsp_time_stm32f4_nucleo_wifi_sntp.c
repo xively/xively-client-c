@@ -125,11 +125,20 @@ static void sntp_free_response( sntp_response_t** r )
    *         sntp_port is the port to be used for SNTP communication
    *         *sock_id will be set to the appropriate socket ID
    * @retval WiFi_Status_t: WiFi_MODULE_SUCCESS on success, see wifi_interface.h
+   *
+   * @TODO: sntp.h should have a list of SNTP servers. This function should
+   *               rotate through them, changing to the next one every time this
+   *               function is called
    */
 static WiFi_Status_t sntp_start( uint32_t sntp_port, uint8_t* sock_id )
 {
     WiFi_Status_t status = WiFi_MODULE_SUCCESS;
     uint8_t sntp_protocol = 'u'; //UDP
+    if( NULL == sock_id )
+    {
+        xi_bsp_debug_logger("[ERROR] NULL pointer received as SNTP sock_id");
+        return WiFi_START_FAILED_ERROR;
+    }
     xi_bsp_debug_format("\tOpening UDP socket to SNTP server %s:%lu",
            SNTP_SERVER,
            sntp_port);
@@ -210,6 +219,11 @@ static int32_t sntp_parse_response( char* response )
 {
     int32_t current_ntp_time = 0;
     int32_t current_epoch_time = 0;
+    if( NULL == response )
+    {
+        xi_bsp_debug_logger("[ERROR] Got a NULL pointer as SNTP response");
+        return -1;
+    }
 
     xi_bsp_debug_logger(">>Parsing SNTP response...");
     memcpy(&current_ntp_time, response+SNTP_RESPONSE_TIMESTAMP_OFFSET, sizeof(int32_t));
@@ -227,10 +241,6 @@ static int32_t sntp_parse_response( char* response )
    *         SNTP server
    * @retval sntp_status_t: 0 means SNTP_SUCCESS, <0 means something failed.
    *         See ntp.h to handle different failure reasons in different ways
-   *
-   * @TODO: sntp.h should have a list of SNTP servers. This function should
-   *               rotate through them, changing to the next one every time this
-   *               function is called
    */
 sntp_status_t xi_bsp_time_sntp_init( void )
 {
@@ -331,6 +341,11 @@ static sntp_status_t sntp_await_response( uint8_t sock_id )
 void sntp_socket_data_callback(uint8_t sock_id, uint8_t* data_ptr,
                                uint32_t message_size, uint32_t chunk_size)
 {
+    if( NULL == data_ptr )
+    {
+        xi_bsp_debug_logger("[ERROR] Got NULL pointer as socket message");
+        return;
+    }
     /* Verify we got an SNTP response, not just protocol data */
     if( (SNTP_MSG_SIZE != message_size) || (SNTP_MSG_SIZE != chunk_size) )
     {
