@@ -5,7 +5,6 @@
  */
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <xi_bsp_io_net.h>
 #include <xi_data_desc.h>
 #include "wifi_interface.h"
