@@ -9,7 +9,7 @@
 #include "wifi_interface.h"
 #include "wifi_module.h"
 #include "wifi_globals.h"
-#include "includes/xi_bsp_time_stm32f4_nucleo_wifi_sntp.h"
+#include "xi_bsp_time_stm32f4_nucleo_wifi_sntp.h"
 
 #define SNTP_MSG_SIZE 48
 #define SNTP_TIMEOUT_MS 5000
