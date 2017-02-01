@@ -19,6 +19,7 @@ typedef struct {
 sntp_response_t* last_sntp_response = NULL;
 wifi_bool sntp_awaiting_response = WIFI_FALSE;
 int32_t sntp_current_time = 0;
+uint8_t sntp_sock_id = 0xff; //Default to 'no socket'
 
 /**
    * Packet description:
@@ -241,7 +242,7 @@ sntp_status_t xi_bsp_time_sntp_init( void )
         return SNTP_SOCKET_ERROR;
     }
     xi_debug_printf("\r\n\tUDP socket creation [OK] Assigned socket ID: %d", sock_id);
-    sntp_sock_id_ptr = &sock_id;
+    sntp_sock_id = sock_id;
 
     /* Send SNTP request */
     wifi_retval = sntp_send_request(sock_id);
@@ -288,7 +289,7 @@ terminate:
 
     /* Close socket */
     sntp_stop(sock_id);
-    sntp_sock_id_ptr = NULL;
+    sntp_sock_id = 0xff;
     return retval;
 }
 
