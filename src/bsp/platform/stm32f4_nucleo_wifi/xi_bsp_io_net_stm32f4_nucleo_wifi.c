@@ -118,8 +118,8 @@ xi_bsp_io_net_state_t xi_bsp_io_net_read( xi_bsp_socket_t xi_socket,
         {
             xi_data_desc_t* head = xi_net_state.head;
 
-            size_t bytes_available = head->length - head->curr_pos;
-            size_t bytes_to_copy = bytes_available > count ? count : bytes_available;
+            const size_t bytes_available = head->length - head->curr_pos;
+            const size_t bytes_to_copy = ( bytes_available > count ) ? count : bytes_available;
 
             memcpy( buf, head->data_ptr + head->curr_pos , bytes_to_copy );
 
