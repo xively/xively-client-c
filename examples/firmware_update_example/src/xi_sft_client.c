@@ -9,8 +9,6 @@
 #include "../sha256/sha256.h"
 #include "xi_sft.h"
 
-#define XI_DEBUGSFT
-
 #ifdef XI_DEBUGSFT
 void dump( const cn_cbor* cb, char* out, char** end, int indent );
 #endif
@@ -34,7 +32,7 @@ unsigned long ulToken;
 
 SHA256_CTX ctx;
 
-char buffer[1024*1024*32];
+char buffer[1024 * 1024 * 32];
 
 #define MESSAGESIZE 50
 char message[MESSAGESIZE];
@@ -47,6 +45,7 @@ char xi_stopic[128];
 char xi_logtopic[128];
 char xi_ctopic[128];
 char incomingfilename[50];
+char test_firmware_filename[50];
 
 void xi_parse_file_chunk( cn_cbor* cb );
 void xi_parse_file_update_available( cn_cbor* cb );
@@ -153,7 +152,7 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                                         NULL, NULL );
                             sha256_init( &ctx );
                             offset = 0;
-                            retVal = openFileForWrite( "test", filelength,
+                            retVal = openFileForWrite( test_firmware_filename, filelength,
                                                        &lFileHandle );
                             printf( "%s open returned %d\n", incomingfilename, retVal );
                             if ( retVal < 0 )
@@ -425,7 +424,7 @@ void xi_parse_file_chunk( cn_cbor* cb )
     {
         printf( "cb_item->length = %d\r\n", cb_item->length );
         if ( cb_item->length > 0 )
-        { 
+        {
             sha256_update( &ctx, ( BYTE* )cb_item->v.str, cb_item->length );
 
             printf( "lFileHandle = %p\n", lFileHandle );
@@ -481,7 +480,7 @@ void xi_parse_file_chunk( cn_cbor* cb )
         cn_cbor_map_put( cb_map, cn_cbor_string_create( "msgver", &err ),
                          cn_cbor_int_create( 1, &err ), &err );
         cn_cbor_map_put( cb_map, cn_cbor_string_create( "N", &err ),
-                         cn_cbor_string_create( filename, &err ), &err );
+                         cn_cbor_string_create( incomingfilename, &err ), &err );
         cn_cbor_map_put( cb_map, cn_cbor_string_create( "R", &err ),
                          cn_cbor_string_create( filerevision, &err ), &err );
         cn_cbor_map_put( cb_map, cn_cbor_string_create( "O", &err ),
@@ -496,7 +495,8 @@ void xi_parse_file_chunk( cn_cbor* cb )
 
 int xi_sft_init( xi_context_handle_t in_context_handle,
                  const char* const account_id,
-                 const char* const device_id )
+                 const char* const device_id,
+                 const char* const test_firmware_file )
 {
     int r = -1;
 
@@ -526,6 +526,12 @@ int xi_sft_init( xi_context_handle_t in_context_handle,
     // xi_logtopic is the MQTT topic we PUB to to add log messages.
     if ( snprintf( xi_logtopic, sizeof( xi_logtopic ), "xi/blue/v1/%s/d/%s/_log",
                    account_id, device_id ) >= ( int )sizeof( xi_logtopic ) )
+    {
+        return -1;
+    }
+
+    if ( snprintf( test_firmware_filename, sizeof( test_firmware_filename ), "%s",
+                   test_firmware_file ) >= ( int )sizeof( test_firmware_filename ) )
     {
         return -1;
     }

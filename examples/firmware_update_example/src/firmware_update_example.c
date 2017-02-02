@@ -9,12 +9,16 @@
 
 #include <xively.h>
 
+#include <sys/stat.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
 
 #define XI_UNUSED( x ) ( void )( x )
+
+#define XI_TEST_FIRMWARE_NAME "test_firmware"
 
 xi_context_handle_t xi_context = XI_INVALID_CONTEXT_HANDLE;
 
@@ -22,6 +26,11 @@ static xi_timed_task_handle_t delayed_publish_task = XI_INVALID_TIMED_TASK_HANDL
 
 void rebootDevice()
 {
+    printf( "entered rebootDevice\n" );
+    fflush( stdout );
+
+    char* args[] = {XI_TEST_FIRMWARE_NAME, NULL};
+    execv( args[0], args );
 }
 
 int openFileForWrite( const char* fileName, size_t fileLength, void** fileHandle )
@@ -39,7 +48,7 @@ int openFileForWrite( const char* fileName, size_t fileLength, void** fileHandle
     {
         *fileHandle = ( void* )fp;
         /* fill teh file with zeroes */
-        if( fwrite( "0", 1, fileLength, fp ) != fileLength )
+        if ( fwrite( "0", 1, fileLength, fp ) != fileLength )
         {
             return -1;
         }
@@ -69,25 +78,25 @@ int writeChunk( void* fileHandle,
                 size_t chunkOffset,
                 const unsigned char* const bytes,
                 size_t bytes_length )
-{ 
+{
     printf( "entering writeChunk\n" );
     fflush( stdout );
-    
+
     FILE* fp = NULL;
 
-    if( NULL == fileHandle )
+    if ( NULL == fileHandle )
     {
         return -1;
     }
 
     fp = ( FILE* )fileHandle;
 
-    if( fseek( fp, chunkOffset, SEEK_SET ) != 0 )
+    if ( fseek( fp, chunkOffset, SEEK_SET ) != 0 )
     {
         return -1;
     }
 
-    if( fwrite( bytes, 1, bytes_length, fp ) != bytes_length )
+    if ( fwrite( bytes, 1, bytes_length, fp ) != bytes_length )
     {
         return -1;
     }
@@ -103,6 +112,15 @@ int32_t commitFirmware( int32_t commitFlags )
 
 int32_t testFirmware( void )
 {
+    printf( "Entering testFirmware\n" );
+    fflush( stdout );
+
+    if ( chmod( XI_TEST_FIRMWARE_NAME, S_IRUSR | S_IXUSR ) < 0 )
+    {
+        printf( "couldn't prepare firmware to test\n" );
+        return -1;
+    }
+    printf( "firmware set to test\n" );
     return 0;
 }
 
@@ -242,8 +260,8 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
             return;
     }
 
-    const int xi_sft_init_res =
-        xi_sft_init( in_context_handle, xi_account_id, xi_username );
+    const int xi_sft_init_res = xi_sft_init( in_context_handle, xi_account_id,
+                                             xi_username, XI_TEST_FIRMWARE_NAME );
     if ( xi_sft_init_res == 0 )
     {
         printf( "xi_sft_init SUCCESS!\n" );

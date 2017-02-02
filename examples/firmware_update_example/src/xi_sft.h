@@ -60,7 +60,8 @@ typedef enum xi_packet_types {
 
 int xi_sft_init( xi_context_handle_t in_context_handle,
                  const char* const account_id,
-                 const char* const device_id );
+                 const char* const device_id,
+                 const char* const test_firmware_file );
 void xi_publish_file_info( xi_context_handle_t in_context_handle );
 
 /* functions for platform specific behaviour */
