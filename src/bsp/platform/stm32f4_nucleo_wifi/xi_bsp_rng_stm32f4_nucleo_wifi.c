@@ -5,17 +5,20 @@
  */
 
 #include <xi_bsp_rng.h>
+#include <stdlib.h>
+#include <xi_bsp_time.h>
 
 void xi_bsp_rng_init()
-{ /* check if already initialized */
+{
+    srand( xi_bsp_time_getcurrenttime_seconds() );
 }
 
 uint32_t xi_bsp_rng_get()
 {
-    uint32_t random = 0;
-    return random;
+    return rand();
 }
 
 void xi_bsp_rng_shutdown()
 {
+    /* nothing to do here */
 }
