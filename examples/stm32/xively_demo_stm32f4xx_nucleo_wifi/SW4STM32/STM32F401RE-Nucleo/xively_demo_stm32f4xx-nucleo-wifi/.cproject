@@ -45,7 +45,7 @@
 									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/BSP/STM32F4xx-Nucleo"/>
 									<listOptionValue builtIn="false" value="${XI_CLIENT_PATH}/include"/>
 									<listOptionValue builtIn="false" value="${XI_CLIENT_PATH}/include/bsp"/>
-									<listOptionValue builtIn="false" value="${XI_CLIENT_PATH}/src/bsp/platform/stm32f4_nucleo_wifi/includes"/>
+									<listOptionValue builtIn="false" value="${XI_CLIENT_PATH}/src/bsp/platform/stm32fx_nucleo_wifi/include"/>
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.675701715" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="USE_HAL_DRIVER"/>
@@ -72,7 +72,7 @@
 								</option>
 								<option id="gnu.c.link.option.ldflags.960810064" name="Linker flags" superClass="gnu.c.link.option.ldflags" useByScannerDiscovery="false" value="-specs=nano.specs" valueType="string"/>
 								<option id="gnu.c.link.option.paths.1616543337" name="Library search path (-L)" superClass="gnu.c.link.option.paths" useByScannerDiscovery="false" valueType="libPaths">
-									<listOptionValue builtIn="false" value="/Users/milgra/Desktop/Projects/xively-client-c/bin/stm32f4_nucleo_wifi"/>
+									<listOptionValue builtIn="false" value="${XI_CLIENT_PATH}/bin/stm32fx_nucleo_wifi"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.1510740212" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>

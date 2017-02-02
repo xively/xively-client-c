@@ -6,7 +6,6 @@
 
 #include <xi_bsp_io_net.h>
 
-#define LWIP_DNS 1
 #include <lwip/netdb.h>
 
 #include <errno.h>
