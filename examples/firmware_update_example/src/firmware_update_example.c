@@ -16,6 +16,9 @@
 #include <time.h>
 #include <unistd.h>
 
+char** ARGV = NULL;
+int ARGC    = 0;
+
 #define XI_UNUSED( x ) ( void )( x )
 
 #define XI_TEST_FIRMWARE_NAME "test_firmware"
@@ -29,8 +32,28 @@ void rebootDevice()
     printf( "entered rebootDevice\n" );
     fflush( stdout );
 
-    char* args[] = {XI_TEST_FIRMWARE_NAME, NULL};
+    char firmware_file_name[] = XI_TEST_FIRMWARE_NAME;
+    char* args[32]            = {firmware_file_name, NULL};
+
+    if ( sizeof( args ) < ( size_t )ARGC )
+    {
+        /* no space for arguments */
+        printf( "too many arguments for execv %d I can store only: %ld\n", ARGC,
+                sizeof( args ) );
+        exit( -1 );
+    }
+
+    /* copy the existing arguments */
+    int i = 1;
+    for ( ; i < ARGC; ++i )
+    {
+        args[i] = ARGV[i];
+    }
+
     execv( args[0], args );
+
+    /* if we reach this place we've done something wrong */
+    exit( -1 );
 }
 
 int openFileForWrite( const char* fileName, size_t fileLength, void** fileHandle )
@@ -42,12 +65,12 @@ int openFileForWrite( const char* fileName, size_t fileLength, void** fileHandle
     printf( "entering.. openFileForWrite: %s\n", fileName );
     fflush( stdout );
 
-    FILE* fp = fopen( fileName, "wb" );
+    FILE* fp = fopen( fileName, "wb+" );
 
     if ( fp != NULL )
     {
         *fileHandle = ( void* )fp;
-        /* fill teh file with zeroes */
+        /* fill the file with zeroes - making space for the whole firmware */
         if ( fwrite( "0", 1, fileLength, fp ) != fileLength )
         {
             return -1;
@@ -115,7 +138,7 @@ int32_t testFirmware( void )
     printf( "Entering testFirmware\n" );
     fflush( stdout );
 
-    if ( chmod( XI_TEST_FIRMWARE_NAME, S_IRUSR | S_IXUSR ) < 0 )
+    if ( chmod( XI_TEST_FIRMWARE_NAME, S_IWUSR | S_IRUSR | S_IXUSR ) < 0 )
     {
         printf( "couldn't prepare firmware to test\n" );
         return -1;
@@ -184,9 +207,9 @@ void delayed_publish( xi_context_handle_t context_handle,
     XI_UNUSED( user_data );
 
     int i = 0;
-    for ( ; i < 5; ++i )
+    for ( ; i < 2; ++i )
     {
-        char msg[2048] = {'\0'};
+        char msg[32] = {'\0'};
         memset( msg, 'a', sizeof( msg ) - 1 );
         msg[0] = i + '0'; /* user data so that we can tell the
                              messages apart... */
@@ -272,16 +295,12 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
     }
 
 
-    /* publish a test message */
-    xi_publish( in_context_handle, xi_publishtopic, "test message.", xi_example_qos,
-                XI_MQTT_RETAIN_FALSE, NULL, NULL );
-
     /* You can pass any custom data to your callbacks if you want. */
-    // void* user_data = NULL;
+    void* user_data = NULL;
 
     /* register delayed publish */
-    /*delayed_publish_task = xi_schedule_timed_task(
-        in_context_handle, first_delay_before_publish, 3, 0, user_data );*/
+    delayed_publish_task = xi_schedule_timed_task(
+        in_context_handle, first_delay_before_publish, 3, 0, user_data );
 
     xi_subscribe( in_context_handle, xi_publishtopic, xi_example_qos, &on_test_message,
                   NULL );
@@ -307,6 +326,10 @@ int main( int argc, char* argv[] )
 int xi_firmware_update_example_main( xi_embedded_args_t* xi_embedded_args )
 #endif
 {
+    /* will be used for firmware restart */
+    ARGV = argv;
+    ARGC = argc;
+
     const uint16_t connection_timeout = 10;
     const uint16_t keepalive_timeout  = 20;
     char options[]                    = "ha:u:P:t:p:";
