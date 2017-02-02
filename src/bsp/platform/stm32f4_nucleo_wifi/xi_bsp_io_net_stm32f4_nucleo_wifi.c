@@ -245,6 +245,10 @@ void xi_bsp_io_net_socket_data_received_proxy( uint8_t socket_id,
 
 void xi_bsp_io_net_socket_client_remote_server_closed_proxy( uint8_t* socket_closed_id )
 {
+    if( NULL == socket_closed_id )
+    {
+        xi_bsp_debug_logger("\tGot invalid NULL as socket_closed_id");
+    }
     if(*socket_closed_id == sntp_sock_id)
     {
         xi_bsp_debug_logger("\tUnexpected 'remote disconnection' by SNTP server");
