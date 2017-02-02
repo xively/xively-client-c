@@ -51,7 +51,7 @@ void xi_parse_file_chunk( cn_cbor* cb );
 void xi_parse_file_update_available( cn_cbor* cb );
 void xi_publish_file_info( xi_context_handle_t in_context_handle );
 
-void print_hash( unsigned char ( *hash )[32] )
+void print_hash( unsigned char( hash )[32] )
 {
     int idx;
     for ( idx = 0; idx < 32; idx++ )
@@ -192,7 +192,7 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                                                 XI_MQTT_RETAIN_FALSE, NULL, NULL );
                                     sha256_final( &ctx, hash );
                                     printf( "Calculated hash = 0x" );
-                                    print_hash( &hash );
+                                    print_hash( hash );
                                     offset = 0;
                                     xi_publish_file_info( in_context_handle );
                                     closeFile( &lFileHandle );
