@@ -38,6 +38,12 @@ int openFileForWrite( const char* fileName, size_t fileLength, void** fileHandle
     if ( fp != NULL )
     {
         *fileHandle = ( void* )fp;
+        /* fill teh file with zeroes */
+        if( fwrite( "0", 1, fileLength, fp ) != fileLength )
+        {
+            return -1;
+        }
+
         return 0;
     }
 
@@ -50,7 +56,7 @@ int closeFile( void** fileHandle )
     printf( "entering.. closeFile \n" );
     fflush( stdout );
 
-    if ( NULL != fileHandle && NULL != *fileHandle )
+    if ( ( NULL != fileHandle ) && ( NULL != *fileHandle ) )
     {
         FILE* fp = ( FILE* )*fileHandle;
         fclose( fp );
@@ -63,16 +69,30 @@ int writeChunk( void* fileHandle,
                 size_t chunkOffset,
                 const unsigned char* const bytes,
                 size_t bytes_length )
-{
-    ( void )fileHandle;
-    ( void )chunkOffset;
-    ( void )bytes;
-    ( void )bytes_length;
-
+{ 
     printf( "entering writeChunk\n" );
     fflush( stdout );
+    
+    FILE* fp = NULL;
 
-    return -1;
+    if( NULL == fileHandle )
+    {
+        return -1;
+    }
+
+    fp = ( FILE* )fileHandle;
+
+    if( fseek( fp, chunkOffset, SEEK_SET ) != 0 )
+    {
+        return -1;
+    }
+
+    if( fwrite( bytes, 1, bytes_length, fp ) != bytes_length )
+    {
+        return -1;
+    }
+
+    return bytes_length;
 }
 
 int32_t commitFirmware( int32_t commitFlags )
