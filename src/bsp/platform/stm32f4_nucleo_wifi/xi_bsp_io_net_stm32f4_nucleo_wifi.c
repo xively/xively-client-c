@@ -5,14 +5,15 @@
  */
 
 #include <stdio.h>
-#include <xi_bsp_io_net.h>
-#include "wifi_interface.h"
 #include <string.h>
+#include <xi_bsp_io_net.h>
+#include "xi_bsp_debug.h"
+#include "wifi_interface.h"
+#include "xi_bsp_time_stm32f4_nucleo_wifi_sntp.h"
 
 #ifdef __cplusplus
 extern "C" {
-#endif
-
+#endif 
 #ifndef MAX
 #define MAX( a, b ) ( ( ( a ) > ( b ) ) ? ( a ) : ( b ) )
 #endif
@@ -197,7 +198,13 @@ void xi_bsp_io_net_socket_data_received_proxy( uint8_t socket_id,
                                                uint32_t message_size,
                                                uint32_t chunk_size )
 {
-    ( void )socket_id;
+    if(socket_id == sntp_sock_id)
+    {
+        xi_bsp_debug_logger(">>Received message from SNTP socket");
+        sntp_socket_data_callback(socket_id, data_ptr, message_size, chunk_size);
+        return;
+    }
+
     if ( xi_wifi_buffer.size == 0 )
     {
         if ( chunk_size > XI_BSP_IO_NET_BUFFER_SIZE )
@@ -220,6 +227,11 @@ void xi_bsp_io_net_socket_data_received_proxy( uint8_t socket_id,
 
 void xi_bsp_io_net_socket_client_remote_server_closed_proxy( uint8_t* socket_closed_id )
 {
-    ( void )socket_closed_id;
+    if(*socket_closed_id == sntp_sock_id)
+    {
+        xi_bsp_debug_logger("\tUnexpected 'remote disconnection' by SNTP server");
+        return;
+    }
+
     xi_wifi_state = xi_wifi_state_disconnected;
 }
