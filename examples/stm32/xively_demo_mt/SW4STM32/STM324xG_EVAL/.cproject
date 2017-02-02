@@ -39,8 +39,8 @@
 								<option id="gnu.c.compiler.option.include.paths.389311824" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="../../../Inc"/>
 									<listOptionValue builtIn="false" value="${XI_CLIENT_PATH}/include"/>
-									<listOptionValue builtIn="false" value="&quot;${XI_CLIENT_PATH}/include/bsp&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${XI_CLIENT_PATH}/src/bsp/platform/stm32f4/includes&quot;"/>
+									<listOptionValue builtIn="false" value="${XI_CLIENT_PATH}/include/bsp"/>
+									<listOptionValue builtIn="false" value="${XI_CLIENT_PATH}/src/bsp/platform/stm32fx/include"/>
 									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/CMSIS/Device/ST/STM32F4xx/Include"/>
 									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/CMSIS/Include"/>
 									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/STM32F4xx_HAL_Driver/Inc"/>
@@ -80,7 +80,7 @@
 									<listOptionValue builtIn="false" value="WolfSSL"/>
 								</option>
 								<option id="gnu.c.link.option.paths.435585756" name="Library search path (-L)" superClass="gnu.c.link.option.paths" useByScannerDiscovery="false" valueType="libPaths">
-									<listOptionValue builtIn="false" value="&quot;${XI_CLIENT_PATH}/bin/stm32f4&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${XI_CLIENT_PATH}/bin/stm32fx&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/WolfSSL/Debug}&quot;"/>
 								</option>
 								<option id="gnu.c.link.option.ldflags.1731214605" name="Linker flags" superClass="gnu.c.link.option.ldflags" useByScannerDiscovery="false" value="-specs=nosys.specs -specs=nano.specs" valueType="string"/>

@@ -5,7 +5,6 @@
  */
 
 #include <xi_bsp_mem.h>
-#include <stdlib.h>
 #include <stdio.h>
 
 // Forward declarations of external funcitons from FreeRTOS portable.h

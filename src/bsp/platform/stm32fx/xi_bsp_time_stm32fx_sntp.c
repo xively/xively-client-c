@@ -21,7 +21,7 @@ int printf( const char* format, ... );
 #include <lwip/netdb.h>
 
 /* Local includes */
-#include "xi_bsp_time_stm32_sntp.h"
+#include "xi_bsp_time_stm32fx_sntp.h"
 
 /******************************************************************************
  *                                                                            *
