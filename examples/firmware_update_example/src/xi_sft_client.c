@@ -13,6 +13,27 @@
 void dump( const cn_cbor* cb, char* out, char** end, int indent );
 #endif
 
+#define SFT_DEBUG_LOG 1
+
+#ifndef XI_DEBUG_PRINTF
+#include <stdio.h>
+#define __xi_printf( ... )                                                               \
+    printf( __VA_ARGS__ );                                                               \
+    fflush( stdout )
+#else /* XI_DEBUG_PRINTF */
+#define __xi_printf( ... ) XI_DEBUG_PRINTF( __VA_ARGS__ );
+#endif /* XI_DEBUG_PRINTF */
+
+#if SFT_DEBUG_LOG
+#define xi_sft_debug_logger( format_string ) __xi_printf( "[SFT] " format_string "\n" )
+#define xi_sft_debug_format( format_string, ... )                                        \
+    __xi_printf( "[SFT] " format_string "\n", __VA_ARGS__ )
+#else /* BSP_DEBUG_LOG */
+#define xi_sft_debug_logger( ... )
+#define xi_sft_debug_format( ... )
+#endif /* BSP_DEBUG_LOG */
+
+
 ///// Test these individually
 int filelength                 = 0;
 int offset                     = 0;
@@ -53,10 +74,12 @@ void xi_publish_file_info( xi_context_handle_t in_context_handle );
 
 void print_hash( unsigned char( hash )[32] )
 {
+    ( void )hash;
+
     int idx;
     for ( idx = 0; idx < 32; idx++ )
-        printf( "%02x", hash[idx] );
-    printf( "\n" );
+        __xi_printf( "%02x", hash[idx] );
+    __xi_printf( "\n" );
 }
 
 void on_sft_message( xi_context_handle_t in_context_handle,
@@ -82,24 +105,27 @@ void on_sft_message( xi_context_handle_t in_context_handle,
         case XI_SUB_CALL_SUBACK:
             if ( params->suback.suback_status == XI_MQTT_SUBACK_FAILED )
             {
-                printf( "topic:%s. Subscription failed.\n", params->suback.topic );
+                xi_sft_debug_format( "topic:%s. Subscription failed.",
+                                     params->suback.topic );
             }
             else
             {
-                printf( "topic:%s. Subscription granted %d.\n", params->suback.topic,
-                        ( int )params->suback.suback_status );
+                xi_sft_debug_format( "topic:%s. Subscription granted %d.",
+                                     params->suback.topic,
+                                     ( int )params->suback.suback_status );
             }
             xi_publish_file_info( in_context_handle );
             return;
         case XI_SUB_CALL_MESSAGE:
-            // printf( "topic:%s. message received.\n", params->message.topic );
+            // xi_sft_debug_format( "topic:%s. message received.\n", params->message.topic
+            // );
 
             /* get the payload parameter that contains the data that was sent. */
             payload_data   = params->message.temporary_payload_data;
             payload_length = params->message.temporary_payload_data_length;
 
-            printf( "received on %s topic %d bytes\n", params->suback.topic,
-                    params->message.temporary_payload_data_length );
+            xi_sft_debug_format( "received on %s topic %d bytes", params->suback.topic,
+                                 params->message.temporary_payload_data_length );
 
             /* Figure out what the packet type is and then call the appropriate parser */
             cb = cn_cbor_decode( payload_data, payload_length, 0 );
@@ -110,17 +136,17 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                 char* bufend = buffer + sizeof( buffer );
                 dump( cb, buffer, &bufend, 0 );
                 *bufend = 0;
-                printf( "%s\n", buffer );
+                xi_sft_debug_format( "%s", buffer );
 #endif
 
                 cb_item = cn_cbor_mapget_string( cb, "msgtype" );
                 if ( cb_item )
                 {
-                    // printf("msgtype = %d\n",cb_item->v.uint);
+                    // xi_sft_debug_format("msgtype = %d\n",cb_item->v.uint);
                     switch ( cb_item->v.uint )
                     {
                         case XI_FILE_UPDATE_AVAILABLE:
-                            printf( "Got FILE_UPDATE_AVAILABLE\n" );
+                            xi_sft_debug_logger( "Got FILE_UPDATE_AVAILABLE" );
                             downloading = 1;
                             xi_parse_file_update_available( cb );
                             cn_cbor_free( cb CBOR_CONTEXT_PARAM );
@@ -154,13 +180,15 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                             offset = 0;
                             retVal = openFileForWrite( test_firmware_filename, filelength,
                                                        &lFileHandle );
-                            printf( "%s open returned %d\n", incomingfilename, retVal );
+                            xi_sft_debug_format( "%s open returned %d", incomingfilename,
+                                                 retVal );
                             if ( retVal < 0 )
                                 downloading = 0;
                             break;
                         case XI_FILE_CHUNK:
-                            printf( "   Got FILE_CHUNK, publish FILE_GET_CHUNK\n" );
-                            printf( "o=%d\n", offset );
+                            xi_sft_debug_logger(
+                                "   Got FILE_CHUNK, publish FILE_GET_CHUNK" );
+                            xi_sft_debug_format( "o=%d", offset );
                             xi_parse_file_chunk( cb );
                             cn_cbor_free( cb CBOR_CONTEXT_PARAM );
                             if ( 1 == downloading )
@@ -176,7 +204,8 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                                 {
                                     downloading = 0;
                                     sprintf( installedfilerevision, "%s", filerevision );
-                                    printf( "Done downloading. Offset = %d\n", offset );
+                                    xi_sft_debug_format( "Done downloading. Offset = %d",
+                                                         offset );
                                     // Log the download complete information
                                     snprintf( message, sizeof( message ),
                                               "File download complete" );
@@ -191,12 +220,12 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                                                 XI_MQTT_QOS_AT_MOST_ONCE,
                                                 XI_MQTT_RETAIN_FALSE, NULL, NULL );
                                     sha256_final( &ctx, hash );
-                                    printf( "Calculated hash = 0x" );
+                                    xi_sft_debug_logger( "Calculated hash = 0x" );
                                     print_hash( hash );
                                     offset = 0;
                                     xi_publish_file_info( in_context_handle );
                                     closeFile( &lFileHandle );
-                                    printf( "*** Setting image to TEST \r\n" );
+                                    xi_sft_debug_logger( "*** Setting image to TEST" );
                                     testFirmware();
                                     rebootDevice();
                                 }
@@ -250,7 +279,7 @@ void xi_publish_file_info( xi_context_handle_t in_context_handle )
     /* publish the FILE_INFO message */
     xi_publish_data( in_context_handle, xi_stopic, encoded, enc_sz,
                      XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
-    printf( "Published FILE_INFO to %s\n", xi_stopic );
+    xi_sft_debug_format( "Published FILE_INFO to %s", xi_stopic );
     snprintf( message, sizeof( message ), "File info" );
     snprintf( details, sizeof( details ), "name=%s revision=%s", filename,
               installedfilerevision );
@@ -274,7 +303,7 @@ void xi_parse_file_update_available( cn_cbor* cb )
     cb_item = cn_cbor_mapget_string( cb, "msgver" );
     if ( cb_item )
     {
-        // printf("FILE_UPDATE_AVAILABLE: msgver = %d\n",cb_item->v.uint);
+        // xi_sft_debug_format("FILE_UPDATE_AVAILABLE: msgver = %d\n",cb_item->v.uint);
         if ( 1 != cb_item->v.uint )
             return;
     }
@@ -282,7 +311,7 @@ void xi_parse_file_update_available( cn_cbor* cb )
     if ( cb_list )
     {
         filelistlength = cb_list->length;
-        printf( "FILE_UPDATE_AVAILABLE: list length = %d\n", filelistlength );
+        xi_sft_debug_format( "FILE_UPDATE_AVAILABLE: list length = %d", filelistlength );
     }
 
     for ( index = 0; index < filelistlength; index++ )
@@ -299,11 +328,11 @@ void xi_parse_file_update_available( cn_cbor* cb )
                 if ( ( unsigned int )cb_file->length < sizeof( incomingfilename ) )
                     incomingfilename[cb_file->length]            = '\0';
                 incomingfilename[sizeof( incomingfilename ) - 1] = '\0';
-                printf( "Incomingfilename %s\n", incomingfilename );
+                xi_sft_debug_format( "Incomingfilename %s", incomingfilename );
             }
             else
             {
-                printf( "No key called N\n" );
+                xi_sft_debug_logger( "No key called N" );
             }
 
             // File 'R'evision
@@ -314,26 +343,27 @@ void xi_parse_file_update_available( cn_cbor* cb )
                 if ( ( unsigned int )cb_file->length < sizeof( filerevision ) )
                     filerevision[cb_file->length]        = '\0';
                 filerevision[sizeof( filerevision ) - 1] = '\0';
-                printf( "Filerevision %s\n", filerevision );
+                xi_sft_debug_format( "Filerevision %s", filerevision );
             }
             else
             {
-                printf( "No key called R\n" );
+                xi_sft_debug_logger( "No key called R" );
             }
 
             // File 'S'ize
             cb_file = cn_cbor_mapget_string( cb_item, "S" );
             if ( cb_file )
             {
-                printf( "FILE_UPDATE_AVAILABLE: file length = %d\n", cb_file->v.sint );
+                xi_sft_debug_format( "FILE_UPDATE_AVAILABLE: file length = %d",
+                                     cb_file->v.sint );
                 filelength        = cb_file->v.sint;
                 tenpercent        = filelength / 10;
                 currenttenpercent = tenpercent;
-                printf( "Filelength %d\n", filelength );
+                xi_sft_debug_format( "Filelength %d", filelength );
             }
             else
             {
-                printf( "No key called S\n" );
+                xi_sft_debug_logger( "No key called S" );
             }
 
             // File 'F'ingerprint
@@ -342,22 +372,22 @@ void xi_parse_file_update_available( cn_cbor* cb )
             {
                 for ( i                = 0; i < 32; i++ )
                     filefingerprint[i] = cb_file->v.str[i];
-                printf( "FILE_UPDATE_AVAILABLE: file fingerprint = 0x" );
+                xi_sft_debug_logger( "FILE_UPDATE_AVAILABLE: file fingerprint = 0x" );
                 for ( i = 0; i < 32; i++ )
-                    printf( "%02x", filefingerprint[i] );
-                printf( "\n" );
+                    __xi_printf( "%02x", filefingerprint[i] );
+                __xi_printf( "\n" );
             }
             else
             {
-                printf( "No key called F\n" );
+                xi_sft_debug_logger( "No key called F" );
             }
         }
         else
         {
-            printf( "No item at index %d\n", i );
+            xi_sft_debug_format( "No item at index %d", i );
         }
     }
-    printf( "->%s<- ->%s<-\n", filename, filerevision );
+    xi_sft_debug_format( "->%s<- ->%s<-", filename, filerevision );
     /* Let's try making a GET_CHUNK packet */
     cn_cbor_errback err;
     cn_cbor* cb_map = cn_cbor_map_create( &err );
@@ -391,13 +421,13 @@ void xi_parse_file_chunk( cn_cbor* cb )
     cb_item = cn_cbor_mapget_string( cb, "msgver" );
     if ( cb_item )
     {
-        printf( "FILE_CHUNK: msgver = %d\n", cb_item->v.uint );
+        xi_sft_debug_format( "FILE_CHUNK: msgver = %d", cb_item->v.uint );
     }
 
     cb_item = cn_cbor_mapget_string( cb, "L" );
     if ( cb_item )
     {
-        printf( "FILE_CHUNK: length = %d\n", cb_item->v.uint );
+        xi_sft_debug_format( "FILE_CHUNK: length = %d", cb_item->v.uint );
         // Save the offset for THIS fine chunk
         chunkoffset = offset;
 
@@ -408,26 +438,26 @@ void xi_parse_file_chunk( cn_cbor* cb )
         {
             /* Yes, I know this is terrible, but it's the level of effort appropriate to
              * the task. */
-            printf( "Downloaded %d bytes %d %%  of the file \n", offset,
-                    ( 100 * ( currenttenpercent + 1000 ) ) / filelength );
+            xi_sft_debug_format( "Downloaded %d bytes %d %%  of the file", offset,
+                                 ( 100 * ( currenttenpercent + 1000 ) ) / filelength );
             currenttenpercent += tenpercent;
         }
     }
     else
     {
-        printf( "No key called L\n" );
+        xi_sft_debug_logger( "No key called L" );
     }
 
     cb_item = cn_cbor_mapget_string( cb, "C" );
 
     if ( cb_item )
     {
-        printf( "cb_item->length = %d\r\n", cb_item->length );
+        xi_sft_debug_format( "cb_item->length = %d", cb_item->length );
         if ( cb_item->length > 0 )
         {
             sha256_update( &ctx, ( BYTE* )cb_item->v.str, cb_item->length );
 
-            printf( "lFileHandle = %p\n", lFileHandle );
+            xi_sft_debug_format( "lFileHandle = %p", lFileHandle );
 
             retval = writeChunk( lFileHandle, chunkoffset,
                                  ( const unsigned char* const )cb_item->v.str,
@@ -437,25 +467,25 @@ void xi_parse_file_chunk( cn_cbor* cb )
                 downloading = 0;
                 closeFile( &lFileHandle );
             }
-            printf( "Write returned %d\n", retval );
+            xi_sft_debug_format( "Write returned %d", retval );
         }
         else
         {
-            printf( "no cb_item\n" );
+            xi_sft_debug_logger( "no cb_item" );
             downloading = 0;
             closeFile( &lFileHandle );
         }
     }
     else
     {
-        printf( "No key called C\n" );
+        xi_sft_debug_logger( "No key called C" );
     }
 
     cb_item = cn_cbor_mapget_string( cb, "S" );
 
     if ( cb_item )
     {
-        printf( "FILE_CHUNK: status = %d\n", cb_item->v.uint );
+        xi_sft_debug_format( "FILE_CHUNK: status = %d", cb_item->v.uint );
 
         if ( cb_item->v.uint > 1 )
         {
@@ -465,7 +495,7 @@ void xi_parse_file_chunk( cn_cbor* cb )
     }
     else
     {
-        printf( "No key called S\n" );
+        xi_sft_debug_logger( "No key called S" );
     }
 
     if ( 1 == downloading )
@@ -500,7 +530,7 @@ int xi_sft_init( xi_context_handle_t in_context_handle,
 {
     int r = -1;
 
-    printf( "******************* Committing this revision\n" );
+    xi_sft_debug_logger( "******************* Committing this revision" );
     // Accept the latest firmware if we get here.
     commitFirmware( XI_FIRMWARE_COMMITED );
 
@@ -539,7 +569,7 @@ int xi_sft_init( xi_context_handle_t in_context_handle,
     // Everything interesting happens in the on_sft_message() state machine.
     r = xi_subscribe( in_context_handle, xi_ctopic, XI_MQTT_QOS_AT_MOST_ONCE,
                       on_sft_message, 0 );
-    printf( "xi_subscribe() topic: %s returns %d\n", xi_ctopic, r );
+    xi_sft_debug_format( "xi_subscribe() topic: %s returns %d", xi_ctopic, r );
 
     return ( 0 );
 }
