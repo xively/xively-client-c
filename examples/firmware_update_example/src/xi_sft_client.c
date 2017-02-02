@@ -9,6 +9,9 @@
 #include "../sha256/sha256.h"
 #include "xi_sft.h"
 
+/** This file contains the implementation of the firmware update protocol using the cbor
+ * and sha256 library - this is still work in progress and it will be changed */
+
 #ifdef XI_DEBUGSFT
 void dump( const cn_cbor* cb, char* out, char** end, int indent );
 #endif
