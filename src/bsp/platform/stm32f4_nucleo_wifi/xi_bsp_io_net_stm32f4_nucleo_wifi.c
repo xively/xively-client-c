@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include <xi_bsp_io_net.h>
+#include <xi_data_desc.h>
 #include "wifi_interface.h"
 #include <string.h>
 
@@ -17,22 +18,21 @@ extern "C" {
 #define MAX( a, b ) ( ( ( a ) > ( b ) ) ? ( a ) : ( b ) )
 #endif
 
-#define XI_BSP_IO_NET_BUFFER_SIZE 512
-
 typedef enum {
     xi_wifi_state_connected = 0,
     xi_wifi_state_disconnected,
     xi_wifi_state_error,
+
 } xi_bsp_stm_wifi_state_t;
 
-typedef struct _xi_bsp_stm_wifi_buffer_t
+typedef struct _xi_bsp_stm_net_state_t
 {
-    uint8_t bytes[XI_BSP_IO_NET_BUFFER_SIZE];
-    uint32_t size;
-} xi_bsp_stm_wifi_buffer_t;
+    xi_data_desc_t* head;
+    xi_bsp_stm_wifi_state_t wifi_state;
 
-xi_bsp_stm_wifi_state_t xi_wifi_state   = xi_wifi_state_connected;
-xi_bsp_stm_wifi_buffer_t xi_wifi_buffer = {0};
+} xi_bsp_stm_net_state_t;
+
+xi_bsp_stm_net_state_t xi_net_state = {0};
 
 xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
 {
@@ -47,8 +47,8 @@ xi_bsp_io_net_connect( xi_bsp_socket_t* xi_socket, const char* host, uint16_t po
     char* protocol = "s"; // t -> tcp , s-> secure tcp, c-> secure tcp with certs
 
     WiFi_Status_t status = WiFi_MODULE_SUCCESS;
-    status = wifi_socket_client_open( ( uint8_t* )host, port,
-                                      ( uint8_t* )protocol, ( uint8_t* )xi_socket );
+    status = wifi_socket_client_open( ( uint8_t* )host, port, ( uint8_t* )protocol,
+                                      ( uint8_t* )xi_socket );
 
     if ( status == WiFi_MODULE_SUCCESS )
     {
@@ -68,7 +68,7 @@ xi_bsp_io_net_state_t xi_bsp_io_net_connection_check( xi_bsp_socket_t xi_socket,
     ( void )host;
     ( void )port;
 
-    if ( xi_wifi_state == xi_wifi_state_connected )
+    if ( xi_net_state.wifi_state == xi_wifi_state_connected )
     {
         return XI_BSP_IO_NET_STATE_OK;
     }
@@ -107,28 +107,37 @@ xi_bsp_io_net_state_t xi_bsp_io_net_read( xi_bsp_socket_t xi_socket,
 
     *out_read_count = 0;
 
-    if ( xi_wifi_state == xi_wifi_state_connected )
+    if ( xi_net_state.wifi_state == xi_wifi_state_connected )
     {
-        if ( xi_wifi_buffer.size == 0 )
+        if ( NULL == xi_net_state.head )
         {
             return XI_BSP_IO_NET_STATE_BUSY;
         }
-        else if ( xi_wifi_buffer.size > count )
-        {
-            return XI_BSP_IO_NET_STATE_ERROR;
-        }
         else
         {
-            memcpy( buf, xi_wifi_buffer.bytes, xi_wifi_buffer.size );
-            *out_read_count     = xi_wifi_buffer.size;
-            xi_wifi_buffer.size = 0;
+            xi_data_desc_t* head = xi_net_state.head;
+
+            const size_t bytes_available = head->length - head->curr_pos;
+            const size_t bytes_to_copy =
+                ( bytes_available > count ) ? count : bytes_available;
+
+            memcpy( buf, head->data_ptr + head->curr_pos, bytes_to_copy );
+
+            head->curr_pos += bytes_to_copy;
+            *out_read_count = bytes_to_copy;
+
+            if ( head->curr_pos == head->length )
+            {
+                xi_net_state.head = head->__next;
+                xi_free_desc( &head );
+            }
         }
     }
-    else if ( xi_wifi_state == xi_wifi_state_error )
+    else if ( xi_net_state.wifi_state == xi_wifi_state_error )
     {
         return XI_BSP_IO_NET_STATE_ERROR;
     }
-    else if ( xi_wifi_state == xi_wifi_state_connected )
+    else if ( xi_net_state.wifi_state == xi_wifi_state_connected )
     {
         return XI_BSP_IO_NET_STATE_CONNECTION_RESET;
     }
@@ -140,6 +149,16 @@ xi_bsp_io_net_state_t xi_bsp_io_net_close_socket( xi_bsp_socket_t* xi_socket )
 {
     WiFi_Status_t status = WiFi_MODULE_SUCCESS;
     status               = wifi_socket_client_close( *xi_socket );
+
+    /* free all buffers */
+
+    xi_data_desc_t* head = xi_net_state.head;
+    while ( NULL != head )
+    {
+        xi_data_desc_t* temp = head;
+        head                 = head->__next;
+        xi_free_desc( &temp );
+    }
 
     if ( status == WiFi_MODULE_SUCCESS )
     {
@@ -159,7 +178,7 @@ xi_bsp_io_net_state_t xi_bsp_io_net_select( xi_bsp_socket_events_t* socket_event
 
     size_t socket_id = 0;
 
-    if ( xi_wifi_state == xi_wifi_state_connected )
+    if ( xi_net_state.wifi_state == xi_wifi_state_connected )
     {
         for ( socket_id = 0; socket_id < socket_events_array_size; ++socket_id )
         {
@@ -167,7 +186,7 @@ xi_bsp_io_net_state_t xi_bsp_io_net_select( xi_bsp_socket_events_t* socket_event
 
             if ( 1 == socket_events->in_socket_want_read )
             {
-                if ( xi_wifi_buffer.size > 0 )
+                if ( NULL != xi_net_state.head )
                 {
                     socket_events->out_socket_can_read = 1;
                 }
@@ -198,28 +217,27 @@ void xi_bsp_io_net_socket_data_received_proxy( uint8_t socket_id,
                                                uint32_t chunk_size )
 {
     ( void )socket_id;
-    if ( xi_wifi_buffer.size == 0 )
+    ( void )message_size;
+
+    xi_data_desc_t* tail = xi_make_desc_from_buffer_copy( data_ptr, chunk_size );
+
+    if ( NULL == xi_net_state.head )
     {
-        if ( chunk_size > XI_BSP_IO_NET_BUFFER_SIZE )
-        {
-            // payload is too big
-            xi_wifi_state = xi_wifi_state_error;
-        }
-        else
-        {
-            memcpy( xi_wifi_buffer.bytes, data_ptr, message_size );
-            xi_wifi_buffer.size = chunk_size;
-        }
+        xi_net_state.head = tail;
     }
     else
     {
-        // previous data is not processed yet
-        xi_wifi_state = xi_wifi_state_error;
+        xi_data_desc_t* last = xi_net_state.head;
+        while ( NULL != last->__next )
+        {
+            last = last->__next;
+        }
+        last->__next = tail;
     }
 }
 
 void xi_bsp_io_net_socket_client_remote_server_closed_proxy( uint8_t* socket_closed_id )
 {
     ( void )socket_closed_id;
-    xi_wifi_state = xi_wifi_state_disconnected;
+    xi_net_state.wifi_state = xi_wifi_state_disconnected;
 }
