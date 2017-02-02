@@ -34,7 +34,7 @@ unsigned long ulToken;
 
 SHA256_CTX ctx;
 
-char buffer[400];
+char buffer[1024*1024*32];
 
 #define MESSAGESIZE 50
 char message[MESSAGESIZE];
@@ -108,7 +108,7 @@ void on_sft_message( xi_context_handle_t in_context_handle,
             if ( cb )
             {
 #ifdef XI_DEBUGSFT
-                char* bufend = buffer + params->message.temporary_payload_data_length;
+                char* bufend = buffer + sizeof( buffer );
                 dump( cb, buffer, &bufend, 0 );
                 *bufend = 0;
                 printf( "%s\n", buffer );
@@ -153,7 +153,7 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                                         NULL, NULL );
                             sha256_init( &ctx );
                             offset = 0;
-                            retVal = openFileForWrite( incomingfilename, filelength,
+                            retVal = openFileForWrite( "test", filelength,
                                                        &lFileHandle );
                             printf( "%s open returned %d\n", incomingfilename, retVal );
                             if ( retVal < 0 )
@@ -261,7 +261,7 @@ void xi_publish_file_info( xi_context_handle_t in_context_handle )
     xi_publish( in_context_handle, xi_logtopic, buffer, XI_MQTT_QOS_AT_MOST_ONCE,
                 XI_MQTT_RETAIN_FALSE, NULL, NULL );
     downloading = 0;
-    closeFile( lFileHandle );
+    closeFile( &lFileHandle );
 }
 
 void xi_parse_file_update_available( cn_cbor* cb )
@@ -425,15 +425,18 @@ void xi_parse_file_chunk( cn_cbor* cb )
     {
         printf( "cb_item->length = %d\r\n", cb_item->length );
         if ( cb_item->length > 0 )
-        {
-            sha256_update( &ctx, ( unsigned char* )cb_item->v.str, cb_item->length );
+        { 
+            sha256_update( &ctx, ( BYTE* )cb_item->v.str, cb_item->length );
+
+            printf( "lFileHandle = %p\n", lFileHandle );
+
             retval = writeChunk( lFileHandle, chunkoffset,
                                  ( const unsigned char* const )cb_item->v.str,
                                  cb_item->length );
             if ( retval < cb_item->length )
             {
                 downloading = 0;
-                closeFile( lFileHandle );
+                closeFile( &lFileHandle );
             }
             printf( "Write returned %d\n", retval );
         }
@@ -441,7 +444,7 @@ void xi_parse_file_chunk( cn_cbor* cb )
         {
             printf( "no cb_item\n" );
             downloading = 0;
-            closeFile( lFileHandle );
+            closeFile( &lFileHandle );
         }
     }
     else
@@ -587,7 +590,7 @@ void dump( const cn_cbor* cb, char* out, char** end, int indent )
             OUT( "h'\n" );
             for ( i = 0; i < cb->length; i++ )
             {
-                PRF( "%02x ", cb->v.str[i] & 0xff );
+                PRF( "%02x ", ( cb->v.str[i] & 0xff ) );
             }
 
             *out++ = '\'';
