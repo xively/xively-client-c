@@ -12,7 +12,11 @@
 /** This file contains the implementation of the firmware update protocol using the cbor
  * and sha256 library - this is still work in progress and it will be changed */
 
-#ifdef XI_DEBUGSFT
+/**
+ * If defined will make SFT library to print out the content of the cbor messages. Usefull
+ * for debugging.
+ */
+#ifdef XI_DEBUG_SFT
 void dump( const cn_cbor* cb, char* out, char** end, int indent );
 #endif
 
@@ -135,7 +139,7 @@ void on_sft_message( xi_context_handle_t in_context_handle,
 
             if ( cb )
             {
-#ifdef XI_DEBUGSFT
+#ifdef XI_DEBUG_SFT
                 char* bufend = buffer + sizeof( buffer );
                 dump( cb, buffer, &bufend, 0 );
                 *bufend = 0;
@@ -579,7 +583,7 @@ int xi_sft_init( xi_context_handle_t in_context_handle,
 
 
 // Functions useful for debugging:
-#ifdef XI_DEBUGSFT
+#ifdef XI_DEBUG_SFT
 void dump( const cn_cbor* cb, char* out, char** end, int indent )
 {
     int i;
