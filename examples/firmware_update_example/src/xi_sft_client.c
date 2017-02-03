@@ -254,8 +254,6 @@ void xi_publish_file_info( xi_context_handle_t in_context_handle )
     unsigned char encoded[512];
     ssize_t enc_sz;
 
-    // xi_parse_file_update_available(NULL);
-
     /* Let's try making a XI_FILE_INFO packet */
     cn_cbor_errback err;
     cn_cbor* cb_map = cn_cbor_map_create( &err );
