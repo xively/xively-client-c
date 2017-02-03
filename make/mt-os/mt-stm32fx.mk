@@ -6,20 +6,30 @@
 include make/mt-os/mt-os-common.mk
 include make/mt-utils/mt-get-gnu-arm-toolchain.mk
 
-XI_STM32_PATH_SDK = $(HOME)/Downloads/xively-client-artifactory/st/STM32CubeExpansion_WIFI1_V2.1.1
+XI_STM32_PATH_SDK = $(HOME)/Downloads/xively-client-artifactory/st/STM32Cube_FW_F4_V1.14.0
 
-XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Middlewares/ST/STM32_SPWF01SA/Utils
-XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Middlewares/ST/STM32_SPWF01SA/Inc
-XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/BSP/X-NUCLEO-IDW01M1
-XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/CMSIS/Include
-XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/CMSIS/Device/ST/STM32F4xx/Include
+#####################
+# LWIP configurations
+#####################
+XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Middlewares/Third_Party/LwIP/src/include
+XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Middlewares/Third_Party/LwIP/system
+
+XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Middlewares/Third_Party/FreeRTOS/Source/include
+XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F
+
+XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Projects/STM324xG_EVAL/Templates/Inc
 XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/STM32F4xx_HAL_Driver/Inc
-XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/BSP/STM32F4xx-Nucleo
+XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/CMSIS/Device/ST/STM32F4xx/Include
+XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/BSP/STM324xG_EVAL
+XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/CMSIS/Include
+
+XI_COMPILER_FLAGS += -I$(LIBXIVELY)/src/bsp/platform/stm32fx/include
 
 ####################
 # arm-eabi-specifics
 ####################
 # create dummy fsctl and unistd methods for gnu newlib
+#XI_COMPILER_FLAGS += -ffreestanding
 # stm32f4 uses cortex m4
 XI_COMPILER_FLAGS += -mcpu=cortex-m4
 # enable Thumb instruction set ( reduces memory usage )
@@ -34,12 +44,14 @@ XI_COMPILER_FLAGS += -ffunction-sections
 # loop optimization
 XI_COMPILER_FLAGS += -fno-move-loop-invariants
 # define the board type
-XI_COMPILER_FLAGS += -DSTM32F401xE
-XI_COMPILER_FLAGS += -DUSE_STM32F4XX_NUCLEO
+XI_COMPILER_FLAGS += -DSTM32F407xx
 # we need HAL for random & networking
 XI_COMPILER_FLAGS += -DUSE_HAL_DRIVER
 # HSE crystal fequency in Hz
 XI_COMPILER_FLAGS += -DHSE_VALUE=8000000
+#XI_COMPILER_FLAGS += -std=gnu11
+#XI_COMPILER_FLAGS += -MMD
+#XI_COMPILER_FLAGS += -MP
 
 ifneq (,$(findstring release,$(TARGET)))
 	XI_COMPILER_FLAGS += -O4
@@ -53,6 +65,10 @@ endif
 XI_CONFIG_FLAGS += -DXI_CROSS_TARGET
 XI_CONFIG_FLAGS += -DXI_EMBEDDED_TESTS
 
+# wolfssl API
+XI_CONFIG_FLAGS += -DNO_WRITEV
+XI_COMPILER_FLAGS += -DSINGLE_THREADED
+
 XI_ARFLAGS += -rs -c $(XI)
 
 ifeq ($(XI_HOST_PLATFORM),Linux)
@@ -60,12 +76,15 @@ ifeq ($(XI_HOST_PLATFORM),Linux)
 
 ifdef XI_TRAVIS_BUILD
 ### TOOLCHAIN AUTODOWNLOAD SECTION --- BEGIN
-	XI_BUILD_PRECONDITIONS += STM32F4_SDK
-.PHONY : STM32F4_SDK
-STM32F4_SDK:
+
+	XI_BUILD_PRECONDITIONS += STM32FX_SDK
+.PHONY : STM32FX_SDK
+STM32FX_SDK:
 	git clone -b st git@github.com:xively/xively-client-artifactory.git $(HOME)/Downloads/xively-client-artifactory
+
 ### TOOLCHAIN AUTODOWNLOAD SECTION --- END
 endif
+
 endif
 
 XI_POST_COMPILE_ACTION =
