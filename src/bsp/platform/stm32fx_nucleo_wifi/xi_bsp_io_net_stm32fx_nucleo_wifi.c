@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <xi_bsp_io_net.h>
+#include <assert.h>
 #include "xi_bsp_debug.h"
 #include <xi_data_desc.h>
 #include "wifi_interface.h"
@@ -14,7 +15,7 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif 
+#endif
 #ifndef MAX
 #define MAX( a, b ) ( ( ( a ) > ( b ) ) ? ( a ) : ( b ) )
 #endif
@@ -30,14 +31,20 @@ typedef struct _xi_bsp_stm_net_state_t
 {
     xi_data_desc_t* head;
     xi_bsp_stm_wifi_state_t wifi_state;
-
 } xi_bsp_stm_net_state_t;
 
-xi_bsp_stm_net_state_t xi_net_state = {0};
+/* this is local variable */
+static xi_bsp_stm_net_state_t xi_net_state = {NULL, 0};
 
 xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
 {
+    /* sanity check */
+    assert( NULL == xi_net_state.head );
+
     *xi_socket = 0;
+
+    /* reset the wifi state */
+    xi_net_state.wifi_state = xi_wifi_state_connected;
 
     return XI_BSP_IO_NET_STATE_OK;
 }
@@ -119,6 +126,10 @@ xi_bsp_io_net_state_t xi_bsp_io_net_read( xi_bsp_socket_t xi_socket,
             xi_data_desc_t* head = xi_net_state.head;
 
             const size_t bytes_available = head->length - head->curr_pos;
+
+            /* sanity check */
+            assert( 0 != bytes_available );
+
             const size_t bytes_to_copy =
                 ( bytes_available > count ) ? count : bytes_available;
 
@@ -138,7 +149,7 @@ xi_bsp_io_net_state_t xi_bsp_io_net_read( xi_bsp_socket_t xi_socket,
     {
         return XI_BSP_IO_NET_STATE_ERROR;
     }
-    else if ( xi_net_state.wifi_state == xi_wifi_state_connected )
+    else if ( xi_net_state.wifi_state == xi_wifi_state_disconnected )
     {
         return XI_BSP_IO_NET_STATE_CONNECTION_RESET;
     }
@@ -152,14 +163,17 @@ xi_bsp_io_net_state_t xi_bsp_io_net_close_socket( xi_bsp_socket_t* xi_socket )
     status               = wifi_socket_client_close( *xi_socket );
 
     /* free all buffers */
-
     xi_data_desc_t* head = xi_net_state.head;
+
     while ( NULL != head )
     {
         xi_data_desc_t* temp = head;
         head                 = head->__next;
         xi_free_desc( &temp );
     }
+
+    /* reset it to the default value after deleting all elements */
+    xi_net_state.head = NULL;
 
     if ( status == WiFi_MODULE_SUCCESS )
     {
@@ -179,37 +193,30 @@ xi_bsp_io_net_state_t xi_bsp_io_net_select( xi_bsp_socket_events_t* socket_event
 
     size_t socket_id = 0;
 
-    if ( xi_net_state.wifi_state == xi_wifi_state_connected )
+    for ( socket_id = 0; socket_id < socket_events_array_size; ++socket_id )
     {
-        for ( socket_id = 0; socket_id < socket_events_array_size; ++socket_id )
+        xi_bsp_socket_events_t* socket_events = &socket_events_array[socket_id];
+
+        if ( 1 == socket_events->in_socket_want_read )
         {
-            xi_bsp_socket_events_t* socket_events = &socket_events_array[socket_id];
-
-            if ( 1 == socket_events->in_socket_want_read )
+            if ( NULL != xi_net_state.head )
             {
-                if ( NULL != xi_net_state.head )
-                {
-                    socket_events->out_socket_can_read = 1;
-                }
-            }
-
-            if ( 1 == socket_events->in_socket_want_connect )
-            {
-                socket_events->out_socket_connect_finished = 1;
-            }
-
-            if ( 1 == socket_events->in_socket_want_write )
-            {
-                socket_events->out_socket_can_write = 1;
+                socket_events->out_socket_can_read = 1;
             }
         }
 
-        return XI_BSP_IO_NET_STATE_OK;
+        if ( 1 == socket_events->in_socket_want_connect )
+        {
+            socket_events->out_socket_connect_finished = 1;
+        }
+
+        if ( 1 == socket_events->in_socket_want_write )
+        {
+            socket_events->out_socket_can_write = 1;
+        }
     }
-    else
-    {
-        return XI_BSP_IO_NET_STATE_ERROR;
-    }
+
+    return XI_BSP_IO_NET_STATE_OK;
 }
 
 void xi_bsp_io_net_socket_data_received_proxy( uint8_t socket_id,
@@ -218,15 +225,23 @@ void xi_bsp_io_net_socket_data_received_proxy( uint8_t socket_id,
                                                uint32_t chunk_size )
 {
     ( void )message_size;
-  
-    if(socket_id == sntp_sock_id)
+
+    if ( socket_id == sntp_sock_id )
     {
-        xi_bsp_debug_logger(">>Received message from SNTP socket");
-        sntp_socket_data_callback(socket_id, data_ptr, message_size, chunk_size);
+        xi_bsp_debug_logger( ">>Received message from SNTP socket" );
+        sntp_socket_data_callback( socket_id, data_ptr, message_size, chunk_size );
         return;
     }
 
+    xi_bsp_debug_logger( ">>Received message from a socket" );
+
     xi_data_desc_t* tail = xi_make_desc_from_buffer_copy( data_ptr, chunk_size );
+
+    if ( NULL == tail )
+    {
+        xi_bsp_debug_logger( ">>Not enough memory!" );
+        return;
+    }
 
     if ( NULL == xi_net_state.head )
     {
@@ -245,13 +260,13 @@ void xi_bsp_io_net_socket_data_received_proxy( uint8_t socket_id,
 
 void xi_bsp_io_net_socket_client_remote_server_closed_proxy( uint8_t* socket_closed_id )
 {
-    if( NULL == socket_closed_id )
+    if ( NULL == socket_closed_id )
     {
-        xi_bsp_debug_logger("\tGot invalid NULL as socket_closed_id");
+        xi_bsp_debug_logger( "\tGot invalid NULL as socket_closed_id" );
     }
-    if(*socket_closed_id == sntp_sock_id)
+    if ( *socket_closed_id == sntp_sock_id )
     {
-        xi_bsp_debug_logger("\tUnexpected 'remote disconnection' by SNTP server");
+        xi_bsp_debug_logger( "\tUnexpected 'remote disconnection' by SNTP server" );
         return;
     }
 
