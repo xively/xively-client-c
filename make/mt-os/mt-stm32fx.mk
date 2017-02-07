@@ -44,7 +44,8 @@ XI_COMPILER_FLAGS += -ffunction-sections
 # loop optimization
 XI_COMPILER_FLAGS += -fno-move-loop-invariants
 # define the board type
-XI_COMPILER_FLAGS += -DSTM32F407xx
+# XI_COMPILER_FLAGS += -DSTM32F407xx
+XI_COMPILER_FLAGS += -DSTM32F429xx
 # we need HAL for random & networking
 XI_COMPILER_FLAGS += -DUSE_HAL_DRIVER
 # HSE crystal fequency in Hz
