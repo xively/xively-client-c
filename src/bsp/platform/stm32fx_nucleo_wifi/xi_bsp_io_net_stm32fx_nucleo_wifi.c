@@ -7,36 +7,44 @@
 #include <stdio.h>
 #include <string.h>
 #include <xi_bsp_io_net.h>
+#include <assert.h>
 #include "xi_bsp_debug.h"
 #include <xi_data_desc.h>
+#include <xi_list.h>
 #include "wifi_interface.h"
 #include "xi_bsp_time_stm32f4_nucleo_wifi_sntp.h"
 
 #ifdef __cplusplus
 extern "C" {
-#endif 
+#endif
+
 #ifndef MAX
 #define MAX( a, b ) ( ( ( a ) > ( b ) ) ? ( a ) : ( b ) )
+#endif
+
+#ifndef MIN
+#define MIN( a, b ) ( ( ( a ) < ( b ) ) ? ( a ) : ( b ) )
 #endif
 
 typedef enum {
     xi_wifi_state_connected = 0,
     xi_wifi_state_disconnected,
-    xi_wifi_state_error,
-
 } xi_bsp_stm_wifi_state_t;
 
 typedef struct _xi_bsp_stm_net_state_t
 {
     xi_data_desc_t* head;
     xi_bsp_stm_wifi_state_t wifi_state;
-
 } xi_bsp_stm_net_state_t;
 
-xi_bsp_stm_net_state_t xi_net_state = {0};
+/* this is local variable */
+static xi_bsp_stm_net_state_t xi_net_state = {NULL, xi_wifi_state_disconnected};
 
 xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
 {
+    /* sanity check */
+    assert( NULL == xi_net_state.head );
+
     *xi_socket = 0;
 
     return XI_BSP_IO_NET_STATE_OK;
@@ -53,6 +61,8 @@ xi_bsp_io_net_connect( xi_bsp_socket_t* xi_socket, const char* host, uint16_t po
 
     if ( status == WiFi_MODULE_SUCCESS )
     {
+        /* reset the wifi state */
+        xi_net_state.wifi_state = xi_wifi_state_connected;
         return XI_BSP_IO_NET_STATE_OK;
     }
     else
@@ -119,26 +129,31 @@ xi_bsp_io_net_state_t xi_bsp_io_net_read( xi_bsp_socket_t xi_socket,
             xi_data_desc_t* head = xi_net_state.head;
 
             const size_t bytes_available = head->length - head->curr_pos;
-            const size_t bytes_to_copy =
-                ( bytes_available > count ) ? count : bytes_available;
 
+            /* sanity check */
+            assert( 0 != bytes_available );
+
+            /* count is the limit of bytes xively can process*/
+            const size_t bytes_to_copy = MIN( bytes_available, count );
+
+            /* copy the data from the temporary buffer to the xively's receive buffer */
             memcpy( buf, head->data_ptr + head->curr_pos, bytes_to_copy );
 
+            /* remember how many bytes were taken from the buffer */
             head->curr_pos += bytes_to_copy;
+
+            /* set the return parameter */
             *out_read_count = bytes_to_copy;
 
+            /* if the whole temporary buffer was taken out release it */
             if ( head->curr_pos == head->length )
             {
-                xi_net_state.head = head->__next;
+                XI_LIST_POP( xi_data_desc_t, xi_net_state.head, head );
                 xi_free_desc( &head );
             }
         }
     }
-    else if ( xi_net_state.wifi_state == xi_wifi_state_error )
-    {
-        return XI_BSP_IO_NET_STATE_ERROR;
-    }
-    else if ( xi_net_state.wifi_state == xi_wifi_state_connected )
+    else if ( xi_net_state.wifi_state == xi_wifi_state_disconnected )
     {
         return XI_BSP_IO_NET_STATE_CONNECTION_RESET;
     }
@@ -151,14 +166,12 @@ xi_bsp_io_net_state_t xi_bsp_io_net_close_socket( xi_bsp_socket_t* xi_socket )
     WiFi_Status_t status = WiFi_MODULE_SUCCESS;
     status               = wifi_socket_client_close( *xi_socket );
 
-    /* free all buffers */
-
-    xi_data_desc_t* head = xi_net_state.head;
-    while ( NULL != head )
+    /* free all buffers on the list */
+    while ( NULL != xi_net_state.head )
     {
-        xi_data_desc_t* temp = head;
-        head                 = head->__next;
-        xi_free_desc( &temp );
+        xi_data_desc_t* head = NULL;
+        XI_LIST_POP( xi_data_desc_t, xi_net_state.head, head );
+        xi_free_desc( &head );
     }
 
     if ( status == WiFi_MODULE_SUCCESS )
@@ -179,37 +192,30 @@ xi_bsp_io_net_state_t xi_bsp_io_net_select( xi_bsp_socket_events_t* socket_event
 
     size_t socket_id = 0;
 
-    if ( xi_net_state.wifi_state == xi_wifi_state_connected )
+    for ( socket_id = 0; socket_id < socket_events_array_size; ++socket_id )
     {
-        for ( socket_id = 0; socket_id < socket_events_array_size; ++socket_id )
+        xi_bsp_socket_events_t* socket_events = &socket_events_array[socket_id];
+
+        if ( 1 == socket_events->in_socket_want_read )
         {
-            xi_bsp_socket_events_t* socket_events = &socket_events_array[socket_id];
-
-            if ( 1 == socket_events->in_socket_want_read )
+            if ( NULL != xi_net_state.head )
             {
-                if ( NULL != xi_net_state.head )
-                {
-                    socket_events->out_socket_can_read = 1;
-                }
-            }
-
-            if ( 1 == socket_events->in_socket_want_connect )
-            {
-                socket_events->out_socket_connect_finished = 1;
-            }
-
-            if ( 1 == socket_events->in_socket_want_write )
-            {
-                socket_events->out_socket_can_write = 1;
+                socket_events->out_socket_can_read = 1;
             }
         }
 
-        return XI_BSP_IO_NET_STATE_OK;
+        if ( 1 == socket_events->in_socket_want_connect )
+        {
+            socket_events->out_socket_connect_finished = 1;
+        }
+
+        if ( 1 == socket_events->in_socket_want_write )
+        {
+            socket_events->out_socket_can_write = 1;
+        }
     }
-    else
-    {
-        return XI_BSP_IO_NET_STATE_ERROR;
-    }
+
+    return XI_BSP_IO_NET_STATE_OK;
 }
 
 void xi_bsp_io_net_socket_data_received_proxy( uint8_t socket_id,
@@ -218,40 +224,36 @@ void xi_bsp_io_net_socket_data_received_proxy( uint8_t socket_id,
                                                uint32_t chunk_size )
 {
     ( void )message_size;
-  
-    if(socket_id == sntp_sock_id)
+
+    if ( socket_id == sntp_sock_id )
     {
-        xi_bsp_debug_logger(">>Received message from SNTP socket");
-        sntp_socket_data_callback(socket_id, data_ptr, message_size, chunk_size);
+        xi_bsp_debug_logger( ">>Received message from SNTP socket" );
+        sntp_socket_data_callback( socket_id, data_ptr, message_size, chunk_size );
         return;
     }
 
+    xi_bsp_debug_logger( ">>Received message from a socket" );
+
     xi_data_desc_t* tail = xi_make_desc_from_buffer_copy( data_ptr, chunk_size );
 
-    if ( NULL == xi_net_state.head )
+    if ( NULL == tail )
     {
-        xi_net_state.head = tail;
+        xi_bsp_debug_logger( ">>Not enough memory!" );
+        return;
     }
-    else
-    {
-        xi_data_desc_t* last = xi_net_state.head;
-        while ( NULL != last->__next )
-        {
-            last = last->__next;
-        }
-        last->__next = tail;
-    }
+
+    XI_LIST_PUSH_FRONT( xi_data_desc_t, xi_net_state.head, tail );
 }
 
 void xi_bsp_io_net_socket_client_remote_server_closed_proxy( uint8_t* socket_closed_id )
 {
-    if( NULL == socket_closed_id )
+    if ( NULL == socket_closed_id )
     {
-        xi_bsp_debug_logger("\tGot invalid NULL as socket_closed_id");
+        xi_bsp_debug_logger( "\tGot invalid NULL as socket_closed_id" );
     }
-    if(*socket_closed_id == sntp_sock_id)
+    if ( *socket_closed_id == sntp_sock_id )
     {
-        xi_bsp_debug_logger("\tUnexpected 'remote disconnection' by SNTP server");
+        xi_bsp_debug_logger( "\tUnexpected 'remote disconnection' by SNTP server" );
         return;
     }
 
