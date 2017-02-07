@@ -17,15 +17,18 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 #ifndef MAX
 #define MAX( a, b ) ( ( ( a ) > ( b ) ) ? ( a ) : ( b ) )
+#endif
+
+#ifndef MIN
+#define MIN( a, b ) ( ( ( a ) < ( b ) ) ? ( a ) : ( b ) )
 #endif
 
 typedef enum {
     xi_wifi_state_connected = 0,
     xi_wifi_state_disconnected,
-    xi_wifi_state_error,
-
 } xi_bsp_stm_wifi_state_t;
 
 typedef struct _xi_bsp_stm_net_state_t
@@ -35,7 +38,7 @@ typedef struct _xi_bsp_stm_net_state_t
 } xi_bsp_stm_net_state_t;
 
 /* this is local variable */
-static xi_bsp_stm_net_state_t xi_net_state = {NULL, 0};
+static xi_bsp_stm_net_state_t xi_net_state = {NULL, xi_wifi_state_disconnected};
 
 xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
 {
@@ -43,9 +46,6 @@ xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
     assert( NULL == xi_net_state.head );
 
     *xi_socket = 0;
-
-    /* reset the wifi state */
-    xi_net_state.wifi_state = xi_wifi_state_connected;
 
     return XI_BSP_IO_NET_STATE_OK;
 }
@@ -61,6 +61,8 @@ xi_bsp_io_net_connect( xi_bsp_socket_t* xi_socket, const char* host, uint16_t po
 
     if ( status == WiFi_MODULE_SUCCESS )
     {
+        /* reset the wifi state */
+        xi_net_state.wifi_state = xi_wifi_state_connected;
         return XI_BSP_IO_NET_STATE_OK;
     }
     else
@@ -131,24 +133,25 @@ xi_bsp_io_net_state_t xi_bsp_io_net_read( xi_bsp_socket_t xi_socket,
             /* sanity check */
             assert( 0 != bytes_available );
 
-            const size_t bytes_to_copy =
-                ( bytes_available > count ) ? count : bytes_available;
+            /* count is the limit of bytes xively can process*/
+            const size_t bytes_to_copy = MIN( bytes_available, count );
 
+            /* copy the data from the temporary buffer to the xively's receive buffer */
             memcpy( buf, head->data_ptr + head->curr_pos, bytes_to_copy );
 
+            /* remember how many bytes were taken from the buffer */
             head->curr_pos += bytes_to_copy;
+
+            /* set the return parameter */
             *out_read_count = bytes_to_copy;
 
+            /* if the whole temporary buffer was taken out release it */
             if ( head->curr_pos == head->length )
             {
                 XI_LIST_POP( xi_data_desc_t, xi_net_state.head, head );
                 xi_free_desc( &head );
             }
         }
-    }
-    else if ( xi_net_state.wifi_state == xi_wifi_state_error )
-    {
-        return XI_BSP_IO_NET_STATE_ERROR;
     }
     else if ( xi_net_state.wifi_state == xi_wifi_state_disconnected )
     {
@@ -163,9 +166,9 @@ xi_bsp_io_net_state_t xi_bsp_io_net_close_socket( xi_bsp_socket_t* xi_socket )
     WiFi_Status_t status = WiFi_MODULE_SUCCESS;
     status               = wifi_socket_client_close( *xi_socket );
 
+    /* free all buffers on the list */
     while ( NULL != xi_net_state.head )
     {
-        /* free all buffers */
         xi_data_desc_t* head = NULL;
         XI_LIST_POP( xi_data_desc_t, xi_net_state.head, head );
         xi_free_desc( &head );
