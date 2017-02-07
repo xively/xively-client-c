@@ -10,6 +10,7 @@
 #include <assert.h>
 #include "xi_bsp_debug.h"
 #include <xi_data_desc.h>
+#include <xi_list.h>
 #include "wifi_interface.h"
 #include "xi_bsp_time_stm32f4_nucleo_wifi_sntp.h"
 
@@ -140,7 +141,7 @@ xi_bsp_io_net_state_t xi_bsp_io_net_read( xi_bsp_socket_t xi_socket,
 
             if ( head->curr_pos == head->length )
             {
-                xi_net_state.head = head->__next;
+                XI_LIST_POP( xi_data_desc_t, xi_net_state.head, head );
                 xi_free_desc( &head );
             }
         }
@@ -162,18 +163,13 @@ xi_bsp_io_net_state_t xi_bsp_io_net_close_socket( xi_bsp_socket_t* xi_socket )
     WiFi_Status_t status = WiFi_MODULE_SUCCESS;
     status               = wifi_socket_client_close( *xi_socket );
 
-    /* free all buffers */
-    xi_data_desc_t* head = xi_net_state.head;
-
-    while ( NULL != head )
+    while ( NULL != xi_net_state.head )
     {
-        xi_data_desc_t* temp = head;
-        head                 = head->__next;
-        xi_free_desc( &temp );
+        /* free all buffers */
+        xi_data_desc_t* head = NULL;
+        XI_LIST_POP( xi_data_desc_t, xi_net_state.head, head );
+        xi_free_desc( &head );
     }
-
-    /* reset it to the default value after deleting all elements */
-    xi_net_state.head = NULL;
 
     if ( status == WiFi_MODULE_SUCCESS )
     {
@@ -243,19 +239,7 @@ void xi_bsp_io_net_socket_data_received_proxy( uint8_t socket_id,
         return;
     }
 
-    if ( NULL == xi_net_state.head )
-    {
-        xi_net_state.head = tail;
-    }
-    else
-    {
-        xi_data_desc_t* last = xi_net_state.head;
-        while ( NULL != last->__next )
-        {
-            last = last->__next;
-        }
-        last->__next = tail;
-    }
+    XI_LIST_PUSH_FRONT( xi_data_desc_t, xi_net_state.head, tail );
 }
 
 void xi_bsp_io_net_socket_client_remote_server_closed_proxy( uint8_t* socket_closed_id )
