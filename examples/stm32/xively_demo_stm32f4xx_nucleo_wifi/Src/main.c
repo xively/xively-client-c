@@ -64,7 +64,7 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
-#define WIFI_SCAN_BUFFER_LIST           15
+#define WIFI_SCAN_BUFFER_LIST           25
 
 /* Private variables ---------------------------------------------------------*/
 
@@ -89,18 +89,17 @@ char* XI_DEVICE_PASS = "DEVICE PASSWORD";
 
 xi_context_handle_t gXivelyContextHandle = -1;
 
-/**
-  * @brief  Main program
-  * @param  None
-  * @retval None
-  */
-
 void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t state )
 {
     xi_connection_data_t* conn_data = ( xi_connection_data_t* )data;
     printf( "\r\nconnected, state : %i" , conn_data->connection_state  );
 }
 
+/**
+  * @brief  Main program
+  * @param  None
+  * @retval None
+  */
 int main(void)
 {
   uint8_t i=0;
@@ -202,7 +201,7 @@ int main(void)
         break;
 
       case wifi_state_socket:
-        printf("\r\n >>Connecting to socket\r\n");
+        printf("\r\n >>Connecting to Xively socket\r\n");
 
         if(socket_open == 0)
           {
@@ -219,11 +218,13 @@ int main(void)
 
             if ( XI_INVALID_CONTEXT_HANDLE == gXivelyContextHandle )
             {
-                printf( "\r\n xi failed to create context, error: %li\n", -gXivelyContextHandle );
+                printf( "\r\n xi failed to create context, error: %li\n",
+                        -gXivelyContextHandle );
                 return -1;
             }
 
-            xi_connect( gXivelyContextHandle, XI_DEVICE_ID, XI_DEVICE_PASS, 10, 0, XI_SESSION_CLEAN, &on_connected );
+            xi_connect( gXivelyContextHandle, XI_DEVICE_ID, XI_DEVICE_PASS, 10,
+                        0, XI_SESSION_CLEAN, &on_connected );
           }
         else
           {
@@ -536,14 +537,18 @@ WiFi_Status_t wifi_get_AP_settings(void)
 
 /******** Wi-Fi Indication User Callback *********/
 
-void ind_wifi_socket_data_received(uint8_t socket_id, uint8_t * data_ptr, uint32_t message_size, uint32_t chunk_size)
+void ind_wifi_socket_data_received(uint8_t socket_id, uint8_t* data_ptr,
+                                   uint32_t message_size, uint32_t chunk_size)
 {
-	xi_bsp_io_net_socket_data_received_proxy( socket_id , data_ptr , message_size , chunk_size );
+    /* Xively */
+    xi_bsp_io_net_socket_data_received_proxy( socket_id , data_ptr ,
+                                              message_size , chunk_size );
 }
 
 void ind_wifi_socket_client_remote_server_closed(uint8_t * socket_closed_id)
 {
-	xi_bsp_io_net_socket_client_remote_server_closed_proxy( socket_closed_id );
+    /* Xively */
+    xi_bsp_io_net_socket_client_remote_server_closed_proxy( socket_closed_id );
 }
 
 void ind_wifi_on()
