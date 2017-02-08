@@ -150,9 +150,26 @@ int8_t sensors_read_gyro( SensorAxes_t* read_values )
  */
 int8_t sensors_read_accelero( SensorAxes_t* read_values )
 {
-    read_values->AXIS_X = 42;
-    read_values->AXIS_Y = 42;
-    read_values->AXIS_Z = 42;
+    static SensorAxes_t input;
+    uint8_t status = 0;
+
+    assert( NULL != read_values );
+    if ( COMPONENT_OK != BSP_ACCELERO_IsInitialized( ACCELERO_handle, &status ) || status != 1 )
+    {
+        printf( "\r\n>> Accelerometer initialization check [ERROR] Status: %d", status );
+        return -1;
+    }
+    if ( COMPONENT_OK != BSP_ACCELERO_Get_Axes( ACCELERO_handle, &input ) )
+    {
+        printf( "\r\n>> Accelerometer read [ERROR]" );
+        return -1;
+    }
+    printf( "\r\n>> Accelerometer data read [OK] {'x': %ld, 'y': %ld, 'z': %ld}",
+            input.AXIS_X, input.AXIS_Y, input.AXIS_Z );
+
+    read_values->AXIS_X = input.AXIS_X;
+    read_values->AXIS_Y = input.AXIS_Y;
+    read_values->AXIS_Z = input.AXIS_Z;
     return 0;
 }
 
@@ -164,9 +181,26 @@ int8_t sensors_read_accelero( SensorAxes_t* read_values )
  */
 int8_t sensors_read_magneto( SensorAxes_t* read_values )
 {
-    read_values->AXIS_X = 42;
-    read_values->AXIS_Y = 42;
-    read_values->AXIS_Z = 42;
+    static SensorAxes_t input;
+    uint8_t status = 0;
+
+    assert( NULL != read_values );
+    if ( COMPONENT_OK != BSP_MAGNETO_IsInitialized( MAGNETO_handle, &status ) || status != 1 )
+    {
+        printf( "\r\n>> Magnetometer initialization check [ERROR] Status: %d", status );
+        return -1;
+    }
+    if ( COMPONENT_OK != BSP_MAGNETO_Get_Axes( MAGNETO_handle, &input ) )
+    {
+        printf( "\r\n>> Magnetometer read [ERROR]" );
+        return -1;
+    }
+    printf( "\r\n>> Magnetometer data read [OK] {'x': %ld, 'y': %ld, 'z': %ld}",
+            input.AXIS_X, input.AXIS_Y, input.AXIS_Z );
+
+    read_values->AXIS_X = input.AXIS_X;
+    read_values->AXIS_Y = input.AXIS_Y;
+    read_values->AXIS_Z = input.AXIS_Z;
     return 0;
 }
 
