@@ -111,6 +111,11 @@
 			<locationURI>STM_CUBE_PATH/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c</locationURI>
 		</link>
 		<link>
+			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_dma.c</name>
+			<type>1</type>
+			<locationURI>STM_CUBE_PATH/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.c</locationURI>
+		</link>
+		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_flash.c</name>
 			<type>1</type>
 			<locationURI>STM_CUBE_PATH/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash.c</locationURI>
@@ -183,12 +188,12 @@
 		<link>
 			<name>Example/User/stm32_xx_hal_msp.c</name>
 			<type>1</type>
-			<locationURI>$%7BPARENT-3-PROJECT_LOC%7D/Src/stm32_xx_hal_msp.c</locationURI>
+			<locationURI>XI_CLIENT_PATH/examples/stm32/xively_demo_stm32f4xx_nucleo_wifi/Src/stm32_xx_hal_msp.c</locationURI>
 		</link>
 		<link>
 			<name>Example/User/stm32_xx_it.c</name>
 			<type>1</type>
-			<locationURI>$%7BPARENT-3-PROJECT_LOC%7D/Src/stm32_xx_it.c</locationURI>
+			<locationURI>XI_CLIENT_PATH/examples/stm32/xively_demo_stm32f4xx_nucleo_wifi/Src/stm32_xx_it.c</locationURI>
 		</link>
 		<link>
 			<name>Example/User/syscalls.c</name>

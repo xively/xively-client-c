@@ -63,16 +63,10 @@
 
 int8_t sensors_init( void );
 void sensors_enable( void );
-int8_t sensors_read_gyro( SensorAxes_t* read_values );
 int8_t sensors_recv_data( void );
-
-/* DemoSerial.c externs these and sets them when there's new data */
-static void* ACCELERO_handle    = NULL;
-static void* GYRO_handle        = NULL;
-static void* MAGNETO_handle     = NULL;
-static void* HUMIDITY_handle    = NULL;
-static void* TEMPERATURE_handle = NULL;
-static void* PRESSURE_handle    = NULL;
+int8_t sensors_read_gyro( SensorAxes_t* read_values );
+int8_t sensors_read_accelero( SensorAxes_t* read_values );
+int8_t sensors_read_magneto( SensorAxes_t* read_values );
 
 #endif /* __DEMO_SERIAL_H__ */
 
