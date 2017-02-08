@@ -36,8 +36,8 @@
   */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __DEMO_SENSORS_H__
-#define __DEMO_SENSORS_H__
+#ifndef __DEMO_IO_H__
+#define __DEMO_IO_H__
 
 #include "sensor.h"
 
@@ -50,17 +50,17 @@
 #define GYROSCOPE_SENSOR                        0x00000020
 #define MAGNETIC_SENSOR                         0x00000040
 
-int8_t sensors_init( void );
-void sensors_enable( void );
+int8_t io_sensorboard_init( void );
+void io_sensorboard_enable( void );
+int8_t io_nucleoboard_init( void );
 
-int8_t sensors_read_gyro( SensorAxes_t* read_values );
-int8_t sensors_read_accelero( SensorAxes_t* read_values );
-int8_t sensors_read_magneto( SensorAxes_t* read_values );
-int8_t sensors_read_pressure( float* read_value );
-int8_t sensors_read_temperature( float* read_value );
-int8_t sensors_read_humidity( float* read_value );
+int8_t io_read_gyro( SensorAxes_t* read_values );
+int8_t io_read_accelero( SensorAxes_t* read_values );
+int8_t io_read_magneto( SensorAxes_t* read_values );
+int8_t io_read_pressure( float* read_value );
+int8_t io_read_temperature( float* read_value );
+int8_t io_read_humidity( float* read_value );
 
 void floatToInt( float in, int32_t* out_int, int32_t* out_dec, int32_t dec_prec );
 
-#endif /* __DEMO_SERIAL_H__ */
-
+#endif /* __DEMO_IO_H__ */

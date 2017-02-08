@@ -13,7 +13,7 @@
 #include "LSM6DS0_ACC_GYRO_driver_HL.h"
 
 #include "main.h"
-#include "demo_sensors.h"
+#include "demo_io.h"
 #include "sensor.h"
 
 /* DemoSerial.c externs these and sets them when there's new data */
@@ -23,6 +23,32 @@ static void* MAGNETO_handle     = NULL;
 static void* HUMIDITY_handle    = NULL;
 static void* TEMPERATURE_handle = NULL;
 static void* PRESSURE_handle    = NULL;
+
+/******************************************************************************
+*                        Nucleo Board IO Implementation                       *
+******************************************************************************/
+int8_t io_nucleoboard_init( void )
+{
+    /* Initialize LEDs */
+    BSP_LED_Init( LED2 );
+    BSP_LED_Off( LED2 );
+
+    /* Initialize Button */
+    #if ( ( defined( USE_STM32F4XX_NUCLEO ) ) || \
+          ( defined( USE_STM32L0XX_NUCLEO ) ) || \
+          ( defined( USE_STM32L4XX_NUCLEO ) ) )
+    BSP_PB_Init( BUTTON_KEY, BUTTON_MODE_EXTI );
+    #elif ( defined( USE_STM32L1XX_NUCLEO ) )
+    BSP_PB_Init( BUTTON_USER, BUTTON_MODE_EXTI );
+    #else
+    printf("\r\n>> Push button init [ERROR] Not implemented for this platform");
+    return -1;
+    #endif
+}
+
+/******************************************************************************
+*                        Sensor Board IO Implementation                       *
+******************************************************************************/
 
 /**
  * @brief  Splits a float into two integer values.
@@ -53,7 +79,7 @@ void floatToInt( float in, int32_t* out_int, int32_t* out_dec, int32_t dec_prec 
  * @TODO: This function differs for the IKS01A1 and IKS01A2 sensor boards.
  *        The current implementation was lifted from the IKS01A1 examples
  */
-int8_t sensors_init( void )
+int8_t io_sensorboard_init( void )
 {
     printf( "\r\n>> Initializing sensor board" );
     /* Try to use LSM6DS3 DIL24 if present, otherwise use LSM6DS0 on board */
@@ -90,7 +116,7 @@ int8_t sensors_init( void )
  * @param  None
  * @retval None
  */
-void sensors_enable( void )
+void io_sensorboard_enable( void )
 {
     printf( "\r\n>> Enabling all sensors" );
     printf( "\r\n\tEnabling accelerometer" );
@@ -114,7 +140,7 @@ void sensors_enable( void )
  * @retval  0 = Success
  * @retval -1 = Error
  */
-int8_t sensors_read_gyro( SensorAxes_t* read_values )
+int8_t io_read_gyro( SensorAxes_t* read_values )
 {
     static SensorAxes_t input;
     uint8_t status = 0;
@@ -145,7 +171,7 @@ int8_t sensors_read_gyro( SensorAxes_t* read_values )
  * @retval  0 = Success
  * @retval -1 = Error
  */
-int8_t sensors_read_accelero( SensorAxes_t* read_values )
+int8_t io_read_accelero( SensorAxes_t* read_values )
 {
     static SensorAxes_t input;
     uint8_t status = 0;
@@ -177,7 +203,7 @@ int8_t sensors_read_accelero( SensorAxes_t* read_values )
  * @retval  0 = Success
  * @retval -1 = Error
  */
-int8_t sensors_read_magneto( SensorAxes_t* read_values )
+int8_t io_read_magneto( SensorAxes_t* read_values )
 {
     static SensorAxes_t input;
     uint8_t status = 0;
@@ -209,7 +235,7 @@ int8_t sensors_read_magneto( SensorAxes_t* read_values )
  * @retval  0 = Success
  * @retval -1 = Error
  */
-int8_t sensors_read_pressure( float* read_value )
+int8_t io_read_pressure( float* read_value )
 {
     float input;
     int32_t input_integer, input_fractional;
@@ -241,7 +267,7 @@ int8_t sensors_read_pressure( float* read_value )
  * @retval  0 = Success
  * @retval -1 = Error
  */
-int8_t sensors_read_temperature( float* read_value )
+int8_t io_read_temperature( float* read_value )
 {
     float input;
     int32_t input_integer, input_fractional;
@@ -273,7 +299,7 @@ int8_t sensors_read_temperature( float* read_value )
  * @retval  0 = Success
  * @retval -1 = Error
  */
-int8_t sensors_read_humidity( float* read_value )
+int8_t io_read_humidity( float* read_value )
 {
     float input;
     int32_t input_integer, input_fractional;
