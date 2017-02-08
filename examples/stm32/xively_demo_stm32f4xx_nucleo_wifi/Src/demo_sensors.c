@@ -81,7 +81,7 @@ int8_t sensors_init( void )
     printf( "\r\n>> Initializing all sensors" );
 
     printf( "\r\n\tInitializing sensor board USART" );
-    USARTConfig();
+    //USARTConfig();
 
     /* Try to use LSM6DS3 DIL24 if present, otherwise use LSM6DS0 on board */
     printf( "\r\n\tInitializing accelerometer" );
@@ -225,136 +225,62 @@ SensorAxes_t sensors_read_magneto( void )
 int8_t sensors_tick( void )
 {
     TMsg Msg;
-    if (UART_ReceivedMSG((TMsg*) &Msg))
+    while(1)
     {
-        printf( "\r\n>> Got an incoming serial message in the I2C port" );
-        if ( Msg.Data[0] == DEV_ADDR )
+        #if 0
+        if (UART_ReceivedMSG((TMsg*) &Msg))
         {
-            printf( "\r\n\tMessage came from the sensor board" );
-            if ( HandleMSG( ( TMsg* )&Msg ) != 1 )
+            printf( "\r\n>> Got an incoming serial message in the I2C port" );
+            if ( Msg.Data[0] == DEV_ADDR )
             {
-                printf( "\r\n\tHandling of I2C message [FAIL] Contents: " );
-                for ( int i = 0; i < Msg.Len; i++ )
+                printf( "\r\n\tMessage came from the sensor board" );
+                if ( HandleMSG( ( TMsg* )&Msg ) != 1 )
                 {
-                    printf( "0x%02x ", Msg.Data[i] );
+                    printf( "\r\n\tHandling of I2C message [FAIL] Contents: " );
+                    for ( int i = 0; i < Msg.Len; i++ )
+                    {
+                        printf( "0x%02x ", Msg.Data[i] );
+                    }
+                    return -1;
                 }
-                return -1;
+                #if 0
+                if ( SensorsStreamingData )
+                {
+                    AutoInit = 0;
+                }
+                #endif
             }
-            #if 0
-            if ( SensorsStreamingData )
-            {
-                AutoInit = 0;
-            }
-            #endif
         }
-    }
-    else
-    {
-        printf( "\r\n>> No new messages in the I2C port" );
-    }
-
-    RTC_Handler(&Msg);
-    Pressure_Sensor_Handler(&Msg);
-    Humidity_Sensor_Handler(&Msg);
-    Temperature_Sensor_Handler(&Msg);
-    Accelero_Sensor_Handler(&Msg);
-    Gyro_Sensor_Handler(&Msg);
-    Magneto_Sensor_Handler(&Msg);
-
-    if(SensorsStreamingData)
-    {
-      INIT_STREAMING_HEADER(&Msg);
-      Msg.Len = STREAMING_MSG_LENGTH;
-      UART_SendMsg(&Msg);
-      HAL_Delay(DataTxPeriod);
-    }
-
-    #if 0
-    if ( AutoInit )
-    {
-        HAL_Delay( 500 );
-    }
-    #endif
-}
-
-
-/**
- * @brief  Handles the time+date getting/sending
- * @param  Msg the time+date part of the stream
- * @retval None
- */
-static void RTC_Handler(TMsg *Msg) {
-    #if 0
-    uint8_t subSec = 0;
-    RTC_DateTypeDef sdatestructureget;
-    RTC_TimeTypeDef stimestructure;
-
-    if ( SensorsStreamingData )
-    {
-        HAL_RTC_GetTime( &RtcHandle, &stimestructure, FORMAT_BIN );
-        HAL_RTC_GetDate( &RtcHandle, &sdatestructureget, FORMAT_BIN );
-        subSec =
-            ( ( ( ( ( ( int )RTC_SYNCH_PREDIV ) - ( ( int )stimestructure.SubSeconds ) ) *
-                  100 ) /
-                ( RTC_SYNCH_PREDIV + 1 ) ) &
-              0xff );
-
-        Msg->Data[3] = ( uint8_t )stimestructure.Hours;
-        Msg->Data[4] = ( uint8_t )stimestructure.Minutes;
-        Msg->Data[5] = ( uint8_t )stimestructure.Seconds;
-        Msg->Data[6] = subSec;
-    }
-    else if ( AutoInit )
-    {
-        sprintf( dataOut, "TimeStamp: %d:%d:%d.%d\r\n", stimestructure.Hours,
-                 stimestructure.Minutes, stimestructure.Seconds, subSec );
-        HAL_UART_Transmit( &UartHandle, ( uint8_t* )dataOut, strlen( dataOut ), 5000 );
-    }
-    #endif
-}
-
-
-/**
- * @brief  Handles the ACCELERO axes data getting/sending
- * @param  Msg the ACCELERO part of the stream
- * @retval None
- */
-static void Accelero_Sensor_Handler(TMsg *Msg)
-{
-    #if 0
-    int32_t data[6];
-    uint8_t status = 0;
-
-    if ( BSP_ACCELERO_IsInitialized( ACCELERO_handle, &status ) == COMPONENT_OK &&
-         status == 1 )
-    {
-        BSP_ACCELERO_Get_Axes( ACCELERO_handle, &ACC_Value );
-
-        if ( SensorsStreamingData )
+        else
         {
-            if ( Sensors_Enabled & ACCELEROMETER_SENSOR )
-            {
-                Serialize_s32( &Msg->Data[15], ACC_Value.AXIS_X, 4 );
-                Serialize_s32( &Msg->Data[19], ACC_Value.AXIS_Y, 4 );
-                Serialize_s32( &Msg->Data[23], ACC_Value.AXIS_Z, 4 );
-            }
+            printf( "\r\n>> No new messages in the I2C port" );
         }
+        #endif
 
-        else if ( AutoInit )
+        RTC_Handler(&Msg);
+        Pressure_Sensor_Handler(&Msg);
+        Humidity_Sensor_Handler(&Msg);
+        Temperature_Sensor_Handler(&Msg);
+        Accelero_Sensor_Handler(&Msg);
+        Gyro_Sensor_Handler(&Msg);
+        Magneto_Sensor_Handler(&Msg);
+
+        if(SensorsStreamingData)
         {
-            data[0] = ACC_Value.AXIS_X;
-            data[1] = ACC_Value.AXIS_Y;
-            data[2] = ACC_Value.AXIS_Z;
-
-            sprintf( dataOut, "ACC_X: %d, ACC_Y: %d, ACC_Z: %d\r\n", ( int )data[0],
-                     ( int )data[1], ( int )data[2] );
-            HAL_UART_Transmit( &UartHandle, ( uint8_t* )dataOut, strlen( dataOut ),
-                               5000 );
+          INIT_STREAMING_HEADER(&Msg);
+          Msg.Len = STREAMING_MSG_LENGTH;
+          UART_SendMsg(&Msg);
+          HAL_Delay(DataTxPeriod);
         }
-    }
-    #endif
-}
 
+        #if 0
+        if ( AutoInit )
+        {
+            HAL_Delay( 500 );
+        }
+        #endif
+    }
+}
 
 /**
  * @brief  Handles the GYRO axes data getting/sending
@@ -379,17 +305,17 @@ static void Gyro_Sensor_Handler(TMsg *Msg)
 
     BSP_GYRO_Get_Axes( GYRO_handle, &GYR_Value );
 
-    if ( SensorsStreamingData )
-    {
-        if ( Sensors_Enabled & GYROSCOPE_SENSOR )
-        {
-            Serialize_s32( &Msg->Data[27], GYR_Value.AXIS_X, 4 );
-            Serialize_s32( &Msg->Data[31], GYR_Value.AXIS_Y, 4 );
-            Serialize_s32( &Msg->Data[35], GYR_Value.AXIS_Z, 4 );
-        }
-    }
-    else
-    {
+    //if ( SensorsStreamingData )
+    //{
+        //if ( Sensors_Enabled & GYROSCOPE_SENSOR )
+        //{
+        //    Serialize_s32( &Msg->Data[27], GYR_Value.AXIS_X, 4 );
+        //    Serialize_s32( &Msg->Data[31], GYR_Value.AXIS_Y, 4 );
+        //    Serialize_s32( &Msg->Data[35], GYR_Value.AXIS_Z, 4 );
+        //}
+    //}
+    //else
+    //{
         printf( "\r\n>> Gyroscope data read [OK]" );
         BSP_GYRO_Get_Axes(GYRO_handle, &GYR_Value);
         read_values.AXIS_X = GYR_Value.AXIS_X;
@@ -397,7 +323,7 @@ static void Gyro_Sensor_Handler(TMsg *Msg)
         read_values.AXIS_Z = GYR_Value.AXIS_Z;
         printf( "\r\n\tX: %ld\r\n\tY: %ld\r\n\tY: %ld", read_values.AXIS_X,
                 read_values.AXIS_Y, read_values.AXIS_Z );
-    }
+    //}
 
     #if 0
     else if ( AutoInit )
@@ -455,8 +381,6 @@ static void Magneto_Sensor_Handler(TMsg *Msg)
     }
     #endif
 }
-
-
 /**
  * @brief  Handles the PRESSURE sensor data getting/sending
  * @param  Msg the PRESSURE part of the stream
@@ -464,36 +388,7 @@ static void Magneto_Sensor_Handler(TMsg *Msg)
  */
 static void Pressure_Sensor_Handler(TMsg *Msg)
 {
-    #if 0
-    int32_t d1, d2;
-    uint8_t status = 0;
-
-    if ( BSP_PRESSURE_IsInitialized( PRESSURE_handle, &status ) == COMPONENT_OK &&
-         status == 1 )
-    {
-        BSP_PRESSURE_Get_Press( PRESSURE_handle, &PRESSURE_Value );
-        floatToInt( PRESSURE_Value, &d1, &d2, 2 );
-
-        if ( SensorsStreamingData )
-        {
-            if ( Sensors_Enabled & PRESSURE_SENSOR )
-            {
-                Serialize( &Msg->Data[7], d1, 2 );
-                Serialize( &Msg->Data[9], d2, 2 );
-            }
-        }
-
-        else if ( AutoInit )
-        {
-            sprintf( dataOut, "PRESS: %d.%02d\r\n", ( int )d1, ( int )d2 );
-            HAL_UART_Transmit( &UartHandle, ( uint8_t* )dataOut, strlen( dataOut ),
-                               5000 );
-        }
-    }
-    #endif
 }
-
-
 /**
  * @brief  Handles the HUMIDITY sensor data getting/sending
  * @param  Msg the HUMIDITY part of the stream
@@ -501,36 +396,7 @@ static void Pressure_Sensor_Handler(TMsg *Msg)
  */
 static void Humidity_Sensor_Handler(TMsg *Msg)
 {
-    #if 0
-    int32_t d1, d2;
-    uint8_t status = 0;
-
-    if ( BSP_HUMIDITY_IsInitialized( HUMIDITY_handle, &status ) == COMPONENT_OK &&
-         status == 1 )
-    {
-        BSP_HUMIDITY_Get_Hum( HUMIDITY_handle, &HUMIDITY_Value );
-        floatToInt( HUMIDITY_Value, &d1, &d2, 2 );
-
-        if ( SensorsStreamingData )
-        {
-            if ( Sensors_Enabled & HUMIDITY_SENSOR )
-            {
-                Serialize( &Msg->Data[13], d1, 1 );
-                Serialize( &Msg->Data[14], d2, 1 );
-            }
-        }
-
-        else if ( AutoInit )
-        {
-            sprintf( dataOut, "HUM: %d.%02d\r\n", ( int )d1, ( int )d2 );
-            HAL_UART_Transmit( &UartHandle, ( uint8_t* )dataOut, strlen( dataOut ),
-                               5000 );
-        }
-    }
-    #endif
 }
-
-
 /**
  * @brief  Handles the TEMPERATURE sensor data getting/sending
  * @param  Msg the TEMPERATURE part of the stream
@@ -538,34 +404,25 @@ static void Humidity_Sensor_Handler(TMsg *Msg)
  */
 static void Temperature_Sensor_Handler(TMsg *Msg)
 {
-    #if 0
-    int32_t d3, d4;
-    uint8_t status = 0;
-
-    if ( BSP_TEMPERATURE_IsInitialized( TEMPERATURE_handle, &status ) == COMPONENT_OK &&
-         status == 1 )
-    {
-        BSP_TEMPERATURE_Get_Temp( TEMPERATURE_handle, &TEMPERATURE_Value );
-        floatToInt( TEMPERATURE_Value, &d3, &d4, 2 );
-
-        if ( SensorsStreamingData )
-        {
-            if ( Sensors_Enabled & TEMPERATURE_SENSOR )
-            {
-                Serialize( &Msg->Data[11], d3, 1 );
-                Serialize( &Msg->Data[12], d4, 1 );
-            }
-        }
-
-        else if ( AutoInit )
-        {
-            sprintf( dataOut, "TEMP: %d.%02d\r\n", ( int )d3, ( int )d4 );
-            HAL_UART_Transmit( &UartHandle, ( uint8_t* )dataOut, strlen( dataOut ),
-                               5000 );
-        }
-    }
-    #endif
 }
+/**
+ * @brief  Handles the time+date getting/sending
+ * @param  Msg the time+date part of the stream
+ * @retval None
+ */
+static void RTC_Handler( TMsg* Msg )
+{
+}
+/**
+ * @brief  Handles the ACCELERO axes data getting/sending
+ * @param  Msg the ACCELERO part of the stream
+ * @retval None
+ */
+static void Accelero_Sensor_Handler( TMsg* Msg )
+{
+}
+
+
 
 /*********************** RTC ***********************************************/
 /* TODO: Move all the RTC logic to a different file, away from the sensors */
