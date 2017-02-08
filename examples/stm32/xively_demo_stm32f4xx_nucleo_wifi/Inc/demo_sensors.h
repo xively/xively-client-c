@@ -41,12 +41,6 @@
 
 #include "sensor.h"
 
-#define SensorsStreamingData DataLoggerActive
-
-#define SENDER_UART                     0x01
-#define SENDER_USB                      0x02
-#define SENDER_SPI                      0x03
-
 // Enable sensor masks
 #define PRESSURE_SENSOR                         0x00000001
 #define TEMPERATURE_SENSOR                      0x00000002
@@ -56,17 +50,17 @@
 #define GYROSCOPE_SENSOR                        0x00000020
 #define MAGNETIC_SENSOR                         0x00000040
 
-#define DEV_ADDR                        50
-#define I2C_DATA_MAX_LENGTH_BYTES       16
-
-#define STREAMING_MSG_LENGTH            51
-
 int8_t sensors_init( void );
 void sensors_enable( void );
-int8_t sensors_recv_data( void );
+
 int8_t sensors_read_gyro( SensorAxes_t* read_values );
 int8_t sensors_read_accelero( SensorAxes_t* read_values );
 int8_t sensors_read_magneto( SensorAxes_t* read_values );
+int8_t sensors_read_pressure( float* read_value );
+int8_t sensors_read_temperature( float* read_value );
+int8_t sensors_read_humidity( float* read_value );
+
+void floatToInt( float in, int32_t* out_int, int32_t* out_dec, int32_t dec_prec );
 
 #endif /* __DEMO_SERIAL_H__ */
 

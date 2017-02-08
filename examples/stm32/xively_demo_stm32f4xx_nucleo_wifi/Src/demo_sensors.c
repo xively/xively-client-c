@@ -24,9 +24,6 @@ static void* HUMIDITY_handle    = NULL;
 static void* TEMPERATURE_handle = NULL;
 static void* PRESSURE_handle    = NULL;
 
-/* Helpers */
-static void floatToInt( float in, int32_t* out_int, int32_t* out_dec, int32_t dec_prec );
-
 /**
  * @brief  Splits a float into two integer values.
  * @param  in the float value as input
@@ -35,7 +32,7 @@ static void floatToInt( float in, int32_t* out_int, int32_t* out_dec, int32_t de
  * @param  dec_prec the decimal precision to be used
  * @retval None
  */
-static void floatToInt( float in, int32_t* out_int, int32_t* out_dec, int32_t dec_prec )
+void floatToInt( float in, int32_t* out_int, int32_t* out_dec, int32_t dec_prec )
 {
     *out_int = ( int32_t )in;
     if ( in >= 0.0f )
@@ -154,7 +151,8 @@ int8_t sensors_read_accelero( SensorAxes_t* read_values )
     uint8_t status = 0;
 
     assert( NULL != read_values );
-    if ( COMPONENT_OK != BSP_ACCELERO_IsInitialized( ACCELERO_handle, &status ) || status != 1 )
+    if ( COMPONENT_OK != BSP_ACCELERO_IsInitialized( ACCELERO_handle, &status ) ||
+         status != 1 )
     {
         printf( "\r\n>> Accelerometer initialization check [ERROR] Status: %d", status );
         return -1;
@@ -185,7 +183,8 @@ int8_t sensors_read_magneto( SensorAxes_t* read_values )
     uint8_t status = 0;
 
     assert( NULL != read_values );
-    if ( COMPONENT_OK != BSP_MAGNETO_IsInitialized( MAGNETO_handle, &status ) || status != 1 )
+    if ( COMPONENT_OK != BSP_MAGNETO_IsInitialized( MAGNETO_handle, &status ) ||
+         status != 1 )
     {
         printf( "\r\n>> Magnetometer initialization check [ERROR] Status: %d", status );
         return -1;
@@ -204,33 +203,98 @@ int8_t sensors_read_magneto( SensorAxes_t* read_values )
     return 0;
 }
 
-/*********************** RTC ***********************************************/
-/* TODO: Move all the RTC logic to a different file, away from the sensors */
+/**
+ * @brief  Read sensor data
+ * @param  read_value is a pre-allocated pointer to a float value
+ * @retval  0 = Success
+ * @retval -1 = Error
+ */
+int8_t sensors_read_pressure( float* read_value )
+{
+    float input;
+    int32_t input_integer, input_fractional;
+    uint8_t status = 0;
+
+    assert( NULL != read_value );
+    if ( COMPONENT_OK != BSP_PRESSURE_IsInitialized( PRESSURE_handle, &status ) ||
+         status != 1 )
+    {
+        printf( "\r\n>> Barometer initialization check [ERROR] Status: %d", status );
+        return -1;
+    }
+    if ( COMPONENT_OK != BSP_PRESSURE_Get_Press( PRESSURE_handle, &input ) )
+    {
+        printf( "\r\n>> Barometer read [ERROR]" );
+        return -1;
+    }
+    floatToInt( input, &input_integer, &input_fractional, 2 );
+    printf( "\r\n>> Barometer data read [OK] Pressure: %ld.%02ld", input_integer,
+            input_fractional );
+
+    *read_value = input;
+    return 0;
+}
 
 /**
- * @brief  Configures the current time and date
- * @param  hh the hour value to be set
- * @param  mm the minute value to be set
- * @param  ss the second value to be set
- * @retval None
+ * @brief  Read sensor data
+ * @param  read_value is a pre-allocated pointer to a float value
+ * @retval  0 = Success
+ * @retval -1 = Error
  */
-void RTC_TimeRegulate( uint8_t hh, uint8_t mm, uint8_t ss )
+int8_t sensors_read_temperature( float* read_value )
 {
-#if 0
-    RTC_TimeTypeDef stimestructure;
+    float input;
+    int32_t input_integer, input_fractional;
+    uint8_t status = 0;
 
-    stimestructure.TimeFormat     = RTC_HOURFORMAT12_AM;
-    stimestructure.Hours          = hh;
-    stimestructure.Minutes        = mm;
-    stimestructure.Seconds        = ss;
-    stimestructure.SubSeconds     = 0;
-    stimestructure.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
-    stimestructure.StoreOperation = RTC_STOREOPERATION_RESET;
-
-    if ( HAL_RTC_SetTime( &RtcHandle, &stimestructure, FORMAT_BIN ) != HAL_OK )
+    assert( NULL != read_value );
+    if ( COMPONENT_OK != BSP_TEMPERATURE_IsInitialized( TEMPERATURE_handle, &status ) ||
+         status != 1 )
     {
-        /* Initialization Error */
-        Error_Handler();
+        printf( "\r\n>> Thermometer initialization check [ERROR] Status: %d", status );
+        return -1;
     }
-#endif
+    if ( COMPONENT_OK != BSP_TEMPERATURE_Get_Temp( TEMPERATURE_handle, &input ) )
+    {
+        printf( "\r\n>> Thermometer read [ERROR]" );
+        return -1;
+    }
+    floatToInt( input, &input_integer, &input_fractional, 2 );
+    printf( "\r\n>> Thermometer data read [OK] Temperature: %ld.%02ld", input_integer,
+            input_fractional );
+
+    *read_value = input;
+    return 0;
+}
+
+/**
+ * @brief  Read sensor data
+ * @param  read_value is a pre-allocated pointer to a float value
+ * @retval  0 = Success
+ * @retval -1 = Error
+ */
+int8_t sensors_read_humidity( float* read_value )
+{
+    float input;
+    int32_t input_integer, input_fractional;
+    uint8_t status = 0;
+
+    assert( NULL != read_value );
+    if ( COMPONENT_OK != BSP_HUMIDITY_IsInitialized( HUMIDITY_handle, &status ) ||
+         status != 1 )
+    {
+        printf( "\r\n>> Hygrometer initialization check [ERROR] Status: %d", status );
+        return -1;
+    }
+    if ( COMPONENT_OK != BSP_HUMIDITY_Get_Hum( HUMIDITY_handle, &input ) )
+    {
+        printf( "\r\n>> Hygrometer read [ERROR]" );
+        return -1;
+    }
+    floatToInt( input, &input_integer, &input_fractional, 2 );
+    printf( "\r\n>> Hygrometer data read [OK] Humidity: %ld.%02ld", input_integer,
+            input_fractional );
+
+    *read_value = input;
+    return 0;
 }
