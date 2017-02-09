@@ -2,7 +2,6 @@
 #include <string.h>
 #include <math.h>
 
-#include "mems_cube_hal.h"
 #include "x_nucleo_iks01a1.h"
 #include "x_nucleo_iks01a1_accelero.h"
 #include "x_nucleo_iks01a1_gyro.h"
@@ -332,7 +331,7 @@ int8_t io_read_humidity( float* read_value )
 }
 
 /******************************************************************************
-*                        Sensor Board IO Implementation                       *
+*                                   Helpers                                   *
 ******************************************************************************/
 
 /**

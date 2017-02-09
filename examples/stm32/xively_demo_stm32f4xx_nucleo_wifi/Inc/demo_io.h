@@ -41,15 +41,6 @@
 
 #include "sensor.h"
 
-// Enable sensor masks
-#define PRESSURE_SENSOR                         0x00000001
-#define TEMPERATURE_SENSOR                      0x00000002
-#define HUMIDITY_SENSOR                         0x00000004
-#define UV_SENSOR                               0x00000008  // for future use
-#define ACCELEROMETER_SENSOR                    0x00000010
-#define GYROSCOPE_SENSOR                        0x00000020
-#define MAGNETIC_SENSOR                         0x00000040
-
 #define IO_NUCLEO_LED_PIN LED2
 #if ( ( defined( USE_STM32F4XX_NUCLEO ) ) || \
       ( defined( USE_STM32L0XX_NUCLEO ) ) || \
@@ -58,7 +49,7 @@
 #elif ( defined( USE_STM32L1XX_NUCLEO ) )
 #define IO_NUCLEO_BUTTON_PIN USER_BUTTON_PIN
 #endif
-#define IO_BUTTON_DEBOUNCE_TIME 300
+#define IO_BUTTON_DEBOUNCE_TIME 100
 
 /* Nucleo Board */
 int8_t io_nucleoboard_init( void );
