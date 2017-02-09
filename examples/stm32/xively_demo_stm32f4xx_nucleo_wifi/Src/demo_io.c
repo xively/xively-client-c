@@ -16,7 +16,6 @@
 #include "demo_io.h"
 #include "sensor.h"
 
-/* DemoSerial.c externs these and sets them when there's new data */
 static void* ACCELERO_handle    = NULL;
 static void* GYRO_handle        = NULL;
 static void* MAGNETO_handle     = NULL;
@@ -27,23 +26,52 @@ static void* PRESSURE_handle    = NULL;
 /******************************************************************************
 *                        Nucleo Board IO Implementation                       *
 ******************************************************************************/
+/**
+ * @brief  Initialize the Button and LED on the Nucleo board
+ * @param  None
+ * @retval -1 error, 0 success
+ */
 int8_t io_nucleoboard_init( void )
 {
-    /* Initialize LEDs */
-    BSP_LED_Init( LED2 );
-    BSP_LED_Off( LED2 );
+    BSP_LED_Init( IO_NUCLEO_LED_PIN );
+    io_led_off();
 
-    /* Initialize Button */
-    #if ( ( defined( USE_STM32F4XX_NUCLEO ) ) || \
-          ( defined( USE_STM32L0XX_NUCLEO ) ) || \
-          ( defined( USE_STM32L4XX_NUCLEO ) ) )
-    BSP_PB_Init( BUTTON_KEY, BUTTON_MODE_EXTI );
-    #elif ( defined( USE_STM32L1XX_NUCLEO ) )
-    BSP_PB_Init( BUTTON_USER, BUTTON_MODE_EXTI );
-    #else
-    printf("\r\n>> Push button init [ERROR] Not implemented for this platform");
-    return -1;
-    #endif
+    BSP_PB_Init( IO_NUCLEO_BUTTON_PIN, BUTTON_MODE_EXTI );
+    return 0;
+}
+
+/**
+ * @brief  The user must implement their own HAL_GPIO_EXTI_Callback(uint16_t)
+ *         interrupt handler and call this function from there. It will identify
+ *         whether the interrupt came from the Nucleo board's button, and
+ *         whether it was a real button press or a bounce.
+ *         All interrupts within a 300ms window after the first one will be
+ *         considered bounces
+ * @param  GPIO_Pin the pin connected to EXTI line
+ * @retval -1 if the interrupt was not caused by the Nucleo's button
+ * @retval  0 if the interrupt was caused by a button bounce and should be ignored
+ * @retval  1 if the interrupt was a legitimate button press
+ */
+int8_t io_button_exti_debouncer( uint16_t gpio_pin )
+{
+    static uint32_t button_press_systick = 0;
+    uint32_t current_systick = 0;
+
+    if ( IO_NUCLEO_BUTTON_PIN != gpio_pin )
+    {
+        return -1;
+    }
+
+    current_systick = HAL_GetTick();
+    if( (current_systick - button_press_systick) < IO_BUTTON_DEBOUNCE_TIME )
+    {
+        return 0;
+    }
+    else
+    {
+        button_press_systick = current_systick;
+        return 1;
+    }
 }
 
 /******************************************************************************
@@ -51,29 +79,7 @@ int8_t io_nucleoboard_init( void )
 ******************************************************************************/
 
 /**
- * @brief  Splits a float into two integer values.
- * @param  in the float value as input
- * @param  out_int the pointer to the integer part as output
- * @param  out_dec the pointer to the decimal part as output
- * @param  dec_prec the decimal precision to be used
- * @retval None
- */
-void floatToInt( float in, int32_t* out_int, int32_t* out_dec, int32_t dec_prec )
-{
-    *out_int = ( int32_t )in;
-    if ( in >= 0.0f )
-    {
-        in = in - ( float )( *out_int );
-    }
-    else
-    {
-        in = ( float )( *out_int ) - in;
-    }
-    *out_dec = ( int32_t )trunc( in * pow( 10, dec_prec ) );
-}
-
-/**
- * @brief  Initialize all sensors
+ * @brief  Initialize all sensors on the sensor board
  * @param  None
  * @retval -1 error, 0 success
  * @TODO: This function differs for the IKS01A1 and IKS01A2 sensor boards.
@@ -323,4 +329,30 @@ int8_t io_read_humidity( float* read_value )
 
     *read_value = input;
     return 0;
+}
+
+/******************************************************************************
+*                        Sensor Board IO Implementation                       *
+******************************************************************************/
+
+/**
+ * @brief  Splits a float into two integer values.
+ * @param  in the float value as input
+ * @param  out_int the pointer to the integer part as output
+ * @param  out_dec the pointer to the decimal part as output
+ * @param  dec_prec the decimal precision to be used
+ * @retval None
+ */
+void floatToInt( float in, int32_t* out_int, int32_t* out_dec, int32_t dec_prec )
+{
+    *out_int = ( int32_t )in;
+    if ( in >= 0.0f )
+    {
+        in = in - ( float )( *out_int );
+    }
+    else
+    {
+        in = ( float )( *out_int ) - in;
+    }
+    *out_dec = ( int32_t )trunc( in * pow( 10, dec_prec ) );
 }
