@@ -80,9 +80,9 @@ extern int8_t button_pressed;
   * @param  Pin number of the GPIO generating the EXTI IRQ
   * @retval None
   */
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin )
 {
-    if( GPIO_Pin == IO_NUCLEO_BUTTON_PIN )
+    if ( GPIO_Pin == IO_NUCLEO_BUTTON_PIN )
     {
         if ( io_button_exti_debouncer( GPIO_Pin ) )
         {
@@ -98,7 +98,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
   */
 void EXTI15_10_IRQHandler( void )
 {
-  HAL_GPIO_EXTI_IRQHandler(KEY_BUTTON_PIN);
+    HAL_GPIO_EXTI_IRQHandler( KEY_BUTTON_PIN );
 }
 
 /******************************************************************************/
