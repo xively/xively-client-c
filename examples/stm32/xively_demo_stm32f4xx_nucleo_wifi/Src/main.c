@@ -138,9 +138,9 @@ static xi_state_t init_xively_topics( xi_context_handle_t in_context_handle );
 static const mqtt_topic_configuration_t topics_array[] = {
     {{XI_TOPIC_NAME_MANGLE( "Accelerometer" )}, NULL, pub_accelerometer},
     {{XI_TOPIC_NAME_MANGLE( "Barometer" )}, NULL, pub_barometer},
-    {{XI_TOPIC_NAME_MANGLE( "Button" )}, NULL, pub_button},
     {{XI_TOPIC_NAME_MANGLE( "Gyroscope" )}, NULL, pub_gyroscope},
     {{XI_TOPIC_NAME_MANGLE( "Humidity" )}, NULL, pub_humidity},
+    {{XI_TOPIC_NAME_MANGLE( "Button" )}, NULL, pub_button},
     {{XI_TOPIC_NAME_MANGLE( "LED" )}, &on_led_msg, NULL},
     {{XI_TOPIC_NAME_MANGLE( "Temperature" )}, NULL, pub_temperature},
 };
@@ -152,16 +152,41 @@ static const size_t topics_array_length =
 xi_context_handle_t gXivelyContextHandle      = XI_INVALID_CONTEXT_HANDLE;
 xi_timed_task_handle_t gXivelyTimedTaskHandle = XI_INVALID_TIMED_TASK_HANDLE;
 
-
 /* handler for led msg */
 void on_led_msg( const uint8_t* const msg, size_t msg_size )
 {
-    printf( "on_led_msg handler for the LED topic\r\n" );
-    printf( "msg size = %d\r\n", msg_size );
+    printf( "\r\n>> Got a new MQTT message in the LED topic" );
+    printf( "\r\n\t Message size: %d", msg_size );
+    printf( "\r\n\t Message payload: " );
+    for ( size_t i = 0; i < msg_size; i++ )
+    {
+        printf( "0x%02x ", msg[i] );
+    }
+    if ( msg_size != 1 )
+    {
+        printf( "\r\n\tUnrecognized LED message [IGNORED] Expected 1 or 0" );
+        return;
+    }
+    if( msg[0] == '0' )
+    {
+        printf( "\r\n\tTurning the LED [OFF]..." );
+        io_led_off();
+    }
+    else
+    {
+        printf( "\r\n\tTurning the LED [ON]..." );
+        io_led_on();
+    }
 }
 
 xi_state_t pub_accelerometer( const mqtt_topic_descr_t* const mqtt_topic_descr )
 {
+    SensorAxes_t sensor_input;
+    if( io_read_accelero(&sensor_input) < 0 )
+    {
+        printf( "\r\n\t[ERROR] trying to read accelerometer input" );
+        return;
+    }
     return xi_publish( gXivelyContextHandle, mqtt_topic_descr->name,
                        "greetings from acceloremeter", XI_MQTT_QOS_AT_MOST_ONCE,
                        XI_MQTT_RETAIN_FALSE, NULL, NULL );
@@ -392,7 +417,7 @@ int main( void )
         return 0;
     }
 
-    printf( "\r\n\nInitializing the wifi module..." );
+    printf( "\r\n>> Initializing the WiFi extension board" );
 
     /* Init the wi-fi module */
     status = wifi_init( &config );
@@ -401,6 +426,10 @@ int main( void )
         printf( "Error in Config" );
         return 0;
     }
+
+    printf( "\r\n>> Initializing the wifi extension board" );
+    io_nucleoboard_init();
+    io_sensorboard_init();
 
     while ( 1 )
     {
