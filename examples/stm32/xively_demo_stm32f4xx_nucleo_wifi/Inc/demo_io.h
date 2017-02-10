@@ -58,6 +58,7 @@
 int8_t io_nucleoboard_init( void );
 
 int8_t io_button_exti_debouncer( uint16_t gpio_pin );
+int8_t io_read_button( void );
 
 #define io_led_on( void ) BSP_LED_On( IO_NUCLEO_LED_PIN )
 #define io_led_off( void ) BSP_LED_Off( IO_NUCLEO_LED_PIN )
