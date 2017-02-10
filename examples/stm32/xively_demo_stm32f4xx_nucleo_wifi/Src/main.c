@@ -1,39 +1,39 @@
 /**
-******************************************************************************
-* @file    main.c
-* @author  Central LAB
-* @version V2.1.0
-* @date    17-May-2016
-* @brief   Main program body
-******************************************************************************
-* @attention
-*
-* <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
-*
-* Redistribution and use in source and binary forms, with or without modification,
-* are permitted provided that the following conditions are met:
-*   1. Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*   2. Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*   3. Neither the name of STMicroelectronics nor the names of its contributors
-*      may be used to endorse or promote products derived from this software
-*      without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-* OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-******************************************************************************
-*/
+ ******************************************************************************
+ * @file    main.c
+ * @author  Central LAB
+ * @version V2.1.0
+ * @date    17-May-2016
+ * @brief   Main program body
+ ******************************************************************************
+ * @attention
+ *
+ * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *   1. Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *   2. Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *   3. Neither the name of STMicroelectronics nor the names of its contributors
+ *      may be used to endorse or promote products derived from this software
+ *      without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ******************************************************************************
+ */
 /* Includes ------------------------------------------------------------------*/
 #include <assert.h>
 #include "main.h"
@@ -48,25 +48,25 @@
 #include "demo_io.h"
 
 /**
-   * @mainpage Documentation for X-CUBE-WIFI Software for STM32, Expansion for STM32Cube
-   * <b>Introduction</b> <br>
-   * X-CUBE-WIFI1 is an expansion software package for STM32Cube.
-   * The software runs on STM32 and it can be used for building Wi-Fi applications using
-   * the SPWF01Sx device.
-   * It is built on top of STM32Cube software technology that eases portability across
-   * different STM32 microcontrollers.
-   *
-   *
-   * \htmlinclude extra.html
-*/
+ * @mainpage Documentation for X-CUBE-WIFI Software for STM32, Expansion for STM32Cube
+ * <b>Introduction</b> <br>
+ * X-CUBE-WIFI1 is an expansion software package for STM32Cube.
+ * The software runs on STM32 and it can be used for building Wi-Fi applications using
+ * the SPWF01Sx device.
+ * It is built on top of STM32Cube software technology that eases portability across
+ * different STM32 microcontrollers.
+ *
+ *
+ * \htmlinclude extra.html
+ */
 
 /** @defgroup WIFI_Examples
-  * @{
-  */
+ * @{
+ */
 
 /** @defgroup WIFI_Example_Client_Socket
-  * @{
-  */
+ * @{
+ */
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -74,6 +74,7 @@
 #define WIFI_SCAN_BUFFER_LIST 25
 
 /* Private variables ---------------------------------------------------------*/
+volatile uint8_t button_pressed_interrupt_flag = 0;
 
 /* Private function prototypes -----------------------------------------------*/
 WiFi_Status_t wifi_get_AP_settings( void );
@@ -117,7 +118,7 @@ typedef struct mqtt_topic_configuration_s
 } mqtt_topic_configuration_t;
 
 /* combines name with the account and device id */
-#define XI_TOPIC_NAME_MANGLE( name ) \
+#define XI_TOPIC_NAME_MANGLE( name )                                                     \
     "xi/blue/v1/" XI_ACCOUNT_ID "/d/" XI_DEVICE_ID "/" name
 
 /* declaration of topic handlers for SUB'ed topics */
@@ -125,6 +126,7 @@ static void on_led_msg( const uint8_t* const msg, size_t msg_size );
 
 /* declaration of topic handlers for PUB'ed topics */
 static xi_state_t pub_accelerometer( const mqtt_topic_descr_t* const mqtt_topic_descr );
+static xi_state_t pub_magnetometer( const mqtt_topic_descr_t* const mqtt_topic_descr );
 static xi_state_t pub_barometer( const mqtt_topic_descr_t* const mqtt_topic_descr );
 static xi_state_t pub_button( const mqtt_topic_descr_t* const mqtt_topic_descr );
 static xi_state_t pub_gyroscope( const mqtt_topic_descr_t* const mqtt_topic_descr );
@@ -137,6 +139,7 @@ static xi_state_t init_xively_topics( xi_context_handle_t in_context_handle );
 /* table of topics used for this demo */
 static const mqtt_topic_configuration_t topics_array[] = {
     {{XI_TOPIC_NAME_MANGLE( "Accelerometer" )}, NULL, pub_accelerometer},
+    {{XI_TOPIC_NAME_MANGLE( "Magnetometer" )}, NULL, pub_magnetometer},
     {{XI_TOPIC_NAME_MANGLE( "Barometer" )}, NULL, pub_barometer},
     {{XI_TOPIC_NAME_MANGLE( "Gyroscope" )}, NULL, pub_gyroscope},
     {{XI_TOPIC_NAME_MANGLE( "Humidity" )}, NULL, pub_humidity},
@@ -167,64 +170,117 @@ void on_led_msg( const uint8_t* const msg, size_t msg_size )
         printf( "\r\n\tUnrecognized LED message [IGNORED] Expected 1 or 0" );
         return;
     }
-    if( msg[0] == '0' )
-    {
-        printf( "\r\n\tTurning the LED [OFF]..." );
-        io_led_off();
-    }
-    else
-    {
-        printf( "\r\n\tTurning the LED [ON]..." );
-        io_led_on();
-    }
+    ( msg[0] == '0' ) ? io_led_off() : io_led_on();
 }
 
 xi_state_t pub_accelerometer( const mqtt_topic_descr_t* const mqtt_topic_descr )
 {
+    char out_msg[IO_AXES_JSON_BUFFER_MAX_SIZE] = "";
     SensorAxes_t sensor_input;
-    if( io_read_accelero(&sensor_input) < 0 )
+
+    if ( io_read_accelero( &sensor_input ) < 0 )
     {
         printf( "\r\n\t[ERROR] trying to read accelerometer input" );
         return;
     }
-    return xi_publish( gXivelyContextHandle, mqtt_topic_descr->name,
-                       "greetings from acceloremeter", XI_MQTT_QOS_AT_MOST_ONCE,
-                       XI_MQTT_RETAIN_FALSE, NULL, NULL );
+    if ( io_axes_to_json( sensor_input, out_msg, IO_AXES_JSON_BUFFER_MAX_SIZE ) < 0 )
+    {
+        printf( "\r\n\t[ERROR] trying to create JSON string from sensor input" );
+        return;
+    }
+    return xi_publish( gXivelyContextHandle, mqtt_topic_descr->name, out_msg,
+                       XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
 
-xi_state_t pub_barometer( const mqtt_topic_descr_t* const mqtt_topic_descr )
+xi_state_t pub_magnetometer( const mqtt_topic_descr_t* const mqtt_topic_descr )
 {
-    return xi_publish( gXivelyContextHandle, mqtt_topic_descr->name,
-                       "greetings from barometer", XI_MQTT_QOS_AT_MOST_ONCE,
-                       XI_MQTT_RETAIN_FALSE, NULL, NULL );
-}
+    char out_msg[IO_AXES_JSON_BUFFER_MAX_SIZE] = "";
+    SensorAxes_t sensor_input;
 
-xi_state_t pub_button( const mqtt_topic_descr_t* const mqtt_topic_descr )
-{
-    return xi_publish( gXivelyContextHandle, mqtt_topic_descr->name,
-                       "greetings from button", XI_MQTT_QOS_AT_MOST_ONCE,
-                       XI_MQTT_RETAIN_FALSE, NULL, NULL );
+    if ( io_read_magneto( &sensor_input ) < 0 )
+    {
+        printf( "\r\n\t[ERROR] trying to read magnetometer input" );
+        return;
+    }
+    if ( io_axes_to_json( sensor_input, out_msg, IO_AXES_JSON_BUFFER_MAX_SIZE ) < 0 )
+    {
+        printf( "\r\n\t[ERROR] trying to create JSON string from sensor input" );
+        return;
+    }
+    return xi_publish( gXivelyContextHandle, mqtt_topic_descr->name, out_msg,
+                       XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
 
 xi_state_t pub_gyroscope( const mqtt_topic_descr_t* const mqtt_topic_descr )
 {
-    return xi_publish( gXivelyContextHandle, mqtt_topic_descr->name,
-                       "greetings from gyroscope", XI_MQTT_QOS_AT_MOST_ONCE,
-                       XI_MQTT_RETAIN_FALSE, NULL, NULL );
+    char out_msg[IO_AXES_JSON_BUFFER_MAX_SIZE] = "";
+    SensorAxes_t sensor_input;
+
+    if ( io_read_gyro( &sensor_input ) < 0 )
+    {
+        printf( "\r\n\t[ERROR] trying to read gyroscope input" );
+        return;
+    }
+    if ( io_axes_to_json( sensor_input, out_msg, IO_AXES_JSON_BUFFER_MAX_SIZE ) < 0 )
+    {
+        printf( "\r\n\t[ERROR] trying to create JSON string from sensor input" );
+        return;
+    }
+    return xi_publish( gXivelyContextHandle, mqtt_topic_descr->name, out_msg,
+                       XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
+}
+
+xi_state_t pub_barometer( const mqtt_topic_descr_t* const mqtt_topic_descr )
+{
+    char out_msg[IO_FLOAT_BUFFER_MAX_SIZE] = "";
+    float sensor_input                     = 0;
+    io_read_pressure( &sensor_input );
+    io_float_to_string( sensor_input, out_msg, IO_FLOAT_BUFFER_MAX_SIZE );
+    return xi_publish( gXivelyContextHandle, mqtt_topic_descr->name, out_msg,
+                       XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
 
 xi_state_t pub_humidity( const mqtt_topic_descr_t* const mqtt_topic_descr )
 {
-    return xi_publish( gXivelyContextHandle, mqtt_topic_descr->name,
-                       "greetings from humidity", XI_MQTT_QOS_AT_MOST_ONCE,
-                       XI_MQTT_RETAIN_FALSE, NULL, NULL );
+    char out_msg[IO_FLOAT_BUFFER_MAX_SIZE] = "";
+    float sensor_input                     = 0;
+    io_read_humidity( &sensor_input );
+    io_float_to_string( sensor_input, out_msg, IO_FLOAT_BUFFER_MAX_SIZE );
+    return xi_publish( gXivelyContextHandle, mqtt_topic_descr->name, out_msg,
+                       XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
 
 xi_state_t pub_temperature( const mqtt_topic_descr_t* const mqtt_topic_descr )
 {
-    return xi_publish( gXivelyContextHandle, mqtt_topic_descr->name,
-                       "greetings from temperature", XI_MQTT_QOS_AT_MOST_ONCE,
-                       XI_MQTT_RETAIN_FALSE, NULL, NULL );
+    char out_msg[IO_FLOAT_BUFFER_MAX_SIZE] = "";
+    float sensor_input                     = 0;
+    io_read_temperature( &sensor_input );
+    io_float_to_string( sensor_input, out_msg, IO_FLOAT_BUFFER_MAX_SIZE );
+    return xi_publish( gXivelyContextHandle, mqtt_topic_descr->name, out_msg,
+                       XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
+}
+
+xi_state_t pub_button( const mqtt_topic_descr_t* const mqtt_topic_descr )
+{
+    // TODO: This behaviour will probably look wonky in the product simulator.
+    //      Either publish a "toggle" on interrupt, or stop using interrupts and
+    //      poll the button so we can keep track of the state.
+    //      E.G. User presses the button for a few milliseconds, the interrupt
+    //      flag is set, we publish it and wait for a whole second before
+    //      we realise the user stopped pressing the button long ago. Now the
+    //      user sees over a second of "button press" in the frontend, which
+    //      does not match the few ms he actually did
+    static int8_t last_status = 0;
+    char* payload;
+    if ( last_status == button_pressed_interrupt_flag )
+    {
+        /* No update */
+        return XI_STATE_OK;
+    }
+    ( button_pressed_interrupt_flag == 1 ) ? ( payload = "1" ) : ( payload = "0" );
+    button_pressed_interrupt_flag = 0;
+    return xi_publish( gXivelyContextHandle, mqtt_topic_descr->name, payload,
+                       XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
 
 void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t state )
@@ -377,10 +433,10 @@ xi_state_t init_xively_topics( xi_context_handle_t in_context_handle )
 }
 
 /**
-  * @brief  Main program
-  * @param  None
-  * @retval None
-  */
+ * @brief  Main program
+ * @param  None
+ * @retval None
+ */
 int main( void )
 {
     uint8_t i            = 0;
@@ -402,6 +458,10 @@ int main( void )
     UART_Msg_Gpio_Init();
     USART_PRINT_MSG_Configuration( 115200 );
 #endif
+
+    io_nucleoboard_init();
+    io_sensorboard_init();
+    io_sensorboard_enable();
 
     config.power       = wifi_sleep;
     config.power_level = high;
@@ -428,8 +488,6 @@ int main( void )
     }
 
     printf( "\r\n>> Initializing the wifi extension board" );
-    io_nucleoboard_init();
-    io_sensorboard_init();
 
     while ( 1 )
     {
@@ -534,19 +592,38 @@ int main( void )
 }
 
 /**
-  * @brief  System Clock Configuration
-  *         The system Clock is configured as follow :
-  *            System Clock source            = PLL (HSI)
-  *            SYSCLK(Hz)                     = 64000000
-  *            HCLK(Hz)                       = 64000000
-  *            AHB Prescaler                  = 1
-  *            APB1 Prescaler                 = 2
-  *            APB2 Prescaler                 = 1
-  *            PLLMUL                         = 16
-  *            Flash Latency(WS)              = 2
-  * @param  None
-  * @retval None
-  */
+ * @brief  This function Is called when there's an EXTernal Interrupt caused
+ *         by a GPIO pin. It must be kickstarted by each interrupt from the
+ *         pin-specific handlers at stm32_xx_it.c
+ * @param  Pin number of the GPIO generating the EXTI IRQ
+ * @retval None
+ */
+void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin )
+{
+    if ( GPIO_Pin == IO_NUCLEO_BUTTON_PIN )
+    {
+        if ( io_button_exti_debouncer( GPIO_Pin ) )
+        {
+            printf( "\r\n>> Nucleo board button [PRESSED]" );
+            button_pressed_interrupt_flag = 1;
+        }
+    }
+}
+
+/**
+ * @brief  System Clock Configuration
+ *         The system Clock is configured as follow :
+ *            System Clock source            = PLL (HSI)
+ *            SYSCLK(Hz)                     = 64000000
+ *            HCLK(Hz)                       = 64000000
+ *            AHB Prescaler                  = 1
+ *            APB1 Prescaler                 = 2
+ *            APB2 Prescaler                 = 1
+ *            PLLMUL                         = 16
+ *            Flash Latency(WS)              = 2
+ * @param  None
+ * @retval None
+ */
 
 #ifdef USE_STM32F1xx_NUCLEO
 
@@ -671,24 +748,24 @@ void SystemClock_Config( void )
 
 #ifdef USE_STM32L4XX_NUCLEO
 /**
-  * @brief  System Clock Configuration
-  *         The system Clock is configured as follow :
-  *            System Clock source            = PLL (MSI)
-  *            SYSCLK(Hz)                     = 80000000
-  *            HCLK(Hz)                       = 80000000
-  *            AHB Prescaler                  = 1
-  *            APB1 Prescaler                 = 1
-  *            APB2 Prescaler                 = 1
-  *            MSI Frequency(Hz)              = 4000000
-  *            PLL_M                          = 1
-  *            PLL_N                          = 40
-  *            PLL_R                          = 2
-  *            PLL_P                          = 7
-  *            PLL_Q                          = 4
-  *            Flash Latency(WS)              = 4
-  * @param  None
-  * @retval None
-  */
+ * @brief  System Clock Configuration
+ *         The system Clock is configured as follow :
+ *            System Clock source            = PLL (MSI)
+ *            SYSCLK(Hz)                     = 80000000
+ *            HCLK(Hz)                       = 80000000
+ *            AHB Prescaler                  = 1
+ *            APB1 Prescaler                 = 1
+ *            APB2 Prescaler                 = 1
+ *            MSI Frequency(Hz)              = 4000000
+ *            PLL_M                          = 1
+ *            PLL_N                          = 40
+ *            PLL_R                          = 2
+ *            PLL_P                          = 7
+ *            PLL_Q                          = 4
+ *            Flash Latency(WS)              = 4
+ * @param  None
+ * @retval None
+ */
 void SystemClock_Config( void )
 {
     RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
@@ -723,16 +800,16 @@ void SystemClock_Config( void )
 #ifdef USE_FULL_ASSERT
 
 /**
-  * @brief  Reports the name of the source file and the source line number
-  *         where the assert_param error has occurred.
-  * @param  file: pointer to the source file name
-  * @param  line: assert_param error line source number
-  * @retval None
-  */
+ * @brief  Reports the name of the source file and the source line number
+ *         where the assert_param error has occurred.
+ * @param  file: pointer to the source file name
+ * @param  line: assert_param error line source number
+ * @retval None
+ */
 void assert_failed( uint8_t* file, uint32_t line )
 {
     /* User can add his own implementation to report the file name and line number,
-       ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
 
     /* Infinite loop */
     while ( 1 )
@@ -742,10 +819,10 @@ void assert_failed( uint8_t* file, uint32_t line )
 #endif
 
 /**
-  * @brief  Query the User for SSID, password, encryption mode and hostname
-  * @param  None
-  * @retval WiFi_Status_t
-  */
+ * @brief  Query the User for SSID, password, encryption mode and hostname
+ * @param  None
+ * @retval WiFi_Status_t
+ */
 WiFi_Status_t wifi_get_AP_settings( void )
 {
     uint8_t console_input[1], console_count = 0;
@@ -866,11 +943,11 @@ void ind_wifi_resuming()
 }
 
 /**
-  * @}
-  */
+ * @}
+ */
 
 /**
-* @}
-*/
+ * @}
+ */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
