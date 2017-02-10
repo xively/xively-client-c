@@ -15,6 +15,8 @@
 #include "demo_io.h"
 #include "sensor.h"
 
+static void floatToInt( float in, int32_t* out_int, int32_t* out_dec, int32_t dec_prec );
+
 static void* ACCELERO_handle    = NULL;
 static void* GYRO_handle        = NULL;
 static void* MAGNETO_handle     = NULL;
@@ -342,7 +344,7 @@ int8_t io_read_humidity( float* read_value )
  * @param  dec_prec the decimal precision to be used
  * @retval None
  */
-void floatToInt( float in, int32_t* out_int, int32_t* out_dec, int32_t dec_prec )
+static void floatToInt( float in, int32_t* out_int, int32_t* out_dec, int32_t dec_prec )
 {
     *out_int = ( int32_t )in;
     if ( in >= 0.0f )
@@ -354,4 +356,61 @@ void floatToInt( float in, int32_t* out_int, int32_t* out_dec, int32_t dec_prec 
         in = ( float )( *out_int ) - in;
     }
     *out_dec = ( int32_t )trunc( in * pow( 10, dec_prec ) );
+}
+
+/**
+ * @brief  Create a string representing the float value read from one of the
+ *         single-dimention sensors on the sensor board.
+ *             ```
+ *             char str[IO_FLOAT_BUFFER_MAX_SIZE] = "";
+ *             float input;
+ *             io_read_humidity( &input );
+ *             io_float_to_string( input, str, IO_FLOAT_BUFFER_MAX_SIZE );
+ *             ```
+ * @param  axes is the input received from an appropriate io_read_*() function
+ * @param  *buf points at PREVIOUSLY ALLOCATED string with at least
+ *         IO_FLOAT_BUFFER_MAX_SIZE bytes
+ * @param  Bytes allocated for *buf
+ * @retval  0 = Success
+ * @retval -1 = Error
+ */
+int8_t io_float_to_string( float input, char* buf , int32_t buf_size )
+{
+    int retv = 0;
+    int32_t input_integer = 0, input_fractional = 0;
+    floatToInt( input, &input_integer, &input_fractional, 2 );
+    retv = snprintf( buf, buf_size, "%ld.%02ld", input_integer, input_fractional );
+    if ( retv > buf_size )
+    {
+        return -1;
+    }
+    return 0;
+}
+
+/**
+ * @brief  Create a JSON string representing the values read from any 3-axis
+ *         sensor. Recommeded usage:
+ *             ```
+ *             char json_str[IO_AXES_JSON_BUFFER_MAX_SIZE] = "";
+ *             SensorAxes_t input;
+ *             io_read_gyro( &input );
+ *             io_axes_to_json( input, json_str, IO_AXES_JSON_BUFFER_MAX_SIZE );
+ *             ```
+ * @param  axes is the input received from an appropriate io_read_*() function
+ * @param  *buf points at PREVIOUSLY ALLOCATED string with at least
+ *         IO_AXES_JSON_BUFFER_MAX_SIZE bytes
+ * @param  Bytes allocated for *buf
+ * @retval  0 = Success
+ * @retval -1 = Error
+ */
+int8_t io_axes_to_json( SensorAxes_t axes, char* buf , int32_t buf_size )
+{
+    int retv = 0;
+    retv = snprintf( buf, buf_size, "{\"x\": %ld, \"y\": %ld, \"z\": %ld}",
+                     axes.AXIS_X, axes.AXIS_Y, axes.AXIS_Z );
+    if ( retv > buf_size )
+    {
+        return -1;
+    }
+    return 0;
 }
