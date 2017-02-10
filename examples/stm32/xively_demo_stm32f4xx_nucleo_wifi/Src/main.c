@@ -118,7 +118,7 @@ typedef struct mqtt_topic_configuration_s
 } mqtt_topic_configuration_t;
 
 /* combines name with the account and device id */
-#define XI_TOPIC_NAME_MANGLE( name )                                                     \
+#define XI_TOPIC_NAME_MANGLE( name ) \
     "xi/blue/v1/" XI_ACCOUNT_ID "/d/" XI_DEVICE_ID "/" name
 
 /* declaration of topic handlers for SUB'ed topics */
@@ -181,12 +181,11 @@ xi_state_t pub_accelerometer( const mqtt_topic_descr_t* const mqtt_topic_descr )
     if ( io_read_accelero( &sensor_input ) < 0 )
     {
         printf( "\r\n\t[ERROR] trying to read accelerometer input" );
-        return;
-    }
-    if ( io_axes_to_json( sensor_input, out_msg, IO_AXES_JSON_BUFFER_MAX_SIZE ) < 0 )
+        return -1;
+    } if ( io_axes_to_json( sensor_input, out_msg, IO_AXES_JSON_BUFFER_MAX_SIZE ) < 0 )
     {
         printf( "\r\n\t[ERROR] trying to create JSON string from sensor input" );
-        return;
+        return -1;
     }
     return xi_publish( gXivelyContextHandle, mqtt_topic_descr->name, out_msg,
                        XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
@@ -200,12 +199,12 @@ xi_state_t pub_magnetometer( const mqtt_topic_descr_t* const mqtt_topic_descr )
     if ( io_read_magneto( &sensor_input ) < 0 )
     {
         printf( "\r\n\t[ERROR] trying to read magnetometer input" );
-        return;
+        return -1;
     }
     if ( io_axes_to_json( sensor_input, out_msg, IO_AXES_JSON_BUFFER_MAX_SIZE ) < 0 )
     {
         printf( "\r\n\t[ERROR] trying to create JSON string from sensor input" );
-        return;
+        return -1;
     }
     return xi_publish( gXivelyContextHandle, mqtt_topic_descr->name, out_msg,
                        XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
@@ -219,12 +218,12 @@ xi_state_t pub_gyroscope( const mqtt_topic_descr_t* const mqtt_topic_descr )
     if ( io_read_gyro( &sensor_input ) < 0 )
     {
         printf( "\r\n\t[ERROR] trying to read gyroscope input" );
-        return;
+        return -1;
     }
     if ( io_axes_to_json( sensor_input, out_msg, IO_AXES_JSON_BUFFER_MAX_SIZE ) < 0 )
     {
         printf( "\r\n\t[ERROR] trying to create JSON string from sensor input" );
-        return;
+        return -1;
     }
     return xi_publish( gXivelyContextHandle, mqtt_topic_descr->name, out_msg,
                        XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
@@ -262,25 +261,17 @@ xi_state_t pub_temperature( const mqtt_topic_descr_t* const mqtt_topic_descr )
 
 xi_state_t pub_button( const mqtt_topic_descr_t* const mqtt_topic_descr )
 {
-    // TODO: This behaviour will probably look wonky in the product simulator.
-    //      Either publish a "toggle" on interrupt, or stop using interrupts and
-    //      poll the button so we can keep track of the state.
-    //      E.G. User presses the button for a few milliseconds, the interrupt
-    //      flag is set, we publish it and wait for a whole second before
-    //      we realise the user stopped pressing the button long ago. Now the
-    //      user sees over a second of "button press" in the frontend, which
-    //      does not match the few ms he actually did
-    static int8_t last_status = 0;
     char* payload;
-    if ( last_status == button_pressed_interrupt_flag )
-    {
-        /* No update */
-        return XI_STATE_OK;
-    }
-    ( button_pressed_interrupt_flag == 1 ) ? ( payload = "1" ) : ( payload = "0" );
-    button_pressed_interrupt_flag = 0;
+    ( io_read_button() ) ? ( payload = "1" ) : ( payload = "0" );
     return xi_publish( gXivelyContextHandle, mqtt_topic_descr->name, payload,
                        XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
+}
+
+void pub_button_interrupt( void )
+{
+    char payload[] = "1";
+    xi_publish( gXivelyContextHandle, XI_TOPIC_NAME_MANGLE( "Button" ), payload,
+                XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
 
 void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t state )
@@ -459,6 +450,7 @@ int main( void )
     USART_PRINT_MSG_Configuration( 115200 );
 #endif
 
+    printf( "\r\n>> Initializing the sensor extension board" );
     io_nucleoboard_init();
     io_sensorboard_init();
     io_sensorboard_enable();
@@ -486,8 +478,6 @@ int main( void )
         printf( "Error in Config" );
         return 0;
     }
-
-    printf( "\r\n>> Initializing the wifi extension board" );
 
     while ( 1 )
     {
@@ -606,6 +596,7 @@ void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin )
         {
             printf( "\r\n>> Nucleo board button [PRESSED]" );
             button_pressed_interrupt_flag = 1;
+            pub_button_interrupt();
         }
     }
 }
