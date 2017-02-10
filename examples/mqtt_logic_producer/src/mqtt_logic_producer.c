@@ -311,7 +311,6 @@ void delayed_publish( xi_context_handle_t context_handle,
 
     printf( "publishing msg\n" );
 
-    /* sending the connect request */
     xi_publish( context_handle, xi_publishtopic, "Hello From Xively!", xi_example_qos,
                 XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
