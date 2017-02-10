@@ -35,12 +35,16 @@
   ******************************************************************************
   */
 /* Includes ------------------------------------------------------------------*/
+#include <assert.h>
 #include "main.h"
 #include "wifi_interface.h"
 #include "stdio.h"
 #include "string.h"
+
+/* Xively's headers */
 #include "xively.h"
 #include "xi_bsp_io_net_socket_proxy.h"
+#include "xi_bsp_time.h"
 
 /**
    * @mainpage Documentation for X-CUBE-WIFI Software for STM32, Expansion for STM32Cube 
@@ -82,17 +86,269 @@ char * ssid = "SSID";
 char * seckey = "PASSWORD";
 WiFi_Priv_Mode mode = WPA_Personal;
 
-char* XI_ACCOUNT_ID = "XIVELY ACCOUNT ID";
-char* XI_USER = "XIVELY USER";
-char* XI_DEVICE_ID = "DEVICE ID";
-char* XI_DEVICE_PASS = "DEVICE PASSWORD";
+#define XI_ACCOUNT_ID "XIVELY ACCOUNT ID"
+#define XI_DEVICE_ID  "XIVELY DEVICE ID"
+#define XI_DEVICE_PASS  "XIVELY DEVICE PASSWORD"
 
-xi_context_handle_t gXivelyContextHandle = -1;
+/* the interval for the time function */
+#define XI_PUBLISH_INTERVAL_SEC 2
+
+typedef struct topic_descr_s
+{	const char* const name;
+} mqtt_topic_descr_t;
+
+/* declaration of fn pointer for the msg handler */
+typedef void (*on_msg_handler_fn_t)( const uint8_t* const msg, size_t msg_size );
+
+/* declaration of fn pointer for the polling push mechanism */
+typedef xi_state_t(*on_msg_push_fn_t)( const mqtt_topic_descr_t* const mqtt_topic_descr );
+
+/* each topic will have it's descriptor and the handler in case of the message */
+typedef struct mqtt_topic_configuration_s {
+	mqtt_topic_descr_t topic_descr;
+	on_msg_handler_fn_t on_msg_pull;
+	on_msg_push_fn_t on_msg_push;
+} mqtt_topic_configuration_t;
+
+/* combines name with the account and device id */
+#define XI_TOPIC_NAME_MANGLE( name ) \
+		"xi/blue/v1/" XI_ACCOUNT_ID "/d/" XI_DEVICE_ID "/" name
+
+/* declaration of topic handlers for SUB'ed topics */
+static void on_led_msg( const uint8_t* const msg, size_t msg_size );
+
+/* declaration of topic handlers for PUB'ed topics */
+static xi_state_t pub_accelerometer( const mqtt_topic_descr_t* const mqtt_topic_descr );
+static xi_state_t pub_barometer( const mqtt_topic_descr_t* const mqtt_topic_descr );
+static xi_state_t pub_button( const mqtt_topic_descr_t* const mqtt_topic_descr );
+static xi_state_t pub_gyroscope( const mqtt_topic_descr_t* const mqtt_topic_descr );
+static xi_state_t pub_humidity( const mqtt_topic_descr_t* const mqtt_topic_descr );
+static xi_state_t pub_temperature( const mqtt_topic_descr_t* const mqtt_topic_descr );
+
+/* topic's initialisation function */
+static xi_state_t init_xively_topics( xi_context_handle_t in_context_handle );
+
+/* table of topics used for this demo */
+static const mqtt_topic_configuration_t topics_array[] = {
+	{{ XI_TOPIC_NAME_MANGLE( "Accelerometer" ) }, NULL, pub_accelerometer },
+	{{ XI_TOPIC_NAME_MANGLE( "Barometer" ) }, NULL, pub_barometer },
+	{{ XI_TOPIC_NAME_MANGLE( "Button" ) }, NULL, pub_button },
+	{{ XI_TOPIC_NAME_MANGLE( "Gyroscope" ) }, NULL, pub_gyroscope },
+	{{ XI_TOPIC_NAME_MANGLE( "Humidity" ) }, NULL, pub_humidity },
+	{{ XI_TOPIC_NAME_MANGLE( "LED" ) }, &on_led_msg, NULL },
+	{{ XI_TOPIC_NAME_MANGLE( "Temperature" ) }, NULL, pub_temperature },
+};
+
+/* store the length of the array */
+static const size_t topics_array_length =
+		sizeof( topics_array ) / sizeof( topics_array[ 0 ] );
+
+xi_context_handle_t gXivelyContextHandle = XI_INVALID_CONTEXT_HANDLE;
+xi_timed_task_handle_t gXivelyTimedTaskHandle = XI_INVALID_TIMED_TASK_HANDLE;
+
+
+/* handler for led msg */
+void on_led_msg( const uint8_t* const msg, size_t msg_size )
+{
+	printf( "on_led_msg handler for the LED topic\r\n" );
+	printf( "msg size = %d\r\n", msg_size );
+}
+
+xi_state_t pub_accelerometer( const mqtt_topic_descr_t* const mqtt_topic_descr )
+{
+	return xi_publish( gXivelyContextHandle,
+			mqtt_topic_descr->name, "greetings from acceloremeter",
+			XI_MQTT_QOS_AT_MOST_ONCE,
+			XI_MQTT_RETAIN_FALSE, NULL, NULL );
+}
+
+xi_state_t pub_barometer( const mqtt_topic_descr_t* const mqtt_topic_descr )
+{
+	return xi_publish( gXivelyContextHandle,
+			mqtt_topic_descr->name, "greetings from barometer",
+			XI_MQTT_QOS_AT_MOST_ONCE,
+			XI_MQTT_RETAIN_FALSE, NULL, NULL );
+}
+
+xi_state_t pub_button( const mqtt_topic_descr_t* const mqtt_topic_descr )
+{
+	return xi_publish( gXivelyContextHandle,
+			mqtt_topic_descr->name, "greetings from button",
+			XI_MQTT_QOS_AT_MOST_ONCE,
+			XI_MQTT_RETAIN_FALSE, NULL, NULL );
+}
+
+xi_state_t pub_gyroscope( const mqtt_topic_descr_t* const mqtt_topic_descr )
+{
+	return xi_publish( gXivelyContextHandle,
+			mqtt_topic_descr->name, "greetings from gyroscope",
+			XI_MQTT_QOS_AT_MOST_ONCE,
+			XI_MQTT_RETAIN_FALSE, NULL, NULL );
+}
+
+xi_state_t pub_humidity( const mqtt_topic_descr_t* const mqtt_topic_descr )
+{
+	return xi_publish( gXivelyContextHandle,
+			mqtt_topic_descr->name, "greetings from humidity",
+			XI_MQTT_QOS_AT_MOST_ONCE,
+			XI_MQTT_RETAIN_FALSE, NULL, NULL );
+}
+
+xi_state_t pub_temperature( const mqtt_topic_descr_t* const mqtt_topic_descr )
+{
+	return xi_publish( gXivelyContextHandle,
+			mqtt_topic_descr->name, "greetings from temperature",
+			XI_MQTT_QOS_AT_MOST_ONCE,
+			XI_MQTT_RETAIN_FALSE, NULL, NULL );
+}
 
 void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t state )
 {
-    xi_connection_data_t* conn_data = ( xi_connection_data_t* )data;
+	/* sanity check */
+	assert( NULL != data );
+
+	xi_connection_data_t* conn_data = ( xi_connection_data_t* )data;
+
     printf( "\r\nconnected, state : %i" , conn_data->connection_state  );
+	switch ( conn_data->connection_state )
+	{
+		/* connection attempt failed */
+		case XI_CONNECTION_STATE_OPEN_FAILED:
+			printf( "[%d] Xively: Connection failed %s:%d, error %d, reconnecting....\r\n",
+					( int ) xi_bsp_time_getcurrenttime_seconds(),
+					conn_data->host, conn_data->port, state );
+
+			xi_connect( in_context_handle,
+					conn_data->username, conn_data->password,
+					conn_data->connection_timeout, conn_data->keepalive_timeout,
+					conn_data->session_type, &on_connected);
+		break;
+		/* connection has been closed */
+		case XI_CONNECTION_STATE_CLOSED:
+			/* unregister task handle */
+			xi_cancel_timed_task( gXivelyTimedTaskHandle );
+			gXivelyTimedTaskHandle = XI_INVALID_TIMED_TASK_HANDLE;
+
+			printf( "[%d] Xively: Connection closed %s:%d reason %d, reconnecting....\r\n",
+					( int ) xi_bsp_time_getcurrenttime_seconds(),
+					conn_data->host, conn_data->port, state );
+
+			xi_connect( in_context_handle,
+					conn_data->username, conn_data->password,
+					conn_data->connection_timeout, conn_data->keepalive_timeout,
+					conn_data->session_type, &on_connected);
+		break;
+		/* connection has been established */
+		case XI_CONNECTION_STATE_OPENED:
+			printf( "[%d] Xively: Connected to %s:%d\r\n",
+					( int ) xi_bsp_time_getcurrenttime_seconds(),
+					conn_data->host, conn_data->port );
+
+			{
+				/* here put the activation code */
+				init_xively_topics( in_context_handle );
+			}
+
+			break;
+		/* something really bad happened */
+		default:
+			printf( "[%d] Xively: Invalid connection status %s:%d\r\n",
+					( int ) xi_bsp_time_getcurrenttime_seconds(),
+					conn_data->host, conn_data->port );
+	};
+}
+
+/* handler for xively mqtt topic subscription */
+void on_mqtt_topic( xi_context_handle_t in_context_handle,
+        xi_sub_call_type_t call_type,
+        const xi_sub_call_params_t* const params,
+        xi_state_t state,
+        void* user_data )
+{
+	/* sanity checks */
+	assert( NULL != user_data );
+
+	/* user data is the mqtt_topic_configuration_t */
+	const mqtt_topic_configuration_t* topic_conf = ( const mqtt_topic_configuration_t* ) user_data;
+
+	switch ( call_type )
+	{
+		case XI_SUB_CALL_SUBACK:
+            if ( XI_MQTT_SUBACK_FAILED == params->suback.suback_status )
+            {
+            	printf( "Subscription failed for %s topic\r\n", params->suback.topic );
+            }
+            else
+            {
+            	printf( "Subscription successful for %s topic\r\n", params->suback.topic );
+            }
+            return;
+        case XI_SUB_CALL_MESSAGE:
+            printf( "received message on %s topic\r\n", params->suback.topic );
+            /* if there is a handler call it with the message payload */
+            if( NULL != topic_conf->on_msg_pull )
+            {
+        		topic_conf->on_msg_pull( params->message.temporary_payload_data,
+        				params->message.temporary_payload_data_length );
+            }
+        	break;
+        default:
+        	return;
+	}
+}
+
+
+void push_mqtt_topics( )
+{
+	int i = 0;
+	for(; i < topics_array_length; ++i )
+	{
+		const mqtt_topic_configuration_t* const topic_config = &topics_array[ i ];
+
+		if( NULL != topic_config->on_msg_push )
+		{
+			topic_config->on_msg_push( &topic_config->topic_descr );
+		}
+	}
+}
+
+
+/*
+ * Initializes Xively's demo application topics
+ */
+xi_state_t init_xively_topics( xi_context_handle_t in_context_handle )
+{
+	xi_state_t ret = XI_STATE_OK;
+
+	int i = 0;
+	for(; i < topics_array_length; ++i )
+	{
+		const mqtt_topic_configuration_t* const topic_config = &topics_array[ i ];
+
+		if( NULL != topic_config->on_msg_pull )
+		{
+			ret = xi_subscribe( in_context_handle,
+					topic_config->topic_descr.name, XI_MQTT_QOS_AT_MOST_ONCE,
+					&on_mqtt_topic, ( void* ) topic_config );
+
+			if( XI_STATE_OK != ret )
+			{
+				return ret;
+			}
+		}
+	}
+
+	/* registration of the publish function */
+	gXivelyTimedTaskHandle = xi_schedule_timed_task( in_context_handle,
+			&push_mqtt_topics, XI_PUBLISH_INTERVAL_SEC, 1, NULL );
+
+	if( XI_INVALID_TIMED_TASK_HANDLE == gXivelyTimedTaskHandle )
+	{
+		printf( "timed task couldn't been registered\r\n" );
+		return XI_FAILED_INITIALIZATION;
+	}
+
+	return ret;
 }
 
 /**
@@ -206,7 +462,7 @@ int main(void)
         if(socket_open == 0)
           {
             /* Read Write Socket data */
-            xi_state_t ret_state = xi_initialize( XI_ACCOUNT_ID, XI_USER, 0 );
+            xi_state_t ret_state = xi_initialize( XI_ACCOUNT_ID, XI_DEVICE_ID, 0 );
 
             if ( XI_STATE_OK != ret_state )
             {
