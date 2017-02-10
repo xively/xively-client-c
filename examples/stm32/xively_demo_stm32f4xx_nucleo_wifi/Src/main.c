@@ -93,16 +93,8 @@ WiFi_Priv_Mode mode = WPA_Personal;
 /* the interval for the time function */
 #define XI_PUBLISH_INTERVAL_SEC 2
 
-/* enumertation of topics for pub */
-typedef enum mqtt_topic_type_e {
-	MQTT_TOPIC_PUB,
-	MQTT_TOPIC_SUB,
-	MQTT_TOPIC_SUB_AND_PUB
-} mqtt_topic_type_t;
-
 typedef struct topic_descr_s
 {	const char* const name;
-	mqtt_topic_type_t topic_type;
 } mqtt_topic_descr_t;
 
 /* declaration of fn pointer for the msg handler */
@@ -138,13 +130,13 @@ static xi_state_t init_xively_topics( xi_context_handle_t in_context_handle );
 
 /* table of topics used for this demo */
 static const mqtt_topic_configuration_t topics_array[] = {
-	{{ XI_TOPIC_NAME_MANGLE( "Accelerometer" ), MQTT_TOPIC_PUB }, NULL, pub_accelerometer },
-	{{ XI_TOPIC_NAME_MANGLE( "Barometer" ), MQTT_TOPIC_PUB }, NULL, pub_barometer },
-	{{ XI_TOPIC_NAME_MANGLE( "Button" ), MQTT_TOPIC_PUB }, NULL, pub_button },
-	{{ XI_TOPIC_NAME_MANGLE( "Gyroscope" ), MQTT_TOPIC_PUB }, NULL, pub_gyroscope },
-	{{ XI_TOPIC_NAME_MANGLE( "Humidity" ), MQTT_TOPIC_PUB }, NULL, pub_humidity },
-	{{ XI_TOPIC_NAME_MANGLE( "LED" ), MQTT_TOPIC_SUB }, &on_led_msg, NULL },
-	{{ XI_TOPIC_NAME_MANGLE( "Temperature" ), MQTT_TOPIC_PUB }, NULL, pub_temperature },
+	{{ XI_TOPIC_NAME_MANGLE( "Accelerometer" ) }, NULL, pub_accelerometer },
+	{{ XI_TOPIC_NAME_MANGLE( "Barometer" ) }, NULL, pub_barometer },
+	{{ XI_TOPIC_NAME_MANGLE( "Button" ) }, NULL, pub_button },
+	{{ XI_TOPIC_NAME_MANGLE( "Gyroscope" ) }, NULL, pub_gyroscope },
+	{{ XI_TOPIC_NAME_MANGLE( "Humidity" ) }, NULL, pub_humidity },
+	{{ XI_TOPIC_NAME_MANGLE( "LED" ) }, &on_led_msg, NULL },
+	{{ XI_TOPIC_NAME_MANGLE( "Temperature" ) }, NULL, pub_temperature },
 };
 
 /* store the length of the array */
@@ -205,7 +197,7 @@ xi_state_t pub_humidity( const mqtt_topic_descr_t* const mqtt_topic_descr )
 xi_state_t pub_temperature( const mqtt_topic_descr_t* const mqtt_topic_descr )
 {
 	return xi_publish( gXivelyContextHandle,
-			mqtt_topic_descr->name, "greetings from temeprature",
+			mqtt_topic_descr->name, "greetings from temperature",
 			XI_MQTT_QOS_AT_MOST_ONCE,
 			XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
@@ -313,12 +305,9 @@ void push_mqtt_topics( )
 	{
 		const mqtt_topic_configuration_t* const topic_config = &topics_array[ i ];
 
-		if( MQTT_TOPIC_PUB == topic_config->topic_descr.topic_type )
+		if( NULL != topic_config->on_msg_push )
 		{
-			if( NULL != topic_config->on_msg_push )
-			{
-				topic_config->on_msg_push( &topic_config->topic_descr );
-			}
+			topic_config->on_msg_push( &topic_config->topic_descr );
 		}
 	}
 }
@@ -336,7 +325,7 @@ xi_state_t init_xively_topics( xi_context_handle_t in_context_handle )
 	{
 		const mqtt_topic_configuration_t* const topic_config = &topics_array[ i ];
 
-		if( MQTT_TOPIC_SUB == topic_config->topic_descr.topic_type )
+		if( NULL != topic_config->on_msg_pull )
 		{
 			ret = xi_subscribe( in_context_handle,
 					topic_config->topic_descr.name, XI_MQTT_QOS_AT_MOST_ONCE,
