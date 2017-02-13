@@ -233,8 +233,16 @@ xi_state_t pub_barometer( const mqtt_topic_descr_t* const mqtt_topic_descr )
 {
     char out_msg[IO_FLOAT_BUFFER_MAX_SIZE] = "";
     float sensor_input                     = 0;
-    io_read_pressure( &sensor_input );
-    io_float_to_string( sensor_input, out_msg, IO_FLOAT_BUFFER_MAX_SIZE );
+    if ( io_read_pressure( &sensor_input ) < 0 )
+    {
+        printf( "\r\n\t[ERROR] trying to read barometer input" );
+        return -1;
+    }
+    if ( io_float_to_string( sensor_input, out_msg, IO_FLOAT_BUFFER_MAX_SIZE ) )
+    {
+        printf( "\r\n\t[ERROR] trying to create string from sensor input" );
+        return -1;
+    }
     return xi_publish( gXivelyContextHandle, mqtt_topic_descr->name, out_msg,
                        XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
@@ -243,8 +251,16 @@ xi_state_t pub_humidity( const mqtt_topic_descr_t* const mqtt_topic_descr )
 {
     char out_msg[IO_FLOAT_BUFFER_MAX_SIZE] = "";
     float sensor_input                     = 0;
-    io_read_humidity( &sensor_input );
-    io_float_to_string( sensor_input, out_msg, IO_FLOAT_BUFFER_MAX_SIZE );
+    if ( io_read_humidity( &sensor_input ) < 0 )
+    {
+        printf( "\r\n\t[ERROR] trying to read hygrometer input" );
+        return -1;
+    }
+    if ( io_float_to_string( sensor_input, out_msg, IO_FLOAT_BUFFER_MAX_SIZE ) )
+    {
+        printf( "\r\n\t[ERROR] trying to create string from sensor input" );
+        return -1;
+    }
     return xi_publish( gXivelyContextHandle, mqtt_topic_descr->name, out_msg,
                        XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
@@ -253,8 +269,16 @@ xi_state_t pub_temperature( const mqtt_topic_descr_t* const mqtt_topic_descr )
 {
     char out_msg[IO_FLOAT_BUFFER_MAX_SIZE] = "";
     float sensor_input                     = 0;
-    io_read_temperature( &sensor_input );
-    io_float_to_string( sensor_input, out_msg, IO_FLOAT_BUFFER_MAX_SIZE );
+    if ( io_read_temperature( &sensor_input ) < 0 )
+    {
+        printf( "\r\n\t[ERROR] trying to read thermometer input" );
+        return -1;
+    }
+    if ( io_float_to_string( sensor_input, out_msg, IO_FLOAT_BUFFER_MAX_SIZE ) )
+    {
+        printf( "\r\n\t[ERROR] trying to create string from sensor input" );
+        return -1;
+    }
     return xi_publish( gXivelyContextHandle, mqtt_topic_descr->name, out_msg,
                        XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
