@@ -448,17 +448,8 @@ xi_state_t init_xively_topics( xi_context_handle_t in_context_handle )
     return ret;
 }
 
-/**
- * @brief  Main program
- * @param  None
- * @retval None
- */
-int main( void )
+static inline int8_t system_init( void )
 {
-    uint8_t i            = 0;
-    uint8_t socket_open  = 0;
-    wifi_bool SSID_found = WIFI_FALSE;
-    WiFi_Status_t status = WiFi_MODULE_SUCCESS;
     __GPIOA_CLK_ENABLE();
     HAL_Init();
 
@@ -487,21 +478,39 @@ int main( void )
 
     wifi_state = wifi_state_idle;
 
-    status = wifi_get_AP_settings();
-    if ( status != WiFi_MODULE_SUCCESS )
+    if ( WiFi_MODULE_SUCCESS != wifi_get_AP_settings() )
     {
         printf( "\r\nError in AP Settings" );
-        return 0;
+        return -1;
     }
 
     printf( "\r\n>> Initializing the WiFi extension board" );
 
     /* Init the wi-fi module */
-    status = wifi_init( &config );
-    if ( status != WiFi_MODULE_SUCCESS )
+    if ( WiFi_MODULE_SUCCESS != wifi_init( &config ) )
     {
         printf( "Error in Config" );
-        return 0;
+        return -1;
+    }
+}
+
+/**
+ * @brief  Main program
+ * @param  None
+ * @retval None
+ */
+int main( void )
+{
+    uint8_t i            = 0;
+    uint8_t socket_open  = 0;
+    wifi_bool SSID_found = WIFI_FALSE;
+    WiFi_Status_t status = WiFi_MODULE_SUCCESS;
+
+    if ( system_init() < 0 )
+    {
+        printf( "\r\n>> System initialization [ERROR] - System boot aborted" );
+        while ( 1 )
+            ;
     }
 
     while ( 1 )
@@ -513,11 +522,8 @@ int main( void )
                 break;
 
             case wifi_state_ready:
-
                 printf( "\r\n >>running WiFi Scan...\r\n" );
-
                 status = wifi_network_scan( net_scan, WIFI_SCAN_BUFFER_LIST );
-
                 if ( status == WiFi_MODULE_SUCCESS )
                 {
                     for ( i = 0; i < WIFI_SCAN_BUFFER_LIST; i++ )
@@ -540,19 +546,13 @@ int main( void )
                     memset( net_scan, 0x00, sizeof( net_scan ) );
                 }
                 wifi_state = wifi_state_idle;
-
                 break;
 
             case wifi_state_connected:
-
                 printf( "\r\n >>connected...\r\n" );
-
                 wifi_state = wifi_state_idle;
-
                 HAL_Delay( 2000 ); // Let module go to sleep
-
                 wifi_wakeup( WIFI_TRUE ); /*wakeup from sleep if module went to sleep*/
-
                 break;
 
             case wifi_state_disconnected:
@@ -567,7 +567,6 @@ int main( void )
                     /* Read Write Socket data */
                     xi_state_t ret_state =
                         xi_initialize( XI_ACCOUNT_ID, XI_DEVICE_ID, 0 );
-
                     if ( XI_STATE_OK != ret_state )
                     {
                         printf( "\r\n xi failed to initialise\n" );
@@ -575,7 +574,6 @@ int main( void )
                     }
 
                     gXivelyContextHandle = xi_create_context();
-
                     if ( XI_INVALID_CONTEXT_HANDLE == gXivelyContextHandle )
                     {
                         printf( "\r\n xi failed to create context, error: %li\n",
@@ -826,6 +824,7 @@ void assert_failed( uint8_t* file, uint32_t line )
 {
     /* User can add his own implementation to report the file name and line number,
 ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+    printf( "\r\n>> Fatal system [ERROR] - Assert() failed, execution halted" );
 
     /* Infinite loop */
     while ( 1 )
