@@ -270,7 +270,7 @@ xi_state_t pub_button( const mqtt_topic_descr_t* const mqtt_topic_descr )
 void pub_button_interrupt( void )
 {
     /* TODO: Verify we are connected to Xively before calling xi_publish */
-    char payload[] = "1";
+    const char payload[] = "1";
     xi_publish( gXivelyContextHandle, XI_TOPIC_NAME_MANGLE( "Button" ), payload,
                 XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
