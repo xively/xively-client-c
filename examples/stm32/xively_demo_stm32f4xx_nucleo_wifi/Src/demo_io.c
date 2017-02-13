@@ -16,7 +16,8 @@
 #include "demo_io.h"
 #include "sensor.h"
 
-static void floatToInt( float in, int32_t* out_int, int32_t* out_dec, int32_t dec_prec );
+static void
+split_float_to_ints( float in, int32_t* out_int, int32_t* out_dec, int32_t dec_prec );
 
 static void* ACCELERO_handle    = NULL;
 static void* GYRO_handle        = NULL;
@@ -278,7 +279,7 @@ int8_t io_read_pressure( float* read_value )
         printf( "\r\n>> Barometer read [ERROR]" );
         return -1;
     }
-    floatToInt( input, &input_integer, &input_fractional, 2 );
+    split_float_to_ints( input, &input_integer, &input_fractional, 2 );
     printf( "\r\n>> Barometer data read [OK] Pressure: %ld.%02ld", input_integer,
             input_fractional );
 
@@ -310,7 +311,7 @@ int8_t io_read_temperature( float* read_value )
         printf( "\r\n>> Thermometer read [ERROR]" );
         return -1;
     }
-    floatToInt( input, &input_integer, &input_fractional, 2 );
+    split_float_to_ints( input, &input_integer, &input_fractional, 2 );
     printf( "\r\n>> Thermometer data read [OK] Temperature: %ld.%02ld", input_integer,
             input_fractional );
 
@@ -342,7 +343,7 @@ int8_t io_read_humidity( float* read_value )
         printf( "\r\n>> Hygrometer read [ERROR]" );
         return -1;
     }
-    floatToInt( input, &input_integer, &input_fractional, 2 );
+    split_float_to_ints( input, &input_integer, &input_fractional, 2 );
     printf( "\r\n>> Hygrometer data read [OK] Humidity: %ld.%02ld", input_integer,
             input_fractional );
 
@@ -355,14 +356,14 @@ int8_t io_read_humidity( float* read_value )
 ******************************************************************************/
 
 /**
- * @brief  Splits a float into two integer values.
+ * @brief  Splits a float into two integer values
  * @param  in the float value as input
  * @param  out_int the pointer to the integer part as output
  * @param  out_dec the pointer to the decimal part as output
  * @param  dec_prec the decimal precision to be used
  * @retval None
  */
-static void floatToInt( float in, int32_t* out_int, int32_t* out_dec, int32_t dec_prec )
+static void split_float_to_ints( float in, int32_t* out_int, int32_t* out_dec, int32_t dec_prec )
 {
     *out_int = ( int32_t )in;
     if ( in >= 0.0f )
@@ -396,9 +397,9 @@ int8_t io_float_to_string( float input, char* buf , int32_t buf_size )
 {
     int retv = 0;
     int32_t input_integer = 0, input_fractional = 0;
-    floatToInt( input, &input_integer, &input_fractional, 2 );
+    split_float_to_ints( input, &input_integer, &input_fractional, 2 );
     retv = snprintf( buf, buf_size, "%ld.%02ld", input_integer, input_fractional );
-    if ( retv > buf_size )
+    if ( retv >= buf_size )
     {
         return -1;
     }
@@ -426,7 +427,7 @@ int8_t io_axes_to_json( SensorAxes_t axes, char* buf , int32_t buf_size )
     int retv = 0;
     retv = snprintf( buf, buf_size, "{\"x\": %ld, \"y\": %ld, \"z\": %ld}",
                      axes.AXIS_X, axes.AXIS_Y, axes.AXIS_Z );
-    if ( retv > buf_size )
+    if ( retv >= buf_size )
     {
         return -1;
     }
