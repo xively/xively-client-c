@@ -72,23 +72,6 @@ void TIMp_IRQHandler(void);
 /******************************************************************************/
 /*                Demo GPIO Interrupt implementation                         */
 /******************************************************************************/
-
-/**
-  * @brief  This function GPIO EXTI Callback.
-  * @param  Pin number of the GPIO generating the EXTI IRQ
-  * @retval None
-  */
-void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin )
-{
-    if ( GPIO_Pin == IO_NUCLEO_BUTTON_PIN )
-    {
-        if ( io_button_exti_debouncer( GPIO_Pin ) )
-        {
-            printf( "\r\n>> Nucleo board button [PRESSED]" );
-        }
-    }
-}
-
 /**
   * @brief  This function handles External lines from 15 to 10 interrupt request
   * @param  None
