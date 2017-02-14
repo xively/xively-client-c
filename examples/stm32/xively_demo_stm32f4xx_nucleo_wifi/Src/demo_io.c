@@ -2,7 +2,6 @@
 #include <string.h>
 #include <math.h>
 
-#include "stm32f4xx_nucleo.h"
 #include "x_nucleo_iks01a1.h"
 #include "x_nucleo_iks01a1_accelero.h"
 #include "x_nucleo_iks01a1_gyro.h"
@@ -12,7 +11,7 @@
 #include "x_nucleo_iks01a1_temperature.h"
 #include "LSM6DS0_ACC_GYRO_driver_HL.h"
 
-#include "main.h"
+#include "demo_bsp.h"
 #include "demo_io.h"
 #include "sensor.h"
 
