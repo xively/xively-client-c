@@ -41,6 +41,9 @@
 
 #include "sensor.h"
 
+#define IO_FLOAT_BUFFER_MAX_SIZE     16
+#define IO_AXES_JSON_BUFFER_MAX_SIZE 50
+
 #define IO_NUCLEO_LED_PIN LED2
 #if ( ( defined( USE_STM32F4XX_NUCLEO ) ) || \
       ( defined( USE_STM32L0XX_NUCLEO ) ) || \
@@ -55,6 +58,7 @@
 int8_t io_nucleoboard_init( void );
 
 int8_t io_button_exti_debouncer( uint16_t gpio_pin );
+int8_t io_read_button( void );
 
 #define io_led_on( void ) BSP_LED_On( IO_NUCLEO_LED_PIN )
 #define io_led_off( void ) BSP_LED_Off( IO_NUCLEO_LED_PIN )
@@ -72,6 +76,7 @@ int8_t io_read_temperature( float* read_value );
 int8_t io_read_humidity( float* read_value );
 
 /* Helpers */
-void floatToInt( float in, int32_t* out_int, int32_t* out_dec, int32_t dec_prec );
+int8_t io_axes_to_json( SensorAxes_t axes, char* buf , int32_t buf_size );
+int8_t io_float_to_string( float input, char* buf , int32_t buf_size );
 
 #endif /* __DEMO_IO_H__ */
