@@ -95,7 +95,7 @@ WiFi_Priv_Mode mode = WPA_Personal;
 #define XI_DEVICE_PASS "XIVELY DEVICE PASSWORD"
 
 /* the interval for the time function */
-#define XI_PUBLISH_INTERVAL_SEC 2
+#define XI_PUBLISH_INTERVAL_SEC 5
 
 typedef struct topic_descr_s
 {
@@ -597,7 +597,7 @@ int main( void )
             case wifi_state_idle:
                 printf( "." );
                 fflush( stdout );
-                HAL_Delay( 500 );
+                HAL_Delay( 250 );
                 break;
 
             default:
