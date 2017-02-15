@@ -4,8 +4,9 @@
 		<cconfiguration id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.1474710539">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.1474710539" moduleId="org.eclipse.cdt.core.settings" name="Debug">
 				<macros>
-					<stringMacro name="XI_STMCUBE_PATH" type="VALUE_PATH_DIR" value="/Users/atigyi/Downloads/STM32CubeExpansion_WIFI1_V2.1.1"/>
-					<stringMacro name="XI_CLIENT_PATH" type="VALUE_PATH_ANY" value="/Users/atigyi/git/xi/xc/xively-client-c"/>
+					<stringMacro name="XI_STMCUBE_PATH" type="VALUE_PATH_DIR" value="/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_WIFI1_V2.1.1"/>
+					<stringMacro name="XI_CLIENT_PATH" type="VALUE_PATH_ANY" value="/Users/palantir/Work/Xively/stm32f4xx/xively-client-c"/>
+					<stringMacro name="XI_STMCUBE_MEMS_PATH" type="VALUE_PATH_ANY" value="/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_MEMS1_V3.0.0"/>
 				</macros>
 				<externalSettings>
 					<externalSetting/>
@@ -36,7 +37,6 @@
 								<option id="gnu.c.compiler.option.debugging.level.1626214277" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.c.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.173426146" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="../../../../Inc"/>
-									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Projects/Multi/Applications/Server_Socket/Inc"/>
 									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Middlewares/ST/STM32_SPWF01SA/Utils"/>
 									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Middlewares/ST/STM32_SPWF01SA/Inc"/>
 									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/BSP/X-NUCLEO-IDW01M1"/>
@@ -47,6 +47,17 @@
 									<listOptionValue builtIn="false" value="${XI_CLIENT_PATH}/include"/>
 									<listOptionValue builtIn="false" value="${XI_CLIENT_PATH}/include/bsp"/>
 									<listOptionValue builtIn="false" value="${XI_CLIENT_PATH}/src/bsp/platform/stm32fx_nucleo_wifi/include"/>
+									<listOptionValue builtIn="false" value="${XI_STMCUBE_MEMS_PATH}/Drivers/BSP/Components/Common"/>
+									<listOptionValue builtIn="false" value="${XI_STMCUBE_MEMS_PATH}/Drivers/BSP/Components/hts221"/>
+									<listOptionValue builtIn="false" value="${XI_STMCUBE_MEMS_PATH}/Drivers/BSP/Components/lis3mdl"/>
+									<listOptionValue builtIn="false" value="${XI_STMCUBE_MEMS_PATH}/Drivers/BSP/Components/lps22hb"/>
+									<listOptionValue builtIn="false" value="${XI_STMCUBE_MEMS_PATH}/Drivers/BSP/Components/lps25hb"/>
+									<listOptionValue builtIn="false" value="${XI_STMCUBE_MEMS_PATH}/Drivers/BSP/Components/lsm303agr"/>
+									<listOptionValue builtIn="false" value="${XI_STMCUBE_MEMS_PATH}/Drivers/BSP/Components/lsm6ds0"/>
+									<listOptionValue builtIn="false" value="${XI_STMCUBE_MEMS_PATH}/Drivers/BSP/Components/lsm6ds3"/>
+									<listOptionValue builtIn="false" value="${XI_STMCUBE_MEMS_PATH}/Drivers/BSP/Components/lsm6dsl"/>
+									<listOptionValue builtIn="false" value="${XI_STMCUBE_MEMS_PATH}/Drivers/BSP/X_NUCLEO_IKS01A1"/>
+									<listOptionValue builtIn="false" value="${XI_STMCUBE_MEMS_PATH}/Drivers/BSP/X_NUCLEO_IKS01A2"/>
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.675701715" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="USE_HAL_DRIVER"/>
@@ -85,13 +96,13 @@
 							<tool id="fr.ac6.managedbuild.tool.gnu.cross.assembler.1817672650" name="MCU GCC Assembler" superClass="fr.ac6.managedbuild.tool.gnu.cross.assembler">
 								<option id="gnu.both.asm.option.include.paths.887634874" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="../../../../Inc"/>
-									<listOptionValue builtIn="false" value="../../../../../../../../Middlewares/ST/STM32_SPWF01SA/Inc"/>
-									<listOptionValue builtIn="false" value="../../../../../../../../Middlewares/ST/STM32_SPWF01SA/Utils"/>
-									<listOptionValue builtIn="false" value="../../../../../../../../Drivers/BSP/X-NUCLEO-IDW01M1"/>
-									<listOptionValue builtIn="false" value="../../../../../../../../Drivers/CMSIS/Include"/>
-									<listOptionValue builtIn="false" value="../../../../../../../../Drivers/CMSIS/Device/ST/STM32F4xx/Include"/>
-									<listOptionValue builtIn="false" value="../../../../../../../../Drivers/STM32F4xx_HAL_Driver/Inc"/>
-									<listOptionValue builtIn="false" value="../../../../../../../../Drivers/BSP/STM32F4xx-Nucleo"/>
+									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Middlewares/ST/STM32_SPWF01SA/Inc"/>
+									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Middlewares/ST/STM32_SPWF01SA/Utils"/>
+									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/BSP/X-NUCLEO-IDW01M1"/>
+									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/CMSIS/Include"/>
+									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/CMSIS/Device/ST/STM32F4xx/Include"/>
+									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/STM32F4xx_HAL_Driver/Inc"/>
+									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/BSP/STM32F4xx-Nucleo"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1862515303" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.assembler.input.1937990078" superClass="fr.ac6.managedbuild.tool.gnu.cross.assembler.input"/>

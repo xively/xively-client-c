@@ -76,12 +76,22 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
+			<name>Drivers/BSP/Components</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
 			<name>Drivers/BSP/STM32F4xx-Nucleo</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/X-NUCLEO-IDW01M1</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/X_NUCLEO_IKS01A1</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
@@ -101,6 +111,11 @@
 			<locationURI>XI_STMCUBE_PATH/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c</locationURI>
 		</link>
 		<link>
+			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_dma.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_PATH/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.c</locationURI>
+		</link>
+		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_flash.c</name>
 			<type>1</type>
 			<locationURI>XI_STMCUBE_PATH/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash.c</locationURI>
@@ -114,6 +129,11 @@
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_gpio.c</name>
 			<type>1</type>
 			<locationURI>XI_STMCUBE_PATH/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_i2c.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_PATH/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_i2c.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_rcc.c</name>
@@ -156,6 +176,11 @@
 			<locationURI>XI_STMCUBE_PATH/Projects/Multi/Applications/Server_Socket/Src/console.c</locationURI>
 		</link>
 		<link>
+			<name>Example/User/demo_io.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Src/demo_io.c</locationURI>
+		</link>
+		<link>
 			<name>Example/User/main.c</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-3-PROJECT_LOC%7D/Src/main.c</locationURI>
@@ -168,7 +193,7 @@
 		<link>
 			<name>Example/User/stm32_xx_it.c</name>
 			<type>1</type>
-			<locationURI>XI_STMCUBE_PATH/Projects/Multi/Applications/Server_Socket/Src/stm32_xx_it.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/Src/stm32_xx_it.c</locationURI>
 		</link>
 		<link>
 			<name>Example/User/syscalls.c</name>
@@ -181,14 +206,119 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
+			<name>Drivers/BSP/Components/Common</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/hts221</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lis3mdl</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lps22hb</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lps25hb</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lsm303agr</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lsm6ds0</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lsm6ds3</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lsm6dsl</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/STM32F4xx-Nucleo/Release_Notes.html</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_PATH/Drivers/BSP/STM32F4xx-Nucleo/Release_Notes.html</locationURI>
+		</link>
+		<link>
 			<name>Drivers/BSP/STM32F4xx-Nucleo/stm32f4xx_nucleo.c</name>
 			<type>1</type>
 			<locationURI>XI_STMCUBE_PATH/Drivers/BSP/STM32F4xx-Nucleo/stm32f4xx_nucleo.c</locationURI>
 		</link>
 		<link>
+			<name>Drivers/BSP/STM32F4xx-Nucleo/stm32f4xx_nucleo.h</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_PATH/Drivers/BSP/STM32F4xx-Nucleo/stm32f4xx_nucleo.h</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/X-NUCLEO-IDW01M1/Release_Notes.html</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_PATH/Drivers/BSP/X-NUCLEO-IDW01M1/Release_Notes.html</locationURI>
+		</link>
+		<link>
 			<name>Drivers/BSP/X-NUCLEO-IDW01M1/stm32_spwf_wifi.c</name>
 			<type>1</type>
 			<locationURI>XI_STMCUBE_PATH/Drivers/BSP/X-NUCLEO-IDW01M1/stm32_spwf_wifi.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/X-NUCLEO-IDW01M1/stm32_spwf_wifi.h</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_PATH/Drivers/BSP/X-NUCLEO-IDW01M1/stm32_spwf_wifi.h</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/X_NUCLEO_IKS01A1/.x_nucleo_iks01a1_accelero.c.swp</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A1/.x_nucleo_iks01a1_accelero.c.swp</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/X_NUCLEO_IKS01A1/x_nucleo_iks01a1.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A1/x_nucleo_iks01a1.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/X_NUCLEO_IKS01A1/x_nucleo_iks01a1_accelero.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A1/x_nucleo_iks01a1_accelero.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/X_NUCLEO_IKS01A1/x_nucleo_iks01a1_gyro.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A1/x_nucleo_iks01a1_gyro.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/X_NUCLEO_IKS01A1/x_nucleo_iks01a1_humidity.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A1/x_nucleo_iks01a1_humidity.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/X_NUCLEO_IKS01A1/x_nucleo_iks01a1_magneto.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A1/x_nucleo_iks01a1_magneto.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/X_NUCLEO_IKS01A1/x_nucleo_iks01a1_pressure.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A1/x_nucleo_iks01a1_pressure.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/X_NUCLEO_IKS01A1/x_nucleo_iks01a1_temperature.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A1/x_nucleo_iks01a1_temperature.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/ST/STM32_SPWF01SA/Utils</name>
@@ -206,6 +336,271 @@
 			<locationURI>XI_STMCUBE_PATH/Middlewares/ST/STM32_SPWF01SA/wifi_module.c</locationURI>
 		</link>
 		<link>
+			<name>Drivers/BSP/Components/Common/Release_Notes.html</name>
+			<type>1</type>
+			<location>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/Common/Release_Notes.html</location>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/Common/accelerometer.h</name>
+			<type>1</type>
+			<location>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/Common/accelerometer.h</location>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/Common/component.h</name>
+			<type>1</type>
+			<location>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/Common/component.h</location>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/Common/gyroscope.h</name>
+			<type>1</type>
+			<location>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/Common/gyroscope.h</location>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/Common/humidity.h</name>
+			<type>1</type>
+			<location>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/Common/humidity.h</location>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/Common/magnetometer.h</name>
+			<type>1</type>
+			<location>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/Common/magnetometer.h</location>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/Common/pressure.h</name>
+			<type>1</type>
+			<location>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/Common/pressure.h</location>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/Common/sensor.h</name>
+			<type>1</type>
+			<location>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/Common/sensor.h</location>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/Common/temperature.h</name>
+			<type>1</type>
+			<location>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/Common/temperature.h</location>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/hts221/HTS221_Driver.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/hts221/HTS221_Driver.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/hts221/HTS221_Driver.h</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/hts221/HTS221_Driver.h</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/hts221/HTS221_Driver_HL.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/hts221/HTS221_Driver_HL.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/hts221/HTS221_Driver_HL.h</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/hts221/HTS221_Driver_HL.h</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/hts221/Release_Notes.html</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/hts221/Release_Notes.html</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lis3mdl/LIS3MDL_MAG_driver.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lis3mdl/LIS3MDL_MAG_driver.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lis3mdl/LIS3MDL_MAG_driver.h</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lis3mdl/LIS3MDL_MAG_driver.h</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lis3mdl/LIS3MDL_MAG_driver_HL.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lis3mdl/LIS3MDL_MAG_driver_HL.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lis3mdl/LIS3MDL_MAG_driver_HL.h</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lis3mdl/LIS3MDL_MAG_driver_HL.h</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lis3mdl/Release_Notes.html</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lis3mdl/Release_Notes.html</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lps22hb/LPS22HB_Driver.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lps22hb/LPS22HB_Driver.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lps22hb/LPS22HB_Driver.h</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lps22hb/LPS22HB_Driver.h</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lps22hb/LPS22HB_Driver_HL.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lps22hb/LPS22HB_Driver_HL.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lps22hb/LPS22HB_Driver_HL.h</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lps22hb/LPS22HB_Driver_HL.h</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lps22hb/Release_Notes.html</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lps22hb/Release_Notes.html</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lps25hb/LPS25HB_Driver.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lps25hb/LPS25HB_Driver.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lps25hb/LPS25HB_Driver.h</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lps25hb/LPS25HB_Driver.h</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lps25hb/LPS25HB_Driver_HL.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lps25hb/LPS25HB_Driver_HL.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lps25hb/LPS25HB_Driver_HL.h</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lps25hb/LPS25HB_Driver_HL.h</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lps25hb/Release_Notes.html</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lps25hb/Release_Notes.html</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lsm303agr/LSM303AGR_ACC_driver.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lsm303agr/LSM303AGR_ACC_driver.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lsm303agr/LSM303AGR_ACC_driver.h</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lsm303agr/LSM303AGR_ACC_driver.h</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lsm303agr/LSM303AGR_ACC_driver_HL.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lsm303agr/LSM303AGR_ACC_driver_HL.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lsm303agr/LSM303AGR_ACC_driver_HL.h</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lsm303agr/LSM303AGR_ACC_driver_HL.h</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lsm303agr/LSM303AGR_MAG_driver.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lsm303agr/LSM303AGR_MAG_driver.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lsm303agr/LSM303AGR_MAG_driver.h</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lsm303agr/LSM303AGR_MAG_driver.h</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lsm303agr/LSM303AGR_MAG_driver_HL.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lsm303agr/LSM303AGR_MAG_driver_HL.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lsm303agr/LSM303AGR_MAG_driver_HL.h</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lsm303agr/LSM303AGR_MAG_driver_HL.h</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lsm303agr/Release_Notes.html</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lsm303agr/Release_Notes.html</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lsm6ds0/LSM6DS0_ACC_GYRO_driver.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lsm6ds0/LSM6DS0_ACC_GYRO_driver.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lsm6ds0/LSM6DS0_ACC_GYRO_driver.h</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lsm6ds0/LSM6DS0_ACC_GYRO_driver.h</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lsm6ds0/LSM6DS0_ACC_GYRO_driver_HL.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lsm6ds0/LSM6DS0_ACC_GYRO_driver_HL.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lsm6ds0/LSM6DS0_ACC_GYRO_driver_HL.h</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lsm6ds0/LSM6DS0_ACC_GYRO_driver_HL.h</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lsm6ds0/Release_Notes.html</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lsm6ds0/Release_Notes.html</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver.c</name>
+			<type>1</type>
+			<location>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver.c</location>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver.h</name>
+			<type>1</type>
+			<location>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver.h</location>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver_HL.c</name>
+			<type>1</type>
+			<location>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver_HL.c</location>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver_HL.h</name>
+			<type>1</type>
+			<location>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver_HL.h</location>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lsm6ds3/Release_Notes.html</name>
+			<type>1</type>
+			<location>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lsm6ds3/Release_Notes.html</location>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lsm6dsl/LSM6DSL_ACC_GYRO_driver.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lsm6dsl/LSM6DSL_ACC_GYRO_driver.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lsm6dsl/LSM6DSL_ACC_GYRO_driver.h</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lsm6dsl/LSM6DSL_ACC_GYRO_driver.h</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lsm6dsl/LSM6DSL_ACC_GYRO_driver_HL.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lsm6dsl/LSM6DSL_ACC_GYRO_driver_HL.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lsm6dsl/LSM6DSL_ACC_GYRO_driver_HL.h</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lsm6dsl/LSM6DSL_ACC_GYRO_driver_HL.h</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lsm6dsl/Release_Notes.html</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lsm6dsl/Release_Notes.html</locationURI>
+		</link>
+		<link>
 			<name>Middlewares/ST/STM32_SPWF01SA/Utils/event_buffer.c</name>
 			<type>1</type>
 			<locationURI>XI_STMCUBE_PATH/Middlewares/ST/STM32_SPWF01SA/Utils/event_buffer.c</locationURI>
@@ -221,10 +616,43 @@
 			<locationURI>XI_STMCUBE_PATH/Middlewares/ST/STM32_SPWF01SA/Utils/wifi_globals.c</locationURI>
 		</link>
 	</linkedResources>
+	<filteredResources>
+		<filter>
+			<id>1486432802552</id>
+			<name>Drivers</name>
+			<type>21</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-*.c</arguments>
+			</matcher>
+		</filter>
+		<filter>
+			<id>1486434992846</id>
+			<name>Drivers/BSP</name>
+			<type>22</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-*.h</arguments>
+			</matcher>
+		</filter>
+		<filter>
+			<id>1486435070950</id>
+			<name>Drivers/BSP/Components</name>
+			<type>22</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-*.h</arguments>
+			</matcher>
+		</filter>
+	</filteredResources>
 	<variableList>
 		<variable>
 			<name>XI_STMCUBE_PATH</name>
 			<value>file:/Users/atigyi/Downloads/STM32CubeExpansion_WIFI1_V2.1.1</value>
+		</variable>
+		<variable>
+			<name>XI_STMCUBE_MEMS_PATH</name>
+			<value>file:/Users/atigyi/Downloads/STM32CubeExpansion_MEMS1_V3.0.0</value>
 		</variable>
 	</variableList>
 </projectDescription>
