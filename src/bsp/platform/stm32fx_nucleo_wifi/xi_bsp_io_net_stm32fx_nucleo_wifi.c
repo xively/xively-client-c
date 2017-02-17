@@ -242,7 +242,7 @@ void xi_bsp_io_net_socket_data_received_proxy( uint8_t socket_id,
         return;
     }
 
-    XI_LIST_PUSH_FRONT( xi_data_desc_t, xi_net_state.head, tail );
+    XI_LIST_PUSH_BACK( xi_data_desc_t, xi_net_state.head, tail );
 }
 
 void xi_bsp_io_net_socket_client_remote_server_closed_proxy( uint8_t* socket_closed_id )

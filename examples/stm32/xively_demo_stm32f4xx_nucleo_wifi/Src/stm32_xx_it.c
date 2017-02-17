@@ -41,6 +41,7 @@
 #include "wifi_module.h"
 #include "stm32_spwf_wifi.h" 
 #include "wifi_globals.h"
+#include "demo_io.h"
 
 /** @defgroup STM32xx_IT_Private_Variables
 * @{
@@ -67,6 +68,19 @@ void TIMx_IRQHandler(void);
 void TIMp_IRQHandler(void);
 
 /* Private functions ---------------------------------------------------------*/
+
+/******************************************************************************/
+/*                Demo GPIO Interrupt implementation                         */
+/******************************************************************************/
+/**
+  * @brief  This function handles External lines from 15 to 10 interrupt request
+  * @param  None
+  * @retval None
+  */
+void EXTI15_10_IRQHandler( void )
+{
+    HAL_GPIO_EXTI_IRQHandler( KEY_BUTTON_PIN );
+}
 
 /******************************************************************************/
 /*            Cortex-M3 Processor Exceptions Handlers                         */
@@ -204,16 +218,6 @@ void SysTick_Handler(void)
 {
   HAL_IncTick();
   Wifi_SysTick_Isr();
-}
-
-/**
-  * @brief  This function GPIO EXTI Callback.
-  * @param  Pin number of the GPIO generating the EXTI IRQ
-  * @retval None
-  */
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
-{
-  //RX_EXTI_Isr(GPIO_Pin);
 }
 
 /**
