@@ -37,6 +37,7 @@
 								<option id="gnu.c.compiler.option.debugging.level.1626214277" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.c.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.173426146" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="../../../../Inc"/>
+									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Projects/Multi/Applications/Server_Socket/Inc"/>
 									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Middlewares/ST/STM32_SPWF01SA/Utils"/>
 									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Middlewares/ST/STM32_SPWF01SA/Inc"/>
 									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/BSP/X-NUCLEO-IDW01M1"/>

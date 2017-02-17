@@ -2,7 +2,6 @@
 #include <string.h>
 #include <math.h>
 
-#include "stm32f4xx_nucleo.h"
 #include "x_nucleo_iks01a1.h"
 #include "x_nucleo_iks01a1_accelero.h"
 #include "x_nucleo_iks01a1_gyro.h"

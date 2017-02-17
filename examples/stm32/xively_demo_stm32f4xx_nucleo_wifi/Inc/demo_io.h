@@ -44,6 +44,12 @@
 #define IO_FLOAT_BUFFER_MAX_SIZE     16
 #define IO_AXES_JSON_BUFFER_MAX_SIZE 50
 
+#ifdef USE_STM32F4XX_NUCLEO
+#include "stm32f4xx_nucleo.h"
+#elif USE_STM32L0XX_NUCLEO
+#include "stm32l0xx_nucleo.h"
+#endif
+
 #define IO_NUCLEO_LED_PIN LED2
 #if ( ( defined( USE_STM32F4XX_NUCLEO ) ) || \
       ( defined( USE_STM32L0XX_NUCLEO ) ) || \
