@@ -47,6 +47,7 @@
 #include "xi_bsp_io_net_socket_proxy.h"
 #include "xi_bsp_time.h"
 #include "demo_io.h"
+#include "user_data.h"
 
 /**
  * @mainpage Documentation for X-CUBE-WIFI Software for STM32, Expansion for STM32Cube
@@ -496,18 +497,6 @@ static inline int8_t system_init( void )
     return 0;
 }
 
-void flash_read( void )
-{
-    HAL_FLASH_Lock();
-    HAL_FLASH_Unlock();
-}
-
-void flash_write( void )
-{
-    HAL_FLASH_Lock();
-    HAL_FLASH_Unlock();
-}
-
 /**
  * @brief  Main program
  * @param  None
@@ -526,6 +515,18 @@ int main( void )
         while ( 1 )
             ;
     }
+
+    user_data_t placeholder;
+    if ( flash_init() < 0 )
+    {
+        printf( "\r\n>> Flash initialization [ERROR] System halt" );
+        while ( 1 )
+            ;
+    }
+    flash_get_user_data( &placeholder );
+    flash_set_user_data( &placeholder );
+    flash_get_user_data( &placeholder );
+
 
     while ( 1 )
     {
