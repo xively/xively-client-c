@@ -1,6 +1,8 @@
 #ifndef __USER_DATA_H
 #define __USER_DATA_H
 
+#define USE_FLASH_STORAGE 1
+
 #define DATA_STR_LEN 64 // Must be a multiple of 4 for CRC calculations
 
 enum
@@ -16,22 +18,30 @@ typedef struct
 {
     char flash_data_checksum[DATA_STR_LEN];
 
-    int8_t wifi_client_cipher; // Enum; casts to int8_t
+    uint32_t wifi_client_cipher; // Assigned an SDK enum value
     char wifi_client_ssid[DATA_STR_LEN];
     char wifi_client_password[DATA_STR_LEN];
-    char wifi_ap_ssid[DATA_STR_LEN];
 
     char xi_account_id[DATA_STR_LEN];
     char xi_device_id[DATA_STR_LEN];
     char xi_device_password[DATA_STR_LEN];
 } user_data_t;
 
-int8_t flash_init( void );
-int8_t flash_get_user_data( user_data_t* user_data );
-int8_t flash_set_user_data( user_data_t* user_data ); // TODO: How can I get this function
+extern user_data_t* demo_user_data;
+
+int8_t user_data_init( void );
+int8_t user_data_get( user_data_t* user_data ); // Points @param to the user data. User
+// can read from it. The returned structure CANNOT BE DIRECTLY MODIFIED. User must copy it
+// and save it to flash using user_data_save
+int8_t user_data_save( user_data_t* user_data ); // Receives a user-created user_data_t
+                                                // struct and copies it into flash
+int8_t user_data_read_flash( user_data_t* user_data );
+int8_t user_data_write_flash( user_data_t* user_data ); // TODO: How can I get this function
                                                       // to run from RAM with our
                                                       // compiler? `__ram`??
 int8_t flash_user_data_saved_status( user_data_t* user_data );
-int8_t flash_delete_user_data( void );
+int8_t user_data_reset_flash( void ); //Removes all user data from flash
+
+int8_t calculate_checksum( user_data_t* user_data );
 
 #endif /* __USER_DATA_H */

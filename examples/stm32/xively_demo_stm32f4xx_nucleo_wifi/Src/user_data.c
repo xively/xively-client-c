@@ -1,34 +1,18 @@
 /*
 Usage:
-    1. flash_init()
-    2. flash_get_user_data( ... )
+    1. user_data_init()
+    2. user_data_read_flash( ... )
         2.1. Read entire sector from flash
         2.2. Parse user data from the read memory sector 
         2.3. Identify
 */
-/*
-void writeFlash(void)
-{
-    HAL_StatusTypeDef status;
-    status =    HAL_FLASH_Unlock();
-    status= HAL_FLASH_Program(TYPEPROGRAM_HALFWORD,(uint32_t) userConfig; 
-    status = HAL_FLASH_Lock();
-}
-
-void readFlash(void)
-{
-    tempvalue = *(uint8_t *)(userConfig);
-}
-*/
 #include <assert.h>
 #include <stdint.h>
-
 #include "stm32f4xx.h"
+#include "stm32f4xx_hal_conf.h"
+
 #include "user_data.h"
 
-#define FLASH_VOLTAGE_RANGE FLASH_VOLTAGE_RANGE_1
-#define FLASH_USER_DATA_PREFIX 0x55
-#define CRC_REGISTER_SIZE_BYTES 4
 /**
   * FLASH_USER_DATA_SECTOR:
   * If your device doesn't have these many sectors, add an #ifdef for it here
@@ -36,20 +20,17 @@ void readFlash(void)
   * provide a more portable way of finding out the last available sector
   */
 #define FLASH_USER_DATA_SECTOR FLASH_SECTOR_TOTAL-1
+#define FLASH_VOLTAGE_RANGE    FLASH_VOLTAGE_RANGE_1
+#define FLASH_USER_DATA_PREFIX 0x55
+#define CRC_REGISTER_SIZE_BYTES 4
 
 #define FLASH_USER_DATA_SIZE 0xfff
 #define FLASH_USER_DATA_BASE (FLASH_END - FLASH_USER_DATA_SIZE)
 
-int8_t erase_sector( void );
-/**
-  * @brief  Get the memory are we're going to erase so we can re-use most of
-  * @param
-  * @retval  0 Success
-  * @retval <0 Error
-  */
-//static int8_t serialize_data_into_sector_conents( char* read_sector,
-//                                                  char* user_data_str,
-//                                                  char* checksum );
+static int8_t erase_flash_sector( void );
+static int8_t program_flash( user_data_t* user_data );
+
+user_data_t* demo_user_data = NULL;
 
 /**
   * @brief  Calculate a checksum of the user data stored in @param; set its
@@ -58,7 +39,7 @@ int8_t erase_sector( void );
   * @retval  0 Success
   * @retval <0 Error
   */ 
-//static int8_t calculate_checksum( user_data_t* user_data );
+int8_t calculate_checksum( user_data_t* user_data );
 
 /**
   * @brief  Verify this device is compatible with the hardcoded flash
@@ -67,8 +48,9 @@ int8_t erase_sector( void );
   * @retval 0 Success
   * @retval -1 User data storage in flash not supported for your device
   */
-int8_t flash_init( void )
+int8_t user_data_init( void )
 {
+#if USE_FLASH_STORAGE
     //assert( 0 == DATA_STR_LEN % CRC_REGISTER_SIZE_BYTES );
     if ( !IS_FLASH_SECTOR( FLASH_USER_DATA_SECTOR ) )
     {
@@ -76,6 +58,15 @@ int8_t flash_init( void )
                 FLASH_USER_DATA_SECTOR );
         return -1;
     }
+    if ( sizeof(user_data_t) > FLASH_USER_DATA_SIZE )
+    {
+        printf( "\r\n>> Flash init [ERROR] Allocated flash meomry not enough" );
+        return -1;
+    }
+    demo_user_data = FLASH_USER_DATA_BASE;
+#else
+    demo_user_data = malloc( sizeof( user_data_t ) );
+#endif
     return 0;
 }
 
@@ -85,7 +76,7 @@ int8_t flash_init( void )
  *  3. On data available and verified, return 0. Assign to @param the memory
  *     location where the data is stored (mapped flash memory address)
  */
-int8_t flash_get_user_data( user_data_t* user_data )
+int8_t user_data_read_flash( user_data_t* user_data )
 {
     uint32_t addr = 0;
 
@@ -98,13 +89,13 @@ int8_t flash_get_user_data( user_data_t* user_data )
             printf( "\r\n" );
         }
     }
-    printf( "\r\nFLAH READ DONE\r\n" );
+    printf( "\r\nFLASH READ DONE\r\n" );
     return 0;
 }
 
-int8_t flash_delete_user_data( void )
+int8_t user_data_reset_flash( void )
 {
-    erase_sector();
+    erase_flash_sector();
     return 0;
 }
 
@@ -125,34 +116,95 @@ int8_t flash_user_data_saved_status( user_data_t* user_data )
 *                               program/erase                                 *
 ******************************************************************************/
 
-int8_t flash_set_user_data( user_data_t* user_data )
+int8_t user_data_write_flash( user_data_t* user_data )
+{
+    /* Erase */
+    if ( erase_flash_sector() < 0 )
+    {
+        printf( "\r\n\tSaving user data to flash [ABORT]" );
+        return -1;
+    }
+
+    /* TODO: Re-program all non-user data read before the erase, in case
+             any part of the program is located at the last flash page */
+
+    /* Program */
+    if ( program_flash( user_data ) < 0 )
+    {
+        printf( "\r\n\tSaving user data to flash [ABORT]" );
+        return -1;
+    }
+    return 0;
+}
+
+static int8_t erase_flash_sector( void )
+{
+    HAL_StatusTypeDef status;
+    FLASH_EraseInitTypeDef erase_config;
+    uint32_t error;
+
+    printf( "\r\n>> Erasing FLASH user sector" );
+    erase_config.TypeErase    = FLASH_TYPEERASE_SECTORS;
+    erase_config.Sector       = FLASH_USER_DATA_SECTOR;
+    erase_config.VoltageRange = FLASH_VOLTAGE_RANGE;
+    erase_config.NbSectors    = 1;
+
+    /* Unlock flash */
+    printf( "\r\n\tUnlocking Flash at HAL" );
+    status = HAL_FLASH_Unlock();
+    if ( HAL_OK != status )
+    {
+        printf( "\r\n\tFlash unlock [ERROR] CODE [%d]\r\n", status );
+        return -1;
+    }
+
+    /* Erase Sector */
+    if ( HAL_OK != HAL_FLASHEx_Erase( &erase_config, &error ) )
+    {
+        printf( "\r\n\tFlash erase [ERROR] code %08lx", error );
+        goto error_out;
+    }
+    if ( 0xFFFFFFFFU != error )
+    {
+        printf( "\r\n\tFlash erase [ERROR] code %08lx", error );
+        goto error_out;
+    }
+
+    /* Lock flash */
+    status = HAL_FLASH_Lock();
+    if ( HAL_OK != status )
+    {
+        printf( "\r\n\tFLASH LOCK ERROR CODE [%d]\r\n", status );
+        goto error_out;
+    }
+    return 0;
+
+error_out:
+    HAL_FLASH_Lock();
+    return -1;
+}
+
+static int8_t program_flash( user_data_t* user_data )
 {
     HAL_StatusTypeDef status;
     uint32_t addr = 0;
 
-    /* Erase */
-    erase_sector();
-
     /* Unlock FLASH interface */
-    printf( "\r\nUnlocking Flash at HAL" );
-    status = HAL_FLASH_Unlock();
-    if ( HAL_OK != status )
+    printf( "\r\n>> Saving user data to flash" );
+    if ( HAL_OK != HAL_FLASH_Unlock() )
     {
-        printf( "\r\n>> Flash unlock [ERROR] CODE [%d]\r\n", status );
+        printf( "\r\n\tFlash unlock [ERROR]" );
+        return -1;
     }
 
     /* Write - TODO: Move to a separate function */
-    printf( "\r\n/************ FLASH OVERWRITE ************/\r\n" );
     for ( addr = FLASH_USER_DATA_BASE; addr < FLASH_END; addr++ )
     {
         status = HAL_FLASH_Program( TYPEPROGRAM_BYTE, ( uint32_t )addr, 0x5555555555555555 );
         if ( HAL_OK != status )
         {
-            printf( "\r\nFLAH PROGRAM ERROR CODE [%d]\r\n", status );
-        }
-        else// if ( addr % 128 == 0 )
-        {
-            printf( "[0x%04lx] ", addr );
+            printf( "\r\n\tFlash program [ERROR] Status code %d", status );
+            goto error_out;
         }
     }
 
@@ -160,36 +212,13 @@ int8_t flash_set_user_data( user_data_t* user_data )
     status = HAL_FLASH_Lock();
     if ( HAL_OK != status )
     {
-        printf( "\r\nFLAH LOCK ERROR CODE [%d]\r\n", status );
-    }
-    return 0;
-}
-
-int8_t erase_sector( void )
-{
-    printf( "\r\n>> Erasing FLASH user sector" );
-    FLASH_EraseInitTypeDef erase_config;
-    erase_config.TypeErase    = FLASH_TYPEERASE_SECTORS;
-    erase_config.Sector       = FLASH_USER_DATA_SECTOR;
-    erase_config.VoltageRange = FLASH_VOLTAGE_RANGE;
-    erase_config.NbSectors    = 1;
-    uint32_t error;
-
-    HAL_FLASH_Unlock();
-    if ( HAL_OK != HAL_FLASHEx_Erase( &erase_config, &error ) )
-    {
+        printf( "\r\nFLASH LOCK ERROR CODE [%d]\r\n", status );
         goto error_out;
     }
-    if ( 0xFFFFFFFFU != error )
-    {
-        goto error_out;
-    }
-    HAL_FLASH_Lock();
     return 0;
 
 error_out:
     HAL_FLASH_Lock();
-    printf( "\r\n\tFlash erase [ERROR] code %08lx", error );
     return -1;
 }
 
@@ -212,45 +241,58 @@ void HAL_FLASH_OperationErrorCallback(uint32_t ReturnValue)
 *                 CRC Operations for Data Integrity Validation                *
 ******************************************************************************/
 
-int8_t crc_accumulate_data_str( char* str, uint32_t str_len )
+int32_t crc_accumulate_data_str( CRC_HandleTypeDef crc_handle, char* str, uint32_t str_len )
 {
-#if 0
+    uint32_t crc_code = 0x00;
     assert( 0 == str_len % CRC_REGISTER_SIZE_BYTES );
-    for(uint32_t i=0; i<str_len; i+= CRC_REGISTER_SIZE_BYTES)
-    {
-    }
-#endif
-    return 0;
+    //for ( uint32_t i = 0; i < str_len; i += CRC_REGISTER_SIZE_BYTES )
+    //{
+    //    crc_code = HAL_CRC_Accumulate( &crc_handle, ( uint32_t* )&str[i],
+    //                                   str_len / CRC_REGISTER_SIZE_BYTES );
+    //}
+    crc_code = HAL_CRC_Accumulate( &crc_handle, ( uint32_t* )str,
+                                   str_len / CRC_REGISTER_SIZE_BYTES );
+    return crc_code;
 }
 
-#if 0
-static int8_t calculate_checksum( user_data_t* user_data )
+int8_t calculate_checksum( user_data_t* user_data )
 {
-    uint32_t i = 0;
-    const size_t data_size = sizeof( user_data_t );
-    const CRC_HandleTypeDef crc_config = 0xff; //TODO: ??
-    uint32_t wifi_cipher_32t = (uint32_t)user_data->wifi_client_cipher;
-    char* verifiable_data_strings = 
+    char* string_ptrs[] = {user_data->wifi_client_ssid,
+                           user_data->wifi_client_password,
+                           user_data->xi_account_id,
+                           user_data->xi_device_id,
+                           user_data->xi_device_password};
+    uint32_t wifi_cipher_32t = ( uint32_t )user_data->wifi_client_cipher;
+    uint32_t crc_code = 0x00;
+    static CRC_HandleTypeDef crc_config;
+
+    crc_config.Instance = CRC;
 
     /* Init */
     __HAL_RCC_CRC_CLK_ENABLE();
-
-    /* Reset CRC register and calculate the first code */
-    HAL_CRC_Calculate( &crc_config, &wifi_cipher_32t, 1 );
-
-    /* Iterate through the relevant strings and accumulate their results */
     if ( HAL_OK != HAL_CRC_Init( &crc_config ) )
     {
-        printf( "\r\n>> CRC HAL Driver initialization [ERROR]" );
-        return -1
-    }
-    for ( ; i < data_size; i += 32 )
-    {
-        if( (data_size - i) < 32 )
+        printf( "\r\n\tCRC HAL Driver initialization [ERROR]" );
+        return -1;
     }
 
+    /* Reset CRC register and calculate the first code */
+    crc_code = HAL_CRC_Calculate( &crc_config, &wifi_cipher_32t, 1 );
+
+    /* Iterate through the relevant strings and accumulate their results */
+    for ( uint32_t i = 0; i < sizeof( string_ptrs ) / sizeof( char* ); i++ )
+    {
+        crc_code = crc_accumulate_data_str( crc_config, string_ptrs[i], DATA_STR_LEN );
+        printf( "\r\n\tString [%s] has CRC [%08lx]", string_ptrs[i], crc_code );
+    }
+    printf( "\r\n\tCalculated user data CRC code: %08lx", crc_code );
+
     /* DeInit */
+    if ( HAL_OK != HAL_CRC_DeInit( &crc_config ) )
+    {
+        printf( "\r\n\tCRC HAL Driver initialization [ERROR]" );
+        return -1;
+    }
     __HAL_RCC_CRC_CLK_DISABLE();
     return 0;
 }
-#endif

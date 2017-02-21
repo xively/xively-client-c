@@ -111,6 +111,11 @@
 			<locationURI>STM_CUBE_PATH/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c</locationURI>
 		</link>
 		<link>
+			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_crc.c</name>
+			<type>1</type>
+			<locationURI>STM_CUBE_PATH/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_crc.c</locationURI>
+		</link>
+		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_dma.c</name>
 			<type>1</type>
 			<locationURI>STM_CUBE_PATH/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.c</locationURI>
@@ -176,9 +181,14 @@
 			<locationURI>$%7BPARENT-3-PROJECT_LOC%7D/Src/console.c</locationURI>
 		</link>
 		<link>
-			<name>Example/User/demo_sensors.c</name>
+			<name>Example/User/demo_bsp.c</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Src/demo_sensors.c</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/Src/demo_bsp.c</locationURI>
+		</link>
+		<link>
+			<name>Example/User/demo_io.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Src/demo_io.c</locationURI>
 		</link>
 		<link>
 			<name>Example/User/main.c</name>
@@ -199,6 +209,11 @@
 			<name>Example/User/syscalls.c</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/syscalls.c</locationURI>
+		</link>
+		<link>
+			<name>Example/User/user_data.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Src/user_data.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/ST/STM32_SPWF01SA</name>
@@ -336,49 +351,44 @@
 			<locationURI>STM_CUBE_PATH/Middlewares/ST/STM32_SPWF01SA/wifi_module.c</locationURI>
 		</link>
 		<link>
-			<name>Drivers/BSP/Components/Common/Release_Notes.html</name>
-			<type>1</type>
-			<location>/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_MEMS1_V3.0.0/Drivers/BSP/Components/Common/Release_Notes.html</location>
-		</link>
-		<link>
 			<name>Drivers/BSP/Components/Common/accelerometer.h</name>
 			<type>1</type>
-			<location>/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_MEMS1_V3.0.0/Drivers/BSP/Components/Common/accelerometer.h</location>
+			<location>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/Common/accelerometer.h</location>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/Common/component.h</name>
 			<type>1</type>
-			<location>/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_MEMS1_V3.0.0/Drivers/BSP/Components/Common/component.h</location>
+			<location>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/Common/component.h</location>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/Common/gyroscope.h</name>
 			<type>1</type>
-			<location>/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_MEMS1_V3.0.0/Drivers/BSP/Components/Common/gyroscope.h</location>
+			<location>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/Common/gyroscope.h</location>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/Common/humidity.h</name>
 			<type>1</type>
-			<location>/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_MEMS1_V3.0.0/Drivers/BSP/Components/Common/humidity.h</location>
+			<location>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/Common/humidity.h</location>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/Common/magnetometer.h</name>
 			<type>1</type>
-			<location>/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_MEMS1_V3.0.0/Drivers/BSP/Components/Common/magnetometer.h</location>
+			<location>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/Common/magnetometer.h</location>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/Common/pressure.h</name>
 			<type>1</type>
-			<location>/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_MEMS1_V3.0.0/Drivers/BSP/Components/Common/pressure.h</location>
+			<location>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/Common/pressure.h</location>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/Common/sensor.h</name>
 			<type>1</type>
-			<location>/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_MEMS1_V3.0.0/Drivers/BSP/Components/Common/sensor.h</location>
+			<location>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/Common/sensor.h</location>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/Common/temperature.h</name>
 			<type>1</type>
-			<location>/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_MEMS1_V3.0.0/Drivers/BSP/Components/Common/temperature.h</location>
+			<location>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/Common/temperature.h</location>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/hts221/HTS221_Driver.c</name>
@@ -553,27 +563,27 @@
 		<link>
 			<name>Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver.c</name>
 			<type>1</type>
-			<location>/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_MEMS1_V3.0.0/Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver.c</location>
+			<location>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver.c</location>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver.h</name>
 			<type>1</type>
-			<location>/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_MEMS1_V3.0.0/Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver.h</location>
+			<location>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver.h</location>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver_HL.c</name>
 			<type>1</type>
-			<location>/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_MEMS1_V3.0.0/Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver_HL.c</location>
+			<location>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver_HL.c</location>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver_HL.h</name>
 			<type>1</type>
-			<location>/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_MEMS1_V3.0.0/Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver_HL.h</location>
+			<location>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver_HL.h</location>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/lsm6ds3/Release_Notes.html</name>
 			<type>1</type>
-			<location>/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_MEMS1_V3.0.0/Drivers/BSP/Components/lsm6ds3/Release_Notes.html</location>
+			<location>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/lsm6ds3/Release_Notes.html</location>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/lsm6dsl/LSM6DSL_ACC_GYRO_driver.c</name>
