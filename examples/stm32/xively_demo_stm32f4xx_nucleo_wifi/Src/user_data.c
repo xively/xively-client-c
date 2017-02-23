@@ -6,40 +6,42 @@ Usage:
         2.2. Parse user data from the read memory sector 
         2.3. Identify
 */
+#include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 #include <stdint.h>
 #include "stm32f4xx.h"
 #include "stm32f4xx_hal_conf.h"
-
 #include "user_data.h"
 
-/**
-  * FLASH_USER_DATA_SECTOR:
-  * If your device doesn't have these many sectors, add an #ifdef for it here
-  * (or move to demo_bsp.h) and use your device's last sector. The SDK doesn't
-  * provide a more portable way of finding out the last available sector
-  */
+/******************************************************************************
+*                           CRC Peripheral Usage                              *
+******************************************************************************/
+#define CRC_REGISTER_BYTES 4
+
+static int8_t calculate_checksum( user_data_t* user_data );
+
+/******************************************************************************
+*                                 Flash Usage                                 *
+******************************************************************************/
 #define FLASH_USER_DATA_SECTOR FLASH_SECTOR_TOTAL-1
 #define FLASH_VOLTAGE_RANGE    FLASH_VOLTAGE_RANGE_1
 #define FLASH_USER_DATA_PREFIX 0x55
-#define CRC_REGISTER_SIZE_BYTES 4
-
 #define FLASH_USER_DATA_SIZE 0xfff
 #define FLASH_USER_DATA_BASE (FLASH_END - FLASH_USER_DATA_SIZE)
 
 static int8_t erase_flash_sector( void );
 static int8_t program_flash( user_data_t* user_data );
 
-user_data_t* demo_user_data = NULL;
+/******************************************************************************
+*             Pointers to user data, one to RAM and one to Flash              *
+******************************************************************************/
+user_data_t* runtime_user_data_ptr = NULL;
+user_data_t* flash_user_data_ptr = FLASH_USER_DATA_BASE;
 
-/**
-  * @brief  Calculate a checksum of the user data stored in @param; set its
-  *         'flash_data_checksum' field
-  * @param  user_data structure to checksum and update
-  * @retval  0 Success
-  * @retval <0 Error
-  */ 
-int8_t calculate_checksum( user_data_t* user_data );
+/******************************************************************************
+*                           Workflow Implementation                           *
+******************************************************************************/
 
 /**
   * @brief  Verify this device is compatible with the hardcoded flash
@@ -48,27 +50,54 @@ int8_t calculate_checksum( user_data_t* user_data );
   * @retval 0 Success
   * @retval -1 User data storage in flash not supported for your device
   */
-int8_t user_data_init( void )
+user_data_t* user_data_init( void )
 {
-#if USE_FLASH_STORAGE
-    //assert( 0 == DATA_STR_LEN % CRC_REGISTER_SIZE_BYTES );
+    runtime_user_data_ptr = malloc( sizeof( user_data_t ) );
+    memset( runtime_user_data_ptr, 0x00, sizeof( user_data_t ) );
+    user_data_printf( runtime_user_data_ptr );
+#if !(USE_FLASH_STORAGE)
+    return runtime_user_data_ptr;
+#endif
+
+    /* TODO: Should we kill runtime_user_data_ptr completely if flash init fails? */
+    //assert( 0 == DATA_STR_LEN % CRC_REGISTER_BYTES );
     if ( !IS_FLASH_SECTOR( FLASH_USER_DATA_SECTOR ) )
     {
         printf( "\r\n>> Flash init [ERROR] Sector [%d] is incompatible with this device",
                 FLASH_USER_DATA_SECTOR );
-        return -1;
+        goto error_out;
     }
     if ( sizeof(user_data_t) > FLASH_USER_DATA_SIZE )
     {
         printf( "\r\n>> Flash init [ERROR] Allocated flash meomry not enough" );
-        return -1;
+        goto error_out;
     }
-    demo_user_data = FLASH_USER_DATA_BASE;
-#else
-    demo_user_data = malloc( sizeof( user_data_t ) );
-#endif
-    return 0;
+
+    return runtime_user_data_ptr;
+
+error_out:
+    if( NULL != runtime_user_data_ptr )
+    {
+        free( runtime_user_data_ptr );
+    }
+    runtime_user_data_ptr = NULL;
+    return NULL;
 }
+
+void user_data_free( void )
+{
+    if ( runtime_user_data_ptr != NULL )
+    {
+        free( runtime_user_data_ptr );
+    }
+}
+
+#if 0
+user_data_t* user_data_get_ptr( void )
+{
+    return runtime_user_data_ptr;
+}
+#endif
 
 /*
  *  1. check if FLASH_USER_DATA_PREFIX is in flash data. If not, return -1(not configured)
@@ -76,66 +105,85 @@ int8_t user_data_init( void )
  *  3. On data available and verified, return 0. Assign to @param the memory
  *     location where the data is stored (mapped flash memory address)
  */
-int8_t user_data_read_flash( user_data_t* user_data )
+int8_t user_data_read_flash( void )
 {
-    uint32_t addr = 0;
-
-    printf( "\r\n/************ FLASH DUMP ************/\r\n" );
-    for ( addr = FLASH_USER_DATA_BASE; addr < FLASH_END; addr++ )
+#if !( USE_FLASH_STORAGE )
+    return -2;
+#endif
+    if ( NULL == runtime_user_data_ptr )
     {
-        printf( "0x%02x ", *( uint8_t* )( addr ) );
-        if ( addr % 32 == 0 )
-        {
-            printf( "\r\n" );
-        }
+        return -1;
     }
-    printf( "\r\nFLASH READ DONE\r\n" );
+    memcpy( runtime_user_data_ptr, flash_user_data_ptr, sizeof( user_data_t ) );
+
+    /* TODO: verify flash message integrity */
     return 0;
 }
 
+int8_t user_data_save_to_flash( void )
+{
+#if !( USE_FLASH_STORAGE )
+    return -2;
+#endif
+    /* TODO: Calculate CRC checksum and set it in the runtime user data */
+
+    /* Erase */
+    if ( user_data_reset_flash() < 0 )
+    {
+        printf( "\r\n\tSaving user data to flash [ABORT]" );
+        return -1;
+    }
+
+    /* Program */
+    if ( program_flash( runtime_user_data_ptr ) < 0 )
+    {
+        printf( "\r\n\tSaving user data to flash [ABORT]" );
+        return -1;
+    }
+    return 0;
+}
+
+/* TODO: This execution branch should run entirely from RAM */
 int8_t user_data_reset_flash( void )
 {
-    erase_flash_sector();
+#if !( USE_FLASH_STORAGE )
+    return -2;
+#endif
+    /* TODO: Save all non-user_data memory before the erase */
+    if ( erase_flash_sector() < 0 )
+    {
+        return -1;
+    }
+    /* TODO: Rewrite all non-user_data to flash */
     return 0;
 }
 
-/**
-  * @brief
-  * @param  user data structure we'd like to get into flash
-  * @retval  0 Success
-  * @retval <0 Error
-  */
-int8_t flash_user_data_saved_status( user_data_t* user_data )
+void user_data_printf( user_data_t* user_data )
 {
-    //if(stored_flash_data) memcmp( user_data, $stored_flash_data )
-    return 0;
+    //TODO : Verify checksum ??
+    printf( "\r\n\tSnapshot of the contents of the current user data\r\n\t" );
+    for ( uint32_t i = 0; i < sizeof( user_data_t ) / sizeof( int32_t ); i++ )
+    { //TODO: Get rid of this debug loop
+        printf( "%08lx ", *( ( int32_t* )user_data + i ) );
+    }
+    printf( "\r\n\t  * WiFi Cipher: %ld", user_data->wifi_client_cipher );
+    if ( user_data->wifi_client_cipher == 2 ) //TODO : Remove this if
+    {
+        printf( "\r\n\t  * WiFi SSID:   %s", user_data->wifi_client_ssid );
+        printf( "\r\n\t  * WiFi Pwd:    %s", user_data->wifi_client_password );
+        printf( "\r\n" );
+        printf( "\r\n\t  * Xi Acc ID:  %s", user_data->xi_account_id );
+        printf( "\r\n\t  * Xi Dev ID:  %s", user_data->xi_device_id );
+        printf( "\r\n\t  * Xi Dev Pwd: %s", user_data->xi_device_password );
+        printf( "\r\n" );
+    }
+    printf( "\r\n\t  * CRC Checksum: %ld", user_data->crc_checksum );
 }
 
 /******************************************************************************
 *                            FLASH MANIPULATION                               *
 *                               program/erase                                 *
 ******************************************************************************/
-
-int8_t user_data_write_flash( user_data_t* user_data )
-{
-    /* Erase */
-    if ( erase_flash_sector() < 0 )
-    {
-        printf( "\r\n\tSaving user data to flash [ABORT]" );
-        return -1;
-    }
-
-    /* TODO: Re-program all non-user data read before the erase, in case
-             any part of the program is located at the last flash page */
-
-    /* Program */
-    if ( program_flash( user_data ) < 0 )
-    {
-        printf( "\r\n\tSaving user data to flash [ABORT]" );
-        return -1;
-    }
-    return 0;
-}
 
 static int8_t erase_flash_sector( void )
 {
@@ -159,6 +207,7 @@ static int8_t erase_flash_sector( void )
     }
 
     /* Erase Sector */
+    printf( "\r\n\tRunning FLASHEx_Erase" );
     if ( HAL_OK != HAL_FLASHEx_Erase( &erase_config, &error ) )
     {
         printf( "\r\n\tFlash erase [ERROR] code %08lx", error );
@@ -171,11 +220,12 @@ static int8_t erase_flash_sector( void )
     }
 
     /* Lock flash */
+    printf( "\r\n\tRe-locking FLASH at HAL" );
     status = HAL_FLASH_Lock();
     if ( HAL_OK != status )
     {
         printf( "\r\n\tFLASH LOCK ERROR CODE [%d]\r\n", status );
-        goto error_out;
+        return -1;
     }
     return 0;
 
@@ -187,7 +237,8 @@ error_out:
 static int8_t program_flash( user_data_t* user_data )
 {
     HAL_StatusTypeDef status;
-    uint32_t addr = 0;
+    int32_t* runtime_data_32t_head = NULL;
+    int32_t* flash_data_32t_head = NULL;
 
     /* Unlock FLASH interface */
     printf( "\r\n>> Saving user data to flash" );
@@ -197,10 +248,13 @@ static int8_t program_flash( user_data_t* user_data )
         return -1;
     }
 
-    /* Write - TODO: Move to a separate function */
-    for ( addr = FLASH_USER_DATA_BASE; addr < FLASH_END; addr++ )
+    /* Program new user data to flash */
+    for ( uint32_t i = 0; i < sizeof( user_data_t ); i += sizeof( int32_t ) )
     {
-        status = HAL_FLASH_Program( TYPEPROGRAM_BYTE, ( uint32_t )addr, 0x5555555555555555 );
+        runtime_data_32t_head = i + ( char* )user_data;
+        flash_data_32t_head   = i + FLASH_USER_DATA_BASE;
+        status = HAL_FLASH_Program( FLASH_TYPEPROGRAM_WORD, flash_data_32t_head,
+                                    ( uint64_t )*runtime_data_32t_head );
         if ( HAL_OK != status )
         {
             printf( "\r\n\tFlash program [ERROR] Status code %d", status );
@@ -213,7 +267,7 @@ static int8_t program_flash( user_data_t* user_data )
     if ( HAL_OK != status )
     {
         printf( "\r\nFLASH LOCK ERROR CODE [%d]\r\n", status );
-        goto error_out;
+        return -1;
     }
     return 0;
 
@@ -241,21 +295,14 @@ void HAL_FLASH_OperationErrorCallback(uint32_t ReturnValue)
 *                 CRC Operations for Data Integrity Validation                *
 ******************************************************************************/
 
-int32_t crc_accumulate_data_str( CRC_HandleTypeDef crc_handle, char* str, uint32_t str_len )
-{
-    uint32_t crc_code = 0x00;
-    assert( 0 == str_len % CRC_REGISTER_SIZE_BYTES );
-    //for ( uint32_t i = 0; i < str_len; i += CRC_REGISTER_SIZE_BYTES )
-    //{
-    //    crc_code = HAL_CRC_Accumulate( &crc_handle, ( uint32_t* )&str[i],
-    //                                   str_len / CRC_REGISTER_SIZE_BYTES );
-    //}
-    crc_code = HAL_CRC_Accumulate( &crc_handle, ( uint32_t* )str,
-                                   str_len / CRC_REGISTER_SIZE_BYTES );
-    return crc_code;
-}
-
-int8_t calculate_checksum( user_data_t* user_data )
+/**
+  * @brief  Calculate a checksum of the user data stored in @param; set its
+  *         'crc_checksum' field
+  * @param  user_data structure to checksum and update
+  * @retval  0 Success
+  * @retval <0 Error
+  */ 
+static int8_t calculate_checksum( user_data_t* user_data )
 {
     char* string_ptrs[] = {user_data->wifi_client_ssid,
                            user_data->wifi_client_password,
@@ -263,9 +310,8 @@ int8_t calculate_checksum( user_data_t* user_data )
                            user_data->xi_device_id,
                            user_data->xi_device_password};
     uint32_t wifi_cipher_32t = ( uint32_t )user_data->wifi_client_cipher;
-    uint32_t crc_code = 0x00;
+    uint32_t crc_code = 0x00000000;
     static CRC_HandleTypeDef crc_config;
-
     crc_config.Instance = CRC;
 
     /* Init */
@@ -282,10 +328,13 @@ int8_t calculate_checksum( user_data_t* user_data )
     /* Iterate through the relevant strings and accumulate their results */
     for ( uint32_t i = 0; i < sizeof( string_ptrs ) / sizeof( char* ); i++ )
     {
-        crc_code = crc_accumulate_data_str( crc_config, string_ptrs[i], DATA_STR_LEN );
+        assert( 0 == sizeof( string_ptrs[i] ) % CRC_REGISTER_BYTES );
+        crc_code = HAL_CRC_Accumulate( &crc_config, ( uint32_t* )string_ptrs[i],
+                                       DATA_STR_LEN / CRC_REGISTER_BYTES );
         printf( "\r\n\tString [%s] has CRC [%08lx]", string_ptrs[i], crc_code );
     }
     printf( "\r\n\tCalculated user data CRC code: %08lx", crc_code );
+    user_data->crc_checksum = crc_code;
 
     /* DeInit */
     if ( HAL_OK != HAL_CRC_DeInit( &crc_config ) )
