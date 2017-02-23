@@ -19,7 +19,8 @@ Usage:
 ******************************************************************************/
 #define CRC_REGISTER_BYTES 4
 
-static int8_t calculate_checksum( user_data_t* user_data );
+static int8_t calculate_checksum( user_data_t* user_data, int32_t* out_checksum );
+static int8_t validate_checksum( user_data_t* user_data );
 
 /******************************************************************************
 *                                 Flash Usage                                 *
@@ -54,7 +55,6 @@ user_data_t* user_data_init( void )
 {
     runtime_user_data_ptr = malloc( sizeof( user_data_t ) );
     memset( runtime_user_data_ptr, 0x00, sizeof( user_data_t ) );
-    user_data_printf( runtime_user_data_ptr );
 #if !(USE_FLASH_STORAGE)
     return runtime_user_data_ptr;
 #endif
@@ -116,7 +116,10 @@ int8_t user_data_read_flash( void )
     }
     memcpy( runtime_user_data_ptr, flash_user_data_ptr, sizeof( user_data_t ) );
 
-    /* TODO: verify flash message integrity */
+    if ( validate_checksum( runtime_user_data_ptr ) < 0 )
+    {
+        return -3;
+    }
     return 0;
 }
 
@@ -125,7 +128,7 @@ int8_t user_data_save_to_flash( void )
 #if !( USE_FLASH_STORAGE )
     return -2;
 #endif
-    /* TODO: Calculate CRC checksum and set it in the runtime user data */
+    calculate_checksum( runtime_user_data_ptr, &runtime_user_data_ptr->crc_checksum );
 
     /* Erase */
     if ( user_data_reset_flash() < 0 )
@@ -160,24 +163,24 @@ int8_t user_data_reset_flash( void )
 
 void user_data_printf( user_data_t* user_data )
 {
-    //TODO : Verify checksum ??
-    printf( "\r\n\tSnapshot of the contents of the current user data\r\n\t" );
+    printf( "\r\n\tSnapshot of the contents of the current user data" );
     for ( uint32_t i = 0; i < sizeof( user_data_t ) / sizeof( int32_t ); i++ )
     { //TODO: Get rid of this debug loop
+        if ( 0 == i % 4 )
+        {
+            printf( "\r\n\t\t" );
+        }
         printf( "%08lx ", *( ( int32_t* )user_data + i ) );
     }
     printf( "\r\n\t  * WiFi Cipher: %ld", user_data->wifi_client_cipher );
-    if ( user_data->wifi_client_cipher == 2 ) //TODO : Remove this if
-    {
-        printf( "\r\n\t  * WiFi SSID:   %s", user_data->wifi_client_ssid );
-        printf( "\r\n\t  * WiFi Pwd:    %s", user_data->wifi_client_password );
-        printf( "\r\n" );
-        printf( "\r\n\t  * Xi Acc ID:  %s", user_data->xi_account_id );
-        printf( "\r\n\t  * Xi Dev ID:  %s", user_data->xi_device_id );
-        printf( "\r\n\t  * Xi Dev Pwd: %s", user_data->xi_device_password );
-        printf( "\r\n" );
-    }
-    printf( "\r\n\t  * CRC Checksum: %ld", user_data->crc_checksum );
+    printf( "\r\n\t  * WiFi SSID:   %.64s", user_data->wifi_client_ssid );
+    printf( "\r\n\t  * WiFi Pwd:    %.64s", user_data->wifi_client_password );
+    printf( "\r\n" );
+    printf( "\r\n\t  * Xi Acc ID:  %.64s", user_data->xi_account_id );
+    printf( "\r\n\t  * Xi Dev ID:  %.64s", user_data->xi_device_id );
+    printf( "\r\n\t  * Xi Dev Pwd: %.64s", user_data->xi_device_password );
+    printf( "\r\n" );
+    printf( "\r\n\t  * CRC Checksum: 0x%08lx", user_data->crc_checksum );
 }
 
 /******************************************************************************
@@ -296,13 +299,15 @@ void HAL_FLASH_OperationErrorCallback(uint32_t ReturnValue)
 ******************************************************************************/
 
 /**
-  * @brief  Calculate a checksum of the user data stored in @param; set its
-  *         'crc_checksum' field
-  * @param  user_data structure to checksum and update
+  * @brief  Calculate a checksum of the user data stored in @param. Set out_checksum
+  *         to the result. This function does not CRC or set the crc_checksum
+  *         in *user_data
+  * @param  user_data structure to checksum
+  * @param  *out_checksum will be set to the result of the CRC calculation
   * @retval  0 Success
   * @retval <0 Error
-  */ 
-static int8_t calculate_checksum( user_data_t* user_data )
+  */
+static int8_t calculate_checksum( user_data_t* user_data, int32_t* out_checksum )
 {
     char* string_ptrs[] = {user_data->wifi_client_ssid,
                            user_data->wifi_client_password,
@@ -324,6 +329,7 @@ static int8_t calculate_checksum( user_data_t* user_data )
 
     /* Reset CRC register and calculate the first code */
     crc_code = HAL_CRC_Calculate( &crc_config, &wifi_cipher_32t, 1 );
+    printf( "\r\n\tWiFi Cipher [0x%08lx] has CRC [%08lx]", wifi_cipher_32t, crc_code );
 
     /* Iterate through the relevant strings and accumulate their results */
     for ( uint32_t i = 0; i < sizeof( string_ptrs ) / sizeof( char* ); i++ )
@@ -331,10 +337,10 @@ static int8_t calculate_checksum( user_data_t* user_data )
         assert( 0 == sizeof( string_ptrs[i] ) % CRC_REGISTER_BYTES );
         crc_code = HAL_CRC_Accumulate( &crc_config, ( uint32_t* )string_ptrs[i],
                                        DATA_STR_LEN / CRC_REGISTER_BYTES );
-        printf( "\r\n\tString [%s] has CRC [%08lx]", string_ptrs[i], crc_code );
+        printf( "\r\n\t+ String [%.64s], CRC is [%08lx]", string_ptrs[i], crc_code );
     }
     printf( "\r\n\tCalculated user data CRC code: %08lx", crc_code );
-    user_data->crc_checksum = crc_code;
+    *out_checksum = crc_code;
 
     /* DeInit */
     if ( HAL_OK != HAL_CRC_DeInit( &crc_config ) )
@@ -343,5 +349,22 @@ static int8_t calculate_checksum( user_data_t* user_data )
         return -1;
     }
     __HAL_RCC_CRC_CLK_DISABLE();
+    return 0;
+}
+
+static int8_t validate_checksum( user_data_t* user_data )
+{
+    int32_t new_checksum = 0x00000000;
+    if ( calculate_checksum( user_data, &new_checksum ) < 0 )
+    {
+        return -1;
+    }
+    if ( new_checksum != user_data->crc_checksum )
+    {
+        printf( "\r\n>> User data [CORRUPT] stored checksum %08lx doesn't match %08lx",
+                new_checksum, user_data->crc_checksum );
+        return -2;
+    }
+    printf( "\r\n>> User data integrity validation [OK]" );
     return 0;
 }

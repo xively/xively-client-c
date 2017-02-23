@@ -7,7 +7,7 @@
 
 typedef struct
 {
-    int32_t crc_checksum;
+    int32_t crc_checksum; /* For internal use */
 
     int32_t wifi_client_cipher; // Assigned an SDK enum value
     char wifi_client_ssid[DATA_STR_LEN];
