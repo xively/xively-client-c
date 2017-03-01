@@ -6,6 +6,11 @@
 #include "wifi_interface.h"
 #include "xi_bsp_time_stm32f4_nucleo_wifi_sntp.h"
 
+#define SNTP_PORT   123
+#define SNTP_SERVER_HOST_LEN 15
+char* sntp_servers[SNTP_SERVER_HOST_LEN] = {"0.pool.ntp.org", "1.pool.ntp.org",
+                                            "2.pool.ntp.org", "3.pool.ntp.org"};
+
 #define SNTP_MSG_SIZE 48
 #define SNTP_TIMEOUT_MS 5000
 #define SNTP_SERVER_TIME_OFFSET 2208988800
@@ -121,29 +126,35 @@ static void sntp_free_response( sntp_response_t** r )
 /**
    * @brief  Create a UDP socket to the SNTP server and return its ID by
    *         setting *sock_id
-   * @param  *sntp_server is a char array with the relevant URL
-   *         sntp_port is the port to be used for SNTP communication
+   * @param  sntp_port is the port to be used for SNTP communication
    *         *sock_id will be set to the appropriate socket ID
    * @retval WiFi_Status_t: WiFi_MODULE_SUCCESS on success, see wifi_interface.h
-   *
-   * @TODO: sntp.h should have a list of SNTP servers. This function should
-   *               rotate through them, changing to the next one every time this
-   *               function is called
    */
 static WiFi_Status_t sntp_start( uint32_t sntp_port, uint8_t* sock_id )
 {
-    WiFi_Status_t status = WiFi_MODULE_SUCCESS;
-    uint8_t sntp_protocol = 'u'; //UDP
-    if( NULL == sock_id )
+    WiFi_Status_t status                  = WiFi_MODULE_SUCCESS;
+    uint8_t sntp_protocol                 = 'u'; // UDP
+    static const uint8_t sntp_servers_num = sizeof( sntp_servers ) / SNTP_SERVER_HOST_LEN;
+    static uint8_t sntp_server_turn       = 0;
+    char* sntp_server                     = sntp_servers[sntp_server_turn];
+
+    /* Use a different SNTP server every time this function is called */
+    sntp_server_turn++;
+    if ( sntp_server_turn >= sntp_servers_num )
     {
-        xi_bsp_debug_logger("[ERROR] NULL pointer received as SNTP sock_id");
+        sntp_server_turn = 0;
+    }
+
+    if ( NULL == sock_id )
+    {
+        xi_bsp_debug_logger( "[ERROR] NULL pointer received as SNTP sock_id" );
         return WiFi_START_FAILED_ERROR;
     }
-    xi_bsp_debug_format("\tOpening UDP socket to SNTP server %s:%lu",
-           SNTP_SERVER,
-           sntp_port);
-    status = wifi_socket_client_open((uint8_t*)SNTP_SERVER, sntp_port,
-                                     &sntp_protocol, sock_id);
+
+    xi_bsp_debug_format( "\tOpening UDP socket to SNTP server %s:%lu", sntp_server,
+                         sntp_port );
+    status = wifi_socket_client_open( ( uint8_t* )sntp_server, sntp_port, &sntp_protocol,
+                                      sock_id );
 
     return status;
 }
