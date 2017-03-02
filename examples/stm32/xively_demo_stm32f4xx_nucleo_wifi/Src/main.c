@@ -82,6 +82,7 @@ WiFi_Status_t wifi_get_AP_settings( void );
 wifi_state_t wifi_state;
 wifi_config config;
 wifi_scan net_scan[WIFI_SCAN_BUFFER_LIST];
+xi_state_t xi_connection_state = XI_SOCKET_NO_ACTIVE_CONNECTION_ERROR;
 
 char console_ssid[40];
 char console_psk[20];
@@ -90,6 +91,7 @@ char* ssid          = "SSID";
 char* seckey        = "PASSWORD";
 WiFi_Priv_Mode mode = WPA_Personal;
 
+
 #define XI_ACCOUNT_ID "XIVELY ACCOUNT ID"
 #define XI_DEVICE_ID "XIVELY DEVICE ID"
 #define XI_DEVICE_PASS "XIVELY DEVICE PASSWORD"
@@ -97,22 +99,17 @@ WiFi_Priv_Mode mode = WPA_Personal;
 /* the interval for the time function */
 #define XI_PUBLISH_INTERVAL_SEC 2
 
-typedef struct topic_descr_s
-{
-    const char* const name;
-} mqtt_topic_descr_t;
-
 /* declaration of fn pointer for the msg handler */
 typedef void ( *on_msg_handler_fn_t )( const uint8_t* const msg, size_t msg_size );
 
-/* declaration of fn pointer for the polling push mechanism */
+/* declaration of fn pointer for the publishing functions */
 typedef xi_state_t ( *on_msg_push_fn_t )(
-    const mqtt_topic_descr_t* const mqtt_topic_descr );
+    const char* mqtt_topic_descr );
 
 /* each topic will have it's descriptor and the handler in case of the message */
 typedef struct mqtt_topic_configuration_s
 {
-    mqtt_topic_descr_t topic_descr;
+    const char* const topic_name;
     on_msg_handler_fn_t on_msg_pull;
     on_msg_push_fn_t on_msg_push;
 } mqtt_topic_configuration_t;
@@ -125,27 +122,28 @@ typedef struct mqtt_topic_configuration_s
 static void on_led_msg( const uint8_t* const msg, size_t msg_size );
 
 /* declaration of topic handlers for PUB'ed topics */
-static xi_state_t pub_accelerometer( const mqtt_topic_descr_t* const mqtt_topic_descr );
-static xi_state_t pub_magnetometer( const mqtt_topic_descr_t* const mqtt_topic_descr );
-static xi_state_t pub_barometer( const mqtt_topic_descr_t* const mqtt_topic_descr );
-static xi_state_t pub_button( const mqtt_topic_descr_t* const mqtt_topic_descr );
-static xi_state_t pub_gyroscope( const mqtt_topic_descr_t* const mqtt_topic_descr );
-static xi_state_t pub_humidity( const mqtt_topic_descr_t* const mqtt_topic_descr );
-static xi_state_t pub_temperature( const mqtt_topic_descr_t* const mqtt_topic_descr );
+static xi_state_t pub_accelerometer( const char* topic_name );
+static xi_state_t pub_magnetometer( const char* topic_name );
+static xi_state_t pub_barometer( const char* topic_name );
+static xi_state_t pub_button( const char* topic_name );
+static xi_state_t pub_gyroscope( const char* topic_name );
+static xi_state_t pub_humidity( const char* topic_name );
+static xi_state_t pub_temperature( const char* topic_name );
 
 /* topic's initialisation function */
 static xi_state_t init_xively_topics( xi_context_handle_t in_context_handle );
 
-/* table of topics used for this demo */
+/* table of topics used for this demo which well be published
+ * every 5 seconds through the Xively Event System Scheduler.
+ * NOTE: Accelerometer, Gyroscope, and Button data are published more
+ * frequently by the main task
+ */
 static const mqtt_topic_configuration_t topics_array[] = {
-    {{XI_TOPIC_NAME_MANGLE( "Accelerometer" )}, NULL, pub_accelerometer},
-    {{XI_TOPIC_NAME_MANGLE( "Magnetometer" )}, NULL, pub_magnetometer},
-    {{XI_TOPIC_NAME_MANGLE( "Barometer" )}, NULL, pub_barometer},
-    {{XI_TOPIC_NAME_MANGLE( "Gyroscope" )}, NULL, pub_gyroscope},
-    {{XI_TOPIC_NAME_MANGLE( "Humidity" )}, NULL, pub_humidity},
-    {{XI_TOPIC_NAME_MANGLE( "Button" )}, NULL, pub_button},
-    {{XI_TOPIC_NAME_MANGLE( "LED" )}, &on_led_msg, NULL},
-    {{XI_TOPIC_NAME_MANGLE( "Temperature" )}, NULL, pub_temperature},
+    { XI_TOPIC_NAME_MANGLE( "Magnetometer" ), NULL, pub_magnetometer},
+    { XI_TOPIC_NAME_MANGLE( "Barometer" ), NULL, pub_barometer},
+    { XI_TOPIC_NAME_MANGLE( "Humidity" ), NULL, pub_humidity},
+    { XI_TOPIC_NAME_MANGLE( "LED" ), &on_led_msg, NULL},
+    { XI_TOPIC_NAME_MANGLE( "Temperature" ), NULL, pub_temperature},
 };
 
 /* store the length of the array */
@@ -173,7 +171,7 @@ void on_led_msg( const uint8_t* const msg, size_t msg_size )
     ( msg[0] == '0' ) ? io_led_off() : io_led_on();
 }
 
-xi_state_t pub_accelerometer( const mqtt_topic_descr_t* const mqtt_topic_descr )
+xi_state_t pub_accelerometer( const char* topic_name )
 {
     char out_msg[IO_AXES_JSON_BUFFER_MAX_SIZE] = "";
     SensorAxes_t sensor_input;
@@ -182,16 +180,18 @@ xi_state_t pub_accelerometer( const mqtt_topic_descr_t* const mqtt_topic_descr )
     {
         printf( "\r\n\t[ERROR] trying to read accelerometer input" );
         return -1;
-    } if ( io_axes_to_json( sensor_input, out_msg, IO_AXES_JSON_BUFFER_MAX_SIZE ) < 0 )
+    }
+    if ( io_axes_to_json( sensor_input, out_msg, IO_AXES_JSON_BUFFER_MAX_SIZE ) < 0 )
     {
         printf( "\r\n\t[ERROR] trying to create JSON string from sensor input" );
         return -1;
     }
-    return xi_publish( gXivelyContextHandle, mqtt_topic_descr->name, out_msg,
+
+    return xi_publish( gXivelyContextHandle, topic_name, out_msg,
                        XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
 
-xi_state_t pub_magnetometer( const mqtt_topic_descr_t* const mqtt_topic_descr )
+xi_state_t pub_magnetometer( const char* topic_name )
 {
     char out_msg[IO_AXES_JSON_BUFFER_MAX_SIZE] = "";
     SensorAxes_t sensor_input;
@@ -206,11 +206,11 @@ xi_state_t pub_magnetometer( const mqtt_topic_descr_t* const mqtt_topic_descr )
         printf( "\r\n\t[ERROR] trying to create JSON string from sensor input" );
         return -1;
     }
-    return xi_publish( gXivelyContextHandle, mqtt_topic_descr->name, out_msg,
+    return xi_publish( gXivelyContextHandle, topic_name, out_msg,
                        XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
 
-xi_state_t pub_gyroscope( const mqtt_topic_descr_t* const mqtt_topic_descr )
+xi_state_t pub_gyroscope( const char* topic_name )
 {
     char out_msg[IO_AXES_JSON_BUFFER_MAX_SIZE] = "";
     SensorAxes_t sensor_input;
@@ -225,11 +225,11 @@ xi_state_t pub_gyroscope( const mqtt_topic_descr_t* const mqtt_topic_descr )
         printf( "\r\n\t[ERROR] trying to create JSON string from sensor input" );
         return -1;
     }
-    return xi_publish( gXivelyContextHandle, mqtt_topic_descr->name, out_msg,
+    return xi_publish( gXivelyContextHandle, topic_name, out_msg,
                        XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
 
-xi_state_t pub_barometer( const mqtt_topic_descr_t* const mqtt_topic_descr )
+xi_state_t pub_barometer( const char* topic_name )
 {
     char out_msg[IO_FLOAT_BUFFER_MAX_SIZE] = "";
     float sensor_input                     = 0;
@@ -243,11 +243,11 @@ xi_state_t pub_barometer( const mqtt_topic_descr_t* const mqtt_topic_descr )
         printf( "\r\n\t[ERROR] trying to create string from sensor input" );
         return -1;
     }
-    return xi_publish( gXivelyContextHandle, mqtt_topic_descr->name, out_msg,
+    return xi_publish( gXivelyContextHandle, topic_name, out_msg,
                        XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
 
-xi_state_t pub_humidity( const mqtt_topic_descr_t* const mqtt_topic_descr )
+xi_state_t pub_humidity( const char* topic_name )
 {
     char out_msg[IO_FLOAT_BUFFER_MAX_SIZE] = "";
     float sensor_input                     = 0;
@@ -261,11 +261,11 @@ xi_state_t pub_humidity( const mqtt_topic_descr_t* const mqtt_topic_descr )
         printf( "\r\n\t[ERROR] trying to create string from sensor input" );
         return -1;
     }
-    return xi_publish( gXivelyContextHandle, mqtt_topic_descr->name, out_msg,
+    return xi_publish( gXivelyContextHandle, topic_name, out_msg,
                        XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
 
-xi_state_t pub_temperature( const mqtt_topic_descr_t* const mqtt_topic_descr )
+xi_state_t pub_temperature( const char* topic_name )
 {
     char out_msg[IO_FLOAT_BUFFER_MAX_SIZE] = "";
     float sensor_input                     = 0;
@@ -279,15 +279,15 @@ xi_state_t pub_temperature( const mqtt_topic_descr_t* const mqtt_topic_descr )
         printf( "\r\n\t[ERROR] trying to create string from sensor input" );
         return -1;
     }
-    return xi_publish( gXivelyContextHandle, mqtt_topic_descr->name, out_msg,
+    return xi_publish( gXivelyContextHandle, topic_name, out_msg,
                        XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
 
-xi_state_t pub_button( const mqtt_topic_descr_t* const mqtt_topic_descr )
+xi_state_t pub_button( const char* topic_name )
 {
     char* payload;
     ( io_read_button() ) ? ( payload = "1" ) : ( payload = "0" );
-    return xi_publish( gXivelyContextHandle, mqtt_topic_descr->name, payload,
+    return xi_publish( gXivelyContextHandle, topic_name, payload,
                        XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
 
@@ -305,6 +305,7 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
     assert( NULL != data );
 
     xi_connection_data_t* conn_data = ( xi_connection_data_t* )data;
+    xi_connection_state = conn_data->connection_state;
 
     printf( "\r\nconnected, state : %i", conn_data->connection_state );
     switch ( conn_data->connection_state )
@@ -405,7 +406,7 @@ void push_mqtt_topics()
 
         if ( NULL != topic_config->on_msg_push )
         {
-            topic_config->on_msg_push( &topic_config->topic_descr );
+            topic_config->on_msg_push( topic_config->topic_name );
         }
     }
 }
@@ -424,7 +425,7 @@ xi_state_t init_xively_topics( xi_context_handle_t in_context_handle )
 
         if ( NULL != topic_config->on_msg_pull )
         {
-            ret = xi_subscribe( in_context_handle, topic_config->topic_descr.name,
+            ret = xi_subscribe( in_context_handle, topic_config->topic_name,
                                 XI_MQTT_QOS_AT_MOST_ONCE, &on_mqtt_topic,
                                 ( void* )topic_config );
 
@@ -522,8 +523,6 @@ int main( void )
                 {
                     for ( i = 0; i < WIFI_SCAN_BUFFER_LIST; i++ )
                     {
-                        // printf(net_scan[i].ssid);
-                        // printf("\r\n");
                         if ( ( ( char* )strstr( ( const char* )net_scan[i].ssid,
                                                 ( const char* )console_ssid ) ) != NULL )
                         {
@@ -597,7 +596,15 @@ int main( void )
             case wifi_state_idle:
                 printf( "." );
                 fflush( stdout );
-                HAL_Delay( 500 );
+                HAL_Delay( 250 );
+
+                if( XI_CONNECTION_STATE_OPENED == xi_connection_state )
+                {
+                	pub_gyroscope( XI_TOPIC_NAME_MANGLE( "Gyroscope" ) );
+                	pub_accelerometer( XI_TOPIC_NAME_MANGLE( "Accelerometer" ) );
+                	pub_button( XI_TOPIC_NAME_MANGLE( "Button" ) );
+                }
+
                 break;
 
             default:
@@ -842,24 +849,22 @@ ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
 WiFi_Status_t wifi_get_AP_settings( void )
 {
     uint8_t console_input[1], console_count = 0;
-    //  wifi_bool set_AP_config = WIFI_FALSE;
     WiFi_Status_t status = WiFi_MODULE_SUCCESS;
     printf( "\r\n\n/********************************************************\n" );
-    printf( "\r *                                                      *\n" );
-    printf( "\r * X-CUBE-WIFI1 Expansion Software v2.1.1               *\n" );
-    printf( "\r * X-NUCLEO-IDW01M1 Wi-Fi Configuration.                *\n" );
-    printf( "\r * Client-Socket Example                                *\n" );
-    printf( "\r *                                                      *\n" );
+    printf( "\r *\n" );
+    printf( "\r * Xively Client Example version 1.0\n" );
+    printf( "\r * for STM32F401RE Nucleo\n" );
+    printf( "\r * X-CUBE-WIFI1 Expansion Software v2.1.1\n" );
+    printf( "\r * X-NUCLEO-IDW01M1 Wi-Fi Configuration.\n" );
+    printf( "\r *\n" );
     printf( "\r *******************************************************/\n" );
     printf( "\r\nDo you want to setup SSID?(y/n):" );
     fflush( stdout );
     scanf( "%s", console_input );
     printf( "\r\n" );
 
-    // HAL_UART_Receive(&UartMsgHandle, (uint8_t *)console_input, 1, 100000);
     if ( console_input[0] == 'y' )
     {
-        //              set_AP_config = WIFI_TRUE;
         printf( "Enter the SSID:" );
         fflush( stdout );
 
@@ -873,14 +878,12 @@ WiFi_Status_t wifi_get_AP_settings( void )
             return WiFi_NOT_SUPPORTED;
         }
 
-        // printf("entered =%s\r\n",console_ssid);
         printf( "Enter the password:" );
         fflush( stdout );
         console_count = 0;
 
         console_count = scanf( "%s", console_psk );
         printf( "\r\n" );
-        // printf("entered =%s\r\n",console_psk);
         if ( console_count == 19 )
         {
             printf( "Exceeded number of psk characters permitted" );
@@ -890,7 +893,6 @@ WiFi_Status_t wifi_get_AP_settings( void )
         fflush( stdout );
         scanf( "%s", console_input );
         printf( "\r\n" );
-        // printf("entered =%s\r\n",console_input);
         switch ( console_input[0] )
         {
             case '0':
@@ -915,8 +917,8 @@ WiFi_Status_t wifi_get_AP_settings( void )
     }
 
     printf( "\r\n\n/**************************************************************\n" );
-    printf( "\r * Configuration Complete                                     *\n" );
-    printf( "\r * Port Number:32000, Protocol: TCP/IP                        *\n" );
+    printf( "\r * Configuration Complete\n" );
+    printf( "\r * Port Number:32000, Protocol: TCP/IP\n" );
     printf( "\r *************************************************************/\n" );
 
     return status;
