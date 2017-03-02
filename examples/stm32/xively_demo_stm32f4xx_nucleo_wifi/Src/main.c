@@ -82,7 +82,7 @@ WiFi_Status_t wifi_get_AP_settings( void );
 wifi_state_t wifi_state;
 wifi_config config;
 wifi_scan net_scan[WIFI_SCAN_BUFFER_LIST];
-xi_state_t xi_connection_state = XI_SOCKET_NO_ACTIVE_CONNECTION_ERROR;
+xi_state_t if( XI_CONNECTION_STATE_OPENED == xi_connection_state ) = XI_SOCKET_NO_ACTIVE_CONNECTION_ERROR;
 
 char console_ssid[40];
 char console_psk[20];
@@ -97,7 +97,7 @@ WiFi_Priv_Mode mode = WPA_Personal;
 #define XI_DEVICE_PASS "XIVELY DEVICE PASSWORD"
 
 /* the interval for the time function */
-#define XI_PUBLISH_INTERVAL_SEC 2
+#define XI_PUBLISH_INTERVAL_SEC 5
 
 /* declaration of fn pointer for the msg handler */
 typedef void ( *on_msg_handler_fn_t )( const uint8_t* const msg, size_t msg_size );
@@ -604,7 +604,6 @@ int main( void )
                 	pub_accelerometer( XI_TOPIC_NAME_MANGLE( "Accelerometer" ) );
                 	pub_button( XI_TOPIC_NAME_MANGLE( "Button" ) );
                 }
-
                 break;
 
             default:
