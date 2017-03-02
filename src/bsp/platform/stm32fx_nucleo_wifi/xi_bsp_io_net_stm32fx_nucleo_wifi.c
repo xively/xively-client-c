@@ -55,7 +55,7 @@ static xi_bsp_io_net_state_t xi_bsp_io_net_configure_tls( const char* host )
 {
     WiFi_Status_t status          = WiFi_MODULE_SUCCESS;
     posix_time_t current_datetime = xi_bsp_time_sntp_getseconds_posix();
-    uint8_t* tls_mode             = ( uint8_t* )"o"; //["m"utual || "o"ne-way]
+    uint8_t* tls_mode             = ( uint8_t* )"o"; /* ["m"utual || "o"ne-way] */
     char* tls_cert                = GLOBALSIGN_ROOT_CERT;
 
     xi_bsp_debug_format( "Trusted Root CA Certificate:\r\n%s", tls_cert );
@@ -63,7 +63,7 @@ static xi_bsp_io_net_state_t xi_bsp_io_net_configure_tls( const char* host )
         wifi_socket_client_security( tls_mode, ( uint8_t* )tls_cert, NULL, NULL,
                                      ( uint8_t* )host, ( uint32_t )current_datetime );
 
-    if ( status != WiFi_MODULE_SUCCESS )
+    if ( WiFi_MODULE_SUCCESS != status )
     {
         xi_bsp_debug_format( "TLS configuration [ERROR] %d", status );
         return XI_BSP_IO_NET_STATE_ERROR;
