@@ -13,32 +13,11 @@
 #include <xi_list.h>
 #include "wifi_interface.h"
 #include "xi_bsp_time_stm32f4_nucleo_wifi_sntp.h"
+#include "xi_bsp_tls_certs.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#define XI_CERT "-----BEGIN CERTIFICATE-----\n\
-MIIDdTCCAl2gAwIBAgILBAAAAAABFUtaw5QwDQYJKoZIhvcNAQEFBQAwVzELMAkG\
-A1UEBhMCQkUxGTAXBgNVBAoTEEdsb2JhbFNpZ24gbnYtc2ExEDAOBgNVBAsTB1Jv\
-b3QgQ0ExGzAZBgNVBAMTEkdsb2JhbFNpZ24gUm9vdCBDQTAeFw05ODA5MDExMjAw\
-MDBaFw0yODAxMjgxMjAwMDBaMFcxCzAJBgNVBAYTAkJFMRkwFwYDVQQKExBHbG9i\
-YWxTaWduIG52LXNhMRAwDgYDVQQLEwdSb290IENBMRswGQYDVQQDExJHbG9iYWxT\
-aWduIFJvb3QgQ0EwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDaDuaZ\
-jc6j40+Kfvvxi4Mla+pIH/EqsLmVEQS98GPR4mdmzxzdzxtIK+6NiY6arymAZavp\
-xy0Sy6scTHAHoT0KMM0VjU/43dSMUBUc71DuxC73/OlS8pF94G3VNTCOXkNz8kHp\
-1Wrjsok6Vjk4bwY8iGlbKk3Fp1S4bInMm/k8yuX9ifUSPJJ4ltbcdG6TRGHRjcdG\
-snUOhugZitVtbNV4FpWi6cgKOOvyJBNPc1STE4U6G7weNLWLBYy5d4ux2x8gkasJ\
-U26Qzns3dLlwR5EiUWMWea6xrkEmCMgZK9FGqkjWZCrXgzT/LCrBbBlDSgeF59N8\
-9iFo7+ryUp9/k5DPAgMBAAGjQjBAMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8E\
-BTADAQH/MB0GA1UdDgQWBBRge2YaRQ2XyolQL30EzTSo//z9SzANBgkqhkiG9w0B\
-AQUFAAOCAQEA1nPnfE920I2/7LqivjTFKDK1fPxsnCwrvQmeU79rXqoRSLblCKOz\
-yj1hTdNGCbM+w6DjY1Ub8rrvrTnhQ7k4o+YviiY776BQVvnGCv04zcQLcFGUl5gE\
-38NflNUVyRRBnMRddWQVDf9VMOyGj/8N7yy5Y0b2qvzfvGn9LhJIZJrglfCm7ymP\
-AbEVtQwdpf5pLGkkeB6zpxxxYu7KyJesF12KwvhHhm4qxFYxldBniYUr+WymXUad\
-DKqC5JlR3XC321Y9YeRq4VzW9v493kHMB65jUr9TU/Qr6cf9tveCX4XSQRjbgbME\
-HMUfpIBvFSDJ3gyICh3WZlXi/EjJKSZp4A==\
-\n-----END CERTIFICATE-----\n"
 
 #ifndef MAX
 #define MAX( a, b ) ( ( ( a ) > ( b ) ) ? ( a ) : ( b ) )
@@ -72,10 +51,9 @@ xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
     return XI_BSP_IO_NET_STATE_OK;
 }
 
-static xi_bsp_io_net_state_t
-xi_bsp_io_net_configure_tls( const char* host )
+static xi_bsp_io_net_state_t xi_bsp_io_net_configure_tls( const char* host )
 {
-    //WiFi_Status_t wifi_socket_client_security(
+    // WiFi_Status_t wifi_socket_client_security(
     //    uint8_t* tls_mode,
     //    uint8_t* root_ca_server,
     //    uint8_t* client_cert,
@@ -84,21 +62,20 @@ xi_bsp_io_net_configure_tls( const char* host )
     //    uint32_t tls_epoch_time );
     WiFi_Status_t status          = WiFi_MODULE_SUCCESS;
     posix_time_t current_datetime = xi_bsp_time_sntp_getseconds_posix();
-    uint8_t* tls_mode             = ( uint8_t* )"o"; //["m"utual, "o"ne-way]
-    char* tls_cert                = XI_CERT;
+    uint8_t* tls_mode             = ( uint8_t* )"o"; //["m"utual || "o"ne-way]
+    char* tls_cert                = GLOBALSIGN_ROOT_CERT;
 
-    xi_bsp_debug_logger( ">> Setting up TLS security in the WiFi module" );
-    xi_bsp_debug_format( ">> Trusted Root CA Certificate:\r\n%s", tls_cert );
+    xi_bsp_debug_format( "Trusted Root CA Certificate:\r\n%s", tls_cert );
     status =
         wifi_socket_client_security( tls_mode, ( uint8_t* )tls_cert, NULL, NULL,
                                      ( uint8_t* )host, ( uint32_t )current_datetime );
 
     if ( status != WiFi_MODULE_SUCCESS )
     {
-        xi_bsp_debug_format( ">> TLS configuration [ERROR] %d", status );
+        xi_bsp_debug_format( "TLS configuration [ERROR] %d", status );
         return XI_BSP_IO_NET_STATE_ERROR;
     }
-    xi_bsp_debug_format( ">> TLS configuration [OK] %d", status );
+    xi_bsp_debug_format( "TLS configuration [OK] %d", status );
     return XI_BSP_IO_NET_STATE_OK;
 }
 
