@@ -53,13 +53,6 @@ xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
 
 static xi_bsp_io_net_state_t xi_bsp_io_net_configure_tls( const char* host )
 {
-    // WiFi_Status_t wifi_socket_client_security(
-    //    uint8_t* tls_mode,
-    //    uint8_t* root_ca_server,
-    //    uint8_t* client_cert,
-    //    uint8_t* client_key,
-    //    uint8_t* client_domain,
-    //    uint32_t tls_epoch_time );
     WiFi_Status_t status          = WiFi_MODULE_SUCCESS;
     posix_time_t current_datetime = xi_bsp_time_sntp_getseconds_posix();
     uint8_t* tls_mode             = ( uint8_t* )"o"; //["m"utual || "o"ne-way]
