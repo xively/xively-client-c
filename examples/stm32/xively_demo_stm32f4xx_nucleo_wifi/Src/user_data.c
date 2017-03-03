@@ -39,7 +39,7 @@ static int8_t program_flash( user_data_t* user_data );
 int8_t user_data_flash_init( void )
 {
     assert( 0 == sizeof( user_data_t ) % sizeof( int32_t ) ); /* For program_flash() */
-    assert( 0 == DATA_STR_LEN % CRC_REGISTER_BYTES );
+    assert( 0 == USER_DATA_STR_LEN % CRC_REGISTER_BYTES );
     if ( !IS_FLASH_SECTOR( FLASH_USER_DATA_SECTOR ) )
     {
         printf( "\r\n>> Flash init [ERROR] Sector [%d] is incompatible with this device",
@@ -74,6 +74,15 @@ int8_t user_data_save_to_flash( user_data_t* src )
         printf( "\r\n\tSaving user data to flash [ABORT]" );
         return -1;
     }
+
+    if ( calculate_checksum( src, &src->crc_checksum ) < 0 )
+    {
+        printf( "\r\n\tCRC checksum calculation [ERROR]" );
+        return -1;
+    }
+
+    printf( "\r\n\tUser data being saved to flash:" );
+    user_data_printf( src );
 
     if ( program_flash( src ) < 0 )
     {
@@ -113,7 +122,6 @@ static int8_t erase_flash_sector( void )
     erase_config.NbSectors    = 1;
 
     /* Unlock flash */
-    printf( "\r\n\tUnlocking Flash at HAL" );
     status = HAL_FLASH_Unlock();
     if ( HAL_OK != status )
     {
@@ -122,7 +130,6 @@ static int8_t erase_flash_sector( void )
     }
 
     /* Erase Sector */
-    printf( "\r\n\tRunning FLASHEx_Erase" );
     if ( HAL_OK != HAL_FLASHEx_Erase( &erase_config, &error ) )
     {
         printf( "\r\n\tFlash erase [ERROR] code %08lx", error );
@@ -135,11 +142,10 @@ static int8_t erase_flash_sector( void )
     }
 
     /* Lock flash */
-    printf( "\r\n\tRe-locking FLASH at HAL" );
     status = HAL_FLASH_Lock();
     if ( HAL_OK != status )
     {
-        printf( "\r\n\tFLASH LOCK ERROR CODE [%d]\r\n", status );
+        printf( "\r\n\tFlash lock error code [%d]\r\n", status );
         return -1;
     }
     return 0;
@@ -166,10 +172,11 @@ static int8_t program_flash( user_data_t* user_data )
     /* Program new user data to flash */
     for ( uint32_t i = 0; i < sizeof( user_data_t ); i += sizeof( int32_t ) )
     {
-        runtime_data_32t_head = (int32_t*) (i + ( char* )user_data);
-        flash_data_32t_head   = (int32_t*) (i + FLASH_USER_DATA_BASE);
-        status = HAL_FLASH_Program( FLASH_TYPEPROGRAM_WORD, flash_data_32t_head,
-                                    ( uint64_t )*runtime_data_32t_head );
+        runtime_data_32t_head = ( int32_t* )( i + ( char* )user_data );
+        flash_data_32t_head   = ( int32_t* )( i + FLASH_USER_DATA_BASE );
+        status =
+            HAL_FLASH_Program( FLASH_TYPEPROGRAM_WORD, ( uint32_t )flash_data_32t_head,
+                               ( uint64_t )*runtime_data_32t_head );
         if ( HAL_OK != status )
         {
             printf( "\r\n\tFlash program [ERROR] Status code %d", status );
@@ -195,7 +202,7 @@ error_out:
 *                 CRC Operations for Data Integrity Validation                *
 ******************************************************************************/
 /**
-  * @brief  Calculate a checksum of the user data stored in @param. Set out_checksum
+  * @brief  Calculate a checksum of the user data stored in @param0. Set out_checksum
   *         to the result. This function does not CRC or set the crc_checksum
   *         in *user_data
   * @param  user_data structure to checksum
@@ -210,12 +217,12 @@ static int8_t calculate_checksum( user_data_t* user_data, int32_t* out_checksum 
                            user_data->xi_account_id,
                            user_data->xi_device_id,
                            user_data->xi_device_password};
-    uint32_t wifi_cipher_32t = ( uint32_t )user_data->wifi_client_cipher;
-    uint32_t crc_code = 0x00000000;
+    uint32_t wifi_encryption_32t = ( uint32_t )user_data->wifi_client_encryption_mode;
+    uint32_t crc_code            = 0x00000000;
     static CRC_HandleTypeDef crc_config;
-    crc_config.Instance = CRC;
 
     /* Init CRC peripheral */
+    crc_config.Instance = CRC;
     __HAL_RCC_CRC_CLK_ENABLE();
     if ( HAL_OK != HAL_CRC_Init( &crc_config ) )
     {
@@ -224,14 +231,15 @@ static int8_t calculate_checksum( user_data_t* user_data, int32_t* out_checksum 
     }
 
     /* Reset CRC register and calculate the first code */
-    crc_code = HAL_CRC_Calculate( &crc_config, &wifi_cipher_32t, 1 );
-    printf( "\r\n\tWiFi Cipher [0x%08lx] has CRC [%08lx]", wifi_cipher_32t, crc_code );
+    crc_code = HAL_CRC_Calculate( &crc_config, &wifi_encryption_32t, 1 );
+    printf( "\r\n\tWiFi Encryption [0x%08lx] has CRC [%08lx]", wifi_encryption_32t,
+            crc_code );
 
     /* Iterate through the relevant strings and accumulate their results */
     for ( uint32_t i = 0; i < sizeof( string_ptrs ) / sizeof( char* ); i++ )
     {
         crc_code = HAL_CRC_Accumulate( &crc_config, ( uint32_t* )string_ptrs[i],
-                                       DATA_STR_LEN / CRC_REGISTER_BYTES );
+                                       USER_DATA_STR_LEN / CRC_REGISTER_BYTES );
         printf( "\r\n\t+ String [%.64s], CRC is [%08lx]", string_ptrs[i], crc_code );
     }
     printf( "\r\n\tCalculated user data CRC code: %08lx", crc_code );
@@ -269,7 +277,6 @@ int8_t user_data_validate_checksum( user_data_t* user_data )
 ******************************************************************************/
 void user_data_printf( user_data_t* user_data )
 {
-    printf( "\r\n\tSnapshot of the contents of the current user data" );
     for ( uint32_t i = 0; i < sizeof( user_data_t ) / sizeof( int32_t ); i++ )
     { //TODO: Get rid of this debug loop
         if ( 0 == i % 4 )
@@ -278,13 +285,11 @@ void user_data_printf( user_data_t* user_data )
         }
         printf( "%08lx ", *( ( int32_t* )user_data + i ) );
     }
-    printf( "\r\n\t  * WiFi Cipher: %ld", user_data->wifi_client_cipher );
+    printf( "\r\n\t  * WiFi Security: %ld", user_data->wifi_client_encryption_mode );
     printf( "\r\n\t  * WiFi SSID:   %.64s", user_data->wifi_client_ssid );
     printf( "\r\n\t  * WiFi Pwd:    %.64s", user_data->wifi_client_password );
-    printf( "\r\n" );
     printf( "\r\n\t  * Xi Acc ID:  %.64s", user_data->xi_account_id );
     printf( "\r\n\t  * Xi Dev ID:  %.64s", user_data->xi_device_id );
     printf( "\r\n\t  * Xi Dev Pwd: %.64s", user_data->xi_device_password );
-    printf( "\r\n" );
     printf( "\r\n\t  * CRC Checksum: 0x%08lx", user_data->crc_checksum );
 }
