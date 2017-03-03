@@ -6,9 +6,9 @@
 #include "wifi_interface.h"
 #include "xi_bsp_time_stm32f4_nucleo_wifi_sntp.h"
 
-#define SNTP_PORT   123
-char* sntp_servers[] = {"0.pool.ntp.org", "1.pool.ntp.org",
-                        "2.pool.ntp.org", "3.pool.ntp.org"};
+#define SNTP_PORT 123
+char* sntp_servers[] = {"pool.ntp.org", "time-a.nist.gov", "time-b.nist.gov",
+                        "time-c.nist.gov"};
 
 #define SNTP_MSG_SIZE 48
 #define SNTP_TIMEOUT_MS 5000
