@@ -7,7 +7,6 @@
 #include "xi_bsp_time_stm32f4_nucleo_wifi_sntp.h"
 
 #define SNTP_PORT   123
-#define SNTP_SERVER_HOST_LEN 15
 char* sntp_servers[] = {"0.pool.ntp.org", "1.pool.ntp.org",
                         "2.pool.ntp.org", "3.pool.ntp.org"};
 
@@ -134,7 +133,7 @@ static WiFi_Status_t sntp_start( uint32_t sntp_port, uint8_t* sock_id )
 {
     WiFi_Status_t status                  = WiFi_MODULE_SUCCESS;
     uint8_t sntp_protocol                 = 'u'; /* UDP */
-    static const uint8_t sntp_servers_num = sizeof( sntp_servers ) / SNTP_SERVER_HOST_LEN;
+    static const uint8_t sntp_servers_num = sizeof( sntp_servers ) / sizeof( char* );
     static uint8_t sntp_server_turn       = 0;
     char* sntp_server                     = sntp_servers[sntp_server_turn];
 

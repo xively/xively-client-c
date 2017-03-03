@@ -55,13 +55,13 @@ static xi_bsp_io_net_state_t xi_bsp_io_net_configure_tls( const char* host )
 {
     WiFi_Status_t status          = WiFi_MODULE_SUCCESS;
     posix_time_t current_datetime = xi_bsp_time_sntp_getseconds_posix();
-    uint8_t* tls_mode             = ( uint8_t* )"o"; /* ["m"utual || "o"ne-way] */
-    char* tls_cert                = GLOBALSIGN_ROOT_CERT;
+    const uint8_t* tls_mode       = ( uint8_t* )"o"; /* ["m"utual || "o"ne-way] */
+    const char* tls_cert          = GLOBALSIGN_ROOT_CERT;
 
     xi_bsp_debug_format( "Trusted Root CA Certificate:\r\n%s", tls_cert );
-    status =
-        wifi_socket_client_security( tls_mode, ( uint8_t* )tls_cert, NULL, NULL,
-                                     ( uint8_t* )host, ( uint32_t )current_datetime );
+    status = wifi_socket_client_security( ( uint8_t* )tls_mode, ( uint8_t* )tls_cert,
+                                          NULL, NULL, ( uint8_t* )host,
+                                          ( uint32_t )current_datetime );
 
     if ( WiFi_MODULE_SUCCESS != status )
     {
@@ -75,8 +75,7 @@ static xi_bsp_io_net_state_t xi_bsp_io_net_configure_tls( const char* host )
 xi_bsp_io_net_state_t
 xi_bsp_io_net_connect( xi_bsp_socket_t* xi_socket, const char* host, uint16_t port )
 {
-    char* protocol = "s"; // t -> tcp , s-> secure tcp, c-> secure tcp with certs
-
+    const char* protocol = "s"; /* t -> tcp , s-> secure tcp, c-> secure tcp with certs */
     WiFi_Status_t status = WiFi_MODULE_SUCCESS;
 
     if ( XI_BSP_IO_NET_STATE_OK != xi_bsp_io_net_configure_tls( host ) )
