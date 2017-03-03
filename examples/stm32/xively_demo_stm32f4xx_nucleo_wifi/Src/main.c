@@ -1,12 +1,20 @@
 /**
  ******************************************************************************
  * @file    main.c
- * @author  Central LAB
- * @version V2.1.0
- * @date    17-May-2016
- * @brief   Main program body
+ * @author  Xively
+ * @version V1.0.0
+ * @date    03-March-2017
+ * @brief   Main program body of Xively Client Example for STM32F4 Nucleo Wifi
  ******************************************************************************
+ */
+
+/** 
  * @attention
+ *
+ * Copyright (c) 2003-2017, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license.
  *
  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
  *
@@ -83,7 +91,7 @@ wifi_state_t wifi_state;
 wifi_config config;
 wifi_scan net_scan[WIFI_SCAN_BUFFER_LIST];
 xi_state_t xi_connection_state = XI_SOCKET_NO_ACTIVE_CONNECTION_ERROR;
-uint8_t is_burst_mode = 0;
+uint8_t is_burst_mode          = 0;
 
 char console_ssid[40];
 char console_psk[20];
@@ -104,8 +112,7 @@ WiFi_Priv_Mode mode = WPA_Personal;
 typedef void ( *on_msg_handler_fn_t )( const uint8_t* const msg, size_t msg_size );
 
 /* declaration of fn pointer for the publishing functions */
-typedef xi_state_t ( *on_msg_push_fn_t )(
-    const char* mqtt_topic_descr );
+typedef xi_state_t ( *on_msg_push_fn_t )( const char* mqtt_topic_descr );
 
 /* each topic will have it's descriptor and the handler in case of the message */
 typedef struct mqtt_topic_configuration_s
@@ -116,7 +123,7 @@ typedef struct mqtt_topic_configuration_s
 } mqtt_topic_configuration_t;
 
 /* combines name with the account and device id */
-#define XI_TOPIC_NAME_MANGLE( name ) \
+#define XI_TOPIC_NAME_MANGLE( name )                                                     \
     "xi/blue/v1/" XI_ACCOUNT_ID "/d/" XI_DEVICE_ID "/" name
 
 /* declaration of topic handlers for SUB'ed topics */
@@ -245,7 +252,7 @@ xi_state_t pub_temperature( const char* topic_name )
         printf( "\r\n\t[ERROR] trying to create string from sensor input" );
         return -1;
     }
-    printf("temp topic name: \"%s\"\n\r", topic_name );
+    printf( "temp topic name: \"%s\"\n\r", topic_name );
     return xi_publish( gXivelyContextHandle, topic_name, out_msg,
                        XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
@@ -272,7 +279,7 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
     assert( NULL != data );
 
     xi_connection_data_t* conn_data = ( xi_connection_data_t* )data;
-    xi_connection_state = conn_data->connection_state;
+    xi_connection_state             = conn_data->connection_state;
 
     printf( "\r\nconnected, state : %i", conn_data->connection_state );
     switch ( conn_data->connection_state )
@@ -325,10 +332,10 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
 
 /* handler for xively mqtt topic subscription */
 void on_led_msg( xi_context_handle_t in_context_handle,
-                    xi_sub_call_type_t call_type,
-                    const xi_sub_call_params_t* const params,
-                    xi_state_t state,
-                    void* user_data )
+                 xi_sub_call_type_t call_type,
+                 const xi_sub_call_params_t* const params,
+                 xi_state_t state,
+                 void* user_data )
 {
     switch ( call_type )
     {
@@ -344,27 +351,28 @@ void on_led_msg( xi_context_handle_t in_context_handle,
             }
             return;
         case XI_SUB_CALL_MESSAGE:
-        	printf( "received message on LED topic\r\n" );
-        	printf( "\r\n\t Message size: %d", params->message.temporary_payload_data_length );
-        	printf( "\r\n\t Message payload: " );
+            printf( "received message on LED topic\r\n" );
+            printf( "\r\n\t Message size: %d",
+                    params->message.temporary_payload_data_length );
+            printf( "\r\n\t Message payload: " );
             for ( size_t i = 0; i < params->message.temporary_payload_data_length; i++ )
-		    {
-            	printf( "0x%02x ", params->message.temporary_payload_data[i] );
-		    }
+            {
+                printf( "0x%02x ", params->message.temporary_payload_data[i] );
+            }
 
             if ( params->message.temporary_payload_data_length != 1 )
             {
-            	printf( "\r\n\tUnrecognized LED message [IGNORED] Expected 1 or 0" );
-            	return;
+                printf( "\r\n\tUnrecognized LED message [IGNORED] Expected 1 or 0" );
+                return;
             }
 
-            if( params->message.temporary_payload_data[0] == '0' )
-			{
-            	io_led_off();
-			}
+            if ( params->message.temporary_payload_data[0] == '0' )
+            {
+                io_led_off();
+            }
             else
             {
-            	io_led_on();
+                io_led_on();
             }
             break;
         default:
@@ -374,18 +382,18 @@ void on_led_msg( xi_context_handle_t in_context_handle,
 
 void publish_mqtt_topics()
 {
-	if( ! is_burst_mode )
-	{
-		pub_gyroscope( XI_TOPIC_NAME_MANGLE( "Gyroscope" ) );
-		pub_accelerometer( XI_TOPIC_NAME_MANGLE( "Accelerometer" ) );
-		pub_button( XI_TOPIC_NAME_MANGLE( "Button" ) );
-	}
+    if ( !is_burst_mode )
+    {
+        pub_gyroscope( XI_TOPIC_NAME_MANGLE( "Gyroscope" ) );
+        pub_accelerometer( XI_TOPIC_NAME_MANGLE( "Accelerometer" ) );
+        pub_button( XI_TOPIC_NAME_MANGLE( "Button" ) );
+    }
 
-	pub_magnetometer( XI_TOPIC_NAME_MANGLE( "Magnetometer" ) );
-	pub_barometer( XI_TOPIC_NAME_MANGLE( "Barometer" ) );
-	pub_humidity( XI_TOPIC_NAME_MANGLE( "Humidity" ) );
-	pub_temperature( XI_TOPIC_NAME_MANGLE( "Temperature" ) );
-	printf("\n\r");
+    pub_magnetometer( XI_TOPIC_NAME_MANGLE( "Magnetometer" ) );
+    pub_barometer( XI_TOPIC_NAME_MANGLE( "Barometer" ) );
+    pub_humidity( XI_TOPIC_NAME_MANGLE( "Humidity" ) );
+    pub_temperature( XI_TOPIC_NAME_MANGLE( "Temperature" ) );
+    printf( "\n\r" );
 }
 
 /*
@@ -396,16 +404,16 @@ xi_state_t init_xively_topics( xi_context_handle_t in_context_handle )
     xi_state_t ret = XI_STATE_OK;
 
     ret = xi_subscribe( in_context_handle, XI_TOPIC_NAME_MANGLE( "LED" ),
-							XI_MQTT_QOS_AT_MOST_ONCE, &on_led_msg, NULL );
+                        XI_MQTT_QOS_AT_MOST_ONCE, &on_led_msg, NULL );
 
-	if ( XI_STATE_OK != ret )
-	{
-		return ret;
-	}
+    if ( XI_STATE_OK != ret )
+    {
+        return ret;
+    }
 
     /* registration of the publish function */
-    gXivelyTimedTaskHandle = xi_schedule_timed_task( in_context_handle, &publish_mqtt_topics,
-                                                     XI_PUBLISH_INTERVAL_SEC, 1, NULL );
+    gXivelyTimedTaskHandle = xi_schedule_timed_task(
+        in_context_handle, &publish_mqtt_topics, XI_PUBLISH_INTERVAL_SEC, 1, NULL );
 
     if ( XI_INVALID_TIMED_TASK_HANDLE == gXivelyTimedTaskHandle )
     {
@@ -565,12 +573,11 @@ int main( void )
                 fflush( stdout );
                 HAL_Delay( 100 );
 
-                if( is_burst_mode &&
-                		XI_CONNECTION_STATE_OPENED == xi_connection_state )
+                if ( is_burst_mode && XI_CONNECTION_STATE_OPENED == xi_connection_state )
                 {
-                	pub_gyroscope( XI_TOPIC_NAME_MANGLE( "Gyroscope" ) );
-                	pub_accelerometer( XI_TOPIC_NAME_MANGLE( "Accelerometer" ) );
-                	pub_button( XI_TOPIC_NAME_MANGLE( "Button" ) );
+                    pub_gyroscope( XI_TOPIC_NAME_MANGLE( "Gyroscope" ) );
+                    pub_accelerometer( XI_TOPIC_NAME_MANGLE( "Accelerometer" ) );
+                    pub_button( XI_TOPIC_NAME_MANGLE( "Button" ) );
                 }
                 break;
 
@@ -591,15 +598,15 @@ void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin )
 {
     if ( GPIO_Pin == IO_NUCLEO_BUTTON_PIN )
     {
-    	is_burst_mode = ! (is_burst_mode) ;
-    	if( is_burst_mode )
-    	{
-    		printf("Entering Burst Mode!\n\r");
-    	}
-    	else
-    	{
-    		printf("Entering Standard Mode!\n\r");
-    	}
+        is_burst_mode = !( is_burst_mode );
+        if ( is_burst_mode )
+        {
+            printf( "Entering Burst Mode!\n\r" );
+        }
+        else
+        {
+            printf( "Entering Standard Mode!\n\r" );
+        }
 
         if ( io_button_exti_debouncer( GPIO_Pin ) )
         {
