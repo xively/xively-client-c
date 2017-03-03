@@ -5,13 +5,13 @@
   * @version V1.0.2
   * @date    06-May-2016
   * @brief   HAL MSP module.
-  *         
+  *
   @verbatim
  ===============================================================================
                      ##### How to use this driver #####
  ===============================================================================
     [..]
-    This file is generated automatically by STM32CubeMX and eventually modified 
+    This file is generated automatically by STM32CubeMX and eventually modified
     by the user
 
   @endverbatim
@@ -43,10 +43,10 @@
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f4xx_hal.h"
+#include "main.h"
 
 /** @addtogroup STM32F4xx_HAL_Driver
   * @{
@@ -73,24 +73,88 @@
   * @param  None
   * @retval None
   */
-void HAL_MspInit(void)
+void HAL_MspInit( void )
 {
-	/* RNG Peripheral clock enable */
-	  __HAL_RCC_RNG_CLK_ENABLE();
+    /* RNG Peripheral clock enable */
+    __HAL_RCC_RNG_CLK_ENABLE();
 }
 
 /**
   * @brief  DeInitializes the Global MSP.
-  * @param  None  
+  * @param  None
   * @retval None
   */
-void HAL_MspDeInit(void)
+void HAL_MspDeInit( void )
 {
-	/* Enable RNG reset state */
-	  __HAL_RCC_RNG_FORCE_RESET();
+    /* Enable RNG reset state */
+    __HAL_RCC_RNG_FORCE_RESET();
 
-	  /* Release RNG from reset state */
-	  __HAL_RCC_RNG_RELEASE_RESET();
+    /* Release RNG from reset state */
+    __HAL_RCC_RNG_RELEASE_RESET();
+}
+
+/** @defgroup HAL_MSP_Private_Functions
+  * @{
+  */
+
+/**
+  * @brief UART MSP Initialization
+  *        This function configures the hardware resources used in this example:
+  *           - Peripheral's clock enable
+  *           - Peripheral's GPIO Configuration
+  * @param huart: UART handle pointer
+  * @retval None
+  */
+void HAL_UART_MspInit( UART_HandleTypeDef* huart )
+{
+    GPIO_InitTypeDef GPIO_InitStruct;
+
+
+    /*##-1- Enable peripherals and GPIO Clocks #################################*/
+    /* Enable GPIO TX/RX clock */
+    USARTx_TX_GPIO_CLK_ENABLE();
+    USARTx_RX_GPIO_CLK_ENABLE();
+
+
+    /* Enable USARTx clock */
+    USARTx_CLK_ENABLE();
+
+    /*##-2- Configure peripheral GPIO ##########################################*/
+    /* UART TX GPIO pin configuration  */
+    GPIO_InitStruct.Pin       = USARTx_TX_PIN;
+    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull      = GPIO_PULLUP;
+    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStruct.Alternate = USARTx_TX_AF;
+
+    HAL_GPIO_Init( USARTx_TX_GPIO_PORT, &GPIO_InitStruct );
+
+    /* UART RX GPIO pin configuration  */
+    GPIO_InitStruct.Pin       = USARTx_RX_PIN;
+    GPIO_InitStruct.Alternate = USARTx_RX_AF;
+
+    HAL_GPIO_Init( USARTx_RX_GPIO_PORT, &GPIO_InitStruct );
+}
+
+/**
+  * @brief UART MSP De-Initialization
+  *        This function frees the hardware resources used in this example:
+  *          - Disable the Peripheral's clock
+  *          - Revert GPIO and NVIC configuration to their default state
+  * @param huart: UART handle pointer
+  * @retval None
+  */
+void HAL_UART_MspDeInit( UART_HandleTypeDef* huart )
+{
+    /*##-1- Reset peripherals ##################################################*/
+    USARTx_FORCE_RESET();
+    USARTx_RELEASE_RESET();
+
+    /*##-2- Disable peripherals and GPIO Clocks #################################*/
+    /* Configure UART Tx as alternate function  */
+    HAL_GPIO_DeInit( USARTx_TX_GPIO_PORT, USARTx_TX_PIN );
+    /* Configure UART Rx as alternate function  */
+    HAL_GPIO_DeInit( USARTx_RX_GPIO_PORT, USARTx_RX_PIN );
 }
 
 /**

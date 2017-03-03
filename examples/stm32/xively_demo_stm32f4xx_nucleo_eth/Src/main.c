@@ -56,6 +56,7 @@
 #include "app_ethernet.h"
 #include "httpserver-netconn.h"
 #include <xively_client.h>
+#include "demo_io.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -63,47 +64,32 @@
 /* Private variables ---------------------------------------------------------*/
 struct netif gnetif; /* network interface structure */
 
+/* UART handler declaration */
+UART_HandleTypeDef UartHandle;
+
+/* Private function prototypes -----------------------------------------------*/
+#ifdef __GNUC__
+/* With GCC/RAISONANCE, small printf (option LD Linker->Libraries->Small printf
+   set to 'Yes') calls __io_putchar() */
+#define PUTCHAR_PROTOTYPE int __io_putchar( int ch )
+#else
+#define PUTCHAR_PROTOTYPE int fputc( int ch, FILE* f )
+#endif /* __GNUC__ */
+
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config( void );
 static void StartThread( void const* argument );
 static void Netif_Config( void );
+static void BSP_Config( void );
 
 /* Private functions ---------------------------------------------------------*/
 
-UART_HandleTypeDef UartWiFiHandle;
-
-/**
-* @brief  USART_Configuration
-* WB_WIFI_UART configured as follow:
-*      - BaudRate = 115200 baud
-*      - Word Length = 8 Bits
-*      - One Stop Bit
-*      - No parity
-*      - Hardware flow control enabled (RTS and CTS signals)
-*      - Receive and transmit enabled
-*
-* @param  None
-* @retval None
-*/
-void UART_Configuration( uint32_t baud_rate )
+static void Error_Handler( void )
 {
-    UartWiFiHandle.Instance          = USART1;
-    UartWiFiHandle.Init.BaudRate     = baud_rate;
-    UartWiFiHandle.Init.WordLength   = UART_WORDLENGTH_8B;
-    UartWiFiHandle.Init.StopBits     = UART_STOPBITS_1;
-    UartWiFiHandle.Init.Parity       = UART_PARITY_NONE;
-    UartWiFiHandle.Init.HwFlowCtl    = UART_HWCONTROL_RTS; // UART_HWCONTROL_NONE;
-    UartWiFiHandle.Init.Mode         = UART_MODE_TX_RX;
-    UartWiFiHandle.Init.OverSampling = UART_OVERSAMPLING_16;
-    // UartWiFiHandle.Init.OneBitSampling  = UART_ONEBIT_SAMPLING_ENABLED;
-
-    if ( HAL_UART_DeInit( &UartWiFiHandle ) != HAL_OK )
+    /* Turn LED3 on */
+    BSP_LED_On( LED3 );
+    while ( 1 )
     {
-        //Error_Handler();
-    }
-    if ( HAL_UART_Init( &UartWiFiHandle ) != HAL_OK )
-    {
-        //Error_Handler();
     }
 }
 
@@ -125,7 +111,36 @@ int main( void )
     /* Configure the system clock to 180 MHz */
     SystemClock_Config();
 
-    UART_Configuration( 115200 );
+    BSP_LED_Init( LED3 );
+
+    /*##-1- Configure the UART peripheral ######################################*/
+    /* Put the USART peripheral in the Asynchronous mode (UART Mode) */
+    /* UART configured as follows:
+        - Word Length = 8 Bits (7 data bit + 1 parity bit) :
+                      BE CAREFUL : Program 7 data bits + 1 parity bit in PC HyperTerminal
+        - Stop Bit    = One Stop bit
+        - Parity      = ODD parity
+        - BaudRate    = 9600 baud
+        - Hardware flow control disabled (RTS and CTS signals) */
+    UartHandle.Instance = USARTx;
+
+    UartHandle.Init.BaudRate     = 9600;
+    UartHandle.Init.WordLength   = UART_WORDLENGTH_8B;
+    UartHandle.Init.StopBits     = UART_STOPBITS_1;
+    UartHandle.Init.Parity       = UART_PARITY_ODD;
+    UartHandle.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
+    UartHandle.Init.Mode         = UART_MODE_TX_RX;
+    UartHandle.Init.OverSampling = UART_OVERSAMPLING_16;
+    if ( HAL_UART_Init( &UartHandle ) != HAL_OK )
+    {
+        /* Initialization Error */
+        Error_Handler();
+    }
+
+    printf( "\r\n>> Initializing the sensor extension board" );
+    io_nucleoboard_init();
+    io_sensorboard_init();
+    io_sensorboard_enable();
 
 /* Init thread */
 #if defined( __GNUC__ )
@@ -144,6 +159,15 @@ int main( void )
         ;
 }
 
+PUTCHAR_PROTOTYPE
+{
+    /* Place your implementation of fputc here */
+    /* e.g. write a character to the USART3 and Loop until the end of transmission */
+    HAL_UART_Transmit( &UartHandle, ( uint8_t* )&ch, 1, 0xFFFF );
+
+    return ch;
+}
+
 /**
   * @brief  Start Thread
   * @param  argument not used
@@ -151,6 +175,9 @@ int main( void )
   */
 static void StartThread( void const* argument )
 {
+    /* Initialize LEDs */
+    BSP_Config();
+
     /* Create tcp_ip stack thread */
     tcpip_init( NULL, NULL );
 
@@ -229,6 +256,19 @@ static void Netif_Config( void )
         /* When the netif link is down this function must be called */
         netif_set_down( &gnetif );
     }
+}
+
+/**
+  * @brief  Initializes the LEDs resources.
+  * @param  None
+  * @retval None
+  */
+static void BSP_Config( void )
+{
+    /* Configure LED1, LED2, LED3 */
+    BSP_LED_Init( LED1 );
+    BSP_LED_Init( LED2 );
+    BSP_LED_Init( LED3 );
 }
 
 /**

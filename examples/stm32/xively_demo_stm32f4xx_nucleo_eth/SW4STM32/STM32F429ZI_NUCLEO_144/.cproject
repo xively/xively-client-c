@@ -6,6 +6,7 @@
 				<macros>
 					<stringMacro name="XI_STMCUBE_PATH" type="VALUE_PATH_ANY" value="/Users/atigyi/Downloads/STM32Cube_FW_F4_V1.14.0"/>
 					<stringMacro name="XI_CLIENT_PATH" type="VALUE_PATH_ANY" value="/Users/atigyi/git/xi/xc/xively-client-c"/>
+					<stringMacro name="XI_MEMS_STMCUBE_PATH" type="VALUE_PATH_ANY" value="/Users/atigyi/Downloads/STM32CubeExpansion_MEMS1_V3.0.0"/>
 				</macros>
 				<externalSettings/>
 				<extensions>
@@ -28,7 +29,7 @@
 							<option id="fr.ac6.managedbuild.option.gnu.cross.fpu.286281437" name="Floating point hardware" superClass="fr.ac6.managedbuild.option.gnu.cross.fpu" useByScannerDiscovery="false" value="fr.ac6.managedbuild.option.gnu.cross.fpu.fpv4-sp-d16" valueType="enumerated"/>
 							<option id="fr.ac6.managedbuild.option.gnu.cross.floatabi.495222488" name="Floating-point ABI" superClass="fr.ac6.managedbuild.option.gnu.cross.floatabi" useByScannerDiscovery="false" value="fr.ac6.managedbuild.option.gnu.cross.floatabi.hard" valueType="enumerated"/>
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="fr.ac6.managedbuild.targetPlatform.gnu.cross.64021487" isAbstract="false" osList="all" superClass="fr.ac6.managedbuild.targetPlatform.gnu.cross"/>
-							<builder buildPath="${workspace_loc:/STM32F429ZI_NUCLEO_144}/Debug" id="fr.ac6.managedbuild.builder.gnu.cross.2075577695" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" parallelBuildOn="true" parallelizationNumber="3" superClass="fr.ac6.managedbuild.builder.gnu.cross">
+							<builder buildPath="${workspace_loc:/STM32F429ZI_NUCLEO_144}/Debug" id="fr.ac6.managedbuild.builder.gnu.cross.2075577695" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" parallelBuildOn="true" parallelizationNumber="4" superClass="fr.ac6.managedbuild.builder.gnu.cross">
 								<outputEntries>
 									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name="Debug"/>
 								</outputEntries>
@@ -55,6 +56,17 @@
 									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Utilities/Log"/>
 									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F"/>
 									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Projects/STM32F429ZI-Nucleo/Applications/LwIP/LwIP_HTTP_Server_Netconn_RTOS/Inc"/>
+									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/Components/Common"/>
+									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/Components/hts221"/>
+									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/Components/lis3mdl"/>
+									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/Components/lps22hb"/>
+									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/Components/lps25hb"/>
+									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/Components/lsm303agr"/>
+									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/Components/lsm6ds0"/>
+									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/Components/lsm6ds3"/>
+									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/Components/lsm6dsl"/>
+									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/X_NUCLEO_IKS01A1"/>
+									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/X_NUCLEO_IKS01A2"/>
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1886211624" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="USE_HAL_DRIVER"/>

@@ -11,15 +11,15 @@
 
 void xi_bsp_time_init()
 {
-    xi_bsp_time_sntp_init( NULL );
+    // xi_bsp_time_sntp_init( NULL );
 }
 
 xi_time_t xi_bsp_time_getcurrenttime_seconds()
 {
-    return xi_bsp_time_sntp_getseconds_posix() + HAL_GetTick() / 1000;
+    return 1488550309 + HAL_GetTick() / 1000;
 }
 
 xi_time_t xi_bsp_time_getcurrenttime_milliseconds()
 {
-    return xi_bsp_time_sntp_getseconds_posix() + HAL_GetTick() / 1000;
+    return 1488550309 + HAL_GetTick() / 1000;
 }
