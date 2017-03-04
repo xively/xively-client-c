@@ -156,7 +156,7 @@ static WiFi_Status_t sntp_start( uint32_t sntp_port, uint8_t* sock_id )
 static WiFi_Status_t sntp_stop( uint8_t sock_id )
 {
     WiFi_Status_t status = WiFi_MODULE_SUCCESS;
-    xi_bsp_debug_logger(">>Closing UDP socket to SNTP server...");
+    xi_bsp_debug_logger("Closing UDP socket to SNTP server");
     status = wifi_socket_client_close(sock_id);
     if(status != WiFi_MODULE_SUCCESS)
     {
@@ -180,7 +180,7 @@ static WiFi_Status_t sntp_send_request( uint8_t sock_id )
 {
     WiFi_Status_t status = WiFi_MODULE_SUCCESS;
 
-    xi_bsp_debug_logger(">>Sending SNTP request to the server");
+    xi_bsp_debug_logger("Sending SNTP request to the server");
     status = wifi_socket_client_write(sock_id, SNTP_MSG_SIZE, (char*)SNTP_REQUEST);
 
     if(status != WiFi_MODULE_SUCCESS)
@@ -225,7 +225,7 @@ static int32_t sntp_parse_response( char* response )
         return -1;
     }
 
-    xi_bsp_debug_logger(">>Parsing SNTP response...");
+    xi_bsp_debug_logger("Parsing SNTP response");
     memcpy(&current_ntp_time, response+SNTP_RESPONSE_TIMESTAMP_OFFSET, sizeof(int32_t));
     current_ntp_time = sntp_ntohl(current_ntp_time);
     current_epoch_time = current_ntp_time - SNTP_SERVER_TIME_OFFSET;
@@ -249,7 +249,7 @@ sntp_status_t xi_bsp_time_sntp_init( void )
     WiFi_Status_t wifi_retval = WiFi_MODULE_SUCCESS;
 
     /* Create socket */
-    xi_bsp_debug_logger(">>Getting date and time from SNTP server...");
+    xi_bsp_debug_logger("Getting date and time from SNTP server");
     wifi_retval = sntp_start(SNTP_PORT, &sock_id);
     if( wifi_retval != WiFi_MODULE_SUCCESS )
     {
