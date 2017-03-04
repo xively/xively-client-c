@@ -82,25 +82,15 @@
 volatile uint8_t button_pressed_interrupt_flag = 0;
 static user_data_t user_config;
 
+wifi_state_t wifi_state;
+wifi_config wifi_module_config;
+wifi_scan net_scan[WIFI_SCAN_BUFFER_LIST];
+
 /* Private function prototypes -----------------------------------------------*/
+static inline void print_user_config_debug_banner( void );
 static int8_t user_config_init( void );
 static int8_t get_ap_credentials( user_data_t* udata );
 static int8_t get_xively_credentials( user_data_t* udata );
-
-wifi_state_t wifi_state;
-wifi_config config;
-wifi_scan net_scan[WIFI_SCAN_BUFFER_LIST];
-
-char console_ssid[40];
-char console_psk[20];
-
-char* ssid          = "SSID";
-char* seckey        = "PASSWORD";
-WiFi_Priv_Mode mode = WPA_Personal;
-
-#define XI_ACCOUNT_ID "XIVELY ACCOUNT ID"
-#define XI_DEVICE_ID "XIVELY DEVICE ID"
-#define XI_DEVICE_PASS "XIVELY DEVICE PASSWORD"
 
 /* the interval for the time function */
 #define XI_PUBLISH_INTERVAL_SEC 2
@@ -557,16 +547,17 @@ static inline int8_t system_init( void )
 
     /* Init the wi-fi module */
     printf( "\r\n>> Initializing the WiFi extension board" );
-    config.power       = wifi_sleep;
-    config.power_level = high;
-    config.dhcp        = on; /* use DHCP IP address */
-    config.web_server  = WIFI_TRUE;
+    fflush( stdout );
+    wifi_module_config.power       = wifi_sleep;
+    wifi_module_config.power_level = high;
+    wifi_module_config.dhcp        = on; /* use DHCP IP address */
+    //wifi_module_config.web_server  = WIFI_TRUE;
 
     wifi_state = wifi_state_idle;
 
-    if ( WiFi_MODULE_SUCCESS != wifi_init( &config ) )
+    if ( WiFi_MODULE_SUCCESS != wifi_init( &wifi_module_config ) )
     {
-        printf( "Error in Config" );
+        printf( "\r\n>> WiFi board initialization [ERROR]" );
         return -1;
     }
     return 0;
@@ -816,6 +807,7 @@ static int8_t user_config_init( void )
     return 0;
 }
 
+/* TODO: This insecure implementation is temporary until we've got HTTP config mode */
 static int8_t get_ap_credentials( user_data_t* udata )
 {
     char single_char_input[2] = "0";
@@ -867,6 +859,7 @@ static int8_t get_ap_credentials( user_data_t* udata )
     return 0;
 }
 
+/* TODO: This insecure implementation is temporary until we've got HTTP config mode */
 static int8_t get_xively_credentials( user_data_t* udata )
 {
     char single_char_input[2] = "0";
@@ -923,7 +916,7 @@ void ind_wifi_socket_client_remote_server_closed( uint8_t* socket_closed_id )
 
 void ind_wifi_on()
 {
-    printf( "\r\n>> WiFi initialization [OK]\r\n" );
+    printf( "\r\n>> WiFi initialization [OK]" );
     wifi_state = wifi_state_ready;
 }
 

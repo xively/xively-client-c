@@ -1,7 +1,7 @@
 #ifndef __USER_DATA_H__
 #define __USER_DATA_H__
 
-#define USER_DATA_STR_LEN 64 // Must be a multiple of 4 for CRC calculations
+#define USER_DATA_STR_LEN 64 /* Must be a multiple of sizeof(int32_t) for CRC periph */
 
 typedef struct
 {
@@ -16,12 +16,8 @@ typedef struct
     char xi_device_password[USER_DATA_STR_LEN];
 } user_data_t;
 
-extern user_data_t* runtime_user_data_ptr;
-extern user_data_t* flash_user_data_ptr;
-
 int8_t user_data_flash_init( void );
 int8_t user_data_validate_checksum( user_data_t* user_data );
-user_data_t* user_data_get_flash_ptr( void );
 int8_t user_data_reset_flash( void );
 int8_t user_data_copy_from_flash( user_data_t* dst );
 int8_t user_data_save_to_flash( user_data_t* src );

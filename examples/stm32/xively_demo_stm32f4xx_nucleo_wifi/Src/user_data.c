@@ -56,17 +56,6 @@ int8_t user_data_flash_init( void )
 }
 
 /**
-  * @brief  Returns runtime_user_data_ptr. Must be modified using the
-  *         user_data_set_ macros
-  * @param
-  * @retval
-  */
-user_data_t* user_data_get_flash_ptr( void )
-{
-    return ( user_data_t* )FLASH_USER_DATA_BASE;
-}
-
-/**
   * @brief
   * @param
   * @retval
@@ -74,7 +63,7 @@ user_data_t* user_data_get_flash_ptr( void )
 int8_t user_data_copy_from_flash( user_data_t* dst )
 {
     memset( dst, 0x00, sizeof( user_data_t ) );
-    memcpy( dst, user_data_get_flash_ptr(), sizeof( user_data_t ) );
+    memcpy( dst, ( user_data_t* )FLASH_USER_DATA_BASE, sizeof( user_data_t ) );
     return 0;
 }
 
@@ -172,7 +161,7 @@ static int8_t erase_flash_sector( void )
     status = HAL_FLASH_Lock();
     if ( HAL_OK != status )
     {
-        printf( "\r\n\tFlash lock error code [%d]\r\n", status );
+        printf( "\r\n\tFlash lock [ERROR] Code [%d]\r\n", status );
         return -1;
     }
     return 0;
@@ -220,7 +209,7 @@ static int8_t program_flash( user_data_t* user_data )
     status = HAL_FLASH_Lock();
     if ( HAL_OK != status )
     {
-        printf( "\r\nFLASH LOCK ERROR CODE [%d]\r\n", status );
+        printf( "\r\nFlash lock [ERROR] Code [%d]\r\n", status );
         return -1;
     }
     return 0;
