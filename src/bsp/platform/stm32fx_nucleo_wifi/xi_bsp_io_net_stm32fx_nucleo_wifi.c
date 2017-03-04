@@ -224,7 +224,6 @@ void xi_bsp_io_net_socket_data_received_proxy( uint8_t socket_id,
                                                uint32_t chunk_size )
 {
     ( void )message_size;
-    xi_bsp_debug_format( "Message received in network socket %d", socket_id );
 
     if ( socket_id == sntp_sock_id )
     {

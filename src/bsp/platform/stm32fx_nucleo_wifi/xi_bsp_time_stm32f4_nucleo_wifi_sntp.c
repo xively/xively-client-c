@@ -312,7 +312,6 @@ static sntp_status_t sntp_await_response( uint8_t sock_id )
             sntp_awaiting_response = WIFI_FALSE;
             return SNTP_TIMEOUT;
         }
-        xi_bsp_debug_logger(".");
         HAL_Delay(timeout_step);
         sntp_timeout_ms -= timeout_step;
     }

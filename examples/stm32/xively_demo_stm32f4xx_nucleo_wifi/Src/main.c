@@ -40,14 +40,14 @@
 #include "wifi_interface.h"
 #include "stdio.h"
 #include "string.h"
+#include "user_data.h"
 #include "demo_bsp.h"
+#include "demo_io.h"
 
 /* Xively's headers */
 #include "xively.h"
 #include "xi_bsp_io_net_socket_proxy.h"
 #include "xi_bsp_time.h"
-#include "demo_io.h"
-#include "user_data.h"
 
 /**
  * @mainpage Documentation for X-CUBE-WIFI Software for STM32, Expansion for STM32Cube
@@ -72,14 +72,20 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/
+#define DEBUG_UART_BAUDRATE 115200
+#define WIFI_BOARD_UART_BAUDRATE 115200
+#define USE_FLASH_STORAGE 1
 #define WIFI_SCAN_BUFFER_LIST 25
+/* Private macro -------------------------------------------------------------*/
 
 /* Private variables ---------------------------------------------------------*/
 volatile uint8_t button_pressed_interrupt_flag = 0;
+static user_data_t user_config;
 
 /* Private function prototypes -----------------------------------------------*/
-WiFi_Status_t wifi_get_AP_settings( void );
+int8_t user_config_init( void );
+int8_t get_ap_credentials( user_data_t* udata );
+int8_t get_xively_credentials( user_data_t* udata );
 
 wifi_state_t wifi_state;
 wifi_config config;
@@ -120,8 +126,7 @@ typedef struct mqtt_topic_configuration_s
 } mqtt_topic_configuration_t;
 
 /* combines name with the account and device id */
-#define XI_TOPIC_NAME_MANGLE( name ) \
-    "xi/blue/v1/" XI_ACCOUNT_ID "/d/" XI_DEVICE_ID "/" name
+#define XI_TOPIC_MAX_LEN 256
 
 /* declaration of topic handlers for SUB'ed topics */
 static void on_led_msg( const uint8_t* const msg, size_t msg_size );
@@ -140,14 +145,14 @@ static xi_state_t init_xively_topics( xi_context_handle_t in_context_handle );
 
 /* table of topics used for this demo */
 static const mqtt_topic_configuration_t topics_array[] = {
-    {{XI_TOPIC_NAME_MANGLE( "Accelerometer" )}, NULL, pub_accelerometer},
-    {{XI_TOPIC_NAME_MANGLE( "Magnetometer" )}, NULL, pub_magnetometer},
-    {{XI_TOPIC_NAME_MANGLE( "Barometer" )}, NULL, pub_barometer},
-    {{XI_TOPIC_NAME_MANGLE( "Gyroscope" )}, NULL, pub_gyroscope},
-    {{XI_TOPIC_NAME_MANGLE( "Humidity" )}, NULL, pub_humidity},
-    {{XI_TOPIC_NAME_MANGLE( "Button" )}, NULL, pub_button},
-    {{XI_TOPIC_NAME_MANGLE( "LED" )}, &on_led_msg, NULL},
-    {{XI_TOPIC_NAME_MANGLE( "Temperature" )}, NULL, pub_temperature},
+    {{"Accelerometer"}, NULL, pub_accelerometer},
+    {{"Magnetometer"}, NULL, pub_magnetometer},
+    {{"Barometer"}, NULL, pub_barometer},
+    {{"Gyroscope"}, NULL, pub_gyroscope},
+    {{"Humidity"}, NULL, pub_humidity},
+    {{"Button"}, NULL, pub_button},
+    {{"LED"}, &on_led_msg, NULL},
+    {{"Temperature"}, NULL, pub_temperature},
 };
 
 /* store the length of the array */
@@ -156,6 +161,32 @@ static const size_t topics_array_length =
 
 xi_context_handle_t gXivelyContextHandle      = XI_INVALID_CONTEXT_HANDLE;
 xi_timed_task_handle_t gXivelyTimedTaskHandle = XI_INVALID_TIMED_TASK_HANDLE;
+
+/* The pointer returned by this function must be free()d by the caller */
+static char* build_xively_topic( char* topic_name, char* account_id, char* device_id )
+{
+    char* dst  = NULL;
+    int retval = 0;
+
+    if ( ( NULL == topic_name ) || ( NULL == account_id ) || ( NULL == device_id ) )
+    {
+        return NULL;
+    }
+
+    dst = malloc( XI_TOPIC_MAX_LEN );
+    if ( dst == NULL )
+    {
+        return NULL;
+    }
+
+    retval = snprintf( dst, XI_TOPIC_MAX_LEN, "xi/blue/v1/%.64s/d/%.64s/%.64s",
+                       account_id, device_id, topic_name );
+    if ( ( retval >= XI_TOPIC_MAX_LEN ) || ( retval < 0 ) )
+    {
+        return NULL;
+    }
+    return dst;
+}
 
 /* handler for led msg */
 void on_led_msg( const uint8_t* const msg, size_t msg_size )
@@ -297,8 +328,19 @@ void pub_button_interrupt( void )
 {
     /* TODO: Verify we are connected to Xively before calling xi_publish */
     const char payload[] = "1";
-    xi_publish( gXivelyContextHandle, XI_TOPIC_NAME_MANGLE( "Button" ), payload,
-                XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
+    char* button_topic   = build_xively_topic( "Button", user_config.xi_account_id,
+                                             user_config.xi_device_id );
+
+    if ( NULL != button_topic )
+    {
+        xi_publish( gXivelyContextHandle, button_topic, payload, XI_MQTT_QOS_AT_MOST_ONCE,
+                    XI_MQTT_RETAIN_FALSE, NULL, NULL );
+    }
+    else
+    {
+        printf( "\r\n>> Button MQTT topic construction [ERROR]" );
+    }
+    free( button_topic );
 }
 
 void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t state )
@@ -400,15 +442,25 @@ void on_mqtt_topic( xi_context_handle_t in_context_handle,
 
 void push_mqtt_topics()
 {
+    char* xi_topic = NULL;
     int i = 0;
     for ( ; i < topics_array_length; ++i )
     {
         const mqtt_topic_configuration_t* const topic_config = &topics_array[i];
+        xi_topic = build_xively_topic( ( char* ) topic_config->topic_descr.name,
+                                       user_config.xi_account_id,
+                                       user_config.xi_device_id );
+
+        if ( NULL == xi_topic )
+        {
+            continue;
+        }
 
         if ( NULL != topic_config->on_msg_push )
         {
-            topic_config->on_msg_push( &topic_config->topic_descr );
+            topic_config->on_msg_push( xi_topic );
         }
+        free( xi_topic );
     }
 }
 
@@ -418,23 +470,36 @@ void push_mqtt_topics()
 xi_state_t init_xively_topics( xi_context_handle_t in_context_handle )
 {
     xi_state_t ret = XI_STATE_OK;
+    char* xi_topic = NULL;
 
     int i = 0;
     for ( ; i < topics_array_length; ++i )
     {
         const mqtt_topic_configuration_t* const topic_config = &topics_array[i];
+        xi_topic = build_xively_topic( ( char* ) topic_config->topic_descr.name,
+                                       user_config.xi_account_id,
+                                       user_config.xi_device_id );
+
+        if ( xi_topic == NULL )
+        {
+            ret = XI_FAILED_INITIALIZATION;
+            goto error_out;
+        }
 
         if ( NULL != topic_config->on_msg_pull )
         {
-            ret = xi_subscribe( in_context_handle, topic_config->topic_descr.name,
+            printf( "\r\n>> Subscribing to MQTT topic [%s]", xi_topic );
+            ret = xi_subscribe( in_context_handle, xi_topic,
                                 XI_MQTT_QOS_AT_MOST_ONCE, &on_mqtt_topic,
                                 ( void* )topic_config );
 
             if ( XI_STATE_OK != ret )
             {
-                return ret;
+                goto error_out;
             }
         }
+
+        free( xi_topic );
     }
 
     /* registration of the publish function */
@@ -444,9 +509,17 @@ xi_state_t init_xively_topics( xi_context_handle_t in_context_handle )
     if ( XI_INVALID_TIMED_TASK_HANDLE == gXivelyTimedTaskHandle )
     {
         printf( "timed task couldn't been registered\r\n" );
-        return XI_FAILED_INITIALIZATION;
+        ret = XI_FAILED_INITIALIZATION;
+        goto error_out;
     }
 
+    return ret;
+
+error_out:
+    if ( NULL != xi_topic )
+    {
+        free( xi_topic );
+    }
     return ret;
 }
 
@@ -462,33 +535,35 @@ static inline int8_t system_init( void )
     /* configure the timers  */
     Timer_Config();
 
-    UART_Configuration( 115200 );
+    UART_Configuration( WIFI_BOARD_UART_BAUDRATE );
 #ifdef USART_PRINT_MSG
     UART_Msg_Gpio_Init();
-    USART_PRINT_MSG_Configuration( 115200 );
+    USART_PRINT_MSG_Configuration( DEBUG_UART_BAUDRATE );
 #endif
 
+#ifdef USE_FLASH_STORAGE
+    if ( user_data_flash_init() < 0 )
+    {
+        printf( "\r\n>> User data flash initialization [ERROR]" );
+        return -1;
+    }
+#endif
+
+    /* Init the sensor board */
     printf( "\r\n>> Initializing the sensor extension board" );
     io_nucleoboard_init();
     io_sensorboard_init();
     io_sensorboard_enable();
 
+    /* Init the wi-fi module */
+    printf( "\r\n>> Initializing the WiFi extension board" );
     config.power       = wifi_sleep;
     config.power_level = high;
-    config.dhcp        = on; // use DHCP IP address
+    config.dhcp        = on; /* use DHCP IP address */
     config.web_server  = WIFI_TRUE;
 
     wifi_state = wifi_state_idle;
 
-    if ( WiFi_MODULE_SUCCESS != wifi_get_AP_settings() )
-    {
-        printf( "\r\nError in AP Settings" );
-        return -1;
-    }
-
-    printf( "\r\n>> Initializing the WiFi extension board" );
-
-    /* Init the wi-fi module */
     if ( WiFi_MODULE_SUCCESS != wifi_init( &config ) )
     {
         printf( "Error in Config" );
@@ -504,10 +579,10 @@ static inline int8_t system_init( void )
  */
 int main( void )
 {
-    uint8_t i            = 0;
-    uint8_t socket_open  = 0;
-    wifi_bool SSID_found = WIFI_FALSE;
-    WiFi_Status_t status = WiFi_MODULE_SUCCESS;
+    uint8_t i                  = 0;
+    uint8_t socket_open        = 0;
+    wifi_bool SSID_found       = WIFI_FALSE;
+    WiFi_Status_t status       = WiFi_MODULE_SUCCESS;
 
     if ( system_init() < 0 )
     {
@@ -516,17 +591,12 @@ int main( void )
             ;
     }
 
-    user_data_t placeholder;
-    if ( flash_init() < 0 )
+    if ( user_config_init() < 0 )
     {
-        printf( "\r\n>> Flash initialization [ERROR] System halt" );
+        printf( "\r\n>> User data initialization [ERROR] - System boot aborted" );
         while ( 1 )
             ;
     }
-    flash_get_user_data( &placeholder );
-    flash_set_user_data( &placeholder );
-    flash_get_user_data( &placeholder );
-
 
     while ( 1 )
     {
@@ -537,7 +607,8 @@ int main( void )
                 break;
 
             case wifi_state_ready:
-                printf( "\r\n >>running WiFi Scan...\r\n" );
+                printf( "\r\n>> Scanning WiFi networks to find SSID [%s]\r\n",
+                        user_config.wifi_client_ssid );
                 status = wifi_network_scan( net_scan, WIFI_SCAN_BUFFER_LIST );
                 if ( status == WiFi_MODULE_SUCCESS )
                 {
@@ -545,28 +616,35 @@ int main( void )
                     {
                         // printf(net_scan[i].ssid);
                         // printf("\r\n");
-                        if ( ( ( char* )strstr( ( const char* )net_scan[i].ssid,
-                                                ( const char* )console_ssid ) ) != NULL )
+                        if ( NULL != ( char* )strstr(
+                                         ( const char* )net_scan[i].ssid,
+                                         ( const char* )user_config.wifi_client_ssid ) )
                         {
-                            printf( "\r\n >>network present...connecting to AP...\r\n" );
+                            printf( "\r\n>> Network found. Connecting to AP\r\n\t" );
                             SSID_found = WIFI_TRUE;
-                            wifi_connect( console_ssid, console_psk, mode );
+                            wifi_connect( user_config.wifi_client_ssid,
+                                          user_config.wifi_client_password,
+                                          ( WiFi_Priv_Mode )
+                                              user_config.wifi_client_encryption_mode );
                             break;
                         }
                     }
-                    if ( !SSID_found )
-                    {
-                        printf( "\r\nGiven SSID not found!\r\n" );
-                    }
                     memset( net_scan, 0x00, sizeof( net_scan ) );
                 }
-                wifi_state = wifi_state_idle;
+                if ( SSID_found )
+                {
+                    wifi_state = wifi_state_idle;
+                }
+                else
+                {
+                    printf( "\r\n>> WiFi scan [ERROR] Network not found!\r\n" );
+                }
                 break;
 
             case wifi_state_connected:
-                printf( "\r\n >>connected...\r\n" );
+                printf( "\r\n>> Connection to WiFi access point [OK]\r\n\t" );
                 wifi_state = wifi_state_idle;
-                HAL_Delay( 2000 ); // Let module go to sleep
+                HAL_Delay( 2000 ); /* Let module go to sleep - IMPORTANT - TODO: Why? */
                 wifi_wakeup( WIFI_TRUE ); /*wakeup from sleep if module went to sleep*/
                 break;
 
@@ -575,13 +653,16 @@ int main( void )
                 break;
 
             case wifi_state_socket:
-                printf( "\r\n >>Connecting to Xively socket\r\n" );
+                printf( "\r\n>> Connecting to Xively's MQTT broker using credentials:" );
+                printf( "\r\n\t* Account ID:  [%s]", user_config.xi_account_id );
+                printf( "\r\n\t* Device ID:   [%s]", user_config.xi_device_id );
+                printf( "\r\n\t* Device Pass: [%s]\n", user_config.xi_device_password );
 
                 if ( socket_open == 0 )
                 {
                     /* Read Write Socket data */
-                    xi_state_t ret_state =
-                        xi_initialize( XI_ACCOUNT_ID, XI_DEVICE_ID, 0 );
+                    xi_state_t ret_state = xi_initialize( user_config.xi_account_id,
+                                                          user_config.xi_device_id, 0 );
                     if ( XI_STATE_OK != ret_state )
                     {
                         printf( "\r\n xi failed to initialise\n" );
@@ -596,8 +677,9 @@ int main( void )
                         return -1;
                     }
 
-                    xi_connect( gXivelyContextHandle, XI_DEVICE_ID, XI_DEVICE_PASS, 10, 0,
-                                XI_SESSION_CLEAN, &on_connected );
+                    xi_connect( gXivelyContextHandle, user_config.xi_device_id,
+                                user_config.xi_device_password, 10, 0, XI_SESSION_CLEAN,
+                                &on_connected );
                 }
                 else
                 {
@@ -610,7 +692,7 @@ int main( void )
             case wifi_state_idle:
                 printf( "." );
                 fflush( stdout );
-                HAL_Delay( 500 );
+                HAL_Delay( 150 );
                 break;
 
             default:
@@ -660,92 +742,157 @@ ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
 }
 #endif
 
-/**
- * @brief  Query the User for SSID, password, encryption mode and hostname
- * @param  None
- * @retval WiFi_Status_t
- */
-WiFi_Status_t wifi_get_AP_settings( void )
+static inline void print_user_config_debug_banner( void )
 {
-    uint8_t console_input[1], console_count = 0;
-    //  wifi_bool set_AP_config = WIFI_FALSE;
-    WiFi_Status_t status = WiFi_MODULE_SUCCESS;
-    printf( "\r\n\n/********************************************************\n" );
-    printf( "\r *                                                      *\n" );
-    printf( "\r * X-CUBE-WIFI1 Expansion Software v2.1.1               *\n" );
-    printf( "\r * X-NUCLEO-IDW01M1 Wi-Fi Configuration.                *\n" );
-    printf( "\r * Client-Socket Example                                *\n" );
-    printf( "\r *                                                      *\n" );
-    printf( "\r *******************************************************/\n" );
-    printf( "\r\nDo you want to setup SSID?(y/n):" );
+    printf( "\r\n|********************************************************|" );
+    printf( "\r\n|               User Configuration Routine               |" );
+    printf( "\r\n|               --------------------------               |" );
+    printf( "\r\n| WARNING: Do NOT copy-paste long strings to your serial |" );
+    printf( "\r\n| -------  terminal. Only strings under ~6 characters    |" );
+    printf( "\r\n|          can be copied with medium/high reliability    |" );
+    printf( "\r\n|                                                        |" );
+    printf( "\r\n| NOTE: You will only need to do this once.              |" );
+    printf( "\r\n|                                                        |" );
+    printf( "\r\n| NOTE: Next time you want to update these, keep the     |" );
+    printf( "\r\n| nucleo board's User button pressed during boot         |" );
+    printf( "\r\n|********************************************************|" );
     fflush( stdout );
-    scanf( "%s", console_input );
-    printf( "\r\n" );
+}
 
-    // HAL_UART_Receive(&UartMsgHandle, (uint8_t *)console_input, 1, 100000);
-    if ( console_input[0] == 'y' )
+int8_t user_config_init( void )
+{
+#if USE_FLASH_STORAGE
+    if ( user_data_copy_from_flash( &user_config ) < 0 )
     {
-        //              set_AP_config = WIFI_TRUE;
-        printf( "Enter the SSID:" );
-        fflush( stdout );
-
-        console_count = 0;
-        console_count = scanf( "%s", console_ssid );
-        printf( "\r\n" );
-
-        if ( console_count == 39 )
-        {
-            printf( "Exceeded number of ssid characters permitted" );
-            return WiFi_NOT_SUPPORTED;
-        }
-
-        // printf("entered =%s\r\n",console_ssid);
-        printf( "Enter the password:" );
-        fflush( stdout );
-        console_count = 0;
-
-        console_count = scanf( "%s", console_psk );
-        printf( "\r\n" );
-        // printf("entered =%s\r\n",console_psk);
-        if ( console_count == 19 )
-        {
-            printf( "Exceeded number of psk characters permitted" );
-            return WiFi_NOT_SUPPORTED;
-        }
-        printf( "Enter the encryption mode(0:Open, 1:WEP, 2:WPA2/WPA2-Personal):" );
-        fflush( stdout );
-        scanf( "%s", console_input );
-        printf( "\r\n" );
-        // printf("entered =%s\r\n",console_input);
-        switch ( console_input[0] )
-        {
-            case '0':
-                mode = None;
-                break;
-            case '1':
-                mode = WEP;
-                break;
-            case '2':
-                mode = WPA_Personal;
-                break;
-            default:
-                printf( "\r\nWrong Entry. Priv Mode is not compatible\n" );
-                return WiFi_NOT_SUPPORTED;
-        }
+        printf( "\r\n>> [ERROR] trying to copy user data from flash" );
+        return -1;
     }
-    else
+    printf( "\r\n>> User data retrieved from flash:" );
+    user_data_printf( &user_config );
+    fflush( stdout );
+
+    if ( io_read_button() || ( user_data_validate_checksum( &user_config ) < 0 ) )
     {
-        printf( "\r\n\n Module will connect with default settings." );
-        memcpy( console_ssid, ( const char* )ssid, strlen( ( char* )ssid ) );
-        memcpy( console_psk, ( const char* )seckey, strlen( ( char* )seckey ) );
+        printf( "\r\n>> Starting forced user configuration mode" );
+        print_user_config_debug_banner();
+
+        /* Get WiFi AP Credentials from the user */
+        if ( get_ap_credentials( &user_config ) < 0 )
+        {
+            printf( "\r\n>> [ERROR] Getting AP credentials from user" );
+            return -1;
+        }
+
+        printf( "\r\n>> Saving user data to flash" );
+        user_data_save_to_flash( &user_config );
+
+        /* Get Xively Credentials from the user */
+        if ( get_xively_credentials( &user_config ) < 0 )
+        {
+            printf( "\r\n>> [ERROR] Getting Xively credentials from user" );
+            return -1;
+        }
+
+        printf( "\r\n>> Saving user data to flash" );
+        user_data_save_to_flash( &user_config );
+    }
+#else
+    print_user_config_debug_banner();
+
+    /* Get WiFi AP Credentials from the user */
+    if ( get_xively_credentials( &user_config ) < 0 )
+    {
+        printf( "\r\n>> [ERROR] Getting Xively credentials from user" );
+        return -1;
     }
 
-    printf( "\r\n\n/**************************************************************\n" );
-    printf( "\r * Configuration Complete                                     *\n" );
-    printf( "\r * Port Number:32000, Protocol: TCP/IP                        *\n" );
-    printf( "\r *************************************************************/\n" );
+    /* Get Xively Credentials from the user */
+    if ( get_ap_credentials( &user_config ) < 0 )
+    {
+        printf( "\r\n>> [ERROR] Getting AP credentials from user" );
+        return -1;
+    }
+#endif
+    return 0;
+}
 
-    return status;
+int8_t get_ap_credentials( user_data_t* udata )
+{
+    char single_char_input[2] = "0";
+
+    printf( "\r\n|********************************************************|" );
+    printf( "\r\n|              Gathering WiFi AP Credentials             |" );
+    printf( "\r\n|********************************************************|" );
+    fflush( stdout );
+
+    printf( "\r\n>> Would you like to update your WiFi credentials? [y/N]: " );
+    scanf( "%2s", single_char_input );
+    switch ( single_char_input[0] )
+    {
+        case 'y':
+        case 'Y':
+            break;
+        default:
+            return 0;
+    }
+
+    printf( "\r\n>> Enter WiFi SSID: " );
+    scanf( "%s", udata->wifi_client_ssid );
+
+    printf( "\r\n>> Enter WiFi Password: " );
+    scanf( "%s", udata->wifi_client_password );
+
+    printf( "\r\n>> Enter WiFi encryption mode [0:Open, 1:WEP, 2:WPA2/WPA2-Personal]: " );
+    scanf( "%2s", single_char_input );
+    switch ( single_char_input[0] )
+    {
+        case '0':
+            user_data_set_wifi_encryption( udata, None );
+            break;
+        case '1':
+            user_data_set_wifi_encryption( udata, WEP );
+            break;
+        case '2':
+            user_data_set_wifi_encryption( udata, WPA_Personal );
+            break;
+        default:
+            printf( "\r\n>> Wrong Entry. Mode [%s] is not an option",
+                    single_char_input );
+            return -2;
+    }
+    return 0;
+}
+
+int8_t get_xively_credentials( user_data_t* udata )
+{
+    char single_char_input[2] = "0";
+
+    printf( "\r\n|********************************************************|" );
+    printf( "\r\n|              Gathering Xively Credentials              |" );
+    printf( "\r\n|********************************************************|" );
+    fflush( stdout );
+
+    printf( "\r\n>> Would you like to update your WiFi credentials? [y/N]: " );
+    scanf( "%2s", single_char_input );
+    switch ( single_char_input[0] )
+    {
+        case 'y':
+        case 'Y':
+            break;
+        default:
+            return 0;
+    }
+
+    printf( "\r\n>> Enter the xively Account ID: " );
+    scanf( "%s", udata->xi_account_id );
+
+    printf( "\r\n>> Enter the xively Device ID: " );
+    scanf( "%s", udata->xi_device_id );
+
+    printf( "\r\n>> Enter the xively Device Password: " );
+    scanf( "%s", udata->xi_device_password );
+
+    return 0;
 }
 
 /******** Wi-Fi Indication User Callback *********/
@@ -768,7 +915,7 @@ void ind_wifi_socket_client_remote_server_closed( uint8_t* socket_closed_id )
 
 void ind_wifi_on()
 {
-    printf( "\r\nWiFi Initialised and Ready..\r\n" );
+    printf( "\r\n>> WiFi initialization [OK]\r\n" );
     wifi_state = wifi_state_ready;
 }
 
