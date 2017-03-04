@@ -21,13 +21,10 @@ extern user_data_t* flash_user_data_ptr;
 
 int8_t user_data_flash_init( void );
 int8_t user_data_validate_checksum( user_data_t* user_data );
-user_data_t* user_data_get_flash_ptr( void ); // Returns runtime_user_data_ptr. Must be modified
-                                        // using the user_data_set_ functions
-int8_t user_data_reset_flash( void );   // Removes all user data from flash
+user_data_t* user_data_get_flash_ptr( void );
+int8_t user_data_reset_flash( void );
 int8_t user_data_copy_from_flash( user_data_t* dst );
-int8_t user_data_save_to_flash( user_data_t* src ); // TODO: How can I get this function
-                                        // to run from RAM with our
-                                        // compiler? `__ram`??
+int8_t user_data_save_to_flash( user_data_t* src );
 void user_data_printf( user_data_t* user_data );
 
 #define user_data_set_wifi_encryption( data_ptr, encryption )         \

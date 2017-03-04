@@ -607,7 +607,7 @@ int main( void )
                 break;
 
             case wifi_state_ready:
-                printf( "\r\n>> Scanning WiFi networks to find SSID [%s]\r\n",
+                printf( "\r\n>> Scanning WiFi networks to find SSID [%s]",
                         user_config.wifi_client_ssid );
                 status = wifi_network_scan( net_scan, WIFI_SCAN_BUFFER_LIST );
                 if ( status == WiFi_MODULE_SUCCESS )
@@ -637,7 +637,7 @@ int main( void )
                 }
                 else
                 {
-                    printf( "\r\n>> WiFi scan [ERROR] Network not found!\r\n" );
+                    printf( "\r\n>> WiFi scan [ERROR] Network not found!" );
                 }
                 break;
 
@@ -692,7 +692,7 @@ int main( void )
             case wifi_state_idle:
                 printf( "." );
                 fflush( stdout );
-                HAL_Delay( 150 );
+                HAL_Delay( 500 );
                 break;
 
             default:

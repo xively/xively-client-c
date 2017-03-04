@@ -55,11 +55,22 @@ int8_t user_data_flash_init( void )
     return 0;
 }
 
+/**
+  * @brief  Returns runtime_user_data_ptr. Must be modified using the
+  *         user_data_set_ macros
+  * @param
+  * @retval
+  */
 user_data_t* user_data_get_flash_ptr( void )
 {
     return ( user_data_t* )FLASH_USER_DATA_BASE;
 }
 
+/**
+  * @brief
+  * @param
+  * @retval
+  */
 int8_t user_data_copy_from_flash( user_data_t* dst )
 {
     memset( dst, 0x00, sizeof( user_data_t ) );
@@ -67,6 +78,12 @@ int8_t user_data_copy_from_flash( user_data_t* dst )
     return 0;
 }
 
+/**
+  * @brief
+  * @param
+  * @retval
+  */
+/* TODO: This execution branch should run from volatile RAM if possible */
 int8_t user_data_save_to_flash( user_data_t* src )
 {
     if ( user_data_reset_flash() < 0 )
@@ -92,7 +109,12 @@ int8_t user_data_save_to_flash( user_data_t* src )
     return 0;
 }
 
-/* TODO: This execution branch should not run from flash if possible */
+/**
+  * @brief  Removes all user data from flash
+  * @param
+  * @retval
+  */
+/* TODO: This execution branch should run from volatile RAM if possible */
 int8_t user_data_reset_flash( void )
 {
     /* TODO: Save all non-user_data memory before the erase */
@@ -109,6 +131,11 @@ int8_t user_data_reset_flash( void )
 *                               program/erase                                 *
 ******************************************************************************/
 
+/**
+  * @brief
+  * @param
+  * @retval
+  */
 static int8_t erase_flash_sector( void )
 {
     HAL_StatusTypeDef status;
@@ -155,6 +182,11 @@ error_out:
     return -1;
 }
 
+/**
+  * @brief
+  * @param
+  * @retval
+  */
 static int8_t program_flash( user_data_t* user_data )
 {
     HAL_StatusTypeDef status;
@@ -254,6 +286,11 @@ static int8_t calculate_checksum( user_data_t* user_data, int32_t* out_checksum 
     return 0;
 }
 
+/**
+  * @brief
+  * @param
+  * @retval
+  */
 int8_t user_data_validate_checksum( user_data_t* user_data )
 {
     int32_t new_checksum = 0x00000000;
@@ -274,6 +311,11 @@ int8_t user_data_validate_checksum( user_data_t* user_data )
 /******************************************************************************
 *                                     Helpers                                 *
 ******************************************************************************/
+/**
+  * @brief
+  * @param
+  * @retval
+  */
 void user_data_printf( user_data_t* user_data )
 {
     for ( uint32_t i = 0; i < sizeof( user_data_t ) / sizeof( int32_t ); i++ )
@@ -284,11 +326,11 @@ void user_data_printf( user_data_t* user_data )
         }
         printf( "%08lx ", *( ( int32_t* )user_data + i ) );
     }
-    printf( "\r\n\t  * WiFi Security: [%ld]", user_data->wifi_client_encryption_mode );
-    printf( "\r\n\t  * WiFi SSID: [%.64s]", user_data->wifi_client_ssid );
-    printf( "\r\n\t  * WiFi Pwd: [%.64s]", user_data->wifi_client_password );
-    printf( "\r\n\t  * Xi Acc ID: [%.64s]", user_data->xi_account_id );
-    printf( "\r\n\t  * Xi Dev ID: [%.64s]", user_data->xi_device_id );
-    printf( "\r\n\t  * Xi Dev Pwd: [%.64s]", user_data->xi_device_password );
-    printf( "\r\n\t  * CRC Checksum: [0x%08lx]", user_data->crc_checksum );
+    printf( "\r\n\t* WiFi Security: [%ld]", user_data->wifi_client_encryption_mode );
+    printf( "\r\n\t* WiFi SSID: [%.64s]", user_data->wifi_client_ssid );
+    printf( "\r\n\t* WiFi Pwd: [%.64s]", user_data->wifi_client_password );
+    printf( "\r\n\t* Xi Acc ID: [%.64s]", user_data->xi_account_id );
+    printf( "\r\n\t* Xi Dev ID: [%.64s]", user_data->xi_device_id );
+    printf( "\r\n\t* Xi Dev Pwd: [%.64s]", user_data->xi_device_password );
+    printf( "\r\n\t* CRC Checksum: [0x%08lx]", user_data->crc_checksum );
 }
