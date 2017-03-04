@@ -83,9 +83,9 @@ volatile uint8_t button_pressed_interrupt_flag = 0;
 static user_data_t user_config;
 
 /* Private function prototypes -----------------------------------------------*/
-int8_t user_config_init( void );
-int8_t get_ap_credentials( user_data_t* udata );
-int8_t get_xively_credentials( user_data_t* udata );
+static int8_t user_config_init( void );
+static int8_t get_ap_credentials( user_data_t* udata );
+static int8_t get_xively_credentials( user_data_t* udata );
 
 wifi_state_t wifi_state;
 wifi_config config;
@@ -759,7 +759,7 @@ static inline void print_user_config_debug_banner( void )
     fflush( stdout );
 }
 
-int8_t user_config_init( void )
+static int8_t user_config_init( void )
 {
 #if USE_FLASH_STORAGE
     if ( user_data_copy_from_flash( &user_config ) < 0 )
@@ -799,24 +799,24 @@ int8_t user_config_init( void )
 #else
     print_user_config_debug_banner();
 
-    /* Get WiFi AP Credentials from the user */
-    if ( get_xively_credentials( &user_config ) < 0 )
-    {
-        printf( "\r\n>> [ERROR] Getting Xively credentials from user" );
-        return -1;
-    }
-
     /* Get Xively Credentials from the user */
     if ( get_ap_credentials( &user_config ) < 0 )
     {
         printf( "\r\n>> [ERROR] Getting AP credentials from user" );
         return -1;
     }
+
+    /* Get WiFi AP Credentials from the user */
+    if ( get_xively_credentials( &user_config ) < 0 )
+    {
+        printf( "\r\n>> [ERROR] Getting Xively credentials from user" );
+        return -1;
+    }
 #endif
     return 0;
 }
 
-int8_t get_ap_credentials( user_data_t* udata )
+static int8_t get_ap_credentials( user_data_t* udata )
 {
     char single_char_input[2] = "0";
 
@@ -826,6 +826,7 @@ int8_t get_ap_credentials( user_data_t* udata )
     fflush( stdout );
 
     printf( "\r\n>> Would you like to update your WiFi credentials? [y/N]: " );
+    fflush( stdout );
     scanf( "%2s", single_char_input );
     switch ( single_char_input[0] )
     {
@@ -837,12 +838,15 @@ int8_t get_ap_credentials( user_data_t* udata )
     }
 
     printf( "\r\n>> Enter WiFi SSID: " );
+    fflush( stdout );
     scanf( "%s", udata->wifi_client_ssid );
 
     printf( "\r\n>> Enter WiFi Password: " );
+    fflush( stdout );
     scanf( "%s", udata->wifi_client_password );
 
     printf( "\r\n>> Enter WiFi encryption mode [0:Open, 1:WEP, 2:WPA2/WPA2-Personal]: " );
+    fflush( stdout );
     scanf( "%2s", single_char_input );
     switch ( single_char_input[0] )
     {
@@ -863,7 +867,7 @@ int8_t get_ap_credentials( user_data_t* udata )
     return 0;
 }
 
-int8_t get_xively_credentials( user_data_t* udata )
+static int8_t get_xively_credentials( user_data_t* udata )
 {
     char single_char_input[2] = "0";
 
@@ -873,6 +877,7 @@ int8_t get_xively_credentials( user_data_t* udata )
     fflush( stdout );
 
     printf( "\r\n>> Would you like to update your WiFi credentials? [y/N]: " );
+    fflush( stdout );
     scanf( "%2s", single_char_input );
     switch ( single_char_input[0] )
     {
@@ -884,12 +889,15 @@ int8_t get_xively_credentials( user_data_t* udata )
     }
 
     printf( "\r\n>> Enter the xively Account ID: " );
+    fflush( stdout );
     scanf( "%s", udata->xi_account_id );
 
     printf( "\r\n>> Enter the xively Device ID: " );
+    fflush( stdout );
     scanf( "%s", udata->xi_device_id );
 
     printf( "\r\n>> Enter the xively Device Password: " );
+    fflush( stdout );
     scanf( "%s", udata->xi_device_password );
 
     return 0;
@@ -926,7 +934,7 @@ void ind_wifi_connected()
 
 void ind_wifi_resuming()
 {
-    printf( "\r\nwifi resuming from sleep user callback... \r\n" );
+    printf( "\r\n>> WiFi module woke up from sleep" );
     // Change the state to connect to socket if not connected
     wifi_state = wifi_state_socket;
 }
