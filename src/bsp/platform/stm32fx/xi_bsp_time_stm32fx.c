@@ -16,10 +16,10 @@ void xi_bsp_time_init()
 
 xi_time_t xi_bsp_time_getcurrenttime_seconds()
 {
-    return 1488550309 + HAL_GetTick() / 1000;
+    return 1488807631 + HAL_GetTick() / 1000;
 }
 
 xi_time_t xi_bsp_time_getcurrenttime_milliseconds()
 {
-    return 1488550309 + HAL_GetTick() / 1000;
+    return 1488807631 + HAL_GetTick() / 1000;
 }

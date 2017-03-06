@@ -6,6 +6,7 @@
 				<macros>
 					<stringMacro name="XI_STMCUBE_PATH" type="VALUE_PATH_ANY" value="/Users/atigyi/Downloads/STM32Cube_FW_F2_V1.4.0"/>
 					<stringMacro name="XI_CLIENT_PATH" type="VALUE_PATH_ANY" value="/Users/atigyi/git/xi/xc/xively-client-c"/>
+					<stringMacro name="XI_MEMS_STMCUBE_PATH" type="VALUE_PATH_ANY" value="/Users/atigyi/Downloads/STM32CubeExpansion_MEMS1_V3.0.0"/>
 				</macros>
 				<externalSettings/>
 				<extensions>
@@ -52,6 +53,17 @@
 									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS"/>
 									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Utilities"/>
 									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Utilities/Log"/>
+									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/Components/Common"/>
+									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/Components/hts221"/>
+									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/Components/lis3mdl"/>
+									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/Components/lps22hb"/>
+									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/Components/lps25hb"/>
+									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/Components/lsm303agr"/>
+									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/Components/lsm6ds0"/>
+									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/Components/lsm6ds3"/>
+									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/Components/lsm6dsl"/>
+									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/X_NUCLEO_IKS01A1"/>
+									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/X_NUCLEO_IKS01A2"/>
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.558724753" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="USE_HAL_DRIVER"/>
