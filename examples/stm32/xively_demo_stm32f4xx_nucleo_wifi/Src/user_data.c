@@ -1,3 +1,9 @@
+/* NOTE: If we'd like to save memory, there's no need to allocate a new user_data_t
+ *       datasctructure when the data in flash is valid. A simple
+ *       (user_data_t*)FLASH_USER_DATA_BASE will give you a pointer to the data in flash.
+ *       It cannot be written to directly (flash erase and program are required for
+ *       that), but it can be CRC-validated and accessed from anywhere in the codebase
+ */
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -6,22 +12,14 @@
 #include "stm32f4xx_hal_conf.h"
 #include "user_data.h"
 
-/******************************************************************************
-*                           CRC Peripheral Usage                              *
-******************************************************************************/
 #define CRC_REGISTER_BYTES 4
-
 static int8_t calculate_checksum( user_data_t* user_data, int32_t* out_checksum );
 
-/******************************************************************************
-*                                 Flash Usage                                 *
-******************************************************************************/
 #define FLASH_USER_DATA_SECTOR FLASH_SECTOR_TOTAL-1
 #define FLASH_VOLTAGE_RANGE    FLASH_VOLTAGE_RANGE_1
 #define FLASH_USER_DATA_PREFIX 0x55
 #define FLASH_USER_DATA_SIZE 0xfff
 #define FLASH_USER_DATA_BASE (FLASH_END - FLASH_USER_DATA_SIZE)
-
 static int8_t erase_flash_sector( void );
 static int8_t program_flash( user_data_t* user_data );
 
@@ -30,12 +28,12 @@ static int8_t program_flash( user_data_t* user_data );
 ******************************************************************************/
 
 /**
-  * @brief  Verify this device is compatible with the hardcoded flash
-  *         sector/address specifications
-  * @param   None
-  * @retval 0 Success
-  * @retval <0 Error: Something is probably misconfigured in the source code
-  */
+ * @brief  Verify this device is compatible with the hardcoded flash
+ *         sector/address specifications
+ * @param   None
+ * @retval 0 Success
+ * @retval <0 Error: Something is probably misconfigured in the source code
+ */
 int8_t user_data_flash_init( void )
 {
     assert( 0 == sizeof( user_data_t ) % sizeof( int32_t ) ); /* For program_flash() */
@@ -56,10 +54,11 @@ int8_t user_data_flash_init( void )
 }
 
 /**
-  * @brief
-  * @param
-  * @retval
-  */
+ * @brief  Copy the Flash area reserved for user data into *dst so it can be
+ *         manipulated
+ * @param  *dst is the pre-allocated pointer where we want to copy the user data
+ * @retval <0: Error, >=0: OK
+ */
 int8_t user_data_copy_from_flash( user_data_t* dst )
 {
     memset( dst, 0x00, sizeof( user_data_t ) );
@@ -68,22 +67,25 @@ int8_t user_data_copy_from_flash( user_data_t* dst )
 }
 
 /**
-  * @brief
-  * @param
-  * @retval
-  */
-/* TODO: This execution branch should run from volatile RAM if possible */
+ * @brief  This function calculates and sets the CRC checksum of the user data
+ *         we'd like to save, erases the relevant Fash sector and stores the new
+ *         data
+ * @param  *src is the datastructure we'd like to save to flash. src->crc_checksum
+ *         will be overwritten
+ * @retval <0: Error, >=0: OK
+ */
+/* TODO: This execution branch should run entirely from volatile RAM if possible */
 int8_t user_data_save_to_flash( user_data_t* src )
 {
-    if ( user_data_reset_flash() < 0 )
-    {
-        printf( "\r\n\tSaving user data to flash [ABORT]" );
-        return -1;
-    }
-
     if ( calculate_checksum( src, &src->crc_checksum ) < 0 )
     {
         printf( "\r\n\tCRC checksum calculation [ERROR]" );
+        return -1;
+    }
+
+    if ( user_data_reset_flash() < 0 )
+    {
+        printf( "\r\n\tSaving user data to flash [ABORT]" );
         return -1;
     }
 
@@ -99,14 +101,13 @@ int8_t user_data_save_to_flash( user_data_t* src )
 }
 
 /**
-  * @brief  Removes all user data from flash
-  * @param
-  * @retval
-  */
-/* TODO: This execution branch should run from volatile RAM if possible */
+ * @brief  Performs a Flash erase on the section reserved for user data
+ * @retval <0: Error, >=0: OK
+ */
+/* TODO: This execution branch should run entirely from volatile RAM if possible */
 int8_t user_data_reset_flash( void )
 {
-    /* TODO: Save all non-user_data memory before the erase */
+    /* TODO: Save all non-user_data in the sector before the erase */
     if ( erase_flash_sector() < 0 )
     {
         return -1;
@@ -121,10 +122,15 @@ int8_t user_data_reset_flash( void )
 ******************************************************************************/
 
 /**
-  * @brief
-  * @param
-  * @retval
-  */
+ * @brief  Erases the entire flash sector where the user data is stored. This
+ *         will erase way more space than we need for user data; if the codebase
+ *         grows too big and the linker script remains unchanged, machine code
+ *         could end up allocated in this sector, and overwritten when this
+ *         function is called.
+ *         In order to avoid that, read the FLASH_USER_DATA_SECTOR before
+ *         calling this function and re-write all inadvertently erased data
+ * @retval <0: Error, >=0: OK
+ */
 static int8_t erase_flash_sector( void )
 {
     HAL_StatusTypeDef status;
@@ -172,10 +178,12 @@ error_out:
 }
 
 /**
-  * @brief
-  * @param
-  * @retval
-  */
+ * @brief  Operate the Flash interface to copy *user_data into flash memory.
+ *         It locks and unlocks the flash interface, and Programs the data 32-bits
+ *         at a time
+ * @param  *user_data is the datastructure we'd like to write to flash
+ * @retval <0: Error, >=0: OK
+ */
 static int8_t program_flash( user_data_t* user_data )
 {
     HAL_StatusTypeDef status;
@@ -223,14 +231,12 @@ error_out:
 *                 CRC Operations for Data Integrity Validation                *
 ******************************************************************************/
 /**
-  * @brief  Calculate a checksum of the user data stored in @param0. Set out_checksum
-  *         to the result. This function does not CRC or set the crc_checksum
-  *         in *user_data
-  * @param  user_data structure to checksum
-  * @param  *out_checksum will be set to the result of the CRC calculation
-  * @retval  0 Success
-  * @retval <0 Error
-  */
+ * @brief  Calculate a checksum of everything in *user_data but the CRC code itself.
+ * @param  user_data will be read field by field (excluding crc_checksum) and its
+ *         checksums will be accumulated
+ * @param  *out_checksum will be set to the result of the CRC calculation
+ * @retval <0: Error, >=0: OK
+ */
 static int8_t calculate_checksum( user_data_t* user_data, int32_t* out_checksum )
 {
     char* string_ptrs[] = {user_data->wifi_client_ssid,
@@ -276,10 +282,14 @@ static int8_t calculate_checksum( user_data_t* user_data, int32_t* out_checksum 
 }
 
 /**
-  * @brief
-  * @param
-  * @retval
-  */
+ * @brief  Calculate the CRC checksum of everything in *user_data but its CRC
+ *         checksum itself. If the CRC checksum we calculated matches the one
+ *         in the datastructure, return 0. Otherwise, return <0
+ * @param  *user_data is the structure whose integrity/usage is to be validated
+ * @retval 0: OK
+ * @retval -1: Failed to calculate checksum
+ * @retval -2: Calculated checksum doesn't match the one in user_data
+ */
 int8_t user_data_validate_checksum( user_data_t* user_data )
 {
     int32_t new_checksum = 0x00000000;
@@ -301,10 +311,13 @@ int8_t user_data_validate_checksum( user_data_t* user_data )
 *                                     Helpers                                 *
 ******************************************************************************/
 /**
-  * @brief
-  * @param
-  * @retval
-  */
+ * @brief Print a debug message displaying the contents of user_data, both in
+ *        binary format and ASCII.
+ *        A memory dump of the data itself is performed as to make it obvious to
+ *        the developer whether there was anything stored in flash, help debug
+ *        issues when modifying the user_data_t datastructure, etc.
+ * @param user_data is the structure we'd like to print to UART
+ */
 void user_data_printf( user_data_t* user_data )
 {
     for ( uint32_t i = 0; i < sizeof( user_data_t ) / sizeof( int32_t ); i++ )
