@@ -100,7 +100,6 @@ char* ssid          = "SSID";
 char* seckey        = "PASSWORD";
 WiFi_Priv_Mode mode = WPA_Personal;
 
-
 #define XI_ACCOUNT_ID "XIVELY ACCOUNT ID"
 #define XI_DEVICE_ID "XIVELY DEVICE ID"
 #define XI_DEVICE_PASS "XIVELY DEVICE PASSWORD"
@@ -108,26 +107,9 @@ WiFi_Priv_Mode mode = WPA_Personal;
 /* the interval for the time function */
 #define XI_PUBLISH_INTERVAL_SEC 5
 
-/* declaration of fn pointer for the msg handler */
-typedef void ( *on_msg_handler_fn_t )( const uint8_t* const msg, size_t msg_size );
-
-/* declaration of fn pointer for the publishing functions */
-typedef xi_state_t ( *on_msg_push_fn_t )( const char* mqtt_topic_descr );
-
-/* each topic will have it's descriptor and the handler in case of the message */
-typedef struct mqtt_topic_configuration_s
-{
-    const char* const topic_name;
-    on_msg_handler_fn_t on_msg_pull;
-    on_msg_push_fn_t on_msg_push;
-} mqtt_topic_configuration_t;
-
 /* combines name with the account and device id */
 #define XI_TOPIC_NAME_MANGLE( name )                                                     \
     "xi/blue/v1/" XI_ACCOUNT_ID "/d/" XI_DEVICE_ID "/" name
-
-/* declaration of topic handlers for SUB'ed topics */
-static void on_led_msg( const uint8_t* const msg, size_t msg_size );
 
 /* declaration of topic handlers for PUB'ed topics */
 static xi_state_t pub_accelerometer( const char* topic_name );
@@ -386,9 +368,9 @@ void publish_mqtt_topics()
     {
         pub_gyroscope( XI_TOPIC_NAME_MANGLE( "Gyroscope" ) );
         pub_accelerometer( XI_TOPIC_NAME_MANGLE( "Accelerometer" ) );
-        pub_button( XI_TOPIC_NAME_MANGLE( "Button" ) );
     }
 
+    pub_button( XI_TOPIC_NAME_MANGLE( "Button" ) );
     pub_magnetometer( XI_TOPIC_NAME_MANGLE( "Magnetometer" ) );
     pub_barometer( XI_TOPIC_NAME_MANGLE( "Barometer" ) );
     pub_humidity( XI_TOPIC_NAME_MANGLE( "Humidity" ) );
@@ -598,6 +580,11 @@ void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin )
 {
     if ( GPIO_Pin == IO_NUCLEO_BUTTON_PIN )
     {
+        if ( !io_button_exti_debouncer( GPIO_Pin ) )
+        {
+            return;
+        }
+
         is_burst_mode = !( is_burst_mode );
         if ( is_burst_mode )
         {
