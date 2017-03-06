@@ -3,9 +3,6 @@
 
 #include <stdint.h>
 
-#define SNTP_SERVER "3.pool.ntp.org"
-#define SNTP_PORT   123
-
 typedef int32_t posix_time_t;
 typedef enum {
     SNTP_INTERNAL_ERROR  = -6,
