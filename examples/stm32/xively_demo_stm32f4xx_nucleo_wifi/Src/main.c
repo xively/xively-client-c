@@ -76,6 +76,16 @@
 #define WIFI_BOARD_UART_BAUDRATE 115200
 #define USE_FLASH_STORAGE 1
 #define WIFI_SCAN_BUFFER_LIST 25
+
+#define USE_HARDCODED_CREDENTIALS 0 /* Overrules USE_FLASH_STORAGE */
+#if USE_HARDCODED_CREDENTIALS
+#define USER_CONFIG_WIFI_SSID "User's WiFi Network Name"
+#define USER_CONFIG_WIFI_PWD "User's WiFi Network Password"
+#define USER_CONFIG_WIFI_ENCR WPA_Personal /* [ WPA_Personal | WEP | None ] */
+#define USER_CONFIG_XI_ACCOUNT_ID "Xively Account ID"
+#define USER_CONFIG_XI_DEVICE_ID "Xively Device ID"
+#define USER_CONFIG_XI_DEVICE_PWD "Xively Device Password"
+#endif
 /* Private macro -------------------------------------------------------------*/
 
 /* Private variables ---------------------------------------------------------*/
@@ -752,7 +762,14 @@ static inline void print_user_config_debug_banner( void )
 
 static int8_t user_config_init( void )
 {
-#if USE_FLASH_STORAGE
+#if USE_HARDCODED_CREDENTIALS
+    user_data_set_wifi_ssid( &user_config, USER_CONFIG_WIFI_SSID );
+    user_data_set_wifi_psk( &user_config, USER_CONFIG_WIFI_PWD );
+    user_data_set_wifi_encryption( &user_config, USER_CONFIG_WIFI_ENCR );
+    user_data_set_xi_account_id( &user_config, USER_CONFIG_XI_ACCOUNT_ID );
+    user_data_set_xi_device_id( &user_config, USER_CONFIG_XI_DEVICE_ID );
+    user_data_set_xi_device_password( &user_config, USER_CONFIG_XI_DEVICE_PWD );
+#elif USE_FLASH_STORAGE
     if ( user_data_copy_from_flash( &user_config ) < 0 )
     {
         printf( "\r\n>> [ERROR] trying to copy user data from flash" );
