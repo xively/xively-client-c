@@ -43,12 +43,12 @@
 
 #define BUILD_DEVICE BB_DEVICE
 
-#define XC_ACCOUNT_ID "bc4ebe58-b070-437b-9a64-a112bb2283d8"
 
 /*
  *  Used by Morningstar
  */
 #if BUILD_DEVICE == MS_DEVICE
+#define XI_ACCOUNT_ID "bc4ebe58-b070-437b-9a64-a112bb2283d8"
 #define XI_DEVICE_ID "7da7df2a-6474-4444-bf5b-188abf383b0e"
 #define XI_PASSWORD "+yvrZW+hKEU0xavmq+TB4sXHQCmXUXbqT4NHGv6bqwA="
 
@@ -1105,7 +1105,7 @@ static int xc_main( void )
      */
     device_id  = XI_DEVICE_ID;
     password   = XI_PASSWORD;
-    account_id = XC_ACCOUNT_ID;
+    account_id = XI_ACCOUNT_ID;
 
     rval = 0;
 
