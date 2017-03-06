@@ -12,7 +12,7 @@
 #include <xi_data_desc.h>
 #include <xi_list.h>
 #include "wifi_interface.h"
-#include "xi_bsp_time_stm32f4_nucleo_wifi_sntp.h"
+#include "xi_bsp_time_stm32fx_nucleo_wifi_sntp.h"
 
 #ifdef __cplusplus
 extern "C" {
