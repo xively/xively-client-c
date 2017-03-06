@@ -56,9 +56,9 @@
  *  Used by Bob Burke, Xively Professional Services
  */
 #elif BUILD_DEVICE == BB_DEVICE
-#define XI_ACCOUNT_ID "4d3c7986-8d53-4cf8-903e-7fd30ff63be1"
-#define XI_DEVICE_ID "6ed0ab44-d7e6-47fa-a3de-6d3441e5c577"
-#define XI_PASSWORD "diYY01MoMWFI3fCGTr7gZamtfFIMmedWrm+gkHGtLHc="
+#define XI_ACCOUNT_ID ""
+#define XI_DEVICE_ID ""
+#define XI_PASSWORD ""
 
 #else
 #error Invalid "BUILD_DEVICE"
