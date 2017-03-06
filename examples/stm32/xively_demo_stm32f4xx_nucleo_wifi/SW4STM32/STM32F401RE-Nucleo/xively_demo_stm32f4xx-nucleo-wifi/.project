@@ -181,7 +181,7 @@
 			<locationURI>$%7BPARENT-3-PROJECT_LOC%7D/Src/console.c</locationURI>
 		</link>
 		<link>
-			<name>Example/User/demo_bsp.c</name>
+
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Src/demo_bsp.c</locationURI>
 		</link>
@@ -349,6 +349,11 @@
 			<name>Middlewares/ST/STM32_SPWF01SA/wifi_module.c</name>
 			<type>1</type>
 			<locationURI>STM_CUBE_PATH/Middlewares/ST/STM32_SPWF01SA/wifi_module.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/Common/Release_Notes.html</name>
+			<type>1</type>
+			<location>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/Common/Release_Notes.html</location>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/Common/accelerometer.h</name>
