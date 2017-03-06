@@ -13,6 +13,7 @@
 #include <xi_list.h>
 #include "wifi_interface.h"
 #include "xi_bsp_time_stm32f4_nucleo_wifi_sntp.h"
+#include "xi_bsp_tls_certs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -50,12 +51,38 @@ xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
     return XI_BSP_IO_NET_STATE_OK;
 }
 
+static xi_bsp_io_net_state_t xi_bsp_io_net_configure_tls( const char* host )
+{
+    WiFi_Status_t status          = WiFi_MODULE_SUCCESS;
+    posix_time_t current_datetime = xi_bsp_time_sntp_getseconds_posix();
+    const uint8_t* tls_mode       = ( uint8_t* )"o"; /* ["m"utual || "o"ne-way] */
+    const char* tls_cert          = GLOBALSIGN_ROOT_CERT;
+
+    xi_bsp_debug_format( "Trusted Root CA Certificate:\r\n%s", tls_cert );
+    status = wifi_socket_client_security( ( uint8_t* )tls_mode, ( uint8_t* )tls_cert,
+                                          NULL, NULL, ( uint8_t* )host,
+                                          ( uint32_t )current_datetime );
+
+    if ( WiFi_MODULE_SUCCESS != status )
+    {
+        xi_bsp_debug_format( "TLS configuration [ERROR] %d", status );
+        return XI_BSP_IO_NET_STATE_ERROR;
+    }
+    xi_bsp_debug_format( "TLS configuration [OK] %d", status );
+    return XI_BSP_IO_NET_STATE_OK;
+}
+
 xi_bsp_io_net_state_t
 xi_bsp_io_net_connect( xi_bsp_socket_t* xi_socket, const char* host, uint16_t port )
 {
-    char* protocol = "s"; // t -> tcp , s-> secure tcp, c-> secure tcp with certs
-
+    const char* protocol = "s"; /* t -> tcp , s-> secure tcp, c-> secure tcp with certs */
     WiFi_Status_t status = WiFi_MODULE_SUCCESS;
+
+    if ( XI_BSP_IO_NET_STATE_OK != xi_bsp_io_net_configure_tls( host ) )
+    {
+        return XI_BSP_IO_NET_STATE_ERROR;
+    }
+
     status = wifi_socket_client_open( ( uint8_t* )host, port, ( uint8_t* )protocol,
                                       ( uint8_t* )xi_socket );
 
