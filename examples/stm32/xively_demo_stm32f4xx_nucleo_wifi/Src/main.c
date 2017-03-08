@@ -167,9 +167,6 @@ static int8_t build_xively_topic(
     return 0;
 }
 
-/******************************************************************************
-*                                MQTT Publishers                              *
-******************************************************************************/
 xi_state_t pub_accelerometer( void )
 {
     char xi_topic[XI_TOPIC_MAX_LEN];
@@ -364,9 +361,6 @@ void publish_mqtt_topics()
     pub_temperature();
 }
 
-/******************************************************************************
-*                            MQTT Status Callbacks                            *
-******************************************************************************/
 void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t state )
 {
     /* sanity check */
@@ -424,9 +418,6 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
     };
 }
 
-/******************************************************************************
-*                      MQTT Message Received Callbacks                        *
-******************************************************************************/
 /* handler for xively mqtt topic subscription */
 void on_led_msg( xi_context_handle_t in_context_handle,
                  xi_sub_call_type_t call_type,
@@ -476,9 +467,6 @@ void on_led_msg( xi_context_handle_t in_context_handle,
     }
 }
 
-/******************************************************************************
-*                    App, Hardware and MQTT Initialization                    *
-******************************************************************************/
 /*
  * Initializes Xively's demo application topics
  */
