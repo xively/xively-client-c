@@ -400,6 +400,7 @@ int8_t io_float_to_string( float input, char* buf , int32_t buf_size )
     retv = snprintf( buf, buf_size, "%ld.%02ld", input_integer, input_fractional );
     if ( retv >= buf_size )
     {
+        printf( "\r\n\t[ERROR] trying to build string from float value" );
         return -1;
     }
     return 0;
@@ -428,6 +429,7 @@ int8_t io_axes_to_json( SensorAxes_t axes, char* buf , int32_t buf_size )
                      axes.AXIS_X, axes.AXIS_Y, axes.AXIS_Z );
     if ( retv >= buf_size )
     {
+        printf( "\r\n\t[ERROR] trying to create JSON string from sensor input" );
         return -1;
     }
     return 0;
