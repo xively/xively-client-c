@@ -1,12 +1,20 @@
 /**
  ******************************************************************************
  * @file    main.c
- * @author  Central LAB
- * @version V2.1.0
- * @date    17-May-2016
- * @brief   Main program body
+ * @author  Xively
+ * @version V1.0.0
+ * @date    03-March-2017
+ * @brief   Main program body of Xively Client Example for STM32F4 Nucleo Wifi
  ******************************************************************************
+ */
+
+/** 
  * @attention
+ *
+ * Copyright (c) 2003-2017, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client library,
+ * it is licensed under the BSD 3-Clause license.
  *
  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
  *
@@ -95,270 +103,287 @@ static user_data_t user_config;
 wifi_state_t wifi_state;
 wifi_config wifi_module_config;
 wifi_scan net_scan[WIFI_SCAN_BUFFER_LIST];
+xi_state_t xi_connection_state = XI_SOCKET_NO_ACTIVE_CONNECTION_ERROR;
+uint8_t is_burst_mode          = 0;
+
+xi_context_handle_t gXivelyContextHandle      = XI_INVALID_CONTEXT_HANDLE;
+xi_timed_task_handle_t gXivelyTimedTaskHandle = XI_INVALID_TIMED_TASK_HANDLE;
 
 /* Private function prototypes -----------------------------------------------*/
 static inline void print_user_config_debug_banner( void );
-static int8_t user_config_init( void );
+static int8_t user_config_init( user_data_t* dst );
 static int8_t get_ap_credentials( user_data_t* udata );
 static int8_t get_xively_credentials( user_data_t* udata );
 
 /* the interval for the time function */
 #define XI_PUBLISH_INTERVAL_SEC 5
 
-typedef struct topic_descr_s
-{
-    const char* const name;
-} mqtt_topic_descr_t;
-
-/* declaration of fn pointer for the msg handler */
-typedef void ( *on_msg_handler_fn_t )( const uint8_t* const msg, size_t msg_size );
-
-/* declaration of fn pointer for the polling push mechanism */
-typedef xi_state_t ( *on_msg_push_fn_t )(
-    const mqtt_topic_descr_t* const mqtt_topic_descr );
-
-/* each topic will have it's descriptor and the handler in case of the message */
-typedef struct mqtt_topic_configuration_s
-{
-    mqtt_topic_descr_t topic_descr;
-    on_msg_handler_fn_t on_msg_pull;
-    on_msg_push_fn_t on_msg_push;
-} mqtt_topic_configuration_t;
-
 /* combines name with the account and device id */
 #define XI_TOPIC_MAX_LEN 256
 
-/* declaration of topic handlers for SUB'ed topics */
-static void on_led_msg( const uint8_t* const msg, size_t msg_size );
+/* Xively channel names - These weill be used to build the MQTT topic addresses */
+#define ACCELEROMETER_CHANNEL_NAME "Accelerometer"
+#define GYROSCOPE_CHANNEL_NAME     "Gyroscope"
+#define MAGNETOMETER_CHANNEL_NAME  "Magnetometer"
+#define BAROMETER_CHANNEL_NAME     "Barometer"
+#define HUMIDITY_CHANNEL_NAME      "Humidity"
+#define TEMPERATURE_CHANNEL_NAME   "Temperature"
+#define BUTTON_CHANNEL_NAME        "Button"
+#define LED_CHANNEL_NAME           "LED"
 
 /* declaration of topic handlers for PUB'ed topics */
-static xi_state_t pub_accelerometer( const mqtt_topic_descr_t* const mqtt_topic_descr );
-static xi_state_t pub_magnetometer( const mqtt_topic_descr_t* const mqtt_topic_descr );
-static xi_state_t pub_barometer( const mqtt_topic_descr_t* const mqtt_topic_descr );
-static xi_state_t pub_button( const mqtt_topic_descr_t* const mqtt_topic_descr );
-static xi_state_t pub_gyroscope( const mqtt_topic_descr_t* const mqtt_topic_descr );
-static xi_state_t pub_humidity( const mqtt_topic_descr_t* const mqtt_topic_descr );
-static xi_state_t pub_temperature( const mqtt_topic_descr_t* const mqtt_topic_descr );
+static xi_state_t pub_accelerometer( void );
+static xi_state_t pub_magnetometer( void );
+static xi_state_t pub_barometer( void );
+static xi_state_t pub_button( void );
+static xi_state_t pub_gyroscope( void );
+static xi_state_t pub_humidity( void );
+static xi_state_t pub_temperature( void );
 
 /* topic's initialisation function */
 static xi_state_t init_xively_topics( xi_context_handle_t in_context_handle );
 
-/* table of topics used for this demo */
-static const mqtt_topic_configuration_t topics_array[] = {
-    {{"Accelerometer"}, NULL, pub_accelerometer},
-    {{"Magnetometer"}, NULL, pub_magnetometer},
-    {{"Barometer"}, NULL, pub_barometer},
-    {{"Gyroscope"}, NULL, pub_gyroscope},
-    {{"Humidity"}, NULL, pub_humidity},
-    {{"Button"}, NULL, pub_button},
-    {{"LED"}, &on_led_msg, NULL},
-    {{"Temperature"}, NULL, pub_temperature},
-};
-
-/* store the length of the array */
-static const size_t topics_array_length =
-    sizeof( topics_array ) / sizeof( topics_array[0] );
-
-xi_context_handle_t gXivelyContextHandle      = XI_INVALID_CONTEXT_HANDLE;
-xi_timed_task_handle_t gXivelyTimedTaskHandle = XI_INVALID_TIMED_TASK_HANDLE;
-
-/* The pointer returned by this function must be free()d by the caller */
-static char* build_xively_topic( char* topic_name, char* account_id, char* device_id )
+/**
+ * @brief This function receives a pointer to a pre-allocated buffer to be filled in.
+ *        We recommend that string is allocated XI_TOPIC_MAX_LEN bytes
+ */
+static int8_t build_xively_topic(
+    char* topic_name, char* account_id, char* device_id, char* dst, uint32_t dst_len )
 {
-    char* dst  = NULL;
     int retval = 0;
 
-    if ( ( NULL == topic_name ) || ( NULL == account_id ) || ( NULL == device_id ) )
-    {
-        return NULL;
-    }
+    assert( NULL != topic_name );
+    assert( NULL != account_id );
+    assert( NULL != device_id );
+    assert( NULL != dst );
 
-    dst = malloc( XI_TOPIC_MAX_LEN );
-    if ( dst == NULL )
-    {
-        return NULL;
-    }
-
-    retval = snprintf( dst, XI_TOPIC_MAX_LEN, "xi/blue/v1/%.64s/d/%.64s/%.64s",
+    retval = snprintf( dst, dst_len, "xi/blue/v1/%.64s/d/%.64s/%.64s",
                        account_id, device_id, topic_name );
-    if ( ( retval >= XI_TOPIC_MAX_LEN ) || ( retval < 0 ) )
+
+    if ( ( retval >= dst_len ) || ( retval < 0 ) )
     {
-        return NULL;
+        return -1;
     }
-    return dst;
+    return 0;
 }
 
-/* handler for led msg */
-void on_led_msg( const uint8_t* const msg, size_t msg_size )
+/******************************************************************************
+*                                MQTT Publishers                              *
+******************************************************************************/
+xi_state_t pub_accelerometer( void )
 {
-    printf( "\r\n>> Got a new MQTT message in the LED topic" );
-    printf( "\r\n\t Message size: %d", msg_size );
-    printf( "\r\n\t Message payload: " );
-    for ( size_t i = 0; i < msg_size; i++ )
-    {
-        printf( "0x%02x ", msg[i] );
-    }
-    if ( msg_size != 1 )
-    {
-        printf( "\r\n\tUnrecognized LED message [IGNORED] Expected 1 or 0" );
-        return;
-    }
-    ( msg[0] == '0' ) ? io_led_off() : io_led_on();
-}
-
-xi_state_t pub_accelerometer( const mqtt_topic_descr_t* const mqtt_topic_descr )
-{
-    char out_msg[IO_AXES_JSON_BUFFER_MAX_SIZE] = "";
+    char xi_topic[XI_TOPIC_MAX_LEN];
+    char out_msg[IO_AXES_JSON_BUFFER_MAX_SIZE];
     SensorAxes_t sensor_input;
 
-    if ( io_read_accelero( &sensor_input ) < 0 )
+    if ( 0 > build_xively_topic( ACCELEROMETER_CHANNEL_NAME, user_config.xi_account_id,
+                                 user_config.xi_device_id, xi_topic, XI_TOPIC_MAX_LEN ) )
     {
-        printf( "\r\n\t[ERROR] trying to read accelerometer input" );
-        return -1;
-    } if ( io_axes_to_json( sensor_input, out_msg, IO_AXES_JSON_BUFFER_MAX_SIZE ) < 0 )
-    {
-        printf( "\r\n\t[ERROR] trying to create JSON string from sensor input" );
         return -1;
     }
-    return xi_publish( gXivelyContextHandle, mqtt_topic_descr->name, out_msg,
-                       XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
+
+    if ( 0 > io_read_accelero( &sensor_input ) )
+    {
+        return -1;
+    }
+    if ( 0 > io_axes_to_json( sensor_input, out_msg, IO_AXES_JSON_BUFFER_MAX_SIZE ) )
+    {
+        return -1;
+    }
+
+    return xi_publish( gXivelyContextHandle, xi_topic, out_msg, XI_MQTT_QOS_AT_MOST_ONCE,
+                       XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
 
-xi_state_t pub_magnetometer( const mqtt_topic_descr_t* const mqtt_topic_descr )
+xi_state_t pub_magnetometer( void )
 {
-    char out_msg[IO_AXES_JSON_BUFFER_MAX_SIZE] = "";
+    char xi_topic[XI_TOPIC_MAX_LEN];
+    char out_msg[IO_AXES_JSON_BUFFER_MAX_SIZE];
     SensorAxes_t sensor_input;
 
-    if ( io_read_magneto( &sensor_input ) < 0 )
+    if ( 0 > build_xively_topic( MAGNETOMETER_CHANNEL_NAME, user_config.xi_account_id,
+                                 user_config.xi_device_id, xi_topic, XI_TOPIC_MAX_LEN ) )
     {
-        printf( "\r\n\t[ERROR] trying to read magnetometer input" );
         return -1;
     }
-    if ( io_axes_to_json( sensor_input, out_msg, IO_AXES_JSON_BUFFER_MAX_SIZE ) < 0 )
+
+    if ( 0 > io_read_magneto( &sensor_input ) )
     {
-        printf( "\r\n\t[ERROR] trying to create JSON string from sensor input" );
         return -1;
     }
-    return xi_publish( gXivelyContextHandle, mqtt_topic_descr->name, out_msg,
+    if ( 0 > io_axes_to_json( sensor_input, out_msg, IO_AXES_JSON_BUFFER_MAX_SIZE ) )
+    {
+        return -1;
+    }
+    return xi_publish( gXivelyContextHandle, xi_topic, out_msg,
                        XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
 
-xi_state_t pub_gyroscope( const mqtt_topic_descr_t* const mqtt_topic_descr )
+xi_state_t pub_gyroscope( void )
 {
-    char out_msg[IO_AXES_JSON_BUFFER_MAX_SIZE] = "";
+    char xi_topic[XI_TOPIC_MAX_LEN];
+    char out_msg[IO_AXES_JSON_BUFFER_MAX_SIZE];
     SensorAxes_t sensor_input;
 
-    if ( io_read_gyro( &sensor_input ) < 0 )
+    if ( 0 > build_xively_topic( GYROSCOPE_CHANNEL_NAME, user_config.xi_account_id,
+                                 user_config.xi_device_id, xi_topic, XI_TOPIC_MAX_LEN ) )
     {
-        printf( "\r\n\t[ERROR] trying to read gyroscope input" );
         return -1;
     }
-    if ( io_axes_to_json( sensor_input, out_msg, IO_AXES_JSON_BUFFER_MAX_SIZE ) < 0 )
+
+    if ( 0 > io_read_gyro( &sensor_input ) )
     {
-        printf( "\r\n\t[ERROR] trying to create JSON string from sensor input" );
         return -1;
     }
-    return xi_publish( gXivelyContextHandle, mqtt_topic_descr->name, out_msg,
+    if ( 0 > io_axes_to_json( sensor_input, out_msg, IO_AXES_JSON_BUFFER_MAX_SIZE ) )
+    {
+        return -1;
+    }
+    return xi_publish( gXivelyContextHandle, xi_topic, out_msg,
                        XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
 
-xi_state_t pub_barometer( const mqtt_topic_descr_t* const mqtt_topic_descr )
+xi_state_t pub_barometer( void )
 {
-    char out_msg[IO_FLOAT_BUFFER_MAX_SIZE] = "";
-    float sensor_input                     = 0;
-    if ( io_read_pressure( &sensor_input ) < 0 )
+    char xi_topic[XI_TOPIC_MAX_LEN];
+    char out_msg[IO_FLOAT_BUFFER_MAX_SIZE];
+    float sensor_input = 0;
+
+    if ( 0 > build_xively_topic( BAROMETER_CHANNEL_NAME, user_config.xi_account_id,
+                                 user_config.xi_device_id, xi_topic, XI_TOPIC_MAX_LEN ) )
     {
-        printf( "\r\n\t[ERROR] trying to read barometer input" );
         return -1;
     }
-    if ( io_float_to_string( sensor_input, out_msg, IO_FLOAT_BUFFER_MAX_SIZE ) )
+
+    if ( 0 > io_read_pressure( &sensor_input ) )
     {
-        printf( "\r\n\t[ERROR] trying to create string from sensor input" );
         return -1;
     }
-    return xi_publish( gXivelyContextHandle, mqtt_topic_descr->name, out_msg,
+    if ( 0 > io_float_to_string( sensor_input, out_msg, IO_FLOAT_BUFFER_MAX_SIZE ) )
+    {
+        return -1;
+    }
+    return xi_publish( gXivelyContextHandle, xi_topic, out_msg,
                        XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
 
-xi_state_t pub_humidity( const mqtt_topic_descr_t* const mqtt_topic_descr )
+xi_state_t pub_humidity( void )
 {
-    char out_msg[IO_FLOAT_BUFFER_MAX_SIZE] = "";
-    float sensor_input                     = 0;
-    if ( io_read_humidity( &sensor_input ) < 0 )
+    char xi_topic[XI_TOPIC_MAX_LEN];
+    char out_msg[IO_FLOAT_BUFFER_MAX_SIZE];
+    float sensor_input = 0;
+
+    if ( 0 > build_xively_topic( HUMIDITY_CHANNEL_NAME, user_config.xi_account_id,
+                                 user_config.xi_device_id, xi_topic, XI_TOPIC_MAX_LEN ) )
     {
-        printf( "\r\n\t[ERROR] trying to read hygrometer input" );
         return -1;
     }
-    if ( io_float_to_string( sensor_input, out_msg, IO_FLOAT_BUFFER_MAX_SIZE ) )
+
+    if ( 0 > io_read_humidity( &sensor_input ) )
     {
-        printf( "\r\n\t[ERROR] trying to create string from sensor input" );
         return -1;
     }
-    return xi_publish( gXivelyContextHandle, mqtt_topic_descr->name, out_msg,
+    if ( 0 > io_float_to_string( sensor_input, out_msg, IO_FLOAT_BUFFER_MAX_SIZE ) )
+    {
+        return -1;
+    }
+    return xi_publish( gXivelyContextHandle, xi_topic, out_msg,
                        XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
 
-xi_state_t pub_temperature( const mqtt_topic_descr_t* const mqtt_topic_descr )
+xi_state_t pub_temperature( void )
 {
-    char out_msg[IO_FLOAT_BUFFER_MAX_SIZE] = "";
-    float sensor_input                     = 0;
-    if ( io_read_temperature( &sensor_input ) < 0 )
+    char xi_topic[XI_TOPIC_MAX_LEN];
+    char out_msg[IO_FLOAT_BUFFER_MAX_SIZE];
+    float sensor_input = 0;
+
+    if ( 0 > build_xively_topic( TEMPERATURE_CHANNEL_NAME, user_config.xi_account_id,
+                                 user_config.xi_device_id, xi_topic, XI_TOPIC_MAX_LEN ) )
     {
-        printf( "\r\n\t[ERROR] trying to read thermometer input" );
         return -1;
     }
-    if ( io_float_to_string( sensor_input, out_msg, IO_FLOAT_BUFFER_MAX_SIZE ) )
+
+    if ( 0 > io_read_temperature( &sensor_input ) )
     {
-        printf( "\r\n\t[ERROR] trying to create string from sensor input" );
         return -1;
     }
-    return xi_publish( gXivelyContextHandle, mqtt_topic_descr->name, out_msg,
+    if ( 0 > io_float_to_string( sensor_input, out_msg, IO_FLOAT_BUFFER_MAX_SIZE ) )
+    {
+        return -1;
+    }
+    return xi_publish( gXivelyContextHandle, xi_topic, out_msg,
                        XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
 
-xi_state_t pub_button( const mqtt_topic_descr_t* const mqtt_topic_descr )
+xi_state_t pub_button( void )
 {
+    char xi_topic[XI_TOPIC_MAX_LEN];
     char* payload;
+
+    if ( 0 > build_xively_topic( BUTTON_CHANNEL_NAME, user_config.xi_account_id,
+                                 user_config.xi_device_id, xi_topic, XI_TOPIC_MAX_LEN ) )
+    {
+        return -1;
+    }
+
     ( io_read_button() ) ? ( payload = "1" ) : ( payload = "0" );
-    return xi_publish( gXivelyContextHandle, mqtt_topic_descr->name, payload,
+    return xi_publish( gXivelyContextHandle, xi_topic, payload,
                        XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
 
 void pub_button_interrupt( void )
 {
     /* TODO: Verify we are connected to Xively before calling xi_publish */
+    char xi_topic[XI_TOPIC_MAX_LEN];
     const char payload[] = "1";
-    char* button_topic   = build_xively_topic( "Button", user_config.xi_account_id,
-                                             user_config.xi_device_id );
 
-    if ( NULL != button_topic )
+
+    if ( 0 > build_xively_topic( BUTTON_CHANNEL_NAME, user_config.xi_account_id,
+                                 user_config.xi_device_id, xi_topic, XI_TOPIC_MAX_LEN ) )
     {
-        xi_publish( gXivelyContextHandle, button_topic, payload, XI_MQTT_QOS_AT_MOST_ONCE,
-                    XI_MQTT_RETAIN_FALSE, NULL, NULL );
+        return;
     }
-    else
-    {
-        printf( "\r\n>> Button MQTT topic construction [ERROR]" );
-    }
-    free( button_topic );
+
+
+    xi_publish( gXivelyContextHandle, xi_topic, payload, XI_MQTT_QOS_AT_MOST_ONCE,
+                XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
 
+void publish_mqtt_topics()
+{
+    if ( !is_burst_mode )
+    {
+        pub_gyroscope();
+        pub_accelerometer();
+    }
+
+    pub_button();
+    pub_magnetometer();
+    pub_barometer();
+    pub_humidity();
+    pub_temperature();
+}
+
+/******************************************************************************
+*                            MQTT Status Callbacks                            *
+******************************************************************************/
 void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t state )
 {
     /* sanity check */
     assert( NULL != data );
 
     xi_connection_data_t* conn_data = ( xi_connection_data_t* )data;
+    xi_connection_state             = conn_data->connection_state;
 
-    printf( "\r\nconnected, state : %i", conn_data->connection_state );
+    printf( "\r\n>> MQTT connection state: %i", conn_data->connection_state );
     switch ( conn_data->connection_state )
     {
         /* connection attempt failed */
         case XI_CONNECTION_STATE_OPEN_FAILED:
-            printf(
-                "[%d] Xively: Connection failed %s:%d, error %d, reconnecting....\r\n",
-                ( int )xi_bsp_time_getcurrenttime_seconds(), conn_data->host,
-                conn_data->port, state );
+            printf( "\r\n>> [%d] Xively Connection [ERROR] Broker: %s:%d, Error: %d",
+                    ( int )xi_bsp_time_getcurrenttime_seconds(), conn_data->host,
+                    conn_data->port, state );
+            printf( "\r\n\tReconnecting to the MQTT broker" );
 
             xi_connect( in_context_handle, conn_data->username, conn_data->password,
                         conn_data->connection_timeout, conn_data->keepalive_timeout,
@@ -370,10 +395,10 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
             xi_cancel_timed_task( gXivelyTimedTaskHandle );
             gXivelyTimedTaskHandle = XI_INVALID_TIMED_TASK_HANDLE;
 
-            printf(
-                "[%d] Xively: Connection closed %s:%d reason %d, reconnecting....\r\n",
-                ( int )xi_bsp_time_getcurrenttime_seconds(), conn_data->host,
-                conn_data->port, state );
+            printf( "\r\n>> [%d] Xively Connection Closed. Broker: %s:%d, Reason: %d",
+                    ( int )xi_bsp_time_getcurrenttime_seconds(), conn_data->host,
+                    conn_data->port, state );
+            printf( "\r\n\tReconnecting to the MQTT broker" );
 
             xi_connect( in_context_handle, conn_data->username, conn_data->password,
                         conn_data->connection_timeout, conn_data->keepalive_timeout,
@@ -381,7 +406,7 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
             break;
         /* connection has been established */
         case XI_CONNECTION_STATE_OPENED:
-            printf( "[%d] Xively: Connected to %s:%d\r\n",
+            printf( "\r\n>> [%d] Xively Connection [ESTABLISHED] Broker: %s:%d",
                     ( int )xi_bsp_time_getcurrenttime_seconds(), conn_data->host,
                     conn_data->port );
 
@@ -393,46 +418,57 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
             break;
         /* something really bad happened */
         default:
-            printf( "[%d] Xively: Invalid connection status %s:%d\r\n",
-                    ( int )xi_bsp_time_getcurrenttime_seconds(), conn_data->host,
-                    conn_data->port );
+            printf( "\r\n>> [%d] Xively Internal [ERROR] Invalid connection status: %d",
+                    ( int )xi_bsp_time_getcurrenttime_seconds(),
+                    ( int )conn_data->connection_state );
     };
 }
 
+/******************************************************************************
+*                      MQTT Message Received Callbacks                        *
+******************************************************************************/
 /* handler for xively mqtt topic subscription */
-void on_mqtt_topic( xi_context_handle_t in_context_handle,
-                    xi_sub_call_type_t call_type,
-                    const xi_sub_call_params_t* const params,
-                    xi_state_t state,
-                    void* user_data )
+void on_led_msg( xi_context_handle_t in_context_handle,
+                 xi_sub_call_type_t call_type,
+                 const xi_sub_call_params_t* const params,
+                 xi_state_t state,
+                 void* user_data )
 {
-    /* sanity checks */
-    assert( NULL != user_data );
-
-    /* user data is the mqtt_topic_configuration_t */
-    const mqtt_topic_configuration_t* topic_conf =
-        ( const mqtt_topic_configuration_t* )user_data;
-
     switch ( call_type )
     {
         case XI_SUB_CALL_SUBACK:
             if ( XI_MQTT_SUBACK_FAILED == params->suback.suback_status )
             {
-                printf( "Subscription failed for %s topic\r\n", params->suback.topic );
+                printf( "\r\n>> Subscription to LED topic [FAIL]" );
             }
             else
             {
-                printf( "Subscription successful for %s topic\r\n",
-                        params->suback.topic );
+                printf( "\r\n>> Subscription to LED topic [OK]" );
             }
             return;
         case XI_SUB_CALL_MESSAGE:
-            printf( "received message on %s topic\r\n", params->suback.topic );
-            /* if there is a handler call it with the message payload */
-            if ( NULL != topic_conf->on_msg_pull )
+            printf( "\r\n>> received message on LED topic" );
+            printf( "\r\n\t Message size: %d",
+                    params->message.temporary_payload_data_length );
+            printf( "\r\n\t Message payload: " );
+            for ( size_t i = 0; i < params->message.temporary_payload_data_length; i++ )
             {
-                topic_conf->on_msg_pull( params->message.temporary_payload_data,
-                                         params->message.temporary_payload_data_length );
+                printf( "0x%02x ", params->message.temporary_payload_data[i] );
+            }
+
+            if ( params->message.temporary_payload_data_length != 1 )
+            {
+                printf( "\r\n\tUnrecognized LED message [IGNORED] Expected 1 or 0" );
+                return;
+            }
+
+            if ( params->message.temporary_payload_data[0] == '0' )
+            {
+                io_led_off();
+            }
+            else
+            {
+                io_led_on();
             }
             break;
         default:
@@ -440,86 +476,43 @@ void on_mqtt_topic( xi_context_handle_t in_context_handle,
     }
 }
 
-void push_mqtt_topics()
-{
-    char* xi_topic = NULL;
-    int i = 0;
-    for ( ; i < topics_array_length; ++i )
-    {
-        const mqtt_topic_configuration_t* const topic_config = &topics_array[i];
-        xi_topic = build_xively_topic( ( char* ) topic_config->topic_descr.name,
-                                       user_config.xi_account_id,
-                                       user_config.xi_device_id );
-
-        if ( NULL == xi_topic )
-        {
-            continue;
-        }
-
-        if ( NULL != topic_config->on_msg_push )
-        {
-            topic_config->on_msg_push( xi_topic );
-        }
-        free( xi_topic );
-    }
-}
-
+/******************************************************************************
+*                    App, Hardware and MQTT Initialization                    *
+******************************************************************************/
 /*
  * Initializes Xively's demo application topics
  */
 xi_state_t init_xively_topics( xi_context_handle_t in_context_handle )
 {
+    char xi_topic[XI_TOPIC_MAX_LEN];
     xi_state_t ret = XI_STATE_OK;
-    char* xi_topic = NULL;
 
-    int i = 0;
-    for ( ; i < topics_array_length; ++i )
+    if ( 0 > build_xively_topic( LED_CHANNEL_NAME, user_config.xi_account_id,
+                                 user_config.xi_device_id, xi_topic, XI_TOPIC_MAX_LEN ) )
     {
-        const mqtt_topic_configuration_t* const topic_config = &topics_array[i];
-        xi_topic = build_xively_topic( ( char* ) topic_config->topic_descr.name,
-                                       user_config.xi_account_id,
-                                       user_config.xi_device_id );
+        return XI_FAILED_INITIALIZATION;
+    }
 
-        if ( xi_topic == NULL )
-        {
-            ret = XI_FAILED_INITIALIZATION;
-            goto error_out;
-        }
+    printf( "\r\n>> Subscribing to MQTT topic [%s]", xi_topic );
+    ret = xi_subscribe( in_context_handle, xi_topic, XI_MQTT_QOS_AT_MOST_ONCE,
+                        &on_led_msg, NULL );
 
-        if ( NULL != topic_config->on_msg_pull )
-        {
-            printf( "\r\n>> Subscribing to MQTT topic [%s]", xi_topic );
-            ret = xi_subscribe( in_context_handle, xi_topic,
-                                XI_MQTT_QOS_AT_MOST_ONCE, &on_mqtt_topic,
-                                ( void* )topic_config );
-
-            if ( XI_STATE_OK != ret )
-            {
-                goto error_out;
-            }
-        }
-
-        free( xi_topic );
+    if ( XI_STATE_OK != ret )
+    {
+        printf( "\r\n>> Xively subscription [ERROR]" );
+        return XI_MQTT_SUBSCRIPTION_FAILED;
     }
 
     /* registration of the publish function */
-    gXivelyTimedTaskHandle = xi_schedule_timed_task( in_context_handle, &push_mqtt_topics,
-                                                     XI_PUBLISH_INTERVAL_SEC, 1, NULL );
+    gXivelyTimedTaskHandle = xi_schedule_timed_task(
+        in_context_handle, &publish_mqtt_topics, XI_PUBLISH_INTERVAL_SEC, 1, NULL );
 
     if ( XI_INVALID_TIMED_TASK_HANDLE == gXivelyTimedTaskHandle )
     {
-        printf( "timed task couldn't been registered\r\n" );
-        ret = XI_FAILED_INITIALIZATION;
-        goto error_out;
+        printf( "\r\n>> Libxively timed task registration [ERROR]" );
+        return XI_FAILED_INITIALIZATION;
     }
 
-    return ret;
-
-error_out:
-    if ( NULL != xi_topic )
-    {
-        free( xi_topic );
-    }
     return ret;
 }
 
@@ -592,7 +585,7 @@ int main( void )
             ;
     }
 
-    if ( user_config_init() < 0 )
+    if ( user_config_init( &user_config ) < 0 )
     {
         printf( "\r\n>> User data initialization [ERROR] - System boot aborted" );
         while ( 1 )
@@ -684,7 +677,7 @@ int main( void )
                 }
                 else
                 {
-                    printf( "Socket not opened!" );
+                    printf( "\r\n>> [ERROR] Xively socket is closed!" );
                 }
 
                 wifi_state = wifi_state_idle;
@@ -693,7 +686,15 @@ int main( void )
             case wifi_state_idle:
                 printf( "." );
                 fflush( stdout );
-                HAL_Delay( 250 );
+                HAL_Delay( 100 );
+
+                if ( is_burst_mode &&
+                     ( ( int )XI_CONNECTION_STATE_OPENED == ( int )xi_connection_state ) )
+                {
+                    pub_gyroscope();
+                    pub_accelerometer();
+                    pub_button();
+                }
                 break;
 
             default:
@@ -713,6 +714,21 @@ void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin )
 {
     if ( GPIO_Pin == IO_NUCLEO_BUTTON_PIN )
     {
+        if ( !io_button_exti_debouncer( GPIO_Pin ) )
+        {
+            return;
+        }
+
+        is_burst_mode = !( is_burst_mode );
+        if ( is_burst_mode )
+        {
+            printf( "\r\n>> Entering Burst Mode!" );
+        }
+        else
+        {
+            printf( "\r\n>> Entering Standard Mode!" );
+        }
+
         if ( io_button_exti_debouncer( GPIO_Pin ) )
         {
             printf( "\r\n>> Nucleo board button [PRESSED]" );
@@ -760,62 +776,62 @@ static inline void print_user_config_debug_banner( void )
     fflush( stdout );
 }
 
-static int8_t user_config_init( void )
+static int8_t user_config_init( user_data_t* dst )
 {
 #if USE_HARDCODED_CREDENTIALS
-    user_data_set_wifi_ssid( &user_config, USER_CONFIG_WIFI_SSID );
-    user_data_set_wifi_psk( &user_config, USER_CONFIG_WIFI_PWD );
-    user_data_set_wifi_encryption( &user_config, USER_CONFIG_WIFI_ENCR );
-    user_data_set_xi_account_id( &user_config, USER_CONFIG_XI_ACCOUNT_ID );
-    user_data_set_xi_device_id( &user_config, USER_CONFIG_XI_DEVICE_ID );
-    user_data_set_xi_device_password( &user_config, USER_CONFIG_XI_DEVICE_PWD );
+    user_data_set_wifi_ssid( dst, USER_CONFIG_WIFI_SSID );
+    user_data_set_wifi_psk( dst, USER_CONFIG_WIFI_PWD );
+    user_data_set_wifi_encryption( dst, USER_CONFIG_WIFI_ENCR );
+    user_data_set_xi_account_id( dst, USER_CONFIG_XI_ACCOUNT_ID );
+    user_data_set_xi_device_id( dst, USER_CONFIG_XI_DEVICE_ID );
+    user_data_set_xi_device_password( dst, USER_CONFIG_XI_DEVICE_PWD );
 #elif USE_FLASH_STORAGE
-    if ( user_data_copy_from_flash( &user_config ) < 0 )
+    if ( user_data_copy_from_flash( dst ) < 0 )
     {
         printf( "\r\n>> [ERROR] trying to copy user data from flash" );
         return -1;
     }
     printf( "\r\n>> User data retrieved from flash:" );
-    user_data_printf( &user_config );
+    user_data_printf( dst );
     fflush( stdout );
 
-    if ( io_read_button() || ( user_data_validate_checksum( &user_config ) < 0 ) )
+    if ( io_read_button() || ( user_data_validate_checksum( dst ) < 0 ) )
     {
         printf( "\r\n>> Starting forced user configuration mode" );
         print_user_config_debug_banner();
 
         /* Get WiFi AP Credentials from the user */
-        if ( get_ap_credentials( &user_config ) < 0 )
+        if ( get_ap_credentials( dst ) < 0 )
         {
             printf( "\r\n>> [ERROR] Getting AP credentials from user" );
             return -1;
         }
 
         printf( "\r\n>> Saving user data to flash" );
-        user_data_save_to_flash( &user_config );
+        user_data_save_to_flash( dst );
 
         /* Get Xively Credentials from the user */
-        if ( get_xively_credentials( &user_config ) < 0 )
+        if ( get_xively_credentials( dst ) < 0 )
         {
             printf( "\r\n>> [ERROR] Getting Xively credentials from user" );
             return -1;
         }
 
         printf( "\r\n>> Saving user data to flash" );
-        user_data_save_to_flash( &user_config );
+        user_data_save_to_flash( dst );
     }
 #else
     print_user_config_debug_banner();
 
     /* Get Xively Credentials from the user */
-    if ( get_ap_credentials( &user_config ) < 0 )
+    if ( get_ap_credentials( dst ) < 0 )
     {
         printf( "\r\n>> [ERROR] Getting AP credentials from user" );
         return -1;
     }
 
     /* Get WiFi AP Credentials from the user */
-    if ( get_xively_credentials( &user_config ) < 0 )
+    if ( get_xively_credentials( dst ) < 0 )
     {
         printf( "\r\n>> [ERROR] Getting Xively credentials from user" );
         return -1;
