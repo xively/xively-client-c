@@ -272,6 +272,25 @@ static void BSP_Config( void )
 }
 
 /**
+ * @brief  This function Is called when there's an EXTernal Interrupt caused
+ *         by a GPIO pin. It must be kickstarted by each interrupt from the
+ *         pin-specific handlers at stm32_xx_it.c
+ * @param  Pin number of the GPIO generating the EXTI IRQ
+ * @retval None
+ */
+void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin )
+{
+    if ( GPIO_Pin == IO_NUCLEO_BUTTON_PIN )
+    {
+        if ( io_button_exti_debouncer( GPIO_Pin ) )
+        {
+            printf( "\r\n>> Nucleo board button [PRESSED]" );
+            pub_button_interrupt();
+        }
+    }
+}
+
+/**
   * @brief  System Clock Configuration
   *         The system Clock is configured as follow :
   *            System Clock source            = PLL (HSE)

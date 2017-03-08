@@ -88,7 +88,7 @@
 		<link>
 			<name>Application/User/stm32f4xx_it.c</name>
 			<type>1</type>
-			<locationURI>XI_STMCUBE_PATH/Projects/STM32F429ZI-Nucleo/Applications/LwIP/LwIP_HTTP_Server_Netconn_RTOS/Src/stm32f4xx_it.c</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/Src/stm32f4xx_it.c</locationURI>
 		</link>
 		<link>
 			<name>Application/User/xively_client.c</name>

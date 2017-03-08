@@ -303,6 +303,8 @@ static int poll_countdown;
 static int report_flags;
 static int report_pending[XC_PUB_COUNT];
 
+volatile uint8_t button_pressed_interrupt_flag = 0;
+
 
 /******************************************************************************
  *                                                                            *
@@ -720,7 +722,7 @@ static void on_led_msg( const uint8_t* const msg, size_t msg_size );
 static xi_state_t pub_accelerometer( const mqtt_topic_descr_t* const mqtt_topic_descr );
 static xi_state_t pub_magnetometer( const mqtt_topic_descr_t* const mqtt_topic_descr );
 static xi_state_t pub_barometer( const mqtt_topic_descr_t* const mqtt_topic_descr );
-static xi_state_t pub_button( const mqtt_topic_descr_t* const mqtt_topic_descr );
+// static xi_state_t pub_button( const mqtt_topic_descr_t* const mqtt_topic_descr );
 static xi_state_t pub_gyroscope( const mqtt_topic_descr_t* const mqtt_topic_descr );
 static xi_state_t pub_humidity( const mqtt_topic_descr_t* const mqtt_topic_descr );
 static xi_state_t pub_temperature( const mqtt_topic_descr_t* const mqtt_topic_descr );
@@ -735,7 +737,7 @@ static const mqtt_topic_configuration_t topics_array[] = {
     {{XI_TOPIC_NAME_MANGLE( "Barometer" )}, NULL, pub_barometer},
     {{XI_TOPIC_NAME_MANGLE( "Gyroscope" )}, NULL, pub_gyroscope},
     {{XI_TOPIC_NAME_MANGLE( "Humidity" )}, NULL, pub_humidity},
-    {{XI_TOPIC_NAME_MANGLE( "Button" )}, NULL, pub_button},
+    // {{XI_TOPIC_NAME_MANGLE( "Button" )}, NULL, pub_button},
     {{XI_TOPIC_NAME_MANGLE( "LED" )}, &on_led_msg, NULL},
     {{XI_TOPIC_NAME_MANGLE( "Temperature" )}, NULL, pub_temperature},
 };
@@ -876,20 +878,16 @@ xi_state_t pub_temperature( const mqtt_topic_descr_t* const mqtt_topic_descr )
                        XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
 
-xi_state_t pub_button( const mqtt_topic_descr_t* const mqtt_topic_descr )
+xi_state_t pub_button()
 {
-    char* payload;
-    ( io_read_button() ) ? ( payload = "1" ) : ( payload = "0" );
-    return xi_publish( xc_ctx, mqtt_topic_descr->name, payload, XI_MQTT_QOS_AT_MOST_ONCE,
-                       XI_MQTT_RETAIN_FALSE, NULL, NULL );
+    const char* payload = "1";
+    return xi_publish( xc_ctx, XI_TOPIC_NAME_MANGLE( "Button" ), payload,
+                       XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
 
 void pub_button_interrupt( void )
 {
-    /* TODO: Verify we are connected to Xively before calling xi_publish */
-    const char payload[] = "1";
-    xi_publish( xc_ctx, XI_TOPIC_NAME_MANGLE( "Button" ), payload,
-                XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
+    ++button_pressed_interrupt_flag;
 }
 
 #endif // sensor feature
@@ -1147,7 +1145,13 @@ static int xc_main( void )
                     XI_SESSION_CLEAN, &connect_cb );
 
         /*  Loop forever */
-        xi_events_process_blocking();
+        while ( XI_STATE_OK == xi_events_process_tick() )
+        {
+            for ( ; 0 < button_pressed_interrupt_flag; --button_pressed_interrupt_flag )
+            {
+                xi_schedule_timed_task( xc_ctx, &pub_button, 0, 0, NULL );
+            }
+        }
 
         printf( "Xively: Stopped\n" );
 
