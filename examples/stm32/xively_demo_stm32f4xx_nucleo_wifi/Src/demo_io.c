@@ -56,6 +56,7 @@ int8_t io_read_button( void )
 {
     int32_t pin_state = BSP_PB_GetState( IO_NUCLEO_BUTTON_PIN );
     ( pin_state == 1 ) ? ( pin_state = 0 ) : ( pin_state = 1 );
+    printf( "\r\n>> Button status read [OK] Status: %ld", pin_state );
     return ( int8_t )pin_state;
 }
 

@@ -97,14 +97,14 @@
 /* Private macro -------------------------------------------------------------*/
 
 /* Private variables ---------------------------------------------------------*/
-volatile uint8_t button_pressed_interrupt_flag = 0;
 static user_data_t user_config;
 
 wifi_state_t wifi_state;
 wifi_config wifi_module_config;
 wifi_scan net_scan[WIFI_SCAN_BUFFER_LIST];
 xi_state_t xi_connection_state = XI_SOCKET_NO_ACTIVE_CONNECTION_ERROR;
-uint8_t is_burst_mode          = 0;
+uint8_t virtual_switch_state   = 0; /* Pressing the user button flips this value */
+#define is_burst_mode virtual_switch_state
 
 xi_context_handle_t gXivelyContextHandle      = XI_INVALID_CONTEXT_HANDLE;
 xi_timed_task_handle_t gXivelyTimedTaskHandle = XI_INVALID_TIMED_TASK_HANDLE;
@@ -135,10 +135,11 @@ static int8_t get_xively_credentials( user_data_t* udata );
 static xi_state_t pub_accelerometer( void );
 static xi_state_t pub_magnetometer( void );
 static xi_state_t pub_barometer( void );
-static xi_state_t pub_button( void );
+static xi_state_t pub_virtual_switch( void );
 static xi_state_t pub_gyroscope( void );
 static xi_state_t pub_humidity( void );
 static xi_state_t pub_temperature( void );
+static void pub_button_interrupt( void );
 
 /* topic's initialisation function */
 static xi_state_t init_xively_topics( xi_context_handle_t in_context_handle );
@@ -312,10 +313,10 @@ xi_state_t pub_temperature( void )
                        XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
 
-xi_state_t pub_button( void )
+xi_state_t pub_virtual_switch( void )
 {
     char xi_topic[XI_TOPIC_MAX_LEN];
-    char* payload;
+    const char* payload = ( virtual_switch_state == 1 ) ? "1" : "0";
 
     if ( 0 > build_xively_topic( BUTTON_CHANNEL_NAME, user_config.xi_account_id,
                                  user_config.xi_device_id, xi_topic, XI_TOPIC_MAX_LEN ) )
@@ -323,17 +324,20 @@ xi_state_t pub_button( void )
         return -1;
     }
 
-    ( io_read_button() ) ? ( payload = "1" ) : ( payload = "0" );
     return xi_publish( gXivelyContextHandle, xi_topic, payload,
                        XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
 
 void pub_button_interrupt( void )
 {
-    /* TODO: Verify we are connected to Xively before calling xi_publish */
     char xi_topic[XI_TOPIC_MAX_LEN];
-    const char payload[] = "1";
+    const char* payload = ( virtual_switch_state == 1 ) ? "1" : "0";
 
+    if ( ( int )XI_CONNECTION_STATE_OPENED != ( int )xi_connection_state )
+    {
+        printf( "\r\n\tInterrupt publish [ABORT] Device not connected to the broker" );
+        return;
+    }
 
     if ( 0 > build_xively_topic( BUTTON_CHANNEL_NAME, user_config.xi_account_id,
                                  user_config.xi_device_id, xi_topic, XI_TOPIC_MAX_LEN ) )
@@ -354,7 +358,7 @@ void publish_mqtt_topics()
         pub_accelerometer();
     }
 
-    pub_button();
+    pub_virtual_switch();
     pub_magnetometer();
     pub_barometer();
     pub_humidity();
@@ -681,7 +685,7 @@ int main( void )
                 {
                     pub_gyroscope();
                     pub_accelerometer();
-                    pub_button();
+                    pub_virtual_switch();
                 }
                 break;
 
@@ -702,27 +706,23 @@ void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin )
 {
     if ( GPIO_Pin == IO_NUCLEO_BUTTON_PIN )
     {
-        if ( !io_button_exti_debouncer( GPIO_Pin ) )
+        if ( io_button_exti_debouncer( GPIO_Pin ) <= 0 )
         {
             return;
         }
 
-        is_burst_mode = !( is_burst_mode );
-        if ( is_burst_mode )
+        virtual_switch_state = !( virtual_switch_state );
+        if ( virtual_switch_state )
         {
-            printf( "\r\n>> Entering Burst Mode!" );
+            printf( "\r\n>> Entering Burst Mode! Motion data publish rate increased" );
         }
         else
         {
             printf( "\r\n>> Entering Standard Mode!" );
         }
 
-        if ( io_button_exti_debouncer( GPIO_Pin ) )
-        {
-            printf( "\r\n>> Nucleo board button [PRESSED]" );
-            button_pressed_interrupt_flag = 1;
-            pub_button_interrupt();
-        }
+        printf( "\r\n>> Nucleo board button [PRESSED]" );
+        pub_button_interrupt();
     }
 }
 #ifdef USE_FULL_ASSERT
