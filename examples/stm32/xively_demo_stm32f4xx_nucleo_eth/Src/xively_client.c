@@ -303,7 +303,7 @@ static int poll_countdown;
 static int report_flags;
 static int report_pending[XC_PUB_COUNT];
 
-volatile uint8_t button_pressed_interrupt_flag = 0;
+volatile int8_t button_pressed_interrupt_flag = 2;
 
 
 /******************************************************************************
@@ -878,16 +878,17 @@ xi_state_t pub_temperature( const mqtt_topic_descr_t* const mqtt_topic_descr )
                        XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
 
-xi_state_t pub_button()
+xi_state_t pub_button( xi_context_handle_t context_handle,
+                       xi_timed_task_handle_t timed_task_handle,
+                       void* user_data )
 {
-    const char* payload = "1";
-    return xi_publish( xc_ctx, XI_TOPIC_NAME_MANGLE( "Button" ), payload,
+    return xi_publish( xc_ctx, XI_TOPIC_NAME_MANGLE( "Button" ), user_data,
                        XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
 
 void pub_button_interrupt( void )
 {
-    ++button_pressed_interrupt_flag;
+    button_pressed_interrupt_flag = button_pressed_interrupt_flag / 2;
 }
 
 #endif // sensor feature
@@ -1147,9 +1148,14 @@ static int xc_main( void )
         /*  Loop forever */
         while ( XI_STATE_OK == xi_events_process_tick() )
         {
-            for ( ; 0 < button_pressed_interrupt_flag; --button_pressed_interrupt_flag )
+            if ( 1 == abs( button_pressed_interrupt_flag ) )
             {
-                xi_schedule_timed_task( xc_ctx, &pub_button, 0, 0, NULL );
+                xi_schedule_timed_task( xc_ctx, pub_button, 0, 0,
+                                        ( 1 == button_pressed_interrupt_flag ) ? "1"
+                                                                               : "0" );
+
+                /* turn 1 to -2 or -1 to 2 */
+                button_pressed_interrupt_flag -= 3 * button_pressed_interrupt_flag;
             }
         }
 
