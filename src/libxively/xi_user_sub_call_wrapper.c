@@ -69,8 +69,10 @@ xi_state_t xi_user_sub_call_wrapper( void* context,
         {
             msg = ( xi_mqtt_message_t* )data;
 
-            params.message.temporary_payload_data        = msg->publish.content->data_ptr;
-            params.message.temporary_payload_data_length = msg->publish.content->length;
+            params.message.temporary_payload_data =
+                msg->publish.content ? msg->publish.content->data_ptr : NULL;
+            params.message.temporary_payload_data_length =
+                msg->publish.content ? msg->publish.content->length : 0;
             params.message.topic = ( const char* )sub_data->subscribe.topic;
 
             in_state = xi_mqtt_convert_to_qos( msg->common.common_u.common_bits.qos,
