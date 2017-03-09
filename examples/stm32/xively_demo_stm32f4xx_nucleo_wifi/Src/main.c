@@ -795,20 +795,29 @@ static int8_t user_config_init( user_data_t* dst )
         print_user_config_debug_banner();
 
         /* Get WiFi AP Credentials from the user */
-        if ( get_ap_credentials( dst ) < 0 )
+        switch ( get_ap_credentials( dst ) )
         {
-            printf( "\r\n>> [ERROR] Getting AP credentials from user" );
-            return -1;
+            case 1:
+                printf( "\r\n>> Saving user data to flash" );
+                user_data_save_to_flash( dst );
+            case 0:
+                break;
+            default:
+                printf( "\r\n\t[ERROR] Getting AP credentials from user" );
+                return -1;
         }
 
-        printf( "\r\n>> Saving user data to flash" );
-        user_data_save_to_flash( dst );
-
         /* Get Xively Credentials from the user */
-        if ( get_xively_credentials( dst ) < 0 )
+        switch ( get_xively_credentials( dst ) )
         {
-            printf( "\r\n>> [ERROR] Getting Xively credentials from user" );
-            return -1;
+            case 1:
+                printf( "\r\n>> Saving user data to flash" );
+                user_data_save_to_flash( dst );
+            case 0:
+                break;
+            default:
+                printf( "\r\n\t[ERROR] Getting AP credentials from user" );
+                return -1;
         }
 
         printf( "\r\n>> Saving user data to flash" );
@@ -820,20 +829,27 @@ static int8_t user_config_init( user_data_t* dst )
     /* Get Xively Credentials from the user */
     if ( get_ap_credentials( dst ) < 0 )
     {
-        printf( "\r\n>> [ERROR] Getting AP credentials from user" );
+        printf( "\r\n\t[ERROR] Getting AP credentials from user" );
         return -1;
     }
 
     /* Get WiFi AP Credentials from the user */
     if ( get_xively_credentials( dst ) < 0 )
     {
-        printf( "\r\n>> [ERROR] Getting Xively credentials from user" );
+        printf( "\r\n\t[ERROR] Getting Xively credentials from user" );
         return -1;
     }
 #endif
     return 0;
 }
 
+/**
+ * @brief  Gather WiFi credentials from the end user via UART
+ * @param  udata: pointer to the user_data_t structure to be updated
+ * @retval <0: Error
+ * @retval 0: User decided not to update these credentials
+ * @retval 1: Credentials updated OK
+ */
 /* TODO: This insecure implementation is temporary until we've got HTTP config mode */
 static int8_t get_ap_credentials( user_data_t* udata )
 {
@@ -883,9 +899,16 @@ static int8_t get_ap_credentials( user_data_t* udata )
                     single_char_input );
             return -2;
     }
-    return 0;
+    return 1;
 }
 
+/**
+ * @brief  Gather MQTT credentials from the end user via UART
+ * @param  udata: pointer to the user_data_t structure to be updated
+ * @retval <0: Error
+ * @retval 0: User decided not to update these credentials
+ * @retval 1: Credentials updated OK
+ */
 /* TODO: This insecure implementation is temporary until we've got HTTP config mode */
 static int8_t get_xively_credentials( user_data_t* udata )
 {
@@ -896,7 +919,7 @@ static int8_t get_xively_credentials( user_data_t* udata )
     printf( "\r\n|********************************************************|" );
     fflush( stdout );
 
-    printf( "\r\n>> Would you like to update your WiFi credentials? [y/N]: " );
+    printf( "\r\n>> Would you like to update your MQTT credentials? [y/N]: " );
     fflush( stdout );
     scanf( "%2s", single_char_input );
     switch ( single_char_input[0] )
@@ -908,19 +931,19 @@ static int8_t get_xively_credentials( user_data_t* udata )
             return 0;
     }
 
-    printf( "\r\n>> Enter the xively Account ID: " );
+    printf( "\r\n>> Enter the Xively Account ID: " );
     fflush( stdout );
     scanf( "%s", udata->xi_account_id );
 
-    printf( "\r\n>> Enter the xively Device ID: " );
+    printf( "\r\n>> Enter the Xively Device ID: " );
     fflush( stdout );
     scanf( "%s", udata->xi_device_id );
 
-    printf( "\r\n>> Enter the xively Device Password: " );
+    printf( "\r\n>> Enter the Xively Device Password: " );
     fflush( stdout );
     scanf( "%s", udata->xi_device_password );
 
-    return 0;
+    return 1;
 }
 
 /******** Wi-Fi Indication User Callback *********/
