@@ -683,7 +683,7 @@ static void xc_subscribe_next( const xi_context_handle_t ctx )
     }
 }
 
-#if 1 // sensor feature
+#if 0 // sensor feature
 
 /* the interval for the time function */
 #define XI_PUBLISH_INTERVAL_SEC 5
@@ -956,7 +956,7 @@ connect_cb( const xi_context_handle_t ctx, void* data, xi_state_t state )
                     conn_data->port );
             rval = XI_STATE_OK;
 
-            init_xively_topics( ctx );
+//            init_xively_topics( ctx );
 
             break;
         }
@@ -973,6 +973,8 @@ connect_cb( const xi_context_handle_t ctx, void* data, xi_state_t state )
 
     return rval;
 }
+
+#if 0 // sensor feature
 
 /* handler for xively mqtt topic subscription */
 void on_mqtt_topic( xi_context_handle_t in_context_handle,
@@ -1066,6 +1068,8 @@ xi_state_t init_xively_topics( xi_context_handle_t in_context_handle )
 
     return ret;
 }
+
+#endif // sensor feature
 
 /**
  * @brief Function that is required by TLS library to track the current time.

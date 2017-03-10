@@ -17,13 +17,25 @@ XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Middlewares/Third_Party/LwIP/system
 XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Middlewares/Third_Party/FreeRTOS/Source/include
 XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F
 
+XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/CMSIS/Include
+####################
+# STM324xG_EVAL
+####################
 # XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Projects/STM324xG_EVAL/Templates/Inc
-XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Projects/STM32F429ZI-Nucleo/Templates/Inc
-# XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Projects/STM32F207ZG-Nucleo/Templates/Inc
 
+####################
+# STM32F429ZI-Nucleo
+####################
+XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Projects/STM32F429ZI-Nucleo/Templates/Inc
 XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/STM32F4xx_HAL_Driver/Inc
 XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/CMSIS/Device/ST/STM32F4xx/Include
-XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/CMSIS/Include
+
+####################
+# STM32F207ZG-Nucleo
+####################
+# XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Projects/STM32F207ZG-Nucleo/Templates/Inc
+# XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/STM32F2xx_HAL_Driver/Inc
+# XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/CMSIS/Device/ST/STM32F2xx/Include
 
 XI_COMPILER_FLAGS += -I$(LIBXIVELY)/src/bsp/platform/stm32fx/include
 
@@ -49,8 +61,6 @@ XI_COMPILER_FLAGS += -fno-move-loop-invariants
 # XI_COMPILER_FLAGS += -DUSE_STM32F2XX_NUCLEO_144
 # XI_COMPILER_FLAGS += -mcpu=cortex-m3
 # XI_COMPILER_FLAGS += -mfloat-abi=soft
-# XI_COMPILER_FLAGS += -specs=nosys.specs
-# XI_COMPILER_FLAGS += -specs=nano.specs
 
 # XI_COMPILER_FLAGS += -DSTM32F407xx
 # XI_COMPILER_FLAGS += -mcpu=cortex-m4

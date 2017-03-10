@@ -134,8 +134,6 @@ int main( void )
         Error_Handler();
     }
 
-    printf("*** UART TEST XIVELY\n\r");
-
 /* Init thread */
 #if defined( __GNUC__ )
     osThreadDef( Start, StartThread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE * 5 );

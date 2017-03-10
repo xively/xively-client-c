@@ -6,7 +6,11 @@
 
 #include <xi_bsp_time.h>
 
+#ifdef STM32F207xx
+#include <stm32f2xx_hal.h>
+#else
 #include <stm32f4xx_hal.h>
+#endif
 #include <xi_bsp_time_stm32fx_sntp.h>
 
 void xi_bsp_time_init()
