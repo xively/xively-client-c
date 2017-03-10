@@ -4,7 +4,7 @@
 #include <string.h>
 #include "xi_bsp_debug.h"
 #include "wifi_interface.h"
-#include "xi_bsp_time_stm32f4_nucleo_wifi_sntp.h"
+#include "xi_bsp_time_stm32fx_nucleo_wifi_sntp.h"
 
 #define SNTP_PORT 123
 char* sntp_servers[] = {"pool.ntp.org", "time-a.nist.gov", "time-b.nist.gov",
@@ -14,17 +14,18 @@ char* sntp_servers[] = {"pool.ntp.org", "time-a.nist.gov", "time-b.nist.gov",
 #define SNTP_TIMEOUT_MS 5000
 #define SNTP_SERVER_TIME_OFFSET 2208988800
 #define SNTP_RESPONSE_TIMESTAMP_OFFSET 40
-#define SNTP_DISCONNECTION_MSG  "\x20\x02\x00\x03"
+#define SNTP_DISCONNECTION_MSG "\x20\x02\x00\x03"
 
-typedef struct {
+typedef struct
+{
     uint8_t socket_id;
     char* response;
 } sntp_response_t;
 
 sntp_response_t* last_sntp_response = NULL;
-wifi_bool sntp_awaiting_response = WIFI_FALSE;
-int32_t sntp_current_time = 0;
-uint8_t sntp_sock_id = 0xff; //Default to 'no socket'
+wifi_bool sntp_awaiting_response    = WIFI_FALSE;
+int32_t sntp_current_time           = 0;
+uint8_t sntp_sock_id                = 0xff; // Default to 'no socket'
 
 /**
    * Packet description:
@@ -44,21 +45,19 @@ uint8_t sntp_sock_id = 0xff; //Default to 'no socket'
    *  - Transmit Timestamp 8 bytes
    */
 static const char SNTP_REQUEST[SNTP_MSG_SIZE] = {
-0xe3, 0x00, 0x03, 0xfa, 0x00, 0x01, 0x00, 0x00,
-0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-0xd5, 0x22, 0x0e, 0x35, 0xb8, 0x76, 0xab, 0xea};
+    0xe3, 0x00, 0x03, 0xfa, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0xd5, 0x22, 0x0e, 0x35, 0xb8, 0x76, 0xab, 0xea};
 
-extern void HAL_Delay(uint32_t delay_ms);
-static WiFi_Status_t    sntp_start( uint32_t sntp_port, uint8_t* sock_id );
-static WiFi_Status_t    sntp_send_request( uint8_t sock_id );
-static sntp_status_t    sntp_await_response( uint8_t sock_id );
+extern void HAL_Delay( uint32_t delay_ms );
+static WiFi_Status_t sntp_start( uint32_t sntp_port, uint8_t* sock_id );
+static WiFi_Status_t sntp_send_request( uint8_t sock_id );
+static sntp_status_t sntp_await_response( uint8_t sock_id );
 static sntp_response_t* sntp_malloc_response( void );
-static int32_t          sntp_parse_response( char* response );
-static void             sntp_free_response( sntp_response_t** r );
-static WiFi_Status_t    sntp_stop( uint8_t sock_id );
+static int32_t sntp_parse_response( char* response );
+static void sntp_free_response( sntp_response_t** r );
+static WiFi_Status_t sntp_stop( uint8_t sock_id );
 static uint32_t sntp_ntohl( uint32_t n );
 
 /**
@@ -80,22 +79,25 @@ posix_time_t xi_bsp_time_sntp_getseconds_posix( void )
 static sntp_response_t* sntp_malloc_response( void )
 {
     sntp_response_t* new_response = NULL;
-    new_response = malloc(sizeof(sntp_response_t));
+    new_response                  = malloc( sizeof( sntp_response_t ) );
+
     if ( NULL == new_response )
     {
         goto malloc_error;
     }
-    new_response->socket_id = -1; //Default to invalid socket ID
-    new_response->response = malloc(SNTP_MSG_SIZE);
+
+    new_response->socket_id = -1; // Default to invalid socket ID
+    new_response->response  = malloc( SNTP_MSG_SIZE );
+
     if ( NULL == new_response->response )
     {
         goto malloc_error;
     }
-    memset(new_response->response, 0, sizeof(sntp_response_t));
+    memset( new_response->response, 0, sizeof( sntp_response_t ) );
     return new_response;
 
 malloc_error:
-    sntp_free_response(&new_response);
+    sntp_free_response( &new_response );
     return NULL;
 }
 
@@ -116,9 +118,9 @@ static void sntp_free_response( sntp_response_t** r )
     }
     if ( NULL != ( *r )->response )
     {
-        free((*r)->response);
+        free( ( *r )->response );
     }
-    free(*r);
+    free( *r );
     *r = NULL;
 }
 
@@ -151,8 +153,8 @@ static WiFi_Status_t sntp_start( uint32_t sntp_port, uint8_t* sock_id )
     }
     xi_bsp_debug_format( "Opening UDP socket to SNTP server %s:%lu", sntp_server,
                          sntp_port );
-    status = wifi_socket_client_open( ( uint8_t* )sntp_server, sntp_port, &sntp_protocol,
-                                      sock_id );
+    status = wifi_socket_client_open( ( uint8_t* )sntp_server, sntp_port,
+                                      ( uint8_t* )&sntp_protocol, sock_id );
 
     return status;
 }
@@ -165,11 +167,12 @@ static WiFi_Status_t sntp_start( uint32_t sntp_port, uint8_t* sock_id )
 static WiFi_Status_t sntp_stop( uint8_t sock_id )
 {
     WiFi_Status_t status = WiFi_MODULE_SUCCESS;
-    xi_bsp_debug_logger("Closing UDP socket to SNTP server");
-    status = wifi_socket_client_close(sock_id);
+
+    xi_bsp_debug_logger( "Closing UDP socket to SNTP server" );
+    status = wifi_socket_client_close( sock_id );
     if ( WiFi_MODULE_SUCCESS != status )
     {
-        xi_bsp_debug_format("UDP Socket close [ERROR] Status code: %d", status);
+        xi_bsp_debug_format( "UDP Socket Close [ERROR] Status code: %d", status );
         return status;
     }
     return status;
@@ -185,11 +188,11 @@ static WiFi_Status_t sntp_send_request( uint8_t sock_id )
 {
     WiFi_Status_t status = WiFi_MODULE_SUCCESS;
 
-    status = wifi_socket_client_write(sock_id, SNTP_MSG_SIZE, (char*)SNTP_REQUEST);
+    status = wifi_socket_client_write( sock_id, SNTP_MSG_SIZE, ( char* )SNTP_REQUEST );
 
     if ( WiFi_MODULE_SUCCESS != status )
     {
-        xi_bsp_debug_format("SNTP Message Write [FAIL] Status code: %d", status);
+        xi_bsp_debug_format( "SNTP Message Write [FAIL] Status code: %d", status );
     }
     return status;
 }
@@ -201,12 +204,10 @@ static WiFi_Status_t sntp_send_request( uint8_t sock_id )
    * @param  n is a 32bit integer in network order
    * @retval Returns a 32bit integer in host order (ready to be used by the uC)
    */
-static uint32_t sntp_ntohl(uint32_t n)
+static uint32_t sntp_ntohl( uint32_t n )
 {
-    return ((n & 0xff) << 24)      |
-           ((n & 0xff00) << 8)     |
-           ((n & 0xff0000UL) >> 8) |
-           ((n & 0xff000000UL) >> 24);
+    return ( ( n & 0xff ) << 24 ) | ( ( n & 0xff00 ) << 8 ) |
+           ( ( n & 0xff0000UL ) >> 8 ) | ( ( n & 0xff000000UL ) >> 24 );
 }
 
 /**
@@ -217,16 +218,17 @@ static uint32_t sntp_ntohl(uint32_t n)
    */
 static int32_t sntp_parse_response( char* response )
 {
-    int32_t current_ntp_time = 0;
+    int32_t current_ntp_time   = 0;
     int32_t current_epoch_time = 0;
     if ( NULL == response )
     {
-        xi_bsp_debug_logger("[ERROR] Got a NULL pointer as SNTP response");
+        xi_bsp_debug_logger( "[ERROR] Got a NULL pointer as SNTP response" );
         return -1;
     }
 
-    memcpy(&current_ntp_time, response+SNTP_RESPONSE_TIMESTAMP_OFFSET, sizeof(int32_t));
-    current_ntp_time = sntp_ntohl(current_ntp_time);
+    memcpy( &current_ntp_time, response + SNTP_RESPONSE_TIMESTAMP_OFFSET,
+            sizeof( int32_t ) );
+    current_ntp_time   = sntp_ntohl( current_ntp_time );
     current_epoch_time = current_ntp_time - SNTP_SERVER_TIME_OFFSET;
     return current_epoch_time;
 }
@@ -244,63 +246,65 @@ static int32_t sntp_parse_response( char* response )
 sntp_status_t xi_bsp_time_sntp_init( void )
 {
     uint8_t sock_id;
-    sntp_status_t retval = SNTP_SUCCESS; //Returned by this function
+    sntp_status_t retval      = SNTP_SUCCESS; // Returned by this function
     WiFi_Status_t wifi_retval = WiFi_MODULE_SUCCESS;
 
     /* Create socket */
-    xi_bsp_debug_logger("Getting date and time from SNTP server");
-    wifi_retval = sntp_start(SNTP_PORT, &sock_id);
+    xi_bsp_debug_logger( "Getting date and time from SNTP server" );
+    wifi_retval = sntp_start( SNTP_PORT, &sock_id );
     if ( WiFi_MODULE_SUCCESS != wifi_retval )
     {
-        xi_bsp_debug_format("SNTP socket creation [FAIL] Retval: %d", wifi_retval);
+        xi_bsp_debug_format( "SNTP socket creation [FAIL] Retval: %d", wifi_retval );
         return SNTP_SOCKET_ERROR;
     }
     sntp_sock_id = sock_id;
 
     /* Send SNTP request */
-    wifi_retval = sntp_send_request(sock_id);
+    wifi_retval = sntp_send_request( sock_id );
     if ( WiFi_MODULE_SUCCESS != wifi_retval )
     {
-        xi_bsp_debug_format("SNTP send_request [FAIL] Retval: %d", wifi_retval);
+        xi_bsp_debug_format( "SNTP send_request [FAIL] Retval: %d", wifi_retval );
         retval = SNTP_REQUEST_FAILURE;
         goto terminate;
     }
     sntp_awaiting_response = WIFI_TRUE;
 
     /* Await SNTP Response */
-    xi_bsp_debug_logger("\tAwaiting server response");
+
+    xi_bsp_debug_logger( "\tAwaiting server response" );
+
     if ( sntp_await_response( sock_id ) < 0 )
     {
-        xi_bsp_debug_logger("SNTP [ERROR] Response timed out");
+        xi_bsp_debug_logger( "SNTP [ERROR] Response timed out" );
         retval = SNTP_TIMEOUT;
         goto terminate;
     }
 
     if ( sock_id != last_sntp_response->socket_id )
     {
-        xi_bsp_debug_logger("Socket ID assertion [FAIL]");
+        xi_bsp_debug_logger( "Socket ID assertion [FAIL]" );
         retval = SNTP_INTERNAL_ERROR;
         goto terminate;
     }
 
     /* Parse server response */
-    sntp_current_time = sntp_parse_response(last_sntp_response->response);
+    sntp_current_time = sntp_parse_response( last_sntp_response->response );
     if ( sntp_current_time < 0 )
     {
-        xi_bsp_debug_logger("SNTP Parsing and conversion [FAIL]");
+        xi_bsp_debug_logger( "SNTP Parsing and conversion [FAIL]" );
         retval = SNTP_PARSER_ERROR;
     }
     else
     {
-        xi_bsp_debug_format("Received epoch time: %ld", sntp_current_time);
+        xi_bsp_debug_format( "Received epoch time: %ld", sntp_current_time );
         retval = SNTP_SUCCESS;
     }
 
 terminate:
-    sntp_free_response(&last_sntp_response);
+    sntp_free_response( &last_sntp_response );
 
     /* Close socket */
-    sntp_stop(sock_id);
+    sntp_stop( sock_id );
     sntp_sock_id = 0xff;
     return retval;
 }
@@ -312,17 +316,17 @@ terminate:
    */
 static sntp_status_t sntp_await_response( uint8_t sock_id )
 {
-    (void)sock_id;
-    int32_t sntp_timeout_ms = SNTP_TIMEOUT_MS;
+    ( void )sock_id;
+    int32_t sntp_timeout_ms    = SNTP_TIMEOUT_MS;
     const int32_t timeout_step = 250;
-    while( NULL == last_sntp_response )
+    while ( NULL == last_sntp_response )
     {
         if ( sntp_timeout_ms <= 0 )
         {
             sntp_awaiting_response = WIFI_FALSE;
             return SNTP_TIMEOUT;
         }
-        HAL_Delay(timeout_step);
+        HAL_Delay( timeout_step );
         sntp_timeout_ms -= timeout_step;
     }
     return SNTP_SUCCESS;
@@ -334,36 +338,38 @@ static sntp_status_t sntp_await_response( uint8_t sock_id )
    * @param  See description for ind_wifi_socket_data_received
    * @retval None
    */
-void sntp_socket_data_callback(uint8_t sock_id, uint8_t* data_ptr,
-                               uint32_t message_size, uint32_t chunk_size)
+void sntp_socket_data_callback( uint8_t sock_id,
+                                uint8_t* data_ptr,
+                                uint32_t message_size,
+                                uint32_t chunk_size )
 {
     if ( NULL == data_ptr )
     {
-        xi_bsp_debug_logger("[ERROR] Got NULL pointer as socket message");
+        xi_bsp_debug_logger( "[ERROR] Got NULL pointer as socket message" );
         return;
     }
     /* Verify we got an SNTP response, not just protocol data */
     if ( ( SNTP_MSG_SIZE != message_size ) || ( SNTP_MSG_SIZE != chunk_size ) )
     {
-        xi_bsp_debug_logger("Message isn't an SNTP respone. It will be ignored");
+        xi_bsp_debug_logger( "Message isn't an SNTP respone. It will be ignored" );
         return;
     }
 
     if ( WIFI_FALSE == sntp_awaiting_response )
     {
-        xi_bsp_debug_logger("Got an [UNEXPECTED] SNTP response. It will be ignored");
+        xi_bsp_debug_logger( "Got an [UNEXPECTED] SNTP response. It will be ignored" );
         return;
     }
     sntp_awaiting_response = WIFI_FALSE;
 
     /* Store SNTP response */
-    sntp_free_response(&last_sntp_response);
+    sntp_free_response( &last_sntp_response );
     last_sntp_response = sntp_malloc_response();
     if ( NULL == last_sntp_response )
     {
-        xi_bsp_debug_logger("Memory allocation for SNTP response [FAIL] Msg ignored");
+        xi_bsp_debug_logger( "Memory allocation for SNTP response [FAIL] Msg ignored" );
         return;
     }
-    memcpy(last_sntp_response->response, (char*)data_ptr, SNTP_MSG_SIZE);
+    memcpy( last_sntp_response->response, ( char* )data_ptr, SNTP_MSG_SIZE );
     last_sntp_response->socket_id = sock_id;
 }

@@ -731,8 +731,8 @@ void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin )
         pub_button_interrupt();
     }
 }
-#ifdef USE_FULL_ASSERT
 
+#ifdef USE_FULL_ASSERT
 /**
  * @brief  Reports the name of the source file and the source line number
  *         where the assert_param error has occurred.
