@@ -4,9 +4,9 @@
 		<cconfiguration id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.1474710539">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.1474710539" moduleId="org.eclipse.cdt.core.settings" name="Debug">
 				<macros>
-					<stringMacro name="XI_STMCUBE_PATH" type="VALUE_PATH_DIR" value="/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_WIFI1_V2.1.1"/>
-					<stringMacro name="XI_CLIENT_PATH" type="VALUE_PATH_ANY" value="/Users/palantir/Work/Xively/stm32f4xx/xively-client-c"/>
-					<stringMacro name="XI_MEMS_STMCUBE_PATH" type="VALUE_PATH_ANY" value="/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_MEMS1_V3.0.0"/>
+					<stringMacro name="XI_STMCUBE_PATH" type="VALUE_PATH_DIR" value="/Users/atigyi/Downloads/STM32CubeExpansion_WIFI1_V2.1.1"/>
+					<stringMacro name="XI_CLIENT_PATH" type="VALUE_PATH_DIR" value="/Users/atigyi/git/xi/xc/xively-client-c"/>
+					<stringMacro name="XI_MEMS_STMCUBE_PATH" type="VALUE_PATH_DIR" value="/Users/atigyi/Downloads/STM32CubeExpansion_MEMS1_V3.0.0"/>
 				</macros>
 				<externalSettings>
 					<externalSetting/>
@@ -31,7 +31,7 @@
 							<option id="fr.ac6.managedbuild.option.gnu.cross.fpu.1028162423" name="Floating point hardware" superClass="fr.ac6.managedbuild.option.gnu.cross.fpu" useByScannerDiscovery="false" value="fr.ac6.managedbuild.option.gnu.cross.fpu.fpv4-sp-d16" valueType="enumerated"/>
 							<option id="fr.ac6.managedbuild.option.gnu.cross.floatabi.613503747" name="Floating-point ABI" superClass="fr.ac6.managedbuild.option.gnu.cross.floatabi" useByScannerDiscovery="false" value="fr.ac6.managedbuild.option.gnu.cross.floatabi.hard" valueType="enumerated"/>
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="fr.ac6.managedbuild.targetPlatform.gnu.cross.2093009204" isAbstract="false" osList="all" superClass="fr.ac6.managedbuild.targetPlatform.gnu.cross"/>
-							<builder buildPath="${workspace_loc:/xively_demo_stm32f4xx-nucleo-wifi}/Debug" id="fr.ac6.managedbuild.builder.gnu.cross.476372033" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="fr.ac6.managedbuild.builder.gnu.cross"/>
+							<builder buildPath="${workspace_loc:/xively_demo_stm32f4xx-nucleo-wifi}/Debug" id="fr.ac6.managedbuild.builder.gnu.cross.476372033" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" parallelBuildOn="true" parallelizationNumber="4" superClass="fr.ac6.managedbuild.builder.gnu.cross"/>
 							<tool id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.1067264604" name="MCU GCC Compiler" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler">
 								<option defaultValue="gnu.c.optimization.level.none" id="fr.ac6.managedbuild.gnu.c.compiler.option.optimization.level.1322368992" name="Optimization Level" superClass="fr.ac6.managedbuild.gnu.c.compiler.option.optimization.level" useByScannerDiscovery="false" value="fr.ac6.managedbuild.gnu.c.optimization.level.size" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.debugging.level.1626214277" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.c.debugging.level.max" valueType="enumerated"/>

@@ -5,16 +5,16 @@
  */
 
 #include <xi_bsp_time.h>
-#include "xi_bsp_time_stm32f4_nucleo_wifi_sntp.h"
+#include "xi_bsp_time_stm32fx_nucleo_wifi_sntp.h"
 #include "xi_debug.h"
 
-extern uint32_t HAL_GetTick(void);
+extern uint32_t HAL_GetTick( void );
 
 void xi_bsp_time_init()
 {
-    while( xi_bsp_time_sntp_init() < 0 )
+    while ( xi_bsp_time_sntp_init() < 0 )
     {
-        xi_debug_printf("\r\n>>SNTP Failed. Retrying...");
+        xi_debug_printf( "\r\n>>SNTP Failed. Retrying..." );
     }
 }
 
