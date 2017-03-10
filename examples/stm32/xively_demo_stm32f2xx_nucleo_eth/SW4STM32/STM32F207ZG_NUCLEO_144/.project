@@ -86,11 +86,6 @@
 			<locationURI>PARENT-2-PROJECT_LOC/Src/xively_client.c</locationURI>
 		</link>
 		<link>
-			<name>Drivers/BSP/Components</name>
-			<type>2</type>
-			<locationURI>PARENT-9-PROJECT_LOC/Downloads/STM32CubeExpansion_MEMS1_V3.0.0/Drivers/BSP/Components</locationURI>
-		</link>
-		<link>
 			<name>Drivers/CMSIS/system_stm32f2xx.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/Src/system_stm32f2xx.c</locationURI>
