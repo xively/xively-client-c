@@ -201,7 +201,6 @@ typedef struct
 static void force_report( void );
 static void xively_reset( const xi_context_handle_t ctx );
 static void xc_subscribe_next( const xi_context_handle_t ctx );
-// static void check_report      (const xi_context_handle_t ctx);
 
 static xi_state_t subscribe_cb_common( const xi_context_handle_t ctx,
                                        void* data,
@@ -484,138 +483,8 @@ publish_cb( const xi_context_handle_t ctx, void* data, xi_state_t state )
         printf( "xively: Publish Error(%d) %s\n", state, t_info->name );
     }
 
-    // check_report (ctx);
-
     return XI_STATE_OK;
 }
-
-#if 0
-/******************************************************************************
- *                                                                            *
- *  check_report ()                                                           *
- *                                                                            *
- *  Publish as many pending reports as possible.                              *
- *                                                                            *
- ******************************************************************************/
-
-static void
-check_report (
-  const xi_context_handle_t  ctx)
-  {
-    static xc_topic_e      report_topic = XC_PUB_START;
-    xc_topic_e             check_topic_start;
-    const xc_topic_info_t  *t_info;
-    char                   pub_msg[XC_STR_LEN];
-    char                   fq_topic[XC_TOPIC_LEN];
-    xi_state_t             pub_rval;
-
-    check_topic_start = report_topic;
-
-    do
-      {
-        if (xc_pubs_in_flight >= XC_MAX_PUBS_IN_FLIGHT)
-          {
-            break;
-          }
-
-        t_info = xc_topic_info + report_topic;
-
-        if (report_pending[report_topic])
-          {
-              /*
-               *  Create message payload
-               */
-            if (report_topic == STATUS_FLAGS)
-              {
-                snprintf (pub_msg, XC_STR_LEN, "0x%08X", report_flags);
-              }
-            else
-              {
-                snprintf (pub_msg, XC_STR_LEN, "%2.1f", report_data[report_topic]);
-              }
-
-            snprintf (fq_topic, XC_TOPIC_LEN, XC_TOPIC_FORMAT, account_id, device_id,
-                      t_info->name);
-
-            pub_rval = xi_publish (ctx, fq_topic, pub_msg, t_info->qos, t_info->retain,
-                                   publish_cb, (void *)report_topic);
-
-            if (pub_rval == XI_STATE_OK)
-              {
-                printf ("Xively: Publish Pending %s: %s\n", t_info->name, pub_msg);
-                xc_pubs_in_flight ++;
-                report_pending[report_topic] = 0;  /* Clear pub pending */
-              }
-            else
-              {
-                printf ("Xively: Publish Error(%d) %s: %s\n", pub_rval, t_info->name, pub_msg);
-              }
-          }
-
-          /*
-           *  Next topic to check
-           */
-        if (++report_topic >= XC_PUB_COUNT)
-          {
-            report_topic = XC_PUB_START;
-          }
-
-      } while (check_topic_start != report_topic);
-  }
-
-/******************************************************************************
- *                                                                            *
- *  check_values ()                                                           *
- *                                                                            *
- *  Apply changes from "ms_data" and "ms_status_flags to "report_data" and    *
- *  "report_flags" setting "report_pending" for each change.                  *
- *                                                                            *
- ******************************************************************************/
-
-static void
-check_values (void)
-  {
-    xc_topic_e  e;
-
-    if (poll_countdown > ms_polling_period)
-      {
-        poll_countdown = ms_polling_period;
-      }
-
-    if (--poll_countdown <= 0)
-      {
-        poll_countdown = ms_polling_period;
-
-        for (e = BATTERY_VOLTAGE; e <= STATUS_FLAGS; e ++)
-          {
-              /*
-               *  Check for status flags report changes
-               */
-            if (e == STATUS_FLAGS)
-              {
-                if (report_flags != ms_status_flags)
-                  {
-                    report_flags = ms_status_flags;
-                    report_pending[e] = 1;
-                  }
-              }
-
-              /*
-               *  Check for data report changes
-               */
-            else
-              {
-                if (report_data[e] != ms_data[MS_NOW_V][e])
-                  {
-                    report_data[e] = ms_data[MS_NOW_V][e];
-                    report_pending[e] = 1;
-                  }
-              }
-          }
-      }
-  }
-#endif
-
 
 /******************************************************************************
  *                                                                            *
@@ -631,9 +500,6 @@ monitor_cb( const xi_context_handle_t ctx, const xi_timed_task_handle_t task, vo
     ( void )task;
     ( void )data;
 
-    // check_values ();
-    // check_report (ctx);
-
     if ( xc_control > 0 )
     {
         if ( xc_control == 1 )
@@ -644,9 +510,6 @@ monitor_cb( const xi_context_handle_t ctx, const xi_timed_task_handle_t task, vo
         xc_control = 0;
     }
 
-    /*
-     *  Re-register "check_values" to be called in "XC_CHECK_PERIOD" seconds
-     */
     monitor_cb_hdl = xi_schedule_timed_task( ctx, monitor_cb, XC_CHECK_PERIOD, 0, NULL );
 }
 
