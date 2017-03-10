@@ -176,8 +176,8 @@ static int8_t build_xively_topic(
     assert( NULL != device_id );
     assert( NULL != dst );
 
-    retval = snprintf( dst, dst_len, "xi/blue/v1/%.64s/d/%.64s/%.64s",
-                       account_id, device_id, topic_name );
+    retval = snprintf( dst, dst_len, "xi/blue/v1/%.64s/d/%.64s/%.64s", account_id,
+                       device_id, topic_name );
 
     if ( ( retval >= dst_len ) || ( retval < 0 ) )
     {
