@@ -9,8 +9,13 @@
 
 #if !defined( XI_TLS_LIB_WOLFSSL )
 
+#ifdef STM32F207xx
+#include <stm32f2xx_hal.h>
+#include "stm32f2xx_hal_rng.h"
+#else
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_hal_rng.h"
+#endif
 
 RNG_HandleTypeDef xi_stm_rng_handle;
 

@@ -27,7 +27,7 @@ xi_bsp_tls_recv_callback( char* buf, int sz, void* context, int* bytes_read )
     assert( NULL != context );
     assert( NULL != bytes_read );
 
-    xi_debug_format( "Entering: %s", __FUNCTION__ );
+    // xi_debug_format( "Entering: %s", __FUNCTION__ );
 
     xi_tls_layer_state_t* layer_data =
         ( xi_tls_layer_state_t* )XI_THIS_LAYER( context )->user_data;

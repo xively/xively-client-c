@@ -81,9 +81,6 @@
 /* Private macro -------------------------------------------------------------*/
 #define WIFI_SCAN_BUFFER_LIST 25
 
-/* Private variables ---------------------------------------------------------*/
-volatile uint8_t button_pressed_interrupt_flag = 0;
-
 /* Private function prototypes -----------------------------------------------*/
 WiFi_Status_t wifi_get_AP_settings( void );
 
@@ -598,7 +595,6 @@ void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin )
         if ( io_button_exti_debouncer( GPIO_Pin ) )
         {
             printf( "\r\n>> Nucleo board button [PRESSED]" );
-            button_pressed_interrupt_flag = 1;
             pub_button_interrupt();
         }
     }

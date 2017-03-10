@@ -36,7 +36,7 @@ CLANG_REPOSITORY_URL=https://chromium.googlesource.com/chromium/src/tools/clang
 
 $(XI_CLANG_COMPILER_DOWNLOAD_DIR):
 	@-mkdir -p $(XI_CLANG_COMPILER_DOWNLOAD_DIR)
-	(cd $(XI_CLANG_COMPILER_DOWNLOAD_DIR) && git clone $(CLANG_REPOSITORY_URL))
+	(cd $(XI_CLANG_COMPILER_DOWNLOAD_DIR) && git clone $(CLANG_REPOSITORY_URL) && cd clang && git checkout 37d701b87a10a2bdee1a5c3523f754ebf64a7e66 )
 
 $(XI_CLANG_COMPILER_INSTALL_DIR): $(XI_CLANG_COMPILER_DOWNLOAD_DIR)
 	(cd $(XI_CLANG_COMPILER_DOWNLOAD_DIR) && python2 clang/scripts/update.py)
