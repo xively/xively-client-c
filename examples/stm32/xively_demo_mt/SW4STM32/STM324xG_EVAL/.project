@@ -27,9 +27,9 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>Application/SW4STM32/startup_stm32f407xx.s</name>
+			<name>Application/SW4STM32/startup_stm32f417xx.s</name>
 			<type>1</type>
-			<locationURI>XI_STMCUBE_PATH/Projects/STM324xG_EVAL/Applications/LwIP/LwIP_HTTP_Server_Socket_RTOS/SW4STM32/startup_stm32f407xx.s</locationURI>
+			<locationURI>XI_STMCUBE_PATH/Projects/STM324xG_EVAL/Applications/PolarSSL/SSL_Client/SW4STM32/startup_stm32f417xx.s</locationURI>
 		</link>
 		<link>
 			<name>Application/SW4STM32/syscalls.c</name>
@@ -60,6 +60,16 @@
 			<name>Application/User/main.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/Src/main.c</locationURI>
+		</link>
+		<link>
+			<name>Application/User/stm32f4xx_hal_msp.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_PATH/Projects/STM324xG_EVAL/Examples/RNG/RNG_MultiRNG/Src/stm32f4xx_hal_msp.c</locationURI>
+		</link>
+		<link>
+			<name>Application/User/stm32f4xx_hal_rng.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_PATH/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rng.c</locationURI>
 		</link>
 		<link>
 			<name>Application/User/stm32f4xx_hal_timebase_tim.c</name>
@@ -415,7 +425,7 @@
 	<variableList>
 		<variable>
 			<name>XI_STMCUBE_PATH</name>
-			<value>file:/Users/atigyi/Downloads/STM32Cube_FW_F4_V1.14.0</value>
+			<value>~</value>
 		</variable>
 	</variableList>
 </projectDescription>
