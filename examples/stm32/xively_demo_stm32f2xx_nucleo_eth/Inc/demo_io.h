@@ -41,10 +41,10 @@
 
 #include "sensor.h"
 
-#ifdef USE_STM32F4XX_NUCLEO
-#include "stm32f4xx_nucleo.h"
-#elif USE_STM32F2XX_NUCLEO_144
-#include "stm32f2xx_nucleo_144.h"
+#ifdef USE_STM32F4XX_NUCLEO_144
+#include "stm32f4xx_nucleo_144.h"
+#elif defined(USE_STM32F2XX_NUCLEO)
+#include "stm32f2xx_nucleo.h"
 #endif
 
 #define IO_FLOAT_BUFFER_MAX_SIZE     16
