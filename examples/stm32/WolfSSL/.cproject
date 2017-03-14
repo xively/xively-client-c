@@ -4,7 +4,7 @@
 		<cconfiguration id="fr.ac6.managedbuild.config.gnu.cross.lib.debug.1350444770">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="fr.ac6.managedbuild.config.gnu.cross.lib.debug.1350444770" moduleId="org.eclipse.cdt.core.settings" name="Debug">
 				<macros>
-					<stringMacro name="WOLFSSL_SRC_ROOT" type="VALUE_PATH_DIR" value="/Users/palantir/Work/Xively/stm32f4xx/xively-client-c/src/import/tls/wolfssl"/>
+					<stringMacro name="WOLFSSL_SRC_ROOT" type="VALUE_PATH_DIR" value="/Users/atigyi/git/xi/xc/xively-client-c/src/import/tls/wolfssl"/>
 				</macros>
 				<externalSettings>
 					<externalSetting>
