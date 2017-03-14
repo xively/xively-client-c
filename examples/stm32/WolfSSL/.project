@@ -324,7 +324,7 @@
 	<variableList>
 		<variable>
 			<name>WOLFSSL_ROOT</name>
-			<value>file:/Users/atigyi/git/xi/xc/xively-client-c/src/import/tls/wolfssl</value>
+			<value>file:/Users/palantir/Work/Xively/stm32f4xx/xively-client-c/src/import/tls/wolfssl</value>
 		</variable>
 	</variableList>
 </projectDescription>
