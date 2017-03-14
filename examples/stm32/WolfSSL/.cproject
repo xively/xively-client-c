@@ -78,7 +78,7 @@
 									<listOptionValue builtIn="false" value="ALT_ECC_SIZE"/>
 								</option>
 								<option id="gnu.c.compiler.option.include.paths.646785072" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="/Users/atigyi/git/xi/xc/xively-client-c/src/import/tls/wolfssl"/>
+									<listOptionValue builtIn="false" value="../../../../src/import/tls/wolfssl"/>
 								</option>
 								<option id="gnu.c.compiler.option.dialect.std.1603715164" name="Language standard" superClass="gnu.c.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.c.compiler.dialect.default" valueType="enumerated"/>
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c.636640763" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c"/>

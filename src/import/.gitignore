@@ -23,3 +23,5 @@ mqtt-codec/.travis.yml
 mqtt-codec/Makefile
 # cmocka
 cmocka/cmocka_build
+# clang tools, for fuzz tests
+clang_tools/
