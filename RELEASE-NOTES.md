@@ -1,3 +1,12 @@
+# Xively Client version 1.2.5
+#### March 14 2017
+
+## Features
+
+- STM32F401RE Nucleo board + wifi X-NUCLEO-IDW01M1 expansion board support. Example Eclipse project and Tutorial (https://developer.xively.com/docs/stm32f4xx-nucleo) included. TLS connection to Xively Servers uses the wifi expansion on-board TLS solution. Accurate time initialised from SNTP servers.
+
+
+
 # Xively Client version 1.2.4
 #### Jan 17 2017
 
