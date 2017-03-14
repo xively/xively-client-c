@@ -3,9 +3,6 @@
 	<storageModule moduleId="org.eclipse.cdt.core.settings">
 		<cconfiguration id="fr.ac6.managedbuild.config.gnu.cross.lib.debug.1350444770">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="fr.ac6.managedbuild.config.gnu.cross.lib.debug.1350444770" moduleId="org.eclipse.cdt.core.settings" name="Debug">
-				<macros>
-					<stringMacro name="WOLFSSL_SRC_ROOT" type="VALUE_PATH_DIR" value="/Users/atigyi/git/xi/xc/xively-client-c/src/import/tls/wolfssl"/>
-				</macros>
 				<externalSettings>
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/WolfSSL"/>
@@ -81,7 +78,7 @@
 									<listOptionValue builtIn="false" value="ALT_ECC_SIZE"/>
 								</option>
 								<option id="gnu.c.compiler.option.include.paths.646785072" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="${WOLFSSL_SRC_ROOT}"/>
+									<listOptionValue builtIn="false" value="/Users/atigyi/git/xi/xc/xively-client-c/src/import/tls/wolfssl"/>
 								</option>
 								<option id="gnu.c.compiler.option.dialect.std.1603715164" name="Language standard" superClass="gnu.c.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.c.compiler.dialect.default" valueType="enumerated"/>
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c.636640763" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c"/>
