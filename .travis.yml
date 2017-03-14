@@ -12,7 +12,9 @@ env:
     - PRESET=ARM_REL
     - PRESET=ARM_REL_MIN
 
-    - PRESET=STM32F4
+    - PRESET=STM32FX
+      XI_MAKETARGET=""
+    - PRESET=STM32FX_NUCLEO_WIFI
       XI_MAKETARGET=""
 
     - PRESET=CC3200
@@ -59,7 +61,9 @@ matrix:
     - compiler: clang
       env: PRESET=ARM_REL
     - compiler: clang
-      env: PRESET=STM32F4 XI_MAKETARGET=""
+      env: PRESET=STM32FX XI_MAKETARGET=""
+    - compiler: clang
+      env: PRESET=STM32FX_NUCLEO_WIFI XI_MAKETARGET=""
     - compiler: clang
       env: PRESET=CC3200 XI_MAKETARGET=""
     - compiler: clang

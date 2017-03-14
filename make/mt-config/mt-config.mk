@@ -147,6 +147,8 @@ ifeq ($(BSP_PLATFORM_DIR_EXIST),0)
 	$(error The platform with BSP implementation - [$(XI_BSP_PLATFORM)] couldn't be found. Please check your $(XI_BSP_DIR)/platform/ directory.)
 endif
 
+XI_SRCDIRS += $(XI_BSP_DIR)
+
 # platform specific BSP implementations
 XI_SRCDIRS += $(XI_BSP_DIR)/platform/$(XI_BSP_PLATFORM)
 
@@ -158,7 +160,7 @@ XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/memory
 XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/event_loop
 XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/time
 
-# if no tls then set proper flag
+# if no tls_bsp then set proper flag
 ifeq (,$(findstring tls_bsp,$(CONFIG)))
 	XI_CONFIG_FLAGS += -DXI_NO_TLS_LAYER
 
