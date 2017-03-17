@@ -63,9 +63,8 @@ void SystemClock_Config( void )
             ;
     }
 }
-#endif
 
-#ifdef USE_STM32F4XX_NUCLEO
+#elif defined(USE_STM32F4XX_NUCLEO)
 
 void SystemClock_Config( void )
 {
@@ -102,9 +101,8 @@ void SystemClock_Config( void )
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
     HAL_RCC_ClockConfig( &RCC_ClkInitStruct, FLASH_LATENCY_2 );
 }
-#endif
 
-#ifdef USE_STM32L0XX_NUCLEO
+#elif defined(USE_STM32L0XX_NUCLEO)
 
 /**
  * @brief  System Clock Configuration
@@ -140,9 +138,9 @@ void SystemClock_Config( void )
 
     __SYSCFG_CLK_ENABLE();
 }
-#endif
 
-#ifdef USE_STM32L4XX_NUCLEO
+#elif defined(USE_STM32L4XX_NUCLEO)
+
 /**
  * @brief  System Clock Configuration
  *         The system Clock is configured as follow :
