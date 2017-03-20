@@ -81,6 +81,11 @@ int8_t user_data_copy_from_flash( user_data_t* dst )
 /* TODO: This execution branch should run entirely from volatile RAM if possible */
 int8_t user_data_save_to_flash( user_data_t* src )
 {
+    if ( NULL == src )
+    {
+        return -1;
+    }
+
     if ( calculate_checksum( src, &src->crc_checksum ) < 0 )
     {
         printf( "\r\n\tCRC checksum calculation [ERROR]" );
@@ -190,6 +195,11 @@ error_out:
  */
 static int8_t program_flash( user_data_t* user_data )
 {
+    if ( NULL == user_data )
+    {
+        return -1;
+    }
+
     HAL_StatusTypeDef status;
     int32_t* runtime_data_32t_head = NULL;
     int32_t* flash_data_32t_head = NULL;
@@ -251,6 +261,11 @@ static int8_t calculate_checksum( user_data_t* user_data, int32_t* out_checksum 
     uint32_t wifi_encryption_32t = ( uint32_t )user_data->wifi_client_encryption_mode;
     uint32_t crc_code            = 0x00000000;
     static CRC_HandleTypeDef crc_config;
+
+    if ( ( NULL == user_data ) || ( NULL == out_checksum ) )
+    {
+        return -1;
+    }
 
     /* Init CRC peripheral */
     crc_config.Instance = CRC;
