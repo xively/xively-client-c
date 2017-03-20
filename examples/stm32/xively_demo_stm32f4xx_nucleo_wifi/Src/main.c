@@ -819,9 +819,6 @@ static int8_t user_config_init( user_data_t* dst )
                 printf( "\r\n\t[ERROR] Getting AP credentials from user" );
                 return -1;
         }
-
-        printf( "\r\n>> Saving user data to flash" );
-        user_data_save_to_flash( dst );
     }
 #else
     print_user_config_debug_banner();

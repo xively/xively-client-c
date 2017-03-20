@@ -12,14 +12,13 @@
 #include "stm32f4xx_hal_conf.h"
 #include "user_data.h"
 
-#define CRC_REGISTER_BYTES 4
+#define CRC_REGISTER_SIZE sizeof( int32_t )
 static int8_t calculate_checksum( user_data_t* user_data, int32_t* out_checksum );
 
-#define FLASH_USER_DATA_SECTOR FLASH_SECTOR_TOTAL-1
-#define FLASH_VOLTAGE_RANGE    FLASH_VOLTAGE_RANGE_1
-#define FLASH_USER_DATA_PREFIX 0x55
-#define FLASH_USER_DATA_SIZE 0xfff
-#define FLASH_USER_DATA_BASE (FLASH_END - FLASH_USER_DATA_SIZE)
+#define FLASH_USER_DATA_SECTOR FLASH_SECTOR_TOTAL - 1
+#define FLASH_VOLTAGE_RANGE FLASH_VOLTAGE_RANGE_1
+#define FLASH_USER_DATA_ALLOCATED_SIZE 0xfff
+#define FLASH_USER_DATA_BASE ( FLASH_END - FLASH_USER_DATA_ALLOCATED_SIZE )
 static int8_t erase_flash_sector( void );
 static int8_t program_flash( user_data_t* user_data );
 
@@ -37,14 +36,14 @@ static int8_t program_flash( user_data_t* user_data );
 int8_t user_data_flash_init( void )
 {
     assert( 0 == sizeof( user_data_t ) % sizeof( int32_t ) ); /* For program_flash() */
-    assert( 0 == USER_DATA_STR_LEN % CRC_REGISTER_BYTES );
+    assert( 0 == USER_DATA_STR_SIZE % CRC_REGISTER_SIZE );
     if ( !IS_FLASH_SECTOR( FLASH_USER_DATA_SECTOR ) )
     {
         printf( "\r\n>> Flash init [ERROR] Sector [%d] is incompatible with this device",
                 FLASH_USER_DATA_SECTOR );
         return -1;
     }
-    if ( sizeof( user_data_t ) > FLASH_USER_DATA_SIZE )
+    if ( sizeof( user_data_t ) > FLASH_USER_DATA_ALLOCATED_SIZE )
     {
         printf( "\r\n>> Flash init [ERROR] Allocated flash meomry not enough" );
         return -1;
@@ -61,6 +60,11 @@ int8_t user_data_flash_init( void )
  */
 int8_t user_data_copy_from_flash( user_data_t* dst )
 {
+    if ( NULL == dst )
+    {
+        return -1;
+    }
+
     memset( dst, 0x00, sizeof( user_data_t ) );
     memcpy( dst, ( user_data_t* )FLASH_USER_DATA_BASE, sizeof( user_data_t ) );
     return 0;
@@ -265,7 +269,7 @@ static int8_t calculate_checksum( user_data_t* user_data, int32_t* out_checksum 
     for ( uint32_t i = 0; i < sizeof( string_ptrs ) / sizeof( char* ); i++ )
     {
         crc_code = HAL_CRC_Accumulate( &crc_config, ( uint32_t* )string_ptrs[i],
-                                       USER_DATA_STR_LEN / CRC_REGISTER_BYTES );
+                                       USER_DATA_STR_SIZE / CRC_REGISTER_SIZE );
         printf( "+ [0x%08lx] ", crc_code );
     }
     printf( "= [0x%08lx]", crc_code );
