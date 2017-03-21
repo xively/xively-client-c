@@ -8,7 +8,7 @@
  ******************************************************************************
  */
 
-/** 
+/**
  * @attention
  *
  * Copyright (c) 2003-2017, LogMeIn, Inc. All rights reserved.
@@ -93,13 +93,13 @@ uint8_t is_burst_mode          = 0;
 char console_ssid[40];
 char console_psk[20];
 
-char* ssid          = "SSID";
-char* seckey        = "PASSWORD";
+char* ssid          = "WiFi Network Name";
+char* seckey        = "WiFi Network Password";
 WiFi_Priv_Mode mode = WPA_Personal;
 
-#define XI_ACCOUNT_ID "XIVELY ACCOUNT ID"
-#define XI_DEVICE_ID "XIVELY DEVICE ID"
-#define XI_DEVICE_PASS "XIVELY DEVICE PASSWORD"
+#define XI_ACCOUNT_ID "Xively Account ID"
+#define XI_DEVICE_ID "Xively Device ID"
+#define XI_DEVICE_PASS "Xively Device Password"
 
 /* the interval for the time function */
 #define XI_PUBLISH_INTERVAL_SEC 5
