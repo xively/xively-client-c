@@ -37,12 +37,14 @@ int8_t user_data_flash_init( void )
 {
     assert( 0 == sizeof( user_data_t ) % sizeof( int32_t ) ); /* For program_flash() */
     assert( 0 == USER_DATA_STR_SIZE % CRC_REGISTER_SIZE );
+
     if ( !IS_FLASH_SECTOR( FLASH_USER_DATA_SECTOR ) )
     {
         printf( "\r\n>> Flash init [ERROR] Sector [%d] is incompatible with this device",
                 FLASH_USER_DATA_SECTOR );
         return -1;
     }
+
     if ( sizeof( user_data_t ) > FLASH_USER_DATA_ALLOCATED_SIZE )
     {
         printf( "\r\n>> Flash init [ERROR] Allocated flash meomry not enough" );
@@ -353,9 +355,11 @@ void user_data_printf( user_data_t* user_data )
 #endif
     printf( "\r\n\t* WiFi Security: [%ld]", user_data->wifi_client_encryption_mode );
     printf( "\r\n\t* WiFi SSID: [%.64s]", user_data->wifi_client_ssid );
-    printf( "\r\n\t* WiFi Pwd: [%.64s]", user_data->wifi_client_password );
+    //printf( "\r\n\t* WiFi Pwd: [%.64s]", user_data->wifi_client_password );
+    printf( "\r\n\t* WiFi Pwd: ( REDACTED )" );
     printf( "\r\n\t* Xi Acc ID: [%.64s]", user_data->xi_account_id );
     printf( "\r\n\t* Xi Dev ID: [%.64s]", user_data->xi_device_id );
-    printf( "\r\n\t* Xi Dev Pwd: [%.64s]", user_data->xi_device_password );
+    //printf( "\r\n\t* Xi Dev Pwd: [%.64s]", user_data->xi_device_password );
+    printf( "\r\n\t* Xi Dev Pwd: ( REDACTED )" );
     printf( "\r\n\t* CRC Checksum: [0x%08lx]", user_data->crc_checksum );
 }
