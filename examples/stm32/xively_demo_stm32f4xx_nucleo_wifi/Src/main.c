@@ -650,7 +650,8 @@ int main( void )
                 printf( "\r\n>> Connecting to Xively's MQTT broker using credentials:" );
                 printf( "\r\n\t* Account ID:  [%s]", user_config.xi_account_id );
                 printf( "\r\n\t* Device ID:   [%s]", user_config.xi_device_id );
-                printf( "\r\n\t* Device Pass: [%s]\n", user_config.xi_device_password );
+                printf( "\r\n\t* Device Pass: ( REDACTED )\n" );
+                //printf( "\r\n\t* Device Pass: [%s]\n", user_config.xi_device_password );
 
                 if ( socket_open == 0 )
                 {
