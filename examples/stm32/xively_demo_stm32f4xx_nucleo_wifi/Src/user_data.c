@@ -1,3 +1,26 @@
+/* PRODUCTION WARNING:
+ *          This is a sample implementation on how to store user data to flash.
+ *          For portability and simplicity reasons, we're storing the data in
+ *          the last $FLASH_USER_DATA_ALLOCATED_SIZE bytes of the last sector in
+ *          flash.
+ *          We are NOT reserving this memory area in the linker script, which means
+ *          if the codebase grew large enough, some of the program may end up
+ *          in the same sector as the user data.
+ *          In order to store anything to flash memory, the programmer needs
+ *          to 'erase' the entire sector before writing to it.
+ *          The combination of those 3 factors means that if the codebase grew big
+ *          enough, and a user tried to set/update user data, part of the code
+ *          would be erased and the device would probably be bricked.
+ *
+ *          For production, you should use the linker script to reserve the entire flash
+ *          sector for user data.
+ *          You can also share that sector with other code/data by reading the
+ *          entire sector before erasing it, and re-writing all unrelated data after
+ *          the fact.
+ *          If there might be code in that sector (NOT recommended), you also need to make
+ *          sure the functions that erase and rewrite it run entirely from volatile RAM;
+ *          that way they can't accidentally overwrite themselves during the process.
+ */
 /* NOTE: If we'd like to save memory, there's no need to allocate a new user_data_t
  *       datasctructure when the data in flash is valid. A simple
  *       (user_data_t*)FLASH_USER_DATA_BASE will give you a pointer to the data in flash.
@@ -80,7 +103,7 @@ int8_t user_data_copy_from_flash( user_data_t* dst )
  *         will be overwritten
  * @retval <0: Error, >=0: OK
  */
-/* TODO: This execution branch should run entirely from volatile RAM if possible */
+/* NOTE: This execution branch should run entirely from volatile RAM if possible */
 int8_t user_data_save_to_flash( user_data_t* src )
 {
     if ( NULL == src )
@@ -115,15 +138,15 @@ int8_t user_data_save_to_flash( user_data_t* src )
  * @brief  Performs a Flash erase on the section reserved for user data
  * @retval <0: Error, >=0: OK
  */
-/* TODO: This execution branch should run entirely from volatile RAM if possible */
+/* NOTE: This execution branch should run entirely from volatile RAM if possible */
 int8_t user_data_reset_flash( void )
 {
-    /* TODO: Save all non-user_data in the sector before the erase */
+    /* NOTE: Ideally, now we'd save all non-user_data in the sector before the erase */
     if ( erase_flash_sector() < 0 )
     {
         return -1;
     }
-    /* TODO: Rewrite all non-user_data to flash */
+    /* NOTE: Ideally, now we'd rewrite all non-user_data to flash */
     return 0;
 }
 
