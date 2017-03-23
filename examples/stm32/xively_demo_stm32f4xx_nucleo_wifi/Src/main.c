@@ -546,8 +546,7 @@ static inline int8_t system_init( void )
         return -1;
     if ( 0 > io_sensorboard_init() )
         return -1;
-    if ( 0 > io_sensorboard_enable() )
-        return -1;
+    io_sensorboard_enable();
 
     /* Init the wi-fi module */
     printf( "\r\n>> Initializing the WiFi extension board" );
