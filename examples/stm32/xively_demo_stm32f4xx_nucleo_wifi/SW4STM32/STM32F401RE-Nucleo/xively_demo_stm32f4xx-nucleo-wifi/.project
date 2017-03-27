@@ -111,6 +111,11 @@
 			<locationURI>STM_CUBE_PATH/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c</locationURI>
 		</link>
 		<link>
+			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_crc.c</name>
+			<type>1</type>
+			<locationURI>STM_CUBE_PATH/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_crc.c</locationURI>
+		</link>
+		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_dma.c</name>
 			<type>1</type>
 			<locationURI>STM_CUBE_PATH/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.c</locationURI>
@@ -176,6 +181,11 @@
 			<locationURI>$%7BPARENT-3-PROJECT_LOC%7D/Src/console.c</locationURI>
 		</link>
 		<link>
+			<name>Example/User/demo_bsp.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Src/demo_bsp.c</locationURI>
+		</link>
+		<link>
 			<name>Example/User/demo_io.c</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Src/demo_io.c</locationURI>
@@ -199,6 +209,11 @@
 			<name>Example/User/syscalls.c</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/syscalls.c</locationURI>
+		</link>
+		<link>
+			<name>Example/User/user_data.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Src/user_data.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/ST/STM32_SPWF01SA</name>

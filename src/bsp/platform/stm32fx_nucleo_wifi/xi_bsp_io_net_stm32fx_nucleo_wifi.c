@@ -254,18 +254,15 @@ void xi_bsp_io_net_socket_data_received_proxy( uint8_t socket_id,
 
     if ( socket_id == sntp_sock_id )
     {
-        xi_bsp_debug_logger( ">>Received message from SNTP socket" );
         sntp_socket_data_callback( socket_id, data_ptr, message_size, chunk_size );
         return;
     }
-
-    xi_bsp_debug_logger( ">>Received message from a socket" );
 
     xi_data_desc_t* tail = xi_make_desc_from_buffer_copy( data_ptr, chunk_size );
 
     if ( NULL == tail )
     {
-        xi_bsp_debug_logger( ">>Not enough memory!" );
+        xi_bsp_debug_logger( "Incoming data allocation [ERROR] Not enough memory!" );
         return;
     }
 
@@ -276,11 +273,11 @@ void xi_bsp_io_net_socket_client_remote_server_closed_proxy( uint8_t* socket_clo
 {
     if ( NULL == socket_closed_id )
     {
-        xi_bsp_debug_logger( "\tGot invalid NULL as socket_closed_id" );
+        xi_bsp_debug_logger( "Got invalid NULL as socket_closed_id" );
     }
     if ( *socket_closed_id == sntp_sock_id )
     {
-        xi_bsp_debug_logger( "\tUnexpected 'remote disconnection' by SNTP server" );
+        xi_bsp_debug_logger( "Unexpected 'remote disconnection' by SNTP server" );
         return;
     }
 
