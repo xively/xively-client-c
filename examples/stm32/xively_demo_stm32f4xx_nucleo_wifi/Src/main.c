@@ -761,14 +761,17 @@ static inline void print_user_config_debug_banner( void )
     printf( "\r\n|********************************************************|" );
     printf( "\r\n|               User Configuration Routine               |" );
     printf( "\r\n|               --------------------------               |" );
-    printf( "\r\n| WARNING: Do NOT copy-paste long strings to your serial |" );
-    printf( "\r\n| -------  terminal. Only strings under ~6 characters    |" );
-    printf( "\r\n|          can be copied with medium/high reliability    |" );
+    printf( "\r\n| WARNING: Copy-pasting long strings to your serial      |" );
+    printf( "\r\n| -------  terminal may end up in character losses.      |" );
+    printf( "\r\n|          To solve this issue introduce character       |" );
+    printf( "\r\n|          transmit delay in the terminal settings.      |" );
+    printf( "\r\n|          coolTerm:                                     |" );
+    printf( "\r\n|   Options->Transmit->Use transmit character delay      |" );
     printf( "\r\n|                                                        |" );
     printf( "\r\n| NOTE: You will only need to do this once.              |" );
     printf( "\r\n|                                                        |" );
     printf( "\r\n| NOTE: Next time you want to update these, keep the     |" );
-    printf( "\r\n| nucleo board's User button pressed during boot         |" );
+    printf( "\r\n|       nucleo board's User button pressed during boot   |" );
     printf( "\r\n|********************************************************|" );
     fflush( stdout );
 }
