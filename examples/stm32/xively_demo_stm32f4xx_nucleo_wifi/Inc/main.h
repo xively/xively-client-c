@@ -39,22 +39,6 @@
 #define __MAIN_H
 
 /* Includes ------------------------------------------------------------------*/
-#ifdef USE_STM32L0XX_NUCLEO
-#include "stm32l0xx_hal.h"
-#include "stm32l0xx_nucleo.h"
-#endif
-#ifdef USE_STM32F1xx_NUCLEO
-#include "stm32f1xx_hal.h"
-#include "stm32f1xx_nucleo.h"
-#endif
-#ifdef USE_STM32F4XX_NUCLEO
-#include "stm32f4xx_hal.h"
-#include "stm32f4xx_nucleo.h"
-#endif  
-#ifdef USE_STM32L4XX_NUCLEO
-#include "stm32l4xx_hal.h"
-#include "stm32l4xx_nucleo.h"
-#endif 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 
@@ -73,7 +57,6 @@ typedef enum {
 
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
-void SystemClock_Config(void);
 #endif /* __MAIN_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

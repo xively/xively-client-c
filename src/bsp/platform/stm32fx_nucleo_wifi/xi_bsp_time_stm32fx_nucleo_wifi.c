@@ -14,7 +14,7 @@ void xi_bsp_time_init()
 {
     while ( xi_bsp_time_sntp_init() < 0 )
     {
-        xi_debug_printf( "\r\n>>SNTP Failed. Retrying..." );
+        xi_debug_printf("SNTP Failed. Retrying...");
     }
 }
 
