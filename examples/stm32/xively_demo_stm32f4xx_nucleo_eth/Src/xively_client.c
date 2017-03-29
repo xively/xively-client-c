@@ -36,9 +36,9 @@
  *  Device Specific
  *  Credential Information
  */
-#define XI_ACCOUNT_ID "4d3c7986-8d53-4cf8-903e-7fd30ff63be1"
-#define XI_DEVICE_ID "6ed0ab44-d7e6-47fa-a3de-6d3441e5c577"
-#define XI_PASSWORD "diYY01MoMWFI3fCGTr7gZamtfFIMmedWrm+gkHGtLHc="
+#define XI_ACCOUNT_ID "Xively Account ID"
+#define XI_DEVICE_ID "Xively Device ID"
+#define XI_DEVICE_PASS "Xively Device Password"
 
 /*
  *  Xively Specific
@@ -941,7 +941,7 @@ static int xc_main( void )
      * Set identity values
      */
     device_id  = XI_DEVICE_ID;
-    password   = XI_PASSWORD;
+    password   = XI_DEVICE_PASS;
     account_id = XI_ACCOUNT_ID;
 
     rval = 0;

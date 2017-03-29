@@ -3,6 +3,7 @@
 	<name>STM32F429ZI_NUCLEO_144</name>
 	<comment></comment>
 	<projects>
+		<project>WolfSSL</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
