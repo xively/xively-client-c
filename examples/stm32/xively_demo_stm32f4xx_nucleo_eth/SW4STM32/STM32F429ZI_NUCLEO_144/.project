@@ -746,26 +746,6 @@
 			<locationURI>XI_STMCUBE_PATH/Middlewares/Third_Party/LwIP/src/core/ipv4/ip_frag.c</locationURI>
 		</link>
 	</linkedResources>
-	<filteredResources>
-		<filter>
-			<id>1490955240077</id>
-			<name>Drivers/BSP/X_NUCLEO_IKS01A1</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-*iks01a1*.c</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1490955249044</id>
-			<name>Drivers/BSP/X_NUCLEO_IKS01A2</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-*iks01a1*.c</arguments>
-			</matcher>
-		</filter>
-	</filteredResources>
 	<variableList>
 		<variable>
 			<name>XI_STMCUBE_MEMS_PATH</name>
