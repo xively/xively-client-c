@@ -93,7 +93,12 @@
 		<link>
 			<name>Drivers/BSP/X_NUCLEO_IKS01A1</name>
 			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<locationURI>STM_MEMS_CUBE_PATH/Drivers/BSP/X_NUCLEO_IKS01A1</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/X_NUCLEO_IKS01A2</name>
+			<type>2</type>
+			<locationURI>STM_MEMS_CUBE_PATH/Drivers/BSP/X_NUCLEO_IKS01A2</locationURI>
 		</link>
 		<link>
 			<name>Drivers/CMSIS/system_stm32f4xx.c</name>
@@ -296,46 +301,6 @@
 			<locationURI>STM_CUBE_PATH/Drivers/BSP/X-NUCLEO-IDW01M1/stm32_spwf_wifi.h</locationURI>
 		</link>
 		<link>
-			<name>Drivers/BSP/X_NUCLEO_IKS01A1/.x_nucleo_iks01a1_accelero.c.swp</name>
-			<type>1</type>
-			<locationURI>STM_MEMS_CUBE_PATH/Drivers/BSP/X_NUCLEO_IKS01A1/.x_nucleo_iks01a1_accelero.c.swp</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/X_NUCLEO_IKS01A1/x_nucleo_iks01a1.c</name>
-			<type>1</type>
-			<locationURI>STM_MEMS_CUBE_PATH/Drivers/BSP/X_NUCLEO_IKS01A1/x_nucleo_iks01a1.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/X_NUCLEO_IKS01A1/x_nucleo_iks01a1_accelero.c</name>
-			<type>1</type>
-			<locationURI>STM_MEMS_CUBE_PATH/Drivers/BSP/X_NUCLEO_IKS01A1/x_nucleo_iks01a1_accelero.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/X_NUCLEO_IKS01A1/x_nucleo_iks01a1_gyro.c</name>
-			<type>1</type>
-			<locationURI>STM_MEMS_CUBE_PATH/Drivers/BSP/X_NUCLEO_IKS01A1/x_nucleo_iks01a1_gyro.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/X_NUCLEO_IKS01A1/x_nucleo_iks01a1_humidity.c</name>
-			<type>1</type>
-			<locationURI>STM_MEMS_CUBE_PATH/Drivers/BSP/X_NUCLEO_IKS01A1/x_nucleo_iks01a1_humidity.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/X_NUCLEO_IKS01A1/x_nucleo_iks01a1_magneto.c</name>
-			<type>1</type>
-			<locationURI>STM_MEMS_CUBE_PATH/Drivers/BSP/X_NUCLEO_IKS01A1/x_nucleo_iks01a1_magneto.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/X_NUCLEO_IKS01A1/x_nucleo_iks01a1_pressure.c</name>
-			<type>1</type>
-			<locationURI>STM_MEMS_CUBE_PATH/Drivers/BSP/X_NUCLEO_IKS01A1/x_nucleo_iks01a1_pressure.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/X_NUCLEO_IKS01A1/x_nucleo_iks01a1_temperature.c</name>
-			<type>1</type>
-			<locationURI>STM_MEMS_CUBE_PATH/Drivers/BSP/X_NUCLEO_IKS01A1/x_nucleo_iks01a1_temperature.c</locationURI>
-		</link>
-		<link>
 			<name>Middlewares/ST/STM32_SPWF01SA/Utils</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
@@ -353,47 +318,47 @@
 		<link>
 			<name>Drivers/BSP/Components/Common/Release_Notes.html</name>
 			<type>1</type>
-			<location>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/Common/Release_Notes.html</location>
+			<locationURI>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/Common/Release_Notes.html</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/Common/accelerometer.h</name>
 			<type>1</type>
-			<location>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/Common/accelerometer.h</location>
+			<locationURI>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/Common/accelerometer.h</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/Common/component.h</name>
 			<type>1</type>
-			<location>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/Common/component.h</location>
+			<locationURI>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/Common/component.h</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/Common/gyroscope.h</name>
 			<type>1</type>
-			<location>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/Common/gyroscope.h</location>
+			<locationURI>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/Common/gyroscope.h</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/Common/humidity.h</name>
 			<type>1</type>
-			<location>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/Common/humidity.h</location>
+			<locationURI>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/Common/humidity.h</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/Common/magnetometer.h</name>
 			<type>1</type>
-			<location>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/Common/magnetometer.h</location>
+			<locationURI>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/Common/magnetometer.h</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/Common/pressure.h</name>
 			<type>1</type>
-			<location>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/Common/pressure.h</location>
+			<locationURI>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/Common/pressure.h</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/Common/sensor.h</name>
 			<type>1</type>
-			<location>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/Common/sensor.h</location>
+			<locationURI>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/Common/sensor.h</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/Common/temperature.h</name>
 			<type>1</type>
-			<location>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/Common/temperature.h</location>
+			<locationURI>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/Common/temperature.h</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/hts221/HTS221_Driver.c</name>
@@ -568,27 +533,27 @@
 		<link>
 			<name>Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver.c</name>
 			<type>1</type>
-			<location>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver.c</location>
+			<locationURI>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver.h</name>
 			<type>1</type>
-			<location>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver.h</location>
+			<locationURI>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver.h</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver_HL.c</name>
 			<type>1</type>
-			<location>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver_HL.c</location>
+			<locationURI>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver_HL.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver_HL.h</name>
 			<type>1</type>
-			<location>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver_HL.h</location>
+			<locationURI>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver_HL.h</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/lsm6ds3/Release_Notes.html</name>
 			<type>1</type>
-			<location>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/lsm6ds3/Release_Notes.html</location>
+			<locationURI>STM_MEMS_CUBE_PATH/Drivers/BSP/Components/lsm6ds3/Release_Notes.html</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/lsm6dsl/LSM6DSL_ACC_GYRO_driver.c</name>
