@@ -1,5 +1,5 @@
 # Porting Guide for Xively C Client
-##### Copyright © 2003-2016 LogMeIn, Inc.
+##### Copyright © 2003-2017 LogMeIn, Inc.
 
 ## Table of Contents
 1. [Target Audience](#target-audience)
@@ -34,14 +34,20 @@ For more information please see the Xively C Client User Guide: `doc/user_guide.
 
 ## Supported Platforms
 
-The Xively Client has been deployed on many different devices already shipping in the IoT space running the following platform stacks:
+The Xively Client has been deployed on many different devices already shipping in the IoT space running the following platform stacks. The following is a catalog of our tested ports:
 
   - POSIX systems (OSX, Linux)
   - Microchip TCP SDK
-  - WMSDK
   - Texas Instruments CC3200
+  - Texas Instruments CC3220SF
   - STM3241G-EVAL
+  - STM32 NUCLEO-F429ZI Ethernet
+  - STM32F4 CLOUD-JAM RushUp WiFi
+  - STM32 NUCLEO-F401RE *(with IDW01M1 WiFi)*
+  - STM32 NUCLEO-L476RG *(with IDW01M1 WiFi)*
+  - STM32 NUCLEO-L053R8 *(with IDW01M1 WiFi)*
   - Marvell
+  - wmsdk
 
 Porting the Xively C Client to new platforms is accelerated by the Board Support Package (BSP).
 
@@ -49,14 +55,12 @@ Porting the Xively C Client to new platforms is accelerated by the Board Support
 
 The Board Support Package (BSP) is the well-defined set of functions that the Xively Client invokes to interact with a platform's specific networking, [TLS](https://en.wikipedia.org/wiki/Transport_Layer_Security), memory, random number generator, and time implementations.
 
-We've organized the sources of the Xivey Client so that your BSP implementation is in just a few files that reside in the directory (`src/bsp`).  This is where you should focus your attention when writing porting the Xively Client to your device SDK.
-
-The BSP was designed to minimize the time it takes to make a port of the library. With it an engineer can ignore the MQTT codec or the non-blocking / asynchronous engine that resides in the main library source.
+We've organized the sources of the Xivey Client so that your BSP implementation is in just a few files that reside in the directory (`src/bsp`).  You should focus your attention here when porting the Xively Client to your device SDK, safely ignoring the MQTT codec or the non-blocking / asynchronous engine that resides in the rest of the main library source.
 
 All of the BSP **function declarations** can be found under the `include/bsp`
 directory. Doxygen documentation for these functions can be found in the `doc/doxygen/bsp/html/index.html`.
 
-BSP Functions are broken down by logical subsystem as follows:
+BSP Functions are broken down by logical subsystems as follows:
 
 ### BSP Modules
 
@@ -70,7 +74,7 @@ BSP Functions are broken down by logical subsystem as follows:
 
 Reference **function implementations** are separated into two directories: `src/bsp/platform` and `src/bsp/tls`.
 
-The *platform* directory contains networking, memory, random number generator and time implementations.  The *tls* directory contains reference implementations for *wolfSSL* and *mbedTLS* libraries that supply secure connections over TCP/IP.
+The *platform* directory contains networking, memory, random number generator and time implementations.  The *tls* directory contains reference implementations for *wolfSSL* and *mbedTLS* libraries which supply secure TLS v1.2 connections over TCP/IP.
 
 #### BSP Platforms
 
@@ -78,8 +82,7 @@ Numerous platform implementations are provided for your reference. These are ava
 under directory `src/bsp/platforms/[PLATFORM]`.
 
 The POSIX implementation is probably the most familiar to most engineers.
-However, some of the other reference BSP implementations might be closer to the platform that
-you're working on if you're working in the embedded device space.
+However, some of the other reference BSP implementations might be closer to the platform that you're working on, if you're working in the embedded device space.
 
 If your platform is not supported by one of these reference implementations then we recommended that you:
 
@@ -294,14 +297,14 @@ For more information about thread safe callback support please see the Xively C 
 
 By executing a simple 'make' under the base directory of the repository should be sufficient on OSX or Linux/Unix. This will result in build configuration with the following default flags:
 
-    - CONFIG: posix_fs-posix_platform-tls-senml-control_topic-memory_limiter
+    - CONFIG: posix_fs-posix_platform-tls_bsp-senml-control_topic-memory_limiter
     - TARGET: osx-static-release
 
 The result will be a release version Xively C Client static library with debug outputs, secure TLS connection, POSIX networking and file system, artificial memory limits and memory guards turned on and with SENML support for timeseries formatting.
 
 The development version flags without SENML and memory limits may look like this:
 
-    - CONFIG=posix_io-posix_fs-posix_platform-tls
+    - CONFIG=posix_io-posix_fs-posix_platform-tls_bsp
     - TARGET=osx-static-debug
 
 For CI configurations please look at the file [.travis.yml](../../.travis.yml).
@@ -366,7 +369,7 @@ To make this possible, the following steps have to be taken.
 
     - define a Xively Client feature and target configurations which will be used in this same file afterwards
 
-            CONFIG_NP2000_MIN = memory_fs-tls
+            CONFIG_NP2000_MIN = memory_fs-tls_bsp
             TARGET_NP2000_REL = -static-release
 
     - define make system variables for PRESET *np2000*
