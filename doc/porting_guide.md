@@ -41,11 +41,11 @@ The Xively Client has been deployed on many different devices already shipping i
   - Texas Instruments CC3200
   - Texas Instruments CC3220SF
   - STM3241G-EVAL
-  - STM32F4 Nucelo
-  - STM32F4 Nucleo Wifi
-  - STM32F4 Could Jam
-  - STM32L476RG
-  - STM32L053R8
+  - STM32 NUCLEO-F429ZI Ethernet
+  - STM32F4 CLOUD-JAM RushUp WiFi
+  - STM32 NUCLEO-F401RE *(with IDW01M1 WiFi)*
+  - STM32 NUCLEO-L476RG *(with IDW01M1 WiFi)*
+  - STM32 NUCLEO-L053R8 *(with IDW01M1 WiFi)*
   - Marvell
   - wmsdk
 
@@ -55,14 +55,12 @@ Porting the Xively C Client to new platforms is accelerated by the Board Support
 
 The Board Support Package (BSP) is the well-defined set of functions that the Xively Client invokes to interact with a platform's specific networking, [TLS](https://en.wikipedia.org/wiki/Transport_Layer_Security), memory, random number generator, and time implementations.
 
-We've organized the sources of the Xivey Client so that your BSP implementation is in just a few files that reside in the directory (`src/bsp`).  This is where you should focus your attention when writing porting the Xively Client to your device SDK.
-
-The BSP was designed to minimize the time it takes to make a port of the library. With it an engineer can ignore the MQTT codec or the non-blocking / asynchronous engine that resides in the main library source.
+We've organized the sources of the Xivey Client so that your BSP implementation is in just a few files that reside in the directory (`src/bsp`).  You should focus your attention here when porting the Xively Client to your device SDK, safely ignoring the MQTT codec or the non-blocking / asynchronous engine that resides in the rest of the main library source.
 
 All of the BSP **function declarations** can be found under the `include/bsp`
 directory. Doxygen documentation for these functions can be found in the `doc/doxygen/bsp/html/index.html`.
 
-BSP Functions are broken down by logical subsystem as follows:
+BSP Functions are broken down by logical subsystems as follows:
 
 ### BSP Modules
 
@@ -76,7 +74,7 @@ BSP Functions are broken down by logical subsystem as follows:
 
 Reference **function implementations** are separated into two directories: `src/bsp/platform` and `src/bsp/tls`.
 
-The *platform* directory contains networking, memory, random number generator and time implementations.  The *tls* directory contains reference implementations for *wolfSSL* and *mbedTLS* libraries that supply secure connections over TCP/IP.
+The *platform* directory contains networking, memory, random number generator and time implementations.  The *tls* directory contains reference implementations for *wolfSSL* and *mbedTLS* libraries which supply secure TLS v1.2 connections over TCP/IP.
 
 #### BSP Platforms
 
@@ -84,8 +82,7 @@ Numerous platform implementations are provided for your reference. These are ava
 under directory `src/bsp/platforms/[PLATFORM]`.
 
 The POSIX implementation is probably the most familiar to most engineers.
-However, some of the other reference BSP implementations might be closer to the platform that
-you're working on if you're working in the embedded device space.
+However, some of the other reference BSP implementations might be closer to the platform that you're working on, if you're working in the embedded device space.
 
 If your platform is not supported by one of these reference implementations then we recommended that you:
 
