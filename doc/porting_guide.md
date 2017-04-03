@@ -1,5 +1,5 @@
 # Porting Guide for Xively C Client
-##### Copyright © 2003-2016 LogMeIn, Inc.
+##### Copyright © 2003-2017 LogMeIn, Inc.
 
 ## Table of Contents
 1. [Target Audience](#target-audience)
@@ -34,13 +34,18 @@ For more information please see the Xively C Client User Guide: `doc/user_guide.
 
 ## Supported Platforms
 
-The Xively Client has been deployed on many different devices already shipping in the IoT space running the following platform stacks:
+The Xively Client has been deployed on many different devices already shipping in the IoT space running the following platform stacks. The following is a catalog of our tested ports:
 
   - POSIX systems (OSX, Linux)
   - Microchip TCP SDK
-  - WMSDK
   - Texas Instruments CC3200
+  - Texas Instruments CC3220SF
   - STM3241G-EVAL
+  - STM32F4 Nucelo
+  - STM32F4 Nucleo Wifi
+  - STM32F4 Could Jam
+  - STM32L476RG
+  - STM32L053R8
   - Marvell
 
 Porting the Xively C Client to new platforms is accelerated by the Board Support Package (BSP).
@@ -294,14 +299,14 @@ For more information about thread safe callback support please see the Xively C 
 
 By executing a simple 'make' under the base directory of the repository should be sufficient on OSX or Linux/Unix. This will result in build configuration with the following default flags:
 
-    - CONFIG: posix_fs-posix_platform-tls-senml-control_topic-memory_limiter
+    - CONFIG: posix_fs-posix_platform-tls_bsp-senml-control_topic-memory_limiter
     - TARGET: osx-static-release
 
 The result will be a release version Xively C Client static library with debug outputs, secure TLS connection, POSIX networking and file system, artificial memory limits and memory guards turned on and with SENML support for timeseries formatting.
 
 The development version flags without SENML and memory limits may look like this:
 
-    - CONFIG=posix_io-posix_fs-posix_platform-tls
+    - CONFIG=posix_io-posix_fs-posix_platform-tls_bsp
     - TARGET=osx-static-debug
 
 For CI configurations please look at the file [.travis.yml](../../.travis.yml).
@@ -366,7 +371,7 @@ To make this possible, the following steps have to be taken.
 
     - define a Xively Client feature and target configurations which will be used in this same file afterwards
 
-            CONFIG_NP2000_MIN = memory_fs-tls
+            CONFIG_NP2000_MIN = memory_fs-tls_bsp
             TARGET_NP2000_REL = -static-release
 
     - define make system variables for PRESET *np2000*
