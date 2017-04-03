@@ -4,9 +4,9 @@
 		<cconfiguration id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.1474710539">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.1474710539" moduleId="org.eclipse.cdt.core.settings" name="IKS01A1_Debug">
 				<macros>
-					<stringMacro name="XI_STMCUBE_PATH" type="VALUE_PATH_ANY" value="/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_WIFI1_V2.1.1"/>
-					<stringMacro name="XI_CLIENT_PATH" type="VALUE_PATH_ANY" value="/Users/palantir/Work/Xively/stm32f4xx/xively-client-c"/>
-					<stringMacro name="XI_MEMS_STMCUBE_PATH" type="VALUE_PATH_ANY" value="/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_MEMS1_V3.0.0"/>
+					<stringMacro name="XI_STMCUBE_PATH" type="VALUE_PATH_DIR" value="/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_WIFI1_V2.1.1"/>
+					<stringMacro name="XI_CLIENT_PATH" type="VALUE_PATH_DIR" value="../../../../../../.."/>
+					<stringMacro name="XI_MEMS_STMCUBE_PATH" type="VALUE_PATH_DIR" value="/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_MEMS1_V3.0.0"/>
 				</macros>
 				<externalSettings>
 					<externalSetting/>
