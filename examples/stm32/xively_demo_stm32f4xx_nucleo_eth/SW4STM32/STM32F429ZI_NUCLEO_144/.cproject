@@ -110,59 +110,6 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
-					<folderInfo id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.667843212.237084463" name="/" resourcePath="Drivers/BSP/X_NUCLEO_IKS01A2">
-						<toolChain id="fr.ac6.managedbuild.toolchain.gnu.cross.exe.debug.723848753" name="Ac6 STM32 MCU GCC" superClass="fr.ac6.managedbuild.toolchain.gnu.cross.exe.debug" unusedChildren="">
-							<option id="fr.ac6.managedbuild.option.gnu.cross.prefix.267800918.178000002" name="Prefix" superClass="fr.ac6.managedbuild.option.gnu.cross.prefix.267800918"/>
-							<option id="fr.ac6.managedbuild.option.gnu.cross.mcu.223980244.1943876715" name="Mcu" superClass="fr.ac6.managedbuild.option.gnu.cross.mcu.223980244"/>
-							<option id="fr.ac6.managedbuild.option.gnu.cross.board.920559304.809602078" name="Board" superClass="fr.ac6.managedbuild.option.gnu.cross.board.920559304"/>
-							<option id="fr.ac6.managedbuild.option.gnu.cross.instructionSet.1186121575.2122715995" name="Instruction Set" superClass="fr.ac6.managedbuild.option.gnu.cross.instructionSet.1186121575"/>
-							<option id="fr.ac6.managedbuild.option.gnu.cross.fpu.286281437.629269966" name="Floating point hardware" superClass="fr.ac6.managedbuild.option.gnu.cross.fpu.286281437"/>
-							<option id="fr.ac6.managedbuild.option.gnu.cross.floatabi.495222488.663668157" name="Floating-point ABI" superClass="fr.ac6.managedbuild.option.gnu.cross.floatabi.495222488"/>
-							<tool id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.975310847" name="MCU GCC Compiler" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.1736408930">
-								<option id="gnu.c.compiler.option.include.paths.1279262709" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="../../../Inc"/>
-									<listOptionValue builtIn="false" value="${XI_CLIENT_PATH}/include"/>
-									<listOptionValue builtIn="false" value="${XI_CLIENT_PATH}/include/bsp"/>
-									<listOptionValue builtIn="false" value="${XI_CLIENT_PATH}/src/bsp/platform/stm32fx/include"/>
-									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/CMSIS/Device/ST/STM32F4xx/Include"/>
-									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/CMSIS/Include"/>
-									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/STM32F4xx_HAL_Driver/Inc"/>
-									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/BSP/STM32F4xx_Nucleo_144"/>
-									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/BSP/Components/Common"/>
-									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Middlewares/Third_Party/LwIP/src/include/"/>
-									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Middlewares/Third_Party/LwIP/system"/>
-									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Middlewares/Third_Party/FreeRTOS/Source/"/>
-									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS"/>
-									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Middlewares/Third_Party/FreeRTOS/Source/include"/>
-									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Utilities"/>
-									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Utilities/Log"/>
-									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F"/>
-									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Projects/STM32F429ZI-Nucleo/Applications/LwIP/LwIP_HTTP_Server_Netconn_RTOS/Inc"/>
-									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/Components/Common"/>
-									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/Components/hts221"/>
-									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/Components/lis3mdl"/>
-									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/Components/lps22hb"/>
-									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/Components/lps25hb"/>
-									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/Components/lsm303agr"/>
-									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/Components/lsm6ds0"/>
-									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/Components/lsm6ds3"/>
-									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/Components/lsm6dsl"/>
-									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/X_NUCLEO_IKS01A1"/>
-									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/X_NUCLEO_IKS01A2"/>
-								</option>
-								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c.752092214" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c"/>
-								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.s.1002107827" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.s"/>
-							</tool>
-							<tool id="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.89862783" name="MCU G++ Compiler" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.1082532070"/>
-							<tool id="fr.ac6.managedbuild.tool.gnu.cross.c.linker.2143020382" name="MCU GCC Linker" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.linker.967030186"/>
-							<tool id="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker.1652428019" name="MCU G++ Linker" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker.1366619478"/>
-							<tool id="fr.ac6.managedbuild.tool.gnu.archiver.1712717773" name="MCU GCC Archiver" superClass="fr.ac6.managedbuild.tool.gnu.archiver.1736943964"/>
-							<tool id="fr.ac6.managedbuild.tool.gnu.cross.assembler.1133336427" name="MCU GCC Assembler" superClass="fr.ac6.managedbuild.tool.gnu.cross.assembler.732901655">
-								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1038671318" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
-								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.assembler.input.2055816887" superClass="fr.ac6.managedbuild.tool.gnu.cross.assembler.input"/>
-							</tool>
-						</toolChain>
-					</folderInfo>
 					<sourceEntries>
 						<entry excluding="Drivers/BSP/X_NUCLEO_IKS01A1" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
@@ -276,59 +223,6 @@
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1226356867" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.assembler.input.1542633322" superClass="fr.ac6.managedbuild.tool.gnu.cross.assembler.input"/>
-							</tool>
-						</toolChain>
-					</folderInfo>
-					<folderInfo id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.667843212.1209297823.1225700201" name="/" resourcePath="Drivers/BSP/X_NUCLEO_IKS01A2">
-						<toolChain id="fr.ac6.managedbuild.toolchain.gnu.cross.exe.debug.1092709822" name="Ac6 STM32 MCU GCC" superClass="fr.ac6.managedbuild.toolchain.gnu.cross.exe.debug" unusedChildren="">
-							<option id="fr.ac6.managedbuild.option.gnu.cross.prefix.2024607234.272879806" name="Prefix" superClass="fr.ac6.managedbuild.option.gnu.cross.prefix.2024607234"/>
-							<option id="fr.ac6.managedbuild.option.gnu.cross.mcu.2049399777.434796775" name="Mcu" superClass="fr.ac6.managedbuild.option.gnu.cross.mcu.2049399777"/>
-							<option id="fr.ac6.managedbuild.option.gnu.cross.board.273432759.523798545" name="Board" superClass="fr.ac6.managedbuild.option.gnu.cross.board.273432759"/>
-							<option id="fr.ac6.managedbuild.option.gnu.cross.instructionSet.386124463.44668538" name="Instruction Set" superClass="fr.ac6.managedbuild.option.gnu.cross.instructionSet.386124463"/>
-							<option id="fr.ac6.managedbuild.option.gnu.cross.fpu.464269975.44297545" name="Floating point hardware" superClass="fr.ac6.managedbuild.option.gnu.cross.fpu.464269975"/>
-							<option id="fr.ac6.managedbuild.option.gnu.cross.floatabi.717660448.212154977" name="Floating-point ABI" superClass="fr.ac6.managedbuild.option.gnu.cross.floatabi.717660448"/>
-							<tool id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.1491799469" name="MCU GCC Compiler" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.122308192">
-								<option id="gnu.c.compiler.option.include.paths.145743118" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="../../../Inc"/>
-									<listOptionValue builtIn="false" value="${XI_CLIENT_PATH}/include"/>
-									<listOptionValue builtIn="false" value="${XI_CLIENT_PATH}/include/bsp"/>
-									<listOptionValue builtIn="false" value="${XI_CLIENT_PATH}/src/bsp/platform/stm32fx/include"/>
-									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/CMSIS/Device/ST/STM32F4xx/Include"/>
-									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/CMSIS/Include"/>
-									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/STM32F4xx_HAL_Driver/Inc"/>
-									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/BSP/STM32F4xx_Nucleo_144"/>
-									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/BSP/Components/Common"/>
-									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Middlewares/Third_Party/LwIP/src/include/"/>
-									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Middlewares/Third_Party/LwIP/system"/>
-									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Middlewares/Third_Party/FreeRTOS/Source/"/>
-									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS"/>
-									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Middlewares/Third_Party/FreeRTOS/Source/include"/>
-									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Utilities"/>
-									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Utilities/Log"/>
-									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F"/>
-									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Projects/STM32F429ZI-Nucleo/Applications/LwIP/LwIP_HTTP_Server_Netconn_RTOS/Inc"/>
-									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/Components/Common"/>
-									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/Components/hts221"/>
-									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/Components/lis3mdl"/>
-									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/Components/lps22hb"/>
-									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/Components/lps25hb"/>
-									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/Components/lsm303agr"/>
-									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/Components/lsm6ds0"/>
-									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/Components/lsm6ds3"/>
-									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/Components/lsm6dsl"/>
-									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/X_NUCLEO_IKS01A1"/>
-									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/X_NUCLEO_IKS01A2"/>
-								</option>
-								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c.378947622" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c"/>
-								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.s.33527722" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.s"/>
-							</tool>
-							<tool id="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.538916964" name="MCU G++ Compiler" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.1924681528"/>
-							<tool id="fr.ac6.managedbuild.tool.gnu.cross.c.linker.1841707057" name="MCU GCC Linker" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.linker.947401718"/>
-							<tool id="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker.1979490589" name="MCU G++ Linker" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker.959936427"/>
-							<tool id="fr.ac6.managedbuild.tool.gnu.archiver.2030714876" name="MCU GCC Archiver" superClass="fr.ac6.managedbuild.tool.gnu.archiver.2119655348"/>
-							<tool id="fr.ac6.managedbuild.tool.gnu.cross.assembler.141668131" name="MCU GCC Assembler" superClass="fr.ac6.managedbuild.tool.gnu.cross.assembler.567259671">
-								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.571545669" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
-								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.assembler.input.1890615343" superClass="fr.ac6.managedbuild.tool.gnu.cross.assembler.input"/>
 							</tool>
 						</toolChain>
 					</folderInfo>
