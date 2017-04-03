@@ -47,6 +47,7 @@ The Xively Client has been deployed on many different devices already shipping i
   - STM32L476RG
   - STM32L053R8
   - Marvell
+  - wmsdk
 
 Porting the Xively C Client to new platforms is accelerated by the Board Support Package (BSP).
 
