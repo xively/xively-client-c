@@ -8,7 +8,7 @@
  ******************************************************************************
  */
 
-/** 
+/**
  * @attention
  *
  * Copyright (c) 2003-2017, LogMeIn, Inc. All rights reserved.
@@ -123,13 +123,13 @@ static int8_t get_xively_credentials( user_data_t* udata );
 
 /* Xively channel names - These weill be used to build the MQTT topic addresses */
 #define ACCELEROMETER_CHANNEL_NAME "Accelerometer"
-#define GYROSCOPE_CHANNEL_NAME     "Gyroscope"
-#define MAGNETOMETER_CHANNEL_NAME  "Magnetometer"
-#define BAROMETER_CHANNEL_NAME     "Barometer"
-#define HUMIDITY_CHANNEL_NAME      "Humidity"
-#define TEMPERATURE_CHANNEL_NAME   "Temperature"
-#define BUTTON_CHANNEL_NAME        "Button"
-#define LED_CHANNEL_NAME           "LED"
+#define GYROSCOPE_CHANNEL_NAME "Gyroscope"
+#define MAGNETOMETER_CHANNEL_NAME "Magnetometer"
+#define BAROMETER_CHANNEL_NAME "Barometer"
+#define HUMIDITY_CHANNEL_NAME "Humidity"
+#define TEMPERATURE_CHANNEL_NAME "Temperature"
+#define BUTTON_CHANNEL_NAME "Button"
+#define LED_CHANNEL_NAME "LED"
 
 /* RAM can be saved by building each of these when needed and free()ing them after use */
 typedef struct mqtt_topics_s
@@ -485,7 +485,8 @@ static xi_state_t init_xively_topics( xi_context_handle_t in_context_handle )
 {
     xi_state_t ret = XI_STATE_OK;
 
-    if ( 0 > update_all_mqtt_topics( user_config.xi_account_id, user_config.xi_device_id ) )
+    if ( 0 >
+         update_all_mqtt_topics( user_config.xi_account_id, user_config.xi_device_id ) )
     {
         printf( "\r\n>> Topic composition [ERROR]" );
         return XI_FAILED_INITIALIZATION;
@@ -554,7 +555,7 @@ static inline int8_t system_init( void )
     wifi_module_config.power       = wifi_sleep;
     wifi_module_config.power_level = high;
     wifi_module_config.dhcp        = on; /* use DHCP IP address */
-    //wifi_module_config.web_server  = WIFI_TRUE;
+    // wifi_module_config.web_server  = WIFI_TRUE;
 
     wifi_state = wifi_state_idle;
 
@@ -573,10 +574,10 @@ static inline int8_t system_init( void )
  */
 int main( void )
 {
-    uint8_t i                  = 0;
-    uint8_t socket_open        = 0;
-    wifi_bool SSID_found       = WIFI_FALSE;
-    WiFi_Status_t status       = WiFi_MODULE_SUCCESS;
+    uint8_t i            = 0;
+    uint8_t socket_open  = 0;
+    wifi_bool SSID_found = WIFI_FALSE;
+    WiFi_Status_t status = WiFi_MODULE_SUCCESS;
 
     if ( 0 > system_init() )
     {
@@ -651,7 +652,8 @@ int main( void )
                 printf( "\r\n\t* Account ID:  [%s]", user_config.xi_account_id );
                 printf( "\r\n\t* Device ID:   [%s]", user_config.xi_device_id );
                 printf( "\r\n\t* Device Pass: ( REDACTED )\n" );
-                //printf( "\r\n\t* Device Pass: [%s]\n", user_config.xi_device_password );
+                // printf( "\r\n\t* Device Pass: [%s]\n", user_config.xi_device_password
+                // );
 
                 if ( socket_open == 0 )
                 {
@@ -898,8 +900,7 @@ static int8_t get_ap_credentials( user_data_t* udata )
             user_data_set_wifi_encryption( udata, WPA_Personal );
             break;
         default:
-            printf( "\r\n>> Wrong Entry. Mode [%s] is not an option",
-                    single_char_input );
+            printf( "\r\n>> Wrong Entry. Mode [%s] is not an option", single_char_input );
             return -2;
     }
     return 1;
