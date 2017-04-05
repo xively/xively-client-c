@@ -1,5 +1,80 @@
 #include "demo_bsp.h"
+#include "stm32_spwf_wifi.h"
 
+/******************************************************************************
+*                 UART Initialization implementation for                      *
+*  STM32F1xx_NUCLEO, STM32F4XX_NUCLEO, STM32L0XX_NUCLEO, STM32L4XX_NUCLEO     *
+******************************************************************************/
+
+#ifdef USART_PRINT_MSG
+UART_HandleTypeDef UART_MsgHandle;
+
+int8_t UART_Msg_Gpio_Init()
+{
+    GPIO_InitTypeDef GPIO_InitStruct;
+
+    /*##-1- Enable peripherals and GPIO Clocks #################################*/
+    /* Enable GPIO TX/RX clock */
+    USARTx_PRINT_TX_GPIO_CLK_ENABLE();
+    USARTx_PRINT_RX_GPIO_CLK_ENABLE();
+
+    /* Enable USARTx clock */
+    USARTx_PRINT_CLK_ENABLE();
+    __SYSCFG_CLK_ENABLE();
+    /*##-2- Configure peripheral GPIO ##########################################*/
+    /* UART TX GPIO pin configuration  */
+    GPIO_InitStruct.Pin   = WiFi_USART_PRINT_TX_PIN;
+    GPIO_InitStruct.Mode  = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull  = GPIO_PULLUP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
+#if defined( USE_STM32L0XX_NUCLEO ) || defined( USE_STM32F4XX_NUCLEO ) || \
+    defined( USE_STM32L4XX_NUCLEO )
+    GPIO_InitStruct.Alternate = PRINTMSG_USARTx_TX_AF;
+#endif /* defined(...)||defined(...)||defined(...) */
+    HAL_GPIO_Init( WiFi_USART_PRINT_TX_GPIO_PORT, &GPIO_InitStruct );
+
+    /* UART RX GPIO pin configuration  */
+    GPIO_InitStruct.Pin  = WiFi_USART_PRINT_RX_PIN;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+#if defined( USE_STM32L0XX_NUCLEO ) || defined( USE_STM32F4XX_NUCLEO ) || \
+    defined( USE_STM32L4XX_NUCLEO )
+    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Alternate = PRINTMSG_USARTx_RX_AF;
+#endif /* defined(...)||defined(...)||defined(...) */
+
+    HAL_GPIO_Init( WiFi_USART_PRINT_RX_GPIO_PORT, &GPIO_InitStruct );
+
+#ifdef WIFI_USE_VCOM
+    /*##-3- Configure the NVIC for UART ########################################*/
+    /* NVIC for USART */
+    HAL_NVIC_SetPriority( USARTx_PRINT_IRQn, 0, 1 );
+    HAL_NVIC_EnableIRQ( USARTx_PRINT_IRQn );
+#endif /* WIFI_USE_VCOM */
+}
+
+int8_t USART_PRINT_MSG_Configuration( uint32_t baud_rate )
+{
+    UART_MsgHandle.Instance        = WIFI_UART_MSG;
+    UART_MsgHandle.Init.BaudRate   = baud_rate;
+    UART_MsgHandle.Init.WordLength = UART_WORDLENGTH_8B;
+    UART_MsgHandle.Init.StopBits   = UART_STOPBITS_1;
+    UART_MsgHandle.Init.Parity     = UART_PARITY_NONE;
+    UART_MsgHandle.Init.HwFlowCtl  = UART_HWCONTROL_NONE;
+    UART_MsgHandle.Init.Mode       = UART_MODE_TX_RX;
+
+    if ( HAL_UART_DeInit( &UART_MsgHandle ) != HAL_OK )
+    {
+        return -1;
+    }
+    if ( HAL_UART_Init( &UART_MsgHandle ) != HAL_OK )
+    {
+        return -1;
+    }
+
+    Set_UartMsgHandle( &UART_MsgHandle );
+}
+
+#endif  /* USART_PRINT_MSG */
 
 /******************************************************************************
 *                 SystemClock_Config() implementations for                    *
