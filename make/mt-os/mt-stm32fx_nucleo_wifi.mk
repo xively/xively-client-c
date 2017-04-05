@@ -6,11 +6,11 @@
 include make/mt-os/mt-os-common.mk
 include make/mt-utils/mt-get-gnu-arm-toolchain.mk
 
-XI_STM32_PATH_SDK = $(HOME)/Downloads/xively-client-artifactory/st/STM32CubeExpansion_WIFI1_V2.1.1
+XI_STM32_PATH_SDK = $(HOME)/Downloads/xively-client-artifactory/st/STM32CubeExpansion_WIFI1_V3.0.1
 
-XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Middlewares/ST/STM32_SPWF01SA/Utils
-XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Middlewares/ST/STM32_SPWF01SA/Inc
-XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/BSP/X-NUCLEO-IDW01M1
+XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Middlewares/ST/STM32_SPWF0xSy/Utils
+XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Middlewares/ST/STM32_SPWF0xSy/Inc
+XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/BSP/X-NUCLEO-IDW0xx1
 XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/CMSIS/Include
 XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/CMSIS/Device/ST/STM32F4xx/Include
 XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/STM32F4xx_HAL_Driver/Inc
