@@ -86,7 +86,7 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>Drivers/BSP/X-NUCLEO-IDW01M1</name>
+			<name>Drivers/BSP/X-NUCLEO-IDW0xx1</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
@@ -149,6 +149,11 @@
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_rcc_ex.c</name>
 			<type>1</type>
 			<locationURI>XI_STMCUBE_PATH/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_spi.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_PATH/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_tim.c</name>
@@ -216,7 +221,7 @@
 			<locationURI>PARENT-3-PROJECT_LOC/Src/user_data.c</locationURI>
 		</link>
 		<link>
-			<name>Middlewares/ST/STM32_SPWF01SA</name>
+			<name>Middlewares/ST/STM32_SPWF0xSy</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
@@ -281,19 +286,19 @@
 			<locationURI>XI_STMCUBE_PATH/Drivers/BSP/STM32F4xx-Nucleo/stm32f4xx_nucleo.h</locationURI>
 		</link>
 		<link>
-			<name>Drivers/BSP/X-NUCLEO-IDW01M1/Release_Notes.html</name>
+			<name>Drivers/BSP/X-NUCLEO-IDW0xx1/Release_Notes.html</name>
 			<type>1</type>
-			<locationURI>XI_STMCUBE_PATH/Drivers/BSP/X-NUCLEO-IDW01M1/Release_Notes.html</locationURI>
+			<locationURI>XI_STMCUBE_PATH/Drivers/BSP/X-NUCLEO-IDW0xx1/Release_Notes.html</locationURI>
 		</link>
 		<link>
-			<name>Drivers/BSP/X-NUCLEO-IDW01M1/stm32_spwf_wifi.c</name>
+			<name>Drivers/BSP/X-NUCLEO-IDW0xx1/stm32_spwf_wifi.c</name>
 			<type>1</type>
-			<locationURI>XI_STMCUBE_PATH/Drivers/BSP/X-NUCLEO-IDW01M1/stm32_spwf_wifi.c</locationURI>
+			<locationURI>XI_STMCUBE_PATH/Drivers/BSP/X-NUCLEO-IDW0xx1/stm32_spwf_wifi.c</locationURI>
 		</link>
 		<link>
-			<name>Drivers/BSP/X-NUCLEO-IDW01M1/stm32_spwf_wifi.h</name>
+			<name>Drivers/BSP/X-NUCLEO-IDW0xx1/stm32_spwf_wifi.h</name>
 			<type>1</type>
-			<locationURI>XI_STMCUBE_PATH/Drivers/BSP/X-NUCLEO-IDW01M1/stm32_spwf_wifi.h</locationURI>
+			<locationURI>XI_STMCUBE_PATH/Drivers/BSP/X-NUCLEO-IDW0xx1/stm32_spwf_wifi.h</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/X_NUCLEO_IKS01A1/.x_nucleo_iks01a1_accelero.c.swp</name>
@@ -336,64 +341,89 @@
 			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A1/x_nucleo_iks01a1_temperature.c</locationURI>
 		</link>
 		<link>
-			<name>Middlewares/ST/STM32_SPWF01SA/Utils</name>
+			<name>Middlewares/ST/STM32_SPWF0xSy/Inc</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>Middlewares/ST/STM32_SPWF01SA/wifi_interface.c</name>
+			<name>Middlewares/ST/STM32_SPWF0xSy/Release_Notes.html</name>
 			<type>1</type>
-			<locationURI>XI_STMCUBE_PATH/Middlewares/ST/STM32_SPWF01SA/wifi_interface.c</locationURI>
+			<locationURI>XI_STMCUBE_PATH/Middlewares/ST/STM32_SPWF0xSy/Release_Notes.html</locationURI>
 		</link>
 		<link>
-			<name>Middlewares/ST/STM32_SPWF01SA/wifi_module.c</name>
+			<name>Middlewares/ST/STM32_SPWF0xSy/Utils</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/ST/STM32_SPWF0xSy/wifi_interface.c</name>
 			<type>1</type>
-			<locationURI>XI_STMCUBE_PATH/Middlewares/ST/STM32_SPWF01SA/wifi_module.c</locationURI>
+			<locationURI>XI_STMCUBE_PATH/Middlewares/ST/STM32_SPWF0xSy/wifi_interface.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/ST/STM32_SPWF0xSy/wifi_module.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_PATH/Middlewares/ST/STM32_SPWF0xSy/wifi_module.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/ST/STM32_SPWF0xSy/wifi_module_spi.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_PATH/Middlewares/ST/STM32_SPWF0xSy/wifi_module_spi.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/ST/STM32_SPWF0xSy/wifi_module_uart_01.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_PATH/Middlewares/ST/STM32_SPWF0xSy/wifi_module_uart_01.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/ST/STM32_SPWF0xSy/wifi_module_uart_04.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_PATH/Middlewares/ST/STM32_SPWF0xSy/wifi_module_uart_04.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/Common/Release_Notes.html</name>
 			<type>1</type>
-			<location>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/Common/Release_Notes.html</location>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/Common/Release_Notes.html</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/Common/accelerometer.h</name>
 			<type>1</type>
-			<location>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/Common/accelerometer.h</location>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/Common/accelerometer.h</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/Common/component.h</name>
 			<type>1</type>
-			<location>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/Common/component.h</location>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/Common/component.h</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/Common/gyroscope.h</name>
 			<type>1</type>
-			<location>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/Common/gyroscope.h</location>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/Common/gyroscope.h</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/Common/humidity.h</name>
 			<type>1</type>
-			<location>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/Common/humidity.h</location>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/Common/humidity.h</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/Common/magnetometer.h</name>
 			<type>1</type>
-			<location>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/Common/magnetometer.h</location>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/Common/magnetometer.h</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/Common/pressure.h</name>
 			<type>1</type>
-			<location>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/Common/pressure.h</location>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/Common/pressure.h</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/Common/sensor.h</name>
 			<type>1</type>
-			<location>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/Common/sensor.h</location>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/Common/sensor.h</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/Common/temperature.h</name>
 			<type>1</type>
-			<location>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/Common/temperature.h</location>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/Common/temperature.h</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/hts221/HTS221_Driver.c</name>
@@ -568,27 +598,27 @@
 		<link>
 			<name>Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver.c</name>
 			<type>1</type>
-			<location>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver.c</location>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver.h</name>
 			<type>1</type>
-			<location>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver.h</location>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver.h</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver_HL.c</name>
 			<type>1</type>
-			<location>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver_HL.c</location>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver_HL.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver_HL.h</name>
 			<type>1</type>
-			<location>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver_HL.h</location>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lsm6ds3/LSM6DS3_ACC_GYRO_driver_HL.h</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/lsm6ds3/Release_Notes.html</name>
 			<type>1</type>
-			<location>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lsm6ds3/Release_Notes.html</location>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lsm6ds3/Release_Notes.html</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/Components/lsm6dsl/LSM6DSL_ACC_GYRO_driver.c</name>
@@ -616,19 +646,69 @@
 			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/Components/lsm6dsl/Release_Notes.html</locationURI>
 		</link>
 		<link>
-			<name>Middlewares/ST/STM32_SPWF01SA/Utils/event_buffer.c</name>
+			<name>Middlewares/ST/STM32_SPWF0xSy/Inc/wifi_const.h</name>
 			<type>1</type>
-			<locationURI>XI_STMCUBE_PATH/Middlewares/ST/STM32_SPWF01SA/Utils/event_buffer.c</locationURI>
+			<locationURI>XI_STMCUBE_PATH/Middlewares/ST/STM32_SPWF0xSy/Inc/wifi_const.h</locationURI>
 		</link>
 		<link>
-			<name>Middlewares/ST/STM32_SPWF01SA/Utils/ring_buffer.c</name>
+			<name>Middlewares/ST/STM32_SPWF0xSy/Inc/wifi_interface.h</name>
 			<type>1</type>
-			<locationURI>XI_STMCUBE_PATH/Middlewares/ST/STM32_SPWF01SA/Utils/ring_buffer.c</locationURI>
+			<locationURI>XI_STMCUBE_PATH/Middlewares/ST/STM32_SPWF0xSy/Inc/wifi_interface.h</locationURI>
 		</link>
 		<link>
-			<name>Middlewares/ST/STM32_SPWF01SA/Utils/wifi_globals.c</name>
+			<name>Middlewares/ST/STM32_SPWF0xSy/Inc/wifi_module.h</name>
 			<type>1</type>
-			<locationURI>XI_STMCUBE_PATH/Middlewares/ST/STM32_SPWF01SA/Utils/wifi_globals.c</locationURI>
+			<locationURI>XI_STMCUBE_PATH/Middlewares/ST/STM32_SPWF0xSy/Inc/wifi_module.h</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/ST/STM32_SPWF0xSy/Utils/Release_Notes.html</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_PATH/Middlewares/ST/STM32_SPWF0xSy/Utils/Release_Notes.html</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/ST/STM32_SPWF0xSy/Utils/enum.h</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_PATH/Middlewares/ST/STM32_SPWF0xSy/Utils/enum.h</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/ST/STM32_SPWF0xSy/Utils/event_buffer.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_PATH/Middlewares/ST/STM32_SPWF0xSy/Utils/event_buffer.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/ST/STM32_SPWF0xSy/Utils/event_buffer.h</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_PATH/Middlewares/ST/STM32_SPWF0xSy/Utils/event_buffer.h</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/ST/STM32_SPWF0xSy/Utils/ring_buffer.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_PATH/Middlewares/ST/STM32_SPWF0xSy/Utils/ring_buffer.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/ST/STM32_SPWF0xSy/Utils/ring_buffer.h</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_PATH/Middlewares/ST/STM32_SPWF0xSy/Utils/ring_buffer.h</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/ST/STM32_SPWF0xSy/Utils/spwf04WiFi.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_PATH/Middlewares/ST/STM32_SPWF0xSy/Utils/spwf04WiFi.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/ST/STM32_SPWF0xSy/Utils/spwf04WiFi.h</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_PATH/Middlewares/ST/STM32_SPWF0xSy/Utils/spwf04WiFi.h</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/ST/STM32_SPWF0xSy/Utils/wifi_globals.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_PATH/Middlewares/ST/STM32_SPWF0xSy/Utils/wifi_globals.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/ST/STM32_SPWF0xSy/Utils/wifi_globals.h</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_PATH/Middlewares/ST/STM32_SPWF0xSy/Utils/wifi_globals.h</locationURI>
 		</link>
 	</linkedResources>
 	<filteredResources>
@@ -663,11 +743,11 @@
 	<variableList>
 		<variable>
 			<name>XI_STMCUBE_MEMS_PATH</name>
-			<value>file:/Users/atigyi/Downloads/STM32CubeExpansion_MEMS1_V3.0.0</value>
+			<value>file:/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_MEMS1_V3.0.0</value>
 		</variable>
 		<variable>
 			<name>XI_STMCUBE_PATH</name>
-			<value>file:/Users/atigyi/Downloads/STM32CubeExpansion_WIFI1_V2.1.1</value>
+			<value>file:/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_WIFI1_V3.0.1</value>
 		</variable>
 	</variableList>
 </projectDescription>
