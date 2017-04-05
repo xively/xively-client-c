@@ -764,10 +764,10 @@ static inline void print_user_config_debug_banner( void )
     printf( "\r\n|               User Configuration Routine               |" );
     printf( "\r\n|               --------------------------               |" );
     printf( "\r\n| WARNING: Copy-pasting long strings to your serial      |" );
-    printf( "\r\n| -------  terminal may end up in character losses.      |" );
-    printf( "\r\n|          To solve this issue introduce character       |" );
-    printf( "\r\n|          transmit delay in the terminal settings.      |" );
-    printf( "\r\n|          coolTerm:                                     |" );
+    printf( "\r\n| -------  terminal may result in loss of characters.    |" );
+    printf( "\r\n|          To solve this issue use a delay between       |" );
+    printf( "\r\n|          characters in the terminal settings.          |" );
+    printf( "\r\n|          E.g in coolTerm:                              |" );
     printf( "\r\n|   Options->Transmit->Use transmit character delay      |" );
     printf( "\r\n|                                                        |" );
     printf( "\r\n| NOTE: You will only need to do this once.              |" );
