@@ -528,7 +528,7 @@ static inline int8_t system_init( void )
     /* configure the timers  */
     Timer_Config();
 
-    UART_Configuration( WIFI_BOARD_UART_BAUDRATE );
+    UART_Configuration( WIFI_BOARD_UART_BAUDRATE ); /* From stm32_spwf_wifi.c */
 #ifdef USART_PRINT_MSG
     UART_Msg_Gpio_Init();
     if ( 0 > USART_PRINT_MSG_Configuration( DEBUG_UART_BAUDRATE ) )
@@ -813,6 +813,7 @@ static int8_t user_config_init( user_data_t* dst )
             case 1:
                 printf( "\r\n>> Saving user data to flash" );
                 user_data_save_to_flash( dst );
+                break;
             case 0:
                 break;
             default:
@@ -826,6 +827,7 @@ static int8_t user_config_init( user_data_t* dst )
             case 1:
                 printf( "\r\n>> Saving user data to flash" );
                 user_data_save_to_flash( dst );
+                break;
             case 0:
                 break;
             default:
@@ -963,7 +965,7 @@ void ind_wifi_socket_data_received( int8_t server_id,
                                     uint32_t message_size,
                                     uint32_t chunk_size )
 {
-    server_id = server_id; /* Unused */
+    (void)server_id; /* Unused */
     /* Xively */
     xi_bsp_io_net_socket_data_received_proxy( ( uint8_t )socket_id, data_ptr,
                                               message_size, chunk_size );

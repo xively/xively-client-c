@@ -1,5 +1,6 @@
 #include "demo_bsp.h"
 #include "stm32_spwf_wifi.h"
+#include "wifi_globals.h"
 
 /******************************************************************************
 *                 UART Initialization implementation for                      *
@@ -9,7 +10,7 @@
 #ifdef USART_PRINT_MSG
 UART_HandleTypeDef UART_MsgHandle;
 
-int8_t UART_Msg_Gpio_Init()
+void UART_Msg_Gpio_Init()
 {
     GPIO_InitTypeDef GPIO_InitStruct;
 
@@ -72,9 +73,10 @@ int8_t USART_PRINT_MSG_Configuration( uint32_t baud_rate )
     }
 
     Set_UartMsgHandle( &UART_MsgHandle );
+    return 0;
 }
 
-#endif  /* USART_PRINT_MSG */
+#endif /* USART_PRINT_MSG */
 
 /******************************************************************************
 *                 SystemClock_Config() implementations for                    *
