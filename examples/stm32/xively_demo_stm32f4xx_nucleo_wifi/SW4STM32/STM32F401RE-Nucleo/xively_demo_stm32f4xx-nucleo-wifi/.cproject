@@ -100,9 +100,9 @@
 									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/CMSIS/Include"/>
 									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/CMSIS/Device/ST/STM32F4xx/Include"/>
 									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/BSP/STM32F4xx-Nucleo"/>
-									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Middlewares/ST/STM32_SPWF01SA/Inc"/>
-									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Middlewares/ST/STM32_SPWF01SA/Utils"/>
+									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Middlewares/ST/STM32_SPWF0xSy/Inc"/>
 									<listOptionValue builtIn="false" value="${XI_MEMS_STMCUBE_PATH}/Drivers/BSP/X_NUCLEO_IKS01A1"/>
+									<listOptionValue builtIn="false" value="${XI_STMCUBE_PATH}/Drivers/BSP/X-NUCLEO-IDW0xx1"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1862515303" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.assembler.input.1937990078" superClass="fr.ac6.managedbuild.tool.gnu.cross.assembler.input"/>

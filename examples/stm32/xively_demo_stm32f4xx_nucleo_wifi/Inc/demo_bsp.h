@@ -16,7 +16,10 @@
 #ifdef USE_STM32L4XX_NUCLEO
 #include "stm32l4xx_hal.h"
 #include "stm32l4xx_nucleo.h"
-#endif 
+#endif
+
+void UART_Msg_Gpio_Init();
+int8_t USART_PRINT_MSG_Configuration( uint32_t baud_rate );
 
 void SystemClock_Config( void );
 

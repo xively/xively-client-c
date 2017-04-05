@@ -39,7 +39,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32_xx_it.h"
 #include "wifi_module.h"
-#include "stm32_spwf_wifi.h" 
+#include "stm32_spwf_wifi.h"
 #include "wifi_globals.h"
 #include "demo_io.h"
 
@@ -290,10 +290,63 @@ void USARTx_IRQHandler(void)
 #ifdef USART_PRINT_MSG
 void USARTx_PRINT_IRQHandler(void)
 {
-   HAL_UART_IRQHandler(&UartMsgHandle);
+   HAL_UART_IRQHandler(UartMsgHandle);
 }
 #endif
 
+#if defined(SPWF04)
+/**
+ * @brief  EXTI line detection callback.
+ * @param  uint16_t GPIO_Pin Specifies the pins connected EXTI line
+ * @retval None
+ */
+/**
+  * @brief  WIFI_SPI_EXTI_IRQHandler This function handles External line
+  *         interrupt request for BlueNRG.
+  * @param  None
+  * @retval None
+  */
+void WIFI_SPI_EXTI_IRQHandler(void)
+{
+  HAL_GPIO_EXTI_IRQHandler(WIFI_SPI_EXTI_PIN);
+}
+
+#ifdef STM32L476xx
+void DMA1_Channel2_IRQHandler(void)
+{
+  if(__HAL_DMA_GET_IT_SOURCE(SpiHandle.hdmarx, DMA_IT_TC)  && __HAL_DMA_GET_FLAG(SpiHandle.hdmarx, DMA_FLAG_TC2))
+  {
+    WiFi_DMA_RxCallback();
+  }
+}
+
+void DMA1_Channel3_IRQHandler(void)
+{
+  if(__HAL_DMA_GET_IT_SOURCE(SpiHandle.hdmatx, DMA_IT_TC)  && __HAL_DMA_GET_FLAG(SpiHandle.hdmatx, DMA_FLAG_TC3))
+  {
+    WiFi_DMA_TxCallback();
+  }
+}
+#endif /* STM32L476xx */
+
+#ifdef STM32F401xE
+void DMA2_Stream0_IRQHandler(void)
+{
+  if(__HAL_DMA_GET_IT_SOURCE(SpiHandle.hdmarx, DMA_IT_TC)  && __HAL_DMA_GET_FLAG(SpiHandle.hdmarx, DMA_FLAG_TCIF0_4))
+  {
+    WiFi_DMA_RxCallback();
+  }
+}
+
+void DMA2_Stream3_IRQHandler(void)
+{
+  if(__HAL_DMA_GET_IT_SOURCE(SpiHandle.hdmatx, DMA_IT_TC)  && __HAL_DMA_GET_FLAG(SpiHandle.hdmatx, DMA_FLAG_TCIF3_7))
+  {
+    WiFi_DMA_TxCallback();
+  }
+}
+#endif /* STM32F401xE */
+#endif /* SPWF04 */
 /**
   * @}
   */ 
