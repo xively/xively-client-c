@@ -15,7 +15,8 @@ XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/CMSIS/Include
 XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/CMSIS/Device/ST/STM32F4xx/Include
 XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/STM32F4xx_HAL_Driver/Inc
 XI_COMPILER_FLAGS += -I$(XI_STM32_PATH_SDK)/Drivers/BSP/STM32F4xx-Nucleo
-XI_COMPILER_FLAGS += -I$(LIBXIVELY_SRC)/bsp/platform/stm32fx_nucleo_wifi/include
+XI_COMPILER_FLAGS += -I$(XI_BSP_DIR)/platform/$(XI_BSP_PLATFORM)/include
+
 
 ####################
 # arm-eabi-specifics
