@@ -1,3 +1,0 @@
-/Applications/Xcode.app/Contents/Developer/usr/bin/make -C /Users/ohumenczuk/workspace/xively/libxively-v3/xi_client_c/examples/mqtt_logic_example all
-[cc] /Users/ohumenczuk/workspace/xively/libxively-v3/xi_client_c/examples/mqtt_logic_example/bin/mqtt_logic_example
-cc /Users/ohumenczuk/workspace/xively/libxively-v3/xi_client_c/examples/mqtt_logic_example/obj/common/commandline.o /Users/ohumenczuk/workspace/xively/libxively-v3/xi_client_c/examples/mqtt_logic_example/obj/mqtt_logic_example.o -L/Users/ohumenczuk/workspace/xively/libxively-v3/xi_client_c/examples/mqtt_logic_example/../../obj/osx  -lxively -lm -lpthread -L  -lwolfssl -o /Users/ohumenczuk/workspace/xively/libxively-v3/xi_client_c/examples/mqtt_logic_example/bin/mqtt_logic_example

@@ -107,6 +107,11 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
+			<name>Drivers/BSP/X_NUCLEO_IKS01A2</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
 			<name>Drivers/CMSIS/system_stm32f4xx.c</name>
 			<type>1</type>
 			<locationURI>XI_STMCUBE_PATH/Projects/STM32F429ZI-Nucleo/Applications/LwIP/LwIP_HTTP_Server_Netconn_RTOS/Src/system_stm32f4xx.c</locationURI>
@@ -292,6 +297,16 @@
 			<locationURI>XI_STMCUBE_PATH/Drivers/BSP/STM32F4xx_Nucleo_144/stm32f4xx_nucleo_144.c</locationURI>
 		</link>
 		<link>
+			<name>Drivers/BSP/X_NUCLEO_IKS01A1/.x_nucleo_iks01a1_accelero.c.swp</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A1/.x_nucleo_iks01a1_accelero.c.swp</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/X_NUCLEO_IKS01A1/.x_nucleo_iks01a1_temperature.h.swp</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A1/.x_nucleo_iks01a1_temperature.h.swp</locationURI>
+		</link>
+		<link>
 			<name>Drivers/BSP/X_NUCLEO_IKS01A1/Release_Notes.html</name>
 			<type>1</type>
 			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A1/Release_Notes.html</locationURI>
@@ -365,6 +380,81 @@
 			<name>Drivers/BSP/X_NUCLEO_IKS01A1/x_nucleo_iks01a1_temperature.h</name>
 			<type>1</type>
 			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A1/x_nucleo_iks01a1_temperature.h</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/X_NUCLEO_IKS01A2/Release_Notes.html</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A2/Release_Notes.html</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2.h</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2.h</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2_accelero.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2_accelero.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2_accelero.h</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2_accelero.h</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2_gyro.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2_gyro.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2_gyro.h</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2_gyro.h</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2_humidity.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2_humidity.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2_humidity.h</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2_humidity.h</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2_magneto.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2_magneto.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2_magneto.h</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2_magneto.h</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2_pressure.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2_pressure.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2_pressure.h</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2_pressure.h</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2_temperature.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2_temperature.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2_temperature.h</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A2/x_nucleo_iks01a2_temperature.h</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/FreeRTOS/portable/cmsis_os.c</name>
@@ -820,11 +910,11 @@
 	<variableList>
 		<variable>
 			<name>XI_STMCUBE_MEMS_PATH</name>
-			<value>file:/Users/atigyi/Downloads/STM32CubeExpansion_MEMS1_V3.0.0</value>
+			<value>file:/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_MEMS1_V3.0.0</value>
 		</variable>
 		<variable>
 			<name>XI_STMCUBE_PATH</name>
-			<value>file:/Users/atigyi/Downloads/STM32Cube_FW_F4_V1.14.0</value>
+			<value>file:/Users/palantir/Work/Xively/stm32f4xx/STM32Cube_FW_F4_V1.14.0</value>
 		</variable>
 	</variableList>
 </projectDescription>
