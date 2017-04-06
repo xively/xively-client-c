@@ -2,6 +2,7 @@
 #include <string.h>
 #include <math.h>
 
+#ifdef IKS01A1_SENSOR_BOARD
 #include "x_nucleo_iks01a1.h"
 #include "x_nucleo_iks01a1_accelero.h"
 #include "x_nucleo_iks01a1_gyro.h"
@@ -10,6 +11,17 @@
 #include "x_nucleo_iks01a1_pressure.h"
 #include "x_nucleo_iks01a1_temperature.h"
 #include "LSM6DS0_ACC_GYRO_driver_HL.h"
+#elif defined(IKS01A2_SENSOR_BOARD)
+#include "x_nucleo_iks01a2.h"
+#include "x_nucleo_iks01a2_accelero.h"
+#include "x_nucleo_iks01a2_gyro.h"
+#include "x_nucleo_iks01a2_humidity.h"
+#include "x_nucleo_iks01a2_magneto.h"
+#include "x_nucleo_iks01a2_pressure.h"
+#include "x_nucleo_iks01a2_temperature.h"
+#else
+#error "No sensor board model selected"
+#endif
 
 #include "demo_bsp.h"
 #include "demo_io.h"
@@ -118,15 +130,15 @@ int8_t io_sensorboard_init( void )
         return -1;
     /* Force to use LIS3MDL */
     printf( "\r\n\tInitializing magnetometer" );
-    if ( COMPONENT_OK != BSP_MAGNETO_Init( LIS3MDL_0, &MAGNETO_handle ) )
+    if ( COMPONENT_OK != BSP_MAGNETO_Init( MAGNETO_SENSORS_AUTO, &MAGNETO_handle ) )
         return -1;
     /* Force to use HTS221 */
     printf( "\r\n\tInitializing humidity sensor" );
-    if ( COMPONENT_OK != BSP_HUMIDITY_Init( HTS221_H_0, &HUMIDITY_handle ) )
+    if ( COMPONENT_OK != BSP_HUMIDITY_Init( HUMIDITY_SENSORS_AUTO, &HUMIDITY_handle ) )
         return -1;
     /* Force to use HTS221 */
     printf( "\r\n\tInitializing temperature sensor" );
-    if ( COMPONENT_OK != BSP_TEMPERATURE_Init( HTS221_T_0, &TEMPERATURE_handle ) )
+    if ( COMPONENT_OK != BSP_TEMPERATURE_Init( TEMPERATURE_SENSORS_AUTO, &TEMPERATURE_handle ) )
         return -1;
     /* Try to use LPS25HB DIL24 if present, otherwise use LPS25HB on board */
     printf( "\r\n\tInitializing barometer" );
