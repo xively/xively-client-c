@@ -532,7 +532,9 @@ static inline int8_t system_init( void )
 #ifdef USART_PRINT_MSG
     UART_Msg_Gpio_Init();
     if ( 0 > USART_PRINT_MSG_Configuration( DEBUG_UART_BAUDRATE ) )
+    {
         return -1;
+    }
 #endif
 
 #ifdef USE_FLASH_STORAGE
