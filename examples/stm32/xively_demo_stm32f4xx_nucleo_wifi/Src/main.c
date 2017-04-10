@@ -97,6 +97,7 @@
 /* Private macro -------------------------------------------------------------*/
 
 /* Private variables ---------------------------------------------------------*/
+
 static user_data_t user_config;
 
 wifi_state_t wifi_state;
@@ -527,10 +528,13 @@ static inline int8_t system_init( void )
     /* configure the timers  */
     Timer_Config();
 
-    UART_Configuration( WIFI_BOARD_UART_BAUDRATE );
+    UART_Configuration( WIFI_BOARD_UART_BAUDRATE ); /* From stm32_spwf_wifi.c */
 #ifdef USART_PRINT_MSG
     UART_Msg_Gpio_Init();
-    USART_PRINT_MSG_Configuration( DEBUG_UART_BAUDRATE );
+    if ( 0 > USART_PRINT_MSG_Configuration( DEBUG_UART_BAUDRATE ) )
+    {
+        return -1;
+    }
 #endif
 
 #ifdef USE_FLASH_STORAGE
@@ -544,9 +548,15 @@ static inline int8_t system_init( void )
     /* Init the sensor board */
     printf( "\r\n>> Initializing the sensor extension board" );
     if ( 0 > io_nucleoboard_init() )
+    {
+        printf( "\r\n>> Nucleo Board peripheral initialization  [ERROR]" );
         return -1;
+    }
     if ( 0 > io_sensorboard_init() )
+    {
+        printf( "\r\n>> Sensor Board initializtion [ERROR]" );
         return -1;
+    }
     io_sensorboard_enable();
 
     /* Init the wi-fi module */
@@ -808,6 +818,7 @@ static int8_t user_config_init( user_data_t* dst )
             case 1:
                 printf( "\r\n>> Saving user data to flash" );
                 user_data_save_to_flash( dst );
+                break;
             case 0:
                 break;
             default:
@@ -821,6 +832,7 @@ static int8_t user_config_init( user_data_t* dst )
             case 1:
                 printf( "\r\n>> Saving user data to flash" );
                 user_data_save_to_flash( dst );
+                break;
             case 0:
                 break;
             default:
@@ -952,14 +964,16 @@ static int8_t get_xively_credentials( user_data_t* udata )
 
 /******** Wi-Fi Indication User Callback *********/
 
-void ind_wifi_socket_data_received( uint8_t socket_id,
+void ind_wifi_socket_data_received( int8_t server_id,
+                                    int8_t socket_id,
                                     uint8_t* data_ptr,
                                     uint32_t message_size,
                                     uint32_t chunk_size )
 {
+    (void)server_id; /* Unused */
     /* Xively */
-    xi_bsp_io_net_socket_data_received_proxy( socket_id, data_ptr, message_size,
-                                              chunk_size );
+    xi_bsp_io_net_socket_data_received_proxy( ( uint8_t )socket_id, data_ptr,
+                                              message_size, chunk_size );
 }
 
 void ind_wifi_socket_client_remote_server_closed( uint8_t* socket_closed_id )

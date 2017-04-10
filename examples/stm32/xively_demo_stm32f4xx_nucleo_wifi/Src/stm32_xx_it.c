@@ -1,45 +1,45 @@
-  /**
-  ******************************************************************************
-  * @file    stm32_xx_it.c
-  * @author  Central LAB
-  * @version V2.1.0
-  * @date    17-May-2015
-  * @brief   Main Interrupt Service Routines.
-  *          This file provides template for all exceptions handler and 
-  *          peripherals interrupt service routine.
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
-  *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-  *
-  ******************************************************************************
-  */
+/**
+******************************************************************************
+* @file    stm32_xx_it.c
+* @author  Central LAB
+* @version V2.1.0
+* @date    17-May-2015
+* @brief   Main Interrupt Service Routines.
+*          This file provides template for all exceptions handler and
+*          peripherals interrupt service routine.
+******************************************************************************
+* @attention
+*
+* <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+*
+* Redistribution and use in source and binary forms, with or without modification,
+* are permitted provided that the following conditions are met:
+*   1. Redistributions of source code must retain the above copyright notice,
+*      this list of conditions and the following disclaimer.
+*   2. Redistributions in binary form must reproduce the above copyright notice,
+*      this list of conditions and the following disclaimer in the documentation
+*      and/or other materials provided with the distribution.
+*   3. Neither the name of STMicroelectronics nor the names of its contributors
+*      may be used to endorse or promote products derived from this software
+*      without specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+* OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*
+******************************************************************************
+*/
 /* Includes ------------------------------------------------------------------*/
 #include "stm32_xx_it.h"
 #include "wifi_module.h"
-#include "stm32_spwf_wifi.h" 
+#include "stm32_spwf_wifi.h"
 #include "wifi_globals.h"
 #include "demo_io.h"
 
@@ -61,11 +61,11 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* Private function prototypes -----------------------------------------------*/
-void USARTx_IRQHandler(void);    
-void USARTx_PRINT_IRQHandler(void);
-void USARTx_EXTI_IRQHandler(void);
-void TIMx_IRQHandler(void);
-void TIMp_IRQHandler(void);
+void USARTx_IRQHandler( void );
+void USARTx_PRINT_IRQHandler( void );
+void USARTx_EXTI_IRQHandler( void );
+void TIMx_IRQHandler( void );
+void TIMp_IRQHandler( void );
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -91,7 +91,7 @@ void EXTI15_10_IRQHandler( void )
   * @param  None
   * @retval None
   */
-void NMI_Handler(void)
+void NMI_Handler( void )
 {
 }
 
@@ -100,13 +100,13 @@ void NMI_Handler(void)
   * @param  None
   * @retval None
   */
-void HardFault_Handler(void)
+void HardFault_Handler( void )
 {
-  /* Go to infinite loop when Hard Fault exception occurs */
-  while (1)
-  {
-    BSP_LED_On(LED2); 
-  }
+    /* Go to infinite loop when Hard Fault exception occurs */
+    while ( 1 )
+    {
+        BSP_LED_On( LED2 );
+    }
 }
 
 /**
@@ -114,13 +114,13 @@ void HardFault_Handler(void)
   * @param  None
   * @retval None
   */
-void MemManage_Handler(void)
+void MemManage_Handler( void )
 {
-  /* Go to infinite loop when Memory Manage exception occurs */
-  while (1)
-  {
-    BSP_LED_On(LED2); 
-  }
+    /* Go to infinite loop when Memory Manage exception occurs */
+    while ( 1 )
+    {
+        BSP_LED_On( LED2 );
+    }
 }
 
 /**
@@ -128,13 +128,13 @@ void MemManage_Handler(void)
   * @param  None
   * @retval None
   */
-void BusFault_Handler(void)
+void BusFault_Handler( void )
 {
-  /* Go to infinite loop when Bus Fault exception occurs */
-  while (1)
-  {
-    BSP_LED_On(LED2); 
-  }
+    /* Go to infinite loop when Bus Fault exception occurs */
+    while ( 1 )
+    {
+        BSP_LED_On( LED2 );
+    }
 }
 
 /**
@@ -142,13 +142,13 @@ void BusFault_Handler(void)
   * @param  None
   * @retval None
   */
-void UsageFault_Handler(void)
+void UsageFault_Handler( void )
 {
-  /* Go to infinite loop when Usage Fault exception occurs */
-  while (1)
-  {
-    BSP_LED_On(LED2); 
-  }
+    /* Go to infinite loop when Usage Fault exception occurs */
+    while ( 1 )
+    {
+        BSP_LED_On( LED2 );
+    }
 }
 
 /**
@@ -156,9 +156,9 @@ void UsageFault_Handler(void)
   * @param  None
   * @retval None
   */
-void SVC_Handler(void)
+void SVC_Handler( void )
 {
-  BSP_LED_On(LED2); 
+    BSP_LED_On( LED2 );
 }
 
 /**
@@ -166,9 +166,9 @@ void SVC_Handler(void)
   * @param  None
   * @retval None
   */
-void DebugMon_Handler(void)
+void DebugMon_Handler( void )
 {
-  BSP_LED_On(LED2); 
+    BSP_LED_On( LED2 );
 }
 
 /**
@@ -176,7 +176,7 @@ void DebugMon_Handler(void)
   * @param  None
   * @retval None
   */
-void PendSV_Handler(void)
+void PendSV_Handler( void )
 {
 }
 
@@ -192,10 +192,9 @@ void PendSV_Handler(void)
   * @param  None
   * @retval None
   */
-void TIMx_IRQHandler(void)
+void TIMx_IRQHandler( void )
 {
-  HAL_TIM_IRQHandler(&TimHandle);
-  
+    HAL_TIM_IRQHandler( &TimHandle );
 }
 
 /**
@@ -203,10 +202,9 @@ void TIMx_IRQHandler(void)
   * @param  None
   * @retval None
   */
-void TIMp_IRQHandler(void)
+void TIMp_IRQHandler( void )
 {
-  HAL_TIM_IRQHandler(&PushTimHandle);
-  
+    HAL_TIM_IRQHandler( &PushTimHandle );
 }
 
 /**
@@ -214,10 +212,10 @@ void TIMp_IRQHandler(void)
   * @param  None
   * @retval None
   */
-void SysTick_Handler(void)
+void SysTick_Handler( void )
 {
-  HAL_IncTick();
-  Wifi_SysTick_Isr();
+    HAL_IncTick();
+    Wifi_SysTick_Isr();
 }
 
 /**
@@ -226,31 +224,31 @@ void SysTick_Handler(void)
 * @param  htim : TIM handle
 * @retval None
 */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{ 
-  Wifi_TIM_Handler(htim);
+void HAL_TIM_PeriodElapsedCallback( TIM_HandleTypeDef* htim )
+{
+    Wifi_TIM_Handler( htim );
 }
 
 /**
 * @brief  HAL_UART_RxCpltCallback
 *         Rx Transfer completed callback
-* @param  UsartHandle: UART handle 
+* @param  UsartHandle: UART handle
 * @retval None
 */
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandleArg)
+void HAL_UART_RxCpltCallback( UART_HandleTypeDef* UartHandleArg )
 {
-  WiFi_HAL_UART_RxCpltCallback(UartHandleArg);
+    WiFi_HAL_UART_RxCpltCallback( UartHandleArg );
 }
 
 /**
 * @brief  HAL_UART_TxCpltCallback
 *         Tx Transfer completed callback
-* @param  UsartHandle: UART handle 
+* @param  UsartHandle: UART handle
 * @retval None
 */
-void HAL_UART_TxCpltCallback(UART_HandleTypeDef *UartHandleArg)
+void HAL_UART_TxCpltCallback( UART_HandleTypeDef* UartHandleArg )
 {
-  WiFi_HAL_UART_TxCpltCallback(UartHandleArg);
+    WiFi_HAL_UART_TxCpltCallback( UartHandleArg );
 }
 
 /**
@@ -260,9 +258,9 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *UartHandleArg)
   *         add your own implementation.
   * @retval None
   */
-void HAL_UART_ErrorCallback(UART_HandleTypeDef *UartHandle)
+void HAL_UART_ErrorCallback( UART_HandleTypeDef* UartHandle )
 {
-  WiFi_HAL_UART_ErrorCallback(UartHandle);
+    WiFi_HAL_UART_ErrorCallback( UartHandle );
 }
 
 /******************************************************************************/
@@ -277,9 +275,9 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *UartHandle)
   * @param  None
   * @retval None
   */
-void USARTx_IRQHandler(void)
+void USARTx_IRQHandler( void )
 {
-  HAL_UART_IRQHandler(&UartWiFiHandle);
+    HAL_UART_IRQHandler( &UartWiFiHandle );
 }
 
 /**
@@ -288,15 +286,68 @@ void USARTx_IRQHandler(void)
   * @retval None
   */
 #ifdef USART_PRINT_MSG
-void USARTx_PRINT_IRQHandler(void)
+void USARTx_PRINT_IRQHandler( void )
 {
-   HAL_UART_IRQHandler(&UartMsgHandle);
+    HAL_UART_IRQHandler( UartMsgHandle );
 }
 #endif
 
+#if defined( SPWF04 )
 /**
-  * @}
-  */ 
+  * @brief  WIFI_SPI_EXTI_IRQHandler This function handles External line
+  *         interrupt request for BlueNRG.
+  * @param  None
+  * @retval None
+  */
+void WIFI_SPI_EXTI_IRQHandler( void )
+{
+    HAL_GPIO_EXTI_IRQHandler( WIFI_SPI_EXTI_PIN );
+}
+
+#ifdef STM32L476xx
+void DMA1_Channel2_IRQHandler( void )
+{
+    if ( __HAL_DMA_GET_IT_SOURCE( SpiHandle.hdmarx, DMA_IT_TC ) &&
+         __HAL_DMA_GET_FLAG( SpiHandle.hdmarx, DMA_FLAG_TC2 ) )
+    {
+        WiFi_DMA_RxCallback();
+    }
+}
+
+void DMA1_Channel3_IRQHandler( void )
+{
+    if ( __HAL_DMA_GET_IT_SOURCE( SpiHandle.hdmatx, DMA_IT_TC ) &&
+         __HAL_DMA_GET_FLAG( SpiHandle.hdmatx, DMA_FLAG_TC3 ) )
+    {
+        WiFi_DMA_TxCallback();
+    }
+}
+#endif /* STM32L476xx */
+
+#ifdef STM32F401xE
+void DMA2_Stream0_IRQHandler( void )
+{
+    if ( __HAL_DMA_GET_IT_SOURCE( SpiHandle.hdmarx, DMA_IT_TC ) &&
+         __HAL_DMA_GET_FLAG( SpiHandle.hdmarx, DMA_FLAG_TCIF0_4 ) )
+    {
+        WiFi_DMA_RxCallback();
+    }
+}
+
+void DMA2_Stream3_IRQHandler( void )
+{
+    if ( __HAL_DMA_GET_IT_SOURCE( SpiHandle.hdmatx, DMA_IT_TC ) &&
+         __HAL_DMA_GET_FLAG( SpiHandle.hdmatx, DMA_FLAG_TCIF3_7 ) )
+    {
+        WiFi_DMA_TxCallback();
+    }
+}
+#endif /* STM32F401xE */
+#endif /* SPWF04 */
+
+/**
+ * @}
+ */
 
 /**
   * @}
