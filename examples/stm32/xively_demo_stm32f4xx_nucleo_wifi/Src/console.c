@@ -63,7 +63,7 @@ int cuiGetInteger(const char* message);
 int uartSendChar(int ch);
 int uartReceiveChar(void);
 
-extern UART_HandleTypeDef UartMsgHandle;
+extern UART_HandleTypeDef *UartMsgHandle;
 #define UartHandle UartMsgHandle
 
 /** @brief Asks user to input an integer number and returns its value
@@ -95,7 +95,7 @@ int cuiGetInteger(const char* message)
  */
 int uartSendChar(int ch)
 {
-  HAL_UART_Transmit(&UartHandle, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
+  HAL_UART_Transmit(UartHandle, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
   return ch;
 }
 
@@ -106,15 +106,15 @@ int uartSendChar(int ch)
 int uartReceiveChar(void)
 {
   uint8_t ch;
-  HAL_UART_Receive(&UartHandle, &ch, 1, HAL_MAX_DELAY);
+  HAL_UART_Receive(UartHandle, &ch, 1, HAL_MAX_DELAY);
   
   /* Echo character back to console */
-  HAL_UART_Transmit(&UartHandle, &ch, 1, HAL_MAX_DELAY);
+  HAL_UART_Transmit(UartHandle, &ch, 1, HAL_MAX_DELAY);
 
   /* And cope with Windows */
   if(ch == '\r'){
     uint8_t ret = '\n';
-    HAL_UART_Transmit(&UartHandle, &ret, 1, HAL_MAX_DELAY);
+    HAL_UART_Transmit(UartHandle, &ret, 1, HAL_MAX_DELAY);
   }
 
   return ch;
