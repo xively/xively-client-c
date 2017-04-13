@@ -29,7 +29,7 @@
 	<variableList>
 		<variable>
 			<name>XIVELY_LIBRARY_C_ROOT</name>
-			<value>file:/E:/dev/xively/xively-client-c</value>
+			<value>$%7BPARENT-3-PROJECT_LOC%7D</value>
 		</variable>
 	</variableList>
 </projectDescription>
