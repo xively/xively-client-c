@@ -38,7 +38,6 @@
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_15.12.compilerID.DIAG_WRAP.806342881" name="Wrap diagnostic messages (--diag_wrap)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_15.12.compilerID.DIAG_WRAP" value="com.ti.ccstudio.buildDefinitions.TMS470_15.12.compilerID.DIAG_WRAP.off" valueType="enumerated"/>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_15.12.compilerID.INCLUDE_PATH.2141098498" name="Add dir to #include search path (--include_path, -I)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_15.12.compilerID.INCLUDE_PATH" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;E:\dev\xively\xively-client-c\src\import\tls\wolfssl&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${COM_TI_CC32XX_SDK_INSTALL_DIR}/source/ti/devices/cc32xx/driverlib&quot;"/>
 									<listOptionValue builtIn="false" value="${XIVELY_LIBRARY_C_ROOT}/include"/>
 									<listOptionValue builtIn="false" value="&quot;${XIVELY_LIBRARY_C_ROOT}/include/bsp&quot;"/>
@@ -95,11 +94,12 @@
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_15.12.linkerID.DIAG_WRAP.598649410" name="Wrap diagnostic messages (--diag_wrap)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_15.12.linkerID.DIAG_WRAP" value="com.ti.ccstudio.buildDefinitions.TMS470_15.12.linkerID.DIAG_WRAP.off" valueType="enumerated"/>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_15.12.linkerID.SEARCH_PATH.281022470" name="Add &lt;dir&gt; to library search path (--search_path, -i)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_15.12.linkerID.SEARCH_PATH" valueType="libPaths">
 									<listOptionValue builtIn="false" value="&quot;${CG_TOOL_ROOT}/lib&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${XIVELY_LIBRARY_C_ROOT}\bin\cc3220&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${CG_TOOL_ROOT}/include&quot;"/>
 								</option>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_15.12.linkerID.LIBRARY.953866380" name="Include library file or command file as input (--library, -l)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_15.12.linkerID.LIBRARY" valueType="libs">
 									<listOptionValue builtIn="false" value="&quot;${COM_TI_CC32XX_SDK_INSTALL_DIR}/source/ti/drivers/net/wifi/ccs/tirtos/simplelink.a&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;E:\dev\xively\xively-client-c\bin\cc3220\libxively.a&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;libxively.a&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${COM_TI_CC32XX_SDK_INSTALL_DIR}/source/ti/devices/cc32xx/driverlib/ccs/Release/driverlib.a&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;libc.a&quot;"/>
 								</option>
