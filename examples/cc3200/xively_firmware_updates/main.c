@@ -83,13 +83,13 @@
 
 // Values for below macros shall be modified per the access-point's (AP) properties.
 // SimpleLink device will connect to following AP when the application is executed.
-#define ENT_NAME "Amped_AP"
-#define PASSWORD "wireless"
+#define ENT_NAME ""
+#define PASSWORD ""
 
 // Values for below macros will be used for connecting the device to Xively's
 // MQTT broker
 #define XIVELY_DEVICE_ID "a9dd3d46-b040-4899-9e40-7a9b407aa330"
-#define XIVELY_DEVICE_SECRET "8uOPLdU2QZQyU4zqTT4da8gjvcg4e7N0pWSboRDheH8="
+#define XIVELY_DEVICE_SECRET ""
 #define XIVELY_ACCOUNT_ID "223151b6-7476-4832-b189-e52def8c6a7e"
 
 // Application specific status/error codes
