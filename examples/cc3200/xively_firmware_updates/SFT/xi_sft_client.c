@@ -10,7 +10,7 @@
 #include "../sha256/sha256.h"
 #include "xi_sft.h"
 
-/* ddb #include "CC3200flash/flc_api.h" */
+/* Simpelink EXT lib includes */
 #include "flc_api.h"
 
 #if(0)
@@ -33,6 +33,8 @@
 #define  UART_PRINT  Report
 #undef   printf
 #define  printf      Report
+
+extern int readBootinfo();
 
 ///// Test these individually
 int filelength = 0;

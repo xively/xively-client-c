@@ -55,6 +55,9 @@
 #include "utils.h"
 #include "gpio.h"
 
+// Simpelink EXT lib includes
+#include "flc.h"
+
 // Common interface includes
 #include "button_if.h"
 #include "common.h"
@@ -74,20 +77,20 @@
     UART_PRINT( __VA_ARGS__ );                                                           \
     printf( __VA_ARGS__ );
 
-#define APPLICATION_NAME "XIVELY_CC3200_DEMO_APP"
+#define APPLICATION_NAME "XIVELY_CC3200_FIRMWARE_UPDATE_APP"
 #define APPLICATION_VERSION "0.0.1"
 #define SUCCESS 0
 
 // Values for below macros shall be modified per the access-point's (AP) properties.
 // SimpleLink device will connect to following AP when the application is executed.
-#define ENT_NAME "YOUR_WIFI_SSID"
-#define PASSWORD "YOUR_WIFI_PASSWORD"
+#define ENT_NAME "Amped_AP"
+#define PASSWORD "wireless"
 
 // Values for below macros will be used for connecting the device to Xively's
 // MQTT broker
-#define XIVELY_DEVICE_ID "PASTE_YOUR_XIVELY_DEVICE_ID"
-#define XIVELY_DEVICE_SECRET "PASTE_YOUR_XIVELY_DEVICE_SECRET"
-#define XIVELY_ACCOUNT_ID "PASTE_YOUR_XIVELY_ACCOUNT_ID"
+#define XIVELY_DEVICE_ID "a9dd3d46-b040-4899-9e40-7a9b407aa330"
+#define XIVELY_DEVICE_SECRET "8uOPLdU2QZQyU4zqTT4da8gjvcg4e7N0pWSboRDheH8="
+#define XIVELY_ACCOUNT_ID "223151b6-7476-4832-b189-e52def8c6a7e"
 
 // Application specific status/error codes
 typedef enum {
@@ -133,6 +136,9 @@ void WaitForWlanEvent();
 #include <xi_bsp_rng.h>
 #include <xi_bsp_time.h>
 #include <xively.h>
+
+/* xively SFT client includes */
+#include <xi_sft.h>
 
 /******************************************************************************/
 /* BEGINNING OF XIVELY CODE GLOBAL SECTION */
@@ -384,6 +390,8 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
                           XI_MQTT_QOS_AT_MOST_ONCE, onLedTopic, ( void* )&gOrangeLed );
             xi_subscribe( in_context_handle, gRedLedTopicName, XI_MQTT_QOS_AT_MOST_ONCE,
                           onLedTopic, ( void* )&gRedLed );
+
+            xi_sft_init( in_context_handle, XIVELY_ACCOUNT_ID, XIVELY_DEVICE_ID );
 
             /* enable the button interrupts */
             Button_IF_EnableInterrupt( SW2 | SW3 );
@@ -861,6 +869,51 @@ void WaitForWlanEvent()
     }
 }
 
+
+
+int readBootinfo()
+{
+    int iRetVal = 0;
+    static long lFileHandle;
+    sBootInfo_t sBootInfo;
+    unsigned long ulBootInfoToken;
+
+
+    //
+    // Open Boot info file for reading
+    //
+    iRetVal = sl_FsOpen((unsigned char *)IMG_BOOT_INFO,
+                            FS_MODE_OPEN_READ,
+                            &ulBootInfoToken,
+                            &lFileHandle);
+
+    //
+    // If successful, load the boot info
+    //
+    if( 0 == iRetVal )
+    {
+        iRetVal = sl_FsRead(lFileHandle,0,
+                            (unsigned char *)&sBootInfo,
+                             sizeof(sBootInfo_t));
+
+    }
+
+    //
+    // If successful, print the boot info file contents
+    //
+    if( sizeof(sBootInfo_t) == iRetVal )
+    {
+        printf("************** ucActiveImg = 0x%02x ulImgStatus = 0x%08x\n",sBootInfo.ucActiveImg, sBootInfo.ulImgStatus);
+
+    }
+    //
+    // Close boot info function
+    //
+    sl_FsClose(lFileHandle, 0, 0, 0);
+
+    return 1;
+}
+
 long MainLogic()
 {
     SlSecParams_t g_SecParams;
@@ -912,6 +965,9 @@ long MainLogic()
 
     // wait for the WiFi connection
     WaitForWlanEvent();
+
+    // read image information
+    readBootinfo();
 
     // this is where the connection to Xively Broker can be established
     ConnectToXively();
