@@ -4,6 +4,8 @@
  * it is licensed under the BSD 3-Clause license.
  */
 
+#include <socket.h>
+
 /******************************************************************************
  *                                                                            *
  *  sntp_task.c                                                               *
@@ -412,9 +414,9 @@ posix_time_t xi_bsp_time_sntp_getseconds_posix( void )
 {
     posix_time_t rval = 0;
     if ( start_time_ntp > SECONDS_1900_TO_1970 )
-    {   
+    {
         rval = ( posix_time_t )( start_time_ntp + uptime - SECONDS_1900_TO_1970 );
     }
-    
+
     return rval;
 }

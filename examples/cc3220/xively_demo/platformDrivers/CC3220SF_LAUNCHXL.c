@@ -57,13 +57,13 @@
 #include <ti/devices/cc32xx/driverlib/wdt.h>
 
 #include <ti/drivers/Power.h>
-#include <ti/drivers/power/PowerCC3200.h>
+#include <ti/drivers/power/PowerCC32XX.h>
 
 #include "CC3220SF_LAUNCHXL.h"
 
 /*
- *  This define determines whether to use the UARTCC3200DMA driver
- *  or the UARTCC3200 (no DMA) driver.  Set to 1 to use the UARTCC3200DMA
+ *  This define determines whether to use the UARTCC32XXDMA driver
+ *  or the UARTCC32XX (no DMA) driver.  Set to 1 to use the UARTCC32XXDMA
  *  driver.
  */
 #ifndef TI_DRIVERS_UART_DMA
@@ -74,27 +74,27 @@
  *  =============================== ADC ===============================
  */
 #include <ti/drivers/ADC.h>
-#include <ti/drivers/adc/ADCCC3200.h>
+#include <ti/drivers/adc/ADCCC32XX.h>
 
-ADCCC3200_Object adcCC3220SObjects[CC3220SF_LAUNCHXL_ADCCOUNT];
+ADCCC32XX_Object adcCC3220SObjects[CC3220SF_LAUNCHXL_ADCCOUNT];
 
-const ADCCC3200_HWAttrsV1 adcCC3220SHWAttrs[CC3220SF_LAUNCHXL_ADCCOUNT] = {
+const ADCCC32XX_HWAttrsV1 adcCC3220SHWAttrs[CC3220SF_LAUNCHXL_ADCCOUNT] = {
     {
-        .adcPin = ADCCC3200_PIN_57_CH_0
+        .adcPin = ADCCC32XX_PIN_57_CH_0
     },
     {
-        .adcPin = ADCCC3200_PIN_60_CH_3
+        .adcPin = ADCCC32XX_PIN_60_CH_3
     }
 };
 
 const ADC_Config ADC_config[CC3220SF_LAUNCHXL_ADCCOUNT] = {
     {
-        .fxnTablePtr = &ADCCC3200_fxnTable,
+        .fxnTablePtr = &ADCCC32XX_fxnTable,
         .object = &adcCC3220SObjects[CC3220SF_LAUNCHXL_ADC0],
         .hwAttrs = &adcCC3220SHWAttrs[CC3220SF_LAUNCHXL_ADC0]
     },
     {
-        .fxnTablePtr = &ADCCC3200_fxnTable,
+        .fxnTablePtr = &ADCCC32XX_fxnTable,
         .object = &adcCC3220SObjects[CC3220SF_LAUNCHXL_ADC1],
         .hwAttrs = &adcCC3220SHWAttrs[CC3220SF_LAUNCHXL_ADC1]
     }
@@ -105,22 +105,22 @@ const uint8_t ADC_count = CC3220SF_LAUNCHXL_ADCCOUNT;
 /*
  *  =============================== Crypto ===============================
  */
-#include <ti/drivers/crypto/CryptoCC3200.h>
+#include <ti/drivers/crypto/CryptoCC32XX.h>
 
-CryptoCC3200_Object cryptoCC3220SObjects[CC3220SF_LAUNCHXL_CRYPTOCOUNT];
+CryptoCC32XX_Object cryptoCC3220SObjects[CC3220SF_LAUNCHXL_CRYPTOCOUNT];
 
-const CryptoCC3200_Config CryptoCC3200_config[CC3220SF_LAUNCHXL_CRYPTOCOUNT] = {
+const CryptoCC32XX_Config CryptoCC32XX_config[CC3220SF_LAUNCHXL_CRYPTOCOUNT] = {
     {
         .object = &cryptoCC3220SObjects[CC3220SF_LAUNCHXL_CRYPTO0]
     }
 };
 
-const uint8_t CryptoCC3200_count = CC3220SF_LAUNCHXL_CRYPTOCOUNT;
+const uint8_t CryptoCC32XX_count = CC3220SF_LAUNCHXL_CRYPTOCOUNT;
 
 /*
  *  =============================== DMA ===============================
  */
-#include <ti/drivers/dma/UDMACC3200.h>
+#include <ti/drivers/dma/UDMACC32XX.h>
 
 #if defined(__TI_COMPILER_VERSION__)
 #pragma DATA_ALIGN(dmaControlTable, 1024)
@@ -146,16 +146,16 @@ static void dmaErrorFxn(uintptr_t arg)
     while (1);
 }
 
-UDMACC3200_Object udmaCC3220SObject;
+UDMACC32XX_Object udmaCC3220SObject;
 
-const UDMACC3200_HWAttrs udmaCC3220SHWAttrs = {
+const UDMACC32XX_HWAttrs udmaCC3220SHWAttrs = {
     .controlBaseAddr = (void *)dmaControlTable,
-    .dmaErrorFxn = (UDMACC3200_ErrorFxn)dmaErrorFxn,
+    .dmaErrorFxn = (UDMACC32XX_ErrorFxn)dmaErrorFxn,
     .intNum = INT_UDMAERR,
     .intPriority = (~0)
 };
 
-const UDMACC3200_Config UDMACC3200_config = {
+const UDMACC32XX_Config UDMACC32XX_config = {
     .object = &udmaCC3220SObject,
     .hwAttrs = &udmaCC3220SHWAttrs
 };
@@ -176,7 +176,7 @@ void CC3220SF_LAUNCHXL_initGeneral(void)
  *  =============================== GPIO ===============================
  */
 #include <ti/drivers/GPIO.h>
-#include <ti/drivers/gpio/GPIOCC3200.h>
+#include <ti/drivers/gpio/GPIOCC32XX.h>
 
 /*
  * Array of Pin configurations
@@ -189,18 +189,18 @@ void CC3220SF_LAUNCHXL_initGeneral(void)
 GPIO_PinConfig gpioPinConfigs[] = {
     /* input pins with callbacks */
     /* CC3220SF_LAUNCHXL_SW2 */
-    GPIOCC3200_GPIO_22 | GPIO_CFG_INPUT | GPIO_CFG_IN_INT_RISING,
+    GPIOCC32XX_GPIO_22 | GPIO_CFG_INPUT | GPIO_CFG_IN_INT_RISING,
     /* CC3220SF_LAUNCHXL_SW3 */
-    GPIOCC3200_GPIO_13 | GPIO_CFG_INPUT | GPIO_CFG_IN_INT_RISING,
+    GPIOCC32XX_GPIO_13 | GPIO_CFG_INPUT | GPIO_CFG_IN_INT_RISING,
 
     /* output pins */
 
     /* CC3220SF_LAUNCHXL_LED_D5 */
-    GPIOCC3200_GPIO_11 | GPIO_CFG_OUT_STD | GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_LOW,
+    GPIOCC32XX_GPIO_11 | GPIO_CFG_OUT_STD | GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_LOW,
     /* CC3220SF_LAUNCHXL_LED_D6 */
-    GPIOCC3200_GPIO_10 | GPIO_CFG_OUT_STD | GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_LOW,
+    GPIOCC32XX_GPIO_10 | GPIO_CFG_OUT_STD | GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_LOW,
     /* CC3220SF_LAUNCHXL_LED_D7 */
-    GPIOCC3200_GPIO_09 | GPIO_CFG_OUT_STD | GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_LOW,
+    GPIOCC32XX_GPIO_09 | GPIO_CFG_OUT_STD | GPIO_CFG_OUT_STR_HIGH | GPIO_CFG_OUT_LOW,
 };
 
 /*
@@ -216,7 +216,7 @@ GPIO_CallbackFxn gpioCallbackFunctions[] = {
 };
 
 /* The device-specific GPIO_config structure */
-const GPIOCC3200_Config GPIOCC3200_config = {
+const GPIOCC32XX_Config GPIOCC32XX_config = {
     .pinConfigs = (GPIO_PinConfig *)gpioPinConfigs,
     .callbacks = (GPIO_CallbackFxn *)gpioCallbackFunctions,
     .numberOfPinConfigs = sizeof(gpioPinConfigs)/sizeof(GPIO_PinConfig),
@@ -270,23 +270,23 @@ const uint8_t Display_count = sizeof(Display_config) / sizeof(Display_Config);
  *  =============================== I2C ===============================
  */
 #include <ti/drivers/I2C.h>
-#include <ti/drivers/i2c/I2CCC3200.h>
+#include <ti/drivers/i2c/I2CCC32XX.h>
 
-I2CCC3200_Object i2cCC3220SObjects[CC3220SF_LAUNCHXL_I2CCOUNT];
+I2CCC32XX_Object i2cCC3220SObjects[CC3220SF_LAUNCHXL_I2CCOUNT];
 
-const I2CCC3200_HWAttrsV1 i2cCC3220SHWAttrs[CC3220SF_LAUNCHXL_I2CCOUNT] = {
+const I2CCC32XX_HWAttrsV1 i2cCC3220SHWAttrs[CC3220SF_LAUNCHXL_I2CCOUNT] = {
     {
         .baseAddr = I2CA0_BASE,
         .intNum = INT_I2CA0,
         .intPriority = (~0),
-        .clkPin = I2CCC3200_PIN_01_I2C_SCL,
-        .dataPin = I2CCC3200_PIN_02_I2C_SDA
+        .clkPin = I2CCC32XX_PIN_01_I2C_SCL,
+        .dataPin = I2CCC32XX_PIN_02_I2C_SDA
     }
 };
 
 const I2C_Config I2C_config[CC3220SF_LAUNCHXL_I2CCOUNT] = {
     {
-        .fxnTablePtr = &I2CCC3200_fxnTable,
+        .fxnTablePtr = &I2CCC32XX_fxnTable,
         .object = &i2cCC3220SObjects[CC3220SF_LAUNCHXL_I2C0],
         .hwAttrs = &i2cCC3220SHWAttrs[CC3220SF_LAUNCHXL_I2C0]
     }
@@ -298,28 +298,28 @@ const uint8_t I2C_count = CC3220SF_LAUNCHXL_I2CCOUNT;
  *  =============================== I2S ===============================
  */
 #include <ti/drivers/I2S.h>
-#include <ti/drivers/i2s/I2SCC3200DMA.h>
+#include <ti/drivers/i2s/I2SCC32XXDMA.h>
 
-I2SCC3200DMA_Object i2sCC3220SObjects[CC3220SF_LAUNCHXL_I2SCOUNT];
+I2SCC32XXDMA_Object i2sCC3220SObjects[CC3220SF_LAUNCHXL_I2SCOUNT];
 
-const I2SCC3200DMA_HWAttrsV1 i2sCC3220SHWAttrs[CC3220SF_LAUNCHXL_I2SCOUNT] = {
+const I2SCC32XXDMA_HWAttrsV1 i2sCC3220SHWAttrs[CC3220SF_LAUNCHXL_I2SCOUNT] = {
     {
         .baseAddr = I2S_BASE,
         .intNum = INT_I2S,
         .intPriority = (~0),
         .rxChannelIndex = UDMA_CH4_I2S_RX,
         .txChannelIndex = UDMA_CH5_I2S_TX,
-        .xr0Pin = I2SCC3200DMA_PIN_64_McAXR0,
-        .xr1Pin = I2SCC3200DMA_PIN_50_McAXR1,
-        .clkxPin = I2SCC3200DMA_PIN_62_McACLKX,
-        .clkPin = I2SCC3200DMA_PIN_53_McACLK,
-        .fsxPin = I2SCC3200DMA_PIN_63_McAFSX,
+        .xr0Pin = I2SCC32XXDMA_PIN_64_McAXR0,
+        .xr1Pin = I2SCC32XXDMA_PIN_50_McAXR1,
+        .clkxPin = I2SCC32XXDMA_PIN_62_McACLKX,
+        .clkPin = I2SCC32XXDMA_PIN_53_McACLK,
+        .fsxPin = I2SCC32XXDMA_PIN_63_McAFSX,
     }
 };
 
 const I2S_Config I2S_config[CC3220SF_LAUNCHXL_I2SCOUNT] = {
     {
-        .fxnTablePtr = &I2SCC3200DMA_fxnTable,
+        .fxnTablePtr = &I2SCC32XXDMA_fxnTable,
         .object = &i2sCC3220SObjects[CC3220SF_LAUNCHXL_I2S0],
         .hwAttrs = &i2sCC3220SHWAttrs[CC3220SF_LAUNCHXL_I2S0]
     }
@@ -334,45 +334,45 @@ const uint8_t I2S_count = CC3220SF_LAUNCHXL_I2SCOUNT;
  * This table defines the parking state to be set for each parkable pin
  * during LPDS. (Device pins must be parked during LPDS to achieve maximum
  * power savings.)  If the pin should be left unparked, specify the state
- * PowerCC3200_DONT_PARK.  For example, for a UART TX pin, the device
+ * PowerCC32XX_DONT_PARK.  For example, for a UART TX pin, the device
  * will automatically park the pin in a high state during transition to LPDS,
  * so the Power Manager does not need to explictly park the pin.  So the
- * corresponding entries in this table should indicate PowerCC3200_DONT_PARK.
+ * corresponding entries in this table should indicate PowerCC32XX_DONT_PARK.
  */
-PowerCC3200_ParkInfo parkInfo[] = {
+PowerCC32XX_ParkInfo parkInfo[] = {
 /*          PIN                    PARK STATE              PIN ALIAS (FUNCTION)
      -----------------  ------------------------------     -------------------- */
-    {PowerCC3200_PIN01, PowerCC3200_WEAK_PULL_DOWN_STD}, /* GPIO10              */
-    {PowerCC3200_PIN02, PowerCC3200_WEAK_PULL_DOWN_STD}, /* GPIO11              */
-    {PowerCC3200_PIN03, PowerCC3200_WEAK_PULL_DOWN_STD}, /* GPIO12              */
-    {PowerCC3200_PIN04, PowerCC3200_WEAK_PULL_DOWN_STD}, /* GPIO13              */
-    {PowerCC3200_PIN05, PowerCC3200_WEAK_PULL_DOWN_STD}, /* GPIO14              */
-    {PowerCC3200_PIN06, PowerCC3200_WEAK_PULL_DOWN_STD}, /* GPIO15              */
-    {PowerCC3200_PIN07, PowerCC3200_WEAK_PULL_DOWN_STD}, /* GPIO16 (UART1_TX)   */
-    {PowerCC3200_PIN08, PowerCC3200_WEAK_PULL_DOWN_STD}, /* GPIO17              */
-    {PowerCC3200_PIN13, PowerCC3200_WEAK_PULL_DOWN_STD}, /* FLASH_SPI_DIN       */
-    {PowerCC3200_PIN15, PowerCC3200_WEAK_PULL_DOWN_STD}, /* GPIO22              */
-    {PowerCC3200_PIN16, PowerCC3200_WEAK_PULL_DOWN_STD}, /* TDI (JTAG DEBUG)    */
-    {PowerCC3200_PIN17, PowerCC3200_WEAK_PULL_DOWN_STD}, /* TDO (JTAG DEBUG)    */
-    {PowerCC3200_PIN19, PowerCC3200_WEAK_PULL_DOWN_STD}, /* TCK (JTAG DEBUG)    */
-    {PowerCC3200_PIN20, PowerCC3200_WEAK_PULL_DOWN_STD}, /* TMS (JTAG DEBUG)    */
-    {PowerCC3200_PIN18, PowerCC3200_WEAK_PULL_DOWN_STD}, /* GPIO28              */
-    {PowerCC3200_PIN21, PowerCC3200_WEAK_PULL_DOWN_STD}, /* SOP2                */
-    {PowerCC3200_PIN29, PowerCC3200_WEAK_PULL_DOWN_STD}, /* ANTSEL1             */
-    {PowerCC3200_PIN30, PowerCC3200_WEAK_PULL_DOWN_STD}, /* ANTSEL2             */
-    {PowerCC3200_PIN45, PowerCC3200_WEAK_PULL_DOWN_STD}, /* DCDC_ANA2_SW_P      */
-    {PowerCC3200_PIN50, PowerCC3200_WEAK_PULL_DOWN_STD}, /* GPIO0               */
-    {PowerCC3200_PIN52, PowerCC3200_WEAK_PULL_DOWN_STD}, /* RTC_XTAL_N          */
-    {PowerCC3200_PIN53, PowerCC3200_WEAK_PULL_DOWN_STD}, /* GPIO30              */
-    {PowerCC3200_PIN55, PowerCC3200_WEAK_PULL_UP_STD},   /* GPIO1 (UART0_TX)    */
-    {PowerCC3200_PIN57, PowerCC3200_WEAK_PULL_UP_STD},   /* GPIO2               */
-    {PowerCC3200_PIN58, PowerCC3200_WEAK_PULL_DOWN_STD}, /* GPIO3               */
-    {PowerCC3200_PIN59, PowerCC3200_WEAK_PULL_DOWN_STD}, /* GPIO4               */
-    {PowerCC3200_PIN60, PowerCC3200_WEAK_PULL_DOWN_STD}, /* GPIO5               */
-    {PowerCC3200_PIN61, PowerCC3200_WEAK_PULL_DOWN_STD}, /* GPIO6               */
-    {PowerCC3200_PIN62, PowerCC3200_WEAK_PULL_DOWN_STD}, /* GPIO7               */
-    {PowerCC3200_PIN63, PowerCC3200_WEAK_PULL_DOWN_STD}, /* GPIO8               */
-    {PowerCC3200_PIN64, PowerCC3200_WEAK_PULL_DOWN_STD}, /* GPIO9               */
+    {PowerCC32XX_PIN01, PowerCC32XX_WEAK_PULL_DOWN_STD}, /* GPIO10              */
+    {PowerCC32XX_PIN02, PowerCC32XX_WEAK_PULL_DOWN_STD}, /* GPIO11              */
+    {PowerCC32XX_PIN03, PowerCC32XX_WEAK_PULL_DOWN_STD}, /* GPIO12              */
+    {PowerCC32XX_PIN04, PowerCC32XX_WEAK_PULL_DOWN_STD}, /* GPIO13              */
+    {PowerCC32XX_PIN05, PowerCC32XX_WEAK_PULL_DOWN_STD}, /* GPIO14              */
+    {PowerCC32XX_PIN06, PowerCC32XX_WEAK_PULL_DOWN_STD}, /* GPIO15              */
+    {PowerCC32XX_PIN07, PowerCC32XX_WEAK_PULL_DOWN_STD}, /* GPIO16 (UART1_TX)   */
+    {PowerCC32XX_PIN08, PowerCC32XX_WEAK_PULL_DOWN_STD}, /* GPIO17              */
+    {PowerCC32XX_PIN13, PowerCC32XX_WEAK_PULL_DOWN_STD}, /* FLASH_SPI_DIN       */
+    {PowerCC32XX_PIN15, PowerCC32XX_WEAK_PULL_DOWN_STD}, /* GPIO22              */
+    {PowerCC32XX_PIN16, PowerCC32XX_WEAK_PULL_DOWN_STD}, /* TDI (JTAG DEBUG)    */
+    {PowerCC32XX_PIN17, PowerCC32XX_WEAK_PULL_DOWN_STD}, /* TDO (JTAG DEBUG)    */
+    {PowerCC32XX_PIN19, PowerCC32XX_WEAK_PULL_DOWN_STD}, /* TCK (JTAG DEBUG)    */
+    {PowerCC32XX_PIN20, PowerCC32XX_WEAK_PULL_DOWN_STD}, /* TMS (JTAG DEBUG)    */
+    {PowerCC32XX_PIN18, PowerCC32XX_WEAK_PULL_DOWN_STD}, /* GPIO28              */
+    {PowerCC32XX_PIN21, PowerCC32XX_WEAK_PULL_DOWN_STD}, /* SOP2                */
+    {PowerCC32XX_PIN29, PowerCC32XX_WEAK_PULL_DOWN_STD}, /* ANTSEL1             */
+    {PowerCC32XX_PIN30, PowerCC32XX_WEAK_PULL_DOWN_STD}, /* ANTSEL2             */
+    {PowerCC32XX_PIN45, PowerCC32XX_WEAK_PULL_DOWN_STD}, /* DCDC_ANA2_SW_P      */
+    {PowerCC32XX_PIN50, PowerCC32XX_WEAK_PULL_DOWN_STD}, /* GPIO0               */
+    {PowerCC32XX_PIN52, PowerCC32XX_WEAK_PULL_DOWN_STD}, /* RTC_XTAL_N          */
+    {PowerCC32XX_PIN53, PowerCC32XX_WEAK_PULL_DOWN_STD}, /* GPIO30              */
+    {PowerCC32XX_PIN55, PowerCC32XX_WEAK_PULL_UP_STD},   /* GPIO1 (UART0_TX)    */
+    {PowerCC32XX_PIN57, PowerCC32XX_WEAK_PULL_UP_STD},   /* GPIO2               */
+    {PowerCC32XX_PIN58, PowerCC32XX_WEAK_PULL_DOWN_STD}, /* GPIO3               */
+    {PowerCC32XX_PIN59, PowerCC32XX_WEAK_PULL_DOWN_STD}, /* GPIO4               */
+    {PowerCC32XX_PIN60, PowerCC32XX_WEAK_PULL_DOWN_STD}, /* GPIO5               */
+    {PowerCC32XX_PIN61, PowerCC32XX_WEAK_PULL_DOWN_STD}, /* GPIO6               */
+    {PowerCC32XX_PIN62, PowerCC32XX_WEAK_PULL_DOWN_STD}, /* GPIO7               */
+    {PowerCC32XX_PIN63, PowerCC32XX_WEAK_PULL_DOWN_STD}, /* GPIO8               */
+    {PowerCC32XX_PIN64, PowerCC32XX_WEAK_PULL_DOWN_STD}, /* GPIO9               */
 };
 
 /*
@@ -383,9 +383,9 @@ PowerCC3200_ParkInfo parkInfo[] = {
  *  at runtime by calling Power_enablePolicy(), or at build time, by changing
  *  enablePolicy to true in this structure.
  */
-const PowerCC3200_ConfigV1 PowerCC3200_config = {
-    .policyInitFxn = &PowerCC3200_initPolicy,
-    .policyFxn = &PowerCC3200_sleepPolicy,
+const PowerCC32XX_ConfigV1 PowerCC32XX_config = {
+    .policyInitFxn = &PowerCC32XX_initPolicy,
+    .policyFxn = &PowerCC32XX_sleepPolicy,
     .enterLPDSHookFxn = NULL,
     .resumeLPDSHookFxn = NULL,
     .enablePolicy = false,
@@ -403,34 +403,34 @@ const PowerCC3200_ConfigV1 PowerCC3200_config = {
     .keepDebugActiveDuringLPDS = false,
     .ioRetentionShutdown = PRCM_IO_RET_GRP_1,
     .pinParkDefs = parkInfo,
-    .numPins = sizeof(parkInfo) / sizeof(PowerCC3200_ParkInfo)
+    .numPins = sizeof(parkInfo) / sizeof(PowerCC32XX_ParkInfo)
 };
 
 /*
  *  =============================== PWM ===============================
  */
 #include <ti/drivers/PWM.h>
-#include <ti/drivers/pwm/PWMTimerCC3200.h>
+#include <ti/drivers/pwm/PWMTimerCC32XX.h>
 
-PWMTimerCC3200_Object pwmTimerCC3220SObjects[CC3220SF_LAUNCHXL_PWMCOUNT];
+PWMTimerCC32XX_Object pwmTimerCC3220SObjects[CC3220SF_LAUNCHXL_PWMCOUNT];
 
-const PWMTimerCC3200_HWAttrsV2 pwmTimerCC3220SHWAttrs[CC3220SF_LAUNCHXL_PWMCOUNT] = {
+const PWMTimerCC32XX_HWAttrsV2 pwmTimerCC3220SHWAttrs[CC3220SF_LAUNCHXL_PWMCOUNT] = {
     {    /* CC3220SF_LAUNCHXL_PWM6 */
-        .pwmPin = PWMTimerCC3200_PIN_01
+        .pwmPin = PWMTimerCC32XX_PIN_01
     },
     {    /* CC3220SF_LAUNCHXL_PWM7 */
-        .pwmPin = PWMTimerCC3200_PIN_02
+        .pwmPin = PWMTimerCC32XX_PIN_02
     }
 };
 
 const PWM_Config PWM_config[] = {
     {
-        .fxnTablePtr = &PWMTimerCC3200_fxnTable,
+        .fxnTablePtr = &PWMTimerCC32XX_fxnTable,
         .object = &pwmTimerCC3220SObjects[CC3220SF_LAUNCHXL_PWM6],
         .hwAttrs = &pwmTimerCC3220SHWAttrs[CC3220SF_LAUNCHXL_PWM6]
     },
     {
-        .fxnTablePtr = &PWMTimerCC3200_fxnTable,
+        .fxnTablePtr = &PWMTimerCC32XX_fxnTable,
         .object = &pwmTimerCC3220SObjects[CC3220SF_LAUNCHXL_PWM7],
         .hwAttrs = &pwmTimerCC3220SHWAttrs[CC3220SF_LAUNCHXL_PWM7]
     }
@@ -459,27 +459,27 @@ const uint8_t SDFatFS_count = CC3220SF_LAUNCHXL_SDFatFSCOUNT;
  *  =============================== SD ===============================
  */
 #include <ti/drivers/SD.h>
-#include <ti/drivers/sd/SDHostCC3200.h>
+#include <ti/drivers/sd/SDHostCC32XX.h>
 
-SDHostCC3200_Object sdhostCC3220SObjects[CC3220SF_LAUNCHXL_SDCOUNT];
+SDHostCC32XX_Object sdhostCC3220SObjects[CC3220SF_LAUNCHXL_SDCOUNT];
 
 /* SDHost configuration structure, describing which pins are to be used */
-const SDHostCC3200_HWAttrsV1 sdhostCC3220SHWattrs[CC3220SF_LAUNCHXL_SDCOUNT] = {
+const SDHostCC32XX_HWAttrsV1 sdhostCC3220SHWattrs[CC3220SF_LAUNCHXL_SDCOUNT] = {
     {
         .clkRate = 8000000,
         .intPriority = ~0,
         .baseAddr = SDHOST_BASE,
         .rxChIdx = UDMA_CH23_SDHOST_RX,
         .txChIdx = UDMA_CH24_SDHOST_TX,
-        .dataPin = SDHostCC3200_PIN_06_SDCARD_DATA,
-        .cmdPin = SDHostCC3200_PIN_08_SDCARD_CMD,
-        .clkPin = SDHostCC3200_PIN_07_SDCARD_CLK
+        .dataPin = SDHostCC32XX_PIN_06_SDCARD_DATA,
+        .cmdPin = SDHostCC32XX_PIN_08_SDCARD_CMD,
+        .clkPin = SDHostCC32XX_PIN_07_SDCARD_CLK
     }
 };
 
 const SD_Config SD_config[CC3220SF_LAUNCHXL_SDCOUNT] = {
     {
-        .fxnTablePtr = &sdHostCC3200_fxnTable,
+        .fxnTablePtr = &sdHostCC32XX_fxnTable,
         .object = &sdhostCC3220SObjects[CC3220SF_LAUNCHXL_SD0],
         .hwAttrs = &sdhostCC3220SHWattrs[CC3220SF_LAUNCHXL_SD0]
     },
@@ -491,25 +491,25 @@ const uint8_t SD_count = CC3220SF_LAUNCHXL_SDCOUNT;
  *  =============================== SDSPI ===============================
  */
 #include <ti/drivers/SDSPI.h>
-#include <ti/drivers/sdspi/SDSPICC3200.h>
+#include <ti/drivers/sdspi/SDSPICC32XX.h>
 
-SDSPICC3200_Object sdspiCC3220SObjects[CC3220SF_LAUNCHXL_SDSPICOUNT];
+SDSPICC32XX_Object sdspiCC3220SObjects[CC3220SF_LAUNCHXL_SDSPICOUNT];
 
 /* SDSPI configuration structure, describing which pins are to be used */
-const SDSPICC3200_HWAttrsV1 sdspiCC3220SHWattrs[CC3220SF_LAUNCHXL_SDSPICOUNT] = {
+const SDSPICC32XX_HWAttrsV1 sdspiCC3220SHWattrs[CC3220SF_LAUNCHXL_SDSPICOUNT] = {
     {
         .baseAddr = GSPI_BASE,
         .spiPRCM = PRCM_GSPI,
-        .clkPin = SDSPICC3200_PIN_05_CLK,
-        .mosiPin = SDSPICC3200_PIN_07_MOSI,
-        .misoPin = SDSPICC3200_PIN_06_MISO,
-        .csPin = SDSPICC3200_PIN_62_GPIO
+        .clkPin = SDSPICC32XX_PIN_05_CLK,
+        .mosiPin = SDSPICC32XX_PIN_07_MOSI,
+        .misoPin = SDSPICC32XX_PIN_06_MISO,
+        .csPin = SDSPICC32XX_PIN_62_GPIO
     }
 };
 
 const SDSPI_Config SDSPI_config[CC3220SF_LAUNCHXL_SDSPICOUNT] = {
     {
-        .fxnTablePtr = &SDSPICC3200_fxnTable,
+        .fxnTablePtr = &SDSPICC32XX_fxnTable,
         .object = &sdspiCC3220SObjects[CC3220SF_LAUNCHXL_SDSPI0],
         .hwAttrs = &sdspiCC3220SHWattrs[CC3220SF_LAUNCHXL_SDSPI0]
     },
@@ -521,9 +521,9 @@ const uint8_t SDSPI_count = CC3220SF_LAUNCHXL_SDSPICOUNT;
  *  =============================== SPI ===============================
  */
 #include <ti/drivers/SPI.h>
-#include <ti/drivers/spi/SPICC3200DMA.h>
+#include <ti/drivers/spi/SPICC32XXDMA.h>
 
-SPICC3200DMA_Object spiCC3220SDMAObjects[CC3220SF_LAUNCHXL_SPICOUNT];
+SPICC32XXDMA_Object spiCC3220SDMAObjects[CC3220SF_LAUNCHXL_SPICOUNT];
 
 #if defined(__TI_COMPILER_VERSION__)
 #pragma DATA_ALIGN(spiCC3220SDMAscratchBuf, 32)
@@ -534,7 +534,7 @@ __attribute__ ((aligned (32)))
 #endif
 uint32_t spiCC3220SDMAscratchBuf[CC3220SF_LAUNCHXL_SPICOUNT];
 
-const SPICC3200DMA_HWAttrsV1 spiCC3220SDMAHWAttrs[CC3220SF_LAUNCHXL_SPICOUNT] = {
+const SPICC32XXDMA_HWAttrsV1 spiCC3220SDMAHWAttrs[CC3220SF_LAUNCHXL_SPICOUNT] = {
     /* index 0 is reserved for LSPI that links to the NWP */
     {
         .baseAddr = LSPI_BASE,
@@ -550,10 +550,10 @@ const SPICC3200DMA_HWAttrsV1 spiCC3220SDMAHWAttrs[CC3220SF_LAUNCHXL_SPICOUNT] = 
         .rxChannelIndex = UDMA_CH12_LSPI_RX,
         .txChannelIndex = UDMA_CH13_LSPI_TX,
         .minDmaTransferSize = 100,
-        .mosiPin = SPICC3200DMA_PIN_NO_CONFIG,
-        .misoPin = SPICC3200DMA_PIN_NO_CONFIG,
-        .clkPin = SPICC3200DMA_PIN_NO_CONFIG,
-        .csPin = SPICC3200DMA_PIN_NO_CONFIG
+        .mosiPin = SPICC32XXDMA_PIN_NO_CONFIG,
+        .misoPin = SPICC32XXDMA_PIN_NO_CONFIG,
+        .clkPin = SPICC32XXDMA_PIN_NO_CONFIG,
+        .csPin = SPICC32XXDMA_PIN_NO_CONFIG
     },
     {
         .baseAddr = GSPI_BASE,
@@ -569,21 +569,21 @@ const SPICC3200DMA_HWAttrsV1 spiCC3220SDMAHWAttrs[CC3220SF_LAUNCHXL_SPICOUNT] = 
         .rxChannelIndex = UDMA_CH6_GSPI_RX,
         .txChannelIndex = UDMA_CH7_GSPI_TX,
         .minDmaTransferSize = 100,
-        .mosiPin = SPICC3200DMA_PIN_07_MOSI,
-        .misoPin = SPICC3200DMA_PIN_06_MISO,
-        .clkPin = SPICC3200DMA_PIN_05_CLK,
-        .csPin = SPICC3200DMA_PIN_08_CS
+        .mosiPin = SPICC32XXDMA_PIN_07_MOSI,
+        .misoPin = SPICC32XXDMA_PIN_06_MISO,
+        .clkPin = SPICC32XXDMA_PIN_05_CLK,
+        .csPin = SPICC32XXDMA_PIN_08_CS
     }
 };
 
 const SPI_Config SPI_config[CC3220SF_LAUNCHXL_SPICOUNT] = {
     {
-        .fxnTablePtr = &SPICC3200DMA_fxnTable,
+        .fxnTablePtr = &SPICC32XXDMA_fxnTable,
         .object = &spiCC3220SDMAObjects[CC3220SF_LAUNCHXL_SPI0],
         .hwAttrs = &spiCC3220SDMAHWAttrs[CC3220SF_LAUNCHXL_SPI0]
     },
     {
-        .fxnTablePtr = &SPICC3200DMA_fxnTable,
+        .fxnTablePtr = &SPICC32XXDMA_fxnTable,
         .object = &spiCC3220SDMAObjects[CC3220SF_LAUNCHXL_SPI1],
         .hwAttrs = &spiCC3220SDMAHWAttrs[CC3220SF_LAUNCHXL_SPI1]
     }
@@ -596,20 +596,20 @@ const uint8_t SPI_count = CC3220SF_LAUNCHXL_SPICOUNT;
  */
 #include <ti/drivers/UART.h>
 #if TI_DRIVERS_UART_DMA
-#include <ti/drivers/uart/UARTCC3200DMA.h>
+#include <ti/drivers/uart/UARTCC32XXDMA.h>
 
-UARTCC3200DMA_Object uartCC3220SDmaObjects[CC3220SF_LAUNCHXL_UARTCOUNT];
+UARTCC32XXDMA_Object uartCC3220SDmaObjects[CC3220SF_LAUNCHXL_UARTCOUNT];
 
 /* UART configuration structure */
-const UARTCC3200DMA_HWAttrsV1 uartCC3220SDmaHWAttrs[CC3220SF_LAUNCHXL_UARTCOUNT] = {
+const UARTCC32XXDMA_HWAttrsV1 uartCC3220SDmaHWAttrs[CC3220SF_LAUNCHXL_UARTCOUNT] = {
     {
         .baseAddr = UARTA0_BASE,
         .intNum = INT_UARTA0,
         .intPriority = (~0),
         .rxChannelIndex = UDMA_CH8_UARTA0_RX,
         .txChannelIndex = UDMA_CH9_UARTA0_TX,
-        .rxPin = UARTCC3200DMA_PIN_57_UART0_RX,
-        .txPin = UARTCC3200DMA_PIN_55_UART0_TX
+        .rxPin = UARTCC32XXDMA_PIN_57_UART0_RX,
+        .txPin = UARTCC32XXDMA_PIN_55_UART0_TX
     },
     {
         .baseAddr = UARTA1_BASE,
@@ -617,32 +617,32 @@ const UARTCC3200DMA_HWAttrsV1 uartCC3220SDmaHWAttrs[CC3220SF_LAUNCHXL_UARTCOUNT]
         .intPriority = (~0),
         .rxChannelIndex = UDMA_CH10_UARTA1_RX,
         .txChannelIndex = UDMA_CH11_UARTA1_TX,
-        .rxPin = UARTCC3200DMA_PIN_08_UART1_RX,
-        .txPin = UARTCC3200DMA_PIN_07_UART1_TX
+        .rxPin = UARTCC32XXDMA_PIN_08_UART1_RX,
+        .txPin = UARTCC32XXDMA_PIN_07_UART1_TX
     }
 };
 
 const UART_Config UART_config[CC3220SF_LAUNCHXL_UARTCOUNT] = {
     {
-        .fxnTablePtr = &UARTCC3200DMA_fxnTable,
+        .fxnTablePtr = &UARTCC32XXDMA_fxnTable,
         .object = &uartCC3220SDmaObjects[CC3220SF_LAUNCHXL_UART0],
         .hwAttrs = &uartCC3220SDmaHWAttrs[CC3220SF_LAUNCHXL_UART0]
     },
     {
-        .fxnTablePtr = &UARTCC3200DMA_fxnTable,
+        .fxnTablePtr = &UARTCC32XXDMA_fxnTable,
         .object = &uartCC3220SDmaObjects[CC3220SF_LAUNCHXL_UART1],
         .hwAttrs = &uartCC3220SDmaHWAttrs[CC3220SF_LAUNCHXL_UART1]
     }
 };
 
 #else
-#include <ti/drivers/uart/UARTCC3200.h>
+#include <ti/drivers/uart/UARTCC32XX.h>
 
-UARTCC3200_Object uartCC3220SObjects[CC3220SF_LAUNCHXL_UARTCOUNT];
+UARTCC32XX_Object uartCC3220SObjects[CC3220SF_LAUNCHXL_UARTCOUNT];
 unsigned char uartCC3220SRingBuffer[CC3220SF_LAUNCHXL_UARTCOUNT][32];
 
 /* UART configuration structure */
-const UARTCC3200_HWAttrsV1 uartCC3220SHWAttrs[CC3220SF_LAUNCHXL_UARTCOUNT] = {
+const UARTCC32XX_HWAttrsV1 uartCC3220SHWAttrs[CC3220SF_LAUNCHXL_UARTCOUNT] = {
     {
         .baseAddr = UARTA0_BASE,
         .intNum = INT_UARTA0,
@@ -650,8 +650,8 @@ const UARTCC3200_HWAttrsV1 uartCC3220SHWAttrs[CC3220SF_LAUNCHXL_UARTCOUNT] = {
         .flowControl = UART_FLOWCONTROL_NONE,
         .ringBufPtr  = uartCC3220SRingBuffer[CC3220SF_LAUNCHXL_UART0],
         .ringBufSize = sizeof(uartCC3220SRingBuffer[CC3220SF_LAUNCHXL_UART0]),
-        .rxPin = UARTCC3200_PIN_57_UART0_RX,
-        .txPin = UARTCC3200_PIN_55_UART0_TX
+        .rxPin = UARTCC32XX_PIN_57_UART0_RX,
+        .txPin = UARTCC32XX_PIN_55_UART0_TX
     },
     {
         .baseAddr = UARTA1_BASE,
@@ -660,19 +660,19 @@ const UARTCC3200_HWAttrsV1 uartCC3220SHWAttrs[CC3220SF_LAUNCHXL_UARTCOUNT] = {
         .flowControl = UART_FLOWCONTROL_NONE,
         .ringBufPtr  = uartCC3220SRingBuffer[CC3220SF_LAUNCHXL_UART1],
         .ringBufSize = sizeof(uartCC3220SRingBuffer[CC3220SF_LAUNCHXL_UART1]),
-        .rxPin = UARTCC3200_PIN_08_UART1_RX,
-        .txPin = UARTCC3200_PIN_07_UART1_TX
+        .rxPin = UARTCC32XX_PIN_08_UART1_RX,
+        .txPin = UARTCC32XX_PIN_07_UART1_TX
     }
 };
 
 const UART_Config UART_config[CC3220SF_LAUNCHXL_UARTCOUNT] = {
     {
-        .fxnTablePtr = &UARTCC3200_fxnTable,
+        .fxnTablePtr = &UARTCC32XX_fxnTable,
         .object = &uartCC3220SObjects[CC3220SF_LAUNCHXL_UART0],
         .hwAttrs = &uartCC3220SHWAttrs[CC3220SF_LAUNCHXL_UART0]
     },
     {
-        .fxnTablePtr = &UARTCC3200_fxnTable,
+        .fxnTablePtr = &UARTCC32XX_fxnTable,
         .object = &uartCC3220SObjects[CC3220SF_LAUNCHXL_UART1],
         .hwAttrs = &uartCC3220SHWAttrs[CC3220SF_LAUNCHXL_UART1]
     }
@@ -685,11 +685,11 @@ const uint8_t UART_count = CC3220SF_LAUNCHXL_UARTCOUNT;
  *  =============================== Watchdog ===============================
  */
 #include <ti/drivers/Watchdog.h>
-#include <ti/drivers/watchdog/WatchdogCC3200.h>
+#include <ti/drivers/watchdog/WatchdogCC32XX.h>
 
-WatchdogCC3200_Object watchdogCC3220SObjects[CC3220SF_LAUNCHXL_WATCHDOGCOUNT];
+WatchdogCC32XX_Object watchdogCC3220SObjects[CC3220SF_LAUNCHXL_WATCHDOGCOUNT];
 
-const WatchdogCC3200_HWAttrs watchdogCC3220SHWAttrs[CC3220SF_LAUNCHXL_WATCHDOGCOUNT] = {
+const WatchdogCC32XX_HWAttrs watchdogCC3220SHWAttrs[CC3220SF_LAUNCHXL_WATCHDOGCOUNT] = {
     {
         .baseAddr = WDT_BASE,
         .intNum = INT_WDT,
@@ -700,7 +700,7 @@ const WatchdogCC3200_HWAttrs watchdogCC3220SHWAttrs[CC3220SF_LAUNCHXL_WATCHDOGCO
 
 const Watchdog_Config Watchdog_config[CC3220SF_LAUNCHXL_WATCHDOGCOUNT] = {
     {
-        .fxnTablePtr = &WatchdogCC3200_fxnTable,
+        .fxnTablePtr = &WatchdogCC32XX_fxnTable,
         .object = &watchdogCC3220SObjects[CC3220SF_LAUNCHXL_WATCHDOG0],
         .hwAttrs = &watchdogCC3220SHWAttrs[CC3220SF_LAUNCHXL_WATCHDOG0]
     }

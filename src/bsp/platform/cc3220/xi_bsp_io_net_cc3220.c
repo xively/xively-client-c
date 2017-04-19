@@ -20,12 +20,12 @@
 /* crypto headers used for verifying the certificate found on
 the flash file system, if it exists. */
 #include <ti/drivers/Power.h>
-#include <ti/drivers/crypto/CryptoCC3200.h>
+#include <ti/drivers/crypto/CryptoCC32XX.h>
 
 /* path to store the certificate for WolfSSL on-chip TLS consumption */
 #define XI_CC32XX_ROOTCACERT_FILE_NAME "/cert/xively_cert_globalsign_rootca.der"
 
-/* helper functions to check if we already have a certificate on FFS.  IF so, 
+/* helper functions to check if we already have a certificate on FFS.  IF so,
 the certificate is hashed and compared to the one in this library's statically
 compile data space.  If ther certificate is not on disk, or there's a signature
 mismatch, then the certificate in this library is written to the FFS */
@@ -56,7 +56,7 @@ xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
         return XI_BSP_IO_NET_STATE_ERROR;
     }
 
-    { 
+    {
         /* set current time for certificate validity check during TLS handshake */
         const time_t current_time_seconds = xi_bsp_time_getcurrenttime_seconds();
         struct tm* const gm_time = localtime( &current_time_seconds );
@@ -146,7 +146,7 @@ xi_bsp_io_net_connect( xi_bsp_socket_t* xi_socket, const char* host, uint16_t po
         sl_NetAppDnsGetHostByName( ( _i8* )host, strlen( host ), &uiIP, SL_AF_INET );
 
     if ( 0 != errval )
-    {   
+    {
         xi_debug_printf("Error: couldn't resolve hostname\n\r");
         return XI_BSP_IO_NET_STATE_ERROR;
     }
@@ -158,7 +158,7 @@ xi_bsp_io_net_connect( xi_bsp_socket_t* xi_socket, const char* host, uint16_t po
 
     errval =
         sl_Connect( *xi_socket, ( struct sockaddr* )&name, sizeof( struct sockaddr ) );
- 
+
     if ( errval < 0
         && SL_ERROR_BSD_EALREADY != errval )
     {
@@ -449,60 +449,60 @@ long CheckOrInstallCertficiateOnDevice( unsigned long* ulToken )
 
     /* Check for certificate existance and size */
     lRetVal = sl_FsGetInfo( ( unsigned char* )XI_CC32XX_ROOTCACERT_FILE_NAME, *ulToken, &file_info );
-    if( lRetVal == 0 && 
+    if( lRetVal == 0 &&
         file_info.Len == sizeof( cert_globalsign_rootca_DER ) )
     {
         file_exists = 1;
     }
 
     int32_t write_file = 1;
-    if( file_exists ) 
-    {   
+    if( file_exists )
+    {
         /* ok, certfiicate exists. Check it's signature. */
-        CryptoCC3200_init();
-        
-        /* this index is taken from enumerated types of cryptohmac example, which has 
-           only one named '0' and assigned a value of '0'.  See 
+        CryptoCC32XX_init();
+
+        /* this index is taken from enumerated types of cryptohmac example, which has
+           only one named '0' and assigned a value of '0'.  See
            CC3220SF_LAUNCHXL_CryptoName defined in CC3220SF_LAUNCHXL.h of the cryptohmac
            example provided by TI. */
         const uint32_t cryptoIndex = 0;
-        CryptoCC3200_HmacMethod config = CryptoCC3200_HMAC_SHA256;  /* hash length : 32 */
+        CryptoCC32XX_HmacMethod config = CryptoCC32XX_HMAC_SHA256;  /* hash length : 32 */
         const uint32_t hashLength = 32;
 
-        CryptoCC3200_Handle cryptoHandle = CryptoCC3200_open(cryptoIndex, CryptoCC3200_HMAC);
+        CryptoCC32XX_Handle cryptoHandle = CryptoCC32XX_open(cryptoIndex, CryptoCC32XX_HMAC);
 
-        CryptoCC3200_HmacParams params;
+        CryptoCC32XX_HmacParams params;
         char* hmac_key = "xZN3weH8j9FD032TbJp!qV!X1#8l7^ni$rmjGNPkStP!i2&y6r^OmemoqnJ!g8XL";
         params.pKey = (uint8_t *)hmac_key[0];
         params.moreData = 0;
-        
+
         uint8_t rom_cert_hash_result[hashLength];
         memset( rom_cert_hash_result, 0, hashLength );
 
         /* Create a SHA256 digest signature of the certificate that we have compiled in */
-        CryptoCC3200_sign( cryptoHandle, config , (void*)&cert_globalsign_rootca_DER[0],
+        CryptoCC32XX_sign( cryptoHandle, config , (void*)&cert_globalsign_rootca_DER[0],
                              889, (uint8_t *)&rom_cert_hash_result, &params);
-        
+
         /* Open the file on the FFS */
         long lFileHandle = sl_FsOpen( ( unsigned char* )XI_CC32XX_ROOTCACERT_FILE_NAME,
                                         SL_FS_READ,
                                         ulToken );
 
-        if( lFileHandle < 0 ) 
+        if( lFileHandle < 0 )
         {
             xi_debug_printf("Warning: opening Xively certficate file: \"%s\" error: %d\n\r",
                 XI_CC32XX_ROOTCACERT_FILE_NAME,
                 lFileHandle );
         }
-        else 
+        else
         {
             /* Read the file into memory */
             int32_t bytes_read = 0;
             unsigned char certificate_file_buffer[CERTIFICATE_SIZE];
-            
+
             while( bytes_read < CERTIFICATE_SIZE )
             {
-                int32_t fs_result = sl_FsRead(lFileHandle, bytes_read, &certificate_file_buffer[bytes_read], 
+                int32_t fs_result = sl_FsRead(lFileHandle, bytes_read, &certificate_file_buffer[bytes_read],
                     CERTIFICATE_SIZE - bytes_read );
 
                 if( fs_result < 0 )
@@ -519,27 +519,27 @@ long CheckOrInstallCertficiateOnDevice( unsigned long* ulToken )
             sl_FsClose(lFileHandle, NULL, NULL , 0);
 
             /* Verify the File data with the compiled-in digest sigature */
-            if( CryptoCC3200_STATUS_SUCCESS == 
-                CryptoCC3200_verify(cryptoHandle, config, certificate_file_buffer,
+            if( CryptoCC32XX_STATUS_SUCCESS ==
+                CryptoCC32XX_verify(cryptoHandle, config, certificate_file_buffer,
                                     CERTIFICATE_SIZE, rom_cert_hash_result, &params ) )
             {
                 /* checksum checks out, no need to write the file again. */
                 write_file = 0;
             }
 
-            CryptoCC3200_close( cryptoHandle );            
+            CryptoCC32XX_close( cryptoHandle );
         }
     }
 
     if( write_file )
     {
         return WriteCertificateToFFS( ulToken );
-    } 
+    }
 
     return 0;
 }
 
-long WriteCertificateToFFS( unsigned long* ulToken ) 
+long WriteCertificateToFFS( unsigned long* ulToken )
 {
     /*  create a user file */
     long lRetVal = -1;
@@ -547,7 +547,7 @@ long WriteCertificateToFFS( unsigned long* ulToken )
     uint32_t max_size = sizeof( cert_globalsign_rootca_DER );
 
     /* open the file with create flags */
-    lFileHandle = 
+    lFileHandle =
         sl_FsOpen( ( unsigned char* )XI_CC32XX_ROOTCACERT_FILE_NAME,
             SL_FS_CREATE| SL_FS_OVERWRITE | SL_FS_CREATE_MAX_SIZE( max_size ),
             ulToken );

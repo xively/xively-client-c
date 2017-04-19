@@ -38,6 +38,7 @@
 
 /* POSIX Header files */
 #include <pthread.h>
+#include <_pthread.h>
 
 /* RTOS header files */
 #include <ti/sysbios/BIOS.h>

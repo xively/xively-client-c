@@ -31,6 +31,7 @@
 #include <board.h>
 #include <pin.h>
 #include <gpio.h>
+#include <sched.h>
 
 
 /* driverlib Header files */
