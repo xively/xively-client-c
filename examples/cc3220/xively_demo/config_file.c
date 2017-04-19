@@ -628,7 +628,7 @@ set_config_value (
 
         if (rval == CONFIG_PENDING)                      // New KEY and VALUE
           {
-            if ((ce = create_ce(key, value)))
+            if ((ce = create_ce((char*)key, value)))
               {
                 rval = CONFIG_SUCCESS;
                 *end_pp = ce;

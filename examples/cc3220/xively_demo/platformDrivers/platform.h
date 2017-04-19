@@ -18,6 +18,7 @@
 /* POSIX Header files */
 #include <pthread.h>
 #include <time.h>
+#include <types.h>
 
 #include <ti/drivers/net/wifi/simplelink.h>
 
