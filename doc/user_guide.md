@@ -1,12 +1,12 @@
 
 # Xively Client for C User Guide
-##### Copyright © 2003-2016 LogMeIn, Inc.
+##### Copyright © 2003-2017 LogMeIn, Inc.
 
 ## Hello
 
-This document is meant to be a general guide for the features and use of the Xively Client Agent written for C.  This document goes through what you should expect when you receive the Xively Client, how you should write your Client Application to use the Xively Client Agent to connect to the Xively Service, and how you can compile and link against the provided deliverables.
-This document does not provide a full source code example. However, the Xively Client build deliverable will include some examples that have been well-documented. Additionally a Doxygen API reference of our forward facing functions is provided.
-If you have any questions, comments or if you require help then please contact Xively-Client-Support <Xively-Client-Support@logmein.com> .
+This document is descibes the general features and intended use of the Xivley C Client by C applications attempting to connect to the Xively Service.  Details include the intended application flow, platform security considerations, and an API overview are contained within.
+
+This document does not provide a full source code example. However, the `examples/` directory of the [Xively C Client github repository](https://github.com/xively/xively-client-c/tree/master) includes many examples for POSIX platforms, and ST and TI reference boards. 
 
 ## Intended Audience
 
@@ -20,25 +20,26 @@ The Xively Client Agent is a C library that provides MQTT connectivity over TLS 
 
 The client can scale capabilities to meet the needs of the platform
 
-* We can operate on a single thread and our implementation runs in non-blocking mode by default.
+* It can operate on a single thread and our implementation runs in non-blocking mode by default.
 * The client does not use any CPU power when waiting for operations. Power consumption can be minimized as required.
-* A thread-safe event queue and an optional thread-pool for callbacks allow us to support more robust applications and platforms beyond the standard embedded platforms.
-* Our TLS Board Support Platform (BSP) can be used to use TLS features that are already embedded on some platforms.  Please see the Platform Security Requirements for more information.
+* A thread-safe event queue and an optional thread-pool for callbacks allows the client to support robust applications and platforms beyond the standard embedded platforms.
+* The Transport Layer Security (TLS) Board Support Package (BSP) can be used to leverage TLS features that are already on some mbedded platforms, or via software libraires like [WolfSSL](https://www.wolfssl.com) or [mbedTLS](https://tls.mbed.org/).  Please see the Platform Security Requirements for more information about TLS.
 
 ### Asynchronous Pub/Sub
 
-Through our use of corouties (http://en.wikipedia.org/wiki/Coroutine) our implementation can handle multiple publish & subscription requests concurrently while returning control to the platform stack for Real Time OS requirements.
+Through the use of [corouties](http://en.wikipedia.org/wiki/Coroutine) this MQTT client can handle multiple publish & subscription requests concurrently while not blocking.  This allows the client to faciliate multiple on-going communications even on NoOS devices or RTOSs.  
 
 * The library scales from high power enterprise operating systems to RTOS and NO-OS devices.
 * The library can send and receive simultaneously on a single socket.
+* Communication requirements of your applicaiton will not interfere with the usability of your device.
 
 ### Distributed Denial of Service Prevention
 
-The Xively Client Back-Off system provided intelligent networking behavior to prevent fleets of devices from causing unintentional DDoS attacks on Xively services.
+The Xively Client Back-Off system provides intelligent networking behavior to prevent fleets of devices from causing unintentional DDoS attacks on Xively services.
 
-* Client-side prevention of devices from attempting to connect in a tight loop.
-* Client Application is informed for pending connection attempts, disconnects, and Back-Off status.
-* Behavior is configurable per platform so that we can ensure that we get the best user experience.
+* Prevents invdividual clients from attempting reconnections in a tight-loop.
+* Client Application is informed of pending connection attempts, disconnects, and Back-Off status changes.
+* Behavior is configurable per platform so that you can ensure that we get the best user experience.
 
 ### Abstracted Implementation
 
@@ -47,20 +48,9 @@ The Xively Client was written with the understanding that the IoT Field might ch
 * The Xively Client is written in C and can be easily ported to support custom network stacks, operating systems, toolchains and TLS implementations.
 * Our Protocol Module uses MQTT for client/broker communications, with the ability to easily support new IoT protocols in the future.
 
-### Remote Administrative Control
-
-The Xively Client will soon have the ability to alter device configurations in the field:
-
-* Administrate all devices of a Customer at the same time, or specific product line at once,  or at each device at the individual device level.
-* Provision new MQTT credentials to devices in the field.
-* Have users re-associate devices to new owners in a secure manner.
-* Configure the device's connection parameters and behavior to prevent DDoS attacks and load balance the Xively Brokers.
-* Toggle logging modes to help Administrators determine and debug issues in real time.
-* Update TLS Certificates to increase longevity of devices in the field.
-
 ### Xively Client Footprint
 
-Currently the client storage footprint requirements are about 30kb for embedded devices with optimized toolchains, not including TLS functionality.
+Currently the client storage footprint requirements are about 30kb for embedded devices with optimized toolchains, not including TLS functionality.  This footprint includes a TLS certifcate for validating the Xively server during TLS, 3 backup certificates for use if the main certificate becomes compromised, an event dispatcher and scheduler, the connection backoff system, and both Platform networking, time, random number generator and memory implemetnations.  This footprint does not include a TLS implementation, but if one exists on the platform already, then the size requirements are negligable.
 
 # Platform Security Requirements
 
@@ -68,33 +58,35 @@ The Xively Client uses TLSv1.2 to securely connect to the Xively Gateway and Blu
 
 ### True Random Number Generator
 
-During TLS handshaking a Cryptographic Nonce (http://en.wikipedia.org/wiki/Cryptographic_nonce) must be generated by the client embedded device. If this nonce is predictable in any way, then the device's TLS connection can be compromised by an attack. Once the connection has been compromised in this way, anything that's communicated over the TLS connection can be stolen, including the MQTT Credentials that are used to connect to the Xively Service.
+During TLS handshaking a [Cryptographic Nonce](http://en.wikipedia.org/wiki/Cryptographic_nonce) must be generated by the client embedded device. If this nonce is predictable, then the device's TLS connection may be compromised and anything that's communicated over the TLS connection can be stolen, including the MQTT Credentials that are used to connect to the Xively Service.
+
 A True Random Number Generator is therefore of paramount importance as it ensures that the nonce created during TLS handshaking is unpredictable by an attacker.
+
 Note: Random Number Generators seeded by the current time are not truly random, as the seed can be predicted.
 
 ### Accurate Real-time Clock
 
-The Client-side of the TLS Handshake process includes steps to ensure that the server-provided certificate is still valid. There are two potential checks that are made here:
+The Client-side of the TLS Handshake process includes steps to ensure that the server-provided certificate is still valid:
 
-* Check to see if the current date is past the Certificate's Activation Date, and that the current time precedes the Certificate's Expiration Date.
-* Check to see if an OCSP response has not expired.
+* A check to see if the current date is past the Certificate's Activation Date, and that the current time precedes the Certificate's Expiration Date.
+* A check to see if an OCSP response has not expired.
     * You can read more about OCSP Stapling here: http://en.wikipedia.org/wiki/OCSP_stapling
 
-Without an accurate clock these activation / validation tests will be inaccurate. Even worse, if the time is substantially inaccurate (like a device that thinks it's 1970, for instance) then TLS handshaking will fail and the device will never connect to the Xively Service.
+Without an accurate clock these certificate activation & validation tests will be inaccurate. Even worse, if the time is substantially inaccurate (like a device that thinks it's 1970, for instance) then TLS handshaking will fail and the device will never connect to the Xively Service.
 
 ### Remote Updates
 
 Remote Updates is a desired feature for many reasons, but when it comes to security it's extraordinarily important. Cryptographic algorithms can be exploited over time (making their use risky), protocol implementations could be found to be faulty, and Root CA Certificates (which are stored on the device might) will expire and need to be updated. Without the ability to update the device remotely there is a high risk that the Server and Client will be running different security mechanisms, causing TLS Handshaking to Fail.
 
-The Xively Professional Services Team (XPS) can work with you to develop a firmware update strategy if you currently do not have one.
+The Xively Team (Xively-Sales@logmein.com) can work with you to develop a firmware update strategy for your platform.  We currently have a reference implementation for embedded devices in-house and will make this public by mid 2017. 
 
 # TLS Implementation Requirements
 
-The Xively Client has been tested against WolfSSL's CyaSSL library v3.2.0 and mbedTLS (formerly PolarSSL https://tls.mbed.org). Xively Professional Services (XPS) can work with your Client Application team and with WolfSSL to port that version of the CyaSSL implementation to your platform as part of the standard porting process. If your platform software or hardware has a different TLS implementation already provided, then Xively Professional Services can work with your Client Application team to use your TLS version.
+The Xively Client has been tested against [WolfSSL's library v3.2.0](https://www.wolfssl.com) and [mbedTLS](https://tls.mbed.org) (formerly PolarSSL ). If your platform e has a different TLS implementation then the following are guidelines for ensuring that your TLS implementaiton meets the same standards. Please see our [Xively C Client Porting Guide](https://github.com/xively/xively-client-c/blob/master/doc/porting_guide.md) for building the Xively C Client's Abstracted TLS BSP to support other TLS implementations.
 
-The following TLS features are requirements of any implementation that the Xively Client uses. These features have been selected by the Xively Security Team to ensure that connections to the Xively Service are fully secure.  Please be sure that your TLS implementation supports all of these features:
+Note: We've found that some versions of TLS in hardware do not have all of these features.  In these cases we recommend using a software library for TLS if the platform's has the footprint to support a TLS lib.
 
-Note: We've found that some versions of TLS in hardware do not have all of these features.
+## Xively's TLS Requirements
 
 * Server Certificate Root CA validation
     * TLS implementation must accept a series of Root CA certificates stored on the client to determine if the Server Certificate (provided at TLS handshaking) has been signed by one of the Root CAs.
@@ -103,13 +95,14 @@ Note: We've found that some versions of TLS in hardware do not have all of these
 * Server Domain Checking
     * Wildcard support for domain name checks
 
-* Online Certificate Status Protocol (OCSP): http://en.wikipedia.org/wiki/Online_Certificate_Status_Protocol
+* [Online Certificate Status Protocol (OCSP)](http://en.wikipedia.org/wiki/Online_Certificate_Status_Protocol)
     * Used to determine if a server certificate has been revoked
+    * Circumvents the need for Certificate Revocation Lists on the device.
     * Requires the use of two sockets per connection, at least for the duration of TLS handshaking
     * Requires accurate clock
 
-* OCSP Stapling (soon): http://en.wikipedia.org/wiki/OCSP_stapling
-    * Does not require a second socket
+* [OCSP Stapling](http://en.wikipedia.org/wiki/OCSP_stapling)
+    * OCSP mode that does not require a second socket
     * Requires Accurate Clock
 
 * Sever Name Indication (SNI): http://en.wikipedia.org/wiki/Server_Name_Indication
@@ -123,7 +116,8 @@ Note: We've found that some versions of TLS in hardware do not have all of these
 
 # Xively Client Standard Features
 
-The Xively Client Agent for C was designed with embedded systems in mind. That is, it is a low footprint, low memory usage, communications solution that can run on a single thread with a single socket connection on multiple operating systems. But the client itself also offers a suite of subsystems that go beyond a standard communications API.
+The Xively Client Agent for C was designed with embedded systems in mind. It has a low footprint, minimal memory usage, and a scheduling system to make your application's use of MQTT as easy as possible.  It can run on a single thread with a single socket connection on multiple operating systems.  The following are details about all of these subsystems.
+
 
 ### General MQTT Standard v3.1.1
 
@@ -147,14 +141,6 @@ With this communication toolbox embedded devices can be used to listen and publi
 **Message Size Limitations**
 
 Currently the Xively Service supports a maximum message size of 128kb.
-
-### Provisioning
-
-In the near future the Xively Client and Xively Service will be able to push new MQTT credentials to devices in the field, updating their password securely over TLS. This would be done for security reasons during new device activation and for new user associations.
-
-Credentials will be sent to the device over MQTT Control Topics which the Xively Client subscribes to automatically during connection attempts.  The Client Application will be asked to store these credentials in nonvolatile storage via a function callback.
-
-More information will be coming as this feature moves closer to release.
 
 ### TLS Support
 
@@ -188,9 +174,7 @@ Since the Xively Client has been designed for restricted systems we must always 
 
 If operations would cause the Xively Client to allocate memory beyond the defined bounds, then the Xively Client will start to return XI_OUT_OF_MEMORY errors on direct API invocations. Or, if the memory exhaustion event occurs while processing an already operating asynchronous task (send, receive, etc), then the Xively Client will shut itself down and clean up its allocated resources.
 
-If you're interested in using Memory Limiter for your target platform then please contact the Xively Professional Services team.  They will work with you to determine how much memory you should devote to the Xively Client, based on the number of Xively Service Connections, message publish rates and message size.
-
-Note: the Memory Limiter does not forward allocate its heap, so heap monitoring software will not see an initial jump in heap usage at initialization relating to memory jail size.  Additionally if memory is being consumed on the device by another subsystem then heap exhaustion could still occur at the system level.  If this occurs then applications could hang on your device.
+Note: the Memory Limiter does not pre-allocate its heap, so heap monitoring software will not see an initial jump in heap usage at initialization relating to memory limiter size.  Additionally if memory is being consumed on the device by another subsystem then heap exhaustion could still occur at the system level.  If this occurs then applications could hang on your device.
 
 #### Memory Limiter Functions
 
@@ -210,25 +194,25 @@ Queries the current amount of memory allocated for Xively Client operations, inc
 
 The Xively client reserves some memory so that it can continue operations during a memory exhaustion event. This reservation allows the client to continue processing ongoing coroutines, to clean up scheduled tasks, unroll ongoing transmissions and buffers, and to shutdown sockets properly.
 
-The amount of this memory reservation is determined at compile time by a Xively Professional Services engineer. By default this memory space is currently set to 2kb. Invoking xi_maximum_heap_usage to 20 kb, for instance, will result a 2kb reservation for this emergency cleanup scenario, and 18kb being available for all other Xively operations that are requested by the Client Application, including creating connections, sending and receviing buffers, and TLS processing.
+By default this memory space is currently set to 2kb. Invoking xi_maximum_heap_usage to 20 kb, for instance, will result a 2kb reservation for this emergency cleanup scenario, and 18kb being available for all other Xively operations that are requested by the Client Application, including creating connections, sending and receviing buffers, and TLS processing.
 
 # Intended Flow of Client Application Usage of Xively Client
 
 The Xively Client is an asynchronous communication tool. Client Applications must use callback functionality to monitor the state of connections and subscriptions in order to maintain a proper communication channel to the Xively Service.  The design of the Flow will be part of the Xively Client Services and Client Application Team's coordinated efforts, but there are some baseline rules that should be followed when writing applications that use the Xively Client library.
-This standard flow of an application which uses the Xively Client is detailed below.  Please note that not all functions of the Xively API are covered in this section.  For a full API specification please see the Xively C Client API reference, which should be part of your Xively Client Deliverable, or it can be provided to you by request.
+
+This standard flow of an application which uses the Xively Client is detailed below.  Please note that not all functions of the Xively API are covered in this section.  For a full API specification please see the Xively C Client API reference in the `doc/doxygen` directory of the [Xively C Client github repository](https://github.com/xively/xively-client-c/tree/master/).
 
 ***Note: Provisioning Your Credentials and Topics***
 
-Before executing the Xively Client you must coordinate with Xively Professional Services to create Xively Client connection credentials for your application. The following credentials must be provided to the Xively Client for C during its initialization, connection and subscription/publish requests:
+Before executing the Xively Client you must create Xively Client connection credentials for your application. The following credentials can be created in your account at [app.xivley.com](https://app.xively.com):
 
 - account id
 - device id
 - device secret (password)
 - topic name
 
-Xively Professional Services will either provide access to the Xively Blueprint System so that you may create credentials yourselves, or they will provide you with pre-created credentials with which you may begin your testing and evaluation.
+For more information about using the Xively cloud service please see the [Xively Developer Center](https://developer.xively.com/).
 
-For more information please contact your Xively Professional Services Representative.
 
 <p align="center">
 <img src="./res/XivelyStandardClientApplicationFlow.png">
@@ -496,33 +480,36 @@ if( XI_INVALID_TIMED_TASK_HANDLE != timed_task_handle )
 
 # Example Usage
 
-The mqtt_logic_producer example should have been provided to you with your Xively Client Delivery.  It includes source that schedules a callback to delayed_publish(), which will publish a message every 5 seconds after the client has connected to the Xively Service.
+The `mqtt_logic_producer` example is provided in the base `examples/` directory of the Xively  C Client github repository. It includes source that schedules a callback to delayed_publish(), which will publish a message every 5 seconds after the client has connected to the Xively Service.
 
 # Further Reading
 
-## Xively API Documentation
+## Other Client Documentation
 
-This includes the specification and documentation of the Xively Client API that should be used by the Client Application to communicate to the Xively Service.  This will be provided by Xively Professional Services by request, and be part of your Xively Port Deliverable.
+* [Xively C Client Releases](https://github.com/xively/xively-client-c/releases)
+* [Xively C Client Github](https://github.com/xively/xively-client-c/)
+* [Xively C Client Porting Guide](https://github.com/xively/xively-client-c/blob/master/doc/porting_guide.md)
+* [Xively Developer Center](https://developer.xively.com/)
+* [STM32 Nucleo tutorial](https://developer.xively.com/docs/stm32f4xx-nucleo)
+* [TI CC3200 tutorial](https://developer.xively.com/docs/ti-cc3200)
+* Xively Client API Doxygen in `doc/doxygen/api` of the github repo.
+* Xively Client BSP Doxygen in `doc/doxygen/bsp` of the github repo.
 
-## Release Notes
-
-Provided as part of your Xively Port Deliverable.  Please check the release notes for any bug fixes, API changes, etc. to ensure that your Client Application behaves as expected.
 
 # External Resources
 
 ## MQTT
 
-* https://en.wikipedia.org/wiki/MQTT
-* http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html
+* [MQTT Wikipedia](https://en.wikipedia.org/wiki/MQTT)
+* [MQTT 3.1.1 Specification](http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html)
 
 ## TLS Security
 
 * Transport Layer Security (TLS)
     - TLS v1.2
-* http://en.wikipedia.org/wiki/Cryptographic_nonce
-* http://en.wikipedia.org/wiki/Online_Certificate_Status_Protocol
-* http://en.wikipedia.org/wiki/OCSP_stapling
-* http://en.wikipedia.org/wiki/Server_Name_Indication
+* [Cryptographic Nonce](http://en.wikipedia.org/wiki/Cryptographic_nonce)
+* [Onilne Certificate Status Protocol (OCSP)](http://en.wikipedia.org/wiki/Online_Certificate_Status_Protocol)
+* [OCSP Stapling](http://en.wikipedia.org/wiki/OCSP_stapling)
 
 # Glossary of Terms
 
@@ -534,23 +521,12 @@ A state in which the Xively Client delays connection attempts with the Xively Se
 
 Software written for the target platform resides above the Xively Client on the application software stack.  The Client Application calls into the Xively Client to fulfill its communication requests to the Xively Service.
 
-## Client Application Reference
-
-Designed in part by both the Client Application Team and Xively Professional Services, the Client Application Reference is an example usage of the Xively Client written for the target platform.  This will be an implementation that shows how to connect, subscribe and publish to topics, as well as how to invoke the event dispatcher.
-
-## Provisioning
-
-The act of retrieving a new secret and potentially a new username for a device.  This could happen both offline or through Xively Control Topics.
-
 ## Xively Client
 
 The Xively software stack written in C and meant to run on embedded devices.  The Xively Client facilitates connections to the Xively Service on behalf of the Client Application running on the device.
 
-## Xively Control Topics
 
-Special MQTT Topics that are used internally by the Xively Client and Xively Service to Provision Credentials, set Back-Off configurations, update Public Root Certificates, etc.
-
-## Xively Service
+## Xively Service / Platform
 
 The Xively Message System, Gateway and Blueprint Systems hosted on servers in a Xively Data Center.  The Xively Client connects to the Xively Service for messaging and provisioning.
 This is just a test
