@@ -4,7 +4,7 @@
 
 ## Hello
 
-This document descibes the intended use of the Xivley C Client by C applications attempting to connect to the Xively Service, as well as detailing the API and some of the security and communication features of the client.
+This document describes the intended use of the Xivley C Client by C applications attempting to connect to the Xively Service, as well as detailing the API and some of the security and communication features of the client.
 
 This document does not provide a full source code example. However, the `examples/` directory of the [Xively C Client github repository](https://github.com/xively/xively-client-c/tree/master) includes many examples for POSIX platforms, ST and TI reference boards. 
 
@@ -23,15 +23,15 @@ The client can scale capabilities to meet the needs of the platform
 * It can operate on a single thread and our implementation runs in non-blocking mode by default.
 * The client does not use any CPU power when waiting for operations. Power consumption can be minimized as required.
 * A thread-safe event queue and an optional thread-pool for callbacks allows the client to support robust applications and platforms beyond the standard embedded platforms.
-* The Transport Layer Security (TLS) Board Support Package (BSP) can be used to leverage TLS features that are already on some mbedded platforms, or via software libraires like [WolfSSL](https://www.wolfssl.com) or [mbedTLS](https://tls.mbed.org/).  Please see the Platform Security Requirements for more information about TLS.
+* The Transport Layer Security (TLS) Board Support Package (BSP) can be used to leverage TLS features that are already on some embedded platforms, or via software libraries like [WolfSSL](https://www.wolfssl.com) or [mbedTLS](https://tls.mbed.org/).  Please see the Platform Security Requirements for more information about TLS.
 
 ### Asynchronous Pub/Sub
 
-Through the use of [corouties](http://en.wikipedia.org/wiki/Coroutine) this MQTT client can handle multiple publish & subscription requests concurrently while not blocking.  This allows the client to faciliate multiple on-going communications even on NoOS devices or RTOSs.  
+Through the use of [coroutines](http://en.wikipedia.org/wiki/Coroutine) this MQTT client can handle multiple publish & subscription requests concurrently while not blocking.  This allows the client to facilitate multiple on-going communications even on NoOS devices or RTOSes.  
 
 * The library scales from high power enterprise operating systems to RTOS and NO-OS devices.
 * The library can send and receive simultaneously on a single socket.
-* Communication requirements of your applicaiton will not interfere with the usability of your device.
+* Communication requirements of your application will not interfere with the usability of your device.
 
 ### Distributed Denial of Service Prevention
 
@@ -50,7 +50,7 @@ The Xively Client was written with the understanding that the IoT Field might ch
 
 ### Xively Client Footprint
 
-Currently the client storage footprint requirements are about 30kb for embedded devices with optimized toolchains, not including TLS functionality.  This footprint includes a TLS certifcate for validating the Xively server during TLS, 3 backup certificates for use if the main certificate becomes compromised, an event dispatcher and scheduler, the connection backoff system, and both Platform networking, time, random number generator and memory implemetnations.  This footprint does not include a TLS implementation, but if one exists on the platform already, then the size requirements are negligable.
+Currently the client storage footprint requirements are about 30kb for embedded devices with optimized toolchains, not including TLS functionality.  This footprint includes a TLS certificate for validating the Xively server during TLS, 3 backup certificates for use if the main certificate becomes compromised, an event dispatcher and scheduler, the connection backoff system, and both Platform networking, time, random number generator and memory implementations.  This footprint does not include a TLS implementation, but if one exists on the platform already, then the size requirements are negligible.
 
 # Platform Security Requirements
 
@@ -82,7 +82,7 @@ The Xively Team (Xively-Sales@logmein.com) can work with you to develop a firmwa
 
 # TLS Implementation Requirements
 
-The Xively Client has been tested against [WolfSSL's library v3.2.0](https://www.wolfssl.com) and [mbedTLS](https://tls.mbed.org) (formerly PolarSSL). The following guidelines will help to ensure that your TLS implementaiton meets the same standards if you use a different implementation. Please see our [Xively C Client Porting Guide](https://github.com/xively/xively-client-c/blob/master/doc/porting_guide.md) for building the Xively C Client's Abstracted TLS BSP to support other TLS implementations.
+The Xively Client has been tested against [WolfSSL's library v3.2.0](https://www.wolfssl.com) and [mbedTLS](https://tls.mbed.org) (formerly PolarSSL). The following guidelines will help to ensure that your TLS implementation meets the same standards if you use a different implementation. Please see our [Xively C Client Porting Guide](https://github.com/xively/xively-client-c/blob/master/doc/porting_guide.md) for building the Xively C Client's Abstracted TLS BSP to support other TLS implementations.
 
 Note: We've found that some versions of TLS in hardware do not have all of these features.  In these cases we recommend using a software library for TLS if the platform's has the flash storage available for it.
 
@@ -148,13 +148,13 @@ Currently the Xively Client for C has two working implementations of its TLSv1.2
 
 However, for your convenience, depending on the make configuration you execute, these implementations will be automatically checked-out of their respective github repositories, configured, and built once you confirm that you've read and accepted their distribution licenses.
 
-Additionally, our TI CC3200 port has a build configuration to use Texas Instruments on-chip TLS solution, and our STM32 Nucelo WiFi port makes use of the on-board TLS implementation from ST Micro.  These two should be used as references on how to talk to TLS implementations built into the platform's Secure Socket Implementations.
+Additionally, our TI CC3200 port has a build configuration to use Texas Instruments on-chip TLS solution, and our STM32 Nucleo WiFi port makes use of the on-board TLS implementation from ST Micro.  These two should be used as references on how to talk to TLS implementations built into the platform's Secure Socket Implementations.
 
 If you have your own TLS implementation, or if one comes with your platform software, then the modularity of the Xively C Client's Networking and TLS BSPs can support your software to provide TLS connectivity to the Xively C Client.  For more information on how to write and build with a custom TLS or Networking BSP, please see the [Xively C Client Porting Guide](https://github.com/xively/xively-client-c/blob/master/doc/porting_guide.md).
 
 ### RTOS Support
 
-The Xively Client for C was written to be adaptable to the platform that it's running on. Standard Linux versions of our application have an event loop that doesn't return from it's invocation until the last context is shut down. However, this is insufficient for RTOS devices that need to yield control to the operating system or platform software to handle task switching, network processing, etc.
+The Xively Client for C was written to be adaptable to the platform that it's running on. Standard Linux versions of our application have an event loop that doesn't return from its invocation until the last context is shut down. However, this is insufficient for RTOS devices that need to yield control to the operating system or platform software to handle task switching, network processing, etc.
 
 For RTOS support our event loop will process a small series of events before returning control back to the main platform loop. Here the main platform loop can maintain any sort of system tick tasks, and then invoke the Xively Client to process another series of events. In this way the Xively Client does not block and can handle both incoming and outgoing publications concurrently.
 
@@ -180,7 +180,7 @@ Since the Xively Client has been designed for restricted systems we must always 
 
 If operations would cause the Xively Client to allocate memory beyond the defined bounds, then the Xively Client will start to return XI_OUT_OF_MEMORY errors on direct API invocations. Or, if the memory exhaustion event occurs while processing an already operating asynchronous task (send, receive, etc), then the Xively Client will shut itself down and clean up its allocated resources.
 
-Note: the Memory Limiter does not pre-allocate its heap, so heap monitoring software will not see an initial jump in heap usage at initialization relating to memory limiter size.  Additionally if memory is being consumed on the device by another subsystem then heap exhaustion could still occur at the system level.  If this occurs then applications could hang on your device.
+Note: the Memory Limiter does not pre-allocate its heap. Therefore, heap monitoring software will not see an initial jump in heap usage at initialization relating to memory limiter size.  Additionally if memory is being consumed on the device by another subsystem, then heap exhaustion could still occur at the system level.  If this occurs then applications could hang on your device.
 
 #### Memory Limiter Functions
 
@@ -200,7 +200,7 @@ Queries the current amount of memory allocated for Xively Client operations, inc
 
 The Xively client reserves some memory so that it can continue operations during a memory exhaustion event. This reservation allows the client to continue processing ongoing coroutines, to clean up scheduled tasks, unroll ongoing transmissions and buffers, and to shutdown sockets properly.
 
-By default this memory space is currently set to 2kb. Invoking xi_maximum_heap_usage to 20 kb, for instance, will result a 2kb reservation for this emergency cleanup scenario, and 18kb being available for all other Xively operations that are requested by the Client Application, including creating connections, sending and receviing buffers, and TLS processing.
+By default this memory space is currently set to 2kb. Invoking xi_maximum_heap_usage to 20 kb, for instance, will result a 2kb reservation for this emergency cleanup scenario, and 18kb being available for all other Xively operations that are requested by the Client Application, including creating connections, sending and receiving buffers, and TLS processing.
 
 # Intended Flow of Client Application Usage of Xively Client
 
@@ -241,7 +241,7 @@ Note: The call to connect will not block at all, but instead it will return imme
 
 A connection request requires that your Client Application provide a callback function. This function will be invoked when a connection to the Xively Service has been established, or if the connection was unsuccessful.
 
-The Connect Callback function will also be invoked when the Connection to the Xively Service has been lost or purposefully shutdown.  Please see Step 6: Disconnection below.
+The Connect Callback function will also be invoked when the Connection to the Xively Service has been lost or purposefully shutdown.  Please see Step 6: Disconnect and Shutdown below.
 
 You can create a connection with the invocation of **xi_connect()**.
 
@@ -267,7 +267,7 @@ The Client Application may supply a publish callback function to the Xively Clie
 
 To publish a message to a topic please see one of the xi_publish functions: **xi_publish()**, **xi_publish_timeseries()**, **xi_publish_data()**.
 
-## Step 6: Disconnection and Shutdown
+## Step 6: Disconnect and Shutdown
 
 The Xively Client will invoke the connection callback upon a disconnection event, as stated in Step 2: Connect above. The disconnection could be the cause of numerous scenarios including loss of internet connection, the Xively Service closing the connection with the client due to errant behavior or malformed MQTT packets, or due to the Client Application requesting that the networking connection be shutdown.
 
@@ -275,9 +275,9 @@ If you wish to close the connection yourself, the Client Application can invoke 
 
 The Client Application can determine the type of disconnection in the Connect Callback by checking various parameters that have been provided to the Callback Function.  Please see the Connect Callback Details below for more information on how the Client Application can determine the cause of a disconnection event.
 
-The Client Application may call Connect again immediately from within the Connect Callback if the disconnection wasn't expected. This will queue a new Connection Request just as in Step 2: Connect above.  If the Client Application closed the connection on purpose then it can retain the Xively Client Context and invoke Connect again at a later time.  Alternativey, if more memory must be freed, then the context can be cleaned-up by invoking **xi_destroy_context**.   Further memory can be freed by calling **xi_shutdown()**, but only after all contexts have been destroyed.
+The Client Application may call Connect again immediately from within the Connect Callback if the disconnection wasn't expected. This will queue a new Connection Request just as in Step 2: Connect above.  If the Client Application closed the connection on purpose then it can retain the Xively Client Context and invoke Connect again at a later time.  Alternatively, if more memory must be freed, then the context can be cleaned-up by invoking **xi_destroy_context**.   Further memory can be freed by calling **xi_shutdown()**, but only after all contexts have been destroyed.
 
-Please note that **xi_shutdown()** should be called sparingly, and not on every disconnection event. **xi_shutdown()** destroys the Back-Off status cache which helps guard the Xively Service from accidental Distributed Denial of Service Attacks by devices in the field.  Please see the Back-Off Section for more information bout this feature.
+Please note that **xi_shutdown()** should be called sparingly, and not on every disconnection event. **xi_shutdown()** destroys the Back-Off status cache which helps guard the Xively Service from accidental Distributed Denial of Service Attacks by devices in the field.  Please see the Back-Off Section for more information about this feature.
 
 # Standard Operation Callbacks (Connection, Subscribe, Publish and Shutdown)
 
@@ -350,7 +350,7 @@ Can be one of following:
 * XI_SUB_CALL_SUBACK
     - The callback has been filled with the status update of subscription process.
 * XI_SUB_CALL_MESSAGE
-    - Callback invocation carries payload data of the mesage sent from Xively Service.
+    - Callback invocation carries payload data of the message sent from Xively Service.
 
 **params**
 
@@ -390,9 +390,9 @@ Brings information about the state of the execution. In order to process the inf
 
 With each subscription request the void\* data can be associated. This way one callback function implementation can handle multiple message subscriptions.
 
-**Protip:**
+**Pro Tip:**
 
-This data can hold some application specific information or can be simply used in order to differenciate the channels easier and faster than by comparing topic names.
+This data can hold some application specific information or can be simply used in order to differentiate the channels easier and faster than by comparing topic names.
 
 ## Publication Callback
 
@@ -421,7 +421,7 @@ On publication success, state will be set to XI_STATE_WRITTEN.  Otherwise an err
 
 # Event System
 
-The Xively Client library has its own event processor to handle asynchronous communication requests such as publications, subscriptions and connections, and we have exposed the ability to use this event system to schedule callbacks inside your Client Application if you wish to do so.  It's very simple and straight forward to use.  All you need is a function pointer, a Xively context handle, and the elapsed time in seconds that you wish to have your function called.
+The Xively Client library has its own event processor to handle asynchronous communication requests such as publications, subscriptions and connections, and we have exposed the ability to use this event system to schedule callbacks inside your Client Application if you wish to do so.  It's very simple and straightforward to use.  All you need is a function pointer, a Xively context handle, and the elapsed time in seconds that you wish to have your function called.
 
 With this functionality you can schedule publications to occur regularly to have your device send status messages, or you can set a timer for a timeout, or schedule new connections if your device is only actively communicating to the Xively Service a few times a day.
 
