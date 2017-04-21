@@ -105,7 +105,7 @@ Note: We've found that some versions of TLS in hardware do not have all of these
     * OCSP mode that does not require a second socket
     * Requires Accurate Clock
 
-* Sever Name Indication (SNI): http://en.wikipedia.org/wiki/Server_Name_Indication
+* [Server Name Indication (SNI)](http://en.wikipedia.org/wiki/Server_Name_Indication)
     * Requirement of Xively Gateways for load balancing reasons.
 
 * Algorithm Support for the following Root CA Public Certificates which are embedded in the Xively Client
