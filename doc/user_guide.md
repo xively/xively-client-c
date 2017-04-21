@@ -4,9 +4,9 @@
 
 ## Hello
 
-This document is descibes the general features and intended use of the Xivley C Client by C applications attempting to connect to the Xively Service.  Details include the intended application flow, platform security considerations, and an API overview are contained within.
+This document descibes the intended use of the Xivley C Client by C applications attempting to connect to the Xively Service, as well as detailing the API and some of the security and communication features of the client.
 
-This document does not provide a full source code example. However, the `examples/` directory of the [Xively C Client github repository](https://github.com/xively/xively-client-c/tree/master) includes many examples for POSIX platforms, and ST and TI reference boards. 
+This document does not provide a full source code example. However, the `examples/` directory of the [Xively C Client github repository](https://github.com/xively/xively-client-c/tree/master) includes many examples for POSIX platforms, ST and TI reference boards. 
 
 ## Intended Audience
 
@@ -37,9 +37,9 @@ Through the use of [corouties](http://en.wikipedia.org/wiki/Coroutine) this MQTT
 
 The Xively Client Back-Off system provides intelligent networking behavior to prevent fleets of devices from causing unintentional DDoS attacks on Xively services.
 
-* Prevents invdividual clients from attempting reconnections in a tight-loop.
+* Prevents individual clients from attempting reconnections in a tight-loop.
 * Client Application is informed of pending connection attempts, disconnects, and Back-Off status changes.
-* Behavior is configurable per platform so that you can ensure that we get the best user experience.
+* Behavior is configurable per platform to ensure that you may create the best user experience.
 
 ### Abstracted Implementation
 
@@ -82,9 +82,9 @@ The Xively Team (Xively-Sales@logmein.com) can work with you to develop a firmwa
 
 # TLS Implementation Requirements
 
-The Xively Client has been tested against [WolfSSL's library v3.2.0](https://www.wolfssl.com) and [mbedTLS](https://tls.mbed.org) (formerly PolarSSL ). If your platform e has a different TLS implementation then the following are guidelines for ensuring that your TLS implementaiton meets the same standards. Please see our [Xively C Client Porting Guide](https://github.com/xively/xively-client-c/blob/master/doc/porting_guide.md) for building the Xively C Client's Abstracted TLS BSP to support other TLS implementations.
+The Xively Client has been tested against [WolfSSL's library v3.2.0](https://www.wolfssl.com) and [mbedTLS](https://tls.mbed.org) (formerly PolarSSL). The following guidelines will help to ensure that your TLS implementaiton meets the same standards if you use a different implementation. Please see our [Xively C Client Porting Guide](https://github.com/xively/xively-client-c/blob/master/doc/porting_guide.md) for building the Xively C Client's Abstracted TLS BSP to support other TLS implementations.
 
-Note: We've found that some versions of TLS in hardware do not have all of these features.  In these cases we recommend using a software library for TLS if the platform's has the footprint to support a TLS lib.
+Note: We've found that some versions of TLS in hardware do not have all of these features.  In these cases we recommend using a software library for TLS if the platform's has the flash storage available for it.
 
 ## Xively's TLS Requirements
 
@@ -116,7 +116,7 @@ Note: We've found that some versions of TLS in hardware do not have all of these
 
 # Xively Client Standard Features
 
-The Xively Client Agent for C was designed with embedded systems in mind. It has a low footprint, minimal memory usage, and a scheduling system to make your application's use of MQTT as easy as possible.  It can run on a single thread with a single socket connection on multiple operating systems.  The following are details about all of these subsystems.
+The Xively Client Agent for C was designed with embedded systems in mind. It has a low footprint, minimal memory usage, and a scheduling system to make your application's use of MQTT as easy as possible.  It can run on a single thread with a single socket connection on multiple operating systems.  The following details all of these subsystems and features.
 
 
 ### General MQTT Standard v3.1.1
@@ -144,7 +144,13 @@ Currently the Xively Service supports a maximum message size of 128kb.
 
 ### TLS Support
 
-Currently the Xively Client for C has two working TLS implementations for embedded devices that interfaces with Wolf SSL's CyaSSL TLS library or with mbedTLS in order to facilitate TLSv1.2 support that the Xively Service requires. We have worked in the past with WolfSSL to provide a static library of CyaSSL for customers' embedded devices, configured to take advantage of the correct security algorithms required for our certificate parsing, SNI functionality, OCSP support, and platform support for true random number generators on devices.
+Currently the Xively Client for C has two working implementations of its TLSv1.2 Board Support Package (BSP) for embedded devices: WolfSSL's TLS library or mbedTLS. The Github Repository has the sources for the Xively C Client to interface with either of these implementations, but we do not directly provide the source for the TLS libraries themselves.
+
+However, for your convenience, depending on the make configuration you execute, these implementations will be automatically checked-out of their respective github repositories, configured, and built once you confirm that you've read and accepted their distribution licenses.
+
+Additionally, our TI CC3200 port has a build configuration to use Texas Instruments on-chip TLS solution, and our STM32 Nucelo WiFi port makes use of the on-board TLS implementation from ST Micro.  These two should be used as references on how to talk to TLS implementations built into the platform's Secure Socket Implementations.
+
+If you have your own TLS implementation, or if one comes with your platform software, then the modularity of the Xively C Client's Networking and TLS BSPs can support your software to provide TLS connectivity to the Xively C Client.  For more information on how to write and build with a custom TLS or Networking BSP, please see the [Xively C Client Porting Guide](https://github.com/xively/xively-client-c/blob/master/doc/porting_guide.md).
 
 ### RTOS Support
 
@@ -211,7 +217,7 @@ Before executing the Xively Client you must create Xively Client connection cred
 - device secret (password)
 - topic name
 
-For more information about using the Xively cloud service please see the [Xively Developer Center](https://developer.xively.com/).
+For more information about using the Xively Platform  please see the [Xively Developer Center](https://developer.xively.com/).
 
 
 <p align="center">
