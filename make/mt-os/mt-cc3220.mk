@@ -105,10 +105,11 @@ XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_SDK)/source/ti/devices/cc32xx/driverlib
 XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_SDK)/source
 XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_SDK)/source/ti/drivers
 XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_SDK)/source/ti/drivers/net/wifi
+XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_SDK)/source/ti/drivers/net/wifi/sys
 XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_SDK)/source/ti/devices/cc32xx/inc
 
 # clock
-XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_SDK)/os/tirtos/packages
+XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_SDK)/kernel/tirtos/packages
 XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_XDC_SDK)/packages
 
 
