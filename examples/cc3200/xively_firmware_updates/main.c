@@ -83,13 +83,13 @@
 
 // Values for below macros shall be modified per the access-point's (AP) properties.
 // SimpleLink device will connect to following AP when the application is executed.
-#define ENT_NAME ""
-#define PASSWORD ""
+#define ENT_NAME "Amped_AP"
+#define PASSWORD "wireless"
 
 // Values for below macros will be used for connecting the device to Xively's
 // MQTT broker
 #define XIVELY_DEVICE_ID "a9dd3d46-b040-4899-9e40-7a9b407aa330"
-#define XIVELY_DEVICE_SECRET ""
+#define XIVELY_DEVICE_SECRET "ToeM7ibJ5pSPy4Lr+7Cn/O7Y+EysnmiFmsGl47G+clI="
 #define XIVELY_ACCOUNT_ID "223151b6-7476-4832-b189-e52def8c6a7e"
 
 // Application specific status/error codes
@@ -302,6 +302,10 @@ void send_temperature( const xi_context_handle_t context_handle,
                        const xi_timed_task_handle_t timed_task_handle,
                        void* user_data )
 {
+    XIVELY_DEMO_PRINT(".");
+    if( 1 == 1 )
+        return;
+
     /* Prepare configuration for temperature sensor for I2C bus */
     PinTypeI2C( PIN_01, PIN_MODE_1 );
     PinTypeI2C( PIN_02, PIN_MODE_1 );
@@ -373,8 +377,10 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
             return;
         case XI_CONNECTION_STATE_OPENED:
             XIVELY_DEMO_PRINT( "connected to %s:%d\n", conn_data->host, conn_data->port );
+            XIVELY_DEMO_PRINT("IMAGE VERSION D - IN MEMORY\n");
 
             /* register a function to publish temperature data every 5 seconds */
+#if 1
             gTemperatureTaskHandle =
                 xi_schedule_timed_task( in_context_handle, send_temperature, 5, 1, NULL );
 
@@ -382,6 +388,7 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
             {
                 XIVELY_DEMO_PRINT( "send_temperature_task couldn't be registered\n" );
             }
+#endif
 
             /* subscribe to LED topics to listen for light toggle commands */
             xi_subscribe( in_context_handle, gGreenLedTopicName, XI_MQTT_QOS_AT_MOST_ONCE,
