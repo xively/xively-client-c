@@ -377,7 +377,12 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
             return;
         case XI_CONNECTION_STATE_OPENED:
             XIVELY_DEMO_PRINT( "connected to %s:%d\n", conn_data->host, conn_data->port );
-            XIVELY_DEMO_PRINT("IMAGE VERSION D - IN MEMORY\n");
+
+            XIVELY_DEMO_PRINT("\n");
+            XIVELY_DEMO_PRINT("IMAGE VERSION -- LOCAL!!! \n");
+            XIVELY_DEMO_PRINT("IMAGE VERSION -- LOCAL!!! \n");
+            XIVELY_DEMO_PRINT("IMAGE VERSION -- LOCAL!!! \n");
+
 
             /* register a function to publish temperature data every 5 seconds */
 #if 1
