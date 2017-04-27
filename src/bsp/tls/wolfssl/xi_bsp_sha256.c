@@ -4,23 +4,23 @@
  * it is licensed under the BSD 3-Clause license.
  */
 
-#include <xi_bsp_sha256.h>
+#include <xi_bsp_crypt.h>
 #include <xi_bsp_mem.h>
 #include <wolfssl/wolfcrypt/sha256.h>
 
-int xi_bsp_sha256_init( void** sha )
+int xi_bsp_crypt_sha256_init( void** sha )
 {
     *sha = xi_bsp_mem_alloc( sizeof( Sha256 ) );
 
     return wc_InitSha256( ( Sha256* )*sha );
 }
 
-int xi_bsp_sha256_update( void* sha, const uint8_t* data, uint32_t len )
+int xi_bsp_crypt_sha256_update( void* sha, const uint8_t* data, uint32_t len )
 {
     return wc_Sha256Update( ( Sha256* )sha, data, len );
 }
 
-int xi_bsp_sha256_final( void* sha, uint8_t* out )
+int xi_bsp_crypt_sha256_final( void* sha, uint8_t* out )
 {
     const int sha256_result = wc_Sha256Final( ( Sha256* )sha, out );
 

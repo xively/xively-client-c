@@ -6,29 +6,27 @@
 
 #include <xi_bsp_crypt.h>
 #include <xi_bsp_mem.h>
-#include <mbedtls/sha256.h>
+#include <sha256.h>
 
 int xi_bsp_crypt_sha256_init( void** sha )
 {
-    *sha = xi_bsp_mem_alloc( sizeof( mbedtls_sha256_context ) );
+    *sha = xi_bsp_mem_alloc( sizeof( SHA256_CTX ) );
 
-    mbedtls_sha256_init( ( mbedtls_sha256_context* )*sha );
+    sha256_init( ( SHA256_CTX* )*sha );
 
     return 0;
 }
 
 int xi_bsp_crypt_sha256_update( void* sha, const uint8_t* data, uint32_t len )
 {
-    mbedtls_sha256_starts( ( mbedtls_sha256_context* )sha, 0 );
-
-    mbedtls_sha256_update( ( mbedtls_sha256_context* )sha, data, len );
+    sha256_update( ( SHA256_CTX* )sha, data, len );
 
     return 0;
 }
 
 int xi_bsp_crypt_sha256_final( void* sha, uint8_t* out )
 {
-    mbedtls_sha256_finish( ( mbedtls_sha256_context* )sha, out );
+    sha256_final( ( SHA256_CTX* )sha, out );
 
     xi_bsp_mem_free( sha );
 

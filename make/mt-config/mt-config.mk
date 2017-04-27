@@ -169,6 +169,9 @@ ifeq (,$(findstring tls_bsp,$(CONFIG)))
 	else
 		XI_CONFIG_FLAGS += -DXI_MQTT_PORT=1883
 	endif
+
+	XI_SRCDIRS += $(XI_BSP_DIR)/tls/crypto-algorithms
+
 else
 	XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/tls/certs
 	XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/tls

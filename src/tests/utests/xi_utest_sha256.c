@@ -14,7 +14,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include <xi_bsp_sha256.h>
+#include <xi_bsp_crypt.h>
 
 #ifndef XI_TT_TESTCASE_ENUMERATION__SECONDPREPROCESSORRUN
 
@@ -37,14 +37,14 @@ XI_TT_TESTCASE_WITH_SETUP(
 
         void* sha = NULL;
 
-        xi_bsp_sha256_init( &sha );
+        xi_bsp_crypt_sha256_init( &sha );
 
         const uint8_t data[2] = {0xab, 0xcd};
 
-        xi_bsp_sha256_update( sha, data, 2 );
+        xi_bsp_crypt_sha256_update( sha, data, 2 );
 
         uint8_t out[32];
-        xi_bsp_sha256_final( sha, out );
+        xi_bsp_crypt_sha256_final( sha, out );
 
         uint8_t desired_hash[32] = {0x12, 0x3d, 0x4c, 0x7e, 0xf2, 0xd1, 0x60, 0x0a,
                                     0x1b, 0x3a, 0x0f, 0x6a, 0xdd, 0xc6, 0x0a, 0x10,
