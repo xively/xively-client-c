@@ -207,32 +207,32 @@ void on_sft_message( xi_context_handle_t in_context_handle,
 							{
 								if(offset < filelength)
 								{
-								    //printf(" CALLBACK HANDLER Publishing for next chunk request\n");
+								    printf(" CALLBACK HANDLER Publishing for next chunk request\n");
 									xi_publish_data( in_context_handle, xi_stopic, encoded, enc_sz, XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 								}
-								else
-								{
-									downloading = 0;
-									sprintf(installedfilerevision, "%s",fileRevision);
-									printf("Done downloading. Offset = %d\n",offset);
-									// Log the download complete information
-									snprintf(message,sizeof(message),"File download complete");
-									snprintf(details,sizeof(details),"name=%s revision=%s length = %d",filename,installedfilerevision,filelength);
-									snprintf(buffer,sizeof(buffer),"{\"message\":\"%s\",\"severity\":\"notice\",\"details\":\"%s\"}",message,details);
-									xi_publish( in_context_handle, xi_logtopic, buffer, XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
-									sha256_final(&ctx,hash);
-									printf("Calculated hash = 0x");
-									print_hash(hash);
-									offset = 0;
-									xi_publish_file_info(in_context_handle);
-									int result = 0;
-									result = sl_extlib_FlcCloseFile(lFileHandle, NULL, NULL, 0);
-									printf("*** Close File Result: %d\n", result);
-									result = sl_extlib_FlcTest(FLC_TEST_RESET_MCU | FLC_TEST_RESET_MCU_WITH_APP);
-									printf("*** FLC Test Result: %d, rebooting\n", result);
-									RebootMCU();
-								}
 							}
+							else
+							{
+                                downloading = 0;
+                                sprintf(installedfilerevision, "%s",fileRevision);
+                                printf("Done downloading. Offset = %d\n",offset);
+                                // Log the download complete information
+                                snprintf(message,sizeof(message),"File download complete");
+                                snprintf(details,sizeof(details),"name=%s revision=%s length = %d",filename,installedfilerevision,filelength);
+                                snprintf(buffer,sizeof(buffer),"{\"message\":\"%s\",\"severity\":\"notice\",\"details\":\"%s\"}",message,details);
+                                xi_publish( in_context_handle, xi_logtopic, buffer, XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
+                                sha256_final(&ctx,hash);
+                                printf("Calculated hash = 0x");
+                                print_hash(hash);
+                                offset = 0;
+                                xi_publish_file_info(in_context_handle);
+                                int result = 0;
+                                result = sl_extlib_FlcCloseFile(lFileHandle, NULL, NULL, 0);
+                                printf("*** Close File Result: %d\n", result);
+                                result = sl_extlib_FlcTest(FLC_TEST_RESET_MCU | FLC_TEST_RESET_MCU_WITH_APP);
+                                printf("*** FLC Test Result: %d, rebooting\n", result);
+                                RebootMCU();
+                            }
                             break;
                         default:
                             break;
@@ -382,7 +382,7 @@ void xi_parse_file_update_available(cn_cbor *cb) {
     int messageType = XI_FILE_GET_CHUNK;
     int messageVersion = 1;
     int offset = 0;
-    int messageLength = 1000;
+    int messageLength = 1024;
     printf("msgtype: %d\n", messageType);
     printf("msgver: %d\n", messageVersion);
     printf("N: \"%s\"\n", incomingFilename);
@@ -445,39 +445,62 @@ void xi_parse_file_chunk(cn_cbor *cb) {
 
 
     cb_item = cn_cbor_mapget_string(cb, "L");
-    if(cb_item) {
-        //printf("FILE_CHUNK: length = %d\n",cb_item->v.uint);
-    	// Save the offset for THIS fine chunk
-    	chunkoffset = offset;
+    if(cb_item)
+    {
+        printf("---- FILE_CHUNK: length = %d FILE_LENGTH: %d\n",cb_item->v.uint, filelength);
+        // Save the offset for THIS fine chunk
+    	    chunkoffset = offset;
 
-    	// Build the offset for the NEXT file chunk
+    	    // Build the offset for the NEXT file chunk
         offset += cb_item->v.uint;
 
-        if(currenttenpercent < offset) {
-        	/* Yes, I know this is terrible, but it's the level of effort appropriate to the task. */
-        	printf("Downloaded %d bytes %d %%  of the file \n",offset, (100 * (currenttenpercent + 1000)) / filelength);
-        	currenttenpercent += tenpercent;
+        if(currenttenpercent < offset)
+        {
+            /* Yes, I know this is terrible, but it's the level of effort appropriate to the task. */
+        	    printf("Downloaded %d bytes %d %%  of the file \n",offset, (100 * (currenttenpercent + 1000)) / filelength);
+        	    currenttenpercent += tenpercent;
         }
-    } else {
+    }
+    else
+    {
         printf("No key called L\n");
     }
 
     cb_item = cn_cbor_mapget_string(cb, "C");
-    if(cb_item) {
-    	//printf("cb_item->length = %d\r\n",cb_item->length);
-    	if(cb_item->length > 0) {
-			sha256_update(&ctx,(unsigned char *)cb_item->v.str,cb_item->length);
-			retval = sl_extlib_FlcWriteFile(lFileHandle, chunkoffset, (unsigned char *)cb_item->v.str, cb_item->length);
-			if(retval < cb_item->length) {
-				downloading = 0;
-				sl_extlib_FlcCloseFile(lFileHandle, NULL, NULL, 0);
-			}
-			printf("Write returned %d\n",retval);
-    	} else {
-    		downloading = 0;
-    		sl_extlib_FlcCloseFile(lFileHandle, NULL, NULL, 0);
-    	}
-    } else {
+    if(cb_item)
+    {
+            printf("cb_item->length = %d\r\n",cb_item->length);
+            if(cb_item->length > 0)
+            {
+                int writelength = cb_item->length;
+                if( chunkoffset + cb_item->length > filelength )
+                {
+                    writelength = filelength - chunkoffset ;
+                    downloading = 0;
+                }
+                sha256_update(&ctx,(unsigned char *)cb_item->v.str,cb_item->length);
+                retval = sl_extlib_FlcWriteFile(lFileHandle, chunkoffset, (unsigned char *)cb_item->v.str, writelength);
+                if( retval < cb_item->length )
+                {
+                    downloading = 0;
+                    //sl_extlib_FlcCloseFile(lFileHandle, NULL, NULL, 0);
+                }
+                printf("Write returned %d\n",retval);
+
+                if( (chunkoffset + cb_item->length) >= filelength )
+                {
+                    printf("Downloaded is done\n");
+                    downloading = 0;
+                }
+            }
+            else
+            {
+                downloading = 0;
+                //sl_extlib_FlcCloseFile(lFileHandle, NULL, NULL, 0);
+            }
+    }
+    else
+    {
         printf("No key called C\n");
     }
 
@@ -497,7 +520,7 @@ void xi_parse_file_chunk(cn_cbor *cb) {
     printf("File chunk request params:\n");
     int messageType = XI_FILE_GET_CHUNK;
     int messageVersion = 1;
-    int messageLength = 1000;
+    int messageLength = 1024;
     printf("msgtype: %d\n", messageType);
     printf("msgver: %d\n", messageVersion);
     printf("N: \"%s\"\n", incomingFilename);

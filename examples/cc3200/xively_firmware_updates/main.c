@@ -83,8 +83,8 @@
 
 // Values for below macros shall be modified per the access-point's (AP) properties.
 // SimpleLink device will connect to following AP when the application is executed.
-#define ENT_NAME "Amped_AP"
-#define PASSWORD "wireless"
+#define ENT_NAME "LMI-GUEST"
+#define PASSWORD "21SimplyPossible!"
 
 // Values for below macros will be used for connecting the device to Xively's
 // MQTT broker
@@ -379,9 +379,9 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
             XIVELY_DEMO_PRINT( "connected to %s:%d\n", conn_data->host, conn_data->port );
 
             XIVELY_DEMO_PRINT("\n");
-            XIVELY_DEMO_PRINT("IMAGE VERSION -- LOCAL!!! \n");
-            XIVELY_DEMO_PRINT("IMAGE VERSION -- LOCAL!!! \n");
-            XIVELY_DEMO_PRINT("IMAGE VERSION -- LOCAL!!! \n");
+            XIVELY_DEMO_PRINT("IMAGE VERSION -- IN MEMORY!!! \n");
+            XIVELY_DEMO_PRINT("IMAGE VERSION -- IN MEMORY!!! \n");
+            XIVELY_DEMO_PRINT("IMAGE VERSION -- IN MEMORY!!! \n");
 
 
             /* register a function to publish temperature data every 5 seconds */
@@ -956,7 +956,7 @@ long MainLogic()
         return lRetVal;
     }
 
-    XIVELY_DEMO_PRINT( "Device started as STATION \n" );
+    XIVELY_DEMO_PRINT( "INET Device started as STATION \n" );
 
     // start ent wlan connection
     g_SecParams.Key    = PASSWORD;
