@@ -35,21 +35,24 @@ XI_TT_TESTGROUP_BEGIN( utest_sha256 )
 XI_TT_TESTCASE_WITH_SETUP(
     xi_utest_sha256_basic, xi_utest_setup_basic, xi_utest_teardown_basic, NULL, {
 
-        xi_bsp_sha256_t sha = {0, 0, 0, {0}, {0}};
+        void* sha = NULL;
 
         xi_bsp_sha256_init( &sha );
 
         const uint8_t data[2] = {0xab, 0xcd};
 
-        xi_bsp_sha256_update( &sha, data, 2 );
+        xi_bsp_sha256_update( sha, data, 2 );
 
         uint8_t out[32];
-        xi_bsp_sha256_final( &sha, out );
+        xi_bsp_sha256_final( sha, out );
 
         uint8_t desired_hash[32] = {0x12, 0x3d, 0x4c, 0x7e, 0xf2, 0xd1, 0x60, 0x0a,
                                     0x1b, 0x3a, 0x0f, 0x6a, 0xdd, 0xc6, 0x0a, 0x10,
                                     0xf0, 0x5a, 0x34, 0x95, 0xc9, 0x40, 0x9f, 0x2e,
                                     0xcb, 0xf4, 0xcc, 0x09, 0x5d, 0x00, 0x0a, 0x6b};
+
+        // print_hash( out );
+        // print_hash( desired_hash );
 
         const int result_memcmp = memcmp( out, desired_hash, 32 );
 

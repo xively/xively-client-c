@@ -9,28 +9,8 @@
 
 #include <stdint.h>
 
-/* SHA256 Xively BSP API is based on wolfSSL's API */
-
-enum
-{
-    // SHA256              =  2,   /* hash type unique */
-    XI_SHA256_BLOCK_SIZE  = 64,
-    XI_SHA256_DIGEST_SIZE = 32,
-    // SHA256_PAD_SIZE     = 56
-};
-
-/* Sha256 digest */
-typedef struct xi_bsp_sha256_s
-{
-    uint32_t buffLen; /* in bytes          */
-    uint32_t loLen;   /* length in bytes   */
-    uint32_t hiLen;   /* length in bytes   */
-    uint32_t digest[XI_SHA256_DIGEST_SIZE / sizeof( uint32_t )];
-    uint32_t buffer[XI_SHA256_BLOCK_SIZE / sizeof( uint32_t )];
-} xi_bsp_sha256_t;
-
-int xi_bsp_sha256_init( xi_bsp_sha256_t* );
-int xi_bsp_sha256_update( xi_bsp_sha256_t*, const uint8_t*, uint32_t );
-int xi_bsp_sha256_final( xi_bsp_sha256_t*, uint8_t* );
+int xi_bsp_sha256_init( void** );
+int xi_bsp_sha256_update( void*, const uint8_t*, uint32_t );
+int xi_bsp_sha256_final( void*, uint8_t* );
 
 #endif // __XI_BSP_SHA256_H__
