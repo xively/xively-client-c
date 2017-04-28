@@ -2,6 +2,8 @@
 
 # cn-cbor: A constrained node implementation of CBOR in C
 
+https://github.com/cabo/cn-cbor
+
 This is a constrained node implementation of [CBOR](http://cbor.io) in
 C that I threw together in 2013, before the publication of
 [RFC 7049](http://tools.ietf.org/html/rfc7049), to validate certain
