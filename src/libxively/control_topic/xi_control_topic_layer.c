@@ -82,7 +82,11 @@ static xi_state_t xi_control_topic_publish_on_topic( void* context, xi_data_desc
     xi_control_topic_layer_data_t* layer_data =
         ( xi_control_topic_layer_data_t* )XI_THIS_LAYER( context )->user_data;
 
-    assert( NULL != layer_data && NULL != data );
+    assert( NULL != layer_data /* && NULL != data */ );
+    if ( NULL == data )
+    {
+        return XI_INVALID_PARAMETER;
+    }
 
     /* CBOR encoding */
     xi_cbor_codec_ct_encode( data->data_ptr, data->length );

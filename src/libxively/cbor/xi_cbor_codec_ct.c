@@ -5,3 +5,15 @@
  */
 
 #include <xi_cbor_codec_ct.h>
+
+void xi_cbor_codec_ct_encode( const uint8_t* data, const uint32_t len )
+{
+    ( void )data;
+    ( void )len;
+}
+
+void xi_cbor_codec_ct_decode( const uint8_t* data, const uint32_t len )
+{
+    ( void )data;
+    ( void )len;
+}
