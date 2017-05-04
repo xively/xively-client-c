@@ -9,6 +9,8 @@
 #include "xi_control_topic_layer_data.h"
 #include "xi_handle.h"
 #include "xi_user_sub_call_wrapper.h"
+#include "xi_cbor_codec_ct.h"
+#include "xi_control_message.h"
 #endif
 #include "xi_macros.h"
 #include "xi_layer_api.h"
@@ -27,10 +29,6 @@ extern "C" {
 
 #ifdef XI_CONTROL_TOPIC_ENABLED
 
-#if ( 0 )
-/*
- * THis function is not used at this time
- */
 /**
  * @brief xi_control_topic_publish_on_topic
  *
@@ -38,7 +36,6 @@ extern "C" {
  */
 static xi_state_t
 xi_control_topic_publish_on_topic( void* context, xi_data_desc_t* data );
-#endif
 
 /**
  * @brief xi_topic_name_is_control_and_release
@@ -78,10 +75,6 @@ xi_control_topic_subscribe( void* context, char* subscribe_control_topic_name );
 static xi_state_t
 xi_control_topic_connection_state_changed( void* context, xi_state_t state );
 
-#if ( 0 )
-/*
- * This is unused at this time.
- */
 static xi_state_t xi_control_topic_publish_on_topic( void* context, xi_data_desc_t* data )
 {
     xi_state_t local_state = XI_STATE_OK;
@@ -89,7 +82,10 @@ static xi_state_t xi_control_topic_publish_on_topic( void* context, xi_data_desc
     xi_control_topic_layer_data_t* layer_data =
         ( xi_control_topic_layer_data_t* )XI_THIS_LAYER( context )->user_data;
 
-    assert( layer_data != NULL );
+    assert( NULL != layer_data && NULL != data );
+
+    /* CBOR encoding */
+    xi_cbor_codec_ct_encode( data->data_ptr, data->length );
 
     xi_mqtt_logic_task_t* task = xi_mqtt_logic_make_publish_task(
         layer_data->publish_topic_name, data, XI_MQTT_QOS_AT_MOST_ONCE,
@@ -102,7 +98,6 @@ static xi_state_t xi_control_topic_publish_on_topic( void* context, xi_data_desc
 err_handling:
     return local_state;
 }
-#endif
 
 static int8_t xi_topic_name_is_control_and_release( union xi_vector_selector_u* data )
 {
@@ -153,6 +148,10 @@ xi_state_t xi_on_control_message( xi_context_handle_t in_context_handle,
         {
             xi_debug_format( "received data on control topic length: %zu ",
                              params->message.temporary_payload_data_length );
+
+            /* CBOR decoding */
+            xi_cbor_codec_ct_decode( params->message.temporary_payload_data,
+                                     params->message.temporary_payload_data_length );
 
             return state;
         }
@@ -304,6 +303,12 @@ xi_control_topic_layer_connect( void* context, void* data, xi_state_t in_out_sta
 
         return in_out_state;
     }
+
+    {
+        /* sending FILE_INFO */
+        xi_control_topic_publish_on_topic( context, NULL );
+    }
+
 
 err_handling:
     XI_SAFE_FREE( subscribe_control_topic_name );

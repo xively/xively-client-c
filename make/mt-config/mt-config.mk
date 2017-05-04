@@ -189,6 +189,7 @@ XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/datastructures
 XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/mqtt/codec
 XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/mqtt/logic
 XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/control_topic
+XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/cbor
 
 ifneq (,$(findstring senml,$(CONFIG)))
 	XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/senml
