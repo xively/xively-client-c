@@ -87,13 +87,6 @@
 #define ENT_NAME ""
 #define PASSWORD ""
 
-#if 1
-#define ENT_NAME "LMI-GUEST"
-#define PASSWORD "21SimplyPossible!"
-#else
-#define ENT_NAME "Amped_AP"
-#define PASSWORD "wireless"
-#endif
 // Values for below macros will be used for connecting the device to Xively's
 // MQTT broker
 #define XIVELY_DEVICE_ID "a9dd3d46-b040-4899-9e40-7a9b407aa330"
