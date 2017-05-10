@@ -56,6 +56,7 @@
 #include "gpio.h"
 
 // Simpelink EXT lib includes
+#include "flc_api.h"
 #include "flc.h"
 
 // Common interface includes
@@ -83,9 +84,16 @@
 
 // Values for below macros shall be modified per the access-point's (AP) properties.
 // SimpleLink device will connect to following AP when the application is executed.
+#define ENT_NAME ""
+#define PASSWORD ""
+
+#if 1
 #define ENT_NAME "LMI-GUEST"
 #define PASSWORD "21SimplyPossible!"
-
+#else
+#define ENT_NAME "Amped_AP"
+#define PASSWORD "wireless"
+#endif
 // Values for below macros will be used for connecting the device to Xively's
 // MQTT broker
 #define XIVELY_DEVICE_ID "a9dd3d46-b040-4899-9e40-7a9b407aa330"
@@ -151,8 +159,6 @@ const char* const gGreenLedTopicName =
     "xi/blue/v1/" XIVELY_ACCOUNT_ID "/d/" XIVELY_DEVICE_ID "/Green LED";
 const char* const gOrangeLedTopicName =
     "xi/blue/v1/" XIVELY_ACCOUNT_ID "/d/" XIVELY_DEVICE_ID "/Orange LED";
-const char* const gRedLedTopicName =
-    "xi/blue/v1/" XIVELY_ACCOUNT_ID "/d/" XIVELY_DEVICE_ID "/Red LED";
 const char* const gButtonSW2TopicName =
     "xi/blue/v1/" XIVELY_ACCOUNT_ID "/d/" XIVELY_DEVICE_ID "/Button SW2";
 const char* const gButtonSW3TopicName =
@@ -193,6 +199,9 @@ void pushButtonInterruptHandlerSW2()
         xi_publish( gXivelyContextHandle, gButtonSW2TopicName, "1",
                     XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
     }
+
+    printf("PUBLISHING FILE INFO\n\r");
+    xi_publish_file_info(gXivelyContextHandle);
 
     Button_IF_EnableInterrupt( SW2 );
 }
@@ -240,6 +249,8 @@ void onLedTopic( xi_context_handle_t in_context_handle,
                  xi_state_t state,
                  void* user_data )
 {
+    ledNames ledName = *( ( ledNames* )user_data );
+
     switch ( call_type )
     {
         case XI_SUB_CALL_SUBACK:
@@ -250,6 +261,8 @@ void onLedTopic( xi_context_handle_t in_context_handle,
             }
             else
             {
+                GPIO_IF_LedOff( ledName );
+                printf("led name: %d\n", ledName);
                 XIVELY_DEMO_PRINT( "topic:%s. Subscription granted %d.\n",
                                    params->suback.topic,
                                    ( int )params->suback.suback_status );
@@ -258,8 +271,6 @@ void onLedTopic( xi_context_handle_t in_context_handle,
         case XI_SUB_CALL_MESSAGE:
             if ( params->message.temporary_payload_data_length == 1 )
             {
-                ledNames ledName = *( ( ledNames* )user_data );
-
                 switch ( params->message.temporary_payload_data[0] )
                 {
                     case 48:
@@ -362,6 +373,18 @@ end:
  */
 void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t state )
 {
+    XIVELY_DEMO_PRINT("On Connected\n")
+    {
+                long lFileHandle;
+                unsigned long ulToken;
+
+                int retVal =  sl_extlib_FlcOpenFile("/sys/mcuimgA.bin", (150 * 1024), &ulToken, &lFileHandle, FS_MODE_OPEN_WRITE );
+                XIVELY_DEMO_PRINT("mcuimgA.bin open returned %d\n",retVal);
+
+                retVal = sl_extlib_FlcCloseFile(lFileHandle, NULL, NULL, 0);
+                XIVELY_DEMO_PRINT("*** Close File Result: %d\n", retVal);
+    }
+
     xi_connection_data_t* conn_data = ( xi_connection_data_t* )data;
 
     switch ( conn_data->connection_state )
@@ -376,13 +399,8 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
 
             return;
         case XI_CONNECTION_STATE_OPENED:
+            GPIO_IF_LedOff( MCU_RED_LED_GPIO );
             XIVELY_DEMO_PRINT( "connected to %s:%d\n", conn_data->host, conn_data->port );
-
-            XIVELY_DEMO_PRINT("\n");
-            XIVELY_DEMO_PRINT("IMAGE VERSION -- IN MEMORY!!! \n");
-            XIVELY_DEMO_PRINT("IMAGE VERSION -- IN MEMORY!!! \n");
-            XIVELY_DEMO_PRINT("IMAGE VERSION -- IN MEMORY!!! \n");
-
 
             /* register a function to publish temperature data every 5 seconds */
 #if 1
@@ -398,10 +416,9 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
             /* subscribe to LED topics to listen for light toggle commands */
             xi_subscribe( in_context_handle, gGreenLedTopicName, XI_MQTT_QOS_AT_MOST_ONCE,
                           onLedTopic, ( void* )&gGreenLed );
+
             xi_subscribe( in_context_handle, gOrangeLedTopicName,
                           XI_MQTT_QOS_AT_MOST_ONCE, onLedTopic, ( void* )&gOrangeLed );
-            xi_subscribe( in_context_handle, gRedLedTopicName, XI_MQTT_QOS_AT_MOST_ONCE,
-                          onLedTopic, ( void* )&gRedLed );
 
             xi_sft_init( in_context_handle, XIVELY_ACCOUNT_ID, XIVELY_DEVICE_ID );
 
@@ -462,11 +479,16 @@ void ConnectToXively()
     /* Disable the interrupt for now */
     Button_IF_DisableInterrupt( SW2 | SW3 );
 
+    /* Turn lights on to track connection progress */
+    GPIO_IF_LedOn( MCU_RED_LED_GPIO );
+    GPIO_IF_LedOn( MCU_ORANGE_LED_GPIO );
+    GPIO_IF_LedOn( MCU_GREEN_LED_GPIO );
+
     xi_state_t ret_state = xi_initialize( "account_id", "xi_username", 0 );
 
     if ( XI_STATE_OK != ret_state )
     {
-        XIVELY_DEMO_PRINT( "xi failed to initialise\n" );
+        XIVELY_DEMO_PRINT( "xi failed to initialize\n" );
         return;
     }
 
@@ -881,8 +903,6 @@ void WaitForWlanEvent()
     }
 }
 
-
-
 int readBootinfo()
 {
     int iRetVal = 0;
@@ -956,7 +976,29 @@ long MainLogic()
         return lRetVal;
     }
 
+    printf("Sleeping\n");
+    MAP_UtilsDelay( 80000000 );
+
+
+    printf("Woke up\n");
+    {
+        long lFileHandle;
+        unsigned long ulToken;
+
+        int retVal =  sl_extlib_FlcOpenFile("/sys/mcuimgA.bin", (150 * 1024), &ulToken, &lFileHandle, FS_MODE_OPEN_WRITE );
+        XIVELY_DEMO_PRINT("mcuimgA.bin open returned %d\n",retVal);
+
+        retVal = sl_extlib_FlcCloseFile(lFileHandle, NULL, NULL, 0);
+        XIVELY_DEMO_PRINT("*** Close File Result: %d\n", retVal);
+    }
+
+    //MAP_UtilsDelay( 800000000 );
+
     XIVELY_DEMO_PRINT( "INET Device started as STATION \n" );
+    XIVELY_DEMO_PRINT("\n\nIMAGE VERSION -- WORK MAY 10 !!!\n\n");
+
+    //XIVELY_DEMO_PRINT("\n\nIMAGE VERSION -- DAVES MAC !!!\n\n");
+    //XIVELY_DEMO_PRINT("\n\nIMAGE VERSION -- GITHUB FROM WORK 3:54pm!!!\n\n");
 
     // start ent wlan connection
     g_SecParams.Key    = PASSWORD;
@@ -980,6 +1022,7 @@ long MainLogic()
 
     // read image information
     readBootinfo();
+
 
     // this is where the connection to Xively Broker can be established
     ConnectToXively();
