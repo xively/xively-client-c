@@ -151,8 +151,6 @@ const char* const gGreenLedTopicName =
     "xi/blue/v1/" XIVELY_ACCOUNT_ID "/d/" XIVELY_DEVICE_ID "/Green LED";
 const char* const gOrangeLedTopicName =
     "xi/blue/v1/" XIVELY_ACCOUNT_ID "/d/" XIVELY_DEVICE_ID "/Orange LED";
-const char* const gRedLedTopicName =
-    "xi/blue/v1/" XIVELY_ACCOUNT_ID "/d/" XIVELY_DEVICE_ID "/Red LED";
 const char* const gButtonSW2TopicName =
     "xi/blue/v1/" XIVELY_ACCOUNT_ID "/d/" XIVELY_DEVICE_ID "/Button SW2";
 const char* const gButtonSW3TopicName =
@@ -168,7 +166,7 @@ xi_timed_task_handle_t gTemperatureTaskHandle = -1;
 /* Used by onLed handler function to differentiate LED's */
 const static ledNames gGreenLed  = MCU_GREEN_LED_GPIO;
 const static ledNames gOrangeLed = MCU_ORANGE_LED_GPIO;
-const static ledNames gRedLed    = MCU_RED_LED_GPIO;
+
 
 /******************************************************************************/
 /* END OF XIVELY CODE GLOBAL SECTION */
@@ -410,8 +408,6 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
                           onLedTopic, ( void* )&gGreenLed );
             xi_subscribe( in_context_handle, gOrangeLedTopicName,
                           XI_MQTT_QOS_AT_MOST_ONCE, onLedTopic, ( void* )&gOrangeLed );
-            xi_subscribe( in_context_handle, gRedLedTopicName, XI_MQTT_QOS_AT_MOST_ONCE,
-                          onLedTopic, ( void* )&gRedLed );
 
             xi_sft_init( in_context_handle, XIVELY_ACCOUNT_ID, XIVELY_DEVICE_ID );
 

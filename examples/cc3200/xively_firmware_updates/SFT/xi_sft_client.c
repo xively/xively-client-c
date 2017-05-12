@@ -28,6 +28,8 @@
 #include "uart.h"
 #include "prcm.h"
 #include "utils.h"
+#include "gpio.h"
+#include "gpio_if.h"
 
 #include "uart_if.h"
 #define  UART_PRINT  Report
@@ -443,6 +445,17 @@ int xi_parse_file_chunk(cn_cbor* in_cb, xi_sft_file_chunk_t* out_sft_file_chunk 
         return -1;
     }
 
+    static ledToggle = 0;
+    ledToggle = ( ledToggle + 1 ) % 2;
+    if( ledToggle )
+    {
+        GPIO_IF_LedOn( MCU_RED_LED_GPIO );
+    }
+    else
+    {
+        GPIO_IF_LedOff( MCU_RED_LED_GPIO );
+    }
+
     cn_cbor *cb_item = NULL;
     memset( out_sft_file_chunk, 0, sizeof(xi_sft_file_chunk_t) );
 
@@ -645,9 +658,13 @@ xi_sft_init(xi_context_handle_t in_context_handle, char *account_id, char *devic
 	int r = -1;
 
 	readBootinfo();
-	printf("******************* Committing this revision\n");
 	// Accept the latest firmware if we get here.
-	sl_extlib_FlcCommit(FLC_COMMITED);
+	if( sl_extlib_FlcIsPendingCommit() )
+	{
+	    printf("******************* Committing this revision\n");
+	    sl_extlib_FlcCommit(FLC_COMMITED);
+	}
+
 	readBootinfo();
 
 	if(NULL == account_id) return(-1);
