@@ -147,10 +147,8 @@ void WaitForWlanEvent();
 /* Names of the MQTT topics used by this application */
 const char* const gTemperatureTopicName =
     "xi/blue/v1/" XIVELY_ACCOUNT_ID "/d/" XIVELY_DEVICE_ID "/Temperature";
-const char* const gGreenLedTopicName =
-    "xi/blue/v1/" XIVELY_ACCOUNT_ID "/d/" XIVELY_DEVICE_ID "/Green LED";
-const char* const gOrangeLedTopicName =
-    "xi/blue/v1/" XIVELY_ACCOUNT_ID "/d/" XIVELY_DEVICE_ID "/Orange LED";
+const char* const gBlinkTopicName =
+    "xi/blue/v1/" XIVELY_ACCOUNT_ID "/d/" XIVELY_DEVICE_ID "/blink";
 const char* const gButtonSW2TopicName =
     "xi/blue/v1/" XIVELY_ACCOUNT_ID "/d/" XIVELY_DEVICE_ID "/Button SW2";
 const char* const gButtonSW3TopicName =
@@ -162,10 +160,6 @@ xi_context_handle_t gXivelyContextHandle = -1;
 
 /* Used to store the temperature timed task handles. */
 xi_timed_task_handle_t gTemperatureTaskHandle = -1;
-
-/* Used by onLed handler function to differentiate LED's */
-const static ledNames gGreenLed  = MCU_GREEN_LED_GPIO;
-const static ledNames gOrangeLed = MCU_ORANGE_LED_GPIO;
 
 
 /******************************************************************************/
@@ -234,8 +228,7 @@ void pushButtonInterruptHandlerSW3()
 }
 
 /**
- * @brief Function that handles messages sent to the device on the LEDs' topics,
- * including toggle commands and subscription changes.
+ * @brief Function that handles messages sent to the device on the `blink` topic.
  *
  * @note For more details please refer to the xively.h - xi_subscribe function.
  *
@@ -244,14 +237,13 @@ void pushButtonInterruptHandlerSW3()
  * operation result or the incoming message
  * @oaram params - structure with data
  * @param state - state of the operation
- * @oaram user_data - Pointer provided upon LedTopic subscription. For this application's
- * use, these are the LED names.
+ * @oaram user_data - optional data, in this case nothing.
  */
-void onLedTopic( xi_context_handle_t in_context_handle,
-                 xi_sub_call_type_t call_type,
-                 const xi_sub_call_params_t* const params,
-                 xi_state_t state,
-                 void* user_data )
+void on_blink_topic( xi_context_handle_t in_context_handle,
+                     xi_sub_call_type_t call_type,
+                     const xi_sub_call_params_t* const params,
+                     xi_state_t state,
+                     void* user_data )
 {
     switch ( call_type )
     {
@@ -271,20 +263,18 @@ void onLedTopic( xi_context_handle_t in_context_handle,
         case XI_SUB_CALL_MESSAGE:
             if ( params->message.temporary_payload_data_length == 1 )
             {
-                ledNames ledName = *( ( ledNames* )user_data );
+                static int toggle_lights = 0;
+                toggle_lights = (toggle_lights + 1) % 2;
 
-                switch ( params->message.temporary_payload_data[0] )
+                if( toggle_lights )
                 {
-                    case 48:
-                        GPIO_IF_LedOff( ledName );
-                        break;
-                    case 49:
-                        GPIO_IF_LedOn( ledName );
-                        break;
-                    default:
-                        XIVELY_DEMO_PRINT( "unexpected value on topic %s \n",
-                                           params->message.topic );
-                        break;
+                   GPIO_IF_LedOn( MCU_GREEN_LED_GPIO );
+                   GPIO_IF_LedOn( MCU_ORANGE_LED_GPIO );
+                }
+                else
+                {
+                    GPIO_IF_LedOff( MCU_GREEN_LED_GPIO );
+                    GPIO_IF_LedOff( MCU_ORANGE_LED_GPIO );
                 }
             }
             else
@@ -403,11 +393,8 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
             }
 #endif
 
-            /* subscribe to LED topics to listen for light toggle commands */
-            xi_subscribe( in_context_handle, gGreenLedTopicName, XI_MQTT_QOS_AT_MOST_ONCE,
-                          onLedTopic, ( void* )&gGreenLed );
-            xi_subscribe( in_context_handle, gOrangeLedTopicName,
-                          XI_MQTT_QOS_AT_MOST_ONCE, onLedTopic, ( void* )&gOrangeLed );
+            xi_subscribe( in_context_handle, gBlinkTopicName,
+                          XI_MQTT_QOS_AT_MOST_ONCE, on_blink_topic, NULL );
 
             xi_sft_init( in_context_handle, XIVELY_ACCOUNT_ID, XIVELY_DEVICE_ID );
 
