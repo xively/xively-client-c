@@ -22,15 +22,12 @@
 #include "hw_common_reg.h"
 #include "hw_types.h"
 #include "hw_ints.h"
-#include "hw_gpio.h"
 #include "interrupt.h"
 #include "rom.h"
 #include "rom_map.h"
 #include "uart.h"
 #include "prcm.h"
 #include "utils.h"
-#include "gpio_if.h"
-#include "gpio.h"
 
 #include "uart_if.h"
 #define  UART_PRINT  Report
@@ -73,9 +70,8 @@ ssize_t enc_sz;
 char xi_stopic[128];
 char xi_logtopic[128];
 char xi_ctopic[128];
-int  xi_download_light_state = 0;
 
-void xi_file_chunk_handler(cn_cbor *cb);
+void xi_parse_file_chunk(cn_cbor *cb);
 void xi_parse_file_update_available(cn_cbor *cb);
 void xi_publish_file_info(xi_context_handle_t in_context_handle);
 
@@ -132,19 +128,6 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                             xi_state_t state,
                             void* user_data )
 {
-    printf("on_sft_message\n");
-    {
-            long lFileHandle;
-            unsigned long ulToken;
-
-            int retVal =  sl_extlib_FlcOpenFile("/sys/mcuimgA.bin", (150 * 1024), &ulToken, &lFileHandle, FS_MODE_OPEN_WRITE );
-            printf("mcuimgA.bin open returned %d\n",retVal);
-
-            retVal = sl_extlib_FlcCloseFile(lFileHandle, NULL, NULL, 0);
-            printf("*** Close File Result: %d\n", retVal);
-    }
-
-
     cn_cbor *cb = NULL;
     char filefingerprintASCII[70];
     char *bufptr = NULL;
@@ -163,9 +146,11 @@ void on_sft_message( xi_context_handle_t in_context_handle,
             }
             else
             {
-//                printf( "topic:%s. Subscription granted %d.\n", params->suback.topic,
-//                        ( int )params->suback.suback_status );
+                printf( "topic:%s. Subscription granted %d.\n", params->suback.topic,
+                        ( int )params->suback.suback_status );
             }
+            //printf("PUBLISHING FILE INFO\n\r");
+            //xi_publish_file_info(in_context_handle);
             return;
         case XI_SUB_CALL_MESSAGE:
             //printf( "topic:%s. message received.\n", params->message.topic );
@@ -193,38 +178,34 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                             downloading = 1;
                             xi_parse_file_update_available(cb);
                             cn_cbor_free(cb CBOR_CONTEXT_PARAM);
-
                             printf("retrieved update available, publishing encoded data\n");
                             xi_publish_data( in_context_handle, xi_stopic, encoded, enc_sz, XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
-
-//                            printf("logging file update available\n");
-//                            // Log the FILE_UPDATE_AVAILABLE information
-//                            snprintf(message,sizeof(message),"FILE_UPDATE_AVAILABLE");
-//                            bufptr = filefingerprintASCII;
-//                            for(i=0;i<32;i++) {
-//                                bufptr += sprintf(bufptr,"%02x",filefingerprint[i]);
-//                            }
-//                            *bufptr = '\0';
-//                            snprintf(message,sizeof(message),"File update available");
-//                            snprintf(details,sizeof(details),"name=%s revision=%s length = %d fingerprint = %s"
-//                                    ,filename,fileRevision,filelength,filefingerprintASCII);
-//                            snprintf(buffer,sizeof(buffer),"{\"message\":\"%s\",\"severity\":\"notice\",\"details\":\"%s\"}",message,details);
-//                            xi_publish( in_context_handle, xi_logtopic, buffer, XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
-
-                            sha256_init(&ctx);
-                            offset = 0;
-                            //retVal =  sl_extlib_FlcOpenFile("/sys/mcuimgA.bin", filelength, &ulToken, &lFileHandle, FS_MODE_OPEN_WRITE);
-                            retVal =  sl_extlib_FlcOpenFile("/sys/mcuimgA.bin", (150 * 1024), &ulToken, &lFileHandle, FS_MODE_OPEN_WRITE );
-                            printf("mcuimgA.bin open returned %d\n",retVal);
-                            if(retVal < 0) downloading = 0;
-                            break;
+                            printf("logging file update available\n");
+                            // Log the FILE_UPDATE_AVAILABLE information
+							snprintf(message,sizeof(message),"FILE_UPDATE_AVAILABLE");
+							bufptr = filefingerprintASCII;
+							for(i=0;i<32;i++) {
+								bufptr += sprintf(bufptr,"%02x",filefingerprint[i]);
+							}
+							*bufptr = '\0';
+							snprintf(message,sizeof(message),"File update available");
+							snprintf(details,sizeof(details),"name=%s revision=%s length = %d fingerprint = %s"
+									,filename,fileRevision,filelength,filefingerprintASCII);
+							snprintf(buffer,sizeof(buffer),"{\"message\":\"%s\",\"severity\":\"notice\",\"details\":\"%s\"}",message,details);
+							xi_publish( in_context_handle, xi_logtopic, buffer, XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
+							sha256_init(&ctx);
+							offset = 0;
+							retVal =  sl_extlib_FlcOpenFile("/sys/mcuimgA.bin", filelength, &ulToken, &lFileHandle, FS_MODE_OPEN_WRITE);
+							printf("mcuimgA.bin open returned %d\n",retVal);
+							if(retVal < 0) downloading = 0;
+							break;
 					case XI_FILE_CHUNK:
-					        xi_file_chunk_handler(cb);
+							xi_parse_file_chunk(cb);
 							//printf("   CALLBACK HANDLER parsing complete.  downloading: %d\n", downloading);
 							cn_cbor_free(cb CBOR_CONTEXT_PARAM);
 							if(1 == downloading)
 							{
-							    if(offset < filelength)
+								if(offset < filelength)
 								{
 								    printf(" CALLBACK HANDLER Publishing for next chunk request\n");
 									xi_publish_data( in_context_handle, xi_stopic, encoded, enc_sz, XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
@@ -234,7 +215,7 @@ void on_sft_message( xi_context_handle_t in_context_handle,
 							{
                                 downloading = 0;
                                 sprintf(installedfilerevision, "%s",fileRevision);
-                                printf("******** Done downloading. Offset = %d *********** \n",offset);
+                                printf("Done downloading. Offset = %d\n",offset);
                                 // Log the download complete information
                                 snprintf(message,sizeof(message),"File download complete");
                                 snprintf(details,sizeof(details),"name=%s revision=%s length = %d",filename,installedfilerevision,filelength);
@@ -277,23 +258,14 @@ xi_publish_file_info(xi_context_handle_t in_context_handle)
     cn_cbor_errback err;
     cn_cbor *cb_map = cn_cbor_map_create(&err);
 
-    int messageType = XI_FILE_INFO;
-    int messageVersion = 1;
-//
-//    printf("msgtype: %d\n", messageType);
-//    printf("msgver: %d\n", messageVersion);
-//    printf("FileList:\n");
-//    printf("N: \"%s\"\n", filename);
-//    printf("R: \"%s\"\n", fileRevision);
-
     cn_cbor_map_put(cb_map,
                     cn_cbor_string_create("msgtype", &err),
-                    cn_cbor_int_create(messageType, &err),
+                    cn_cbor_int_create(XI_FILE_INFO, &err),
                     &err);
 
     cn_cbor_map_put(cb_map,
                     cn_cbor_string_create("msgver", &err),
-                    cn_cbor_int_create(messageVersion, &err),
+                    cn_cbor_int_create(1, &err),
                     &err);
 
 
@@ -304,10 +276,9 @@ xi_publish_file_info(xi_context_handle_t in_context_handle)
                     cn_cbor_string_create("N", &err),
                     cn_cbor_string_create(filename, &err),
                     &err);
-
     cn_cbor_map_put(cb_file1,
                     cn_cbor_string_create("R", &err),
-                    cn_cbor_string_create(fileRevision, &err),
+                    cn_cbor_string_create("-1", &err),
                     &err);
 
     cn_cbor_array_append(a, cb_file1, &err);
@@ -324,18 +295,17 @@ xi_publish_file_info(xi_context_handle_t in_context_handle)
     /* publish the FILE_INFO message */
     xi_publish_data( in_context_handle, xi_stopic, encoded, enc_sz, XI_MQTT_QOS_AT_MOST_ONCE,
                XI_MQTT_RETAIN_FALSE, NULL, NULL );
-
+    printf("Published FILE_INFO to %s\n",xi_stopic);
     snprintf(message,sizeof(message),"File info");
     snprintf(details,sizeof(details),"name=%s revision=%s" ,filename,installedfilerevision);
     snprintf(buffer,sizeof(buffer),"{\"message\":\"%s\",\"severity\":\"notice\",\"details\":\"%s\"}",message,details);
     xi_publish( in_context_handle, xi_logtopic, buffer, XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
     downloading = 0;
-//    sl_extlib_FlcCloseFile(lFileHandle, NULL, NULL, 0);
+    sl_extlib_FlcCloseFile(lFileHandle, NULL, NULL, 0);
 }
 
 
-void xi_parse_file_update_available(cn_cbor *cb)
-{
+void xi_parse_file_update_available(cn_cbor *cb) {
     cn_cbor *cb_list;
     cn_cbor *cb_item;
     cn_cbor *cb_file;
@@ -343,14 +313,12 @@ void xi_parse_file_update_available(cn_cbor *cb)
     int i,index;
 
     cb_item = cn_cbor_mapget_string(cb, "msgver");
-    if(cb_item)
-    {
+    if(cb_item) {
         printf("FILE_UPDATE_AVAILABLE: msgver = %d\n",cb_item->v.uint);
         if(1 != cb_item->v.uint) return;
     }
     cb_list = cn_cbor_mapget_string(cb, "list");
-    if(cb_list)
-    {
+    if(cb_list) {
         filelistlength = cb_list->length;
         printf("FILE_UPDATE_AVAILABLE: list length = %d\n",filelistlength);
     }
@@ -358,41 +326,24 @@ void xi_parse_file_update_available(cn_cbor *cb)
     for(index=0;index<filelistlength;index++) {
         cb_item = cn_cbor_index(cb_list, index);
 
-        if(cb_item)
-        {
-        	    // File 'N'ame
+        if(cb_item) {
+        	// File 'N'ame
             cb_file = cn_cbor_mapget_string(cb_item, "N");
-            if(cb_file)
-            {
-                    strncpy(incomingFilename,cb_file->v.str, MAX_INCOMING_FILENAME_LENGTH);
-
-                    if((unsigned int)cb_file->length < MAX_INCOMING_FILENAME_LENGTH)
-                    {
-                        incomingFilename[cb_file->length] = '\0';
-                    }
-
-                    incomingFilename[MAX_INCOMING_FILENAME_LENGTH-1] = '\0';
-            }
-            else
-            {
+            if(cb_file) {
+            	strncpy(incomingFilename,cb_file->v.str, MAX_INCOMING_FILENAME_LENGTH);
+            	if((unsigned int)cb_file->length < MAX_INCOMING_FILENAME_LENGTH) incomingFilename[cb_file->length] = '\0';
+            	incomingFilename[MAX_INCOMING_FILENAME_LENGTH-1] = '\0';
+            } else {
                 printf("No key called N\n");
             }
 
             // File 'R'evision
             cb_file = cn_cbor_mapget_string(cb_item, "R");
-            if(cb_file)
-            {
-                strncpy(fileRevision,cb_file->v.str,sizeof(fileRevision));
-
-            	    if((unsigned int)cb_file->length < sizeof(fileRevision))
-            	    {
-            	        fileRevision[cb_file->length] = '\0';
-            	    }
-
-            	    fileRevision[sizeof(fileRevision)-1] = '\0';
-            }
-            else
-            {
+            if(cb_file) {
+            	strncpy(fileRevision,cb_file->v.str,sizeof(fileRevision));
+            	if((unsigned int)cb_file->length < sizeof(fileRevision)) fileRevision[cb_file->length] = '\0';
+            	fileRevision[sizeof(fileRevision)-1] = '\0';
+            } else {
                 printf("No key called R\n");
             }
 
@@ -473,8 +424,6 @@ void xi_parse_file_update_available(cn_cbor *cb)
 #endif
 }
 
-int total_messages = 0;
-
 typedef struct xi_sft_file_chunk_s
 {
     uint offset;
@@ -484,7 +433,7 @@ typedef struct xi_sft_file_chunk_s
     unsigned char* byte_array;
 } xi_sft_file_chunk_t;
 
-int xi_parse_file_chunk(cn_cbor* in_cb, xi_sft_file_chunk_t* out_sft_file_chunk )
+int xi_parse_file_chunk_temp(cn_cbor* in_cb, xi_sft_file_chunk_t* out_sft_file_chunk )
 {
     if( NULL == in_cb || NULL == out_sft_file_chunk )
     {
@@ -571,156 +520,38 @@ int xi_parse_file_chunk(cn_cbor* in_cb, xi_sft_file_chunk_t* out_sft_file_chunk 
     return 0;
 }
 
-/* Parses a chunk of file data
- * and detects if the file has completely downloaded.
- */
-void xi_file_chunk_handler( cn_cbor *cb ) {
+int total_messages = 0;
 
+void xi_parse_file_chunk( cn_cbor *cb )
+{
+    cn_cbor *cb_item;
     unsigned chunkoffset = 0;
     int retval;
 
-    if( xi_download_light_state )
-    {
-        xi_download_light_state = 0;
-        GPIO_IF_LedOff( MCU_RED_LED_GPIO );
-    }
-    else
-    {
-        xi_download_light_state = 1;
-        GPIO_IF_LedOn( MCU_RED_LED_GPIO );
+    cb_item = cn_cbor_mapget_string(cb, "msgver");
+    if(cb_item) {
+        // printf("FILE_CHUNK: msgver = %d\n",cb_item->v.uint);
     }
 
-#if 1
-    xi_sft_file_chunk_t file_chunk_struct;
-    if ( 0 != xi_parse_file_chunk( cb, &file_chunk_struct ) )
-    {
-        printf("xi_file_chunk_handler encountered error calling xi_parse_file_chunk\n");
-        printf("aborting file download\n");
-        return;
-    }
-
-    if( file_chunk_struct.status != 0 )
-    {
-
-        printf( "NON ZERO STATUS: %d\n", file_chunk_struct.status );
-        printf( "chunk_length: %d\n", file_chunk_struct.chunk_length );
-        printf( "array_length: %d\n", file_chunk_struct.array_length );
-        printf( "offset: %d\n", file_chunk_struct.offset );
-        downloading = 0;
-    }
-
-    if( currenttenpercent < file_chunk_struct.array_length )
-    {
-        /* Yes, I know this is terrible, but it's the level of effort appropriate to the task. */
-        printf("Downloaded %d bytes %d %%  of the file \n",offset, (100 * (currenttenpercent + 1000)) / filelength);
-        currenttenpercent += tenpercent;
-    }
-
-    int write_length = file_chunk_struct.array_length;
-    if( chunkoffset + write_length > filelength )
-    {
-        write_length = filelength - file_chunk_struct.offset ;
-        downloading = 0;
-    }
-
-    sha256_update(&ctx, file_chunk_struct.byte_array, write_length );
-
-    retval = sl_extlib_FlcWriteFile( lFileHandle, file_chunk_struct.offset, file_chunk_struct.byte_array, write_length );
-    if( retval < file_chunk_struct.chunk_length )
-    {
-        downloading = 0;
-    }
-
-//    printf( "Write returned %d\n", retval );
-//    printf("File chunk request params:\n");
-    int messageType = XI_FILE_GET_CHUNK;
-    int messageVersion = 1;
-    int messageLength = 1024;
-    int next_request_offset = file_chunk_struct.offset + write_length;
-//    printf("msgtype: %d\n", messageType );
-//    printf("msgver: %d\n", messageVersion);
-//    printf("N: \"%s\"\n", incomingFilename);
-//    printf("R: \"%s\"\n", fileRevision);
-//    printf("O: %d\n",  next_request_offset );
-//    printf("L: %d\n", messageLength);
-
-    if( 1 == downloading  )
-    {
-        /* Let's try making a GET_CHUNK packet */
-        printf( "creating get_chunk packet.offset: %d length: %d   previouslyWrote: %d bytes of chunk length: %d\n", next_request_offset, messageLength, retval, file_chunk_struct.chunk_length );
-        cn_cbor_errback err;
-        cn_cbor *cb_map = cn_cbor_map_create(&err);
-
-        cn_cbor_map_put(cb_map,
-                        cn_cbor_string_create("msgtype", &err),
-                        cn_cbor_int_create(messageType, &err), &err);
-        cn_cbor_map_put(cb_map,
-                        cn_cbor_string_create("msgver", &err),
-                        cn_cbor_int_create(messageVersion, &err), &err);
-        cn_cbor_map_put(cb_map,
-                        cn_cbor_string_create("N", &err),
-                        cn_cbor_string_create(incomingFilename, &err),
-                        &err);
-        cn_cbor_map_put(cb_map,
-                        cn_cbor_string_create("R", &err),
-                        cn_cbor_string_create(fileRevision, &err),
-                        &err);
-        cn_cbor_map_put(cb_map,
-                        cn_cbor_string_create("O", &err),
-                        cn_cbor_int_create(next_request_offset, &err), &err);
-        cn_cbor_map_put(cb_map,
-                        cn_cbor_string_create("L", &err),
-                        cn_cbor_int_create(messageLength, &err), &err);
-
-        enc_sz = cn_cbor_encoder_write(encoded, 0, sizeof(encoded), cb_map);
-        cn_cbor_free(cb_map CBOR_CONTEXT_PARAM);
-    }
-
-
-#else
-    uint msg_version = 0;
-    uint offset = 0;
-    uint chunk_length = 0;
-    uint array_length = 0;
-    uint binary_array_length = 0;
-    uint next_request_offset = 0;
-
-    //
-    // msg version
-    //
-    cb_item = cn_cbor_mapget_string(in_cb, "msgver");
-    if(cb_item)
-    {
-        out_sft_file_chunk = cb_item->v.uint;
-    }
-    else
-    {
-       printf("FILE_CHUNK message missing message version field\n");
-    }
-
-
-    //
-    // chunk offset
-    //
     cb_item = cn_cbor_mapget_string(cb, "O");
-    if( cb_item )
-    {
-       offset = cb_item->v.uint;
-    }
-    else
-    {
-        printf("FILE_CHUNK message missing offset field\n");
-    }
+       if(cb_item) {
+           printf("FILE_CHUNK: offset = %d\n",cb_item->v.uint);
+       } else {
+           printf("No key called O\n");
+       }
 
-    //
-    // chunk length
-    //
+
     cb_item = cn_cbor_mapget_string(cb, "L");
     if(cb_item)
     {
-        chunk_length = cb_item->v.uint;
+        printf("---- FILE_CHUNK: length = %d FILE_LENGTH: %d\n",cb_item->v.uint, filelength);
+        // Save the offset for THIS fine chunk
+    	    chunkoffset = offset;
 
-        if( currenttenpercent < offset )
+    	    // Build the offset for the NEXT file chunk
+        offset += cb_item->v.uint;
+
+        if(currenttenpercent < offset)
         {
             /* Yes, I know this is terrible, but it's the level of effort appropriate to the task. */
         	    printf("Downloaded %d bytes %d %%  of the file \n",offset, (100 * (currenttenpercent + 1000)) / filelength);
@@ -729,70 +560,60 @@ void xi_file_chunk_handler( cn_cbor *cb ) {
     }
     else
     {
-        printf( "FILE_CHUNK message missing length field\n" );
+        printf("No key called L\n");
     }
 
     cb_item = cn_cbor_mapget_string(cb, "C");
     if(cb_item)
     {
-        array_length = cb_item->length;
-
-        if( cb_item->length != chunk_length )
-        {
-            printf( "MISMATCH chunk length: %d  array length: %d\n", chunk_length, array_length );
-        }
-
-        if( array_length > 0)
-        {
-            int write_length = array_length;
-            if( chunkoffset + array_length > filelength )
+            printf("cb_item->length = %d\r\n",cb_item->length);
+            if(cb_item->length > 0)
             {
-                write_length = filelength - chunkoffset ;
-                downloading = 0;
+                int writelength = cb_item->length;
+                if( chunkoffset + cb_item->length > filelength )
+                {
+                    writelength = filelength - chunkoffset ;
+                    downloading = 0;
+                }
+                sha256_update(&ctx,(unsigned char *)cb_item->v.str,cb_item->length);
+                retval = sl_extlib_FlcWriteFile(lFileHandle, chunkoffset, (unsigned char *)cb_item->v.str, writelength);
+                if( retval < cb_item->length )
+                {
+                    downloading = 0;
+                    //sl_extlib_FlcCloseFile(lFileHandle, NULL, NULL, 0);
+                }
+                printf("Write returned %d\n",retval);
+
+                if( (chunkoffset + cb_item->length) >= filelength )
+                {
+                    printf("Downloaded is done\n");
+                    downloading = 0;
+                }
             }
-
-            sha256_update(&ctx,(unsigned char *)cb_item->v.str,cb_item->length);
-
-            retval = sl_extlib_FlcWriteFile( lFileHandle, chunkoffset, (unsigned char *)cb_item->v.str, write_length );
-            if( retval < array_length )
-            {
-                downloading = 0;
-            }
-            printf("Write returned %d\n",retval);
-
-            next_request_offset = offset + retval;
-            if( (chunkoffset + array_length ) >= filelength )
+            else
             {
                 downloading = 0;
+                //sl_extlib_FlcCloseFile(lFileHandle, NULL, NULL, 0);
             }
-        }
-        else
-        {
-            downloading = 0;
-        }
     }
     else
     {
         printf("No key called C\n");
     }
 
-    //
-    // TODO: What's this about? It's a string evnaluated as an int?
-    //
     cb_item = cn_cbor_mapget_string(cb, "S");
-    if(cb_item)
-    {
-        if(cb_item->v.uint > 1)
-        {
-            downloading = 0;
-        	    sl_extlib_FlcCloseFile(lFileHandle, NULL, NULL, 0);
+    if(cb_item) {
+        // printf("FILE_CHUNK: status = %d\n",cb_item->v.uint);
+
+        if(cb_item->v.uint > 1) {
+        	downloading = 0;
+        	sl_extlib_FlcCloseFile(lFileHandle, NULL, NULL, 0);
         }
-    }
-    else
-    {
+    } else {
         printf("No key called S\n");
     }
 
+#if 1
     printf("File chunk request params:\n");
     int messageType = XI_FILE_GET_CHUNK;
     int messageVersion = 1;
@@ -801,11 +622,11 @@ void xi_file_chunk_handler( cn_cbor *cb ) {
     printf("msgver: %d\n", messageVersion);
     printf("N: \"%s\"\n", incomingFilename);
     printf("R: \"%s\"\n", fileRevision);
-    printf("O: %d\n", next_request_offset);
+    printf("O: %d\n", offset);
     printf("L: %d\n", messageLength);
 
-    if( 1 == downloading && next_request_offset != 0 )
-    {
+    printf("internal downloading: %d\n", downloading);
+    if(1 == downloading) {
 		/* Let's try making a GET_CHUNK packet */
         printf("creating get_chunk packet\n");
 		cn_cbor_errback err;
@@ -814,6 +635,7 @@ void xi_file_chunk_handler( cn_cbor *cb ) {
 		cn_cbor_map_put(cb_map,
 						cn_cbor_string_create("msgtype", &err),
 						cn_cbor_int_create(messageType, &err), &err);
+
 		cn_cbor_map_put(cb_map,
 						cn_cbor_string_create("msgver", &err),
 						cn_cbor_int_create(messageVersion, &err), &err);
@@ -827,7 +649,7 @@ void xi_file_chunk_handler( cn_cbor *cb ) {
 						&err);
 		cn_cbor_map_put(cb_map,
 						cn_cbor_string_create("O", &err),
-						cn_cbor_int_create(next_request_offset, &err), &err);
+						cn_cbor_int_create(offset, &err), &err);
 		cn_cbor_map_put(cb_map,
 						cn_cbor_string_create("L", &err),
 						cn_cbor_int_create(messageLength, &err), &err);
@@ -836,7 +658,6 @@ void xi_file_chunk_handler( cn_cbor *cb ) {
 		cn_cbor_free(cb_map CBOR_CONTEXT_PARAM);
     }
 #endif
-
 }
 
 int
@@ -844,17 +665,9 @@ xi_sft_init(xi_context_handle_t in_context_handle, char *account_id, char *devic
 	int r = -1;
 
 	readBootinfo();
-	printf("******************* Committing this revision May9th \n");
+	printf("******************* Committing this revision\n");
 	// Accept the latest firmware if we get here.
-	if( sl_extlib_FlcIsPendingCommit() )
-	{
-	    printf(" Result: %d\n", sl_extlib_FlcCommit(FLC_COMMITED) );
-	}
-	else
-	{
-	    printf("no pending commit found\n");
-	}
-
+	sl_extlib_FlcCommit(FLC_COMMITED);
 	readBootinfo();
 
 	if(NULL == account_id) return(-1);
