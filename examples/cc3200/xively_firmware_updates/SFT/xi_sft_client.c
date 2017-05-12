@@ -71,9 +71,21 @@ char xi_stopic[128];
 char xi_logtopic[128];
 char xi_ctopic[128];
 
-void xi_parse_file_chunk(cn_cbor *cb);
+typedef struct xi_sft_file_chunk_s
+{
+    uint offset;
+    uint chunk_length;
+    uint array_length;
+    uint status;
+    unsigned char* byte_array;
+} xi_sft_file_chunk_t;
+
+
+void xi_process_file_chunk(cn_cbor* in_cb);
 void xi_parse_file_update_available(cn_cbor *cb);
 void xi_publish_file_info(xi_context_handle_t in_context_handle);
+
+int xi_parse_file_chunk(cn_cbor* in_cb, xi_sft_file_chunk_t* out_sft_file_chunk );
 
 void print_hash(unsigned char hash[])
 {
@@ -200,7 +212,7 @@ void on_sft_message( xi_context_handle_t in_context_handle,
 							if(retVal < 0) downloading = 0;
 							break;
 					case XI_FILE_CHUNK:
-							xi_parse_file_chunk(cb);
+					        xi_process_file_chunk(cb);
 							//printf("   CALLBACK HANDLER parsing complete.  downloading: %d\n", downloading);
 							cn_cbor_free(cb CBOR_CONTEXT_PARAM);
 							if(1 == downloading)
@@ -424,16 +436,7 @@ void xi_parse_file_update_available(cn_cbor *cb) {
 #endif
 }
 
-typedef struct xi_sft_file_chunk_s
-{
-    uint offset;
-    uint chunk_length;
-    uint array_length;
-    uint status;
-    unsigned char* byte_array;
-} xi_sft_file_chunk_t;
-
-int xi_parse_file_chunk_temp(cn_cbor* in_cb, xi_sft_file_chunk_t* out_sft_file_chunk )
+int xi_parse_file_chunk(cn_cbor* in_cb, xi_sft_file_chunk_t* out_sft_file_chunk )
 {
     if( NULL == in_cb || NULL == out_sft_file_chunk )
     {
@@ -522,95 +525,72 @@ int xi_parse_file_chunk_temp(cn_cbor* in_cb, xi_sft_file_chunk_t* out_sft_file_c
 
 int total_messages = 0;
 
-void xi_parse_file_chunk( cn_cbor *cb )
+void xi_process_file_chunk( cn_cbor *cb )
 {
     cn_cbor *cb_item;
     unsigned chunkoffset = 0;
     int retval;
 
-    cb_item = cn_cbor_mapget_string(cb, "msgver");
-    if(cb_item) {
-        // printf("FILE_CHUNK: msgver = %d\n",cb_item->v.uint);
+    xi_sft_file_chunk_t file_chunk_data;
+    if( 0 != xi_parse_file_chunk( cb, &file_chunk_data ) )
+    {
+        downloading = 0;
+        return;
     }
 
-    cb_item = cn_cbor_mapget_string(cb, "O");
-       if(cb_item) {
-           printf("FILE_CHUNK: offset = %d\n",cb_item->v.uint);
-       } else {
-           printf("No key called O\n");
-       }
+    printf("---- FILE_CHUNK: length = %d FILE_LENGTH: %d\n", file_chunk_data.chunk_length, filelength);
 
+    // Save the offset for THIS fine chunk
+    chunkoffset = offset;
 
-    cb_item = cn_cbor_mapget_string(cb, "L");
-    if(cb_item)
+    // Build the offset for the NEXT file chunk
+    offset += file_chunk_data.chunk_length;
+
+    if(currenttenpercent < offset)
     {
-        printf("---- FILE_CHUNK: length = %d FILE_LENGTH: %d\n",cb_item->v.uint, filelength);
-        // Save the offset for THIS fine chunk
-    	    chunkoffset = offset;
+        /* Yes, I know this is terrible, but it's the level of effort appropriate to the task. */
+        printf("Downloaded %d bytes %d %%  of the file \n",offset, (100 * (currenttenpercent + 1000)) / filelength);
+        currenttenpercent += tenpercent;
+    }
 
-    	    // Build the offset for the NEXT file chunk
-        offset += cb_item->v.uint;
+    printf("cb_item->length = %d\r\n", file_chunk_data.array_length);
 
-        if(currenttenpercent < offset)
+    if( file_chunk_data.array_length )
+    {
+        int writelength = file_chunk_data.array_length;
+        if( chunkoffset + file_chunk_data.array_length > filelength )
         {
-            /* Yes, I know this is terrible, but it's the level of effort appropriate to the task. */
-        	    printf("Downloaded %d bytes %d %%  of the file \n",offset, (100 * (currenttenpercent + 1000)) / filelength);
-        	    currenttenpercent += tenpercent;
+            writelength = filelength - chunkoffset ;
+            downloading = 0;
+        }
+
+        sha256_update( &ctx, (unsigned char *) file_chunk_data.byte_array, file_chunk_data.array_length );
+        retval = sl_extlib_FlcWriteFile( lFileHandle, chunkoffset, (unsigned char *) file_chunk_data.byte_array, file_chunk_data.array_length );
+        if( retval < file_chunk_data.array_length )
+        {
+            downloading = 0;
+            //sl_extlib_FlcCloseFile(lFileHandle, NULL, NULL, 0);
+        }
+
+        printf("Write returned %d\n",retval);
+
+        if( (chunkoffset + file_chunk_data.array_length ) >= filelength )
+        {
+            printf("Downloaded is done\n");
+            downloading = 0;
         }
     }
     else
     {
-        printf("No key called L\n");
+        downloading = 0;
+        //sl_extlib_FlcCloseFile(lFileHandle, NULL, NULL, 0);
     }
 
-    cb_item = cn_cbor_mapget_string(cb, "C");
-    if(cb_item)
+
+    if(cb_item->v.uint > 1)
     {
-            printf("cb_item->length = %d\r\n",cb_item->length);
-            if(cb_item->length > 0)
-            {
-                int writelength = cb_item->length;
-                if( chunkoffset + cb_item->length > filelength )
-                {
-                    writelength = filelength - chunkoffset ;
-                    downloading = 0;
-                }
-                sha256_update(&ctx,(unsigned char *)cb_item->v.str,cb_item->length);
-                retval = sl_extlib_FlcWriteFile(lFileHandle, chunkoffset, (unsigned char *)cb_item->v.str, writelength);
-                if( retval < cb_item->length )
-                {
-                    downloading = 0;
-                    //sl_extlib_FlcCloseFile(lFileHandle, NULL, NULL, 0);
-                }
-                printf("Write returned %d\n",retval);
-
-                if( (chunkoffset + cb_item->length) >= filelength )
-                {
-                    printf("Downloaded is done\n");
-                    downloading = 0;
-                }
-            }
-            else
-            {
-                downloading = 0;
-                //sl_extlib_FlcCloseFile(lFileHandle, NULL, NULL, 0);
-            }
-    }
-    else
-    {
-        printf("No key called C\n");
-    }
-
-    cb_item = cn_cbor_mapget_string(cb, "S");
-    if(cb_item) {
-        // printf("FILE_CHUNK: status = %d\n",cb_item->v.uint);
-
-        if(cb_item->v.uint > 1) {
-        	downloading = 0;
+        downloading = 0;
         	sl_extlib_FlcCloseFile(lFileHandle, NULL, NULL, 0);
-        }
-    } else {
-        printf("No key called S\n");
     }
 
 #if 1
