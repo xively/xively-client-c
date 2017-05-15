@@ -83,13 +83,13 @@
 
 // Values for below macros shall be modified per the access-point's (AP) properties.
 // SimpleLink device will connect to following AP when the application is executed.
-#define ENT_NAME "Amped_AP"
-#define PASSWORD "wireless"
+#define ENT_NAME "LMI-GUEST"
+#define PASSWORD "21SimplyPossible!"
 
 // Values for below macros will be used for connecting the device to Xively's
 // MQTT broker
-#define XIVELY_DEVICE_ID "a9dd3d46-b040-4899-9e40-7a9b407aa330"
-#define XIVELY_DEVICE_SECRET "ToeM7ibJ5pSPy4Lr+7Cn/O7Y+EysnmiFmsGl47G+clI="
+#define XIVELY_DEVICE_ID "4cf1c080-78c1-4d9a-bd4d-164c1718cc67"
+#define XIVELY_DEVICE_SECRET "zXu/5XAk6do1Pvx0wXnaqsHxkayAqT+ZrMLaD+CDW6U="
 #define XIVELY_ACCOUNT_ID "223151b6-7476-4832-b189-e52def8c6a7e"
 
 // Application specific status/error codes
@@ -261,28 +261,22 @@ void on_blink_topic( xi_context_handle_t in_context_handle,
             }
             return;
         case XI_SUB_CALL_MESSAGE:
-            if ( params->message.temporary_payload_data_length == 1 )
-            {
-                static int toggle_lights = 0;
-                toggle_lights = (toggle_lights + 1) % 2;
+        {
+            static int toggle_lights = 0;
+            toggle_lights = (toggle_lights + 1) % 2;
 
-                if( toggle_lights )
-                {
-                   GPIO_IF_LedOn( MCU_GREEN_LED_GPIO );
-                   GPIO_IF_LedOn( MCU_ORANGE_LED_GPIO );
-                }
-                else
-                {
-                    GPIO_IF_LedOff( MCU_GREEN_LED_GPIO );
-                    GPIO_IF_LedOff( MCU_ORANGE_LED_GPIO );
-                }
+            if( toggle_lights )
+            {
+               GPIO_IF_LedOn( MCU_GREEN_LED_GPIO );
+               GPIO_IF_LedOn( MCU_ORANGE_LED_GPIO );
             }
             else
             {
-                XIVELY_DEMO_PRINT( "unexpected data length on topic %s \n",
-                                   params->message.topic );
+                GPIO_IF_LedOff( MCU_GREEN_LED_GPIO );
+                GPIO_IF_LedOff( MCU_ORANGE_LED_GPIO );
             }
             return;
+        }
         default:
             return;
     }
