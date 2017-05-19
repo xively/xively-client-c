@@ -11,7 +11,7 @@
 #include <xi_control_message.h>
 
 void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
-                              uint8_t** out_encoded,
+                              uint8_t** out_encoded_allocated_inside,
                               uint32_t* out_len );
 
 xi_control_message_t* xi_cbor_codec_ct_decode( const uint8_t* data, const uint32_t len );
