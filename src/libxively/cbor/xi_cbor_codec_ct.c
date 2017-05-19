@@ -6,14 +6,19 @@
 
 #include <xi_cbor_codec_ct.h>
 
-void xi_cbor_codec_ct_encode( const uint8_t* data, const uint32_t len )
+void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
+                              uint8_t** out_encoded,
+                              uint32_t* out_len )
 {
-    ( void )data;
-    ( void )len;
+    ( void )control_message;
+    ( void )out_encoded;
+    ( void )out_len;
 }
 
-void xi_cbor_codec_ct_decode( const uint8_t* data, const uint32_t len )
+xi_control_message_t* xi_cbor_codec_ct_decode( const uint8_t* data, const uint32_t len )
 {
     ( void )data;
     ( void )len;
+
+    return 0;
 }

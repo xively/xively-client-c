@@ -7,6 +7,8 @@
 #ifndef __XI_CONTROL_MESSAGE_H__
 #define __XI_CONTROL_MESSAGE_H__
 
+#include <stdint.h>
+
 typedef enum xi_control_message_type_e {
     XI_CONTROL_MESSAGE_DB_FILE_INFO = 0, /* DB = message goes from Device to Broker */
     XI_CONTROL_MESSAGE_BD_FILE_UPDATE_AVAILABLE, /* BD = Broker to Device */
