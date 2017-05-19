@@ -10,13 +10,22 @@
 #include <xively_error.h>
 #include <xi_control_message.h>
 
+typedef xi_state_t ( *fn_send_control_message )( void*, xi_control_message_t* );
+
 typedef struct
 {
-    void* callback_user_data;
+    fn_send_control_message fn_send_message;
+    void* send_message_user_data;
 } xi_sft_context_t;
 
-xi_state_t xi_sft_make_context( xi_sft_context_t** context );
+
+xi_state_t xi_sft_make_context( xi_sft_context_t** context,
+                                fn_send_control_message fn_send_message,
+                                void* user_data );
+
 xi_state_t xi_sft_free_context( xi_sft_context_t** context );
+
+xi_state_t xi_sft_on_connected( xi_sft_context_t* context );
 
 xi_state_t
 xi_sft_on_message( xi_sft_context_t* context, const xi_control_message_t* sft_message );

@@ -99,7 +99,6 @@ typedef union xi_control_message_u {
 
     } file_status;
 
-
 } xi_control_message_t;
 
 #endif /* __XI_CONTROL_MESSAGE_H__ */

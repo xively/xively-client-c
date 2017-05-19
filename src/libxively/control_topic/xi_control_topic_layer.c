@@ -104,7 +104,7 @@ xi_control_topic_publish_on_topic( void* context, xi_control_message_t* control_
         encoded_message_data_desc =
             xi_make_desc_from_buffer_share( encoded_message, encoded_message_len );
 
-        // atigyi_todo: make more elegant ownership passing
+        // todo_atigyi: make more elegant ownership passing
         encoded_message_data_desc->memory_type = XI_MEMORY_TYPE_MANAGED;
 
         XI_CHECK_CND_DBGMESSAGE( NULL == encoded_message_data_desc,
@@ -298,7 +298,8 @@ xi_control_topic_layer_init( void* context, void* data, xi_state_t in_out_state 
         layer_data =
             ( xi_control_topic_layer_data_t* )XI_THIS_LAYER( context )->user_data;
 
-        xi_sft_make_context( &layer_data->sft_context );
+        xi_sft_make_context( &layer_data->sft_context, &xi_control_topic_publish_on_topic,
+                             context );
     }
 
     assert( NULL != layer_data );
@@ -332,7 +333,7 @@ xi_control_topic_layer_connect( void* context, void* data, xi_state_t in_out_sta
 
     /* if the other layers has been connected succesfully let's try to subscribe to a
      * control topic */
-    if ( in_out_state == XI_STATE_OK )
+    if ( XI_STATE_OK == in_out_state )
     {
         /* let's create the topic name */
         in_out_state = xi_control_topic_create_topic_name(
@@ -347,29 +348,25 @@ xi_control_topic_layer_connect( void* context, void* data, xi_state_t in_out_sta
             xi_control_topic_subscribe( context, subscribe_control_topic_name );
         XI_CHECK_STATE( in_out_state );
 
+        xi_sft_on_connected( layer_data->sft_context );
+
         return in_out_state;
     }
 
-    {
-        /* sending FILE_INFO */
-        xi_control_topic_publish_on_topic( context, NULL );
-    }
-
-
 err_handling:
+
     XI_SAFE_FREE( subscribe_control_topic_name );
 
-    return XI_PROCESS_CLOSE_ON_PREV_LAYER( context, 0, in_out_state );
 #else
 
-    if ( in_out_state == XI_STATE_OK )
+    if ( XI_STATE_OK == in_out_state )
     {
         return xi_control_topic_connection_state_changed( context, in_out_state );
     }
 
-    return XI_PROCESS_CLOSE_ON_PREV_LAYER( context, 0, in_out_state );
-
 #endif
+
+    return XI_PROCESS_CLOSE_ON_PREV_LAYER( context, 0, in_out_state );
 }
 
 xi_state_t
