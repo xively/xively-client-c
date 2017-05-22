@@ -16,7 +16,7 @@ extern "C" {
 
 #include <stdbool.h>
 #include <stdint.h>
-#include <unistd.h>
+#include <xi_bsp_hton.h>
 
 /**
  * All of the different kinds of CBOR values.

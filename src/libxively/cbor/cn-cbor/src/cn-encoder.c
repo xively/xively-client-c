@@ -8,7 +8,7 @@ extern "C" {
 } /* Duh. */
 #endif
 
-#include <arpa/inet.h>
+#include <xi_bsp_hton.h>
 #include <string.h>
 #include <strings.h>
 #include <stdbool.h>
