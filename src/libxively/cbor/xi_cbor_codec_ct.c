@@ -6,8 +6,8 @@
 
 #include <xi_cbor_codec_ct.h>
 
-// #include <cbor.h>
-// #include <cn-cbor/cn-cbor.h>
+#include <cbor.h>
+#include <cn-cbor/cn-cbor.h>
 
 #include <xively_error.h>
 #include <xi_macros.h>
@@ -16,7 +16,7 @@ void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
                               uint8_t** out_encoded_allocated_inside,
                               uint32_t* out_len )
 {
-    #if 0
+    #if 1
     cn_cbor_errback err;
     cn_cbor* cb_map = cn_cbor_map_create( &err );
 

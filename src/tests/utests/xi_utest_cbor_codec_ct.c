@@ -41,7 +41,6 @@ void bin_to_stdout( const uint8_t* data, uint32_t len )
 
 XI_TT_TESTGROUP_BEGIN( utest_cbor_codec_ct )
 
-#if 0
 XI_TT_TESTCASE_WITH_SETUP(
     xi_utest_cbor_codec_ct__file_info__empty,
     xi_utest_setup_basic,
@@ -146,8 +145,6 @@ XI_TT_TESTCASE_WITH_SETUP(
         XI_SAFE_FREE( encoded );
 
     } )
-
-#endif
 
 XI_TT_TESTGROUP_END
 
