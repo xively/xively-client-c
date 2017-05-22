@@ -6,8 +6,8 @@
 
 #include <xi_cbor_codec_ct.h>
 
-#include <cbor.h>
-#include <cn-cbor/cn-cbor.h>
+// #include <cbor.h>
+// #include <cn-cbor/cn-cbor.h>
 
 #include <xively_error.h>
 #include <xi_macros.h>
