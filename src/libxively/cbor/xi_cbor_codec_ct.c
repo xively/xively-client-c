@@ -16,10 +16,7 @@ void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
                               uint8_t** out_encoded_allocated_inside,
                               uint32_t* out_len )
 {
-    ( void )control_message;
-    ( void )out_encoded_allocated_inside;
-    ( void )out_len;
-
+    #if 0
     cn_cbor_errback err;
     cn_cbor* cb_map = cn_cbor_map_create( &err );
 
@@ -61,11 +58,11 @@ void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
             break;
         case XI_CONTROL_MESSAGE_DB_FILE_GET_CHUNK:
             break;
-        case XI_CONTROL_MESSAGE_BD_FILE_UPDATE_AVAILABLE:
-        case XI_CONTROL_MESSAGE_BD_FILE_CHUNK:
-            break;
         case XI_CONTROL_MESSAGE_DB_FILE_STATUS:
             break;
+        /* the followings are not encoded by client */
+        case XI_CONTROL_MESSAGE_BD_FILE_UPDATE_AVAILABLE:
+        case XI_CONTROL_MESSAGE_BD_FILE_CHUNK:
         default:
             cn_cbor_free( cb_map CBOR_CONTEXT_PARAM );
             return;
@@ -82,6 +79,11 @@ void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
     memcpy( *out_encoded_allocated_inside, encoded, *out_len );
 
 err_handling:;
+#else
+    (void) control_message;
+    (void) out_encoded_allocated_inside;
+    (void) out_len;
+#endif
 }
 
 xi_control_message_t* xi_cbor_codec_ct_decode( const uint8_t* data, const uint32_t len )
