@@ -12,11 +12,28 @@
 #include <xively_error.h>
 #include <xi_macros.h>
 
+void xi_cbor_put_name_and_revision( cn_cbor* cb_map,
+                                    const char* name,
+                                    const char* revision,
+                                    cn_cbor_errback* errp )
+{
+    if ( NULL != name )
+    {
+        cn_cbor_map_put( cb_map, cn_cbor_string_create( "N", errp ),
+                         cn_cbor_string_create( name, errp ), errp );
+    }
+
+    if ( NULL != revision )
+    {
+        cn_cbor_map_put( cb_map, cn_cbor_string_create( "R", errp ),
+                         cn_cbor_string_create( revision, errp ), errp );
+    }
+}
+
 void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
                               uint8_t** out_encoded_allocated_inside,
                               uint32_t* out_len )
 {
-    #if 1
     cn_cbor_errback err;
     cn_cbor* cb_map = cn_cbor_map_create( &err );
 
@@ -29,6 +46,7 @@ void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
     switch ( control_message->common.msgtype )
     {
         case XI_CONTROL_MESSAGE_DB_FILE_INFO:
+
             if ( 0 < control_message->file_info.list_len )
             {
                 cn_cbor* files = cn_cbor_array_create( &err );
@@ -38,16 +56,9 @@ void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
                 {
                     cn_cbor* file = cn_cbor_map_create( &err );
 
-                    cn_cbor_map_put(
-                        file, cn_cbor_string_create( "N", &err ),
-                        cn_cbor_string_create(
-                            control_message->file_info.list[id_file].name, &err ),
-                        &err );
-                    cn_cbor_map_put(
-                        file, cn_cbor_string_create( "R", &err ),
-                        cn_cbor_string_create(
-                            control_message->file_info.list[id_file].revision, &err ),
-                        &err );
+                    xi_cbor_put_name_and_revision(
+                        file, control_message->file_info.list[id_file].name,
+                        control_message->file_info.list[id_file].revision, &err );
 
                     cn_cbor_array_append( files, file, &err );
                 }
@@ -56,11 +67,30 @@ void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
                                  &err );
             }
             break;
+
         case XI_CONTROL_MESSAGE_DB_FILE_GET_CHUNK:
+
+            xi_cbor_put_name_and_revision( cb_map, control_message->file_get_chunk.name,
+                                           control_message->file_get_chunk.revision,
+                                           &err );
+
+            cn_cbor_map_put(
+                cb_map, cn_cbor_string_create( "O", &err ),
+                cn_cbor_int_create( control_message->file_get_chunk.offset, &err ),
+                &err );
+
+            cn_cbor_map_put(
+                cb_map, cn_cbor_string_create( "L", &err ),
+                cn_cbor_int_create( control_message->file_get_chunk.length, &err ),
+                &err );
+
             break;
+
         case XI_CONTROL_MESSAGE_DB_FILE_STATUS:
+
             break;
-        /* the followings are not encoded by client */
+
+        /* the followings are encoded by the broker and decoded by the client */
         case XI_CONTROL_MESSAGE_BD_FILE_UPDATE_AVAILABLE:
         case XI_CONTROL_MESSAGE_BD_FILE_CHUNK:
         default:
@@ -79,11 +109,6 @@ void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
     memcpy( *out_encoded_allocated_inside, encoded, *out_len );
 
 err_handling:;
-#else
-    (void) control_message;
-    (void) out_encoded_allocated_inside;
-    (void) out_len;
-#endif
 }
 
 xi_control_message_t* xi_cbor_codec_ct_decode( const uint8_t* data, const uint32_t len )
