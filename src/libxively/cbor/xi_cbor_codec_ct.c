@@ -114,7 +114,7 @@ void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
 err_handling:;
 }
 
-#include <stdio.h>
+// #include <stdio.h>
 
 xi_control_message_t* xi_cbor_codec_ct_decode( const uint8_t* data, const uint32_t len )
 {
@@ -128,7 +128,7 @@ xi_control_message_t* xi_cbor_codec_ct_decode( const uint8_t* data, const uint32
         switch ( msgtype->v.uint )
         {
             case XI_CONTROL_MESSAGE_BD_FILE_UPDATE_AVAILABLE:
-                printf( "helloka\n" );
+                // printf( "helloka\n" );
 
                 break;
 
