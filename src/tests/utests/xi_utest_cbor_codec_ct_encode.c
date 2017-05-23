@@ -38,7 +38,7 @@ void bin_to_stdout( const uint8_t* data, uint32_t len, uint8_t hex_type )
 
 #endif
 
-XI_TT_TESTGROUP_BEGIN( utest_cbor_codec_ct )
+XI_TT_TESTGROUP_BEGIN( utest_cbor_codec_ct_encode )
 
 
 /*****************************************************
@@ -46,7 +46,7 @@ XI_TT_TESTGROUP_BEGIN( utest_cbor_codec_ct )
  *****************************************************/
 
 XI_TT_TESTCASE_WITH_SETUP(
-    xi_utest_cbor_codec_ct__file_info__empty,
+    xi_utest_cbor_codec_ct_encode__file_info__empty,
     xi_utest_setup_basic,
     xi_utest_teardown_basic,
     NULL,
@@ -75,7 +75,7 @@ XI_TT_TESTCASE_WITH_SETUP(
     } )
 
 XI_TT_TESTCASE_WITH_SETUP(
-    xi_utest_cbor_codec_ct__file_info__invalid_name_and_revision,
+    xi_utest_cbor_codec_ct_encode__file_info__invalid_name_and_revision,
     xi_utest_setup_basic,
     xi_utest_teardown_basic,
     NULL,
@@ -108,7 +108,7 @@ XI_TT_TESTCASE_WITH_SETUP(
     } )
 
 XI_TT_TESTCASE_WITH_SETUP(
-    xi_utest_cbor_codec_ct__file_info__single_file,
+    xi_utest_cbor_codec_ct_encode__file_info__single_file,
     xi_utest_setup_basic,
     xi_utest_teardown_basic,
     NULL,
@@ -143,7 +143,7 @@ XI_TT_TESTCASE_WITH_SETUP(
     } )
 
 XI_TT_TESTCASE_WITH_SETUP(
-    xi_utest_cbor_codec_ct__file_info__three_files,
+    xi_utest_cbor_codec_ct_encode__file_info__three_files,
     xi_utest_setup_basic,
     xi_utest_teardown_basic,
     NULL,
@@ -207,7 +207,7 @@ XI_TT_TESTCASE_WITH_SETUP(
  *****************************************************/
 
 XI_TT_TESTCASE_WITH_SETUP(
-    xi_utest_cbor_codec_ct__file_get_chunk__basic,
+    xi_utest_cbor_codec_ct_encode__file_get_chunk__basic,
     xi_utest_setup_basic,
     xi_utest_teardown_basic,
     NULL,
@@ -246,7 +246,7 @@ XI_TT_TESTCASE_WITH_SETUP(
     } )
 
 XI_TT_TESTCASE_WITH_SETUP(
-    xi_utest_cbor_codec_ct__file_get_chunk__zero_length_and_offset,
+    xi_utest_cbor_codec_ct_encode__file_get_chunk__zero_length_and_offset,
     xi_utest_setup_basic,
     xi_utest_teardown_basic,
     NULL,
