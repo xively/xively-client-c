@@ -12,6 +12,8 @@
 #include <xively_error.h>
 #include <xi_macros.h>
 
+#define XI_CBOR_CODEC_CT_STRING_MSGTYPE "msgtype"
+
 void xi_cbor_put_name_and_revision( cn_cbor* cb_map,
                                     const char* name,
                                     const char* revision,
@@ -37,7 +39,8 @@ void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
     cn_cbor_errback err;
     cn_cbor* cb_map = cn_cbor_map_create( &err );
 
-    cn_cbor_map_put( cb_map, cn_cbor_string_create( "msgtype", &err ),
+    cn_cbor_map_put( cb_map,
+                     cn_cbor_string_create( XI_CBOR_CODEC_CT_STRING_MSGTYPE, &err ),
                      cn_cbor_int_create( control_message->common.msgtype, &err ), &err );
 
     cn_cbor_map_put( cb_map, cn_cbor_string_create( "msgver", &err ),
@@ -111,10 +114,39 @@ void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
 err_handling:;
 }
 
+#include <stdio.h>
+
 xi_control_message_t* xi_cbor_codec_ct_decode( const uint8_t* data, const uint32_t len )
 {
-    ( void )data;
-    ( void )len;
+    cn_cbor_errback err;
+    cn_cbor* cb_map = cn_cbor_decode( data, len, &err );
 
-    return 0;
+    cn_cbor* msgtype = cn_cbor_mapget_string( cb_map, XI_CBOR_CODEC_CT_STRING_MSGTYPE );
+
+    if ( NULL != msgtype )
+    {
+        switch ( msgtype->v.uint )
+        {
+            case XI_CONTROL_MESSAGE_BD_FILE_UPDATE_AVAILABLE:
+                printf( "helloka\n" );
+
+                break;
+
+            case XI_CONTROL_MESSAGE_BD_FILE_CHUNK:
+
+                break;
+
+            case XI_CONTROL_MESSAGE_DB_FILE_INFO:
+            case XI_CONTROL_MESSAGE_DB_FILE_GET_CHUNK:
+            case XI_CONTROL_MESSAGE_DB_FILE_STATUS:
+            default:
+                cn_cbor_free( cb_map CBOR_CONTEXT_PARAM );
+                return NULL;
+        }
+    }
+
+
+    cn_cbor_free( cb_map CBOR_CONTEXT_PARAM );
+
+    return NULL;
 }

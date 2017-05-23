@@ -63,6 +63,7 @@ XI_TT_TESTCASE_PREDECLARATION( utest_mqtt_codec_layer_data );
 XI_TT_TESTCASE_PREDECLARATION( utest_publish );
 XI_TT_TESTCASE_PREDECLARATION( utest_sha256 );
 XI_TT_TESTCASE_PREDECLARATION( utest_cbor_codec_ct_encode );
+XI_TT_TESTCASE_PREDECLARATION( utest_cbor_codec_ct_decode );
 
 #ifdef XI_CONTROL_TOPIC_ENABLED
 XI_TT_TESTCASE_PREDECLARATION( utest_control_topic );
@@ -251,6 +252,7 @@ struct testgroup_t groups[] = {
     {"utest_rng - ", utest_rng},
     {"utest_sha256 - ", utest_sha256},
     {"utest_cbor_codec_ct_encode - ", utest_cbor_codec_ct_encode},
+    {"utest_cbor_codec_ct_decode - ", utest_cbor_codec_ct_decode},
 
     END_OF_GROUPS};
 

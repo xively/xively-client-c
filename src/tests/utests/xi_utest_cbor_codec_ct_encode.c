@@ -20,7 +20,9 @@
 
 #ifndef XI_TT_TESTCASE_ENUMERATION__SECONDPREPROCESSORRUN
 
-void bin_to_stdout( const uint8_t* data, uint32_t len, uint8_t hex_type )
+void xi_utest_cbor_bin_to_stdout( const uint8_t* data,
+                                  uint32_t len,
+                                  uint8_t hex_output_type )
 {
     uint32_t id_byte = 0;
     printf( "\nencoded len: %d\n", len );
@@ -31,7 +33,7 @@ void bin_to_stdout( const uint8_t* data, uint32_t len, uint8_t hex_type )
             printf( "\n" );
         }
 
-        hex_type ? printf( "0x%.2hhx, ", *data++ ) : printf( "%.2hhx ", *data++ );
+        hex_output_type ? printf( "0x%.2hhx, ", *data++ ) : printf( "%.2hhx ", *data++ );
     }
     printf( "\n\n" );
 }
@@ -51,7 +53,7 @@ XI_TT_TESTCASE_WITH_SETUP(
     xi_utest_teardown_basic,
     NULL,
     {
-        xi_control_message_t file_info_empty = {
+        const xi_control_message_t file_info_empty = {
             .file_info = {
                 .common = {.msgtype = XI_CONTROL_MESSAGE_DB_FILE_INFO, .msgver = 1},
                 .list_len = 0,
@@ -62,7 +64,7 @@ XI_TT_TESTCASE_WITH_SETUP(
 
         xi_cbor_codec_ct_encode( &file_info_empty, &encoded, &encoded_len );
 
-        // bin_to_stdout( encoded, encoded_len );
+        // xi_utest_cbor_bin_to_stdout( encoded, encoded_len );
 
         const uint8_t expected_cbor[] = {0xa2, 0x67, 0x6d, 0x73, 0x67, 0x74,
                                          0x79, 0x70, 0x65, 0x00, 0x66, 0x6d,
@@ -82,7 +84,7 @@ XI_TT_TESTCASE_WITH_SETUP(
     {
         xi_control_message_file_desc_t file_desc = {.name = NULL, .revision = NULL};
 
-        xi_control_message_t file_info_single_file = {
+        const xi_control_message_t file_info_single_file = {
             .file_info = {
                 .common = {.msgtype = XI_CONTROL_MESSAGE_DB_FILE_INFO, .msgver = 1},
                 .list_len = 1,
@@ -93,7 +95,7 @@ XI_TT_TESTCASE_WITH_SETUP(
 
         xi_cbor_codec_ct_encode( &file_info_single_file, &encoded, &encoded_len );
 
-        // bin_to_stdout( encoded, encoded_len );
+        // xi_utest_cbor_bin_to_stdout( encoded, encoded_len );
 
         /* {"msgtype":0,"msgver":1,"list":[{}]} */
         const uint8_t expected_cbor[] = {
@@ -116,7 +118,7 @@ XI_TT_TESTCASE_WITH_SETUP(
         xi_control_message_file_desc_t file_desc = {.name     = "filename.bin",
                                                     .revision = "rev1"};
 
-        xi_control_message_t file_info_single_file = {
+        const xi_control_message_t file_info_single_file = {
             .file_info = {
                 .common = {.msgtype = XI_CONTROL_MESSAGE_DB_FILE_INFO, .msgver = 1},
                 .list_len = 1,
@@ -127,7 +129,7 @@ XI_TT_TESTCASE_WITH_SETUP(
 
         xi_cbor_codec_ct_encode( &file_info_single_file, &encoded, &encoded_len );
 
-        // bin_to_stdout( encoded, encoded_len );
+        // xi_utest_cbor_bin_to_stdout( encoded, encoded_len );
 
         const uint8_t expected_cbor[] = {
             0xa3, 0x67, 0x6d, 0x73, 0x67, 0x74, 0x79, 0x70, 0x65, 0x00, 0x66, 0x6d,
@@ -153,7 +155,7 @@ XI_TT_TESTCASE_WITH_SETUP(
             {.name = "cukroscsibecombcsont", .revision = "rev2"},
             {.name = "txt.hello.bello.txt", .revision = "long_revision_name with space"}};
 
-        xi_control_message_t file_info_single_file = {
+        const xi_control_message_t file_info_single_file = {
             .file_info = {
                 .common = {.msgtype = XI_CONTROL_MESSAGE_DB_FILE_INFO, .msgver = 55},
                 .list_len = 3,
@@ -164,7 +166,7 @@ XI_TT_TESTCASE_WITH_SETUP(
 
         xi_cbor_codec_ct_encode( &file_info_single_file, &encoded, &encoded_len );
 
-        // bin_to_stdout( encoded, encoded_len );
+        // xi_utest_cbor_bin_to_stdout( encoded, encoded_len );
 
         /*
          * To decode this use tinycbor (https://github.com/01org/tinycbor) cbordump
@@ -212,7 +214,7 @@ XI_TT_TESTCASE_WITH_SETUP(
     xi_utest_teardown_basic,
     NULL,
     {
-        xi_control_message_t file_get_chunk = {
+        const xi_control_message_t file_get_chunk = {
             .file_get_chunk = {
                 .common = {.msgtype = XI_CONTROL_MESSAGE_DB_FILE_GET_CHUNK, .msgver = 1},
                 .name     = "givemethischunkboy",
@@ -225,8 +227,8 @@ XI_TT_TESTCASE_WITH_SETUP(
 
         xi_cbor_codec_ct_encode( &file_get_chunk, &encoded, &encoded_len );
 
-        // bin_to_stdout( encoded, encoded_len, 0 );
-        // bin_to_stdout( encoded, encoded_len, 1 );
+        // xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 0 );
+        // xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 1 );
 
         /* {"msgtype":2,"msgver":1,"N":"givemethischunkboy","R":"theperfect revision
          * please 123","O":11,"L":888} */
@@ -251,7 +253,7 @@ XI_TT_TESTCASE_WITH_SETUP(
     xi_utest_teardown_basic,
     NULL,
     {
-        xi_control_message_t file_get_chunk = {
+        const xi_control_message_t file_get_chunk = {
             .file_get_chunk = {.common = {.msgtype = XI_CONTROL_MESSAGE_DB_FILE_GET_CHUNK,
                                           .msgver  = 123},
                                .name     = "zero",
@@ -264,8 +266,8 @@ XI_TT_TESTCASE_WITH_SETUP(
 
         xi_cbor_codec_ct_encode( &file_get_chunk, &encoded, &encoded_len );
 
-        // bin_to_stdout( encoded, encoded_len, 0 );
-        // bin_to_stdout( encoded, encoded_len, 1 );
+        // xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 0 );
+        // xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 1 );
 
         /* {"msgtype":2,"msgver":123,"N":"zero","R":"zero 999","O":0,"L":0} */
         const uint8_t expected_cbor[] = {
