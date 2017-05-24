@@ -25,20 +25,19 @@ typedef struct xi_control_message_file_desc_s
 
 typedef struct xi_control_message_file_desc_ext_s
 {
-    const char* name;
-    const char* revision;
-    const uint8_t file_operation;
-    const uint32_t size_in_bytes;
-    const char* fingerprint;
-
+    char* name;
+    char* revision;
+    uint8_t file_operation;
+    uint32_t size_in_bytes;
+    char* fingerprint;
 } xi_control_message_file_desc_ext_t;
 
 
 typedef union xi_control_message_u {
     struct xi_control_message_common_s
     {
-        const xi_control_message_type_t msgtype;
-        const uint32_t msgver;
+        xi_control_message_type_t msgtype;
+        uint32_t msgver;
     } common;
 
 
@@ -55,8 +54,8 @@ typedef union xi_control_message_u {
     {
         struct xi_control_message_common_s common;
 
-        const uint16_t list_len;
-        const xi_control_message_file_desc_ext_t* list;
+        uint16_t list_len;
+        xi_control_message_file_desc_ext_t* list;
 
     } file_update_available;
 
@@ -100,5 +99,7 @@ typedef union xi_control_message_u {
     } file_status;
 
 } xi_control_message_t;
+
+void xi_control_message_free( xi_control_message_t** control_message );
 
 #endif /* __XI_CONTROL_MESSAGE_H__ */
