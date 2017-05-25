@@ -20,6 +20,8 @@
 #include <cbor.h>
 #include <cn-cbor/cn-cbor.h>
 
+#include <xi_debug.h>
+
 
 #ifndef XI_TT_TESTCASE_ENUMERATION__SECONDPREPROCESSORRUN
 
@@ -123,6 +125,57 @@ void xi_utest_cbor_codec_ct_encode( const xi_control_message_t* control_message,
 err_handling:;
 }
 
+void xi_utest_cbor_ASSERT_control_messages_match( const xi_control_message_t* cm1,
+                                                  const xi_control_message_t* cm2 )
+{
+    tt_ptr_op( NULL, !=, cm1 );
+    tt_ptr_op( NULL, !=, cm2 );
+
+    tt_want_int_op( cm1->common.msgtype, ==, cm2->common.msgtype );
+    tt_want_int_op( cm1->common.msgver, ==, cm2->common.msgver );
+
+    switch ( cm1->common.msgtype )
+    {
+        case XI_CONTROL_MESSAGE_BD_FILE_UPDATE_AVAILABLE:
+            tt_int_op( cm1->file_update_available.list_len, ==,
+                       cm2->file_update_available.list_len );
+
+            uint8_t id_file = 0;
+            for ( ; id_file < cm1->file_update_available.list_len; ++id_file )
+            {
+                tt_want_int_op( 0, ==,
+                                strcmp( cm1->file_update_available.list[id_file].name,
+                                        cm2->file_update_available.list[id_file].name ) );
+
+                tt_want_int_op(
+                    0, ==, strcmp( cm1->file_update_available.list[id_file].revision,
+                                   cm2->file_update_available.list[id_file].revision ) );
+
+                tt_want_int_op( cm1->file_update_available.list[id_file].file_operation,
+                                ==,
+                                cm2->file_update_available.list[id_file].file_operation );
+
+                tt_want_int_op( cm1->file_update_available.list[id_file].size_in_bytes,
+                                ==,
+                                cm2->file_update_available.list[id_file].size_in_bytes );
+
+                tt_want_int_op(
+                    0, ==,
+                    strcmp( cm1->file_update_available.list[id_file].fingerprint,
+                            cm2->file_update_available.list[id_file].fingerprint ) );
+
+                xi_debug_printf( "name: [%s]\n",
+                                 cm2->file_update_available.list[id_file].name );
+                xi_debug_printf( "name: [%s]\n",
+                                 cm2->file_update_available.list[id_file].revision );
+                xi_debug_printf( "name: [%s]\n",
+                                 cm2->file_update_available.list[id_file].fingerprint );
+            }
+        default:;
+    }
+end:;
+}
+
 #endif
 
 XI_TT_TESTGROUP_BEGIN( utest_cbor_codec_ct_decode )
@@ -138,7 +191,7 @@ XI_TT_TESTCASE_WITH_SETUP(
     xi_utest_teardown_basic,
     NULL,
     {
-
+        // ARRANGE
         const xi_control_message_t file_update_available_in = {
             .file_update_available = {
                 .common = {.msgtype = XI_CONTROL_MESSAGE_BD_FILE_UPDATE_AVAILABLE,
@@ -155,20 +208,14 @@ XI_TT_TESTCASE_WITH_SETUP(
         xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 0 );
         // xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 1 );
 
+        // ACT
         xi_control_message_t* file_update_available_out =
             xi_cbor_codec_ct_decode( encoded, encoded_len );
 
-        tt_int_op( 0, !=, file_update_available_out );
-        tt_want_int_op( file_update_available_in.common.msgtype, ==,
-                        file_update_available_out->common.msgtype );
-        tt_want_int_op( file_update_available_in.common.msgver, ==,
-                        file_update_available_out->common.msgver );
-        tt_want_int_op( file_update_available_in.file_update_available.list_len, ==,
-                        file_update_available_out->file_update_available.list_len );
-        tt_want_int_op( file_update_available_in.file_update_available.list, ==,
-                        file_update_available_out->file_update_available.list );
+        // ASSERT
+        xi_utest_cbor_ASSERT_control_messages_match( &file_update_available_in,
+                                                     file_update_available_out );
 
-    end:
         XI_SAFE_FREE( encoded );
         XI_SAFE_FREE( file_update_available_out );
 
@@ -180,8 +227,9 @@ XI_TT_TESTCASE_WITH_SETUP(
     xi_utest_teardown_basic,
     NULL,
     {
+        // ARRANGE
         xi_control_message_file_desc_ext_t single_file_list[1] = {
-            {.name           = "file to update",
+            {.name           = "name of file to update",
              .revision       = "new revision",
              .file_operation = 99,
              .size_in_bytes  = 123,
@@ -203,18 +251,67 @@ XI_TT_TESTCASE_WITH_SETUP(
         xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 0 );
         // xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 1 );
 
+        // ACT
         xi_control_message_t* file_update_available_out =
             xi_cbor_codec_ct_decode( encoded, encoded_len );
 
-        tt_int_op( 0, !=, file_update_available_out );
-        tt_want_int_op( file_update_available_in.common.msgtype, ==,
-                        file_update_available_out->common.msgtype );
-        tt_want_int_op( file_update_available_in.common.msgver, ==,
-                        file_update_available_out->common.msgver );
-        tt_want_int_op( file_update_available_in.file_update_available.list_len, ==,
-                        file_update_available_out->file_update_available.list_len );
+        // ASSERT
+        xi_utest_cbor_ASSERT_control_messages_match( &file_update_available_in,
+                                                     file_update_available_out );
 
-    end:
+        XI_SAFE_FREE( encoded );
+        xi_control_message_free( &file_update_available_out );
+
+    } )
+
+XI_TT_TESTCASE_WITH_SETUP(
+    xi_utest_cbor_codec_ct_decode__file_update_available__three_files,
+    xi_utest_setup_basic,
+    xi_utest_teardown_basic,
+    NULL,
+    {
+        // ARRANGE
+        xi_control_message_file_desc_ext_t three_file_list[3] = {
+            {.name           = "filename 1",
+             .revision       = "revision 11",
+             .file_operation = 11,
+             .size_in_bytes  = 111,
+             .fingerprint    = "fingerprint 111"},
+            {.name           = "filename 2",
+             .revision       = "revision 22",
+             .file_operation = 22,
+             .size_in_bytes  = 222,
+             .fingerprint    = "fingerprint 222"},
+            {.name           = "filename 3",
+             .revision       = "revision 33",
+             .file_operation = 33,
+             .size_in_bytes  = 333,
+             .fingerprint    = "fingerprint 333"}};
+
+        const xi_control_message_t file_update_available_in = {
+            .file_update_available = {
+                .common = {.msgtype = XI_CONTROL_MESSAGE_BD_FILE_UPDATE_AVAILABLE,
+                           .msgver  = 1},
+                .list_len = 3,
+                .list     = three_file_list}};
+
+        uint8_t* encoded     = NULL;
+        uint32_t encoded_len = 0;
+
+        xi_utest_cbor_codec_ct_encode( &file_update_available_in, &encoded,
+                                       &encoded_len );
+
+        xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 0 );
+        // xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 1 );
+
+        // ACT
+        xi_control_message_t* file_update_available_out =
+            xi_cbor_codec_ct_decode( encoded, encoded_len );
+
+        // ASSERT
+        xi_utest_cbor_ASSERT_control_messages_match( &file_update_available_in,
+                                                     file_update_available_out );
+
         XI_SAFE_FREE( encoded );
         xi_control_message_free( &file_update_available_out );
 

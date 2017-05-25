@@ -133,7 +133,7 @@ err_handling:;
 #endif
 
 xi_state_t
-xi_cbor_codec_ct_decode_getstring( cn_cbor* source, const char* key, void* destination )
+xi_cbor_codec_ct_decode_getvalue( cn_cbor* source, const char* key, void* destination )
 {
     xi_state_t state = XI_INVALID_PARAMETER;
 
@@ -227,28 +227,28 @@ xi_control_message_t* xi_cbor_codec_ct_decode( const uint8_t* data, const uint32
                         {
                             cn_cbor* file = cn_cbor_index( list, id_file );
 
-                            xi_cbor_codec_ct_decode_getstring(
+                            xi_cbor_codec_ct_decode_getvalue(
                                 file, XI_CBOR_CODEC_CT_STRING_FILE_NAME,
                                 &control_message_out->file_update_available.list[id_file]
                                      .name );
 
-                            xi_cbor_codec_ct_decode_getstring(
+                            xi_cbor_codec_ct_decode_getvalue(
                                 file, XI_CBOR_CODEC_CT_STRING_FILE_REVISION,
                                 ( void** )&control_message_out->file_update_available
                                     .list[id_file]
                                     .revision );
 
-                            xi_cbor_codec_ct_decode_getstring(
+                            xi_cbor_codec_ct_decode_getvalue(
                                 file, XI_CBOR_CODEC_CT_STRING_FILE_OPERATION,
                                 &control_message_out->file_update_available.list[id_file]
                                      .file_operation );
 
-                            xi_cbor_codec_ct_decode_getstring(
+                            xi_cbor_codec_ct_decode_getvalue(
                                 file, XI_CBOR_CODEC_CT_STRING_FILE_IMAGESIZE,
                                 &control_message_out->file_update_available.list[id_file]
                                      .size_in_bytes );
 
-                            xi_cbor_codec_ct_decode_getstring(
+                            xi_cbor_codec_ct_decode_getvalue(
                                 file, XI_CBOR_CODEC_CT_STRING_FILE_FINGERPRINT,
                                 ( void** )&control_message_out->file_update_available
                                     .list[id_file]
