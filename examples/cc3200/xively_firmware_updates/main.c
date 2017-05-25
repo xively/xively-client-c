@@ -88,9 +88,15 @@
 
 // Values for below macros will be used for connecting the device to Xively's
 // MQTT broker
-#define XIVELY_DEVICE_ID "4cf1c080-78c1-4d9a-bd4d-164c1718cc67"
-#define XIVELY_DEVICE_SECRET "zXu/5XAk6do1Pvx0wXnaqsHxkayAqT+ZrMLaD+CDW6U="
+#if 0
+#define XIVELY_DEVICE_ID "a9dd3d46-b040-4899-9e40-7a9b407aa330"
+#define XIVELY_DEVICE_SECRET "ToeM7ibJ5pSPy4Lr+7Cn/O7Y+EysnmiFmsGl47G+clI="
 #define XIVELY_ACCOUNT_ID "223151b6-7476-4832-b189-e52def8c6a7e"
+#else
+#define XIVELY_DEVICE_ID "4cf1c080-78c1-4d9a-bd4d-164c1718cc67"
+#define XIVELY_DEVICE_SECRET "wsvM295gDlnXBWVoUDpUAaIQtiXuCAkFuRqsfWiB8mo="
+#define XIVELY_ACCOUNT_ID "223151b6-7476-4832-b189-e52def8c6a7e"
+#endif
 
 // Application specific status/error codes
 typedef enum {
@@ -268,12 +274,12 @@ void on_blink_topic( xi_context_handle_t in_context_handle,
             if( toggle_lights )
             {
                GPIO_IF_LedOn( MCU_GREEN_LED_GPIO );
-               GPIO_IF_LedOn( MCU_ORANGE_LED_GPIO );
+               // GPIO_IF_LedOn( MCU_ORANGE_LED_GPIO );
             }
             else
             {
                 GPIO_IF_LedOff( MCU_GREEN_LED_GPIO );
-                GPIO_IF_LedOff( MCU_ORANGE_LED_GPIO );
+                // GPIO_IF_LedOff( MCU_ORANGE_LED_GPIO );
             }
             return;
         }
@@ -377,7 +383,7 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
             XIVELY_DEMO_PRINT( "connected to %s:%d\n", conn_data->host, conn_data->port );
 
             /* register a function to publish temperature data every 5 seconds */
-#if 1
+#if 0
             gTemperatureTaskHandle =
                 xi_schedule_timed_task( in_context_handle, send_temperature, 5, 1, NULL );
 
@@ -940,8 +946,6 @@ long MainLogic()
         XIVELY_DEMO_PRINT( "Failed to start the device \n" );
         return lRetVal;
     }
-
-    XIVELY_DEMO_PRINT("\nIMAGE VERSION -- IN MEMORY!!! \n");
 
     // start ent wlan connection
     g_SecParams.Key    = PASSWORD;
