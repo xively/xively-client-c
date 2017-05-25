@@ -126,7 +126,11 @@ void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
 err_handling:;
 }
 
+#if 0
 #include <xi_debug.h>
+#else
+#define xi_debug_printf( ... )
+#endif
 
 xi_state_t
 xi_cbor_codec_ct_decode_getstring( cn_cbor* source, const char* key, void* destination )
@@ -234,16 +238,15 @@ xi_control_message_t* xi_cbor_codec_ct_decode( const uint8_t* data, const uint32
                                     .list[id_file]
                                     .revision );
 
-                            /*uint32_t* size_in_bytes_p =
+                            xi_cbor_codec_ct_decode_getstring(
+                                file, XI_CBOR_CODEC_CT_STRING_FILE_OPERATION,
                                 &control_message_out->file_update_available.list[id_file]
-                                     .size_in_bytes;*/
+                                     .file_operation );
+
                             xi_cbor_codec_ct_decode_getstring(
                                 file, XI_CBOR_CODEC_CT_STRING_FILE_IMAGESIZE,
-                                // ( void** )&size_in_bytes_p );
                                 &control_message_out->file_update_available.list[id_file]
                                      .size_in_bytes );
-
-                            // control_message_out->file_update_available.list[id_file].file
 
                             xi_cbor_codec_ct_decode_getstring(
                                 file, XI_CBOR_CODEC_CT_STRING_FILE_FINGERPRINT,

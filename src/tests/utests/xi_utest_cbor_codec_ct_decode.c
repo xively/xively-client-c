@@ -66,6 +66,14 @@ void xi_utest_cbor_codec_ct_encode( const xi_control_message_t* control_message,
                         &err );
 
                     cn_cbor_map_put(
+                        file, cn_cbor_string_create( "O", &err ),
+                        cn_cbor_int_create(
+                            control_message->file_update_available.list[id_file]
+                                .file_operation,
+                            &err ),
+                        &err );
+
+                    cn_cbor_map_put(
                         file, cn_cbor_string_create( "S", &err ),
                         cn_cbor_int_create(
                             control_message->file_update_available.list[id_file]
@@ -74,7 +82,7 @@ void xi_utest_cbor_codec_ct_encode( const xi_control_message_t* control_message,
                         &err );
 
                     cn_cbor_map_put(
-                        cb_map, cn_cbor_string_create( "F", &err ),
+                        file, cn_cbor_string_create( "F", &err ),
                         cn_cbor_string_create(
                             control_message->file_update_available.list[id_file]
                                 .fingerprint,
@@ -175,7 +183,7 @@ XI_TT_TESTCASE_WITH_SETUP(
         xi_control_message_file_desc_ext_t single_file_list[1] = {
             {.name           = "file to update",
              .revision       = "new revision",
-             .file_operation = 0,
+             .file_operation = 99,
              .size_in_bytes  = 123,
              .fingerprint    = "my fingerprint 888"}};
 
