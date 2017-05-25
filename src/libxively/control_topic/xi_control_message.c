@@ -48,6 +48,9 @@ void xi_control_message_free( xi_control_message_t** control_message )
 
         case XI_CONTROL_MESSAGE_BD_FILE_CHUNK:
 
+            XI_SAFE_FREE( ( *control_message )->file_chunk.name );
+            XI_SAFE_FREE( ( *control_message )->file_chunk.revision );
+
             break;
 
         case XI_CONTROL_MESSAGE_DB_FILE_STATUS:

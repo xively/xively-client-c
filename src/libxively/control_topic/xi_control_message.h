@@ -75,14 +75,14 @@ typedef union xi_control_message_u {
     {
         struct xi_control_message_common_s common;
 
-        const char* name;
-        const char* revision;
+        char* name;
+        char* revision;
 
-        const uint32_t offset;
-        const uint32_t length;
+        uint32_t offset;
+        uint32_t length;
 
-        const uint8_t status;
-        const uint8_t* chunk;
+        uint8_t status;
+        uint8_t* chunk;
 
     } file_chunk;
 

@@ -43,13 +43,17 @@ void xi_utest_cbor_codec_ct_encode( const xi_control_message_t* control_message,
                                     uint32_t* out_len )
 {
     cn_cbor_errback err;
-    cn_cbor* cb_map = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMA &err );
+    cn_cbor* cb_map = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMA & err );
 
-    cn_cbor_map_put( cb_map, cn_cbor_string_create( "msgtype" CBOR_CONTEXT_PARAM, &err ),
-                     cn_cbor_int_create( control_message->common.msgtype CBOR_CONTEXT_PARAM, &err ), &err );
+    cn_cbor_map_put(
+        cb_map, cn_cbor_string_create( "msgtype" CBOR_CONTEXT_PARAM, &err ),
+        cn_cbor_int_create( control_message->common.msgtype CBOR_CONTEXT_PARAM, &err ),
+        &err );
 
-    cn_cbor_map_put( cb_map, cn_cbor_string_create( "msgver" CBOR_CONTEXT_PARAM, &err ),
-                     cn_cbor_int_create( control_message->common.msgver CBOR_CONTEXT_PARAM, &err ), &err );
+    cn_cbor_map_put(
+        cb_map, cn_cbor_string_create( "msgver" CBOR_CONTEXT_PARAM, &err ),
+        cn_cbor_int_create( control_message->common.msgver CBOR_CONTEXT_PARAM, &err ),
+        &err );
 
     switch ( control_message->common.msgtype )
     {
@@ -58,13 +62,13 @@ void xi_utest_cbor_codec_ct_encode( const xi_control_message_t* control_message,
 
             if ( 0 < control_message->file_update_available.list_len )
             {
-                cn_cbor* files = cn_cbor_array_create( CBOR_CONTEXT_PARAM_COMA &err );
+                cn_cbor* files = cn_cbor_array_create( CBOR_CONTEXT_PARAM_COMA & err );
 
                 uint16_t id_file = 0;
                 for ( ; id_file < control_message->file_update_available.list_len;
                       ++id_file )
                 {
-                    cn_cbor* file = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMA &err );
+                    cn_cbor* file = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMA & err );
 
                     xi_cbor_put_name_and_revision(
                         file, control_message->file_update_available.list[id_file].name,
@@ -98,13 +102,29 @@ void xi_utest_cbor_codec_ct_encode( const xi_control_message_t* control_message,
                     cn_cbor_array_append( files, file, &err );
                 }
 
-                cn_cbor_map_put( cb_map, cn_cbor_string_create( "list" CBOR_CONTEXT_PARAM, &err ), files,
-                                 &err );
+                cn_cbor_map_put( cb_map,
+                                 cn_cbor_string_create( "list" CBOR_CONTEXT_PARAM, &err ),
+                                 files, &err );
             }
 
             break;
 
         case XI_CONTROL_MESSAGE_BD_FILE_CHUNK:
+
+            xi_cbor_put_name_and_revision( cb_map, control_message->file_chunk.name,
+                                           control_message->file_chunk.revision, &err );
+
+            cn_cbor_map_put(
+                cb_map, cn_cbor_string_create( "O" CBOR_CONTEXT_PARAM, &err ),
+                cn_cbor_int_create( control_message->file_chunk.offset CBOR_CONTEXT_PARAM,
+                                    &err ),
+                &err );
+
+            cn_cbor_map_put(
+                cb_map, cn_cbor_string_create( "L" CBOR_CONTEXT_PARAM, &err ),
+                cn_cbor_int_create( control_message->file_chunk.length CBOR_CONTEXT_PARAM,
+                                    &err ),
+                &err );
 
             break;
 
@@ -175,6 +195,13 @@ void xi_utest_cbor_ASSERT_control_messages_match( const xi_control_message_t* cm
                 xi_debug_printf( "name: [%s]\n",
                                  cm2->file_update_available.list[id_file].fingerprint );*/
             }
+
+            break;
+
+        case XI_CONTROL_MESSAGE_BD_FILE_CHUNK:
+
+            break;
+
         default:;
     }
 end:;
@@ -221,7 +248,7 @@ XI_TT_TESTCASE_WITH_SETUP(
                                                      file_update_available_out );
 
         XI_SAFE_FREE( encoded );
-        XI_SAFE_FREE( file_update_available_out );
+        xi_control_message_free( &file_update_available_out );
 
     } )
 
@@ -318,6 +345,46 @@ XI_TT_TESTCASE_WITH_SETUP(
 
         XI_SAFE_FREE( encoded );
         xi_control_message_free( &file_update_available_out );
+
+    } )
+
+
+/*****************************************************
+ * XI_CONTROL_MESSAGE_BD_FILE_CHUNK ******************
+ *****************************************************/
+
+XI_TT_TESTCASE_WITH_SETUP(
+    xi_utest_cbor_codec_ct_decode__file_chunk__basic,
+    xi_utest_setup_basic,
+    xi_utest_teardown_basic,
+    NULL,
+    {
+        // ARRANGE
+        const xi_control_message_t file_chunk_in = {
+            .file_chunk = {
+                .common = {.msgtype = XI_CONTROL_MESSAGE_BD_FILE_CHUNK, .msgver = 1},
+                .name     = "filename for filechunk message",
+                .revision = "revision for filechunk message",
+                .offset   = 0,
+                .length   = 1024}};
+
+        uint8_t* encoded     = NULL;
+        uint32_t encoded_len = 0;
+
+        xi_utest_cbor_codec_ct_encode( &file_chunk_in, &encoded, &encoded_len );
+
+        // xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 0 );
+        // xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 1 );
+
+        // ACT
+        xi_control_message_t* file_chunk_out =
+            xi_cbor_codec_ct_decode( encoded, encoded_len );
+
+        // ASSERT
+        xi_utest_cbor_ASSERT_control_messages_match( &file_chunk_in, file_chunk_out );
+
+        XI_SAFE_FREE( encoded );
+        xi_control_message_free( &file_chunk_out );
 
     } )
 
