@@ -1,9 +1,7 @@
 #ifndef __XI_BSP_HTON_H__
 #define __XI_BSP_HTON_H__
 
-#include <stdint.h>
-#include <stddef.h> /* for size_t */
-typedef long int ssize_t;
+#include <sys/types.h>
 
 /**
  * Convert an uint16_t from host- to network byte order.
@@ -11,10 +9,9 @@ typedef long int ssize_t;
  * @param n uint16_t in host byte order
  * @return n in network byte order
  */
-uint16_t
-htons(uint16_t n)
+uint16_t htons( uint16_t n )
 {
-  return ((n & 0xff) << 8) | ((n & 0xff00) >> 8);
+    return ( ( n & 0xff ) << 8 ) | ( ( n & 0xff00 ) >> 8 );
 }
 
 /**
@@ -23,10 +20,9 @@ htons(uint16_t n)
  * @param n uint16_t in network byte order
  * @return n in host byte order
  */
-uint16_t
-ntohs(uint16_t n)
+uint16_t ntohs( uint16_t n )
 {
-  return htons(n);
+    return htons( n );
 }
 
 /**
@@ -35,13 +31,10 @@ ntohs(uint16_t n)
  * @param n uint32_t in host byte order
  * @return n in network byte order
  */
-uint32_t
-htonl(uint32_t n)
+uint32_t htonl( uint32_t n )
 {
-  return ((n & 0xff) << 24) |
-    ((n & 0xff00) << 8) |
-    ((n & 0xff0000UL) >> 8) |
-    ((n & 0xff000000UL) >> 24);
+    return ( ( n & 0xff ) << 24 ) | ( ( n & 0xff00 ) << 8 ) |
+           ( ( n & 0xff0000UL ) >> 8 ) | ( ( n & 0xff000000UL ) >> 24 );
 }
 
 /**
@@ -50,10 +43,9 @@ htonl(uint32_t n)
  * @param n uint32_t in network byte order
  * @return n in host byte order
  */
-uint32_t
-ntohl(uint32_t n)
+uint32_t ntohl( uint32_t n )
 {
-  return htonl(n);
+    return htonl( n );
 }
 
 #endif /* __XI_BSP_HTON_H__ */

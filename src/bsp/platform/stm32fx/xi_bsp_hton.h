@@ -1,4 +1,3 @@
-#include <stddef.h> /* for size_t */
-typedef long int ssize_t;
-
+#include <sys/types.h>
+#undef BYTE_ORDER
 #include <lwip/netdb.h>
