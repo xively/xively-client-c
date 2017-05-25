@@ -8,10 +8,10 @@
 #include <xi_bsp_io_net.h>
 #include <stdio.h>
 #include <xi_debug.h>
+#include <xi_bsp_debug.h>
 
 #ifdef XI_BSP_IO_NET_TLS_SOCKET
-
- /* Use TLS on Hardware */
+/* Use TLS on Hardware */
 
 #include <xi_bsp_time.h>
 
@@ -91,12 +91,25 @@ xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
         return XI_BSP_IO_NET_STATE_ERROR;
     }
 
+#ifdef XI_CC3220_UNSAFELY_DISABLE_CERT_STORE
+    /* Disable usage of the on-board Certificate Catalog - Also disables the CRL */
+    int32_t dummyValue = 0;
+    retval = sl_SetSockOpt( *xi_socket, SL_SOL_SOCKET, SL_SO_SECURE_DISABLE_CERTIFICATE_STORE,
+                            &dummyValue, sizeof( dummyValue ) );
+    if ( retval < 0 )
+    {
+        xi_bsp_debug_logger( "[ERROR] Failed to disable certificate catalog validation\n\r" );
+        return XI_BSP_IO_NET_STATE_ERROR;
+    }
+#endif /* XI_CC3220_UNSAFELY_DISABLE_CERT_STORE */
+
     /* set TLS version to 1.2 */
     unsigned char ucMethod = SL_SO_SEC_METHOD_TLSV1_2;
     retval = sl_SetSockOpt( *xi_socket, SL_SOL_SOCKET, SL_SO_SECMETHOD, &ucMethod,
                             sizeof( ucMethod ) );
     if ( retval < 0 )
     {
+        xi_bsp_debug_logger( "[ERROR] Failed to set TLSv1.2 socket option\n\r" );
         return XI_BSP_IO_NET_STATE_ERROR;
     }
 
@@ -104,9 +117,9 @@ xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
     retval = sl_SetSockOpt( *xi_socket, SL_SOL_SOCKET, SL_SO_SECURE_FILES_CA_FILE_NAME,
                             XI_CC32XX_ROOTCACERT_FILE_NAME,
                             strlen( XI_CC32XX_ROOTCACERT_FILE_NAME ) );
-
     if ( retval < 0 )
     {
+        xi_bsp_debug_logger( "[ERROR] Failed to set root certificate\n\r" );
         return XI_BSP_IO_NET_STATE_ERROR;
     }
 
@@ -142,8 +155,21 @@ xi_bsp_io_net_connect( xi_bsp_socket_t* xi_socket, const char* host, uint16_t po
     }
 
     unsigned long uiIP;
-    int errval =
-        sl_NetAppDnsGetHostByName( ( _i8* )host, strlen( host ), &uiIP, SL_AF_INET );
+    int errval = 0;
+
+#ifdef XI_BSP_IO_NET_TLS_SOCKET
+    /* Set hostname for verification by the on-board TLS implementation */
+    errval = sl_SetSockOpt( *xi_socket, SL_SOL_SOCKET,
+                            SL_SO_SECURE_DOMAIN_NAME_VERIFICATION, host, strlen( host ) );
+    if ( errval < 0 )
+    {
+        xi_bsp_debug_logger( "[ERROR] Failed to configure domain name validation\n\r" );
+        return XI_BSP_IO_NET_STATE_ERROR;
+    }
+#endif
+
+    /* Resolve hostname to IP address */
+    errval = sl_NetAppDnsGetHostByName( ( _i8* )host, strlen( host ), &uiIP, SL_AF_INET );
 
     if ( 0 != errval )
     {
@@ -159,10 +185,15 @@ xi_bsp_io_net_connect( xi_bsp_socket_t* xi_socket, const char* host, uint16_t po
     errval =
         sl_Connect( *xi_socket, ( struct sockaddr* )&name, sizeof( struct sockaddr ) );
 
-    if ( errval < 0
-        && SL_ERROR_BSD_EALREADY != errval )
+    if ( SL_ERROR_BSD_ESECUNKNOWNROOTCA == errval )
     {
-        xi_debug_printf("Error on sl socket connect invocation: %d\n\r", errval );
+        xi_bsp_debug_logger( "[SECURITY CHECK FAILED] Unknown Root CA\n\r" );
+        xi_bsp_debug_logger( "\tAborting connection to the MQTT broker\n\r" );
+        return XI_BSP_IO_NET_STATE_ERROR;
+    }
+    else if ( errval < 0 && errval != SL_ERROR_BSD_EALREADY )
+    {
+        xi_debug_printf("Error on sl_Connect: %d\n\r", errval );
         return XI_BSP_IO_NET_STATE_ERROR;
     }
 
