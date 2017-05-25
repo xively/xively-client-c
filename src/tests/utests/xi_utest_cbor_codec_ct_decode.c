@@ -25,6 +25,10 @@
 
 #ifndef XI_TT_TESTCASE_ENUMERATION__SECONDPREPROCESSORRUN
 
+#ifdef USE_CBOR_CONTEXT
+extern cn_cbor_context* context;
+#endif
+
 void xi_utest_cbor_bin_to_stdout( const uint8_t* data,
                                   uint32_t len,
                                   uint8_t hex_output_type );
@@ -39,13 +43,13 @@ void xi_utest_cbor_codec_ct_encode( const xi_control_message_t* control_message,
                                     uint32_t* out_len )
 {
     cn_cbor_errback err;
-    cn_cbor* cb_map = cn_cbor_map_create( &err );
+    cn_cbor* cb_map = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMA &err );
 
-    cn_cbor_map_put( cb_map, cn_cbor_string_create( "msgtype", &err ),
-                     cn_cbor_int_create( control_message->common.msgtype, &err ), &err );
+    cn_cbor_map_put( cb_map, cn_cbor_string_create( "msgtype" CBOR_CONTEXT_PARAM, &err ),
+                     cn_cbor_int_create( control_message->common.msgtype CBOR_CONTEXT_PARAM, &err ), &err );
 
-    cn_cbor_map_put( cb_map, cn_cbor_string_create( "msgver", &err ),
-                     cn_cbor_int_create( control_message->common.msgver, &err ), &err );
+    cn_cbor_map_put( cb_map, cn_cbor_string_create( "msgver" CBOR_CONTEXT_PARAM, &err ),
+                     cn_cbor_int_create( control_message->common.msgver CBOR_CONTEXT_PARAM, &err ), &err );
 
     switch ( control_message->common.msgtype )
     {
@@ -54,13 +58,13 @@ void xi_utest_cbor_codec_ct_encode( const xi_control_message_t* control_message,
 
             if ( 0 < control_message->file_update_available.list_len )
             {
-                cn_cbor* files = cn_cbor_array_create( &err );
+                cn_cbor* files = cn_cbor_array_create( CBOR_CONTEXT_PARAM_COMA &err );
 
                 uint16_t id_file = 0;
                 for ( ; id_file < control_message->file_update_available.list_len;
                       ++id_file )
                 {
-                    cn_cbor* file = cn_cbor_map_create( &err );
+                    cn_cbor* file = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMA &err );
 
                     xi_cbor_put_name_and_revision(
                         file, control_message->file_update_available.list[id_file].name,
@@ -68,33 +72,33 @@ void xi_utest_cbor_codec_ct_encode( const xi_control_message_t* control_message,
                         &err );
 
                     cn_cbor_map_put(
-                        file, cn_cbor_string_create( "O", &err ),
+                        file, cn_cbor_string_create( "O" CBOR_CONTEXT_PARAM, &err ),
                         cn_cbor_int_create(
                             control_message->file_update_available.list[id_file]
-                                .file_operation,
+                                .file_operation CBOR_CONTEXT_PARAM,
                             &err ),
                         &err );
 
                     cn_cbor_map_put(
-                        file, cn_cbor_string_create( "S", &err ),
+                        file, cn_cbor_string_create( "S" CBOR_CONTEXT_PARAM, &err ),
                         cn_cbor_int_create(
                             control_message->file_update_available.list[id_file]
-                                .size_in_bytes,
+                                .size_in_bytes CBOR_CONTEXT_PARAM,
                             &err ),
                         &err );
 
                     cn_cbor_map_put(
-                        file, cn_cbor_string_create( "F", &err ),
+                        file, cn_cbor_string_create( "F" CBOR_CONTEXT_PARAM, &err ),
                         cn_cbor_string_create(
                             control_message->file_update_available.list[id_file]
-                                .fingerprint,
+                                .fingerprint CBOR_CONTEXT_PARAM,
                             &err ),
                         &err );
 
                     cn_cbor_array_append( files, file, &err );
                 }
 
-                cn_cbor_map_put( cb_map, cn_cbor_string_create( "list", &err ), files,
+                cn_cbor_map_put( cb_map, cn_cbor_string_create( "list" CBOR_CONTEXT_PARAM, &err ), files,
                                  &err );
             }
 
@@ -164,12 +168,12 @@ void xi_utest_cbor_ASSERT_control_messages_match( const xi_control_message_t* cm
                     strcmp( cm1->file_update_available.list[id_file].fingerprint,
                             cm2->file_update_available.list[id_file].fingerprint ) );
 
-                xi_debug_printf( "name: [%s]\n",
+                /*xi_debug_printf( "name: [%s]\n",
                                  cm2->file_update_available.list[id_file].name );
                 xi_debug_printf( "name: [%s]\n",
                                  cm2->file_update_available.list[id_file].revision );
                 xi_debug_printf( "name: [%s]\n",
-                                 cm2->file_update_available.list[id_file].fingerprint );
+                                 cm2->file_update_available.list[id_file].fingerprint );*/
             }
         default:;
     }
@@ -205,7 +209,7 @@ XI_TT_TESTCASE_WITH_SETUP(
         xi_utest_cbor_codec_ct_encode( &file_update_available_in, &encoded,
                                        &encoded_len );
 
-        xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 0 );
+        // xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 0 );
         // xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 1 );
 
         // ACT
@@ -248,7 +252,7 @@ XI_TT_TESTCASE_WITH_SETUP(
         xi_utest_cbor_codec_ct_encode( &file_update_available_in, &encoded,
                                        &encoded_len );
 
-        xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 0 );
+        // xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 0 );
         // xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 1 );
 
         // ACT
@@ -301,7 +305,7 @@ XI_TT_TESTCASE_WITH_SETUP(
         xi_utest_cbor_codec_ct_encode( &file_update_available_in, &encoded,
                                        &encoded_len );
 
-        xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 0 );
+        // xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 0 );
         // xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 1 );
 
         // ACT

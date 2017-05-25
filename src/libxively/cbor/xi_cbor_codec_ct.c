@@ -12,6 +12,36 @@
 #include <xively_error.h>
 #include <xi_macros.h>
 
+#ifdef USE_CBOR_CONTEXT
+
+#include <xi_allocator.h>
+// #include <stdio.h>
+
+void* xi_cn_calloc_func_wrapper( size_t count, size_t size, void* context )
+{
+    ( void )context;
+
+    // printf( "hello calloc wrapper: %lu, %lu\n", count, size );
+
+    return xi_calloc( count, size );
+}
+
+void xi_cn_free_func_wrapper( void* ptr, void* context )
+{
+    ( void )context;
+
+    xi_free( ptr );
+}
+
+static cn_cbor_context cn_cbor_context_object = {.calloc_func = xi_cn_calloc_func_wrapper,
+                                                 .free_func   = xi_cn_free_func_wrapper,
+                                                 .context     = NULL};
+
+cn_cbor_context* context = &cn_cbor_context_object;
+
+#endif
+
+
 #define XI_CBOR_CODEC_CT_STRING_MSGTYPE "msgtype"
 #define XI_CBOR_CODEC_CT_STRING_MSGVER "msgver"
 #define XI_CBOR_CODEC_CT_STRING_LIST "list"
@@ -30,15 +60,17 @@ void xi_cbor_put_name_and_revision( cn_cbor* cb_map,
     if ( NULL != name )
     {
         cn_cbor_map_put( cb_map,
-                         cn_cbor_string_create( XI_CBOR_CODEC_CT_STRING_FILE_NAME, errp ),
-                         cn_cbor_string_create( name, errp ), errp );
+                         cn_cbor_string_create(
+                             XI_CBOR_CODEC_CT_STRING_FILE_NAME CBOR_CONTEXT_PARAM, errp ),
+                         cn_cbor_string_create( name CBOR_CONTEXT_PARAM, errp ), errp );
     }
 
     if ( NULL != revision )
     {
         cn_cbor_map_put(
-            cb_map, cn_cbor_string_create( XI_CBOR_CODEC_CT_STRING_FILE_REVISION, errp ),
-            cn_cbor_string_create( revision, errp ), errp );
+            cb_map, cn_cbor_string_create(
+                        XI_CBOR_CODEC_CT_STRING_FILE_REVISION CBOR_CONTEXT_PARAM, errp ),
+            cn_cbor_string_create( revision CBOR_CONTEXT_PARAM, errp ), errp );
     }
 }
 
@@ -47,15 +79,19 @@ void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
                               uint32_t* out_len )
 {
     cn_cbor_errback err;
-    cn_cbor* cb_map = cn_cbor_map_create( &err );
+    cn_cbor* cb_map = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMA & err );
 
-    cn_cbor_map_put( cb_map,
-                     cn_cbor_string_create( XI_CBOR_CODEC_CT_STRING_MSGTYPE, &err ),
-                     cn_cbor_int_create( control_message->common.msgtype, &err ), &err );
+    cn_cbor_map_put(
+        cb_map,
+        cn_cbor_string_create( XI_CBOR_CODEC_CT_STRING_MSGTYPE CBOR_CONTEXT_PARAM, &err ),
+        cn_cbor_int_create( control_message->common.msgtype CBOR_CONTEXT_PARAM, &err ),
+        &err );
 
-    cn_cbor_map_put( cb_map,
-                     cn_cbor_string_create( XI_CBOR_CODEC_CT_STRING_MSGVER, &err ),
-                     cn_cbor_int_create( control_message->common.msgver, &err ), &err );
+    cn_cbor_map_put(
+        cb_map,
+        cn_cbor_string_create( XI_CBOR_CODEC_CT_STRING_MSGVER CBOR_CONTEXT_PARAM, &err ),
+        cn_cbor_int_create( control_message->common.msgver CBOR_CONTEXT_PARAM, &err ),
+        &err );
 
     switch ( control_message->common.msgtype )
     {
@@ -63,12 +99,12 @@ void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
 
             if ( 0 < control_message->file_info.list_len )
             {
-                cn_cbor* files = cn_cbor_array_create( &err );
+                cn_cbor* files = cn_cbor_array_create( CBOR_CONTEXT_PARAM_COMA & err );
 
                 uint16_t id_file = 0;
                 for ( ; id_file < control_message->file_info.list_len; ++id_file )
                 {
-                    cn_cbor* file = cn_cbor_map_create( &err );
+                    cn_cbor* file = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMA & err );
 
                     xi_cbor_put_name_and_revision(
                         file, control_message->file_info.list[id_file].name,
@@ -78,7 +114,8 @@ void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
                 }
 
                 cn_cbor_map_put(
-                    cb_map, cn_cbor_string_create( XI_CBOR_CODEC_CT_STRING_LIST, &err ),
+                    cb_map, cn_cbor_string_create(
+                                XI_CBOR_CODEC_CT_STRING_LIST CBOR_CONTEXT_PARAM, &err ),
                     files, &err );
             }
             break;
@@ -90,13 +127,15 @@ void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
                                            &err );
 
             cn_cbor_map_put(
-                cb_map, cn_cbor_string_create( "O", &err ),
-                cn_cbor_int_create( control_message->file_get_chunk.offset, &err ),
+                cb_map, cn_cbor_string_create( "O" CBOR_CONTEXT_PARAM, &err ),
+                cn_cbor_int_create(
+                    control_message->file_get_chunk.offset CBOR_CONTEXT_PARAM, &err ),
                 &err );
 
             cn_cbor_map_put(
-                cb_map, cn_cbor_string_create( "L", &err ),
-                cn_cbor_int_create( control_message->file_get_chunk.length, &err ),
+                cb_map, cn_cbor_string_create( "L" CBOR_CONTEXT_PARAM, &err ),
+                cn_cbor_int_create(
+                    control_message->file_get_chunk.length CBOR_CONTEXT_PARAM, &err ),
                 &err );
 
             break;
@@ -188,7 +227,7 @@ err_handling:
 xi_control_message_t* xi_cbor_codec_ct_decode( const uint8_t* data, const uint32_t len )
 {
     cn_cbor_errback err;
-    cn_cbor* cb_map  = cn_cbor_decode( data, len, &err );
+    cn_cbor* cb_map  = cn_cbor_decode( data, len CBOR_CONTEXT_PARAM, &err );
     cn_cbor* msgtype = cn_cbor_mapget_string( cb_map, XI_CBOR_CODEC_CT_STRING_MSGTYPE );
 
     xi_control_message_t* control_message_out = NULL;
