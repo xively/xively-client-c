@@ -182,7 +182,7 @@ xi_cbor_codec_ct_decode_getvalue( cn_cbor* source, const char* key, void* destin
 
     if ( NULL != source_value )
     {
-        xi_debug_printf( "type: %d, ", source_value->type );
+        // xi_debug_printf( "type: %d,\n", source_value->type );
 
         state = XI_STATE_OK;
 
@@ -190,7 +190,7 @@ xi_cbor_codec_ct_decode_getvalue( cn_cbor* source, const char* key, void* destin
         {
             case CN_CBOR_UINT:
 
-                xi_debug_printf( "source_value: %lu\n", source_value->v.uint );
+                // xi_debug_printf( "source_value: %lu\n", source_value->v.uint );
 
                 *( ( uint32_t* )destination ) = source_value->v.uint;
 
@@ -198,8 +198,8 @@ xi_cbor_codec_ct_decode_getvalue( cn_cbor* source, const char* key, void* destin
 
             case CN_CBOR_TEXT:
 
-                xi_debug_printf( "source_value: %s, length: %d\n", source_value->v.str,
-                                 source_value->length );
+                // xi_debug_printf( "source_value: %s, length: %d\n", source_value->v.str,
+                //                  source_value->length );
 
                 XI_ALLOC_BUFFER_AT( char, *( char** )destination,
                                     source_value->length + 1, state );

@@ -149,6 +149,18 @@ void xi_utest_cbor_codec_ct_encode( const xi_control_message_t* control_message,
 err_handling:;
 }
 
+void xi_utest_cbor_ASSERT_control_message_string( const char* str1, const char* str2 )
+{
+    if ( NULL == str1 )
+    {
+        tt_want_int_op( str1, ==, str2 );
+    }
+    else
+    {
+        tt_want_int_op( 0, ==, strcmp( str1, str2 ) );
+    }
+}
+
 void xi_utest_cbor_ASSERT_control_messages_match( const xi_control_message_t* cm1,
                                                   const xi_control_message_t* cm2 )
 {
@@ -199,6 +211,15 @@ void xi_utest_cbor_ASSERT_control_messages_match( const xi_control_message_t* cm
             break;
 
         case XI_CONTROL_MESSAGE_BD_FILE_CHUNK:
+
+            xi_utest_cbor_ASSERT_control_message_string( cm1->file_chunk.name,
+                                                         cm2->file_chunk.name );
+
+            xi_utest_cbor_ASSERT_control_message_string( cm1->file_chunk.revision,
+                                                         cm2->file_chunk.revision );
+
+            tt_want_int_op( cm1->file_chunk.offset, ==, cm2->file_chunk.offset );
+            tt_want_int_op( cm1->file_chunk.length, ==, cm2->file_chunk.length );
 
             break;
 
@@ -385,7 +406,40 @@ XI_TT_TESTCASE_WITH_SETUP(
 
         XI_SAFE_FREE( encoded );
         xi_control_message_free( &file_chunk_out );
+    } )
 
+XI_TT_TESTCASE_WITH_SETUP(
+    xi_utest_cbor_codec_ct_decode__file_chunk__weirdvalues,
+    xi_utest_setup_basic,
+    xi_utest_teardown_basic,
+    NULL,
+    {
+        // ARRANGE
+        const xi_control_message_t file_chunk_in = {
+            .file_chunk = {
+                .common = {.msgtype = XI_CONTROL_MESSAGE_BD_FILE_CHUNK, .msgver = -1},
+                .name     = NULL,
+                .revision = "",
+                .offset   = -1,
+                .length   = 0}};
+
+        uint8_t* encoded     = NULL;
+        uint32_t encoded_len = 0;
+
+        xi_utest_cbor_codec_ct_encode( &file_chunk_in, &encoded, &encoded_len );
+
+        // xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 0 );
+        // xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 1 );
+
+        // ACT
+        xi_control_message_t* file_chunk_out =
+            xi_cbor_codec_ct_decode( encoded, encoded_len );
+
+        // ASSERT
+        xi_utest_cbor_ASSERT_control_messages_match( &file_chunk_in, file_chunk_out );
+
+        XI_SAFE_FREE( encoded );
+        xi_control_message_free( &file_chunk_out );
     } )
 
 
