@@ -55,10 +55,11 @@ xi_state_t xi_sft_on_connected( xi_sft_context_t* context )
         return XI_INVALID_PARAMETER;
     }
 
-    // todo_atigyi: file description set must come from platform itself. So this should
-    // reach out to the board's application itself to collect the files which need to be
-    // kept up-to-date
+// todo_atigyi: file description set must come from platform itself. So this should
+// reach out to the board's application itself to collect the files which need to be
+// kept up-to-date
 
+#if 0
     xi_control_message_file_desc_t file_desc = {.name     = "filename.bin",
                                                 .revision = "rev1"};
 
@@ -68,6 +69,7 @@ xi_state_t xi_sft_on_connected( xi_sft_context_t* context )
                       .list     = &file_desc}};
 
     ( *context->fn_send_message )( context->send_message_user_data, &message_file_info );
+#endif
 
     return XI_STATE_OK;
 }
