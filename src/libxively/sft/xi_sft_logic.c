@@ -55,9 +55,19 @@ xi_state_t xi_sft_on_connected( xi_sft_context_t* context )
         return XI_INVALID_PARAMETER;
     }
 
-    xi_control_message_t* message_file_info = NULL;
+    // todo_atigyi: file description set must come from platform itself. So this should
+    // reach out to the board's application itself to collect the files which need to be
+    // kept up-to-date
 
-    ( *context->fn_send_message )( context->send_message_user_data, message_file_info );
+    xi_control_message_file_desc_t file_desc = {.name     = "filename.bin",
+                                                .revision = "rev1"};
+
+    xi_control_message_t message_file_info = {
+        .file_info = {.common = {.msgtype = XI_CONTROL_MESSAGE_DB_FILE_INFO, .msgver = 1},
+                      .list_len = 1,
+                      .list     = &file_desc}};
+
+    ( *context->fn_send_message )( context->send_message_user_data, &message_file_info );
 
     return XI_STATE_OK;
 }
@@ -65,10 +75,23 @@ xi_state_t xi_sft_on_connected( xi_sft_context_t* context )
 xi_state_t
 xi_sft_on_message( xi_sft_context_t* context, const xi_control_message_t* sft_message )
 {
-    ( void )context;
-    ( void )sft_message;
+    if ( NULL == context || NULL == sft_message )
+    {
+        return XI_INVALID_PARAMETER;
+    }
 
-    assert( 0 );
+    switch ( sft_message->common.msgtype )
+    {
+        case XI_CONTROL_MESSAGE_BD_FILE_UPDATE_AVAILABLE:
+            // - check whether device is ready to start download of file
+            // - get the first chunk of file in quiestion with FILE_GET_CHUNK
+            break;
+        case XI_CONTROL_MESSAGE_BD_FILE_CHUNK:
+            // - store the chunk through file/firmware BSP
+            // - get the next chunk, XI_CONTROL_MESSAGE_DB_FILE_GET_CHUNK
+            break;
+        default:;
+    }
 
     return XI_STATE_OK;
 }

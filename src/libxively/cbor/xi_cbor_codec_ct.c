@@ -145,6 +145,8 @@ void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
 
         case XI_CONTROL_MESSAGE_DB_FILE_STATUS:
 
+            // todo_atigyi
+
             break;
 
         /* the followings are encoded by the broker and decoded by the client */

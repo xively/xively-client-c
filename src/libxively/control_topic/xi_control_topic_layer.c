@@ -103,7 +103,6 @@ xi_control_topic_publish_on_topic( void* context, xi_control_message_t* control_
 
         encoded_message_data_desc =
             xi_make_desc_from_buffer_share( encoded_message, encoded_message_len );
-
         // todo_atigyi: make more elegant ownership passing
         encoded_message_data_desc->memory_type = XI_MEMORY_TYPE_MANAGED;
 
