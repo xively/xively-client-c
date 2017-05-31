@@ -46,10 +46,6 @@
 extern "C" {
 #endif
 
-static char* str_device_credentials_file_absolute_path = NULL;
-static char* str_device_credentials_username           = NULL;
-static char* str_device_credentials_password           = NULL;
-
 /*
  * CONSTANTS
  */
@@ -138,9 +134,7 @@ xi_state_t check_csv_entry( const char* in_string, int* out_num_chars )
 /*
  * MAIN LIBRARY FUNCTIONS
  */
-xi_state_t xi_initialize( const char* account_id,
-                          const char* device_unique_id,
-                          const char* device_credentials_file_absolute_path )
+xi_state_t xi_initialize( const char* account_id, const char* device_unique_id )
 {
     xi_bsp_time_init();
     xi_bsp_rng_init();
@@ -157,12 +151,6 @@ xi_state_t xi_initialize( const char* account_id,
     xi_globals.str_account_id       = xi_str_dup( account_id );
     xi_globals.str_device_unique_id = xi_str_dup( device_unique_id );
 
-    if ( NULL != device_credentials_file_absolute_path )
-    {
-        str_device_credentials_file_absolute_path =
-            xi_str_dup( device_credentials_file_absolute_path );
-    }
-
     if ( NULL == xi_globals.str_device_unique_id || NULL == xi_globals.str_account_id )
     {
         return XI_FAILED_INITIALIZATION;
@@ -175,9 +163,6 @@ xi_state_t xi_shutdown()
 {
     XI_SAFE_FREE( xi_globals.str_account_id );
     XI_SAFE_FREE( xi_globals.str_device_unique_id );
-    XI_SAFE_FREE( str_device_credentials_file_absolute_path );
-    XI_SAFE_FREE( str_device_credentials_username );
-    XI_SAFE_FREE( str_device_credentials_password );
 
     xi_bsp_rng_shutdown();
 

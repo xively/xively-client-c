@@ -36,10 +36,10 @@ const char* xi_memory_checks_get_filename( const char* filename_and_path )
 
 void xi_memory_checks_log_memory_leak( const xi_memory_limiter_entry_t* entry )
 {
-    fprintf(
-        stderr, "\x1b[33m \t [MLD] --- %zu bytes lost, allocated in %s:%zu\x1b[0m\n",
-        entry->size, xi_memory_checks_get_filename( entry->allocation_origin_file_name ),
-        entry->allocation_origin_line_number );
+    fprintf( stderr, "\x1b[33m \t [MLD] --- %zu bytes lost, allocated in %s:%zu\x1b[0m\n",
+             entry->size,
+             xi_memory_checks_get_filename( entry->allocation_origin_file_name ),
+             entry->allocation_origin_line_number );
 
 #ifdef XI_PLATFORM_BASE_POSIX
     fprintf( stderr, "\x1b[33m\t\tbacktrace:\x1b[0m\n" );
@@ -133,7 +133,7 @@ int main( int argc, char const* argv[] )
     /*************************************
      * libxively initialization **********
      *************************************/
-    xi_initialize( "unique account id", "unique device id", NULL );
+    xi_initialize( "unique account id", "unique device id" );
 
     xi_context_handle_t xi_app_context_handle = xi_create_context();
     if ( XI_INVALID_CONTEXT_HANDLE >= xi_app_context_handle )
