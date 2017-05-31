@@ -138,7 +138,8 @@ int xi_itest_clean_session_setup( void** state )
 
     xi_memory_limiter_tearup();
 
-    assert_int_equal( XI_STATE_OK, xi_initialize( "itest-acc-id", "itest-dev-id" ) );
+    assert_int_equal( XI_STATE_OK,
+                      xi_initialize( "itest-acc-id", "itest-dev-id", NULL ) );
 
     XI_CHECK_STATE( xi_create_context_with_custom_layers(
         &xi_context, itest_cyassl_context, XI_LAYER_CHAIN_DEFAULT,

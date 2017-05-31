@@ -668,8 +668,8 @@ int main( void )
                 if ( socket_open == 0 )
                 {
                     /* Read Write Socket data */
-                    xi_state_t ret_state = xi_initialize( user_config.xi_account_id,
-                                                          user_config.xi_device_id );
+                    xi_state_t ret_state = xi_initialize(
+                        user_config.xi_account_id, user_config.xi_device_id, NULL );
                     if ( XI_STATE_OK != ret_state )
                     {
                         printf( "\r\n xi failed to initialise\n" );

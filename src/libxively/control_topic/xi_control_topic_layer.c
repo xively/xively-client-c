@@ -281,8 +281,6 @@ xi_control_topic_layer_init( void* context, void* data, xi_state_t in_out_state 
 {
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
 
-    XI_UNUSED( data );
-
     xi_debug_logger( "control topic layer initializing.. " );
 
 #ifdef XI_CONTROL_TOPIC_ENABLED

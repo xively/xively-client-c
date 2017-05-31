@@ -114,7 +114,7 @@ XI_TT_TESTCASE( test_initialize_shutdown_free_up_all_memory, {
     xi_initialize( "test-acc", "test-dev", NULL );
     xi_shutdown();
 
-    xi_initialize( "test-acc", "test-dev", "/foo/bar/baz.creds" );
+    xi_initialize( "test-acc", "test-dev", NULL );
     xi_shutdown();
 
     tt_want_int_op( xi_is_whole_memory_deallocated(), >, 0 );

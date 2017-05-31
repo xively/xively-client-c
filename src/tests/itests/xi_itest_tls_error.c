@@ -115,7 +115,8 @@ int xi_itest_tls_error_setup( void** fixture_void )
     xi_globals.backoff_status.backoff_lut_i = 0;
     xi_cancel_backoff_event();
 
-    xi_initialize( "xi_itest_tls_error_account_id", "xi_itest_tls_error_device_id" );
+    xi_initialize( "xi_itest_tls_error_account_id", "xi_itest_tls_error_device_id",
+                   NULL );
 
     XI_CHECK_STATE( xi_create_context_with_custom_layers(
         &xi_context, itest_ct_ml_mc_layer_chain, XI_LAYER_CHAIN_CT_ML_MC,

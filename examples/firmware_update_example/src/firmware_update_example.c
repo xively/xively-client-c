@@ -397,7 +397,7 @@ int xi_firmware_update_example_main( xi_embedded_args_t* xi_embedded_args )
     /* initialize xi library and create a context to use to connect to the Xively Service
      * Device-id must be the same as username
      */
-    const xi_state_t error_init = xi_initialize( xi_account_id, xi_username );
+    const xi_state_t error_init = xi_initialize( xi_account_id, xi_username, NULL );
 
     if ( XI_STATE_OK != error_init )
     {
