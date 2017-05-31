@@ -134,9 +134,7 @@ xi_state_t check_csv_entry( const char* in_string, int* out_num_chars )
 /*
  * MAIN LIBRARY FUNCTIONS
  */
-xi_state_t xi_initialize( const char* account_id,
-                          const char* device_unique_id,
-                          const char** updateable_filenames )
+xi_state_t xi_initialize( const char* account_id, const char* device_unique_id )
 {
     xi_bsp_time_init();
     xi_bsp_rng_init();
@@ -152,7 +150,6 @@ xi_state_t xi_initialize( const char* account_id,
 
     xi_globals.str_account_id       = xi_str_dup( account_id );
     xi_globals.str_device_unique_id = xi_str_dup( device_unique_id );
-    XI_UNUSED( updateable_filenames );
 
     if ( NULL == xi_globals.str_device_unique_id || NULL == xi_globals.str_account_id )
     {

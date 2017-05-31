@@ -93,9 +93,9 @@ extern "C" {
  * function succesfully.
  * @retval XI_INVALID_PARAMETER     If device_unique_id is null.
  */
-extern xi_state_t xi_initialize( const char* account_id,
-                                 const char* device_unique_id,
-                                 const char** updateable_filenames );
+extern xi_state_t xi_initialize( const char* account_id, const char* device_unique_id );
+
+extern xi_state_t xi_initialize_add_updateable_file( const char* filename );
 
 /**
  * @brief     Signals the xively library to cleanup any internal memory
