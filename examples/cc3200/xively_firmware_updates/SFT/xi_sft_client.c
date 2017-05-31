@@ -188,36 +188,84 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                     //printf("msgtype = %d\n",cb_item->v.uint);
                     switch(cb_item->v.uint) {
                         case XI_FILE_UPDATE_AVAILABLE:
-                            printf("Got FILE_UPDATE_AVAILABLE\n");
+
+							printf("Got FILE_UPDATE_AVAILABLE\n");
+
+						    //
+                            // Set Download State to Active
+                            //
                             downloading = 1;
+
+                            //
+                            // Parse FILE_UPDATE_AVAILABLE messsage
+                            // and format GET_FILE_CHUNK message into the outgoing cbor buffer `encoded`
+                            //
                             xi_parse_file_update_available(cb);
+
+                            //
+                            // Free the incoming cbor message context
+                            //
                             cn_cbor_free(cb CBOR_CONTEXT_PARAM);
-                            printf("retrieved update available, publishing encoded data\n");
+
+                            //
+                            // Publish the GET_FILE_CHUNK message, which has been encoded in the buffer `encoded`
+                            //
                             xi_publish_data( in_context_handle, xi_stopic, encoded, enc_sz, XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
                             printf("logging file update available\n");
+
+                            //
                             // Log the FILE_UPDATE_AVAILABLE information
-							snprintf(message,sizeof(message),"FILE_UPDATE_AVAILABLE");
-							bufptr = filefingerprintASCII;
-							for(i=0;i<32;i++) {
-								bufptr += sprintf(bufptr,"%02x",filefingerprint[i]);
-							}
-							*bufptr = '\0';
-							snprintf(message,sizeof(message),"File update available");
-							snprintf(details,sizeof(details),"name=%s revision=%s length = %d fingerprint = %s"
-									,filename,fileRevision,filelength,filefingerprintASCII);
-							snprintf(buffer,sizeof(buffer),"{\"message\":\"%s\",\"severity\":\"notice\",\"details\":\"%s\"}",message,details);
-							xi_publish( in_context_handle, xi_logtopic, buffer, XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
-							sha256_init(&ctx);
-							offset = 0;
-							retVal =  sl_extlib_FlcOpenFile("/sys/mcuimgA.bin", filelength, &ulToken, &lFileHandle, FS_MODE_OPEN_WRITE);
-							printf("mcuimgA.bin open returned %d\n",retVal);
-							if(retVal < 0) downloading = 0;
-							break;
+                            //
+                            snprintf(message,sizeof(message),"FILE_UPDATE_AVAILABLE");
+                            bufptr = filefingerprintASCII;
+                            for(i=0;i<32;i++) {
+                                bufptr += sprintf(bufptr,"%02x",filefingerprint[i]);
+                            }
+                            *bufptr = '\0';
+                            snprintf(message,sizeof(message),"File update available");
+                            snprintf(details,sizeof(details),"name=%s revision=%s length = %d fingerprint = %s"
+                                    ,filename,fileRevision,filelength,filefingerprintASCII);
+                            snprintf(buffer,sizeof(buffer),"{\"message\":\"%s\",\"severity\":\"notice\",\"details\":\"%s\"}",message,details);
+                            xi_publish( in_context_handle, xi_logtopic, buffer, XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
+
+                            //
+                            // Initialize sha256 digest of the file and tracking variables
+                            //
+                            sha256_init(&ctx);
+                            offset = 0;
+
+                            //
+                            // Open the file for writing
+                            //
+                            retVal =  sl_extlib_FlcOpenFile("/sys/mcuimgA.bin", filelength, &ulToken, &lFileHandle, FS_MODE_OPEN_WRITE);
+                            printf("mcuimgA.bin open returned %d\n",retVal);
+
+                            //
+                            // Check for errors
+                            //
+                            if(retVal < 0)
+                            {
+                                downloading = 0;
+                            }
+
+                            break;
 					case XI_FILE_CHUNK:
+					        //
+					        // Parse the FILE_CHUNK message
+					        // and format a subsequent cbor chunk request in the buffer `encoded`
+					        // if we're still downloading data
+					        //
 					        xi_process_file_chunk(cb);
-							//printf("   CALLBACK HANDLER parsing complete.  downloading: %d\n", downloading);
+
+					        //
+					        // Free the incoming cbor message context
+					        //
 							cn_cbor_free(cb CBOR_CONTEXT_PARAM);
-							if(1 == downloading)
+
+							//
+							// If in downloading state, then send the next chunk request message
+							//
+							if( 1 == downloading )
 							{
 								if(offset < filelength)
 								{
@@ -227,24 +275,52 @@ void on_sft_message( xi_context_handle_t in_context_handle,
 							}
 							else
 							{
+							    //
+							    // We aren't in a download state
+							    // but we just were, which means the at the download is complete
+							    //
                                 downloading = 0;
                                 sprintf(installedfilerevision, "%s",fileRevision);
+
                                 printf("Done downloading. Offset = %d\n",offset);
+
+                                //
                                 // Log the download complete information
+                                //
                                 snprintf(message,sizeof(message),"File download complete");
                                 snprintf(details,sizeof(details),"name=%s revision=%s length = %d",filename,installedfilerevision,filelength);
                                 snprintf(buffer,sizeof(buffer),"{\"message\":\"%s\",\"severity\":\"notice\",\"details\":\"%s\"}",message,details);
                                 xi_publish( in_context_handle, xi_logtopic, buffer, XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
+
+                                //
+                                // Finalize SHA256 Digest
+                                //
                                 sha256_final(&ctx,hash);
                                 printf("Calculated hash = 0x");
                                 print_hash(hash);
                                 offset = 0;
+
+                                //
+                                // Publish the new file info, though I'm not sure we should be doing this.
+                                //
                                 xi_publish_file_info(in_context_handle);
+
+                                //
+                                // Close the firmware file
+                                //
                                 int result = 0;
                                 result = sl_extlib_FlcCloseFile(lFileHandle, NULL, NULL, 0);
                                 printf("*** Close File Result: %d\n", result);
+
+                                //
+                                // Set the bootloader to test the new image
+                                //
                                 result = sl_extlib_FlcTest(FLC_TEST_RESET_MCU | FLC_TEST_RESET_MCU_WITH_APP);
                                 printf("*** FLC Test Result: %d, rebooting\n", result);
+
+                                //
+                                // Reboot the device to test the image
+                                //
                                 RebootMCU();
                             }
                             break;

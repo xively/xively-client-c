@@ -874,8 +874,6 @@ void WaitForWlanEvent()
     }
 }
 
-
-
 int readBootinfo()
 {
     int iRetVal = 0;
@@ -964,6 +962,7 @@ long MainLogic()
     sl_WlanPolicySet( SL_POLICY_CONNECTION, SL_CONNECTION_POLICY( 1, 1, 0, 0, 0 ),
                       &pValues, 1 );
 
+    XIVELY_DEMO_PRINT( "Boston version 31, 2017\n");
     // wait for the WiFi connection
     WaitForWlanEvent();
 
