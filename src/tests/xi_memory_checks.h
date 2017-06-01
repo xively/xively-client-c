@@ -30,7 +30,7 @@ uint8_t _xi_memory_limiter_teardown();
 #else
 #define xi_is_whole_memory_deallocated() 1
 #define xi_memory_limiter_tearup()
-#define xi_memory_limiter_teardown()
+#define xi_memory_limiter_teardown() 1
 #endif
 
 #ifdef __cplusplus
