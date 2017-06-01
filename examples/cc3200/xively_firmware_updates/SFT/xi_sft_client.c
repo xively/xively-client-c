@@ -50,8 +50,6 @@ typedef unsigned int uint;
 
 typedef struct file_download_ctx_s
 {
-    int expected_sha256_hash;
-    int ongoing_sha256_hash;
     int file_length;
 
     long file_handle;
@@ -59,6 +57,8 @@ typedef struct file_download_ctx_s
 
     char file_name[MAX_STRING_LENGTH];
     char file_revision[MAX_STRING_LENGTH];
+    unsigned char file_sft_fingerprint[32];
+    unsigned char file_local_computed_fingerprint[32];
 
     SHA256_CTX sha256_context;
 
@@ -85,12 +85,10 @@ char file_current_revision[MAX_STRING_LENGTH] = "0.0";
 char fileRevision[MAX_STRING_LENGTH] = "0.0";
 char incomingFilename[MAX_INCOMING_FILENAME_LENGTH] ="";
 unsigned char filefingerprint[32];
-unsigned char hash[32];
+
 int idx;
 
 file_download_ctx_t download_context;
-
-SHA256_CTX ctx;
 
 char buffer[400];
 
@@ -252,7 +250,7 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                             //
                             // Initialize sha256 digest of the file and tracking variables
                             //
-                            sha256_init(&ctx);
+                            sha256_init( &download_context.sha256_context );
                             offset = 0;
 
                             //
@@ -316,23 +314,23 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                                 //
                                 // Finalize SHA256 Digest
                                 //
-                                sha256_final(&ctx,hash);
-                                printf("Calculated hash = 0x");
-                                print_hash(hash);
+                                sha256_final( &download_context.sha256_context, download_context.file_local_computed_fingerprint );
+                                printf( "Calculated hash = 0x" );
+                                print_hash( download_context.file_local_computed_fingerprint );
                                 offset = 0;
 
                                 //
                                 // Close the firmware file
                                 //
                                 int result = 0;
-                                result = sl_extlib_FlcCloseFile(download_context.file_token, NULL, NULL, 0);
+                                result = sl_extlib_FlcCloseFile( download_context.file_token, NULL, NULL, 0 );
                                 printf("*** Close File Result: %d\n", result);
 
                                 //
                                 // Set the bootloader to test the new image
                                 //
 #if 0
-                                result = sl_extlib_FlcTest(FLC_TEST_RESET_MCU | FLC_TEST_RESET_MCU_WITH_APP);
+                                result = sl_extlib_FlcTest( FLC_TEST_RESET_MCU | FLC_TEST_RESET_MCU_WITH_APP );
                                 printf("*** FLC Test Result: %d, rebooting\n", result);
 
                                 //
@@ -673,7 +671,7 @@ void xi_process_file_chunk( cn_cbor *cb )
             downloading = 0;
         }
 
-        sha256_update( &ctx, (unsigned char *) file_chunk_data.byte_array, file_chunk_data.array_length );
+        sha256_update( &download_context.sha256_context, (unsigned char *) file_chunk_data.byte_array, file_chunk_data.array_length );
         retval = sl_extlib_FlcWriteFile( download_context.file_token, chunkoffset, (unsigned char *) file_chunk_data.byte_array, file_chunk_data.array_length );
         if( retval < file_chunk_data.array_length )
         {
