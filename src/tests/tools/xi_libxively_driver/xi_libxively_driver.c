@@ -193,7 +193,5 @@ int main( int argc, char const* argv[] )
     xi_delete_context( xi_app_context_handle );
     xi_shutdown();
 
-    xi_memory_limiter_teardown();
-
-    return 0;
+    return xi_memory_limiter_teardown() ? 0 : 1;
 }
