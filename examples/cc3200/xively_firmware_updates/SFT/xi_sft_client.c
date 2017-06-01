@@ -57,7 +57,7 @@ typedef struct file_download_ctx_s
 
     char file_name[MAX_STRING_LENGTH];
     char file_revision[MAX_STRING_LENGTH];
-    unsigned char file_sft_fingerprint[32];
+    unsigned char file_sft_fingerprint[MAX_STRING_LENGTH];
     unsigned char file_local_computed_fingerprint[32];
 
     SHA256_CTX sha256_context;
@@ -84,7 +84,6 @@ char filename[] = "xively_firmware_updates.bin";
 char file_current_revision[MAX_STRING_LENGTH] = "0.0";
 char fileRevision[MAX_STRING_LENGTH] = "0.0";
 char incomingFilename[MAX_INCOMING_FILENAME_LENGTH] ="";
-unsigned char filefingerprint[32];
 
 int idx;
 
@@ -164,7 +163,6 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                             void* user_data )
 {
     cn_cbor *cb = NULL;
-    char filefingerprintASCII[70];
     char *bufptr = NULL;
     int i = 0 ;
     cn_cbor* cb_item = NULL;
@@ -236,14 +234,15 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                             // Log the FILE_UPDATE_AVAILABLE information
                             //
                             snprintf(message,sizeof(message),"FILE_UPDATE_AVAILABLE");
-                            bufptr = filefingerprintASCII;
-                            for(i=0;i<32;i++) {
-                                bufptr += sprintf(bufptr,"%02x",filefingerprint[i]);
+                            bufptr = download_context.file_sft_fingerprint;
+                            for(i=0;i<32;i++)
+                            {
+                                bufptr += sprintf(bufptr,"%02x", download_context.file_sft_fingerprint[i]);
                             }
                             *bufptr = '\0';
                             snprintf(message,sizeof(message),"File update available");
                             snprintf(details,sizeof(details),"name=%s revision=%s length = %d fingerprint = %s"
-                                    ,filename,fileRevision,download_context.file_length,filefingerprintASCII);
+                                    ,filename,fileRevision,download_context.file_length, download_context.file_sft_fingerprint );
                             snprintf(buffer,sizeof(buffer),"{\"message\":\"%s\",\"severity\":\"notice\",\"details\":\"%s\"}",message,details);
                             xi_publish( in_context_handle, xi_logtopic, buffer, XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 
@@ -419,7 +418,9 @@ void xi_parse_file_update_available(cn_cbor *cb)
     int filelistlength = 0;
     int i,index;
 
+    //
     // Zero out download_context
+    //
     memset( &download_context, 0, sizeof( file_download_ctx_t ) );
 
     cb_item = cn_cbor_mapget_string(cb, "msgver");
@@ -471,10 +472,18 @@ void xi_parse_file_update_available(cn_cbor *cb)
 
             // File 'F'ingerprint
             cb_file = cn_cbor_mapget_string(cb_item, "F");
-            if(cb_file) {
-            	for(i=0;i<32;i++) filefingerprint[i] = cb_file->v.str[i];
+            if(cb_file)
+            {
+                for(i=0;i<32;i++)
+                {
+                    download_context.file_sft_fingerprint[i] = cb_file->v.str[i];
+                }
+
                 printf("FILE_UPDATE_AVAILABLE: file fingerprint = 0x");
-                for(i=0;i<32;i++) printf("%02x",filefingerprint[i]);
+                for(i=0;i<32;i++)
+                {
+                    printf("%02x",download_context.file_sft_fingerprint[i] );
+                }
                 printf("\n");
             } else {
                 printf("No key called F\n");
