@@ -29,6 +29,7 @@
 #include "xi_macros.h"
 #include "xi_timed_task.h"
 #include "xi_version.h"
+#include "xi_list.h"
 #include "xively.h"
 
 #include "xi_layer_stack.h"
@@ -159,10 +160,33 @@ xi_state_t xi_initialize( const char* account_id, const char* device_unique_id )
     return XI_STATE_OK;
 }
 
+xi_state_t xi_initialize_add_updateable_file( const char* filename )
+{
+    if ( NULL == filename )
+    {
+        return XI_INVALID_PARAMETER;
+    }
+
+    xi_data_desc_t* updateable_file_data_desc = xi_make_desc_from_string_copy( filename );
+
+    XI_LIST_PUSH_BACK( xi_data_desc_t, xi_globals.updateable_files_list,
+                       updateable_file_data_desc );
+
+    return XI_STATE_OK;
+}
+
+#define RELEASE_DATADESCRIPTOR( ds )                                                     \
+    {                                                                                    \
+        xi_free_desc( &ds );                                                             \
+    }
+
 xi_state_t xi_shutdown()
 {
     XI_SAFE_FREE( xi_globals.str_account_id );
     XI_SAFE_FREE( xi_globals.str_device_unique_id );
+
+    XI_LIST_FOREACH( xi_data_desc_t, xi_globals.updateable_files_list,
+                     RELEASE_DATADESCRIPTOR );
 
     xi_bsp_rng_shutdown();
 
