@@ -155,7 +155,7 @@ XI_TT_TESTCASE_WITH_SETUP(
             {.name = "cukroscsibecombcsont", .revision = "rev2"},
             {.name = "txt.hello.bello.txt", .revision = "long_revision_name with space"}};
 
-        const xi_control_message_t file_info_single_file = {
+        const xi_control_message_t file_info_three_files = {
             .file_info = {
                 .common = {.msgtype = XI_CONTROL_MESSAGE_DB_FILE_INFO, .msgver = 55},
                 .list_len = 3,
@@ -164,7 +164,7 @@ XI_TT_TESTCASE_WITH_SETUP(
         uint8_t* encoded     = NULL;
         uint32_t encoded_len = 0;
 
-        xi_cbor_codec_ct_encode( &file_info_single_file, &encoded, &encoded_len );
+        xi_cbor_codec_ct_encode( &file_info_three_files, &encoded, &encoded_len );
 
         // xi_utest_cbor_bin_to_stdout( encoded, encoded_len );
 

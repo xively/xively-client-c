@@ -19,14 +19,15 @@ typedef enum xi_control_message_type_e {
 
 typedef struct xi_control_message_file_desc_s
 {
-    const char* name;
-    const char* revision;
+    char* name;
+    char* revision;
 } xi_control_message_file_desc_t;
 
 typedef struct xi_control_message_file_desc_ext_s
 {
     char* name;
     char* revision;
+
     uint8_t file_operation;
     uint32_t size_in_bytes;
     char* fingerprint;
@@ -45,8 +46,8 @@ typedef union xi_control_message_u {
     {
         struct xi_control_message_common_s common;
 
-        const uint16_t list_len;
-        const xi_control_message_file_desc_t* list;
+        uint16_t list_len;
+        xi_control_message_file_desc_t* list;
 
     } file_info;
 
@@ -99,6 +100,10 @@ typedef union xi_control_message_u {
     } file_status;
 
 } xi_control_message_t;
+
+xi_control_message_t* xi_control_message_create_file_info( const char** filenames,
+                                                           const char** revisions,
+                                                           uint16_t count );
 
 void xi_control_message_free( xi_control_message_t** control_message );
 
