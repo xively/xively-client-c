@@ -82,7 +82,6 @@ int tenpercent = 0;
 int currenttenpercent = 0;
 char filename[] = "xively_firmware_updates.bin";
 char file_current_revision[MAX_STRING_LENGTH] = "0.0";
-char fileRevision[MAX_STRING_LENGTH] = "0.0";
 char incomingFilename[MAX_INCOMING_FILENAME_LENGTH] ="";
 
 int idx;
@@ -242,7 +241,7 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                             *bufptr = '\0';
                             snprintf(message,sizeof(message),"File update available");
                             snprintf(details,sizeof(details),"name=%s revision=%s length = %d fingerprint = %s"
-                                    ,filename,fileRevision,download_context.file_length, download_context.file_sft_fingerprint );
+                                    ,filename, download_context.file_revision, download_context.file_length, download_context.file_sft_fingerprint );
                             snprintf(buffer,sizeof(buffer),"{\"message\":\"%s\",\"severity\":\"notice\",\"details\":\"%s\"}",message,details);
                             xi_publish( in_context_handle, xi_logtopic, buffer, XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 
@@ -298,7 +297,7 @@ void on_sft_message( xi_context_handle_t in_context_handle,
 							    // but we just were, which means the at the download is complete
 							    //
                                 downloading = 0;
-                                sprintf( file_current_revision, "%s",fileRevision );
+                                sprintf( file_current_revision, "%s", download_context.file_revision );
 
                                 printf( "Done downloading. Offset = %d\n",offset );
 
@@ -450,11 +449,17 @@ void xi_parse_file_update_available(cn_cbor *cb)
 
             // File 'R'evision
             cb_file = cn_cbor_mapget_string(cb_item, "R");
-            if(cb_file) {
-            	strncpy(fileRevision,cb_file->v.str,sizeof(fileRevision));
-            	if((unsigned int)cb_file->length < sizeof(fileRevision)) fileRevision[cb_file->length] = '\0';
-            	fileRevision[sizeof(fileRevision)-1] = '\0';
-            } else {
+            if(cb_file)
+            {
+                strncpy( download_context.file_revision, cb_file->v.str, sizeof( download_context.file_revision ) );
+                if( (unsigned int) cb_file->length < sizeof( download_context.file_revision ) )
+                {
+                    download_context.file_revision[cb_file->length] = '\0';
+                }
+                download_context.file_revision[sizeof(download_context.file_revision)-1] = '\0';
+            }
+            else
+            {
                 printf("No key called R\n");
             }
 
@@ -493,9 +498,10 @@ void xi_parse_file_update_available(cn_cbor *cb)
             printf("No item at index %d\n",i);
         }
     }
-    printf("\n");
-    printf("xi_parse_file_update_available { name: \"%s\", revision: \"%s\"}\n",incomingFilename,fileRevision);
-    printf("\n");
+    printf( "\n" );
+    printf( "xi_parse_file_update_available { name: \"%s\", revision: \"%s\"}\n", incomingFilename, download_context.file_revision );
+    printf( "\n" );
+
     /* Let's try making a GET_CHUNK packet */
     printf("File chunk request params:\n");
     int messageType = XI_FILE_GET_CHUNK;
@@ -505,7 +511,7 @@ void xi_parse_file_update_available(cn_cbor *cb)
     printf("msgtype: %d\n", messageType);
     printf("msgver: %d\n", messageVersion);
     printf("N: \"%s\"\n", incomingFilename);
-    printf("R: \"%s\"\n", fileRevision);
+    printf("R: \"%s\"\n", download_context.file_revision );
     printf("O: %d\n", offset);
     printf("L: %d\n", messageLength);
 
@@ -527,7 +533,7 @@ void xi_parse_file_update_available(cn_cbor *cb)
                     &err);
     cbor_status &= cn_cbor_map_put(cb_map,
                     cn_cbor_string_create("R", &err),
-                    cn_cbor_string_create(fileRevision, &err),
+                    cn_cbor_string_create( download_context.file_revision, &err),
                     &err);
     cbor_status &= cn_cbor_map_put(cb_map,
                     cn_cbor_string_create("O", &err),
@@ -706,7 +712,7 @@ void xi_process_file_chunk( cn_cbor *cb )
     if(cb_item->v.uint > 1)
     {
         downloading = 0;
-        	sl_extlib_FlcCloseFile(download_context.file_token, NULL, NULL, 0);
+        	sl_extlib_FlcCloseFile( download_context.file_token, NULL, NULL, 0 );
     }
 
 #if 1
@@ -714,14 +720,16 @@ void xi_process_file_chunk( cn_cbor *cb )
     int messageType = XI_FILE_GET_CHUNK;
     int messageVersion = 1;
     int messageLength = 1024;
-    printf("msgtype: %d\n", messageType);
-    printf("msgver: %d\n", messageVersion);
-    printf("N: \"%s\"\n", incomingFilename);
-    printf("R: \"%s\"\n", fileRevision);
-    printf("O: %d\n", offset);
-    printf("L: %d\n", messageLength);
+    printf( "msgtype: %d\n", messageType );
+    printf( "msgver: %d\n", messageVersion );
+    printf( "N: \"%s\"\n", incomingFilename );
+    printf( "R: \"%s\"\n", download_context.file_revision );
+    printf( "O: %d\n", offset );
+    printf( "L: %d\n", messageLength );
+#endif
 
-    printf("internal downloading: %d\n", downloading);
+#if 1
+    printf( "internal downloading: %d\n", downloading );
     if(1 == downloading) {
 		/* Let's try making a GET_CHUNK packet */
         printf("creating get_chunk packet\n");
@@ -741,7 +749,7 @@ void xi_process_file_chunk( cn_cbor *cb )
 						&err);
 		cn_cbor_map_put(cb_map,
 						cn_cbor_string_create("R", &err),
-						cn_cbor_string_create(fileRevision, &err),
+						cn_cbor_string_create( download_context.file_revision, &err),
 						&err);
 		cn_cbor_map_put(cb_map,
 						cn_cbor_string_create("O", &err),
