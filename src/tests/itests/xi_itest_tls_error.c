@@ -153,9 +153,7 @@ int xi_itest_tls_error_teardown( void** fixture_void )
 
     XI_SAFE_FREE( fixture );
 
-    xi_memory_limiter_teardown();
-
-    return 0;
+    return !xi_memory_limiter_teardown();
 }
 
 #ifndef XI_CONTROL_TOPIC_ENABLED

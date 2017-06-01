@@ -164,9 +164,7 @@ int xi_itest_clean_session_teardown( void** state )
         XI_LAYER_CHAIN_SCHEME_LENGTH( XI_LAYER_CHAIN_DEFAULT ) );
     xi_shutdown();
 
-    xi_memory_limiter_teardown();
-
-    return 0;
+    return !xi_memory_limiter_teardown();
 }
 
 xi_state_t

@@ -143,9 +143,7 @@ int xi_itest_connect_error_teardown( void** fixture_void )
 
     XI_SAFE_FREE( fixture );
 
-    xi_memory_limiter_teardown();
-
-    return 0;
+    return !xi_memory_limiter_teardown();
 }
 
 void connect_error_on_connection_state_changed( xi_context_handle_t in_context_handle,

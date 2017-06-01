@@ -84,9 +84,7 @@ int xi_itest_tls_layer_teardown( void** fixture_void )
 
     xi_shutdown();
 
-    xi_memory_limiter_teardown();
-
-    return 0;
+    return !xi_memory_limiter_teardown();
 }
 
 /**

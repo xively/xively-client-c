@@ -173,9 +173,7 @@ int xi_itest_mqttlogic_layer_teardown( void** state )
 
     xi_shutdown();
 
-    xi_memory_limiter_teardown();
-
-    return 0;
+    return !xi_memory_limiter_teardown();
 }
 
 void xi_itest_mqttlogic_init_layer( xi_layer_t* top_layer )

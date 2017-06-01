@@ -57,7 +57,7 @@ void xi_memory_checks_log_memory_leak( const xi_memory_limiter_entry_t* entry )
 }
 #endif /* XI_DEBUG_EXTRA_INFO */
 
-void _xi_memory_limiter_teardown()
+uint8_t _xi_memory_limiter_teardown()
 {
     /* check for memory leaks */
     if ( !xi_is_whole_memory_deallocated() )
@@ -81,6 +81,8 @@ void _xi_memory_limiter_teardown()
     }
 
     fflush( stderr );
+
+    return 0;
 }
 
 #endif
@@ -88,7 +90,7 @@ void _xi_memory_limiter_teardown()
 #ifdef XI_MEMORY_LIMITER_ENABLED
 #define xi_is_whole_memory_deallocated() ( xi_memory_limiter_get_allocated_space() == 0 )
 
-void _xi_memory_limiter_teardown();
+uint8_t _xi_memory_limiter_teardown();
 #define xi_memory_limiter_teardown _xi_memory_limiter_teardown
 
 #else
