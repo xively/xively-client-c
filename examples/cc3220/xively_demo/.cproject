@@ -43,7 +43,6 @@
 									<listOptionValue builtIn="false" value="&quot;${COM_TI_SIMPLELINK_CC32XX_SDK_INSTALL_DIR}/kernel/tirtos/packages/ti/sysbios/posix&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${XIVELY_LIBRARY_C_ROOT}/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${XIVELY_LIBRARY_C_ROOT}/include/bsp&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${XIVELY_LIBRARY_C_ROOT}/src/import/tls/wolfssl&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${CG_TOOL_ROOT}/include&quot;"/>
 								</option>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.DEFINE.1645551735" name="Pre-define NAME (--define, -D)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.DEFINE" valueType="definedSymbols">
@@ -51,33 +50,7 @@
 									<listOptionValue builtIn="false" value="${XDC_SYMBOLS}"/>
 									<listOptionValue builtIn="false" value="DEBUG_WOLFSSL"/>
 									<listOptionValue builtIn="false" value="CC32XXWARE"/>
-									<listOptionValue builtIn="false" value="USER_TIME=1"/>
-									<listOptionValue builtIn="false" value="CC3220_TLS_SOCKET"/>
-									<listOptionValue builtIn="false" value="HAVE_CERTIFICATE_STATUS_REQUEST"/>
 									<listOptionValue builtIn="false" value="CC3220sf"/>
-									<listOptionValue builtIn="false" value="HAVE_OCSP"/>
-									<listOptionValue builtIn="false" value="HAVE_SNI"/>
-									<listOptionValue builtIn="false" value="HAVE_TLS_EXTENSIONS"/>
-									<listOptionValue builtIn="false" value="NO_DES3"/>
-									<listOptionValue builtIn="false" value="NO_DES"/>
-									<listOptionValue builtIn="false" value="NO_DH"/>
-									<listOptionValue builtIn="false" value="NO_DSA"/>
-									<listOptionValue builtIn="false" value="NO_ERROR_STRINGS"/>
-									<listOptionValue builtIn="false" value="NO_HC128"/>
-									<listOptionValue builtIn="false" value="NO_MD4"/>
-									<listOptionValue builtIn="false" value="NO_OLD_TLS"/>
-									<listOptionValue builtIn="false" value="NO_PSK"/>
-									<listOptionValue builtIn="false" value="NO_PWDBASED"/>
-									<listOptionValue builtIn="false" value="NO_RABBIT"/>
-									<listOptionValue builtIn="false" value="NO_RC4"/>
-									<listOptionValue builtIn="false" value="NO_SHA512"/>
-									<listOptionValue builtIn="false" value="NO_STDIO_FILESYSTEM"/>
-									<listOptionValue builtIn="false" value="NO_WOLFSSL_DIR"/>
-									<listOptionValue builtIn="false" value="NO_WOLFSSL_SERVER"/>
-									<listOptionValue builtIn="false" value="SIZEOF_LONG_LONG=8"/>
-									<listOptionValue builtIn="false" value="SMALL_SESSION_CACHE"/>
-									<listOptionValue builtIn="false" value="WOLFSSL_IAR_ARM"/>
-									<listOptionValue builtIn="false" value="WOLFSSL_STATIC_RSA"/>
 								</option>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.DEBUGGING_MODEL.17862892" name="Debugging model" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.DEBUGGING_MODEL" useByScannerDiscovery="false" value="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.DEBUGGING_MODEL.SYMDEBUG__DWARF" valueType="enumerated"/>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.DIAG_WARNING.184053769" name="Treat diagnostic &lt;id&gt; as warning (--diag_warning, -pdsw)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.DIAG_WARNING" useByScannerDiscovery="false" valueType="stringList">
@@ -102,7 +75,7 @@
 									<listOptionValue builtIn="false" value="${COM_TI_RTSC_TIRTOSCC32XX_LIBRARIES}"/>
 									<listOptionValue builtIn="false" value="${XDC_LIBRARIES}"/>
 									<listOptionValue builtIn="false" value="${COM_TI_SIMPLELINK_CC32XX_SDK_INSTALL_DIR}/source/ti/drivers/net/wifi/ccs/rtos/simplelink.a"/>
-									<listOptionValue builtIn="false" value="libxively.a"/>
+									<listOptionValue builtIn="false" value="${XIVELY_LIBRARY_C_ROOT}/bin/cc3220/libxively.a"/>
 									<listOptionValue builtIn="false" value="${COM_TI_SIMPLELINK_CC32XX_SDK_INSTALL_DIR}/source/ti/devices/cc32xx/driverlib/ccs/Release/driverlib.a"/>
 									<listOptionValue builtIn="false" value="libc.a"/>
 									<listOptionValue builtIn="false" value="${COM_TI_SIMPLELINK_CC32XX_SDK_INSTALL_DIR}/source/ti/drivers/lib/drivers_cc32xx.aem4"/>
@@ -126,7 +99,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="wolfssl_src" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -176,11 +149,10 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${XIVELY_LIBRARY_C_ROOT}/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${XIVELY_LIBRARY_C_ROOT}/include/bsp&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${COM_TI_CC32XX_SDK_INSTALL_DIR}/source/ti/devices/cc32xx/driverlib&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;E:\dev\xively\xively-client-c\src\import\tls\wolfssl&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${COM_TI_SIMPLELINK_CC32XX_SDK_INSTALL_DIR}/source/ti/devices/cc32xx/driverlib&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}}/.&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${COM_TI_CC32XX_SDK_INSTALL_DIR}/os/tirtos/packages/ti/sysbios/posix&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${COM_TI_CC32XX_SDK_INSTALL_DIR}/source&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${COM_TI_SIMPLELINK_CC32XX_SDK_INSTALL_DIR}/kernel/tirtos/packages/ti/sysbios/posix&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${COM_TI_SIMPLELINK_CC32XX_SDK_INSTALL_DIR}/source&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${CG_TOOL_ROOT}/include&quot;"/>
 								</option>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.DEFINE.795328913" name="Pre-define NAME (--define, -D)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.DEFINE" valueType="definedSymbols">
@@ -189,31 +161,7 @@
 									<listOptionValue builtIn="false" value="${COM_TI_RTSC_TIRTOSCC32XX_SYMBOLS}"/>
 									<listOptionValue builtIn="false" value="USER_TIME"/>
 									<listOptionValue builtIn="false" value="CC32XXWARE"/>
-									<listOptionValue builtIn="false" value="HAVE_CERTIFICATE_STATUS_REQUEST"/>
 									<listOptionValue builtIn="false" value="cc3220"/>
-									<listOptionValue builtIn="false" value="HAVE_OCSP"/>
-									<listOptionValue builtIn="false" value="HAVE_SNI"/>
-									<listOptionValue builtIn="false" value="HAVE_TLS_EXTENSIONS"/>
-									<listOptionValue builtIn="false" value="NO_DES3"/>
-									<listOptionValue builtIn="false" value="NO_DES"/>
-									<listOptionValue builtIn="false" value="NO_DH"/>
-									<listOptionValue builtIn="false" value="NO_DSA"/>
-									<listOptionValue builtIn="false" value="NO_ERROR_STRINGS"/>
-									<listOptionValue builtIn="false" value="NO_HC128"/>
-									<listOptionValue builtIn="false" value="NO_MD4"/>
-									<listOptionValue builtIn="false" value="NO_OLD_TLS"/>
-									<listOptionValue builtIn="false" value="NO_PSK"/>
-									<listOptionValue builtIn="false" value="NO_PWDBASED"/>
-									<listOptionValue builtIn="false" value="NO_RABBIT"/>
-									<listOptionValue builtIn="false" value="NO_RC4"/>
-									<listOptionValue builtIn="false" value="NO_SHA512"/>
-									<listOptionValue builtIn="false" value="NO_STDIO_FILESYSTEM"/>
-									<listOptionValue builtIn="false" value="NO_WOLFSSL_DIR"/>
-									<listOptionValue builtIn="false" value="NO_WOLFSSL_SERVER"/>
-									<listOptionValue builtIn="false" value="SIZEOF_LONG_LONG=8"/>
-									<listOptionValue builtIn="false" value="SMALL_SESSION_CACHE"/>
-									<listOptionValue builtIn="false" value="WOLFSSL_IAR_ARM"/>
-									<listOptionValue builtIn="false" value="WOLFSSL_STATIC_RSA"/>
 								</option>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.DEBUGGING_MODEL.66052337" name="Debugging model" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.DEBUGGING_MODEL" value="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.DEBUGGING_MODEL.SYMDEBUG__DWARF" valueType="enumerated"/>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.DIAG_WARNING.1908066182" name="Treat diagnostic &lt;id&gt; as warning (--diag_warning, -pdsw)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.DIAG_WARNING" valueType="stringList">
@@ -233,13 +181,14 @@
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.linkerID.MAP_FILE.552410163" name="Link information (map) listed into &lt;file&gt; (--map_file, -m)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.linkerID.MAP_FILE" value="&quot;${ProjName}.map&quot;" valueType="string"/>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.linkerID.OUTPUT_FILE.402976131" name="Specify output file name (--output_file, -o)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.linkerID.OUTPUT_FILE" value="&quot;${ProjName}.out&quot;" valueType="string"/>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.linkerID.LIBRARY.1568999990" name="Include library file or command file as input (--library, -l)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.linkerID.LIBRARY" valueType="libs">
-									<listOptionValue builtIn="false" value="${INHERITED_LIBRARIES}"/>
-									<listOptionValue builtIn="false" value="${XDC_LIBRARIES}"/>
 									<listOptionValue builtIn="false" value="${COM_TI_RTSC_TIRTOSCC32XX_LIBRARIES}"/>
-									<listOptionValue builtIn="false" value="${COM_TI_CC32XX_SDK_INSTALL_DIR}/source/ti/drivers/net/wifi/ccs/tirtos/simplelink.a"/>
-									<listOptionValue builtIn="false" value="E:/dev/xively/xively-client-c/bin/cc3220/libxively.a"/>
-									<listOptionValue builtIn="false" value="${COM_TI_CC32XX_SDK_INSTALL_DIR}/source/ti/devices/cc32xx/driverlib/ccs/Release/driverlib.a"/>
+									<listOptionValue builtIn="false" value="${XDC_LIBRARIES}"/>
+									<listOptionValue builtIn="false" value="${COM_TI_SIMPLELINK_CC32XX_SDK_INSTALL_DIR}/source/ti/drivers/net/wifi/ccs/rtos/simplelink.a"/>
+									<listOptionValue builtIn="false" value="libxively.a"/>
+									<listOptionValue builtIn="false" value="${COM_TI_SIMPLELINK_CC32XX_SDK_INSTALL_DIR}/source/ti/devices/cc32xx/driverlib/ccs/Release/driverlib.a"/>
 									<listOptionValue builtIn="false" value="libc.a"/>
+									<listOptionValue builtIn="false" value="${COM_TI_SIMPLELINK_CC32XX_SDK_INSTALL_DIR}/source/ti/drivers/lib/drivers_cc32xx.aem4"/>
+									<listOptionValue builtIn="false" value="${COM_TI_SIMPLELINK_CC32XX_SDK_INSTALL_DIR}/kernel/tirtos/packages/ti/dpl/lib/dpl_cc32xx.aem4"/>
 								</option>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.linkerID.SEARCH_PATH.532011152" name="Add &lt;dir&gt; to library search path (--search_path, -i)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.linkerID.SEARCH_PATH" valueType="libPaths">
 									<listOptionValue builtIn="false" value="&quot;${INHERITED_LIBRARY_PATH}&quot;"/>
@@ -259,12 +208,12 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="wolfssl_src" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings">
-				<externalSettings containerId="tirtos_builds_CC3220SF_LAUNCHXL_release_ccs;com.ti.ccstudio.buildDefinitions.TMS470.Release.891803243" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier"/>
+				<externalSettings containerId="tirtos_builds_CC3220SF_LAUNCHXL_release_ccs;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier"/>
 			</storageModule>
 		</cconfiguration>
 		<cconfiguration id="com.ti.ccstudio.buildDefinitions.TMS470.Debug.1667200984.1658657903">
@@ -316,35 +265,13 @@
 									<listOptionValue builtIn="false" value="${INHERITED_SYMBOLS}"/>
 									<listOptionValue builtIn="false" value="${COM_TI_RTSC_TIRTOSCC32XX_SYMBOLS}"/>
 									<listOptionValue builtIn="false" value="${XDC_SYMBOLS}"/>
+									<listOptionValue builtIn="false" value="CC3220sf"/>
 									<listOptionValue builtIn="false" value="DEBUG_WOLFSSL"/>
 									<listOptionValue builtIn="false" value="CC32XXWARE"/>
 									<listOptionValue builtIn="false" value="USER_TIME=1"/>
-									<listOptionValue builtIn="false" value="CC3220_TLS_SOCKET"/>
-									<listOptionValue builtIn="false" value="HAVE_CERTIFICATE_STATUS_REQUEST"/>
-									<listOptionValue builtIn="false" value="CC3220sf"/>
-									<listOptionValue builtIn="false" value="HAVE_OCSP"/>
-									<listOptionValue builtIn="false" value="HAVE_SNI"/>
 									<listOptionValue builtIn="false" value="HAVE_TLS_EXTENSIONS"/>
-									<listOptionValue builtIn="false" value="NO_DES3"/>
-									<listOptionValue builtIn="false" value="NO_DES"/>
-									<listOptionValue builtIn="false" value="NO_DH"/>
-									<listOptionValue builtIn="false" value="NO_DSA"/>
-									<listOptionValue builtIn="false" value="NO_ERROR_STRINGS"/>
-									<listOptionValue builtIn="false" value="NO_HC128"/>
-									<listOptionValue builtIn="false" value="NO_MD4"/>
-									<listOptionValue builtIn="false" value="NO_OLD_TLS"/>
-									<listOptionValue builtIn="false" value="NO_PSK"/>
-									<listOptionValue builtIn="false" value="NO_PWDBASED"/>
-									<listOptionValue builtIn="false" value="NO_RABBIT"/>
-									<listOptionValue builtIn="false" value="NO_RC4"/>
-									<listOptionValue builtIn="false" value="NO_SHA512"/>
 									<listOptionValue builtIn="false" value="NO_STDIO_FILESYSTEM"/>
-									<listOptionValue builtIn="false" value="NO_WOLFSSL_DIR"/>
-									<listOptionValue builtIn="false" value="NO_WOLFSSL_SERVER"/>
-									<listOptionValue builtIn="false" value="SIZEOF_LONG_LONG=8"/>
 									<listOptionValue builtIn="false" value="SMALL_SESSION_CACHE"/>
-									<listOptionValue builtIn="false" value="WOLFSSL_IAR_ARM"/>
-									<listOptionValue builtIn="false" value="WOLFSSL_STATIC_RSA"/>
 								</option>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.DEBUGGING_MODEL.1669830020" name="Debugging model" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.DEBUGGING_MODEL" useByScannerDiscovery="false" value="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.DEBUGGING_MODEL.SYMDEBUG__DWARF" valueType="enumerated"/>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.DIAG_WARNING.1600157438" name="Treat diagnostic &lt;id&gt; as warning (--diag_warning, -pdsw)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.DIAG_WARNING" useByScannerDiscovery="false" valueType="stringList">
@@ -397,7 +324,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="wolfssl_src" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
