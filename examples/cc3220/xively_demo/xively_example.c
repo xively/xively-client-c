@@ -49,6 +49,10 @@
 #include "xively.h"
 #include "config_file.h"
 
+#ifdef DEBUG_WOLFSSL
+extern void wolfSSL_Debug_ON();
+#endif /* DEBUG_WOLFSSL */
+
 /****************************************************************************
                       LOCAL FUNCTION PROTOTYPES
                        (In order of appearance)
@@ -280,6 +284,11 @@ void * xivelyExampleThread( void *arg )
 	/* init Terminal */
 	InitTerm();
 
+	/* Enable WolfSSL Debugging */
+#ifdef DEBUB_WOLFSSL
+    wolfSSL_Debug_ON();
+#endif /* DEBUG_WOLFSSL */
+
     /* Init Variables and Control Blocks */
 	InitializeAppVariables();
 
@@ -338,13 +347,6 @@ void * xivelyExampleThread( void *arg )
 
 	/* start simplelink here so we can use the simplelink file API */
 	retval = sl_Start(0, 0, 0);
-	if(retval < 0)
-	{
-		/* Handle Error */
-		UART_PRINT("[ERROR] sl_Start failed with error %d\n\r", retval);
-		Report("Looping forever\n\r");
-		while(1);
-	}
 
 	/* Parse Xively and Wifi Credentials from config file on flash file system */
 	/* This data will be stored in the Application Control Block */
