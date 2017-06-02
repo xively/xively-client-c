@@ -184,7 +184,7 @@
 									<listOptionValue builtIn="false" value="${COM_TI_RTSC_TIRTOSCC32XX_LIBRARIES}"/>
 									<listOptionValue builtIn="false" value="${XDC_LIBRARIES}"/>
 									<listOptionValue builtIn="false" value="${COM_TI_SIMPLELINK_CC32XX_SDK_INSTALL_DIR}/source/ti/drivers/net/wifi/ccs/rtos/simplelink.a"/>
-									<listOptionValue builtIn="false" value="libxively.a"/>
+									<listOptionValue builtIn="false" value="${XIVELY_LIBRARY_C_ROOT}/bin/cc3220/libxively.a"/>
 									<listOptionValue builtIn="false" value="${COM_TI_SIMPLELINK_CC32XX_SDK_INSTALL_DIR}/source/ti/devices/cc32xx/driverlib/ccs/Release/driverlib.a"/>
 									<listOptionValue builtIn="false" value="libc.a"/>
 									<listOptionValue builtIn="false" value="${COM_TI_SIMPLELINK_CC32XX_SDK_INSTALL_DIR}/source/ti/drivers/lib/drivers_cc32xx.aem4"/>
