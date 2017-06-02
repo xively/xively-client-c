@@ -33,7 +33,9 @@ typedef struct
     char* str_account_id;
     char* str_device_unique_id;
     xi_backoff_status_t backoff_status;
-    xi_data_desc_t* updateable_files_list;
+
+    char** updateable_files;
+    uint16_t updateable_files_count;
 } xi_globals_t;
 
 extern xi_globals_t xi_globals;

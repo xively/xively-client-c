@@ -95,7 +95,8 @@ extern "C" {
  */
 extern xi_state_t xi_initialize( const char* account_id, const char* device_unique_id );
 
-extern xi_state_t xi_initialize_add_updateable_file( const char* filename );
+extern xi_state_t
+xi_initialize_add_updateable_files( const char* filenames[], uint16_t count );
 
 /**
  * @brief     Signals the xively library to cleanup any internal memory

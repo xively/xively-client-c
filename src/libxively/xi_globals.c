@@ -18,4 +18,5 @@ xi_globals_t xi_globals = {
     .str_account_id         = NULL,
     .str_device_unique_id   = NULL,
     .backoff_status = {xi_make_empty_time_event_handle(), 0, 0, XI_BACKOFF_CLASS_NONE, 0},
-    .updateable_files_list = NULL};
+    .updateable_files       = NULL,
+    .updateable_files_count = 0};

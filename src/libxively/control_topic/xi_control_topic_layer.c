@@ -22,6 +22,7 @@
 #include "xi_control_topic_name.h"
 #include "xi_mqtt_message.h"
 #include "xi_layer_macros.h"
+#include "xi_list.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -78,6 +79,8 @@ xi_control_topic_connection_state_changed( void* context, xi_state_t state );
 static xi_state_t
 xi_control_topic_publish_on_topic( void* context, xi_control_message_t* control_message )
 {
+    // printf( "%s, control_message: %p\n", __FUNCTION__, control_message );
+
     xi_state_t local_state = XI_STATE_OK;
 
     xi_control_topic_layer_data_t* layer_data =
@@ -96,6 +99,8 @@ xi_control_topic_publish_on_topic( void* context, xi_control_message_t* control_
 
         xi_cbor_codec_ct_encode( control_message, &encoded_message,
                                  &encoded_message_len );
+
+        xi_control_message_free( &control_message );
 
         XI_CHECK_CND_DBGMESSAGE( NULL == encoded_message || 0 == encoded_message_len,
                                  XI_SERIALIZATION_ERROR, local_state,
@@ -235,7 +240,7 @@ err_handling:
 
 xi_state_t xi_control_topic_connection_state_changed( void* context, xi_state_t state )
 {
-    xi_debug_logger( "xi_control_topic_connection_state_changed" );
+    xi_debug_printf( "%s\n", __FUNCTION__ );
 
     XI_CONTEXT_DATA( context )->connection_callback.handlers.h3.a2 =
         XI_CONTEXT_DATA( context )->connection_data;
@@ -295,8 +300,10 @@ xi_control_topic_layer_init( void* context, void* data, xi_state_t in_out_state 
         layer_data =
             ( xi_control_topic_layer_data_t* )XI_THIS_LAYER( context )->user_data;
 
-        xi_sft_make_context( &layer_data->sft_context, &xi_control_topic_publish_on_topic,
-                             context );
+        xi_sft_make_context( &layer_data->sft_context,
+                             ( const char** )xi_globals.updateable_files,
+                             xi_globals.updateable_files_count,
+                             &xi_control_topic_publish_on_topic, context );
     }
 
     assert( NULL != layer_data );

@@ -16,10 +16,14 @@ typedef struct
 {
     fn_send_control_message fn_send_message;
     void* send_message_user_data;
+    const char** updateable_files;
+    uint16_t updateable_files_count;
 } xi_sft_context_t;
 
 
 xi_state_t xi_sft_make_context( xi_sft_context_t** context,
+                                const char** updateable_files,
+                                uint16_t updateable_files_count,
                                 fn_send_control_message fn_send_message,
                                 void* user_data );
 

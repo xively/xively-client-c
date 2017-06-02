@@ -160,33 +160,49 @@ xi_state_t xi_initialize( const char* account_id, const char* device_unique_id )
     return XI_STATE_OK;
 }
 
-xi_state_t xi_initialize_add_updateable_file( const char* filename )
+xi_state_t xi_initialize_add_updateable_files( const char* filenames[], uint16_t count )
 {
-    if ( NULL == filename )
+    if ( NULL == filenames || NULL == *filenames || 0 == count )
     {
         return XI_INVALID_PARAMETER;
     }
 
-    xi_data_desc_t* updateable_file_data_desc = xi_make_desc_from_string_copy( filename );
+    xi_state_t state = XI_STATE_OK;
 
-    XI_LIST_PUSH_BACK( xi_data_desc_t, xi_globals.updateable_files_list,
-                       updateable_file_data_desc );
+    XI_ALLOC_BUFFER_AT( char*, xi_globals.updateable_files, sizeof( char* ) * count,
+                        state );
 
-    return XI_STATE_OK;
-}
+    xi_globals.updateable_files_count = count;
 
-#define RELEASE_DATADESCRIPTOR( ds )                                                     \
-    {                                                                                    \
-        xi_free_desc( &ds );                                                             \
+    uint16_t id_file = 0;
+    for ( ; id_file < xi_globals.updateable_files_count; ++id_file )
+    {
+        // printf( "--- --- --- %s, [%s]\n", __FUNCTION__, filenames[id_file] );
+        xi_globals.updateable_files[id_file] = xi_str_dup( filenames[id_file] );
     }
+
+
+err_handling:
+    return state;
+}
 
 xi_state_t xi_shutdown()
 {
     XI_SAFE_FREE( xi_globals.str_account_id );
     XI_SAFE_FREE( xi_globals.str_device_unique_id );
 
-    XI_LIST_FOREACH( xi_data_desc_t, xi_globals.updateable_files_list,
-                     RELEASE_DATADESCRIPTOR );
+    {
+        uint16_t id_file = 0;
+        for ( ; id_file < xi_globals.updateable_files_count; ++id_file )
+        {
+            XI_SAFE_FREE( xi_globals.updateable_files[id_file] );
+        }
+
+        XI_SAFE_FREE( xi_globals.updateable_files );
+
+        xi_globals.updateable_files_count = 0;
+    }
+
 
     xi_bsp_rng_shutdown();
 

@@ -7,34 +7,14 @@
 #include <xi_control_message.h>
 #include <stddef.h>
 #include <xi_macros.h>
+#include <xi_helpers.h>
 
 #include <stdio.h>
-
-char* xi_control_message_strdup( const char* string_to_duplicate )
-{
-    if ( NULL == string_to_duplicate )
-    {
-        return NULL;
-    }
-
-    char* target = NULL;
-
-    xi_state_t state = XI_STATE_OK;
-
-    XI_ALLOC_BUFFER_AT( char, target, strlen( string_to_duplicate ) + 1, state );
-
-    memcpy( target, string_to_duplicate, strlen( string_to_duplicate ) + 1 );
-
-err_handling:
-    return target;
-}
 
 xi_control_message_t* xi_control_message_create_file_info( const char** filenames,
                                                            const char** revisions,
                                                            uint16_t count )
 {
-    ( void )revisions;
-
     if ( NULL == filenames || NULL == *filenames || 0 == count )
     {
         return NULL;
@@ -55,13 +35,12 @@ xi_control_message_t* xi_control_message_create_file_info( const char** filename
     uint16_t id_file = 0;
     for ( ; id_file < count; ++id_file )
     {
-        file_info->file_info.list[id_file].name = xi_control_message_strdup( *filenames );
+        file_info->file_info.list[id_file].name = xi_str_dup( *filenames );
         ++filenames;
 
         if ( NULL != revisions )
         {
-            file_info->file_info.list[id_file].revision =
-                xi_control_message_strdup( *revisions );
+            file_info->file_info.list[id_file].revision = xi_str_dup( *revisions );
             ++revisions;
         }
     }
