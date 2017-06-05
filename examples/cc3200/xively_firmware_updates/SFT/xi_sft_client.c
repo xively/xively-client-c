@@ -215,11 +215,6 @@ void on_sft_message( xi_context_handle_t in_context_handle,
 							    break;
 							}
 
-						    //
-                            // Set Download State to Active
-                            //
-                            downloading = 1;
-
                             //
                             // Parse FILE_UPDATE_AVAILABLE messsage
                             // and format GET_FILE_CHUNK message into the outgoing cbor buffer `encoded`
@@ -372,8 +367,6 @@ xi_publish_file_info(xi_context_handle_t in_context_handle)
     unsigned char encoded[512];
     ssize_t enc_sz;
 
-    //xi_parse_file_update_available(NULL);
-
     /* Let's try making a XI_FILE_INFO packet */
     cn_cbor_errback err;
     cn_cbor *cb_map = cn_cbor_map_create(&err);
@@ -434,6 +427,12 @@ void xi_parse_file_update_available(cn_cbor *cb)
     int i,index;
 
     //
+    // Set Download State to Active
+    //
+    downloading = 1;
+
+
+    //
     // Zero out download_context
     //
     memset( &download_context, 0, sizeof( file_download_ctx_t ) );
@@ -452,26 +451,37 @@ void xi_parse_file_update_available(cn_cbor *cb)
     for(index=0;index<filelistlength;index++) {
         cb_item = cn_cbor_index(cb_list, index);
 
-        if(cb_item) {
-        	// File 'N'ame
+        if(cb_item)
+        {
+        	    // File 'N'ame
             cb_file = cn_cbor_mapget_string(cb_item, "N");
-            if(cb_file) {
-            	strncpy(incomingFilename,cb_file->v.str, MAX_INCOMING_FILENAME_LENGTH);
-            	if((unsigned int)cb_file->length < MAX_INCOMING_FILENAME_LENGTH) incomingFilename[cb_file->length] = '\0';
-            	incomingFilename[MAX_INCOMING_FILENAME_LENGTH-1] = '\0';
-            } else {
+            if( cb_file )
+            {
+                strncpy( incomingFilename,cb_file->v.str, MAX_INCOMING_FILENAME_LENGTH );
+
+                if( (unsigned int) cb_file->length < MAX_INCOMING_FILENAME_LENGTH )
+                {
+                    incomingFilename[cb_file->length] = '\0';
+                }
+
+                incomingFilename[MAX_INCOMING_FILENAME_LENGTH-1] = '\0';
+            }
+            else
+            {
                 printf("No key called N\n");
             }
 
             // File 'R'evision
             cb_file = cn_cbor_mapget_string(cb_item, "R");
-            if(cb_file)
+            if( cb_file )
             {
                 strncpy( download_context.file_revision, cb_file->v.str, sizeof( download_context.file_revision ) );
+
                 if( (unsigned int) cb_file->length < sizeof( download_context.file_revision ) )
                 {
                     download_context.file_revision[cb_file->length] = '\0';
                 }
+
                 download_context.file_revision[sizeof(download_context.file_revision)-1] = '\0';
             }
             else
@@ -481,13 +491,16 @@ void xi_parse_file_update_available(cn_cbor *cb)
 
             // File 'S'ize
             cb_file = cn_cbor_mapget_string(cb_item, "S");
-            if(cb_file) {
-                printf("FILE_UPDATE_AVAILABLE: file length = %d\n",cb_file->v.sint);
+            if(cb_file)
+            {
+                printf( "FILE_UPDATE_AVAILABLE: file length = %d\n",cb_file->v.sint );
                 download_context.file_length = cb_file->v.sint;
                 tenpercent = download_context.file_length / 10;
                 currenttenpercent = tenpercent;
                 printf("Filelength %d\n",download_context.file_length);
-            } else {
+            }
+            else
+            {
                 printf("No key called S\n");
             }
 
@@ -506,7 +519,9 @@ void xi_parse_file_update_available(cn_cbor *cb)
                     printf("%02x",download_context.file_sft_fingerprint[i] );
                 }
                 printf("\n");
-            } else {
+            }
+            else
+            {
                 printf("No key called F\n");
             }
 
@@ -703,6 +718,7 @@ void xi_process_file_chunk( cn_cbor *cb )
         }
 
         sha256_update( &download_context.sha256_context, (unsigned char *) file_chunk_data.byte_array, file_chunk_data.array_length );
+
         int write_length = (int) file_chunk_data.array_length;
         if( 0 > write_length )
         {
