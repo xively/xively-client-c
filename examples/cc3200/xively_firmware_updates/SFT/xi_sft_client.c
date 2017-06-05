@@ -51,6 +51,7 @@ typedef unsigned int uint;
 typedef struct file_download_ctx_s
 {
     int file_length;
+    int result;
 
     long file_handle;
     unsigned long file_token;
@@ -200,12 +201,19 @@ void on_sft_message( xi_context_handle_t in_context_handle,
 #endif
 
                 cb_item = cn_cbor_mapget_string(cb, "msgtype");
-                if(cb_item) {
-                    //printf("msgtype = %d\n",cb_item->v.uint);
-                    switch(cb_item->v.uint) {
+                if(cb_item)
+                {
+                    switch(cb_item->v.uint)
+                    {
                         case XI_FILE_UPDATE_AVAILABLE:
 
 							printf("Got FILE_UPDATE_AVAILABLE\n");
+							if( downloading )
+							{
+							    printf("WARNING: ALREADY DOWNLOADING!\n");
+							    cn_cbor_free(cb CBOR_CONTEXT_PARAM);
+							    break;
+							}
 
 						    //
                             // Set Download State to Active
@@ -255,17 +263,18 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                             // Open the file for writing
                             //
                             retVal =  sl_extlib_FlcOpenFile("/sys/mcuimgA.bin", download_context.file_length, &download_context.file_token, &download_context.file_handle, FS_MODE_OPEN_WRITE);
-                            printf("mcuimgA.bin open returned %d\n",retVal);
 
                             //
                             // Check for errors
                             //
-                            if(retVal < 0)
+                            if( retVal < 0 )
                             {
+                                printf(" ERROR: mcuimgA.bin open returned %d\n",retVal);
+                                download_context.result = -1;
                                 downloading = 0;
                             }
-
                             break;
+
 					case XI_FILE_CHUNK:
 					        //
 					        // Parse the FILE_CHUNK message
@@ -286,7 +295,6 @@ void on_sft_message( xi_context_handle_t in_context_handle,
 							{
 								if( offset < download_context.file_length )
 								{
-								    printf(" CALLBACK HANDLER Publishing for next chunk request\n");
 									xi_publish_data( in_context_handle, xi_stopic, encoded, enc_sz, XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 								}
 							}
@@ -299,7 +307,10 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                                 downloading = 0;
                                 sprintf( file_current_revision, "%s", download_context.file_revision );
 
-                                printf( "Done downloading. Offset = %d\n",offset );
+                                printf( "=================\n");
+                                printf( "Done downloading.\n");
+                                printf( "   result: %d\n", download_context.result );
+                                printf( "=================\n");
 
                                 //
                                 // Log the download complete information
@@ -327,15 +338,20 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                                 //
                                 // Set the bootloader to test the new image
                                 //
-#if 0
-                                result = sl_extlib_FlcTest( FLC_TEST_RESET_MCU | FLC_TEST_RESET_MCU_WITH_APP );
-                                printf("*** FLC Test Result: %d, rebooting\n", result);
+                                if( download_context.result || result )
+                                {
+                                    printf("NOT MARKING FILE TO TEST DUE TO ERRORS\n");
+                                }
+                                else
+                                {
+                                    result = sl_extlib_FlcTest( FLC_TEST_RESET_MCU | FLC_TEST_RESET_MCU_WITH_APP );
+                                    printf("*** FLC Test Result: %d, rebooting\n", result);
+                                    //
+                                    // Reboot the device to test the image
+                                    //
+                                    RebootMCU();
+                                }
 
-                                //
-                                // Reboot the device to test the image
-                                //
-                                RebootMCU();
-#endif
                             }
                             break;
                         default:
@@ -404,7 +420,7 @@ xi_publish_file_info(xi_context_handle_t in_context_handle)
     snprintf( details,sizeof(details), "name=%s revision=%s", filename, file_current_revision );
     snprintf( buffer,sizeof(buffer),"{\"message\":\"%s\",\"severity\":\"notice\",\"details\":\"%s\"}",message,details );
     xi_publish( in_context_handle, xi_logtopic, buffer, XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
-    downloading = 0;
+    // downloading = 0;
     sl_extlib_FlcCloseFile(download_context.file_token, NULL, NULL, 0);
 }
 
@@ -503,17 +519,19 @@ void xi_parse_file_update_available(cn_cbor *cb)
     printf( "\n" );
 
     /* Let's try making a GET_CHUNK packet */
-    printf("File chunk request params:\n");
     int messageType = XI_FILE_GET_CHUNK;
     int messageVersion = 1;
     int offset = 0;
     int messageLength = 1024;
+#if 0
+    printf("File chunk request params:\n");
     printf("msgtype: %d\n", messageType);
     printf("msgver: %d\n", messageVersion);
     printf("N: \"%s\"\n", incomingFilename);
     printf("R: \"%s\"\n", download_context.file_revision );
     printf("O: %d\n", offset);
     printf("L: %d\n", messageLength);
+#endif
 
     cn_cbor_errback err;
     cn_cbor *cb_map = cn_cbor_map_create(&err);
@@ -554,7 +572,7 @@ int xi_parse_file_chunk(cn_cbor* in_cb, xi_sft_file_chunk_t* out_sft_file_chunk 
         return -1;
     }
 
-    static ledToggle = 0;
+    static int ledToggle = 0;
     ledToggle = ( ledToggle + 1 ) % 2;
     if( ledToggle )
     {
@@ -660,7 +678,7 @@ void xi_process_file_chunk( cn_cbor *cb )
         return;
     }
 
-    printf( "---- FILE_CHUNK: length = %d FILE_LENGTH: %d\n", file_chunk_data.chunk_length, download_context.file_length );
+    /* printf( "---- FILE_CHUNK: length = %d FILE_LENGTH: %d\n", file_chunk_data.chunk_length, download_context.file_length ); */
 
     // Save the offset for THIS fine chunk
     chunkoffset = offset;
@@ -675,8 +693,6 @@ void xi_process_file_chunk( cn_cbor *cb )
         currenttenpercent += tenpercent;
     }
 
-    printf("cb_item->length = %d\r\n", file_chunk_data.array_length);
-
     if( file_chunk_data.array_length )
     {
         int writelength = file_chunk_data.array_length;
@@ -687,39 +703,58 @@ void xi_process_file_chunk( cn_cbor *cb )
         }
 
         sha256_update( &download_context.sha256_context, (unsigned char *) file_chunk_data.byte_array, file_chunk_data.array_length );
-        retval = sl_extlib_FlcWriteFile( download_context.file_token, chunkoffset, (unsigned char *) file_chunk_data.byte_array, file_chunk_data.array_length );
-        if( retval < file_chunk_data.array_length )
+        int write_length = (int) file_chunk_data.array_length;
+        if( 0 > write_length )
         {
+            // WriteBuffer is too large for CC3200 sl_extlib_FlcWriteFile operations
+            // TODO: report error to SFT!
+            printf("ERROR: WriteBuffer is too large for CC3200 sl_extlib_FlcWriteFile operations\n");
+            download_context.result = -1;
+            retval = 0;
             downloading = 0;
-            //sl_extlib_FlcCloseFile(lFileHandle, NULL, NULL, 0);
         }
-
-        printf("Write returned %d\n",retval);
-
-        if( (chunkoffset + file_chunk_data.array_length ) >= download_context.file_length )
+        else
         {
-            printf("Downloaded is done\n");
-            downloading = 0;
+            retval = sl_extlib_FlcWriteFile( download_context.file_handle, chunkoffset, (unsigned char *) file_chunk_data.byte_array, write_length );
+            if( retval < 0  )
+            {
+                // Write Failed
+                // TODO: Report Error to SFT!
+                printf("ERROR: Write Returned error code: %d\n", retval );
+                download_context.result = -1;
+                downloading = 0;
+            }
+            else if( (chunkoffset + file_chunk_data.array_length ) >= download_context.file_length )
+            {
+                downloading = 0;
+            }
         }
     }
     else
     {
+        // Zero Length Write Buffer
+        // TODO: Report Error!
+        printf("ERROR: Write Buffer from SFT is of zero length\n" );
+        download_context.result = -1;
         downloading = 0;
-        //sl_extlib_FlcCloseFile(lFileHandle, NULL, NULL, 0);
     }
 
-
-    if(cb_item->v.uint > 1)
+    //
+    // TODO: check for status of 1 for EoF
+    //
+    if( file_chunk_data.status > 1 )
     {
+        printf("ERROR: SFT packet reported Chunk Status Request Error: %d\n", cb_item->v.uint );
+        download_context.result = -1;
         downloading = 0;
-        	sl_extlib_FlcCloseFile( download_context.file_token, NULL, NULL, 0 );
+        // sl_extlib_FlcCloseFile( download_context.file_token, NULL, NULL, 0 );
     }
 
-#if 1
-    printf("File chunk request params:\n");
     int messageType = XI_FILE_GET_CHUNK;
     int messageVersion = 1;
     int messageLength = 1024;
+#if 0
+    printf("File chunk request params:\n");
     printf( "msgtype: %d\n", messageType );
     printf( "msgver: %d\n", messageVersion );
     printf( "N: \"%s\"\n", incomingFilename );
@@ -729,10 +764,9 @@ void xi_process_file_chunk( cn_cbor *cb )
 #endif
 
 #if 1
-    printf( "internal downloading: %d\n", downloading );
-    if(1 == downloading) {
+    if( 1 == downloading )
+    {
 		/* Let's try making a GET_CHUNK packet */
-        printf("creating get_chunk packet\n");
 		cn_cbor_errback err;
 		cn_cbor *cb_map = cn_cbor_map_create(&err);
 
