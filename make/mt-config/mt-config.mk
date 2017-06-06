@@ -193,7 +193,6 @@ XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/mqtt/logic
 XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/control_topic
 XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/cbor
 XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/cbor/cn-cbor/src
-# XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/cbor/tinycbor/src
 XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/sft
 
 ifneq (,$(findstring senml,$(CONFIG)))
