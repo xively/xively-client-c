@@ -79,18 +79,17 @@ xi_control_topic_connection_state_changed( void* context, xi_state_t state );
 static xi_state_t
 xi_control_topic_publish_on_topic( void* context, xi_control_message_t* control_message )
 {
-    // printf( "%s, control_message: %p\n", __FUNCTION__, control_message );
+    if ( NULL == control_message )
+    {
+        return XI_INVALID_PARAMETER;
+    }
 
     xi_state_t local_state = XI_STATE_OK;
 
     xi_control_topic_layer_data_t* layer_data =
         ( xi_control_topic_layer_data_t* )XI_THIS_LAYER( context )->user_data;
 
-    assert( NULL != layer_data /* && NULL != data */ );
-    if ( NULL == control_message )
-    {
-        return XI_INVALID_PARAMETER;
-    }
+    assert( NULL != layer_data );
 
     xi_data_desc_t* encoded_message_data_desc = NULL;
     { /* CBOR encoding */
