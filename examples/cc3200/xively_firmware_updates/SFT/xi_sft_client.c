@@ -327,7 +327,7 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                                 // Close the firmware file
                                 //
                                 int result = 0;
-                                result = sl_extlib_FlcCloseFile( download_context.file_token, NULL, NULL, 0 );
+                                result = sl_extlib_FlcCloseFile( download_context.file_handle, NULL, NULL, 0 );
                                 printf("*** Close File Result: %d\n", result);
 
                                 //
