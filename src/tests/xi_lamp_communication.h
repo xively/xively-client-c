@@ -47,4 +47,4 @@ void xi_test_report_result( const char* const test_id,
 }
 #endif
 
-#endif // __XI_LAMP_COMUNNICATION_H__
+#endif /* __XI_LAMP_COMUNNICATION_H__ */

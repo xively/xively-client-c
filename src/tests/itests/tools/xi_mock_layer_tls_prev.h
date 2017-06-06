@@ -37,4 +37,4 @@ xi_state_t xi_mock_layer_tls_prev_connect( void* context, void* data, xi_state_t
 }
 #endif
 
-#endif // __XI_ITEST_MOCK_LAYER_TLS_PREV_H__
+#endif /* __XI_ITEST_MOCK_LAYER_TLS_PREV_H__ */

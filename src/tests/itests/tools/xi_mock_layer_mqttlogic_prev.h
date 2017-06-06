@@ -36,4 +36,4 @@ xi_mock_layer_mqttlogic_prev_connect( void* context, void* data, xi_state_t stat
 }
 #endif
 
-#endif // __XI_ITEST_MOCK_LAYER_MQTTLOGIC_PREV_H__
+#endif /* __XI_ITEST_MOCK_LAYER_MQTTLOGIC_PREV_H__ */

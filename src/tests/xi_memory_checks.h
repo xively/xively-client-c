@@ -37,4 +37,4 @@ uint8_t _xi_memory_limiter_teardown();
 }
 #endif
 
-#endif // __XI_MEMORY_CHECKS_H__
+#endif /* __XI_MEMORY_CHECKS_H__ */

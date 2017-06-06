@@ -21,4 +21,4 @@ struct CMUnitTest xi_itests_update[] = {
 
 #endif
 
-#endif // __XI_ITEST_UPDATE_H__
+#endif /* __XI_ITEST_UPDATE_H__ */
