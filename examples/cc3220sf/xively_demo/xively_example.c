@@ -346,7 +346,7 @@ void * xivelyExampleThread( void *arg )
 	}
 
 	/* start simplelink here so we can use the simplelink file API */
-	retval = sl_Start(0, 0, 0);
+	retval = sl_Start(NULL, NULL, NULL);
 
 	/* Parse Xively and Wifi Credentials from config file on flash file system */
 	/* This data will be stored in the Application Control Block */
