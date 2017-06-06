@@ -95,9 +95,6 @@ extern "C" {
  */
 extern xi_state_t xi_initialize( const char* account_id, const char* device_unique_id );
 
-extern xi_state_t
-xi_initialize_add_updateable_files( const char* filenames[], uint16_t count );
-
 /**
  * @brief     Signals the xively library to cleanup any internal memory
  * @detailed  This should by the last function called while shutting down your
@@ -212,6 +209,9 @@ extern xi_state_t xi_events_process_tick();
  */
 extern void xi_events_stop();
 
+extern xi_state_t xi_set_updateable_files( xi_context_handle_t xih,
+                                           const char* filenames[],
+                                           uint16_t count );
 
 /**
  * @brief     Opens a connection to the xively service using the provided context,
