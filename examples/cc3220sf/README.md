@@ -30,12 +30,12 @@ Compiling the Firmware With Custom WolfSSL
     ```
 3. [Download WolfSSL source](https://developer.xively.com/v1.0/docs/ti-cc3200-advanced#section-download-wolfssl-library-source).
 Follow the steps in that tutorial to unzip and rename the WolfSSL folder
-4. Clean libxively from `cmd`
+4. Clean the Xively Client C library from `cmd`
     ```
     $ cd $PATH_TO_XIVELY_CLIENT_C
     $ gmake PRESET=CC3220 clean
     ```
-5. Build libxively from `cmd`
+5. Build the Xively Client C library from `cmd`
     ```
     $ gmake PRESET=CC3220                                         \
         XI_CC3220_PATH_SDK=C:\ti\simplelink_cc32xx_sdk_1_30_01_03 \
@@ -59,8 +59,8 @@ The project's default configuration uses the CC3220's on-board TLS
 If everything went well, you should have the `XivelyExample.bin` binary you'll
 flash into the device.
 
-Remember to clean and re-build libxively when switching between on-board and
-custom TLS builds.
+Remember to clean and re-build the Xively Client C library when switching
+between on-board and custom TLS builds.
 
 Compiling the Firmware for On-Board TLS
 =======================================
@@ -87,7 +87,7 @@ that's not a security issue, but disabling the certificate store will also
 disable the Cert Revokation List in it. **REMEMBER TO UNDO THIS FOR PRODUCTION!!**
 The production Certificate Store does contain Xively's root (as opposed to the
 playground), so it won't throw the UNKNOWN_CA error.
-5. Compile libxively using `cmd`
+5. Compile the Xively Client C library using `cmd`
     ```
     $ gmake PRESET=CC3220_TLS_SOCKET                              \
         XI_CC3220_PATH_SDK=C:\ti\simplelink_cc32xx_sdk_1_30_01_03 \
@@ -96,16 +96,16 @@ playground), so it won't throw the UNKNOWN_CA error.
         COMPILER=ti-cgt-arm_16.9.0.LTS                            \
         BSP_DEBUG_LOG=1 XI_DEBUG_OUTPUT=1
     ```
-6. Create CCS Workspace (e.g. `$LIBXIVELY/examples/cc3220/ccs_workspace`)
-7. `Project->Import CCS Project...` `$LIBXIVELY/examples/cc3220/xively_demo`
+6. Create CCS Workspace (e.g. `$XI_CLIENT_C/examples/cc3220/ccs_workspace`)
+7. `Project->Import CCS Project...` `$XI_CLIENT_C/examples/cc3220/xively_demo`
 8. `Project->Import CCS Project...` `C:\ti\simplelink_cc32xx_sdk_1_30_01_03\kernel\tirtos\builds\CC3220SF_LAUNCHXL\release\ccs`
 9. Update all necessary system paths in the XivelyExample CCS project settings
 
 If everything went well, you should have the XivelyExample.bin binary you'll
 flash into the device.
 
-Remember to clean and re-build libxively when switching between on-board and
-custom TLS builds.
+Remember to clean and re-build the Xively Client C library when switching
+between on-board and custom TLS builds.
 
 Flashing the Device
 ===================
@@ -116,7 +116,7 @@ example.
 1. Open Uniflash 4
 2. Select the `cc31xx/cc32xx Serial` device
 3. `Project Management`
-4. Import Uniflash project from ZIP file: `$LIBXIVELY/examples/cc3220/uniflash/XivelyProduction_[...].zip`
+4. Import Uniflash project from ZIP file: `$XI_CLIENT_C/examples/cc3220/uniflash/XivelyProduction_[...].zip`
 5. `Service Pack` -> `Browse` -> `$32XX_SDK_PATH/tools/cc32xx_tools/servicepack-cc3x20/sp_3.3.0.0_2.0.0.0_2.2.0.4.bin`
 6. `User Files` - Update the firmware image:
     - Delete the existing `/sys/mcuflashimg.bin`
