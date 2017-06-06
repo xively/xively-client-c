@@ -24,7 +24,7 @@ xi_control_message_t* xi_control_message_create_file_info( const char** filename
 
     XI_ALLOC( xi_control_message_t, file_info, state );
 
-    file_info->file_info.common.msgtype = XI_CONTROL_MESSAGE_DB_FILE_INFO;
+    file_info->file_info.common.msgtype = XI_CONTROL_MESSAGE_CS_FILE_INFO;
     file_info->file_info.common.msgver  = 1;
 
     XI_ALLOC_BUFFER_AT( xi_control_message_file_desc_t, file_info->file_info.list,
@@ -59,7 +59,7 @@ void xi_control_message_free( xi_control_message_t** control_message )
 
     switch ( ( *control_message )->common.msgtype )
     {
-        case XI_CONTROL_MESSAGE_DB_FILE_INFO:
+        case XI_CONTROL_MESSAGE_CS_FILE_INFO:
         {
             uint16_t id_file = 0;
             for ( ; id_file < ( *control_message )->file_info.list_len; ++id_file )
@@ -74,7 +74,7 @@ void xi_control_message_free( xi_control_message_t** control_message )
 
         break;
 
-        case XI_CONTROL_MESSAGE_BD_FILE_UPDATE_AVAILABLE:
+        case XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE:
         {
             uint16_t id_file = 0;
             for ( ; id_file < ( *control_message )->file_update_available.list_len;
@@ -95,18 +95,18 @@ void xi_control_message_free( xi_control_message_t** control_message )
 
         break;
 
-        case XI_CONTROL_MESSAGE_DB_FILE_GET_CHUNK:
+        case XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK:
 
             break;
 
-        case XI_CONTROL_MESSAGE_BD_FILE_CHUNK:
+        case XI_CONTROL_MESSAGE_SC_FILE_CHUNK:
 
             XI_SAFE_FREE( ( *control_message )->file_chunk.name );
             XI_SAFE_FREE( ( *control_message )->file_chunk.revision );
 
             break;
 
-        case XI_CONTROL_MESSAGE_DB_FILE_STATUS:
+        case XI_CONTROL_MESSAGE_CS_FILE_STATUS:
 
             break;
     }

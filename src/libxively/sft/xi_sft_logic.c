@@ -79,13 +79,13 @@ xi_sft_on_message( xi_sft_context_t* context, const xi_control_message_t* sft_me
 
     switch ( sft_message->common.msgtype )
     {
-        case XI_CONTROL_MESSAGE_BD_FILE_UPDATE_AVAILABLE:
+        case XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE:
             // - check whether device is ready to start download of file
             // - get the first chunk of file in quiestion with FILE_GET_CHUNK
             break;
-        case XI_CONTROL_MESSAGE_BD_FILE_CHUNK:
+        case XI_CONTROL_MESSAGE_SC_FILE_CHUNK:
             // - store the chunk through file/firmware BSP
-            // - get the next chunk, XI_CONTROL_MESSAGE_DB_FILE_GET_CHUNK
+            // - get the next chunk, XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK
             // - if last chunk close file, start appropriate action
             //      - if firmware: start firmware update or "just" report downloaded and
             //        wait for remote FWU trigger

@@ -10,11 +10,11 @@
 #include <stdint.h>
 
 typedef enum xi_control_message_type_e {
-    XI_CONTROL_MESSAGE_DB_FILE_INFO = 0, /* DB = message goes from Device to Broker */
-    XI_CONTROL_MESSAGE_BD_FILE_UPDATE_AVAILABLE, /* BD = Broker to Device */
-    XI_CONTROL_MESSAGE_DB_FILE_GET_CHUNK,
-    XI_CONTROL_MESSAGE_BD_FILE_CHUNK,
-    XI_CONTROL_MESSAGE_DB_FILE_STATUS
+    XI_CONTROL_MESSAGE_CS_FILE_INFO = 0, /* CS = message goes from Client to Service */
+    XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE, /* SC = Service to Client */
+    XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK,
+    XI_CONTROL_MESSAGE_SC_FILE_CHUNK,
+    XI_CONTROL_MESSAGE_CS_FILE_STATUS
 } xi_control_message_type_t;
 
 typedef struct xi_control_message_file_desc_s

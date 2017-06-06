@@ -22,8 +22,6 @@ void* xi_cn_calloc_func_wrapper( size_t count, size_t size, void* context )
 {
     ( void )context;
 
-    // printf( "hello calloc wrapper: %lu, %lu\n", count, size );
-
     return xi_calloc( count, size );
 }
 
@@ -98,7 +96,7 @@ void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
 
     switch ( control_message->common.msgtype )
     {
-        case XI_CONTROL_MESSAGE_DB_FILE_INFO:
+        case XI_CONTROL_MESSAGE_CS_FILE_INFO:
 
             if ( 0 < control_message->file_info.list_len )
             {
@@ -123,7 +121,7 @@ void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
             }
             break;
 
-        case XI_CONTROL_MESSAGE_DB_FILE_GET_CHUNK:
+        case XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK:
 
             xi_cbor_put_name_and_revision( cb_map, control_message->file_get_chunk.name,
                                            control_message->file_get_chunk.revision,
@@ -143,15 +141,15 @@ void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
 
             break;
 
-        case XI_CONTROL_MESSAGE_DB_FILE_STATUS:
+        case XI_CONTROL_MESSAGE_CS_FILE_STATUS:
 
             // todo_atigyi
 
             break;
 
         /* the followings are encoded by the broker and decoded by the client */
-        case XI_CONTROL_MESSAGE_BD_FILE_UPDATE_AVAILABLE:
-        case XI_CONTROL_MESSAGE_BD_FILE_CHUNK:
+        case XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE:
+        case XI_CONTROL_MESSAGE_SC_FILE_CHUNK:
         default:
             cn_cbor_free( cb_map CBOR_CONTEXT_PARAM );
             return;
@@ -253,7 +251,7 @@ xi_control_message_t* xi_cbor_codec_ct_decode( const uint8_t* data, const uint32
 
     switch ( msgtype->v.uint )
     {
-        case XI_CONTROL_MESSAGE_BD_FILE_UPDATE_AVAILABLE:
+        case XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE:
         {
             cn_cbor* list = cn_cbor_mapget_string( cb_map, XI_CBOR_CODEC_CT_STRING_LIST );
 
@@ -303,7 +301,7 @@ xi_control_message_t* xi_cbor_codec_ct_decode( const uint8_t* data, const uint32
 
             break;
 
-            case XI_CONTROL_MESSAGE_BD_FILE_CHUNK:
+            case XI_CONTROL_MESSAGE_SC_FILE_CHUNK:
 
                 xi_cbor_codec_ct_decode_getvalue( cb_map,
                                                   XI_CBOR_CODEC_CT_STRING_FILE_NAME,
@@ -323,9 +321,9 @@ xi_control_message_t* xi_cbor_codec_ct_decode( const uint8_t* data, const uint32
 
                 break;
 
-            case XI_CONTROL_MESSAGE_DB_FILE_INFO:
-            case XI_CONTROL_MESSAGE_DB_FILE_GET_CHUNK:
-            case XI_CONTROL_MESSAGE_DB_FILE_STATUS:
+            case XI_CONTROL_MESSAGE_CS_FILE_INFO:
+            case XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK:
+            case XI_CONTROL_MESSAGE_CS_FILE_STATUS:
             default:
                 cn_cbor_free( cb_map CBOR_CONTEXT_PARAM );
                 return NULL;
