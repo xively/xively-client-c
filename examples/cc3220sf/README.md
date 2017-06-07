@@ -82,11 +82,12 @@ this line:
     ```
     XI_CONFIG_FLAGS += -DXI_CC3220_UNSAFELY_DISABLE_CERT_STORE
     ```
-    - **SECURITY WARNING**: We're uploading xively's root cert manually, so
-that's not a security issue, but disabling the certificate store will also
-disable the Cert Revokation List in it. **REMEMBER TO UNDO THIS FOR PRODUCTION!!**
-The production Certificate Store does contain Xively's root (as opposed to the
-playground), so it won't throw the UNKNOWN_CA error.
+    - **SECURITY WARNING**: We're uploading the CA's root certificate for Xively
+from the C client directly, so it doesn't need to be verified by the store.
+Unfortunatly, disabling the certificate store will also disable checks on its
+Cert Revokation List. **REMEMBER TO RE-ENABLE THE CERT STORE FOR PRODUCTION!!**
+The production Certificate Store does contain the necessary CA root, so it won't
+throw the UNKNOWN_CA error we see when usingi the Cert Playground
 5. Compile the Xively Client C library using `cmd`
     ```
     $ gmake PRESET=CC3220_TLS_SOCKET                              \
