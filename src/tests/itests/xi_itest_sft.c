@@ -4,7 +4,7 @@
  * it is licensed under the BSD 3-Clause license.
  */
 
-#include <xi_itest_update.h>
+#include <xi_itest_sft.h>
 #include "xi_itest_helpers.h"
 #include "xi_backoff_status_api.h"
 
@@ -22,7 +22,7 @@ extern xi_context_handle_t xi_context_handle;
 extern xi_context_t* xi_context_mockbroker;
 /* end of dependency */
 
-int xi_itest_update_setup( void** fixture_void )
+int xi_itest_sft_setup( void** fixture_void )
 {
     /* clear the external dependencies */
     xi_context            = NULL;
@@ -64,7 +64,7 @@ err_handling:
     return 1;
 }
 
-int xi_itest_update_teardown( void** fixture_void )
+int xi_itest_sft_teardown( void** fixture_void )
 {
     xi_delete_context_with_custom_layers(
         &xi_context, itest_ct_ml_mc_layer_chain,
@@ -85,7 +85,7 @@ int xi_itest_update_teardown( void** fixture_void )
     return !xi_memory_limiter_teardown();
 }
 
-void xi_itest_update__basic_flow__SFT_protocol_intact( void** fixture_void )
+void xi_itest_sft__basic_flow__SFT_protocol_intact( void** fixture_void )
 {
     XI_UNUSED( fixture_void );
 }
