@@ -13,11 +13,6 @@
 /* Simpelink EXT lib includes */
 #include "flc_api.h"
 
-#if(0)
-#include "rom_map.h"
-#include "hw_types.h"
-#include "prcm.h"
-#endif
 #include "hw_memmap.h"
 #include "hw_common_reg.h"
 #include "hw_types.h"
@@ -79,8 +74,10 @@ typedef struct xi_sft_file_chunk_s
 //
 int offset = 0;
 int downloading = 0;
+
 int tenpercent = 0;
 int currenttenpercent = 0;
+
 char filename[] = "xively_firmware_updates.bin";
 char file_current_revision[MAX_STRING_LENGTH] = "0.0";
 char incomingFilename[MAX_INCOMING_FILENAME_LENGTH] ="";
@@ -96,18 +93,20 @@ char message[MESSAGESIZE];
 #define DETAILSSIZE 400
 char details[DETAILSSIZE];
 
-unsigned char encoded[1024];
-ssize_t enc_sz;
 char xi_stopic[128];
 char xi_logtopic[128];
 char xi_ctopic[128];
 
 
-void xi_process_file_chunk(cn_cbor* in_cb);
-void xi_parse_file_update_available(cn_cbor *cb);
-void xi_publish_file_info(xi_context_handle_t in_context_handle);
 
-int xi_parse_file_chunk(cn_cbor* in_cb, xi_sft_file_chunk_t* out_sft_file_chunk );
+void xi_parse_file_update_available( xi_context_handle_t in_context_handle, cn_cbor *cb );
+
+
+void xi_publish_file_info( xi_context_handle_t in_context_handle );
+void xi_publish_file_chunk_request( xi_context_handle_t in_context_handle, const char* file_name, const char* file_revision, int offset );
+
+void xi_process_file_chunk( xi_context_handle_t in_context_handle, cn_cbor* in_cb );
+int xi_parse_file_chunk( cn_cbor* in_cb, xi_sft_file_chunk_t* out_sft_file_chunk );
 
 void print_hash(unsigned char hash[])
 {
@@ -219,7 +218,7 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                             // Parse FILE_UPDATE_AVAILABLE messsage
                             // and format GET_FILE_CHUNK message into the outgoing cbor buffer `encoded`
                             //
-                            xi_parse_file_update_available(cb);
+                            xi_parse_file_update_available( in_context_handle, cb );
 
                             //
                             // Free the incoming cbor message context
@@ -227,14 +226,9 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                             cn_cbor_free(cb CBOR_CONTEXT_PARAM);
 
                             //
-                            // Publish the GET_FILE_CHUNK message, which has been encoded in the buffer `encoded`
-                            //
-                            xi_publish_data( in_context_handle, xi_stopic, encoded, enc_sz, XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
-                            printf("logging file update available\n");
-
-                            //
                             // Log the FILE_UPDATE_AVAILABLE information
                             //
+                            printf("logging file update available\n");
                             snprintf(message,sizeof(message),"FILE_UPDATE_AVAILABLE");
                             bufptr = download_context.file_sft_fingerprint;
                             for(i=0;i<32;i++)
@@ -276,7 +270,7 @@ void on_sft_message( xi_context_handle_t in_context_handle,
 					        // and format a subsequent cbor chunk request in the buffer `encoded`
 					        // if we're still downloading data
 					        //
-					        xi_process_file_chunk(cb);
+					        xi_process_file_chunk( in_context_handle, cb );
 
 					        //
 					        // Free the incoming cbor message context
@@ -288,10 +282,10 @@ void on_sft_message( xi_context_handle_t in_context_handle,
 							//
 							if( 1 == downloading )
 							{
-								if( offset < download_context.file_length )
-								{
-									xi_publish_data( in_context_handle, xi_stopic, encoded, enc_sz, XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
-								}
+//								if( offset < download_context.file_length )
+//								{
+//									xi_publish_data( in_context_handle, xi_stopic, encoded, enc_sz, XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
+//								}
 							}
 							else
 							{
@@ -362,63 +356,57 @@ void on_sft_message( xi_context_handle_t in_context_handle,
 }
 
 void
-xi_publish_file_info(xi_context_handle_t in_context_handle)
+xi_publish_file_info( xi_context_handle_t in_context_handle )
 {
-    unsigned char encoded[512];
+    unsigned char encoded[128];
     ssize_t enc_sz;
 
     /* Let's try making a XI_FILE_INFO packet */
     cn_cbor_errback err;
-    cn_cbor *cb_map = cn_cbor_map_create(&err);
+    cn_cbor *cb_map = cn_cbor_map_create( &err );
 
-    cn_cbor_map_put(cb_map,
-                    cn_cbor_string_create("msgtype", &err),
-                    cn_cbor_int_create(XI_FILE_INFO, &err),
-                    &err);
+    cn_cbor_map_put( cb_map,
+                     cn_cbor_string_create( "msgtype", &err ),
+                     cn_cbor_int_create( XI_FILE_INFO, &err ),
+                     &err );
+    cn_cbor_map_put( cb_map,
+                     cn_cbor_string_create("msgver", &err),
+                     cn_cbor_int_create(1, &err),
+                     &err );
+    cn_cbor *a = cn_cbor_array_create( &err );
+    cn_cbor *cb_file1 = cn_cbor_map_create( &err );
+    cn_cbor_map_put( cb_file1,
+                     cn_cbor_string_create("N", &err ),
+                     cn_cbor_string_create(filename, &err ),
+                     &err );
+    cn_cbor_map_put( cb_file1,
+                     cn_cbor_string_create( "R", &err ),
+                     cn_cbor_string_create( "-1", &err ),
+                     &err );
+    cn_cbor_array_append( a, cb_file1, &err );
+    cn_cbor_map_put( cb_map,
+                     cn_cbor_string_create( "list", &err ),
+                     a,
+                     &err );
 
-    cn_cbor_map_put(cb_map,
-                    cn_cbor_string_create("msgver", &err),
-                    cn_cbor_int_create(1, &err),
-                    &err);
+    enc_sz = cn_cbor_encoder_write( encoded, 0, sizeof( encoded ), cb_map );
+    cn_cbor_free( cb_map CBOR_CONTEXT_PARAM );
 
-
-    cn_cbor *a = cn_cbor_array_create(&err);
-    cn_cbor *cb_file1 = cn_cbor_map_create(&err);
-
-    cn_cbor_map_put(cb_file1,
-                    cn_cbor_string_create("N", &err),
-                    cn_cbor_string_create(filename, &err),
-                    &err);
-    cn_cbor_map_put(cb_file1,
-                    cn_cbor_string_create("R", &err),
-                    cn_cbor_string_create("-1", &err),
-                    &err);
-
-    cn_cbor_array_append(a, cb_file1, &err);
-
-    cn_cbor_map_put(cb_map,
-                    cn_cbor_string_create("list", &err),
-                    a,
-                    &err);
-
-    enc_sz = cn_cbor_encoder_write(encoded, 0, sizeof(encoded), cb_map);
-
-    cn_cbor_free(cb_map CBOR_CONTEXT_PARAM);
+    printf("FILE UPDATE AVAILABLE ENC_SZ: %d\n", enc_sz );
 
     /* publish the FILE_INFO message */
     xi_publish_data( in_context_handle, xi_stopic, encoded, enc_sz, XI_MQTT_QOS_AT_MOST_ONCE,
-               XI_MQTT_RETAIN_FALSE, NULL, NULL );
-    printf("Published FILE_INFO to %s\n",xi_stopic);
+                     XI_MQTT_RETAIN_FALSE, NULL, NULL );
+    printf( "Published FILE_INFO to %s\n",xi_stopic );
     snprintf( message,sizeof(message),"File info" );
     snprintf( details,sizeof(details), "name=%s revision=%s", filename, file_current_revision );
     snprintf( buffer,sizeof(buffer),"{\"message\":\"%s\",\"severity\":\"notice\",\"details\":\"%s\"}",message,details );
     xi_publish( in_context_handle, xi_logtopic, buffer, XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
-    // downloading = 0;
     sl_extlib_FlcCloseFile(download_context.file_token, NULL, NULL, 0);
 }
 
 
-void xi_parse_file_update_available(cn_cbor *cb)
+void xi_parse_file_update_available( xi_context_handle_t in_context_handle, cn_cbor *cb)
 {
     cn_cbor *cb_list;
     cn_cbor *cb_item;
@@ -430,7 +418,6 @@ void xi_parse_file_update_available(cn_cbor *cb)
     // Set Download State to Active
     //
     downloading = 1;
-
 
     //
     // Zero out download_context
@@ -533,54 +520,13 @@ void xi_parse_file_update_available(cn_cbor *cb)
     printf( "xi_parse_file_update_available { name: \"%s\", revision: \"%s\"}\n", incomingFilename, download_context.file_revision );
     printf( "\n" );
 
-    /* Let's try making a GET_CHUNK packet */
-    int messageType = XI_FILE_GET_CHUNK;
-    int messageVersion = 1;
+
+    /* Fetch the initial chunk of the file */
     int offset = 0;
-    int messageLength = 1024;
-#if 0
-    printf("File chunk request params:\n");
-    printf("msgtype: %d\n", messageType);
-    printf("msgver: %d\n", messageVersion);
-    printf("N: \"%s\"\n", incomingFilename);
-    printf("R: \"%s\"\n", download_context.file_revision );
-    printf("O: %d\n", offset);
-    printf("L: %d\n", messageLength);
-#endif
-
-    cn_cbor_errback err;
-    cn_cbor *cb_map = cn_cbor_map_create(&err);
-
-    int cbor_status = XI_CBOR_PARSER_OK;
-    cbor_status &= cn_cbor_map_put(cb_map,
-                    cn_cbor_string_create("msgtype", &err),
-                    cn_cbor_int_create(messageType, &err), &err);
-
-    cbor_status &= cn_cbor_map_put(cb_map,
-                    cn_cbor_string_create("msgver", &err),
-                    cn_cbor_int_create(messageVersion, &err), &err);
-
-    cbor_status &= cn_cbor_map_put(cb_map,
-                    cn_cbor_string_create("N", &err),
-                    cn_cbor_string_create(incomingFilename, &err),
-                    &err);
-    cbor_status &= cn_cbor_map_put(cb_map,
-                    cn_cbor_string_create("R", &err),
-                    cn_cbor_string_create( download_context.file_revision, &err),
-                    &err);
-    cbor_status &= cn_cbor_map_put(cb_map,
-                    cn_cbor_string_create("O", &err),
-                    cn_cbor_int_create(offset, &err), &err);
-    cbor_status &= cn_cbor_map_put(cb_map,
-                    cn_cbor_string_create("L", &err),
-                    cn_cbor_int_create(messageLength, &err), &err);
-
-    printf("cbor status: %d\n", cbor_status );
-    enc_sz = cn_cbor_encoder_write(encoded, 0, sizeof(encoded), cb_map);
-    cn_cbor_free(cb_map CBOR_CONTEXT_PARAM);
+    xi_publish_file_chunk_request( in_context_handle, incomingFilename, download_context.file_revision, offset );
 }
 
-int xi_parse_file_chunk(cn_cbor* in_cb, xi_sft_file_chunk_t* out_sft_file_chunk )
+int xi_parse_file_chunk( cn_cbor* in_cb, xi_sft_file_chunk_t* out_sft_file_chunk )
 {
     if( NULL == in_cb || NULL == out_sft_file_chunk )
     {
@@ -678,9 +624,64 @@ int xi_parse_file_chunk(cn_cbor* in_cb, xi_sft_file_chunk_t* out_sft_file_chunk 
     return 0;
 }
 
-int total_messages = 0;
+void xi_publish_file_chunk_request( xi_context_handle_t in_context_handle, const char* file_name, const char* file_revision, int offset )
+{
+    const int message_type = XI_FILE_GET_CHUNK;
+    const int message_version = 1;
+    const int message_length = 1024;
+    unsigned char encoded[128];
+    ssize_t enc_sz;
 
-void xi_process_file_chunk( cn_cbor *cb )
+#if 0
+    printf( "File chunk request params:\n" );
+    printf( "msgtype: %d\n", message_type );
+    printf( "msgver: %d\n", message_version );
+    printf( "N: \"%s\"\n", message_length );
+    printf( "R: \"%s\"\n", file_revision );
+    printf( "O: %d\n", offset );
+    printf( "L: %d\n", message_length );
+#endif
+
+
+    /* Let's try making a GET_CHUNK packet */
+    cn_cbor_errback err;
+    cn_cbor *cb_map = cn_cbor_map_create(&err);
+
+    cn_cbor_map_put( cb_map,
+                     cn_cbor_string_create( "msgtype", &err ),
+                     cn_cbor_int_create( message_type, &err ),
+                     &err );
+    cn_cbor_map_put( cb_map,
+                     cn_cbor_string_create( "msgver", &err ),
+                     cn_cbor_int_create( message_version, &err ),
+                     &err );
+    cn_cbor_map_put( cb_map,
+                     cn_cbor_string_create( "N", &err ),
+                     cn_cbor_string_create( file_name, &err ),
+                     &err);
+    cn_cbor_map_put( cb_map,
+                     cn_cbor_string_create( "R", &err ),
+                     cn_cbor_string_create( file_revision, &err ),
+                     &err);
+    cn_cbor_map_put( cb_map,
+                     cn_cbor_string_create("O", &err ),
+                     cn_cbor_int_create(offset, &err ),
+                     &err );
+    cn_cbor_map_put( cb_map,
+                     cn_cbor_string_create("L", &err ),
+                     cn_cbor_int_create(message_length, &err ),
+                     &err );
+
+    enc_sz = cn_cbor_encoder_write( encoded, 0, sizeof( encoded ), cb_map );
+    printf("FILE CHUNK REQUEST ENC_SZ: %d\n", enc_sz );
+
+    cn_cbor_free( cb_map CBOR_CONTEXT_PARAM );
+
+    xi_publish_data( in_context_handle, xi_stopic, encoded, enc_sz, XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
+
+}
+
+void xi_process_file_chunk( xi_context_handle_t in_context_handle, cn_cbor *cb )
 {
     cn_cbor *cb_item;
     unsigned chunkoffset = 0;
@@ -766,52 +767,11 @@ void xi_process_file_chunk( cn_cbor *cb )
         // sl_extlib_FlcCloseFile( download_context.file_token, NULL, NULL, 0 );
     }
 
-    int messageType = XI_FILE_GET_CHUNK;
-    int messageVersion = 1;
-    int messageLength = 1024;
-#if 0
-    printf("File chunk request params:\n");
-    printf( "msgtype: %d\n", messageType );
-    printf( "msgver: %d\n", messageVersion );
-    printf( "N: \"%s\"\n", incomingFilename );
-    printf( "R: \"%s\"\n", download_context.file_revision );
-    printf( "O: %d\n", offset );
-    printf( "L: %d\n", messageLength );
-#endif
-
-#if 1
     if( 1 == downloading )
     {
+        xi_publish_file_chunk_request( in_context_handle, incomingFilename, download_context.file_revision, offset );
 		/* Let's try making a GET_CHUNK packet */
-		cn_cbor_errback err;
-		cn_cbor *cb_map = cn_cbor_map_create(&err);
-
-		cn_cbor_map_put(cb_map,
-						cn_cbor_string_create("msgtype", &err),
-						cn_cbor_int_create(messageType, &err), &err);
-
-		cn_cbor_map_put(cb_map,
-						cn_cbor_string_create("msgver", &err),
-						cn_cbor_int_create(messageVersion, &err), &err);
-		cn_cbor_map_put(cb_map,
-						cn_cbor_string_create("N", &err),
-						cn_cbor_string_create(incomingFilename, &err),
-						&err);
-		cn_cbor_map_put(cb_map,
-						cn_cbor_string_create("R", &err),
-						cn_cbor_string_create( download_context.file_revision, &err),
-						&err);
-		cn_cbor_map_put(cb_map,
-						cn_cbor_string_create("O", &err),
-						cn_cbor_int_create(offset, &err), &err);
-		cn_cbor_map_put(cb_map,
-						cn_cbor_string_create("L", &err),
-						cn_cbor_int_create(messageLength, &err), &err);
-
-		enc_sz = cn_cbor_encoder_write(encoded, 0, sizeof(encoded), cb_map);
-		cn_cbor_free(cb_map CBOR_CONTEXT_PARAM);
     }
-#endif
 }
 
 int
