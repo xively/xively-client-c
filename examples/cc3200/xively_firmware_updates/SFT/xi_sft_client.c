@@ -46,6 +46,7 @@ typedef unsigned int uint;
 typedef struct file_download_ctx_s
 {
     int file_length;
+    int file_storage_offset;
     int result;
 
     long file_handle;
@@ -72,7 +73,6 @@ typedef struct xi_sft_file_chunk_s
 //
 // VARIABLES
 //
-int offset = 0;
 int downloading = 0;
 
 int tenpercent = 0;
@@ -242,22 +242,13 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                             snprintf(buffer,sizeof(buffer),"{\"message\":\"%s\",\"severity\":\"notice\",\"details\":\"%s\"}",message,details);
                             xi_publish( in_context_handle, xi_logtopic, buffer, XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 
-                            //
-                            // Initialize sha256 digest of the file and tracking variables
-                            //
-                            sha256_init( &download_context.sha256_context );
-                            offset = 0;
-
-                            //
-                            // Open the file for writing
-                            //
+                            /* Open the file for writing */
                             retVal =  sl_extlib_FlcOpenFile("/sys/mcuimgA.bin", download_context.file_length, &download_context.file_token, &download_context.file_handle, FS_MODE_OPEN_WRITE);
 
-                            //
-                            // Check for errors
-                            //
+                            /* Check for errors */
                             if( retVal < 0 )
                             {
+                                /*  TODO: send a log message to the xively logging service with the error */
                                 printf(" ERROR: mcuimgA.bin open returned %d\n",retVal);
                                 download_context.result = -1;
                                 downloading = 0;
@@ -265,35 +256,19 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                             break;
 
 					case XI_FILE_CHUNK:
-					        //
-					        // Parse the FILE_CHUNK message
-					        // and format a subsequent cbor chunk request in the buffer `encoded`
-					        // if we're still downloading data
-					        //
+
+					        /* Parse the FILE_CHUNK message and send another
+					         * FILE_GET_CHUNK request if we're still downloading data */
 					        xi_process_file_chunk( in_context_handle, cb );
 
-					        //
-					        // Free the incoming cbor message context
-					        //
+					        /* Free the incoming cbor message context */
 							cn_cbor_free(cb CBOR_CONTEXT_PARAM);
 
-							//
-							// If in downloading state, then send the next chunk request message
-							//
-							if( 1 == downloading )
+							/* Since we're getting file chunks then we were in a downloading state.
+							 * If we're not currently downloading, that means the download finished
+							 * or encountered an error. */
+							if( ! downloading )
 							{
-//								if( offset < download_context.file_length )
-//								{
-//									xi_publish_data( in_context_handle, xi_stopic, encoded, enc_sz, XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
-//								}
-							}
-							else
-							{
-							    //
-							    // We aren't in a download state
-							    // but we just were, which means the at the download is complete
-							    //
-                                downloading = 0;
                                 sprintf( file_current_revision, "%s", download_context.file_revision );
 
                                 printf( "=================\n");
@@ -301,32 +276,24 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                                 printf( "   result: %d\n", download_context.result );
                                 printf( "=================\n");
 
-                                //
-                                // Log the download complete information
-                                //
+                                /* Log the download complete information
+                                 *   TODO: report download_context.result value to the logging service */
                                 snprintf( message,sizeof(message),"File download complete" );
                                 snprintf( details,sizeof(details),"name=%s revision=%s length = %d",filename, file_current_revision, download_context.file_length );
                                 snprintf( buffer,sizeof(buffer),"{\"message\":\"%s\",\"severity\":\"notice\",\"details\":\"%s\"}",message,details );
                                 xi_publish( in_context_handle, xi_logtopic, buffer, XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 
-                                //
-                                // Finalize SHA256 Digest
-                                //
+                                /* Finalize SHA256 Digest */
                                 sha256_final( &download_context.sha256_context, download_context.file_local_computed_fingerprint );
                                 printf( "Calculated hash = 0x" );
                                 print_hash( download_context.file_local_computed_fingerprint );
-                                offset = 0;
 
-                                //
-                                // Close the firmware file
-                                //
+                                /* Close the firmware file */
                                 int result = 0;
                                 result = sl_extlib_FlcCloseFile( download_context.file_handle, NULL, NULL, 0 );
                                 printf("*** Close File Result: %d\n", result);
 
-                                //
-                                // Set the bootloader to test the new image
-                                //
+                                /* Set the bootloader to test the new image */
                                 if( download_context.result || result )
                                 {
                                     printf("NOT MARKING FILE TO TEST DUE TO ERRORS\n");
@@ -335,9 +302,8 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                                 {
                                     result = sl_extlib_FlcTest( FLC_TEST_RESET_MCU | FLC_TEST_RESET_MCU_WITH_APP );
                                     printf("*** FLC Test Result: %d, rebooting\n", result);
-                                    //
-                                    // Reboot the device to test the image
-                                    //
+
+                                    /* Reboot the device to test the image */
                                     RebootMCU();
                                 }
 
@@ -365,43 +331,45 @@ xi_publish_file_info( xi_context_handle_t in_context_handle )
     cn_cbor_errback err;
     cn_cbor *cb_map = cn_cbor_map_create( &err );
 
-    cn_cbor_map_put( cb_map,
-                     cn_cbor_string_create( "msgtype", &err ),
-                     cn_cbor_int_create( XI_FILE_INFO, &err ),
-                     &err );
-    cn_cbor_map_put( cb_map,
-                     cn_cbor_string_create("msgver", &err),
-                     cn_cbor_int_create(1, &err),
-                     &err );
+    cn_cbor_map_put( cb_map, cn_cbor_string_create( "msgtype", &err ),
+                     cn_cbor_int_create( XI_FILE_INFO, &err ), &err );
+
+    cn_cbor_map_put( cb_map, cn_cbor_string_create("msgver", &err ),
+                     cn_cbor_int_create( 1, &err ), &err );
+
     cn_cbor *a = cn_cbor_array_create( &err );
     cn_cbor *cb_file1 = cn_cbor_map_create( &err );
-    cn_cbor_map_put( cb_file1,
-                     cn_cbor_string_create("N", &err ),
-                     cn_cbor_string_create(filename, &err ),
-                     &err );
-    cn_cbor_map_put( cb_file1,
-                     cn_cbor_string_create( "R", &err ),
-                     cn_cbor_string_create( "-1", &err ),
-                     &err );
+    cn_cbor_map_put( cb_file1, cn_cbor_string_create( "N", &err ),
+                     cn_cbor_string_create( filename, &err ), &err );
+
+    cn_cbor_map_put( cb_file1, cn_cbor_string_create( "R", &err ),
+                     cn_cbor_string_create( "-1", &err ), &err );
+
     cn_cbor_array_append( a, cb_file1, &err );
-    cn_cbor_map_put( cb_map,
-                     cn_cbor_string_create( "list", &err ),
-                     a,
-                     &err );
+    cn_cbor_map_put( cb_map, cn_cbor_string_create( "list", &err ),
+                     a, &err );
 
     enc_sz = cn_cbor_encoder_write( encoded, 0, sizeof( encoded ), cb_map );
     cn_cbor_free( cb_map CBOR_CONTEXT_PARAM );
 
-    printf("FILE UPDATE AVAILABLE ENC_SZ: %d\n", enc_sz );
+    if( 0 >= enc_sz )
+    {
+        /* TODO: Log error to Device Logs. */
+    }
 
     /* publish the FILE_INFO message */
     xi_publish_data( in_context_handle, xi_stopic, encoded, enc_sz, XI_MQTT_QOS_AT_MOST_ONCE,
                      XI_MQTT_RETAIN_FALSE, NULL, NULL );
     printf( "Published FILE_INFO to %s\n",xi_stopic );
+
+    /* Send Status to Device Logs */
+    /* TODO: Should we really do this ? */
     snprintf( message,sizeof(message),"File info" );
     snprintf( details,sizeof(details), "name=%s revision=%s", filename, file_current_revision );
     snprintf( buffer,sizeof(buffer),"{\"message\":\"%s\",\"severity\":\"notice\",\"details\":\"%s\"}",message,details );
     xi_publish( in_context_handle, xi_logtopic, buffer, XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
+
+    /* TODO: Should we really do this? */
     sl_extlib_FlcCloseFile(download_context.file_token, NULL, NULL, 0);
 }
 
@@ -414,15 +382,14 @@ void xi_parse_file_update_available( xi_context_handle_t in_context_handle, cn_c
     int filelistlength = 0;
     int i,index;
 
-    //
-    // Set Download State to Active
-    //
+    /* Set Download State to Active */
     downloading = 1;
 
-    //
-    // Zero out download_context
-    //
+    /* Zero out download_context */
     memset( &download_context, 0, sizeof( file_download_ctx_t ) );
+
+    /* Initialize sha256 digest of the file and tracking variables */
+    sha256_init( &download_context.sha256_context );
 
     cb_item = cn_cbor_mapget_string(cb, "msgver");
     if(cb_item) {
@@ -522,8 +489,8 @@ void xi_parse_file_update_available( xi_context_handle_t in_context_handle, cn_c
 
 
     /* Fetch the initial chunk of the file */
-    int offset = 0;
-    xi_publish_file_chunk_request( in_context_handle, incomingFilename, download_context.file_revision, offset );
+    xi_publish_file_chunk_request( in_context_handle, incomingFilename, download_context.file_revision,
+                                   download_context.file_storage_offset );
 }
 
 int xi_parse_file_chunk( cn_cbor* in_cb, xi_sft_file_chunk_t* out_sft_file_chunk )
@@ -628,149 +595,166 @@ void xi_publish_file_chunk_request( xi_context_handle_t in_context_handle, const
 {
     const int message_type = XI_FILE_GET_CHUNK;
     const int message_version = 1;
-    const int message_length = 1024;
-    unsigned char encoded[128];
-    ssize_t enc_sz;
+    const int chunk_length = 1024;
 
 #if 0
     printf( "File chunk request params:\n" );
-    printf( "msgtype: %d\n", message_type );
-    printf( "msgver: %d\n", message_version );
     printf( "N: \"%s\"\n", message_length );
     printf( "R: \"%s\"\n", file_revision );
     printf( "O: %d\n", offset );
     printf( "L: %d\n", message_length );
 #endif
 
-
-    /* Let's try making a GET_CHUNK packet */
+    /* Format a CBOR message of the FILE_GET_CHUNK message type. */
     cn_cbor_errback err;
     cn_cbor *cb_map = cn_cbor_map_create(&err);
 
-    cn_cbor_map_put( cb_map,
-                     cn_cbor_string_create( "msgtype", &err ),
-                     cn_cbor_int_create( message_type, &err ),
-                     &err );
-    cn_cbor_map_put( cb_map,
-                     cn_cbor_string_create( "msgver", &err ),
-                     cn_cbor_int_create( message_version, &err ),
-                     &err );
-    cn_cbor_map_put( cb_map,
-                     cn_cbor_string_create( "N", &err ),
-                     cn_cbor_string_create( file_name, &err ),
-                     &err);
-    cn_cbor_map_put( cb_map,
-                     cn_cbor_string_create( "R", &err ),
-                     cn_cbor_string_create( file_revision, &err ),
-                     &err);
-    cn_cbor_map_put( cb_map,
-                     cn_cbor_string_create("O", &err ),
-                     cn_cbor_int_create(offset, &err ),
-                     &err );
-    cn_cbor_map_put( cb_map,
-                     cn_cbor_string_create("L", &err ),
-                     cn_cbor_int_create(message_length, &err ),
-                     &err );
+    cn_cbor_map_put( cb_map, cn_cbor_string_create( "msgtype", &err ),
+                     cn_cbor_int_create( message_type, &err ), &err );
 
-    enc_sz = cn_cbor_encoder_write( encoded, 0, sizeof( encoded ), cb_map );
-    printf("FILE CHUNK REQUEST ENC_SZ: %d\n", enc_sz );
+    cn_cbor_map_put( cb_map, cn_cbor_string_create( "msgver", &err ),
+                     cn_cbor_int_create( message_version, &err ), &err );
 
+    cn_cbor_map_put( cb_map, cn_cbor_string_create( "N", &err ),
+                     cn_cbor_string_create( file_name, &err ), &err);
+
+    cn_cbor_map_put( cb_map, cn_cbor_string_create( "R", &err ),
+                     cn_cbor_string_create( file_revision, &err ), &err);
+
+    cn_cbor_map_put( cb_map, cn_cbor_string_create("O", &err ),
+                     cn_cbor_int_create(offset, &err ), &err );
+
+    cn_cbor_map_put( cb_map, cn_cbor_string_create("L", &err ),
+                     cn_cbor_int_create(chunk_length, &err ), &err );
+
+    unsigned char encoded_cbor_msg[128];
+    ssize_t encoded_size = cn_cbor_encoder_write( encoded_cbor_msg, 0, sizeof( encoded_cbor_msg ), cb_map );
     cn_cbor_free( cb_map CBOR_CONTEXT_PARAM );
 
-    xi_publish_data( in_context_handle, xi_stopic, encoded, enc_sz, XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
+    xi_publish_data( in_context_handle, xi_stopic, encoded_cbor_msg, encoded_size,
+                     XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 
 }
 
 void xi_process_file_chunk( xi_context_handle_t in_context_handle, cn_cbor *cb )
 {
     cn_cbor *cb_item;
-    unsigned chunkoffset = 0;
-    int retval;
 
     xi_sft_file_chunk_t file_chunk_data;
     if( 0 != xi_parse_file_chunk( cb, &file_chunk_data ) )
     {
+        download_context.result = -1;
         downloading = 0;
         return;
     }
 
     /* printf( "---- FILE_CHUNK: length = %d FILE_LENGTH: %d\n", file_chunk_data.chunk_length, download_context.file_length ); */
 
-    // Save the offset for THIS fine chunk
-    chunkoffset = offset;
-
-    // Build the offset for the NEXT file chunk
-    offset += file_chunk_data.chunk_length;
-
-    if(currenttenpercent < offset)
+    /* Ensure that this chunk starts where we left off. */
+    if( download_context.file_storage_offset != file_chunk_data.offset )
     {
-        /* Yes, I know this is terrible, but it's the level of effort appropriate to the task. */
-        printf("Downloaded %d bytes %d %%  of the file \n",offset, (100 * (currenttenpercent + 1000)) / download_context.file_length );
+        /* TODO: Report error to SFT
+         * TODO: Report error to Device Logs */
+        printf("ERROR: unexpected Chunk Offset Delivered by SFT!\n");
+        printf("  expected: %d  sft chunk offset: %d\n", download_context.file_storage_offset, file_chunk_data.offset );
+        download_context.result = -1;
+        downloading = 0;
+    }
+
+    /* Track Progress */
+    if( currenttenpercent < file_chunk_data.offset )
+    {
+        printf("Downloaded %d bytes %d %%  of the file \n", download_context.file_storage_offset,
+                 (100 * (currenttenpercent + 1000) ) / download_context.file_length );
         currenttenpercent += tenpercent;
     }
 
+    /* Ensure that we have a Buffer to write from */
     if( file_chunk_data.array_length )
     {
-        int writelength = file_chunk_data.array_length;
-        if( chunkoffset + file_chunk_data.array_length > download_context.file_length )
+        /* convert from unsigned to signed becuase TI's API has a signed length variable */
+        if( file_chunk_data.offset + file_chunk_data.array_length > download_context.file_length )
         {
-            writelength = download_context.file_length - chunkoffset ;
+            /* Request to write past the file length
+             * TODO: Report error to SFT
+             * TODO: Report error to Device Logs */
             downloading = 0;
         }
 
         sha256_update( &download_context.sha256_context, (unsigned char *) file_chunk_data.byte_array, file_chunk_data.array_length );
 
         int write_length = (int) file_chunk_data.array_length;
+        if( 0 == write_length )
+        {
+            /* TODO: check the status code
+             * TODO: Report error to SFT
+             * TODO: Report error to Device Logs */
+            downloading = 0;
+        }
+
         if( 0 > write_length )
         {
-            // WriteBuffer is too large for CC3200 sl_extlib_FlcWriteFile operations
-            // TODO: report error to SFT!
-            printf("ERROR: WriteBuffer is too large for CC3200 sl_extlib_FlcWriteFile operations\n");
-            download_context.result = -1;
-            retval = 0;
+            /* Negative values means that we lost data in the unsigned -> signed conversion.
+             * TODO: Report error to SFT
+             * TODO: Report error to Device Logs */
             downloading = 0;
+            download_context.result = -1;
+            printf("ERROR: WriteBuffer is too large for CC3200 sl_extlib_FlcWriteFile operations\n");
         }
         else
         {
-            retval = sl_extlib_FlcWriteFile( download_context.file_handle, chunkoffset, (unsigned char *) file_chunk_data.byte_array, write_length );
-            if( retval < 0  )
+            int bytes_written = sl_extlib_FlcWriteFile( download_context.file_handle, file_chunk_data.offset,
+                                                        (unsigned char *) file_chunk_data.byte_array, write_length );
+            if( 0 >= bytes_written )
             {
-                // Write Failed
-                // TODO: Report Error to SFT!
-                printf("ERROR: Write Returned error code: %d\n", retval );
+                /* Write Failed
+                 * TODO: Report error to SFT
+                 * TODO: Report error to Device Logs */
+                printf("ERROR: Write Returned error code: %d\n", bytes_written );
                 download_context.result = -1;
                 downloading = 0;
             }
-            else if( (chunkoffset + file_chunk_data.array_length ) >= download_context.file_length )
+            else
             {
-                downloading = 0;
+                /* Track our progress throught the file */
+                download_context.file_storage_offset = file_chunk_data.offset + bytes_written;
+
+                /* Check for completeness */
+                if( download_context.file_storage_offset >= download_context.file_length )
+                {
+                    /* Download Complete */
+                    downloading = 0;
+                }
             }
         }
     }
     else
     {
-        // Zero Length Write Buffer
-        // TODO: Report Error!
+        /* Zero Length Write Buffer
+         * TODO: check for status of 1 for EoF
+         * TODO: Report error to SFT
+         * TODO: Report error to Device Logs */
         printf("ERROR: Write Buffer from SFT is of zero length\n" );
         download_context.result = -1;
         downloading = 0;
     }
 
-    //
-    // TODO: check for status of 1 for EoF
-    //
+    /* TODO: check for status of 1 for EoF */
     if( file_chunk_data.status > 1 )
     {
         printf("ERROR: SFT packet reported Chunk Status Request Error: %d\n", cb_item->v.uint );
+
+        /* TODO: Report error to SFT
+         * TODO: Report error to Device Logs */
         download_context.result = -1;
         downloading = 0;
-        // sl_extlib_FlcCloseFile( download_context.file_token, NULL, NULL, 0 );
     }
 
     if( 1 == downloading )
     {
-        xi_publish_file_chunk_request( in_context_handle, incomingFilename, download_context.file_revision, offset );
-		/* Let's try making a GET_CHUNK packet */
+        /* If still download  continuing, create another FILE_CHUNK request to the SFT service */
+        xi_publish_file_chunk_request( in_context_handle, incomingFilename,
+                                           download_context.file_revision, download_context.file_storage_offset );
     }
 }
 
