@@ -30,6 +30,7 @@ extern "C" {
 
 #ifdef XI_CONTROL_TOPIC_ENABLED
 
+#if 0
 /**
  * @brief xi_control_topic_publish_on_topic
  *
@@ -37,6 +38,7 @@ extern "C" {
  */
 static xi_state_t
 xi_control_topic_publish_on_topic( void* context, xi_control_message_t* control_message );
+#endif
 
 /**
  * @brief xi_topic_name_is_control_and_release
@@ -76,6 +78,7 @@ xi_control_topic_subscribe( void* context, char* subscribe_control_topic_name );
 static xi_state_t
 xi_control_topic_connection_state_changed( void* context, xi_state_t state );
 
+#if 0
 static xi_state_t
 xi_control_topic_publish_on_topic( void* context, xi_control_message_t* control_message )
 {
@@ -126,6 +129,7 @@ xi_control_topic_publish_on_topic( void* context, xi_control_message_t* control_
 err_handling:
     return local_state;
 }
+#endif
 
 static int8_t xi_topic_name_is_control_and_release( union xi_vector_selector_u* data )
 {
@@ -177,7 +181,9 @@ xi_state_t xi_on_control_message( xi_context_handle_t in_context_handle,
             xi_debug_format( "received data on control topic length: %zu ",
                              params->message.temporary_payload_data_length );
 
+
             /* CBOR decoding */
+            /*
             xi_control_message_t* control_message =
                 xi_cbor_codec_ct_decode( params->message.temporary_payload_data,
                                          params->message.temporary_payload_data_length );
@@ -194,6 +200,7 @@ xi_state_t xi_on_control_message( xi_context_handle_t in_context_handle,
 
                 xi_sft_on_message( layer_data->sft_context, control_message );
             }
+            */
 
             return state;
         }
@@ -299,10 +306,13 @@ xi_control_topic_layer_init( void* context, void* data, xi_state_t in_out_state 
         layer_data =
             ( xi_control_topic_layer_data_t* )XI_THIS_LAYER( context )->user_data;
 
-        xi_sft_make_context( &layer_data->sft_context,
-                             ( const char** )XI_CONTEXT_DATA( context )->updateable_files,
-                             XI_CONTEXT_DATA( context )->updateable_files_count,
-                             &xi_control_topic_publish_on_topic, context );
+        /*
+                xi_sft_make_context( &layer_data->sft_context,
+                                     ( const char** )XI_CONTEXT_DATA( context
+           )->updateable_files,
+                                     XI_CONTEXT_DATA( context )->updateable_files_count,
+                                     &xi_control_topic_publish_on_topic, context );
+                                     */
     }
 
     assert( NULL != layer_data );
@@ -351,7 +361,7 @@ xi_control_topic_layer_connect( void* context, void* data, xi_state_t in_out_sta
             xi_control_topic_subscribe( context, subscribe_control_topic_name );
         XI_CHECK_STATE( in_out_state );
 
-        xi_sft_on_connected( layer_data->sft_context );
+        /* xi_sft_on_connected( layer_data->sft_context ); */
 
         return in_out_state;
     }
@@ -415,7 +425,7 @@ xi_state_t xi_control_topic_layer_close_externally( void* context,
         /* release memory required for topic names */
         XI_SAFE_FREE( layer_data->publish_topic_name );
 
-        xi_sft_free_context( &layer_data->sft_context );
+        /* xi_sft_free_context( &layer_data->sft_context ); */
 
         /* release layer memory */
         XI_SAFE_FREE( XI_THIS_LAYER( context )->user_data );
