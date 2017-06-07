@@ -369,8 +369,6 @@ xi_publish_file_info( xi_context_handle_t in_context_handle )
     snprintf( buffer,sizeof(buffer),"{\"message\":\"%s\",\"severity\":\"notice\",\"details\":\"%s\"}",message,details );
     xi_publish( in_context_handle, xi_logtopic, buffer, XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 
-    /* TODO: Should we really do this? */
-    sl_extlib_FlcCloseFile(download_context.file_token, NULL, NULL, 0);
 }
 
 
