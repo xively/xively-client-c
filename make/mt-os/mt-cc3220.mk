@@ -10,7 +10,7 @@ CC32XX ?= 0
 ###
 ## COMPILER NAME
 ###
-COMPILER ?= arm_15.12.3.LTS
+COMPILER ?= ti-cgt-arm_16.9.3.LTS
 
 ###
 ## MAC HOST OS
@@ -107,7 +107,6 @@ XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_SDK)/source/ti/devices/cc32xx/inc
 
 # clock
 XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_SDK)/kernel/tirtos/packages
-XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_SDK)/kernel/tirtos/packages/ti/sysbios/posix
 XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_XDC_SDK)/packages
 
 
@@ -119,6 +118,7 @@ XI_CONFIG_FLAGS += -DXI_DEBUG_PRINTF=Report
 
 # wolfssl API
 XI_CONFIG_FLAGS += -DNO_WRITEV
+XI_CONFIG_FLAGS += -DSINGLE_THREADED
 
 XI_ARFLAGS := r $(XI)
 XI_LIB_FLAGS := -llibxively.a
