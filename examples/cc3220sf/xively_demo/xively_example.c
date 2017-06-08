@@ -50,7 +50,7 @@
 #include "config_file.h"
 
 #ifdef DEBUG_WOLFSSL
-extern void wolfSSL_Debug_ON();
+extern void wolfSSL_Debugging_ON();
 #endif /* DEBUG_WOLFSSL */
 
 /****************************************************************************
@@ -286,7 +286,7 @@ void * xivelyExampleThread( void *arg )
 
 	/* Enable WolfSSL Debugging */
 #ifdef DEBUB_WOLFSSL
-    wolfSSL_Debug_ON();
+    wolfSSL_Debugging_ON();
 #endif /* DEBUG_WOLFSSL */
 
     /* Init Variables and Control Blocks */
