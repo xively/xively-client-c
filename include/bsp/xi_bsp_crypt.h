@@ -9,8 +9,8 @@
 
 #include <stdint.h>
 
-int xi_bsp_crypt_sha256_init( void** );
-int xi_bsp_crypt_sha256_update( void*, const uint8_t*, uint32_t );
-int xi_bsp_crypt_sha256_final( void*, uint8_t* );
+void xi_bsp_crypt_sha256_init( void** );
+void xi_bsp_crypt_sha256_update( void*, const uint8_t*, uint32_t );
+void xi_bsp_crypt_sha256_final( void*, uint8_t* );
 
 #endif /* __XI_BSP_CRYPT_H__ */
