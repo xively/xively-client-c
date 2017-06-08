@@ -103,7 +103,7 @@ void xi_parse_file_update_available( xi_context_handle_t in_context_handle, cn_c
 
 
 void xi_publish_file_info( xi_context_handle_t in_context_handle );
-void xi_publish_file_chunk_request( xi_context_handle_t in_context_handle, const char* file_name, const char* file_revision, int offset );
+int xi_publish_file_chunk_request( xi_context_handle_t in_context_handle, const char* file_name, const char* file_revision, int offset );
 
 void xi_process_file_chunk( xi_context_handle_t in_context_handle, cn_cbor* in_cb );
 int xi_parse_file_chunk( cn_cbor* in_cb, xi_sft_file_chunk_t* out_sft_file_chunk );
@@ -361,14 +361,6 @@ xi_publish_file_info( xi_context_handle_t in_context_handle )
     xi_publish_data( in_context_handle, xi_stopic, encoded, enc_sz, XI_MQTT_QOS_AT_MOST_ONCE,
                      XI_MQTT_RETAIN_FALSE, NULL, NULL );
     printf( "Published FILE_INFO to %s\n",xi_stopic );
-
-    /* Send Status to Device Logs */
-    /* TODO: Should we really do this ? */
-    snprintf( message,sizeof(message),"File info" );
-    snprintf( details,sizeof(details), "name=%s revision=%s", filename, file_current_revision );
-    snprintf( buffer,sizeof(buffer),"{\"message\":\"%s\",\"severity\":\"notice\",\"details\":\"%s\"}",message,details );
-    xi_publish( in_context_handle, xi_logtopic, buffer, XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
-
 }
 
 
@@ -487,10 +479,22 @@ void xi_parse_file_update_available( xi_context_handle_t in_context_handle, cn_c
 
 
     /* Fetch the initial chunk of the file */
-    xi_publish_file_chunk_request( in_context_handle, incomingFilename, download_context.file_revision,
-                                   download_context.file_storage_offset );
+    if( 0 != xi_publish_file_chunk_request( in_context_handle, incomingFilename, download_context.file_revision,
+                                   download_context.file_storage_offset ) )
+    {
+        downloading = 0;
+        download_context.result = -1;
+
+        /* TODO: Report error to SFT
+         * TODO: Report error to Device Logs */
+    }
 }
 
+
+/* Parses the CBOR message to get the FILE_CHUNK required FILE_CHUNK fields
+ * and places the data in the out_sft_file_chunk structure
+ * Returns 0 on success, or -1 if there are missing fields or null parameters
+ */
 int xi_parse_file_chunk( cn_cbor* in_cb, xi_sft_file_chunk_t* out_sft_file_chunk )
 {
     if( NULL == in_cb || NULL == out_sft_file_chunk )
@@ -512,9 +516,7 @@ int xi_parse_file_chunk( cn_cbor* in_cb, xi_sft_file_chunk_t* out_sft_file_chunk
     cn_cbor *cb_item = NULL;
     memset( out_sft_file_chunk, 0, sizeof(xi_sft_file_chunk_t) );
 
-    //
-    // msg version
-    //
+    /* msg version */
     cb_item = cn_cbor_mapget_string( in_cb, "msgver" );
     if(cb_item)
     {
@@ -530,9 +532,7 @@ int xi_parse_file_chunk( cn_cbor* in_cb, xi_sft_file_chunk_t* out_sft_file_chunk
        return -1;
     }
 
-    //
-    // chunk offset
-    //
+    /* chunk offset */
     cb_item = cn_cbor_mapget_string( in_cb, "O" );
     if( cb_item )
     {
@@ -544,9 +544,7 @@ int xi_parse_file_chunk( cn_cbor* in_cb, xi_sft_file_chunk_t* out_sft_file_chunk
         return -1;
     }
 
-    //
-    // chunk length
-    //
+    /* chunk length */
     cb_item = cn_cbor_mapget_string( in_cb, "L" );
     if( cb_item )
     {
@@ -558,9 +556,7 @@ int xi_parse_file_chunk( cn_cbor* in_cb, xi_sft_file_chunk_t* out_sft_file_chunk
         return -1;
     }
 
-    //
-    // Status
-    //
+    /* Status */
     cb_item = cn_cbor_mapget_string( in_cb, "S" );
     if( cb_item )
     {
@@ -572,9 +568,7 @@ int xi_parse_file_chunk( cn_cbor* in_cb, xi_sft_file_chunk_t* out_sft_file_chunk
         return -1;
     }
 
-    //
-    // Byte Array
-    //
+    /* Byte Array */
     cb_item = cn_cbor_mapget_string( in_cb, "C" );
     if(cb_item)
     {
@@ -589,7 +583,14 @@ int xi_parse_file_chunk( cn_cbor* in_cb, xi_sft_file_chunk_t* out_sft_file_chunk
     return 0;
 }
 
-void xi_publish_file_chunk_request( xi_context_handle_t in_context_handle, const char* file_name, const char* file_revision, int offset )
+/*
+ * Formats a FILE_GET_CHUNK cbor message with the provided parameters and then publishes
+ * the message to the SFT Service.
+ *
+ * Returns 0 on success, or -1 if the message could not be queued for publication
+ * (probably due to a too-small encoding buffer)
+ */
+int xi_publish_file_chunk_request( xi_context_handle_t in_context_handle, const char* file_name, const char* file_revision, int offset )
 {
     const int message_type = XI_FILE_GET_CHUNK;
     const int message_version = 1;
@@ -629,9 +630,20 @@ void xi_publish_file_chunk_request( xi_context_handle_t in_context_handle, const
     ssize_t encoded_size = cn_cbor_encoder_write( encoded_cbor_msg, 0, sizeof( encoded_cbor_msg ), cb_map );
     cn_cbor_free( cb_map CBOR_CONTEXT_PARAM );
 
-    xi_publish_data( in_context_handle, xi_stopic, encoded_cbor_msg, encoded_size,
-                     XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
+    if( 0 >= encoded_size )
+    {
+        printf("Could not encode the FILE_CHUNK request in the specified buffer\n");
+        return -1;
+    }
 
+    if( 0 != xi_publish_data( in_context_handle, xi_stopic, encoded_cbor_msg, encoded_size,
+                                         XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL ) )
+    {
+        printf("Xively Publish returned an error\n");
+        return -1;
+    }
+
+    return 0;
 }
 
 void xi_process_file_chunk( xi_context_handle_t in_context_handle, cn_cbor *cb )
