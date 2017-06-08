@@ -107,6 +107,7 @@ XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_SDK)/source/ti/devices/cc32xx/inc
 
 # clock
 XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_SDK)/kernel/tirtos/packages
+XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_SDK)/kernel/tirtos/packages/ti/sysbios/posix
 XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_XDC_SDK)/packages
 
 
