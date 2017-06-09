@@ -669,7 +669,7 @@ int main( void )
                 {
                     /* Read Write Socket data */
                     xi_state_t ret_state = xi_initialize( user_config.xi_account_id,
-                                                          user_config.xi_device_id, 0 );
+                                                          user_config.xi_device_id );
                     if ( XI_STATE_OK != ret_state )
                     {
                         printf( "\r\n xi failed to initialise\n" );
@@ -970,7 +970,7 @@ void ind_wifi_socket_data_received( int8_t server_id,
                                     uint32_t message_size,
                                     uint32_t chunk_size )
 {
-    (void)server_id; /* Unused */
+    ( void )server_id; /* Unused */
     /* Xively */
     xi_bsp_io_net_socket_data_received_proxy( ( uint8_t )socket_id, data_ptr,
                                               message_size, chunk_size );

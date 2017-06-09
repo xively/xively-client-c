@@ -6,6 +6,7 @@
 
 #include <xi_bsp_io_net.h>
 
+#include <sys/select.h>
 #include <lwip/netdb.h>
 
 #include <errno.h>

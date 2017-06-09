@@ -950,7 +950,7 @@ static int xc_main( void )
         /*
          *  Initialize xively client library.
          */
-        if ( ( xi_rc = xi_initialize( account_id, device_id, NULL ) ) == XI_STATE_OK )
+        if ( ( xi_rc = xi_initialize( account_id, device_id ) ) == XI_STATE_OK )
         {
             if ( ( xc_ctx = xi_create_context() ) < 0 )
             {
