@@ -29,6 +29,7 @@
 #include "xi_macros.h"
 #include "xi_timed_task.h"
 #include "xi_version.h"
+#include "xi_list.h"
 #include "xively.h"
 
 #include "xi_layer_stack.h"
@@ -45,10 +46,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-static char* str_device_credentials_file_absolute_path = NULL;
-static char* str_device_credentials_username           = NULL;
-static char* str_device_credentials_password           = NULL;
 
 /*
  * CONSTANTS
@@ -138,9 +135,7 @@ xi_state_t check_csv_entry( const char* in_string, int* out_num_chars )
 /*
  * MAIN LIBRARY FUNCTIONS
  */
-xi_state_t xi_initialize( const char* account_id,
-                          const char* device_unique_id,
-                          const char* device_credentials_file_absolute_path )
+xi_state_t xi_initialize( const char* account_id, const char* device_unique_id )
 {
     xi_bsp_time_init();
     xi_bsp_rng_init();
@@ -157,12 +152,6 @@ xi_state_t xi_initialize( const char* account_id,
     xi_globals.str_account_id       = xi_str_dup( account_id );
     xi_globals.str_device_unique_id = xi_str_dup( device_unique_id );
 
-    if ( NULL != device_credentials_file_absolute_path )
-    {
-        str_device_credentials_file_absolute_path =
-            xi_str_dup( device_credentials_file_absolute_path );
-    }
-
     if ( NULL == xi_globals.str_device_unique_id || NULL == xi_globals.str_account_id )
     {
         return XI_FAILED_INITIALIZATION;
@@ -175,9 +164,6 @@ xi_state_t xi_shutdown()
 {
     XI_SAFE_FREE( xi_globals.str_account_id );
     XI_SAFE_FREE( xi_globals.str_device_unique_id );
-    XI_SAFE_FREE( str_device_credentials_file_absolute_path );
-    XI_SAFE_FREE( str_device_credentials_username );
-    XI_SAFE_FREE( str_device_credentials_password );
 
     xi_bsp_rng_shutdown();
 
@@ -344,6 +330,16 @@ static void xi_free_context_data( xi_context_t* context )
             &context_data->copy_of_q12_unacked_messages_queue );
     }
 
+    {
+        uint16_t id_file = 0;
+        for ( ; id_file < context_data->updateable_files_count; ++id_file )
+        {
+            XI_SAFE_FREE( context_data->updateable_files[id_file] );
+        }
+
+        XI_SAFE_FREE( context_data->updateable_files );
+    }
+
     xi_free_connection_data( &context_data->connection_data );
 
     /* remember, event dispatcher ownership is not taken, this is why we don't delete
@@ -458,6 +454,38 @@ xi_state_t xi_events_process_tick()
     return XI_EVENT_PROCESS_STOPPED;
 }
 
+
+xi_state_t xi_set_updateable_files( xi_context_handle_t xih,
+                                    const char* filenames[],
+                                    uint16_t count )
+{
+    if ( NULL == filenames || NULL == *filenames || 0 == count )
+    {
+        return XI_INVALID_PARAMETER;
+    }
+
+    xi_state_t state = XI_STATE_OK;
+    xi_context_t* xi = xi_object_for_handle( xi_globals.context_handles_vector, xih );
+
+    XI_CHECK_CND_DBGMESSAGE( NULL == xi, XI_NULL_CONTEXT, state,
+                             "ERROR: NULL context provided" );
+
+    XI_ALLOC_BUFFER_AT( char*, xi->context_data.updateable_files, sizeof( char* ) * count,
+                        state );
+
+    xi->context_data.updateable_files_count = count;
+
+    uint16_t id_file = 0;
+    for ( ; id_file < xi->context_data.updateable_files_count; ++id_file )
+    {
+        xi->context_data.updateable_files[id_file] = xi_str_dup( filenames[id_file] );
+    }
+
+err_handling:
+    return state;
+}
+
+
 xi_state_t xi_connect_with_lastwill_to_impl( xi_context_handle_t xih,
                                              const char* host,
                                              uint16_t port,
@@ -478,7 +506,6 @@ xi_state_t xi_connect_with_lastwill_to_impl( xi_context_handle_t xih,
     xi_state_t local_state         = XI_STATE_OK;
     xi_layer_t* input_layer        = NULL;
     uint32_t new_backoff           = 0;
-    XI_UNUSED( local_state );
 
     XI_CHECK_CND_DBGMESSAGE( NULL == host, XI_NULL_HOST, state,
                              "ERROR: NULL host provided" );

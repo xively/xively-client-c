@@ -114,4 +114,4 @@ xi_state_t xi_mock_broker_secondary_layer_connect( void* context,
 }
 #endif
 
-#endif // __XI_ITEST_MOCK_BROKER_LAYER_H__
+#endif /* __XI_ITEST_MOCK_BROKER_LAYER_H__ */

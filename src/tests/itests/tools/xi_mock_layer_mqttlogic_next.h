@@ -36,4 +36,4 @@ xi_mock_layer_mqttlogic_next_connect( void* context, void* data, xi_state_t stat
 }
 #endif
 
-#endif // __XI_ITEST_MOCK_LAYER_MQTTLOGIC_NEXT_H__
+#endif /* __XI_ITEST_MOCK_LAYER_MQTTLOGIC_NEXT_H__ */

@@ -9,6 +9,8 @@
 #include "xi_control_topic_layer_data.h"
 #include "xi_handle.h"
 #include "xi_user_sub_call_wrapper.h"
+#include "xi_cbor_codec_ct.h"
+#include "xi_control_message.h"
 #endif
 #include "xi_macros.h"
 #include "xi_layer_api.h"
@@ -20,6 +22,7 @@
 #include "xi_control_topic_name.h"
 #include "xi_mqtt_message.h"
 #include "xi_layer_macros.h"
+#include "xi_list.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,17 +30,14 @@ extern "C" {
 
 #ifdef XI_CONTROL_TOPIC_ENABLED
 
-#if ( 0 )
-/*
- * THis function is not used at this time
- */
+#if 0
 /**
  * @brief xi_control_topic_publish_on_topic
  *
  * This function sends the given buffer through the control topic
  */
 static xi_state_t
-xi_control_topic_publish_on_topic( void* context, xi_data_desc_t* data );
+xi_control_topic_publish_on_topic( void* context, xi_control_message_t* control_message );
 #endif
 
 /**
@@ -78,22 +78,49 @@ xi_control_topic_subscribe( void* context, char* subscribe_control_topic_name );
 static xi_state_t
 xi_control_topic_connection_state_changed( void* context, xi_state_t state );
 
-#if ( 0 )
-/*
- * This is unused at this time.
- */
-static xi_state_t xi_control_topic_publish_on_topic( void* context, xi_data_desc_t* data )
+#if 0
+static xi_state_t
+xi_control_topic_publish_on_topic( void* context, xi_control_message_t* control_message )
 {
+    if ( NULL == control_message )
+    {
+        return XI_INVALID_PARAMETER;
+    }
+
     xi_state_t local_state = XI_STATE_OK;
 
     xi_control_topic_layer_data_t* layer_data =
         ( xi_control_topic_layer_data_t* )XI_THIS_LAYER( context )->user_data;
 
-    assert( layer_data != NULL );
+    assert( NULL != layer_data );
+
+    xi_data_desc_t* encoded_message_data_desc = NULL;
+    { /* CBOR encoding */
+        uint8_t* encoded_message     = NULL;
+        uint32_t encoded_message_len = 0;
+
+        xi_cbor_codec_ct_encode( control_message, &encoded_message,
+                                 &encoded_message_len );
+
+        xi_control_message_free( &control_message );
+
+        XI_CHECK_CND_DBGMESSAGE( NULL == encoded_message || 0 == encoded_message_len,
+                                 XI_SERIALIZATION_ERROR, local_state,
+                                 "ERROR: control topic CBOR encoding failed" );
+
+        encoded_message_data_desc =
+            xi_make_desc_from_buffer_share( encoded_message, encoded_message_len );
+        // todo_atigyi: make more elegant ownership passing
+        encoded_message_data_desc->memory_type = XI_MEMORY_TYPE_MANAGED;
+
+        XI_CHECK_CND_DBGMESSAGE( NULL == encoded_message_data_desc,
+                                 XI_SERIALIZATION_ERROR, local_state,
+                                 "ERROR: failed to create data_desc from CBOR binary " );
+    }
 
     xi_mqtt_logic_task_t* task = xi_mqtt_logic_make_publish_task(
-        layer_data->publish_topic_name, data, XI_MQTT_QOS_AT_MOST_ONCE,
-        XI_MQTT_RETAIN_FALSE, xi_make_empty_handle() );
+        layer_data->publish_topic_name, encoded_message_data_desc,
+        XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, xi_make_empty_handle() );
 
     XI_CHECK_MEMORY( task, local_state );
 
@@ -154,6 +181,27 @@ xi_state_t xi_on_control_message( xi_context_handle_t in_context_handle,
             xi_debug_format( "received data on control topic length: %zu ",
                              params->message.temporary_payload_data_length );
 
+
+            /* CBOR decoding */
+            /*
+            xi_control_message_t* control_message =
+                xi_cbor_codec_ct_decode( params->message.temporary_payload_data,
+                                         params->message.temporary_payload_data_length );
+
+            {
+                xi_context_t* context = xi_object_for_handle(
+                    xi_globals.context_handles_vector, in_context_handle );
+                assert( NULL != context );
+
+                xi_control_topic_layer_data_t* layer_data =
+                    ( xi_control_topic_layer_data_t* )XI_THIS_LAYER( context )->user_data;
+
+                assert( layer_data != NULL );
+
+                xi_sft_on_message( layer_data->sft_context, control_message );
+            }
+            */
+
             return state;
         }
 
@@ -198,7 +246,7 @@ err_handling:
 
 xi_state_t xi_control_topic_connection_state_changed( void* context, xi_state_t state )
 {
-    xi_debug_logger( "xi_control_topic_connection_state_changed" );
+    xi_debug_printf( "%s\n", __FUNCTION__ );
 
     XI_CONTEXT_DATA( context )->connection_callback.handlers.h3.a2 =
         XI_CONTEXT_DATA( context )->connection_data;
@@ -216,7 +264,6 @@ xi_state_t xi_control_topic_connection_state_changed( void* context, xi_state_t 
     }
 
     return state;
-    ;
 }
 
 xi_state_t
@@ -245,20 +292,32 @@ xi_control_topic_layer_init( void* context, void* data, xi_state_t in_out_state 
 {
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
 
-    XI_UNUSED( data );
-
     xi_debug_logger( "control topic layer initializing.. " );
 
 #ifdef XI_CONTROL_TOPIC_ENABLED
     xi_control_topic_layer_data_t* layer_data =
         ( xi_control_topic_layer_data_t* )XI_THIS_LAYER( context )->user_data;
 
-    if ( layer_data == 0 )
+    if ( NULL == layer_data )
     {
-        /* clean unfinished requests */
         XI_ALLOC_AT( xi_control_topic_layer_data_t, XI_THIS_LAYER( context )->user_data,
                      in_out_state );
+
+        layer_data =
+            ( xi_control_topic_layer_data_t* )XI_THIS_LAYER( context )->user_data;
+
+        /*
+                xi_sft_make_context( &layer_data->sft_context,
+                                     ( const char** )XI_CONTEXT_DATA( context
+           )->updateable_files,
+                                     XI_CONTEXT_DATA( context )->updateable_files_count,
+                                     &xi_control_topic_publish_on_topic, context );
+                                     */
     }
+
+    assert( NULL != layer_data );
+
+
 #endif
 
     return XI_PROCESS_INIT_ON_PREV_LAYER( context, data, in_out_state );
@@ -287,7 +346,7 @@ xi_control_topic_layer_connect( void* context, void* data, xi_state_t in_out_sta
 
     /* if the other layers has been connected succesfully let's try to subscribe to a
      * control topic */
-    if ( in_out_state == XI_STATE_OK )
+    if ( XI_STATE_OK == in_out_state )
     {
         /* let's create the topic name */
         in_out_state = xi_control_topic_create_topic_name(
@@ -302,23 +361,25 @@ xi_control_topic_layer_connect( void* context, void* data, xi_state_t in_out_sta
             xi_control_topic_subscribe( context, subscribe_control_topic_name );
         XI_CHECK_STATE( in_out_state );
 
+        /* xi_sft_on_connected( layer_data->sft_context ); */
+
         return in_out_state;
     }
 
 err_handling:
+
     XI_SAFE_FREE( subscribe_control_topic_name );
 
-    return XI_PROCESS_CLOSE_ON_PREV_LAYER( context, 0, in_out_state );
 #else
 
-    if ( in_out_state == XI_STATE_OK )
+    if ( XI_STATE_OK == in_out_state )
     {
         return xi_control_topic_connection_state_changed( context, in_out_state );
     }
 
-    return XI_PROCESS_CLOSE_ON_PREV_LAYER( context, 0, in_out_state );
-
 #endif
+
+    return XI_PROCESS_CLOSE_ON_PREV_LAYER( context, 0, in_out_state );
 }
 
 xi_state_t
@@ -363,6 +424,8 @@ xi_state_t xi_control_topic_layer_close_externally( void* context,
     {
         /* release memory required for topic names */
         XI_SAFE_FREE( layer_data->publish_topic_name );
+
+        /* xi_sft_free_context( &layer_data->sft_context ); */
 
         /* release layer memory */
         XI_SAFE_FREE( XI_THIS_LAYER( context )->user_data );

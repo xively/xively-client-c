@@ -45,4 +45,4 @@ xi_state_t xi_libxively_driver_send_on_publish_finish( xi_libxively_driver_t* dr
 xi_state_t xi_libxively_driver_send_on_disconnect( xi_libxively_driver_t* driver,
                                                    xi_state_t error_code );
 
-#endif // __XI_LIBXIVELY_DRIVER_IMPL_H__
+#endif /* __XI_LIBXIVELY_DRIVER_IMPL_H__ */

@@ -9,6 +9,7 @@
 
 #ifdef XI_MEMORY_LIMITER_ENABLED
 #include "xi_memory_limiter.h"
+#include <stdint.h>
 #endif
 
 #ifdef __cplusplus
@@ -20,7 +21,7 @@ extern "C" {
 
 /* real implementation of the tearup and teardown for tests */
 void _xi_memory_limiter_tearup();
-void _xi_memory_limiter_teardown();
+uint8_t _xi_memory_limiter_teardown();
 
 /* this is the macro for  */
 #define xi_memory_limiter_tearup _xi_memory_limiter_tearup
@@ -29,11 +30,11 @@ void _xi_memory_limiter_teardown();
 #else
 #define xi_is_whole_memory_deallocated() 1
 #define xi_memory_limiter_tearup()
-#define xi_memory_limiter_teardown()
+#define xi_memory_limiter_teardown() 1
 #endif
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // __XI_MEMORY_CHECKS_H__
+#endif /* __XI_MEMORY_CHECKS_H__ */

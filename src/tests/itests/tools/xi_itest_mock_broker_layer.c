@@ -22,8 +22,7 @@ extern xi_context_t* xi_context;            // Xivley Client context
 extern xi_context_t* xi_context_mockbroker; // test mock broker context
 
 /************************************************************************************
- * mock broker secondary layer
-*******************************************************
+ * mock broker secondary layer ******************************************************
 ************************************************************************************/
 xi_state_t
 xi_mock_broker_secondary_layer_push( void* context, void* data, xi_state_t in_out_state )
@@ -145,8 +144,7 @@ xi_state_t xi_mock_broker_secondary_layer_connect( void* context,
 }
 
 /************************************************************************************
- * mock broker primary layer
-*********************************************************
+ * mock broker primary layer ********************************************************
 ************************************************************************************/
 xi_state_t xi_mock_broker_layer_push__ERROR_CHANNEL()
 {

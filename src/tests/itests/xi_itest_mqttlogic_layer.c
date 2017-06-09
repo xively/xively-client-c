@@ -68,7 +68,7 @@ xi_itest_mqttlogic_test_msg_t* xi_itest_mqttlogic_make_msg_test_matrix(
              test_msg_data->values_to_check.what )                                       \
         {                                                                                \
             fprintf( stderr, "msg bit - [%d] " #what                                     \
-                             " does not match the expected value [%d]\n",              \
+                             " does not match the expected value [%d]\n",                \
                      msg->common.common_u.common_bits.what,                              \
                      test_msg_data->values_to_check.what );                              \
             fflush( stderr );                                                            \
@@ -148,8 +148,7 @@ int xi_itest_mqttlogic_layer_setup( void** state )
     xi_memory_limiter_tearup();
 
     assert_int_equal( XI_STATE_OK, xi_initialize( "xi_itest_tls_error_account_id",
-                                                  "xi_itest_tls_error_device_id",
-                                                  "./libxively_consumer.creds" ) );
+                                                  "xi_itest_tls_error_device_id" ) );
 
     XI_CHECK_STATE( xi_create_context_with_custom_layers(
         &xi_context__itest_mqttlogic_layer, xi_itest_layer_chain_mqttlogic,
@@ -174,9 +173,7 @@ int xi_itest_mqttlogic_layer_teardown( void** state )
 
     xi_shutdown();
 
-    xi_memory_limiter_teardown();
-
-    return 0;
+    return !xi_memory_limiter_teardown();
 }
 
 void xi_itest_mqttlogic_init_layer( xi_layer_t* top_layer )

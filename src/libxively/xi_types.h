@@ -61,6 +61,9 @@ typedef struct xi_context_data_s
     xi_evtd_instance_t* evtd_instance;
     xi_event_handle_t connection_callback;
     xi_shutdown_state_t shutdown_state;
+
+    char** updateable_files;
+    uint16_t updateable_files_count;
 } xi_context_data_t;
 
 typedef struct xi_context_s

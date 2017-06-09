@@ -21,4 +21,4 @@ xi_state_t xi_driver_logic_layer_init( void* context, void* data, xi_state_t sta
 
 xi_state_t xi_driver_logic_layer_connect( void* context, void* data, xi_state_t state );
 
-#endif // __XI_DRIVER_LOGIC_LAYER_H__
+#endif /* __XI_DRIVER_LOGIC_LAYER_H__ */

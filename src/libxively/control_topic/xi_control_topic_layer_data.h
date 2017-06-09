@@ -7,6 +7,8 @@
 #ifndef __XI_CONTROL_TOPIC_LAYER_LAYER_DATA_H__
 #define __XI_CONTROL_TOPIC_LAYER_LAYER_DATA_H__
 
+#include <xi_sft_logic.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -14,6 +16,7 @@ extern "C" {
 typedef struct
 {
     char* publish_topic_name;
+    xi_sft_context_t* sft_context;
 } xi_control_topic_layer_data_t;
 
 #ifdef __cplusplus

@@ -81,11 +81,15 @@ void _xi_memory_limiter_tearup()
     }
 }
 
-void _xi_memory_limiter_teardown()
+uint8_t _xi_memory_limiter_teardown()
 {
+    uint8_t whole_memory_deallocated = 1;
+
     /* check for memory leaks */
     if ( !xi_is_whole_memory_deallocated() )
     {
+        whole_memory_deallocated = 0;
+
         fprintf( stderr,
                  "\x1b[31m [MLD] WARNING: Memory leak detected - total memory lost "
                  "- %ld bytes \x1b[0m\n",
@@ -105,6 +109,8 @@ void _xi_memory_limiter_teardown()
     }
 
     fflush( stderr );
+
+    return whole_memory_deallocated;
 }
 
 #endif
