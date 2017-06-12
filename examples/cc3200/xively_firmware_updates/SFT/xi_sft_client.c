@@ -95,6 +95,17 @@ char xi_stopic[128];
 char xi_logtopic[128];
 char xi_ctopic[128];
 
+typedef enum {
+    sft_status_ok = 0,                       /* 0 */
+    sft_open_file_error,
+    sft_close_file_error,
+    sft_write_error,
+    sft_empty_length_array_error,
+    sft_data_out_of_bounds_error,
+    sft_missing_cbor_field_error,
+    sft_publish_error
+} sft_status_t;
+
 
 
 void xi_parse_file_update_available( xi_context_handle_t in_context_handle, cn_cbor *cb );
@@ -106,12 +117,14 @@ int xi_publish_file_chunk_request( xi_context_handle_t in_context_handle, const 
 void xi_process_file_chunk( xi_context_handle_t in_context_handle, cn_cbor* in_cb );
 int xi_parse_file_chunk( cn_cbor* in_cb, xi_sft_file_chunk_t* out_sft_file_chunk );
 
-void print_hash(unsigned char hash[])
+void print_hash( unsigned char hash[] )
 {
    int idx;
-   for (idx=0; idx < 32; idx++)
-      printf("%02x",hash[idx]);
-   printf("\n");
+   for ( idx=0; idx < 32; idx++ )
+   {
+      printf( "%02x",hash[idx] );
+   }
+   printf( "\n" );
 }
 
 //****************************************************************************
@@ -127,17 +140,17 @@ static void RebootMCU()
   //
   // Configure hibernate RTC wakeup
   //
-  PRCMHibernateWakeupSourceEnable(PRCM_HIB_SLOW_CLK_CTR);
+  PRCMHibernateWakeupSourceEnable( PRCM_HIB_SLOW_CLK_CTR );
 
   //
   // Delay loop
   //
-  MAP_UtilsDelay(8000000);
+  MAP_UtilsDelay( 8000000 );
 
   //
   // Set wake up time
   //
-  PRCMHibernateIntervalSet(330);
+  PRCMHibernateIntervalSet( 330 );
 
   //
   // Request hibernate
@@ -147,10 +160,37 @@ static void RebootMCU()
   //
   // Control should never reach here
   //
-  while(1)
+  while( 1 )
   {
 
   }
+}
+
+void publish_device_log( xi_context_handle_t context_handle, const char* message_str, const char* details_str, const sft_status_t status )
+{
+    static char* notice_str = "notice";
+    static char* error_str = "error";
+
+    if( NULL == message || NULL == details )
+    {
+        printf("\nWarning: publish_device_log invoked with a null string parameter\n\n");
+        return;
+    }
+
+    const char* severity_str;
+    if( sft_status_ok == status )
+    {
+        severity_str = notice_str;
+    }
+    else
+    {
+        severity_str = error_str;
+    }
+
+    char device_log_buffer[400];
+    snprintf( device_log_buffer, sizeof(device_log_buffer),"{\"message\":\"%s\",\"severity\":\"%s\",\"details\":\"%s\"}", message_str, severity_str, details_str );
+
+    xi_publish( context_handle, xi_logtopic, device_log_buffer, XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
 
 void on_sft_message( xi_context_handle_t in_context_handle,
