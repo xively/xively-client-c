@@ -14,27 +14,27 @@
 #include <ti/sysbios/knl/Clock.h>
 
 Clock_Struct clk0Struct;
-void clockSecondTick(UArg arg0);
+void clockSecondTick( UArg arg0 );
 
 
 void xi_bsp_time_init()
 {
     Clock_Params clkParams;
 
-    Clock_Params_init(&clkParams);
-    clkParams.period = 1000;  // 1 second
+    Clock_Params_init( &clkParams );
+    clkParams.period    = 1000; // 1 second
     clkParams.startFlag = TRUE;
 
     /* Construct a periodic Clock Instance */
-    Clock_construct(&clk0Struct, (Clock_FuncPtr)clockSecondTick,
-                    clkParams.period, &clkParams);
+    Clock_construct( &clk0Struct, ( Clock_FuncPtr )clockSecondTick, clkParams.period,
+                     &clkParams );
 
     xi_bsp_time_sntp_init( NULL );
 }
 
 
 /* tracks uptime */
-void clockSecondTick(UArg arg0)
+void clockSecondTick( UArg arg0 )
 {
     ++uptime;
 }
