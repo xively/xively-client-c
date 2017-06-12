@@ -5,15 +5,12 @@
 
 include make/mt-os/mt-os-common.mk
 
-# todo: this is common, move it to outside
-XI ?= $(XI_BINDIR)/libxively.a
-
 CC32XX ?= 0
 
 ###
 ## COMPILER NAME
 ###
-COMPILER ?= arm_15.12.3.LTS
+COMPILER ?= ti-cgt-arm_16.9.3.LTS
 
 ###
 ## MAC HOST OS
@@ -105,10 +102,11 @@ XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_SDK)/source/ti/devices/cc32xx/driverlib
 XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_SDK)/source
 XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_SDK)/source/ti/drivers
 XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_SDK)/source/ti/drivers/net/wifi
+XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_SDK)/source/ti/drivers/net/wifi/sys
 XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_SDK)/source/ti/devices/cc32xx/inc
 
 # clock
-XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_SDK)/os/tirtos/packages
+XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_SDK)/kernel/tirtos/packages
 XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_XDC_SDK)/packages
 
 
@@ -116,9 +114,11 @@ XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_XDC_SDK)/packages
 XI_CONFIG_FLAGS += -DXI_CROSS_TARGET
 XI_CONFIG_FLAGS += -DXI_EMBEDDED_TESTS
 XI_CONFIG_FLAGS += -DXI_DEBUG_PRINTF=Report
+#XI_CONFIG_FLAGS += -DXI_CC3220_UNSAFELY_DISABLE_CERT_STORE #Will also disable the store's CRL
 
 # wolfssl API
 XI_CONFIG_FLAGS += -DNO_WRITEV
+XI_CONFIG_FLAGS += -DSINGLE_THREADED
 
 XI_ARFLAGS := r $(XI)
 XI_LIB_FLAGS := -llibxively.a
