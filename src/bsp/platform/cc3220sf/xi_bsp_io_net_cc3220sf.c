@@ -91,7 +91,7 @@ xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
         return XI_BSP_IO_NET_STATE_ERROR;
     }
 
-#ifdef XI_CC3220_UNSAFELY_DISABLE_CERT_STORE
+#ifdef XI_CC3220SF_UNSAFELY_DISABLE_CERT_STORE
     /* Disable usage of the on-board Certificate Catalog - Also disables the CRL */
     int32_t dummyValue = 0;
     retval = sl_SetSockOpt( *xi_socket, SL_SOL_SOCKET, SL_SO_SECURE_DISABLE_CERTIFICATE_STORE,
@@ -101,7 +101,7 @@ xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
         xi_bsp_debug_logger( "[ERROR] Failed to disable certificate catalog validation\n\r" );
         return XI_BSP_IO_NET_STATE_ERROR;
     }
-#endif /* XI_CC3220_UNSAFELY_DISABLE_CERT_STORE */
+#endif /* XI_CC3220SF_UNSAFELY_DISABLE_CERT_STORE */
 
     /* set TLS version to 1.2 */
     unsigned char ucMethod = SL_SO_SEC_METHOD_TLSV1_2;
