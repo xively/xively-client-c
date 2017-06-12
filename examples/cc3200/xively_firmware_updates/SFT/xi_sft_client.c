@@ -52,7 +52,7 @@ typedef struct file_download_ctx_s
 
     char file_name[MAX_STRING_LENGTH];
     char file_revision[MAX_STRING_LENGTH];
-    unsigned char file_sft_fingerprint[MAX_STRING_LENGTH];
+    unsigned char file_sft_fingerprint[64];
     unsigned char file_local_computed_fingerprint[32];
 
     SHA256_CTX sha256_context;
@@ -188,9 +188,35 @@ void publish_device_log( xi_context_handle_t context_handle, const char* message
     }
 
     char device_log_buffer[400];
-    snprintf( device_log_buffer, sizeof(device_log_buffer),"{\"message\":\"%s\",\"severity\":\"%s\",\"details\":\"%s\"}", message_str, severity_str, details_str );
+    snprintf( device_log_buffer, sizeof(device_log_buffer),"{\"message\":\"%s\",\"severity\":\"%s\",\"details\":\"SFT Status Code: %d\n%s\"}", message_str, severity_str, status, details_str );
 
     xi_publish( context_handle, xi_logtopic, device_log_buffer, XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
+}
+
+void verify_sha256()
+{
+    /* Finalize SHA256 Digest */
+    sha256_final( &download_context.sha256_context, download_context.file_local_computed_fingerprint );
+    printf( "Calculated hash = 0x" );
+    print_hash( download_context.file_local_computed_fingerprint );
+
+    char hash_buffer[65];
+    char* buff_ptr = hash_buffer;
+
+    int i;
+    for( i = 0; i < 32; i++ )
+    {
+        buff_ptr += sprintf( buff_ptr, "%02x", download_context.file_sft_fingerprint[i] );
+    }
+    *buff_ptr = '\0';
+
+
+    printf("formatted hash: 0x%s\n", hash_buffer);
+
+    printf( "Service hash = 0x" );
+    print_hash( download_context.file_sft_fingerprint );
+
+    /* TODO: add check to compare the two */
 }
 
 void on_sft_message( xi_context_handle_t in_context_handle,
@@ -263,22 +289,10 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                             //
                             cn_cbor_free(cb CBOR_CONTEXT_PARAM);
 
-                            //
-                            // Log the FILE_UPDATE_AVAILABLE information
-                            //
-                            printf("logging file update available\n");
-                            snprintf(message,sizeof(message),"FILE_UPDATE_AVAILABLE");
-                            bufptr = download_context.file_sft_fingerprint;
-                            for(i=0;i<32;i++)
-                            {
-                                bufptr += sprintf(bufptr,"%02x", download_context.file_sft_fingerprint[i]);
-                            }
-                            *bufptr = '\0';
-                            snprintf(message,sizeof(message),"File update available");
-                            snprintf(details,sizeof(details),"name=%s revision=%s length = %d fingerprint = %s"
-                                    ,firmware_filename, download_context.file_revision, download_context.file_length, download_context.file_sft_fingerprint );
-                            snprintf(buffer,sizeof(buffer),"{\"message\":\"%s\",\"severity\":\"notice\",\"details\":\"%s\"}",message,details);
-                            xi_publish( in_context_handle, xi_logtopic, buffer, XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
+                            /* Log the FILE_UPDATE_AVAILABLE information */
+                            snprintf(details,sizeof(details),"name=%s revision=%s length = %d",
+                                     firmware_filename, download_context.file_revision, download_context.file_length, bufptr );
+                            publish_device_log( in_context_handle, "File update available", details, sft_status_ok );
 
                             /* Open the file for writing */
                             retVal =  sl_extlib_FlcOpenFile("/sys/mcuimgA.bin", download_context.file_length, &download_context.file_token, &download_context.file_handle, FS_MODE_OPEN_WRITE);
@@ -319,15 +333,15 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                                 snprintf( buffer,sizeof( buffer ),"{\"message\":\"%s\",\"severity\":\"notice\",\"details\":\"%s\"}", message,details );
                                 xi_publish( in_context_handle, xi_logtopic, buffer, XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 
-                                /* Finalize SHA256 Digest */
-                                sha256_final( &download_context.sha256_context, download_context.file_local_computed_fingerprint );
-                                printf( "Calculated hash = 0x" );
-                                print_hash( download_context.file_local_computed_fingerprint );
+                                verify_sha256();
+
 
                                 /* Close the firmware file */
                                 int result = 0;
                                 result = sl_extlib_FlcCloseFile( download_context.file_handle, NULL, NULL, 0 );
                                 printf("*** Close File Result: %d\n", result);
+
+
 
                                 /* Set the bootloader to test the new image */
                                 if( download_context.result || result )
@@ -436,7 +450,7 @@ void xi_parse_file_update_available( xi_context_handle_t in_context_handle, cn_c
     {
         cb_item = cn_cbor_index(cb_list, index);
 
-        if(cb_item)
+        if( cb_item )
         {
         	    // File 'N'ame
             cb_file = cn_cbor_mapget_string(cb_item, "N");
@@ -497,11 +511,24 @@ void xi_parse_file_update_available( xi_context_handle_t in_context_handle, cn_c
 
             // File 'F'ingerprint
             cb_file = cn_cbor_mapget_string(cb_item, "F");
-            if(cb_file)
+            if( cb_file )
             {
-                for(i=0;i<32;i++)
+                printf( "Storing fingerprint: ");
+                printf( "length: %d\n", cb_file->length );
+                printf(" string: %s\n", cb_file->v.str );
+
+                if( sizeof(download_context.file_sft_fingerprint) < cb_file->length )
                 {
-                    download_context.file_sft_fingerprint[i] = cb_file->v.str[i];
+                    /* TODO:
+                     * log error
+                     * set error flag for downoading state */
+                }
+                else
+                {
+                    for( i = 0 ; i < cb_file->length; i++ )
+                    {
+                        download_context.file_sft_fingerprint[i] = cb_file->v.str[i];
+                    }
                 }
             }
             else
@@ -549,7 +576,7 @@ int xi_publish_file_chunk_request( xi_context_handle_t in_context_handle, const 
     const int message_version = 1;
     const int chunk_length = 1024;
 
-#if 1
+#if 0
     printf( "XI_FILE_GET_CHUNK request params: " );
     printf( "N: \"%s\", ", file_name );
     printf( "R: \"%s\", ", file_revision );
