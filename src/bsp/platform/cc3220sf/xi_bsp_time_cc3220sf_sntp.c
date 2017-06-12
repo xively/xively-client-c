@@ -36,7 +36,7 @@
 #define SNTP_PORT 123
 #define SECONDS_1900_TO_1970 ( 2208988800 )
 
-extern int Report( const char*, ...);
+extern int Report( const char*, ... );
 
 /******************************************************************************
  *                                                                            *
@@ -393,7 +393,8 @@ void xi_bsp_time_sntp_init( void* pvParameters )
         }
 
         ( void )sleep_ms;
-        /* printf( "SNTP_L: %d, UT %d\n\r", xi_bsp_time_sntp_getseconds_posix(), uptime ); */
+        /* printf( "SNTP_L: %d, UT %d\n\r", xi_bsp_time_sntp_getseconds_posix(), uptime );
+         */
         break;
     }
 }
