@@ -31,7 +31,7 @@
 #include <board.h>
 #include <pin.h>
 #include <gpio.h>
-
+#include <sched.h>
 
 /* driverlib Header files */
 #include <ti/devices/cc32xx/inc/hw_types.h>
@@ -49,6 +49,9 @@
 #include "xively.h"
 #include "config_file.h"
 
+#ifdef DEBUG_WOLFSSL
+extern void wolfSSL_Debugging_ON();
+#endif /* DEBUG_WOLFSSL */
 
 /****************************************************************************
                       LOCAL FUNCTION PROTOTYPES
@@ -278,11 +281,13 @@ void * xivelyExampleThread( void *arg )
 	/* For Temperature Sensor */
 	I2C_init();
 
-	/* Start timer A2 for the NWP driver */
-	simplelink_timerA2_start();
-
 	/* init Terminal */
 	InitTerm();
+
+	/* Enable WolfSSL Debugging */
+#ifdef DEBUB_WOLFSSL
+    wolfSSL_Debugging_ON();
+#endif /* DEBUG_WOLFSSL */
 
     /* Init Variables and Control Blocks */
 	InitializeAppVariables();
@@ -341,7 +346,7 @@ void * xivelyExampleThread( void *arg )
 	}
 
 	/* start simplelink here so we can use the simplelink file API */
-	sl_Start(NULL, NULL, NULL);
+	retval = sl_Start(NULL, NULL, NULL);
 
 	/* Parse Xively and Wifi Credentials from config file on flash file system */
 	/* This data will be stored in the Application Control Block */
@@ -411,6 +416,10 @@ void * xivelyExampleThread( void *arg )
  */
 void ConnectToXively()
 {
+    Report( "\t- Xively Account ID: %s\n", gApplicationControlBlock.xivelyAccountId );
+    Report( "\t- Xively Device ID: %s\n", gApplicationControlBlock.xivelyDeviceId );
+    Report( "\t- Xively Device Pwd: %s\n", gApplicationControlBlock.xivelyDevicePassword );
+    //Report( "\t- Xively Device Password: <secret>\n" );
     xi_state_t ret_state = xi_initialize( gApplicationControlBlock.xivelyAccountId,
     									  gApplicationControlBlock.xivelyDeviceId, 0 );
 
@@ -428,11 +437,6 @@ void ConnectToXively()
                            -gXivelyContextHandle );
         return;
     }
-
-    Report("account : %s\n\r", gApplicationControlBlock.xivelyAccountId );
-    Report("device  : %s\n\r", gApplicationControlBlock.xivelyDeviceId );
-    Report("password: <secret>\n\r" );
-    Report("\n\r");
 
     xi_state_t connect_result =
         xi_connect( gXivelyContextHandle, gApplicationControlBlock.xivelyDeviceId,
@@ -713,7 +717,6 @@ void button_interrupt_handler(unsigned int index)
 	}
 }
 
-
 /**
  * @brief Invoked by the Xively Scheduler as setup as a period task to publish
  * temperature data from the device.  This task was created in on_connected()
@@ -810,12 +813,10 @@ void send_temperature( const xi_context_handle_t context_handle,
 			  gApplicationControlBlock.xivelyDeviceId,
 			  XIVELY_TEMPERATURE_CHANNEL_NAME);
 
-	Report("publishing temperature: %s\n\r", msg);
+    Report("Publishing temperature: %s\n\r", msg);
     xi_publish( context_handle, topic_name, msg, XI_MQTT_QOS_AT_MOST_ONCE,
                 XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
-
-
 
 /* @brief Retrieves Wifi Credential and Xively Credential information from a configuration
  * file stored on the Flash File System of the device.
@@ -833,37 +834,50 @@ void send_temperature( const xi_context_handle_t context_handle,
  */
 void parseCredentialsFromConfigFile()
 {
-	config_entry_t* config_file_context;
-	int err = read_config_file( XIVELY_CFG_FILE, &config_file_context );
-	if( err )
-	{
-		Report(". Reading %s config file failed. returned %d\n\r", XIVELY_CFG_FILE, err);
-		if( SL_ERROR_FS_FILE_NOT_EXISTS == err )
-		{
-			Report(". File does not exist on flash file system.\n\r");
-		}
-		Report(". Cannot recover from error.\n\r");
-		Report(". Looping forever.\n\r");
-		while(1);
-	}
+    config_entry_t* config_file_context;
+    int err = read_config_file( XIVELY_CFG_FILE, &config_file_context );
+    if ( SL_ERROR_FS_INVALID_TOKEN_SECURITY_ALERT == err )
+    {
+        Report( "[SECURITY ALERT] Invalid token for secure config file %s. Error %d\n\r",
+                XIVELY_CFG_FILE, err );
+    }
+    else if ( SL_ERROR_FS_DEVICE_NOT_SECURED == err )
+    {
+        Report( "[SECURITY ALERT] Reading the secure config file %s can only be done "
+                "in a secure device type. Error %d\n\r",
+                XIVELY_CFG_FILE, err );
+    }
+    else if ( err )
+    {
+        Report( ". Reading %s config file failed. returned %d\n\r", XIVELY_CFG_FILE,
+                err );
+        if ( SL_ERROR_FS_FILE_NOT_EXISTS == err )
+        {
+            Report( ". File does not exist on flash file system.\n\r" );
+        }
+        Report( ". Cannot recover from error.\n\r" );
+        Report( ". Looping forever.\n\r" );
+        while ( 1 )
+            ;
+    }
 
-	/* parse wifi credentials from config file */
-	static char* wifi_ssid = NULL, *wifi_security_type = NULL, *wifi_password = NULL;
-	err |= parseKeyValue( config_file_context, WIFI_SSID_KEY, 1, &wifi_ssid );
-	err |= parseKeyValue( config_file_context, WIFI_SEC_TYPE_KEY, 1, &wifi_security_type );
-	err |= parseKeyValue( config_file_context, WIFI_PASSWORD_KEY, 1, &wifi_password );
+    /* parse wifi credentials from config file */
+    static char *wifi_ssid = NULL, *wifi_security_type = NULL, *wifi_password = NULL;
+    err |= parseKeyValue( config_file_context, WIFI_SSID_KEY, 1, &wifi_ssid );
+    err |= parseKeyValue( config_file_context, WIFI_SEC_TYPE_KEY, 1, &wifi_security_type );
+    err |= parseKeyValue( config_file_context, WIFI_PASSWORD_KEY, 1, &wifi_password );
 
-	/* parse Xively account & device credentials from config file */
-	static char* xively_account_id = NULL, *xively_device_id = NULL, *xively_device_password = NULL;
-	err |= parseKeyValue( config_file_context, XIVELY_ACNT_KEY, 1, &xively_account_id );
-	err |= parseKeyValue( config_file_context, XIVELY_DEV_KEY, 1, &xively_device_id );
-	err |= parseKeyValue( config_file_context, XIVELY_PWD_KEY, 1, &xively_device_password );
+    /* parse Xively account & device credentials from config file */
+    static char *xively_account_id = NULL, *xively_device_id = NULL, *xively_device_password = NULL;
+    err |= parseKeyValue( config_file_context, XIVELY_ACNT_KEY, 1, &xively_account_id );
+    err |= parseKeyValue( config_file_context, XIVELY_DEV_KEY, 1, &xively_device_id );
+    err |= parseKeyValue( config_file_context, XIVELY_PWD_KEY, 1, &xively_device_password );
 
-	/* optional - barse xively broker address and port from config file */
-	static char* broker_name = NULL, *broker_port_str = NULL;
-	if( 0 != parseKeyValue( config_file_context, XIVELY_HOST_KEY, 0, &broker_name ) )
-	{
-		broker_name = XIVELY_DEFAULT_BROKER;
+    /* optional - barse xively broker address and port from config file */
+    static char *broker_name = NULL, *broker_port_str = NULL;
+    if ( 0 != parseKeyValue( config_file_context, XIVELY_HOST_KEY, 0, &broker_name ) )
+    {
+        broker_name = XIVELY_DEFAULT_BROKER;
 	}
 
 	static uint16_t broker_port = XIVELY_DEFAULT_PORT;
