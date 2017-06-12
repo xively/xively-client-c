@@ -597,11 +597,6 @@
 			<locationURI>XI_STMCUBE_PATH/Middlewares/Third_Party/LwIP/src/core/udp.c</locationURI>
 		</link>
 		<link>
-			<name>Middlewares/LwIP/Netif/etharp.c</name>
-			<type>1</type>
-			<locationURI>XI_STMCUBE_PATH/Middlewares/Third_Party/LwIP/src/netif/etharp.c</locationURI>
-		</link>
-		<link>
 			<name>Middlewares/LwIP/Netif/sys_arch.c</name>
 			<type>1</type>
 			<locationURI>XI_STMCUBE_PATH/Middlewares/Third_Party/LwIP/system/OS/sys_arch.c</locationURI>
@@ -882,6 +877,11 @@
 			<locationURI>XI_STMCUBE_PATH/Middlewares/Third_Party/LwIP/src/core/ipv4/dhcp.c</locationURI>
 		</link>
 		<link>
+			<name>Middlewares/LwIP/Core/IPv4/etharp.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_PATH/Middlewares/Third_Party/LwIP/src/core/ipv4/etharp.c</locationURI>
+		</link>
+		<link>
 			<name>Middlewares/LwIP/Core/IPv4/icmp.c</name>
 			<type>1</type>
 			<locationURI>XI_STMCUBE_PATH/Middlewares/Third_Party/LwIP/src/core/ipv4/icmp.c</locationURI>
@@ -914,7 +914,7 @@
 		</variable>
 		<variable>
 			<name>XI_STMCUBE_PATH</name>
-			<value>file:/Users/palantir/Work/Xively/stm32f4xx/STM32Cube_FW_F4_V1.14.0</value>
+			<value>file:/Users/palantir/Work/Xively/stm32f4xx/STM32Cube_FW_F4_V1.16.0</value>
 		</variable>
 	</variableList>
 </projectDescription>
