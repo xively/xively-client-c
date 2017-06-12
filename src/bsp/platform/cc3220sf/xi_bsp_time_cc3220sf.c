@@ -5,7 +5,7 @@
  */
 
 #include <xi_bsp_time.h>
-#include <xi_bsp_time_cc3220_sntp.h>
+#include <xi_bsp_time_cc3220sf_sntp.h>
 #include <stdint.h>
 #include <stdio.h>
 
