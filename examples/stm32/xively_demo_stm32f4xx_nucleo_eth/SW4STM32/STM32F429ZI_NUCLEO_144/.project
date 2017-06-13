@@ -537,6 +537,11 @@
 			<locationURI>XI_STMCUBE_PATH/Middlewares/Third_Party/LwIP/src/core/init.c</locationURI>
 		</link>
 		<link>
+			<name>Middlewares/LwIP/Core/ip.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_PATH/Middlewares/Third_Party/LwIP/src/core/ip.c</locationURI>
+		</link>
+		<link>
 			<name>Middlewares/LwIP/Core/lwip_timers.c</name>
 			<type>1</type>
 			<locationURI>XI_STMCUBE_PATH/Middlewares/Third_Party/LwIP/src/core/timeouts.c</locationURI>
@@ -595,6 +600,11 @@
 			<name>Middlewares/LwIP/Core/udp.c</name>
 			<type>1</type>
 			<locationURI>XI_STMCUBE_PATH/Middlewares/Third_Party/LwIP/src/core/udp.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/LwIP/Netif/ethernet.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_PATH/Middlewares/Third_Party/LwIP/src/netif/ethernet.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/LwIP/Netif/sys_arch.c</name>
