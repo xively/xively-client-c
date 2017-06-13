@@ -58,28 +58,28 @@ extern void wolfSSL_Debugging_ON();
                        (In order of appearance)
 ****************************************************************************/
 static void InitializeAppVariables();
-static void UpdateLEDProgressIndicators(UArg arg0);
+static void UpdateLEDProgressIndicators( UArg arg0 );
 static int8_t validateWifiConfigurationVariables( const char* wifi_ssid,
-												  const char* wifi_password,
-												  const char* wifi_security_type );
+                                                  const char* wifi_password,
+                                                  const char* wifi_security_type );
 static void ConnectToXively();
 static xi_state_t subscribe_to_topic( xi_context_handle_t context_handle,
-        					   	   	  const char* channel,
-									  xi_user_subscription_callback_t* callback,
-									  void* user_data );
+                                      const char* channel,
+                                      xi_user_subscription_callback_t* callback,
+                                      void* user_data );
 
 static void parseCredentialsFromConfigFile();
 static int8_t parseKeyValue( config_entry_t* config_file_context,
-							const char* key,
-							const uint8_t is_required,
-							char** out_value );
+                             const char* key,
+                             const uint8_t is_required,
+                             char** out_value );
 
 static int8_t validateWifiConfigurationVariables( const char* wifi_ssid,
-												  const char* wifi_password,
-												  const char* wifi_security_type );
+                                                  const char* wifi_password,
+                                                  const char* wifi_security_type );
 
-static int8_t validateXivelyCredentialBufferRequirement( const char* config_key,
-														 const char* value );
+static int8_t
+validateXivelyCredentialBufferRequirement( const char* config_key, const char* value );
 
 static int8_t mapWifiSecurityTypeStringToInt( const char* security_type );
 
@@ -91,14 +91,17 @@ static int8_t mapWifiSecurityTypeStringToInt( const char* security_type );
 void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t state );
 
 /* device topic subscription callbacks used for LED control over the Xively service. */
-void on_led_topic( xi_context_handle_t in_context_handle, xi_sub_call_type_t call_type,
-					const xi_sub_call_params_t* const params, xi_state_t state,
-					void* user_data );
+void on_led_topic( xi_context_handle_t in_context_handle,
+                   xi_sub_call_type_t call_type,
+                   const xi_sub_call_params_t* const params,
+                   xi_state_t state,
+                   void* user_data );
 
-/* interrupt handler register to be called whenever a user bushes either of the buttons on the
+/* interrupt handler register to be called whenever a user bushes either of the buttons on
+ * the
  * sides of the CC3220 device.
  */
-void button_interrupt_handler(unsigned int index);
+void button_interrupt_handler( unsigned int index );
 
 /* periodically called by the Xively event system to publish temperature sensor data
  * to a Xively topic.
@@ -108,14 +111,13 @@ void send_temperature( const xi_context_handle_t context_handle,
                        void* user_data );
 
 
-
 /****************************************************************************
                       GLOBAL VARIABLES
 ****************************************************************************/
-pthread_t gProgressIndicatorThread = (pthread_t)NULL;
-pthread_t gProvisioningThread = (pthread_t)NULL;
-pthread_t gSimpleLinkThread = (pthread_t)NULL;
-Application_CB	gApplicationControlBlock;
+pthread_t gProgressIndicatorThread = ( pthread_t )NULL;
+pthread_t gProvisioningThread      = ( pthread_t )NULL;
+pthread_t gSimpleLinkThread        = ( pthread_t )NULL;
+Application_CB gApplicationControlBlock;
 
 
 /****************************************************************************
@@ -124,33 +126,33 @@ Application_CB	gApplicationControlBlock;
 
 /* String template for dynamically constructing the various Xively topics
  * that are used for this application. */
-#define  XIVELY_TOPIC_LEN     ( 128 )
-#define  XIVELY_TOPIC_FORMAT  "xi/blue/v1/%s/d/%s/%s"
+#define XIVELY_TOPIC_LEN ( 128 )
+#define XIVELY_TOPIC_FORMAT "xi/blue/v1/%s/d/%s/%s"
 
 /* Names of the channels used by this application.  Channels
  * are suffixes to the full topic names. */
 #define XIVELY_TEMPERATURE_CHANNEL_NAME "Temperature"
-#define XIVELY_GREEN_LED_CHANNEL_NAME   "Green LED"
-#define XIVELY_ORANGE_LED_CHANNEL_NAME  "Orange LED"
-#define XIVELY_RED_LED_CHANNEL_NAME	    "Red LED"
-#define XIVELY_BUTTON0_CHANNEL_NAME	    "Button SW2"
-#define XIVELY_BUTTON1_CHANNEL_NAME	    "Button SW3"
+#define XIVELY_GREEN_LED_CHANNEL_NAME "Green LED"
+#define XIVELY_ORANGE_LED_CHANNEL_NAME "Orange LED"
+#define XIVELY_RED_LED_CHANNEL_NAME "Red LED"
+#define XIVELY_BUTTON0_CHANNEL_NAME "Button SW2"
+#define XIVELY_BUTTON1_CHANNEL_NAME "Button SW3"
 
 /* Some defaults for the optional connection address configuration values */
 #define XIVELY_DEFAULT_BROKER "broker.xively.com"
-#define XIVELY_DEFAULT_PORT   (8883)
+#define XIVELY_DEFAULT_PORT ( 8883 )
 
 /* Xively Configuration File Key Names. These will be used to lookup key/value pairs
  * for Xively credentials and WiFI credentials from a file stored in the device's
  * flash file system */
-#define WIFI_SEC_TYPE_KEY   "wifi_security_type"
-#define WIFI_SSID_KEY       "wifi_ssid"
-#define WIFI_PASSWORD_KEY   "wifi_password"
-#define XIVELY_HOST_KEY     "hostname"
-#define XIVELY_PORT_KEY     "port"
-#define XIVELY_ACNT_KEY     "account_id"
-#define XIVELY_DEV_KEY      "device_id"
-#define XIVELY_PWD_KEY      "password"
+#define WIFI_SEC_TYPE_KEY "wifi_security_type"
+#define WIFI_SSID_KEY "wifi_ssid"
+#define WIFI_PASSWORD_KEY "wifi_password"
+#define XIVELY_HOST_KEY "hostname"
+#define XIVELY_PORT_KEY "port"
+#define XIVELY_ACNT_KEY "account_id"
+#define XIVELY_DEV_KEY "device_id"
+#define XIVELY_PWD_KEY "password"
 
 /* Used to detect if the user has configured their xively_config.txt file
  * on the device before the execution of the application */
@@ -181,71 +183,71 @@ const static uint32_t gRedLed    = CC3220SF_LAUNCHXL_LED_D7;
  */
 static void InitializeAppVariables()
 {
-	/* Clear the state of the control block */
-	gApplicationControlBlock.gatewayIP = 0;
-	gApplicationControlBlock.status = 0;
-	gApplicationControlBlock.xivelyConnectionStatus = XI_CONNECTION_STATE_CLOSED;
-	gApplicationControlBlock.button0State = 0;
-	gApplicationControlBlock.button1State = 0;
-	gApplicationControlBlock.desiredWifiSecurityType = 0;
+    /* Clear the state of the control block */
+    gApplicationControlBlock.gatewayIP               = 0;
+    gApplicationControlBlock.status                  = 0;
+    gApplicationControlBlock.xivelyConnectionStatus  = XI_CONNECTION_STATE_CLOSED;
+    gApplicationControlBlock.button0State            = 0;
+    gApplicationControlBlock.button1State            = 0;
+    gApplicationControlBlock.desiredWifiSecurityType = 0;
 
-	memset(gApplicationControlBlock.desiredWifiSSID, '\0',
-				sizeof(gApplicationControlBlock.desiredWifiSSID));
+    memset( gApplicationControlBlock.desiredWifiSSID, '\0',
+            sizeof( gApplicationControlBlock.desiredWifiSSID ) );
 
-	memset(gApplicationControlBlock.desiredWifiKey, '\0',
-				sizeof(gApplicationControlBlock.desiredWifiKey));
+    memset( gApplicationControlBlock.desiredWifiKey, '\0',
+            sizeof( gApplicationControlBlock.desiredWifiKey ) );
 
-	memset(gApplicationControlBlock.connectionSSID, '\0',
-				sizeof(gApplicationControlBlock.connectionSSID));
+    memset( gApplicationControlBlock.connectionSSID, '\0',
+            sizeof( gApplicationControlBlock.connectionSSID ) );
 
-	/* Clear the memory to store the WiFi SSID */
-	memset(gApplicationControlBlock.connectionSSID, 0,
-			sizeof(gApplicationControlBlock.connectionSSID));
-	memset(gApplicationControlBlock.connectionBSSID, 0,
-			sizeof(gApplicationControlBlock.connectionBSSID));
+    /* Clear the memory to store the WiFi SSID */
+    memset( gApplicationControlBlock.connectionSSID, 0,
+            sizeof( gApplicationControlBlock.connectionSSID ) );
+    memset( gApplicationControlBlock.connectionBSSID, 0,
+            sizeof( gApplicationControlBlock.connectionBSSID ) );
 
-	/* initializes semaphores used in TI's Wifi IP Address Provisioning */
-	sem_init(&Provisioning_ControlBlock.connectionAsyncEvent, 0, 0);
-	sem_init(&Provisioning_ControlBlock.provisioningDoneSignal, 0, 0);
+    /* initializes semaphores used in TI's Wifi IP Address Provisioning */
+    sem_init( &Provisioning_ControlBlock.connectionAsyncEvent, 0, 0 );
+    sem_init( &Provisioning_ControlBlock.provisioningDoneSignal, 0, 0 );
 }
 
-static void UpdateLEDProgressIndicators(UArg arg0)
+static void UpdateLEDProgressIndicators( UArg arg0 )
 {
-	static uint8_t toggle = Board_LED_OFF;
+    static uint8_t toggle = Board_LED_OFF;
 
-	if( Board_LED_OFF == toggle )
-	{
-		toggle = Board_LED_ON;
-	}
-	else
-	{
-		toggle = Board_LED_OFF;
-	}
+    if ( Board_LED_OFF == toggle )
+    {
+        toggle = Board_LED_ON;
+    }
+    else
+    {
+        toggle = Board_LED_OFF;
+    }
 
-	switch(gApplicationControlBlock.initializationState )
-	{
-	case InitializationState_ReadingCredentials:
-		GPIO_write( CC3220SF_LAUNCHXL_LED_D5, toggle );
-		break;
-	case InitializationState_ProvisioningWifi:
-		GPIO_write( CC3220SF_LAUNCHXL_LED_D5, Board_LED_ON );
-		GPIO_write( CC3220SF_LAUNCHXL_LED_D6, toggle );
-		break;
-	case InitializationState_ConnectingToXively:
-		GPIO_write( CC3220SF_LAUNCHXL_LED_D5, Board_LED_ON );
-		GPIO_write( CC3220SF_LAUNCHXL_LED_D6, Board_LED_ON );
-		GPIO_write( CC3220SF_LAUNCHXL_LED_D7, toggle );
-		break;
+    switch ( gApplicationControlBlock.initializationState )
+    {
+        case InitializationState_ReadingCredentials:
+            GPIO_write( CC3220SF_LAUNCHXL_LED_D5, toggle );
+            break;
+        case InitializationState_ProvisioningWifi:
+            GPIO_write( CC3220SF_LAUNCHXL_LED_D5, Board_LED_ON );
+            GPIO_write( CC3220SF_LAUNCHXL_LED_D6, toggle );
+            break;
+        case InitializationState_ConnectingToXively:
+            GPIO_write( CC3220SF_LAUNCHXL_LED_D5, Board_LED_ON );
+            GPIO_write( CC3220SF_LAUNCHXL_LED_D6, Board_LED_ON );
+            GPIO_write( CC3220SF_LAUNCHXL_LED_D7, toggle );
+            break;
 
-	case InitializationState_SubscribingToTopics:
-		GPIO_write( CC3220SF_LAUNCHXL_LED_D5, toggle );
-		GPIO_write( CC3220SF_LAUNCHXL_LED_D6, toggle );
-		GPIO_write( CC3220SF_LAUNCHXL_LED_D7, toggle );
+        case InitializationState_SubscribingToTopics:
+            GPIO_write( CC3220SF_LAUNCHXL_LED_D5, toggle );
+            GPIO_write( CC3220SF_LAUNCHXL_LED_D6, toggle );
+            GPIO_write( CC3220SF_LAUNCHXL_LED_D7, toggle );
 
-	case InitializationState_Complete:
-		/* LEDs are now controlled by topics */
-		break;
-	}
+        case InitializationState_Complete:
+            /* LEDs are now controlled by topics */
+            break;
+    }
 }
 
 
@@ -257,157 +259,166 @@ static void UpdateLEDProgressIndicators(UArg arg0)
  *
  * 1. Configures the GPIO, console logging and I2C subsystems for LED control, temperature
  * sensor readings and button interrupt handling.
- * 2. Reads configuration properites from a file in the flash file system for the configuration
+ * 2. Reads configuration properites from a file in the flash file system for the
+ * configuration
  * of simplelink wifi and to parse the user's Xively credentials.
- * 3. Starts a Simplelink provisioning task using a standard TI provisioning example as a basis.
+ * 3. Starts a Simplelink provisioning task using a standard TI provisioning example as a
+ * basis.
  * 4. Connects to Xively.
  * 5. Upon connection, allows the control of LEDs from the Xively Product launcher,
  * publishes button state changes when buttons are pressed on the sides of the device,
  * and periodically (every 5 seconds) publishes the temperature read from the device's on
  * board temperature sensor.
  */
-void * xivelyExampleThread( void *arg )
+void* xivelyExampleThread( void* arg )
 {
-	pthread_attr_t      pAttrs;
-	pthread_attr_t      pAttrs_spawn;
-	struct sched_param  priParam;
+    pthread_attr_t pAttrs;
+    pthread_attr_t pAttrs_spawn;
+    struct sched_param priParam;
 
-	/* For WLAN Access */
-	SPI_init();
+    /* For WLAN Access */
+    SPI_init();
 
-	/* For LED Access & Button Support */
-	GPIO_init();
+    /* For LED Access & Button Support */
+    GPIO_init();
 
-	/* For Temperature Sensor */
-	I2C_init();
+    /* For Temperature Sensor */
+    I2C_init();
 
-	/* init Terminal */
-	InitTerm();
+    /* init Terminal */
+    InitTerm();
 
-	/* Enable WolfSSL Debugging */
+/* Enable WolfSSL Debugging */
 #ifdef DEBUB_WOLFSSL
     wolfSSL_Debugging_ON();
 #endif /* DEBUG_WOLFSSL */
 
     /* Init Variables and Control Blocks */
-	InitializeAppVariables();
+    InitializeAppVariables();
 
-	/* Print Application Name */
-    Report("\n\n\n\r");
-    Report("\t\t =================================================\n\r");
-    Report("\t\t      %s Ver. %s      \n\r", APPLICATION_NAME, APPLICATION_VERSION);
-    Report("\t\t =================================================\n\r");
-    Report("\n\n\n\r");
+    /* Print Application Name */
+    Report( "\n\n\n\r" );
+    Report( "\t\t =================================================\n\r" );
+    Report( "\t\t      %s Ver. %s      \n\r", APPLICATION_NAME, APPLICATION_VERSION );
+    Report( "\t\t =================================================\n\r" );
+    Report( "\n\n\n\r" );
 
-	/* Switch off all LEDs on board, for a nice clean state */
-	GPIO_write(CC3220SF_LAUNCHXL_LED_D5, Board_LED_OFF);
-	GPIO_write(CC3220SF_LAUNCHXL_LED_D6, Board_LED_OFF);
-	GPIO_write(CC3220SF_LAUNCHXL_LED_D7, Board_LED_OFF);
+    /* Switch off all LEDs on board, for a nice clean state */
+    GPIO_write( CC3220SF_LAUNCHXL_LED_D5, Board_LED_OFF );
+    GPIO_write( CC3220SF_LAUNCHXL_LED_D6, Board_LED_OFF );
+    GPIO_write( CC3220SF_LAUNCHXL_LED_D7, Board_LED_OFF );
 
-	/* Add Interrupt Callbacks for the board's two side buttons */
-	/* the application will use these interrupts to publish events */
-	/* to the xively service on the corresponding button topic */
-	GPIO_setCallback(Board_BUTTON0, button_interrupt_handler);
-	GPIO_enableInt(Board_BUTTON0);
+    /* Add Interrupt Callbacks for the board's two side buttons */
+    /* the application will use these interrupts to publish events */
+    /* to the xively service on the corresponding button topic */
+    GPIO_setCallback( Board_BUTTON0, button_interrupt_handler );
+    GPIO_enableInt( Board_BUTTON0 );
 
-	GPIO_setCallback(Board_BUTTON1, button_interrupt_handler);
-	GPIO_enableInt(Board_BUTTON1);
+    GPIO_setCallback( Board_BUTTON1, button_interrupt_handler );
+    GPIO_enableInt( Board_BUTTON1 );
 
-	/* create a periodic Clock for updating LED button states depending on
-	 * the current initialization state.  If an error occurs during
-	 * config file parsing, wifi provisioning or Xively Connection,
-	 * then the LED button states will let the user knows which stage something
-	 * went wrong. */
-	Clock_Struct clk0Struct;
+    /* create a periodic Clock for updating LED button states depending on
+     * the current initialization state.  If an error occurs during
+     * config file parsing, wifi provisioning or Xively Connection,
+     * then the LED button states will let the user knows which stage something
+     * went wrong. */
+    Clock_Struct clk0Struct;
     Clock_Params clkParams;
-    Clock_Params_init(&clkParams);
-    clkParams.period = 500;  // 1 second
+    Clock_Params_init( &clkParams );
+    clkParams.period    = 500; // 1 second
     clkParams.startFlag = TRUE;
 
     /* Construct a periodic Clock Instance */
-    Clock_construct(&clk0Struct, (Clock_FuncPtr)UpdateLEDProgressIndicators,
-                    clkParams.period, &clkParams);
+    Clock_construct( &clk0Struct, ( Clock_FuncPtr )UpdateLEDProgressIndicators,
+                     clkParams.period, &clkParams );
 
-	/* create the simplelink task */
-	/* Note: according to documentation, simplelink needs to run in it's own RTOS task */
-	pthread_attr_init(&pAttrs_spawn);
-	priParam.sched_priority = SPAWN_TASK_PRIORITY;
+    /* create the simplelink task */
+    /* Note: according to documentation, simplelink needs to run in it's own RTOS task */
+    pthread_attr_init( &pAttrs_spawn );
+    priParam.sched_priority = SPAWN_TASK_PRIORITY;
 
-	uint32_t retval;
-	retval = pthread_attr_setschedparam(&pAttrs_spawn, &priParam);
-	retval |= pthread_attr_setstacksize(&pAttrs_spawn, TASK_STACK_SIZE);
-	retval = pthread_create(&gSimpleLinkThread, &pAttrs_spawn, sl_Task, NULL);
+    uint32_t retval;
+    retval = pthread_attr_setschedparam( &pAttrs_spawn, &priParam );
+    retval |= pthread_attr_setstacksize( &pAttrs_spawn, TASK_STACK_SIZE );
+    retval = pthread_create( &gSimpleLinkThread, &pAttrs_spawn, sl_Task, NULL );
 
-	if(retval)
-	{
-		Report("Simplelink Task Creation pthread create returned an error: %d. ", retval);
-		Report("Looping forever\n\r");
-		while(1);
-	}
+    if ( retval )
+    {
+        Report( "Simplelink Task Creation pthread create returned an error: %d. ",
+                retval );
+        Report( "Looping forever\n\r" );
+        while ( 1 )
+            ;
+    }
 
-	/* start simplelink here so we can use the simplelink file API */
-	retval = sl_Start(NULL, NULL, NULL);
+    /* start simplelink here so we can use the simplelink file API */
+    retval = sl_Start( NULL, NULL, NULL );
 
-	/* Parse Xively and Wifi Credentials from config file on flash file system */
-	/* This data will be stored in the Application Control Block */
-	gApplicationControlBlock.initializationState = InitializationState_ReadingCredentials;
+    /* Parse Xively and Wifi Credentials from config file on flash file system */
+    /* This data will be stored in the Application Control Block */
+    gApplicationControlBlock.initializationState = InitializationState_ReadingCredentials;
 
-	parseCredentialsFromConfigFile();
+    parseCredentialsFromConfigFile();
 
-	/* Attempt to connect to the configured WiFi network */
-	gApplicationControlBlock.initializationState = InitializationState_ProvisioningWifi;
+    /* Attempt to connect to the configured WiFi network */
+    gApplicationControlBlock.initializationState = InitializationState_ProvisioningWifi;
 
-	/* create a thread to grab an IP address from Wifi */
-	/* This is called Provisioning on the TI CC3220     */
-	pthread_attr_init(&pAttrs);
-	priParam.sched_priority = 1;
-	retval = pthread_attr_setschedparam(&pAttrs, &priParam);
-	retval |= pthread_attr_setstacksize(&pAttrs, TASK_STACK_SIZE);
+    /* create a thread to grab an IP address from Wifi */
+    /* This is called Provisioning on the TI CC3220     */
+    pthread_attr_init( &pAttrs );
+    priParam.sched_priority = 1;
+    retval                  = pthread_attr_setschedparam( &pAttrs, &priParam );
+    retval |= pthread_attr_setstacksize( &pAttrs, TASK_STACK_SIZE );
 
-	if(retval)
-	{
-		Report("Provisioning Task Creation pthread config returned an error: %d. ", retval );
-		Report("Looping forever\n\r");
-		while(1);
-	}
+    if ( retval )
+    {
+        Report( "Provisioning Task Creation pthread config returned an error: %d. ",
+                retval );
+        Report( "Looping forever\n\r" );
+        while ( 1 )
+            ;
+    }
 
-	retval = pthread_create(&gProvisioningThread, &pAttrs, provisioningTask, NULL);
+    retval = pthread_create( &gProvisioningThread, &pAttrs, provisioningTask, NULL );
 
-	if(retval)
-	{
-		Report("Provisioning Task Creation pthread create returned an error: %d. ", retval);
-		Report("Looping forever\n\r");
-		while(1);
-	}
+    if ( retval )
+    {
+        Report( "Provisioning Task Creation pthread create returned an error: %d. ",
+                retval );
+        Report( "Looping forever\n\r" );
+        while ( 1 )
+            ;
+    }
 
-	/* Wait for the Provisioning task to say that we have an IP address */
-	retval = sem_wait(&Provisioning_ControlBlock.provisioningDoneSignal );
-	if( retval )
-	{
-		Report("Semaphore returned error when waiting for Wifi Provisioning Task.\n\r");
-		Report("Looping forever\n\r");
-		while(1);
-	}
+    /* Wait for the Provisioning task to say that we have an IP address */
+    retval = sem_wait( &Provisioning_ControlBlock.provisioningDoneSignal );
+    if ( retval )
+    {
+        Report( "Semaphore returned error when waiting for Wifi Provisioning Task.\n\r" );
+        Report( "Looping forever\n\r" );
+        while ( 1 )
+            ;
+    }
 
-	gApplicationControlBlock.initializationState = InitializationState_ConnectingToXively;
+    gApplicationControlBlock.initializationState = InitializationState_ConnectingToXively;
 
-	/* At this point the device has a wifi address. */
-	/* Let's kick off our connection to Xively! */
-	Report("Connecting to Xively!\n\r");
+    /* At this point the device has a wifi address. */
+    /* Let's kick off our connection to Xively! */
+    Report( "Connecting to Xively!\n\r" );
 
-	/* Xively Client Connect Code */
-	ConnectToXively();
+    /* Xively Client Connect Code */
+    ConnectToXively();
 
-	/* start processing xively events */
-	xi_events_process_blocking();
+    /* start processing xively events */
+    xi_events_process_blocking();
 
-	/* when the event dispatcher is stopped, destroy the context */
-	xi_delete_context( gXivelyContextHandle );
+    /* when the event dispatcher is stopped, destroy the context */
+    xi_delete_context( gXivelyContextHandle );
 
-	/* shutdown the xively library */
-	xi_shutdown();
+    /* shutdown the xively library */
+    xi_shutdown();
 
-	return(0);
+    return ( 0 );
 }
 
 /* @brief Starts a connection to the Xively Service.  xi_events_process_blocking
@@ -418,14 +429,15 @@ void ConnectToXively()
 {
     Report( "\t- Xively Account ID: %s\n", gApplicationControlBlock.xivelyAccountId );
     Report( "\t- Xively Device ID: %s\n", gApplicationControlBlock.xivelyDeviceId );
-    Report( "\t- Xively Device Pwd: %s\n", gApplicationControlBlock.xivelyDevicePassword );
-    //Report( "\t- Xively Device Password: <secret>\n" );
+    Report( "\t- Xively Device Pwd: %s\n",
+            gApplicationControlBlock.xivelyDevicePassword );
+    // Report( "\t- Xively Device Password: <secret>\n" );
     xi_state_t ret_state = xi_initialize( gApplicationControlBlock.xivelyAccountId,
-    									  gApplicationControlBlock.xivelyDeviceId, 0 );
+                                          gApplicationControlBlock.xivelyDeviceId, 0 );
 
     if ( XI_STATE_OK != ret_state )
     {
-    	UART_PRINT( "xi failed to initialize\n\r" );
+        UART_PRINT( "xi failed to initialize\n\r" );
         return;
     }
 
@@ -433,14 +445,14 @@ void ConnectToXively()
 
     if ( XI_INVALID_CONTEXT_HANDLE == gXivelyContextHandle )
     {
-    	UART_PRINT( " xi failed to create context, error: %d\n\r",
-                           -gXivelyContextHandle );
+        UART_PRINT( " xi failed to create context, error: %d\n\r",
+                    -gXivelyContextHandle );
         return;
     }
 
     xi_state_t connect_result =
         xi_connect( gXivelyContextHandle, gApplicationControlBlock.xivelyDeviceId,
-        		    gApplicationControlBlock.xivelyDevicePassword, 10, 0,
+                    gApplicationControlBlock.xivelyDevicePassword, 10, 0,
                     XI_SESSION_CLEAN, &on_connected );
 }
 
@@ -464,10 +476,11 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
     switch ( conn_data->connection_state )
     {
         case XI_CONNECTION_STATE_OPEN_FAILED:
-        	Report( "connection to %s:%d has failed reason %d\n\r",
-                               conn_data->host, conn_data->port, state );
+            Report( "connection to %s:%d has failed reason %d\n\r", conn_data->host,
+                    conn_data->port, state );
 
-        	gApplicationControlBlock.initializationState = InitializationState_ConnectingToXively;
+            gApplicationControlBlock.initializationState =
+                InitializationState_ConnectingToXively;
 
             xi_connect( in_context_handle, conn_data->username, conn_data->password,
                         conn_data->connection_timeout, conn_data->keepalive_timeout,
@@ -475,56 +488,52 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
 
             return;
         case XI_CONNECTION_STATE_OPENED:
-           	Report("Xively connected to %s:%d\n\r", conn_data->host, conn_data->port );
+            Report( "Xively connected to %s:%d\n\r", conn_data->host, conn_data->port );
 
-        	gApplicationControlBlock.initializationState = InitializationState_SubscribingToTopics;
+            gApplicationControlBlock.initializationState =
+                InitializationState_SubscribingToTopics;
 
-           	/* Schedule the send_temperature function to publish a temperature reading every 10 seconds */
-           	gTemperatureTaskHandle =
-                xi_schedule_timed_task( in_context_handle, send_temperature, 10, 1, NULL );
+            /* Schedule the send_temperature function to publish a temperature reading
+             * every 10 seconds */
+            gTemperatureTaskHandle = xi_schedule_timed_task(
+                in_context_handle, send_temperature, 10, 1, NULL );
 
 
             if ( XI_INVALID_TIMED_TASK_HANDLE == gTemperatureTaskHandle )
             {
-            	Report( "send_temperature_task couldn't be registered\n\r" );
+                Report( "send_temperature_task couldn't be registered\n\r" );
             }
             else
             {
-               	/* Call it now so that we get a temperature reading immediately, too */
-               	send_temperature( in_context_handle, gTemperatureTaskHandle, NULL );
+                /* Call it now so that we get a temperature reading immediately, too */
+                send_temperature( in_context_handle, gTemperatureTaskHandle, NULL );
             }
 
             /* Green LED topic subscription */
-            subscribe_to_topic( in_context_handle,
-            					XIVELY_GREEN_LED_CHANNEL_NAME,
-								on_led_topic,
-								( void* )&gGreenLed );
+            subscribe_to_topic( in_context_handle, XIVELY_GREEN_LED_CHANNEL_NAME,
+                                on_led_topic, ( void* )&gGreenLed );
 
-           	/* Orange LED topic subscription */
-            subscribe_to_topic( in_context_handle,
-                        		XIVELY_ORANGE_LED_CHANNEL_NAME,
-            					on_led_topic,
-            					( void* )&gOrangeLed );
+            /* Orange LED topic subscription */
+            subscribe_to_topic( in_context_handle, XIVELY_ORANGE_LED_CHANNEL_NAME,
+                                on_led_topic, ( void* )&gOrangeLed );
 
-           	/* Red LED topic subscription */
-            subscribe_to_topic( in_context_handle,
-								XIVELY_RED_LED_CHANNEL_NAME,
-								on_led_topic,
-								( void* )&gRedLed );
+            /* Red LED topic subscription */
+            subscribe_to_topic( in_context_handle, XIVELY_RED_LED_CHANNEL_NAME,
+                                on_led_topic, ( void* )&gRedLed );
 
-			return;
+            return;
 
         case XI_CONNECTION_STATE_CLOSED:
-        	Report( "connection closed - reason %d!\n\r", state );
+            Report( "connection closed - reason %d!\n\r", state );
 
-        	/* shut down the periodic temperature sensor reading
-        	 * when we lose our connection */
+            /* shut down the periodic temperature sensor reading
+             * when we lose our connection */
             xi_cancel_timed_task( gTemperatureTaskHandle );
             gTemperatureTaskHandle = XI_INVALID_TIMED_TASK_HANDLE;
 
             return;
         default:
-        	Report( "invalid parameter %d\n\r", conn_data->connection_state );
+            Report( "invalid parameter %d\n\r", conn_data->connection_state );
             return;
     }
 }
@@ -552,20 +561,19 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
  * and does not reflect the SUBACK value of the subscription request itself.
  */
 xi_state_t subscribe_to_topic( xi_context_handle_t context_handle,
-        					   const char* channel,
-							   xi_user_subscription_callback_t* callback,
-							   void* user_data )
+                               const char* channel,
+                               xi_user_subscription_callback_t* callback,
+                               void* user_data )
 {
     char topic_name[XIVELY_TOPIC_LEN];
-   	memset( topic_name, '\0', XIVELY_TOPIC_LEN );
+    memset( topic_name, '\0', XIVELY_TOPIC_LEN );
 
-	snprintf( topic_name, XIVELY_TOPIC_LEN, XIVELY_TOPIC_FORMAT,
-			  gApplicationControlBlock.xivelyAccountId,
-			  gApplicationControlBlock.xivelyDeviceId,
-			  channel );
+    snprintf( topic_name, XIVELY_TOPIC_LEN, XIVELY_TOPIC_FORMAT,
+              gApplicationControlBlock.xivelyAccountId,
+              gApplicationControlBlock.xivelyDeviceId, channel );
 
-	return xi_subscribe( context_handle, topic_name,
-			XI_MQTT_QOS_AT_MOST_ONCE, callback, user_data );
+    return xi_subscribe( context_handle, topic_name, XI_MQTT_QOS_AT_MOST_ONCE, callback,
+                         user_data );
 }
 
 
@@ -587,27 +595,26 @@ xi_state_t subscribe_to_topic( xi_context_handle_t context_handle,
  */
 void on_led_topic( xi_context_handle_t in_context_handle,
                    xi_sub_call_type_t call_type,
-				   const xi_sub_call_params_t* const params,
-				   xi_state_t state,
-				   void* user_data )
+                   const xi_sub_call_params_t* const params,
+                   xi_state_t state,
+                   void* user_data )
 {
-
     switch ( call_type )
     {
         case XI_SUB_CALL_SUBACK:
             if ( params->suback.suback_status == XI_MQTT_SUBACK_FAILED )
             {
-                Report( "topic:%s. Subscription failed.\n\r",
-                                   params->suback.topic );
+                Report( "topic:%s. Subscription failed.\n\r", params->suback.topic );
             }
             else
             {
-                Report( "topic:%s. Subscription granted %d.\n\r",
-                                   params->suback.topic,
-                                   ( int )params->suback.suback_status );
+                Report( "topic:%s. Subscription granted %d.\n\r", params->suback.topic,
+                        ( int )params->suback.suback_status );
 
-                /* Switch all off and prepare for incoming led topic messages to control the LEDs */
-                gApplicationControlBlock.initializationState = InitializationState_Complete;
+                /* Switch all off and prepare for incoming led topic messages to control
+                 * the LEDs */
+                gApplicationControlBlock.initializationState =
+                    InitializationState_Complete;
                 GPIO_write( CC3220SF_LAUNCHXL_LED_D5, Board_LED_OFF );
                 GPIO_write( CC3220SF_LAUNCHXL_LED_D6, Board_LED_OFF );
                 GPIO_write( CC3220SF_LAUNCHXL_LED_D7, Board_LED_OFF );
@@ -616,28 +623,29 @@ void on_led_topic( xi_context_handle_t in_context_handle,
         case XI_SUB_CALL_MESSAGE:
             if ( params->message.temporary_payload_data_length == 1 )
             {
-            	if( InitializationState_Complete == gApplicationControlBlock.initializationState )
-            	{
-					uint32_t led_gpio_index = *( ( uint32_t* )user_data );
-					switch ( params->message.temporary_payload_data[0] )
-					{
-						case 48:
-							GPIO_write( led_gpio_index, Board_LED_OFF );
-							break;
-						case 49:
-							GPIO_write( led_gpio_index, Board_LED_ON );
-							break;
-						default:
-							Report( "unexpected value on topic %s \n\r",
-											   params->message.topic );
-							break;
-					}
-            	}
+                if ( InitializationState_Complete ==
+                     gApplicationControlBlock.initializationState )
+                {
+                    uint32_t led_gpio_index = *( ( uint32_t* )user_data );
+                    switch ( params->message.temporary_payload_data[0] )
+                    {
+                        case 48:
+                            GPIO_write( led_gpio_index, Board_LED_OFF );
+                            break;
+                        case 49:
+                            GPIO_write( led_gpio_index, Board_LED_ON );
+                            break;
+                        default:
+                            Report( "unexpected value on topic %s \n\r",
+                                    params->message.topic );
+                            break;
+                    }
+                }
             }
             else
             {
                 Report( "unexpected data length on topic %s \n\r",
-                                   params->message.topic );
+                        params->message.topic );
             }
             return;
         default:
@@ -654,67 +662,67 @@ void on_led_topic( xi_context_handle_t in_context_handle,
  * @param index of the interrupt.  This will be either Board_BUTTON0,
  * or Board_BUTTON1
  */
-void button_interrupt_handler(unsigned int index)
+void button_interrupt_handler( unsigned int index )
 {
-	const char* buttonChannelName = NULL;
-	int pinValue = 0;
-	switch( index )
-	{
-	case Board_BUTTON0:  /* 0 */
-		// Software Button 0 is hardware SW2
-		Report("Board Button 0 pressed\n\r");
-		gApplicationControlBlock.button0State = ! gApplicationControlBlock.button0State;
-		pinValue = gApplicationControlBlock.button0State;
-		GPIO_clearInt(Board_BUTTON0);
-		buttonChannelName = XIVELY_BUTTON0_CHANNEL_NAME;
-		break;
-	case Board_BUTTON1: /* 1 */
-		// Software Button 1 is hardware SW3
-		Report("Board Button 1 pressed\n\r");
-		gApplicationControlBlock.button1State = ! gApplicationControlBlock.button1State;
-		pinValue = gApplicationControlBlock.button1State;
-		GPIO_clearInt(Board_BUTTON1);
-		buttonChannelName = XIVELY_BUTTON1_CHANNEL_NAME;
-		break;
-	default:
-		Report("Unknown GPIO device invoked button_interrupt_handler\n\r");
-		break;
-	}
+    const char* buttonChannelName = NULL;
+    int pinValue                  = 0;
+    switch ( index )
+    {
+        case Board_BUTTON0: /* 0 */
+            // Software Button 0 is hardware SW2
+            Report( "Board Button 0 pressed\n\r" );
+            gApplicationControlBlock.button0State =
+                !gApplicationControlBlock.button0State;
+            pinValue = gApplicationControlBlock.button0State;
+            GPIO_clearInt( Board_BUTTON0 );
+            buttonChannelName = XIVELY_BUTTON0_CHANNEL_NAME;
+            break;
+        case Board_BUTTON1: /* 1 */
+            // Software Button 1 is hardware SW3
+            Report( "Board Button 1 pressed\n\r" );
+            gApplicationControlBlock.button1State =
+                !gApplicationControlBlock.button1State;
+            pinValue = gApplicationControlBlock.button1State;
+            GPIO_clearInt( Board_BUTTON1 );
+            buttonChannelName = XIVELY_BUTTON1_CHANNEL_NAME;
+            break;
+        default:
+            Report( "Unknown GPIO device invoked button_interrupt_handler\n\r" );
+            break;
+    }
 
-	const char* messageValue = NULL;
-	switch( pinValue )
-	{
-	case 0:
-		messageValue = "0";
-		break;
-	case 1:
-		messageValue = "1";
-		break;
-	default:
-		Report("Unsupported PinValue: %d\n\r", pinValue );
-		break;
-	}
+    const char* messageValue = NULL;
+    switch ( pinValue )
+    {
+        case 0:
+            messageValue = "0";
+            break;
+        case 1:
+            messageValue = "1";
+            break;
+        default:
+            Report( "Unsupported PinValue: %d\n\r", pinValue );
+            break;
+    }
 
-	/* some last sanity checks, including a check to ensure that we're actively connected
-	 * to Xively.
-	 */
-	if( XI_CONNECTION_STATE_OPENED == gApplicationControlBlock.xivelyConnectionStatus
-			&& NULL != buttonChannelName
-			&& NULL != messageValue )
-	{
-		char topic_name[XIVELY_TOPIC_LEN];
-		memset( topic_name, '\0', XIVELY_TOPIC_LEN );
+    /* some last sanity checks, including a check to ensure that we're actively connected
+     * to Xively.
+     */
+    if ( XI_CONNECTION_STATE_OPENED == gApplicationControlBlock.xivelyConnectionStatus &&
+         NULL != buttonChannelName && NULL != messageValue )
+    {
+        char topic_name[XIVELY_TOPIC_LEN];
+        memset( topic_name, '\0', XIVELY_TOPIC_LEN );
 
-		snprintf( topic_name, XIVELY_TOPIC_LEN, XIVELY_TOPIC_FORMAT,
-		          gApplicationControlBlock.xivelyAccountId,
-				  gApplicationControlBlock.xivelyDeviceId,
-				  buttonChannelName);
+        snprintf( topic_name, XIVELY_TOPIC_LEN, XIVELY_TOPIC_FORMAT,
+                  gApplicationControlBlock.xivelyAccountId,
+                  gApplicationControlBlock.xivelyDeviceId, buttonChannelName );
 
-		Report("Button press publishing to topic name: %s\n\r", topic_name);
-		Report("message value: %s\n\r", messageValue );
-		xi_publish( gXivelyContextHandle, topic_name, messageValue,
-				XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
-	}
+        Report( "Button press publishing to topic name: %s\n\r", topic_name );
+        Report( "message value: %s\n\r", messageValue );
+        xi_publish( gXivelyContextHandle, topic_name, messageValue,
+                    XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
+    }
 }
 
 /**
@@ -738,82 +746,83 @@ void send_temperature( const xi_context_handle_t context_handle,
                        const xi_timed_task_handle_t timed_task_handle,
                        void* user_data )
 {
-	uint16_t        temperature;
-	uint8_t         txBuffer[1];
-	uint8_t         rxBuffer[2];
-	I2C_Handle      i2c;
-	I2C_Params      i2cParams;
-	I2C_Transaction i2cTransaction;
+    uint16_t temperature;
+    uint8_t txBuffer[1];
+    uint8_t rxBuffer[2];
+    I2C_Handle i2c;
+    I2C_Params i2cParams;
+    I2C_Transaction i2cTransaction;
 
-	/* Create I2C for usage */
-	PinTypeI2C( PIN_01, PIN_MODE_1 );
-	PinTypeI2C( PIN_02, PIN_MODE_1 );
+    /* Create I2C for usage */
+    PinTypeI2C( PIN_01, PIN_MODE_1 );
+    PinTypeI2C( PIN_02, PIN_MODE_1 );
 
-	I2C_Params_init(&i2cParams);
-	i2cParams.bitRate = I2C_400kHz;
-	i2c = I2C_open(Board_I2C_TMP, &i2cParams);
-	if (i2c == NULL) {
-		Report("Error Initializing I2C for Temperature Reading\r\n");
-		return;
-	}
+    I2C_Params_init( &i2cParams );
+    i2cParams.bitRate = I2C_400kHz;
+    i2c               = I2C_open( Board_I2C_TMP, &i2cParams );
+    if ( i2c == NULL )
+    {
+        Report( "Error Initializing I2C for Temperature Reading\r\n" );
+        return;
+    }
 
-	/* Point to the T ambient register and read its 2 bytes */
-	txBuffer[0] = 0x01;
-	i2cTransaction.slaveAddress = Board_TMP006_ADDR;
-	i2cTransaction.writeBuf = txBuffer;
-	i2cTransaction.writeCount = 1;
-	i2cTransaction.readBuf = rxBuffer;
-	i2cTransaction.readCount = 2;
+    /* Point to the T ambient register and read its 2 bytes */
+    txBuffer[0]                 = 0x01;
+    i2cTransaction.slaveAddress = Board_TMP006_ADDR;
+    i2cTransaction.writeBuf     = txBuffer;
+    i2cTransaction.writeCount   = 1;
+    i2cTransaction.readBuf      = rxBuffer;
+    i2cTransaction.readCount    = 2;
 
-	if (I2C_transfer(i2c, &i2cTransaction))
-	{
-		/* Extract degrees C from the received data; see TMP102 datasheet */
-		temperature = (rxBuffer[0] << 6) | (rxBuffer[1] >> 2);
+    if ( I2C_transfer( i2c, &i2cTransaction ) )
+    {
+        /* Extract degrees C from the received data; see TMP102 datasheet */
+        temperature = ( rxBuffer[0] << 6 ) | ( rxBuffer[1] >> 2 );
 
-		/*
-		 * If the MSB is set '1', then we have a 2's complement
-		 * negative value which needs to be sign extended */
-		if (rxBuffer[0] & 0x80) {
-			temperature |= 0xF000;
-		}
+        /*
+         * If the MSB is set '1', then we have a 2's complement
+         * negative value which needs to be sign extended */
+        if ( rxBuffer[0] & 0x80 )
+        {
+            temperature |= 0xF000;
+        }
 
-	   /*
-		* For simplicity, divide the temperature value by 32 to get rid of
-		* the decimal precision; see TI's TMP006 datasheet */
-		temperature /= 32;
+        /*
+             * For simplicity, divide the temperature value by 32 to get rid of
+             * the decimal precision; see TI's TMP006 datasheet */
+        temperature /= 32;
 
-		/* Convert to F */
-		temperature = (temperature * 9) / 5;
-		temperature += 32;
-	}
-	else
-	{
-		Report("I2C Bus fault\n\r");
-	}
+        /* Convert to F */
+        temperature = ( temperature * 9 ) / 5;
+        temperature += 32;
+    }
+    else
+    {
+        Report( "I2C Bus fault\n\r" );
+    }
 
-	/* Close the I2C context */
-	I2C_close(i2c);
+    /* Close the I2C context */
+    I2C_close( i2c );
 
-	/* Return Pins to LED control over GPIO */
-	PinTypeGPIO( PIN_01, PIN_MODE_0, false );
-	GPIODirModeSet( GPIOA1_BASE, 0x4, GPIO_DIR_MODE_OUT );
+    /* Return Pins to LED control over GPIO */
+    PinTypeGPIO( PIN_01, PIN_MODE_0, false );
+    GPIODirModeSet( GPIOA1_BASE, 0x4, GPIO_DIR_MODE_OUT );
 
-	PinTypeGPIO( PIN_02, PIN_MODE_0, false );
-	GPIODirModeSet( GPIOA1_BASE, 0x8, GPIO_DIR_MODE_OUT );
+    PinTypeGPIO( PIN_02, PIN_MODE_0, false );
+    GPIODirModeSet( GPIOA1_BASE, 0x8, GPIO_DIR_MODE_OUT );
 
-	/* Publish the temperature to Xively */
-	char msg[16] = {'\0'};
-	sprintf(msg, "%d", temperature);
+    /* Publish the temperature to Xively */
+    char msg[16] = {'\0'};
+    sprintf( msg, "%d", temperature );
 
-	char topic_name[XIVELY_TOPIC_LEN];
-	memset( topic_name, '\0', XIVELY_TOPIC_LEN );
+    char topic_name[XIVELY_TOPIC_LEN];
+    memset( topic_name, '\0', XIVELY_TOPIC_LEN );
 
-	snprintf( topic_name, XIVELY_TOPIC_LEN, XIVELY_TOPIC_FORMAT,
-	          gApplicationControlBlock.xivelyAccountId,
-			  gApplicationControlBlock.xivelyDeviceId,
-			  XIVELY_TEMPERATURE_CHANNEL_NAME);
+    snprintf( topic_name, XIVELY_TOPIC_LEN, XIVELY_TOPIC_FORMAT,
+              gApplicationControlBlock.xivelyAccountId,
+              gApplicationControlBlock.xivelyDeviceId, XIVELY_TEMPERATURE_CHANNEL_NAME );
 
-    Report("Publishing temperature: %s\n\r", msg);
+    Report( "Publishing temperature: %s\n\r", msg );
     xi_publish( context_handle, topic_name, msg, XI_MQTT_QOS_AT_MOST_ONCE,
                 XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
@@ -864,101 +873,126 @@ void parseCredentialsFromConfigFile()
     /* parse wifi credentials from config file */
     static char *wifi_ssid = NULL, *wifi_security_type = NULL, *wifi_password = NULL;
     err |= parseKeyValue( config_file_context, WIFI_SSID_KEY, 1, &wifi_ssid );
-    err |= parseKeyValue( config_file_context, WIFI_SEC_TYPE_KEY, 1, &wifi_security_type );
+    err |=
+        parseKeyValue( config_file_context, WIFI_SEC_TYPE_KEY, 1, &wifi_security_type );
     err |= parseKeyValue( config_file_context, WIFI_PASSWORD_KEY, 1, &wifi_password );
 
     /* parse Xively account & device credentials from config file */
-    static char *xively_account_id = NULL, *xively_device_id = NULL, *xively_device_password = NULL;
+    static char *xively_account_id = NULL, *xively_device_id = NULL,
+                *xively_device_password = NULL;
     err |= parseKeyValue( config_file_context, XIVELY_ACNT_KEY, 1, &xively_account_id );
     err |= parseKeyValue( config_file_context, XIVELY_DEV_KEY, 1, &xively_device_id );
-    err |= parseKeyValue( config_file_context, XIVELY_PWD_KEY, 1, &xively_device_password );
+    err |=
+        parseKeyValue( config_file_context, XIVELY_PWD_KEY, 1, &xively_device_password );
 
     /* optional - barse xively broker address and port from config file */
     static char *broker_name = NULL, *broker_port_str = NULL;
     if ( 0 != parseKeyValue( config_file_context, XIVELY_HOST_KEY, 0, &broker_name ) )
     {
         broker_name = XIVELY_DEFAULT_BROKER;
-	}
+    }
 
-	static uint16_t broker_port = XIVELY_DEFAULT_PORT;
-	if( 0 == parseKeyValue( config_file_context, XIVELY_PORT_KEY, 0, &broker_port_str ) )
-	{
-		if( 0 == ( broker_port = atoi( broker_port_str ) ) )
-		{
-			Report( ". \"%s\" value \"%s\" is an invalid \"port\" value\n", XIVELY_PORT_KEY, broker_port_str );
-			err = -1;
-		}
-	}
+    static uint16_t broker_port = XIVELY_DEFAULT_PORT;
+    if ( 0 == parseKeyValue( config_file_context, XIVELY_PORT_KEY, 0, &broker_port_str ) )
+    {
+        if ( 0 == ( broker_port = atoi( broker_port_str ) ) )
+        {
+            Report( ". \"%s\" value \"%s\" is an invalid \"port\" value\n",
+                    XIVELY_PORT_KEY, broker_port_str );
+            err = -1;
+        }
+    }
 
-	/* if everything is ok so far then do some sanity checks on the string sizes and the parsed values. */
-	if( !err )
-	{
-		err |= validateWifiConfigurationVariables( wifi_ssid, wifi_password, wifi_security_type );
+    /* if everything is ok so far then do some sanity checks on the string sizes and the
+     * parsed values. */
+    if ( !err )
+    {
+        err |= validateWifiConfigurationVariables( wifi_ssid, wifi_password,
+                                                   wifi_security_type );
 
-		err |= validateXivelyCredentialBufferRequirement( XIVELY_ACNT_KEY, xively_account_id );
-		err |= validateXivelyCredentialBufferRequirement( XIVELY_DEV_KEY, xively_device_id );
-		err |= validateXivelyCredentialBufferRequirement( XIVELY_PWD_KEY, xively_device_password );
-	}
+        err |= validateXivelyCredentialBufferRequirement( XIVELY_ACNT_KEY,
+                                                          xively_account_id );
+        err |=
+            validateXivelyCredentialBufferRequirement( XIVELY_DEV_KEY, xively_device_id );
+        err |= validateXivelyCredentialBufferRequirement( XIVELY_PWD_KEY,
+                                                          xively_device_password );
+    }
 
-	/* one last check before we start copying memory around */
-	if( err )
-	{
-		Report("\n\rCritical configuration error(s) found when parsing configuration file\n\r");
-		Report("Looping forever.\n\r");
-		while(1);
-	}
+    /* one last check before we start copying memory around */
+    if ( err )
+    {
+        Report( "\n\rCritical configuration error(s) found when parsing configuration "
+                "file\n\r" );
+        Report( "Looping forever.\n\r" );
+        while ( 1 )
+            ;
+    }
 
-	/* assign the variables into the Application Control Block. */
-	gApplicationControlBlock.desiredWifiSecurityType = mapWifiSecurityTypeStringToInt( (const char *) wifi_security_type );
-	memcpy(gApplicationControlBlock.desiredWifiSSID, wifi_ssid, strlen( wifi_ssid ) );
-	memcpy(gApplicationControlBlock.desiredWifiKey, wifi_password, strlen( wifi_password ) );
+    /* assign the variables into the Application Control Block. */
+    gApplicationControlBlock.desiredWifiSecurityType =
+        mapWifiSecurityTypeStringToInt( ( const char* )wifi_security_type );
+    memcpy( gApplicationControlBlock.desiredWifiSSID, wifi_ssid, strlen( wifi_ssid ) );
+    memcpy( gApplicationControlBlock.desiredWifiKey, wifi_password,
+            strlen( wifi_password ) );
 
-	memcpy(gApplicationControlBlock.xivelyAccountId, xively_account_id, strlen( xively_account_id ) );
-	memcpy(gApplicationControlBlock.xivelyDeviceId, xively_device_id, strlen( xively_device_id ) );
-	memcpy(gApplicationControlBlock.xivelyDevicePassword, xively_device_password, strlen( xively_device_password ) );
+    memcpy( gApplicationControlBlock.xivelyAccountId, xively_account_id,
+            strlen( xively_account_id ) );
+    memcpy( gApplicationControlBlock.xivelyDeviceId, xively_device_id,
+            strlen( xively_device_id ) );
+    memcpy( gApplicationControlBlock.xivelyDevicePassword, xively_device_password,
+            strlen( xively_device_password ) );
 
-	/* cleanup */
-	free_config_entries( config_file_context );
+    /* cleanup */
+    free_config_entries( config_file_context );
 }
 
-/* @brief helper function that uses the config_file parser to parse a value for the provided key.
+/* @brief helper function that uses the config_file parser to parse a value for the
+ * provided key.
  *
- * @param config_file_context this value returned from the creation of the config_file parser.
+ * @param config_file_context this value returned from the creation of the config_file
+ * parser.
  * This context is required for all config_file operations.
  * @param key a string to use as a lookup key for the key/value pairs in the config file.
- * @param is_required when set to a non-zero value, an error will be logged to the console if the
- * specified key could not be found in the configuration file.  This does not effect the return value
+ * @param is_required when set to a non-zero value, an error will be logged to the console
+ * if the
+ * specified key could not be found in the configuration file.  This does not effect the
+ * return value
  * of this function.
- * @retval 0 on successful parse of parameter. -1 if parameter does not exist in the configuration file,
+ * @retval 0 on successful parse of parameter. -1 if parameter does not exist in the
+ * configuration file,
  * or if another error has occurred.
  */
-int8_t parseKeyValue( config_entry_t* config_file_context, const char* key, const uint8_t is_required, char** out_value )
+int8_t parseKeyValue( config_entry_t* config_file_context,
+                      const char* key,
+                      const uint8_t is_required,
+                      char** out_value )
 {
-	int8_t retVal = 0;
-	if( NULL == out_value )
-	{
-		Report("parseRequiredKeyValue error: out_value parameter is NULL!\n\r");
-		retVal = -1;
-	}
-	else if( NULL == key )
-	{
-		Report("parseRequiredKeyValue error: in_key parameter is NULL!\n\r");
-		retVal = -1;
-	}
-	else
-	{
-		*out_value = get_config_value( config_file_context, key );
-		if( NULL == *out_value )
-		{
-			retVal = -1;
-			if( is_required )
-			{
-				Report("Could not find an entry for \"%s\" key in configuration file\n", key );
-			}
-		}
-	}
+    int8_t retVal = 0;
+    if ( NULL == out_value )
+    {
+        Report( "parseRequiredKeyValue error: out_value parameter is NULL!\n\r" );
+        retVal = -1;
+    }
+    else if ( NULL == key )
+    {
+        Report( "parseRequiredKeyValue error: in_key parameter is NULL!\n\r" );
+        retVal = -1;
+    }
+    else
+    {
+        *out_value = get_config_value( config_file_context, key );
+        if ( NULL == *out_value )
+        {
+            retVal = -1;
+            if ( is_required )
+            {
+                Report( "Could not find an entry for \"%s\" key in configuration file\n",
+                        key );
+            }
+        }
+    }
 
-	return retVal;
+    return retVal;
 }
 
 /* @brief helper function. checks to if wifi credentials are of the right size
@@ -972,86 +1006,99 @@ int8_t parseKeyValue( config_entry_t* config_file_context, const char* key, cons
  * @retval 0 if parameters are valid, -1 otherwise.
  */
 int8_t validateWifiConfigurationVariables( const char* wifi_ssid,
-										   const char* wifi_password,
-										   const char* wifi_security_type )
+                                           const char* wifi_password,
+                                           const char* wifi_security_type )
 {
-	int8_t retVal = 0;
+    int8_t retVal = 0;
 
-	/* SSID / wifi name checks */
-	if( strlen( wifi_ssid ) > SSID_LEN_MAX )
-	{
-		retVal = -1;
-		Report( ". \"%s\" string is too long for CC3220 wifi configuration: \"%s\"\n\r", WIFI_SSID_KEY, wifi_ssid );
-		Report( ". Max String Length is: %d\n\r", SSID_LEN_MAX );
-	}
-
-	/* wifi password checks */
-	if( strlen( wifi_password ) > WIFI_KEY_LEN_MAX )
-	{
-		retVal = -1;
-		Report( ". Value for \"%s\" string is too big: \"%s\"\n\r", WIFI_SSID_KEY, wifi_password );
-		Report( ". Please reconfigure WIFI_KEY_LEN_MAX in xively_example.h to increase the buffer size\n\r");
-		Report( ". Max String Length is: %d\n\r", WIFI_KEY_LEN_MAX );
-	}
-
-	/* Security type enum checks */
-	int8_t wifi_security_type_enum = mapWifiSecurityTypeStringToInt( (const char*) wifi_security_type );
-	if( wifi_security_type < 0 )
-	{
-		retVal = -1;
-		Report( ". Could not find valid \"%s\" ", WIFI_SEC_TYPE_KEY );
-		Report( " in xively configuration file \"%s\"\n\r", XIVELY_CFG_FILE );
-	}
-
-	if( 0 == strcmp( wifi_ssid, WIFI_DEFAULT_CONFIG_FIELD_VALUE ) )
-	{
-		retVal = -1;
-		Report( ". Default WiFi SSID field entry found.\n\r");
-		Report( "   Did you forget to edit the configuration file \"%s\"?\n\r", XIVELY_CFG_FILE );
-	}
-
-    if( 0 == strcmp( wifi_password, WIFI_DEFAULT_CONFIG_FIELD_VALUE ) )
+    /* SSID / wifi name checks */
+    if ( strlen( wifi_ssid ) > SSID_LEN_MAX )
     {
         retVal = -1;
-		Report( ". Default WiFi Password field entry found.\n\r" );
-		Report( "   Did you forget to edit the configuration file \"%s\"?\n\r", XIVELY_CFG_FILE );
+        Report( ". \"%s\" string is too long for CC3220 wifi configuration: \"%s\"\n\r",
+                WIFI_SSID_KEY, wifi_ssid );
+        Report( ". Max String Length is: %d\n\r", SSID_LEN_MAX );
     }
 
-	return retVal;
+    /* wifi password checks */
+    if ( strlen( wifi_password ) > WIFI_KEY_LEN_MAX )
+    {
+        retVal = -1;
+        Report( ". Value for \"%s\" string is too big: \"%s\"\n\r", WIFI_SSID_KEY,
+                wifi_password );
+        Report( ". Please reconfigure WIFI_KEY_LEN_MAX in xively_example.h to increase "
+                "the buffer size\n\r" );
+        Report( ". Max String Length is: %d\n\r", WIFI_KEY_LEN_MAX );
+    }
+
+    /* Security type enum checks */
+    int8_t wifi_security_type_enum =
+        mapWifiSecurityTypeStringToInt( ( const char* )wifi_security_type );
+    if ( wifi_security_type < 0 )
+    {
+        retVal = -1;
+        Report( ". Could not find valid \"%s\" ", WIFI_SEC_TYPE_KEY );
+        Report( " in xively configuration file \"%s\"\n\r", XIVELY_CFG_FILE );
+    }
+
+    if ( 0 == strcmp( wifi_ssid, WIFI_DEFAULT_CONFIG_FIELD_VALUE ) )
+    {
+        retVal = -1;
+        Report( ". Default WiFi SSID field entry found.\n\r" );
+        Report( "   Did you forget to edit the configuration file \"%s\"?\n\r",
+                XIVELY_CFG_FILE );
+    }
+
+    if ( 0 == strcmp( wifi_password, WIFI_DEFAULT_CONFIG_FIELD_VALUE ) )
+    {
+        retVal = -1;
+        Report( ". Default WiFi Password field entry found.\n\r" );
+        Report( "   Did you forget to edit the configuration file \"%s\"?\n\r",
+                XIVELY_CFG_FILE );
+    }
+
+    return retVal;
 }
 
-/* @brief helper function. checks to if key's value string will fit into our Application Control Block
+/* @brief helper function. checks to if key's value string will fit into our Application
+ * Control Block
  *
  * @param config_key the key string that was used to lookup the value in the config file.
  * This is only used for logging purposes.
- * @param value the value string that will be stored as a Xively Credential.  This function
+ * @param value the value string that will be stored as a Xively Credential.  This
+ * function
  * checks to make sure that the value will fit in the Application Control Blocks buffers
  * for Xively Credentials before a copy is made.
  * @retval 0 if the credentials are of a valid size, -1 otherwise.
  * */
-int8_t validateXivelyCredentialBufferRequirement( const char* const config_key, const char* value )
+int8_t validateXivelyCredentialBufferRequirement( const char* const config_key,
+                                                  const char* value )
 {
-	if( NULL == value )
-	{
-		Report( ". Key \"%s\" is missing a value in the configuration file: \"%s\"\n\r", config_key, value );
-		return -1;
-	}
+    if ( NULL == value )
+    {
+        Report( ". Key \"%s\" is missing a value in the configuration file: \"%s\"\n\r",
+                config_key, value );
+        return -1;
+    }
 
-	if( 0 == strcmp( value, XIVELY_DEFAULT_CONFIG_FIELD_VALUE ) )
-	{
-		Report( ". \"%s\" value's is still the default value.\n\r", config_key);
-		Report( "   Did you forget to edit the configuration file \"%s\"?\n\r", XIVELY_CFG_FILE );
-		return -1;
-	}
+    if ( 0 == strcmp( value, XIVELY_DEFAULT_CONFIG_FIELD_VALUE ) )
+    {
+        Report( ". \"%s\" value's is still the default value.\n\r", config_key );
+        Report( "   Did you forget to edit the configuration file \"%s\"?\n\r",
+                XIVELY_CFG_FILE );
+        return -1;
+    }
 
-	if( strlen( value ) > XIVELY_CRED_LEN_MAX )
-	{
-		Report( ". \"%s\" value's string is too long for internal buffer configuration. value is: \"%s\"\n\r", config_key, value );
-		Report( ". Max String Length is: %d\n\r", XIVELY_CRED_LEN_MAX );
-		return -1;
-	}
+    if ( strlen( value ) > XIVELY_CRED_LEN_MAX )
+    {
+        Report( ". \"%s\" value's string is too long for internal buffer configuration. "
+                "value is: \"%s\"\n\r",
+                config_key, value );
+        Report( ". Max String Length is: %d\n\r", XIVELY_CRED_LEN_MAX );
+        return -1;
+    }
 
-	return 0;
+    return 0;
 }
 
 /* @brief Attempts to match the string from the configuration file to an enumeration
@@ -1063,52 +1110,49 @@ int8_t validateXivelyCredentialBufferRequirement( const char* const config_key, 
  */
 int8_t mapWifiSecurityTypeStringToInt( const char* security_type )
 {
-	if( NULL == security_type )
-	{
-		Report("Now Wifi Security Type String found in configuration file!\n\r");
-		return -1;
-	}
+    if ( NULL == security_type )
+    {
+        Report( "Now Wifi Security Type String found in configuration file!\n\r" );
+        return -1;
+    }
 
-	if( strcmp("open", security_type ) == 0
-		|| strcmp("OPEN", security_type ) == 0 )
-	{
-		return SL_WLAN_SEC_TYPE_OPEN;
-	}
+    if ( strcmp( "open", security_type ) == 0 || strcmp( "OPEN", security_type ) == 0 )
+    {
+        return SL_WLAN_SEC_TYPE_OPEN;
+    }
 
-	if( strcmp("wep", security_type ) == 0
-		|| strcmp("WEP", security_type ) == 0 )
-	{
-		return SL_WLAN_SEC_TYPE_WEP;
-	}
+    if ( strcmp( "wep", security_type ) == 0 || strcmp( "WEP", security_type ) == 0 )
+    {
+        return SL_WLAN_SEC_TYPE_WEP;
+    }
 
-	if( strcmp("wpa", security_type ) == 0
-		|| strcmp("WPA", security_type ) == 0 )
-	{
-		return SL_WLAN_SEC_TYPE_WPA;
-	}
+    if ( strcmp( "wpa", security_type ) == 0 || strcmp( "WPA", security_type ) == 0 )
+    {
+        return SL_WLAN_SEC_TYPE_WPA;
+    }
 
-	if( strcmp("wpa2", security_type ) == 0
-		|| strcmp("WPA2", security_type ) == 0 )
-	{
-		return SL_WLAN_SEC_TYPE_WPA_WPA2;
-	}
+    if ( strcmp( "wpa2", security_type ) == 0 || strcmp( "WPA2", security_type ) == 0 )
+    {
+        return SL_WLAN_SEC_TYPE_WPA_WPA2;
+    }
 
-	if( strcmp("wpa_ent", security_type ) == 0
-		|| strcmp("WPA_ENT", security_type ) == 0) {
-		return SL_WLAN_SEC_TYPE_WPA_ENT;
-	}
+    if ( strcmp( "wpa_ent", security_type ) == 0 ||
+         strcmp( "WPA_ENT", security_type ) == 0 )
+    {
+        return SL_WLAN_SEC_TYPE_WPA_ENT;
+    }
 
-	/* potential future support based on CC3220 SDK:
-	 *
-	 * SL_WLAN_SEC_TYPE_WPS_PBC
-	 * SL_WLAN_SEC_TYPE_WPS_PIN
-	 * SL_WLAN_SEC_TYPE_P2P_PBC
-	 * SL_WLAN_SEC_TYPE_P2P_PIN_KEYPAD
-	 * SL_WLAN_SEC_TYPE_P2P_PIN_DISPLAY
-	 * SL_WLAN_SEC_TYPE_P2P_PIN_AUTO
-	 */
-	Report("Unsupported Wifi security type: \"%s\"\n\r", security_type);
-	return -1;
+    /* potential future support based on CC3220 SDK:
+     *
+     * SL_WLAN_SEC_TYPE_WPS_PBC
+     * SL_WLAN_SEC_TYPE_WPS_PIN
+     * SL_WLAN_SEC_TYPE_P2P_PBC
+     * SL_WLAN_SEC_TYPE_P2P_PIN_KEYPAD
+     * SL_WLAN_SEC_TYPE_P2P_PIN_DISPLAY
+     * SL_WLAN_SEC_TYPE_P2P_PIN_AUTO
+     */
+    Report( "Unsupported Wifi security type: \"%s\"\n\r", security_type );
+    return -1;
 }
 
 #if 1

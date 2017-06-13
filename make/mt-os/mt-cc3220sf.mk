@@ -18,14 +18,14 @@ COMPILER ?= ti-cgt-arm_16.9.3.LTS
 ifeq ($(XI_HOST_PLATFORM),Darwin)
 	# osx cross-compilation downloads
 
-	XI_CC3220_PATH_CCS_TOOLS ?= /Applications/ti/ccsv6/tools
-	XI_CC3220_PATH_SDK ?= $(HOME)/ti/tirex-content/CC3220SDK_1.1.0/cc3220-sdk
+	XI_CC3220SF_PATH_CCS_TOOLS ?= /Applications/ti/ccsv6/tools
+	XI_CC3220SF_PATH_SDK ?= $(HOME)/ti/tirex-content/CC3220SDK_1.1.0/cc3220-sdk
 
 
-	CC = $(XI_CC3220_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armcl
-	AR = $(XI_CC3220_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armar
+	CC = $(XI_CC3220SF_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armcl
+	AR = $(XI_CC3220SF_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armar
 
-	XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_CCS_TOOLS)/compiler/$(COMPILER)/include
+	XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_CCS_TOOLS)/compiler/$(COMPILER)/include
 
 ###
 ## WINDOWS HOST OS
@@ -33,15 +33,15 @@ ifeq ($(XI_HOST_PLATFORM),Darwin)
 else ifneq (,$(findstring Windows,$(XI_HOST_PLATFORM)))
 	 # windows cross-compilation
 
-    XI_CC3220_PATH_CCS_TOOLS ?= C:/ti/ccsv6/tools
+    XI_CC3220SF_PATH_CCS_TOOLS ?= C:/ti/ccsv6/tools
 
-	XI_CC3220_PATH_SDK ?= C:/ti/simplelink_cc3220_sdk_1_01_01_00
-	XI_CC3220_PATH_XDC_SDK ?= C:/ti/xdctools_3_32_01_22_core
+	XI_CC3220SF_PATH_SDK ?= C:/ti/simplelink_cc3220_sdk_1_01_01_00
+	XI_CC3220SF_PATH_XDC_SDK ?= C:/ti/xdctools_3_32_01_22_core
 
-	CC = $(XI_CC3220_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armcl
-	AR = $(XI_CC3220_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armar
+	CC = $(XI_CC3220SF_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armcl
+	AR = $(XI_CC3220SF_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armar
 
-	XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_CCS_TOOLS)/compiler/$(COMPILER)/include
+	XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_CCS_TOOLS)/compiler/$(COMPILER)/include
 
 ###
 ## LINUX HOST OS
@@ -49,13 +49,13 @@ else ifneq (,$(findstring Windows,$(XI_HOST_PLATFORM)))
 else ifeq ($(XI_HOST_PLATFORM),Linux)
 	# linux cross-compilation prerequisite downloads
 
-	XI_CC3220_PATH_CCS_TOOLS ?= $(HOME)/Downloads/xi_artifactory/ti/ccsv6/tools
-	XI_CC3220_PATH_SDK ?= $(HOME)/Downloads/xi_artifactory/ti/CC3220SDK_1.2.0/cc3220-sdk
+	XI_CC3220SF_PATH_CCS_TOOLS ?= $(HOME)/Downloads/xi_artifactory/ti/ccsv6/tools
+	XI_CC3220SF_PATH_SDK ?= $(HOME)/Downloads/xi_artifactory/ti/CC3220SDK_1.2.0/cc3220-sdk
 
-	CC = $(XI_CC3220_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armcl
-	AR = $(XI_CC3220_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armar
+	CC = $(XI_CC3220SF_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armcl
+	AR = $(XI_CC3220SF_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armar
 
-	XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_CCS_TOOLS)/compiler/$(COMPILER)/include
+	XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_CCS_TOOLS)/compiler/$(COMPILER)/include
 
 ### TOOLCHAIN AUTODOWNLOAD SECTION --- BEGIN
 	XI_BUILD_PRECONDITIONS := $(CC)
@@ -98,23 +98,23 @@ ifneq (,$(findstring debug,$(TARGET)))
 endif
 
 XI_COMPILER_FLAGS += -DCC32XX_COMPAT=1
-XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_SDK)/source/ti/devices/cc32xx/driverlib
-XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_SDK)/source
-XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_SDK)/source/ti/drivers
-XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_SDK)/source/ti/drivers/net/wifi
-XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_SDK)/source/ti/drivers/net/wifi/sys
-XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_SDK)/source/ti/devices/cc32xx/inc
+XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/source/ti/devices/cc32xx/driverlib
+XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/source
+XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/source/ti/drivers
+XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/source/ti/drivers/net/wifi
+XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/source/ti/drivers/net/wifi/sys
+XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/source/ti/devices/cc32xx/inc
 
 # clock
-XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_SDK)/kernel/tirtos/packages
-XI_COMPILER_FLAGS += -I$(XI_CC3220_PATH_XDC_SDK)/packages
+XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/kernel/tirtos/packages
+XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_XDC_SDK)/packages
 
 
 # Xively Client config flags
 XI_CONFIG_FLAGS += -DXI_CROSS_TARGET
 XI_CONFIG_FLAGS += -DXI_EMBEDDED_TESTS
 XI_CONFIG_FLAGS += -DXI_DEBUG_PRINTF=Report
-#XI_CONFIG_FLAGS += -DXI_CC3220_UNSAFELY_DISABLE_CERT_STORE #Will also disable the store's CRL
+#XI_CONFIG_FLAGS += -DXI_CC3220SF_UNSAFELY_DISABLE_CERT_STORE #Will also disable the store's CRL
 
 # wolfssl API
 XI_CONFIG_FLAGS += -DNO_WRITEV

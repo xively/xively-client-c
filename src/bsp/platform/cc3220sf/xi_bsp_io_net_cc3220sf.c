@@ -35,7 +35,7 @@ long WriteCertificateToFFS( unsigned long* ulToken );
 #endif /* XI_BSP_IO_NET_TLS_SOCKET */
 
 #ifndef MAX
-    #define MAX( a, b ) ( ( ( a ) > ( b ) ) ? ( a ) : ( b ) )
+#define MAX( a, b ) ( ( ( a ) > ( b ) ) ? ( a ) : ( b ) )
 #endif /* MAX */
 
 xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
@@ -52,14 +52,15 @@ xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
 
     if ( ( retval = CheckOrInstallCertficiateOnDevice( &ulToken ) ) < 0 )
     {
-        xi_debug_printf( "ERROR: CheckOrInstallCertficiateOnDevice result: %d\n\r", retval );
+        xi_debug_printf( "ERROR: CheckOrInstallCertficiateOnDevice result: %d\n\r",
+                         retval );
         return XI_BSP_IO_NET_STATE_ERROR;
     }
 
     {
         /* set current time for certificate validity check during TLS handshake */
         const time_t current_time_seconds = xi_bsp_time_getcurrenttime_seconds();
-        struct tm* const gm_time = localtime( &current_time_seconds );
+        struct tm* const gm_time          = localtime( &current_time_seconds );
 
         /* conversion between tm datetime representation to Sl datetime representation
            tm years: since 1970, Sl years: since 0
@@ -73,9 +74,9 @@ xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
         sl_datetime.tm_min  = gm_time->tm_min;
         sl_datetime.tm_sec  = gm_time->tm_sec;
 
-        retval = sl_DeviceSet( SL_DEVICE_GENERAL,
-                               SL_DEVICE_GENERAL_DATE_TIME,
-                               sizeof( SlDateTime_t ), ( unsigned char* )( &sl_datetime ) );
+        retval =
+            sl_DeviceSet( SL_DEVICE_GENERAL, SL_DEVICE_GENERAL_DATE_TIME,
+                          sizeof( SlDateTime_t ), ( unsigned char* )( &sl_datetime ) );
 
         if ( retval < 0 )
         {
@@ -91,17 +92,19 @@ xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
         return XI_BSP_IO_NET_STATE_ERROR;
     }
 
-#ifdef XI_CC3220_UNSAFELY_DISABLE_CERT_STORE
+#ifdef XI_CC3220SF_UNSAFELY_DISABLE_CERT_STORE
     /* Disable usage of the on-board Certificate Catalog - Also disables the CRL */
     int32_t dummyValue = 0;
-    retval = sl_SetSockOpt( *xi_socket, SL_SOL_SOCKET, SL_SO_SECURE_DISABLE_CERTIFICATE_STORE,
-                            &dummyValue, sizeof( dummyValue ) );
+    retval =
+        sl_SetSockOpt( *xi_socket, SL_SOL_SOCKET, SL_SO_SECURE_DISABLE_CERTIFICATE_STORE,
+                       &dummyValue, sizeof( dummyValue ) );
     if ( retval < 0 )
     {
-        xi_bsp_debug_logger( "[ERROR] Failed to disable certificate catalog validation\n\r" );
+        xi_bsp_debug_logger(
+            "[ERROR] Failed to disable certificate catalog validation\n\r" );
         return XI_BSP_IO_NET_STATE_ERROR;
     }
-#endif /* XI_CC3220_UNSAFELY_DISABLE_CERT_STORE */
+#endif /* XI_CC3220SF_UNSAFELY_DISABLE_CERT_STORE */
 
     /* set TLS version to 1.2 */
     unsigned char ucMethod = SL_SO_SEC_METHOD_TLSV1_2;
@@ -173,7 +176,7 @@ xi_bsp_io_net_connect( xi_bsp_socket_t* xi_socket, const char* host, uint16_t po
 
     if ( 0 != errval )
     {
-        xi_debug_printf("Error: couldn't resolve hostname\n\r");
+        xi_debug_printf( "Error: couldn't resolve hostname\n\r" );
         return XI_BSP_IO_NET_STATE_ERROR;
     }
 
@@ -193,7 +196,7 @@ xi_bsp_io_net_connect( xi_bsp_socket_t* xi_socket, const char* host, uint16_t po
     }
     else if ( errval < 0 && errval != SL_ERROR_BSD_EALREADY )
     {
-        xi_debug_printf("Error on sl_Connect: %d\n\r", errval );
+        xi_debug_printf( "Error on sl_Connect: %d\n\r", errval );
         return XI_BSP_IO_NET_STATE_ERROR;
     }
 
@@ -302,23 +305,26 @@ xi_bsp_io_net_state_t xi_bsp_io_net_select( xi_bsp_socket_events_t* socket_event
         if ( 1 == socket_events->in_socket_want_read )
         {
             FD_SET( socket_events->xi_socket, &rfds );
-            max_fd_read =
-                socket_events->xi_socket > max_fd_read ? socket_events->xi_socket : max_fd_read;
+            max_fd_read = socket_events->xi_socket > max_fd_read
+                              ? socket_events->xi_socket
+                              : max_fd_read;
         }
 
         if ( ( 1 == socket_events->in_socket_want_write ) ||
              ( 1 == socket_events->in_socket_want_connect ) )
         {
             FD_SET( socket_events->xi_socket, &wfds );
-            max_fd_write = socket_events->xi_socket > max_fd_write ? socket_events->xi_socket
-                                                                : max_fd_write;
+            max_fd_write = socket_events->xi_socket > max_fd_write
+                               ? socket_events->xi_socket
+                               : max_fd_write;
         }
 
         if ( 1 == socket_events->in_socket_want_error )
         {
             FD_SET( socket_events->xi_socket, &efds );
-            max_fd_error = socket_events->xi_socket > max_fd_error ? socket_events->xi_socket
-                                                                : max_fd_error;
+            max_fd_error = socket_events->xi_socket > max_fd_error
+                               ? socket_events->xi_socket
+                               : max_fd_error;
         }
     }
 
@@ -473,21 +479,21 @@ long CheckOrInstallCertficiateOnDevice( unsigned long* ulToken )
        the library.
        If it does not, or if the digest signature fails to match,
        the write the certificate to disk */
-    long lRetVal = -1;
+    long lRetVal        = -1;
     uint8_t file_exists = 0;
     SlFsFileInfo_t file_info;
     const uint32_t CERTIFICATE_SIZE = sizeof( cert_globalsign_rootca_DER );
 
     /* Check for certificate existance and size */
-    lRetVal = sl_FsGetInfo( ( unsigned char* )XI_CC32XX_ROOTCACERT_FILE_NAME, *ulToken, &file_info );
-    if( lRetVal == 0 &&
-        file_info.Len == sizeof( cert_globalsign_rootca_DER ) )
+    lRetVal = sl_FsGetInfo( ( unsigned char* )XI_CC32XX_ROOTCACERT_FILE_NAME, *ulToken,
+                            &file_info );
+    if ( lRetVal == 0 && file_info.Len == sizeof( cert_globalsign_rootca_DER ) )
     {
         file_exists = 1;
     }
 
     int32_t write_file = 1;
-    if( file_exists )
+    if ( file_exists )
     {
         /* ok, certfiicate exists. Check it's signature. */
         CryptoCC32XX_init();
@@ -496,34 +502,35 @@ long CheckOrInstallCertficiateOnDevice( unsigned long* ulToken )
            only one named '0' and assigned a value of '0'.  See
            CC3220SF_LAUNCHXL_CryptoName defined in CC3220SF_LAUNCHXL.h of the cryptohmac
            example provided by TI. */
-        const uint32_t cryptoIndex = 0;
-        CryptoCC32XX_HmacMethod config = CryptoCC32XX_HMAC_SHA256;  /* hash length : 32 */
-        const uint32_t hashLength = 32;
+        const uint32_t cryptoIndex     = 0;
+        CryptoCC32XX_HmacMethod config = CryptoCC32XX_HMAC_SHA256; /* hash length : 32 */
+        const uint32_t hashLength      = 32;
 
-        CryptoCC32XX_Handle cryptoHandle = CryptoCC32XX_open(cryptoIndex, CryptoCC32XX_HMAC);
+        CryptoCC32XX_Handle cryptoHandle =
+            CryptoCC32XX_open( cryptoIndex, CryptoCC32XX_HMAC );
 
         CryptoCC32XX_HmacParams params;
-        char* hmac_key = "xZN3weH8j9FD032TbJp!qV!X1#8l7^ni$rmjGNPkStP!i2&y6r^OmemoqnJ!g8XL";
-        params.pKey = (uint8_t *)hmac_key[0];
+        char* hmac_key =
+            "xZN3weH8j9FD032TbJp!qV!X1#8l7^ni$rmjGNPkStP!i2&y6r^OmemoqnJ!g8XL";
+        params.pKey     = ( uint8_t* )hmac_key[0];
         params.moreData = 0;
 
         uint8_t rom_cert_hash_result[hashLength];
         memset( rom_cert_hash_result, 0, hashLength );
 
         /* Create a SHA256 digest signature of the certificate that we have compiled in */
-        CryptoCC32XX_sign( cryptoHandle, config , (void*)&cert_globalsign_rootca_DER[0],
-                             889, (uint8_t *)&rom_cert_hash_result, &params);
+        CryptoCC32XX_sign( cryptoHandle, config, ( void* )&cert_globalsign_rootca_DER[0],
+                           889, ( uint8_t* )&rom_cert_hash_result, &params );
 
         /* Open the file on the FFS */
         long lFileHandle = sl_FsOpen( ( unsigned char* )XI_CC32XX_ROOTCACERT_FILE_NAME,
-                                        SL_FS_READ,
-                                        ulToken );
+                                      SL_FS_READ, ulToken );
 
-        if( lFileHandle < 0 )
+        if ( lFileHandle < 0 )
         {
-            xi_debug_printf("Warning: opening Xively certficate file: \"%s\" error: %d\n\r",
-                XI_CC32XX_ROOTCACERT_FILE_NAME,
-                lFileHandle );
+            xi_debug_printf(
+                "Warning: opening Xively certficate file: \"%s\" error: %d\n\r",
+                XI_CC32XX_ROOTCACERT_FILE_NAME, lFileHandle );
         }
         else
         {
@@ -531,28 +538,29 @@ long CheckOrInstallCertficiateOnDevice( unsigned long* ulToken )
             int32_t bytes_read = 0;
             unsigned char certificate_file_buffer[CERTIFICATE_SIZE];
 
-            while( bytes_read < CERTIFICATE_SIZE )
+            while ( bytes_read < CERTIFICATE_SIZE )
             {
-                int32_t fs_result = sl_FsRead(lFileHandle, bytes_read, &certificate_file_buffer[bytes_read],
-                    CERTIFICATE_SIZE - bytes_read );
+                int32_t fs_result = sl_FsRead( lFileHandle, bytes_read,
+                                               &certificate_file_buffer[bytes_read],
+                                               CERTIFICATE_SIZE - bytes_read );
 
-                if( fs_result < 0 )
+                if ( fs_result < 0 )
                 {
-                    xi_debug_printf( "Error in certificate read for file \"%s\" error: %d\n\r",
-                        XI_CC32XX_ROOTCACERT_FILE_NAME,
-                        bytes_read );
+                    xi_debug_printf(
+                        "Error in certificate read for file \"%s\" error: %d\n\r",
+                        XI_CC32XX_ROOTCACERT_FILE_NAME, bytes_read );
                     return fs_result;
                 }
 
                 bytes_read += fs_result;
             }
 
-            sl_FsClose(lFileHandle, NULL, NULL , 0);
+            sl_FsClose( lFileHandle, NULL, NULL, 0 );
 
             /* Verify the File data with the compiled-in digest sigature */
-            if( CryptoCC32XX_STATUS_SUCCESS ==
-                CryptoCC32XX_verify(cryptoHandle, config, certificate_file_buffer,
-                                    CERTIFICATE_SIZE, rom_cert_hash_result, &params ) )
+            if ( CryptoCC32XX_STATUS_SUCCESS ==
+                 CryptoCC32XX_verify( cryptoHandle, config, certificate_file_buffer,
+                                      CERTIFICATE_SIZE, rom_cert_hash_result, &params ) )
             {
                 /* checksum checks out, no need to write the file again. */
                 write_file = 0;
@@ -562,7 +570,7 @@ long CheckOrInstallCertficiateOnDevice( unsigned long* ulToken )
         }
     }
 
-    if( write_file )
+    if ( write_file )
     {
         return WriteCertificateToFFS( ulToken );
     }
@@ -573,21 +581,21 @@ long CheckOrInstallCertficiateOnDevice( unsigned long* ulToken )
 long WriteCertificateToFFS( unsigned long* ulToken )
 {
     /*  create a user file */
-    long lRetVal = -1;
-    long lFileHandle = -1;
+    long lRetVal      = -1;
+    long lFileHandle  = -1;
     uint32_t max_size = sizeof( cert_globalsign_rootca_DER );
 
     /* open the file with create flags */
-    lFileHandle =
-        sl_FsOpen( ( unsigned char* )XI_CC32XX_ROOTCACERT_FILE_NAME,
-            SL_FS_CREATE| SL_FS_OVERWRITE | SL_FS_CREATE_MAX_SIZE( max_size ),
-            ulToken );
+    lFileHandle = sl_FsOpen(
+        ( unsigned char* )XI_CC32XX_ROOTCACERT_FILE_NAME,
+        SL_FS_CREATE | SL_FS_OVERWRITE | SL_FS_CREATE_MAX_SIZE( max_size ), ulToken );
 
     lRetVal = lFileHandle;
     if ( lRetVal < 0 )
     {
         lRetVal = sl_FsClose( lFileHandle, 0, 0, 0 );
-        xi_debug_printf( "WARNING: error in certificate file creation: \"%s\"\n\r", XI_CC32XX_ROOTCACERT_FILE_NAME );
+        xi_debug_printf( "WARNING: error in certificate file creation: \"%s\"\n\r",
+                         XI_CC32XX_ROOTCACERT_FILE_NAME );
         ASSERT_ON_ERROR( lRetVal );
     }
 
@@ -598,7 +606,8 @@ long WriteCertificateToFFS( unsigned long* ulToken )
     {
         /* Error while writing */
         lRetVal = sl_FsClose( lFileHandle, 0, 0, 0 );
-        xi_debug_printf( "WARNING: file \"%s\" write failure!  %d\n\r", XI_CC32XX_ROOTCACERT_FILE_NAME, lRetVal );
+        xi_debug_printf( "WARNING: file \"%s\" write failure!  %d\n\r",
+                         XI_CC32XX_ROOTCACERT_FILE_NAME, lRetVal );
         ASSERT_ON_ERROR( FILE_WRITE_FAILED );
     }
 
@@ -606,7 +615,8 @@ long WriteCertificateToFFS( unsigned long* ulToken )
     lRetVal = sl_FsClose( lFileHandle, 0, 0, 0 );
     if ( SL_RET_CODE_OK != lRetVal )
     {
-        xi_debug_printf( "WARNING: file \"%s\" close failure!  %d\n\r", XI_CC32XX_ROOTCACERT_FILE_NAME, lRetVal );
+        xi_debug_printf( "WARNING: file \"%s\" close failure!  %d\n\r",
+                         XI_CC32XX_ROOTCACERT_FILE_NAME, lRetVal );
         ASSERT_ON_ERROR( FILE_CLOSE_ERROR );
     }
     return 0;
