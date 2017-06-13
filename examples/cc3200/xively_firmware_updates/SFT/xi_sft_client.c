@@ -103,7 +103,8 @@ typedef enum {
     sft_empty_length_array_error,
     sft_data_out_of_bounds_error,
     sft_missing_cbor_field_error,
-    sft_publish_error
+    sft_publish_error,
+    sft_fingerprint_mismatch_error
 } sft_status_t;
 
 
@@ -193,7 +194,7 @@ void publish_device_log( xi_context_handle_t context_handle, const char* message
     xi_publish( context_handle, xi_logtopic, device_log_buffer, XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
 
-void verify_sha256()
+void verify_sha256( xi_context_handle_t in_context_handle )
 {
     /* Finalize SHA256 Digest */
     sha256_final( &download_context.sha256_context, download_context.file_local_computed_fingerprint );
@@ -204,19 +205,31 @@ void verify_sha256()
     char* buff_ptr = hash_buffer;
 
     int i;
-    for( i = 0; i < 32; i++ )
+    for( i = 0; i < 32; ++i )
     {
-        buff_ptr += sprintf( buff_ptr, "%02x", download_context.file_sft_fingerprint[i] );
+        buff_ptr += sprintf( buff_ptr, "%02x", download_context.file_local_computed_fingerprint[i] );
     }
     *buff_ptr = '\0';
 
+    for( i = 0; i < 64; ++i )
+    {
+        if( hash_buffer[i] != download_context.file_sft_fingerprint[i] )
+        {
+            printf("MISMATCH IN FILE FINGERPRINT.\n");
+            printf( "index:    %d\n", i );
+            printf( "computed: %c\n", hash_buffer[i] );
+            printf( "sft:      %c\n", download_context.file_sft_fingerprint[i] );
 
-    printf("formatted hash: 0x%s\n", hash_buffer);
+            download_context.result = sft_fingerprint_mismatch_error;
+            char log_details[DETAILSSIZE];
+            snprintf( log_details, DETAILSSIZE,"nsft-provided fingerprint: \"%s\"\ndevice-calculated fingerprint: \"%s\"",
+                     download_context.file_sft_fingerprint, download_context.file_local_computed_fingerprint );
+            publish_device_log( in_context_handle, "File Update Fingerprint Mistmach", details, sft_fingerprint_mismatch_error );
+            return;
+        }
+    }
 
-    printf( "Service hash = 0x" );
-    print_hash( download_context.file_sft_fingerprint );
-
-    /* TODO: add check to compare the two */
+    printf(" fingerprints match!");
 }
 
 void on_sft_message( xi_context_handle_t in_context_handle,
@@ -227,7 +240,6 @@ void on_sft_message( xi_context_handle_t in_context_handle,
 {
     cn_cbor* cb = NULL;
     char* bufptr = NULL;
-    int i = 0;
     cn_cbor* cb_item = NULL;
     const uint8_t* payload_data = NULL;
     size_t payload_length = 0;
@@ -333,7 +345,7 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                                 snprintf( buffer,sizeof( buffer ),"{\"message\":\"%s\",\"severity\":\"notice\",\"details\":\"%s\"}", message,details );
                                 xi_publish( in_context_handle, xi_logtopic, buffer, XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 
-                                verify_sha256();
+                                verify_sha256( in_context_handle );
 
 
                                 /* Close the firmware file */
