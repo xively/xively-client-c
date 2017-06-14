@@ -93,9 +93,12 @@ void xi_utest_cbor_codec_ct_encode( const xi_control_message_t* control_message,
 
                     cn_cbor_map_put(
                         file, cn_cbor_string_create( "F" CBOR_CONTEXT_PARAM, &err ),
-                        cn_cbor_string_create(
-                            control_message->file_update_available.list[id_file]
-                                .fingerprint CBOR_CONTEXT_PARAM,
+                        cn_cbor_data_create(
+                            ( uint8_t* )control_message->file_update_available
+                                .list[id_file]
+                                .fingerprint,
+                            strlen( control_message->file_update_available.list[id_file]
+                                        .fingerprint ) CBOR_CONTEXT_PARAM,
                             &err ),
                         &err );
 
@@ -195,10 +198,21 @@ void xi_utest_cbor_ASSERT_control_messages_match( const xi_control_message_t* cm
                                 ==,
                                 cm2->file_update_available.list[id_file].size_in_bytes );
 
-                tt_want_int_op(
-                    0, ==,
-                    strcmp( cm1->file_update_available.list[id_file].fingerprint,
-                            cm2->file_update_available.list[id_file].fingerprint ) );
+                if ( cm1->file_update_available.list[id_file].fingerprint &&
+                     cm2->file_update_available.list[id_file].fingerprint )
+                {
+                    tt_want_int_op(
+                        0, ==,
+                        strcmp( cm1->file_update_available.list[id_file].fingerprint,
+                                cm2->file_update_available.list[id_file].fingerprint ) );
+                }
+                else
+                {
+                    // both have to be NULL here
+                    tt_want_ptr_op(
+                        cm1->file_update_available.list[id_file].fingerprint, ==,
+                        cm2->file_update_available.list[id_file].fingerprint );
+                }
 
                 /*xi_debug_printf( "name: [%s]\n",
                                  cm2->file_update_available.list[id_file].name );

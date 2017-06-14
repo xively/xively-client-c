@@ -182,7 +182,7 @@ xi_cbor_codec_ct_decode_getvalue( cn_cbor* source, const char* key, void* destin
 
     if ( NULL != source_value )
     {
-        // xi_debug_printf( "type: %d,\n", source_value->type );
+        xi_debug_printf( "[ CBOR ] type: %d,\n", source_value->type );
 
         state = XI_STATE_OK;
 
@@ -196,6 +196,7 @@ xi_cbor_codec_ct_decode_getvalue( cn_cbor* source, const char* key, void* destin
 
                 break;
 
+            case CN_CBOR_BYTES:
             case CN_CBOR_TEXT:
 
                 // xi_debug_printf( "source_value: %s, length: %d\n", source_value->v.str,
@@ -215,6 +216,7 @@ xi_cbor_codec_ct_decode_getvalue( cn_cbor* source, const char* key, void* destin
     }
     else
     {
+        xi_debug_printf( "[ CBOR ] element not found: [%s]\n", key );
         state = XI_ELEMENT_NOT_FOUND;
     }
 

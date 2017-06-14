@@ -113,3 +113,61 @@ void xi_control_message_free( xi_control_message_t** control_message )
 
     XI_SAFE_FREE( *control_message );
 }
+
+#if 1 // XI_DEBUG_OUTPUT
+void xi_debug_control_message_dump( const xi_control_message_t* control_message,
+                                    const char* custom_label )
+{
+    if ( NULL == control_message )
+    {
+        return;
+    }
+
+    printf( "+++ xi_control_message_t: +++++++++++++++++++++++++ [%s] \n", custom_label );
+    printf( "+++ msgtype: %d, msgver: %d\n", control_message->common.msgtype,
+            control_message->common.msgver );
+
+    switch ( control_message->common.msgtype )
+    {
+        case XI_CONTROL_MESSAGE_CS_FILE_INFO:
+        {
+            printf( "+++ SFT FILE_INFO, list_len %d\n",
+                    control_message->file_info.list_len );
+            printf( "+++ #  [name], [revision]\n" );
+
+            uint16_t id_file = 0;
+            for ( ; id_file < control_message->file_info.list_len; ++id_file )
+            {
+                printf( "+++ #%d [%s], [%s]\n", id_file + 1,
+                        control_message->file_info.list[id_file].name,
+                        control_message->file_info.list[id_file].revision );
+            }
+        }
+        break;
+
+        case XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE:
+        {
+            printf( "+++ SFT FILE_UPDATE_AVAILABLE, list_len %d\n",
+                    control_message->file_update_available.list_len );
+            printf( "+++ #  [name], [revision], [file operation], [size in bytes], "
+                    "[fingerprint]\n" );
+
+            uint16_t id_file = 0;
+            for ( ; id_file < control_message->file_update_available.list_len; ++id_file )
+            {
+                printf(
+                    "+++ #%d [%s], [%s], [%d], [%d], [%s]\n", id_file + 1,
+                    control_message->file_update_available.list[id_file].name,
+                    control_message->file_update_available.list[id_file].revision,
+                    control_message->file_update_available.list[id_file].file_operation,
+                    control_message->file_update_available.list[id_file].size_in_bytes,
+                    control_message->file_update_available.list[id_file].fingerprint );
+            }
+        }
+        break;
+        default:;
+    }
+
+    printf( "++++++++++++++++++++++++++++++++++++++++++++++++++++ [%s]\n", custom_label );
+}
+#endif

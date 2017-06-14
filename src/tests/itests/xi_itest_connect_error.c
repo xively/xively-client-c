@@ -79,7 +79,7 @@ xi_itest_connect_error__test_fixture_t* xi_itest_connect_error__generate_fixture
     fixture->test_full_topic_name =
         ( "xi/blue/v1/xi_itest_connect_error_account_id/d/"
           "xi_itest_connect_error_device_id/test/topic/name" );
-    fixture->control_topic_name = ( "xi/ctrl/v1/xi_itest_connect_error_device_id/clt" );
+    fixture->control_topic_name = ( "xi/ctrl/v1/xi_itest_connect_error_device_id/cln" );
 
     return fixture;
 

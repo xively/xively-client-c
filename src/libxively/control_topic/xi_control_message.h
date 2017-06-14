@@ -107,4 +107,11 @@ xi_control_message_t* xi_control_message_create_file_info( const char** filename
 
 void xi_control_message_free( xi_control_message_t** control_message );
 
+#if 1 // XI_DEBUG_OUTPUT
+void xi_debug_control_message_dump( const xi_control_message_t* control_message,
+                                    const char* custom_label );
+#else
+#define xi_debug_control_message_dump( ... )
+#endif
+
 #endif /* __XI_CONTROL_MESSAGE_H__ */
