@@ -168,8 +168,10 @@ void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
 err_handling:;
 }
 
-xi_state_t
-xi_cbor_codec_ct_decode_getvalue( cn_cbor* source, const char* key, void* destination )
+xi_state_t xi_cbor_codec_ct_decode_getvalue( cn_cbor* source,
+                                             const char* key,
+                                             void* out_destination,
+                                             uint16_t* out_len )
 {
     xi_state_t state = XI_INVALID_PARAMETER;
 
@@ -182,7 +184,7 @@ xi_cbor_codec_ct_decode_getvalue( cn_cbor* source, const char* key, void* destin
 
     if ( NULL != source_value )
     {
-        xi_debug_printf( "[ CBOR ] type: %d,\n", source_value->type );
+        // xi_debug_printf( "[ CBOR ] type: %d,\n", source_value->type );
 
         state = XI_STATE_OK;
 
@@ -192,19 +194,38 @@ xi_cbor_codec_ct_decode_getvalue( cn_cbor* source, const char* key, void* destin
 
                 // xi_debug_printf( "source_value: %lu\n", source_value->v.uint );
 
-                *( ( uint32_t* )destination ) = source_value->v.uint;
+                *( ( uint32_t* )out_destination ) = source_value->v.uint;
 
                 break;
 
             case CN_CBOR_BYTES:
+
+                // xi_debug_printf( "CN_CBOR_BYTES / source_value: %s, length: %d\n",
+                //                  ( char* )source_value->v.bytes, source_value->length
+                //                  );
+
+                XI_ALLOC_BUFFER_AT( uint8_t, *( uint8_t** )out_destination,
+                                    source_value->length, state );
+
+                memcpy( *( uint8_t** )out_destination, source_value->v.bytes,
+                        source_value->length );
+
+                if ( NULL != out_len )
+                {
+                    *out_len = source_value->length;
+                }
+
+                break;
+
             case CN_CBOR_TEXT:
 
                 // xi_debug_printf( "source_value: %s, length: %d\n", source_value->v.str,
                 //                  source_value->length );
 
-                XI_ALLOC_BUFFER_AT( char, *( char** )destination,
+                XI_ALLOC_BUFFER_AT( char, *( char** )out_destination,
                                     source_value->length + 1, state );
-                memcpy( *( char** )destination, source_value->v.str,
+
+                memcpy( *( char** )out_destination, source_value->v.str,
                         source_value->length );
 
                 break;
@@ -216,7 +237,7 @@ xi_cbor_codec_ct_decode_getvalue( cn_cbor* source, const char* key, void* destin
     }
     else
     {
-        xi_debug_printf( "[ CBOR ] element not found: [%s]\n", key );
+        xi_debug_printf( "[ CBOR ] element not found for key: '%s'\n", key );
         state = XI_ELEMENT_NOT_FOUND;
     }
 
@@ -276,27 +297,33 @@ xi_control_message_t* xi_cbor_codec_ct_decode( const uint8_t* data, const uint32
                         xi_cbor_codec_ct_decode_getvalue(
                             file, XI_CBOR_CODEC_CT_STRING_FILE_NAME,
                             &control_message_out->file_update_available.list[id_file]
-                                 .name );
+                                 .name,
+                            NULL );
 
                         xi_cbor_codec_ct_decode_getvalue(
                             file, XI_CBOR_CODEC_CT_STRING_FILE_REVISION,
                             &control_message_out->file_update_available.list[id_file]
-                                 .revision );
+                                 .revision,
+                            NULL );
 
                         xi_cbor_codec_ct_decode_getvalue(
                             file, XI_CBOR_CODEC_CT_STRING_FILE_OPERATION,
                             &control_message_out->file_update_available.list[id_file]
-                                 .file_operation );
+                                 .file_operation,
+                            NULL );
 
                         xi_cbor_codec_ct_decode_getvalue(
                             file, XI_CBOR_CODEC_CT_STRING_FILE_IMAGESIZE,
                             &control_message_out->file_update_available.list[id_file]
-                                 .size_in_bytes );
+                                 .size_in_bytes,
+                            NULL );
 
                         xi_cbor_codec_ct_decode_getvalue(
                             file, XI_CBOR_CODEC_CT_STRING_FILE_FINGERPRINT,
                             &control_message_out->file_update_available.list[id_file]
-                                 .fingerprint );
+                                 .fingerprint,
+                            &control_message_out->file_update_available.list[id_file]
+                                 .fingerprint_len );
                     }
                 }
             }
@@ -305,21 +332,21 @@ xi_control_message_t* xi_cbor_codec_ct_decode( const uint8_t* data, const uint32
 
             case XI_CONTROL_MESSAGE_SC_FILE_CHUNK:
 
-                xi_cbor_codec_ct_decode_getvalue( cb_map,
-                                                  XI_CBOR_CODEC_CT_STRING_FILE_NAME,
-                                                  &control_message_out->file_chunk.name );
+                xi_cbor_codec_ct_decode_getvalue(
+                    cb_map, XI_CBOR_CODEC_CT_STRING_FILE_NAME,
+                    &control_message_out->file_chunk.name, NULL );
 
                 xi_cbor_codec_ct_decode_getvalue(
                     cb_map, XI_CBOR_CODEC_CT_STRING_FILE_REVISION,
-                    &control_message_out->file_chunk.revision );
+                    &control_message_out->file_chunk.revision, NULL );
 
                 xi_cbor_codec_ct_decode_getvalue(
                     cb_map, XI_CBOR_CODEC_CT_STRING_FILECHUNK_OFFSET,
-                    &control_message_out->file_chunk.offset );
+                    &control_message_out->file_chunk.offset, NULL );
 
                 xi_cbor_codec_ct_decode_getvalue(
                     cb_map, XI_CBOR_CODEC_CT_STRING_FILECHUNK_LENGTH,
-                    &control_message_out->file_chunk.length );
+                    &control_message_out->file_chunk.length, NULL );
 
                 break;
 

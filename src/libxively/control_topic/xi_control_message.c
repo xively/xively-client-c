@@ -156,12 +156,23 @@ void xi_debug_control_message_dump( const xi_control_message_t* control_message,
             for ( ; id_file < control_message->file_update_available.list_len; ++id_file )
             {
                 printf(
-                    "+++ #%d [%s], [%s], [%d], [%d], [%s]\n", id_file + 1,
+                    "+++ #%d [%s], [%s], [%d], [%d], [", id_file + 1,
                     control_message->file_update_available.list[id_file].name,
                     control_message->file_update_available.list[id_file].revision,
                     control_message->file_update_available.list[id_file].file_operation,
-                    control_message->file_update_available.list[id_file].size_in_bytes,
-                    control_message->file_update_available.list[id_file].fingerprint );
+                    control_message->file_update_available.list[id_file].size_in_bytes );
+
+                uint16_t id_byte = 0;
+                for ( ; id_byte < control_message->file_update_available.list[id_file]
+                                      .fingerprint_len;
+                      ++id_byte )
+                {
+                    printf( "%c", control_message->file_update_available.list[id_file]
+                                      .fingerprint[id_byte] );
+                }
+
+                printf( "]:[%d]\n", control_message->file_update_available.list[id_file]
+                                        .fingerprint_len );
             }
         }
         break;

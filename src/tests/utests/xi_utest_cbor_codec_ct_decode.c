@@ -94,11 +94,10 @@ void xi_utest_cbor_codec_ct_encode( const xi_control_message_t* control_message,
                     cn_cbor_map_put(
                         file, cn_cbor_string_create( "F" CBOR_CONTEXT_PARAM, &err ),
                         cn_cbor_data_create(
-                            ( uint8_t* )control_message->file_update_available
-                                .list[id_file]
+                            control_message->file_update_available.list[id_file]
                                 .fingerprint,
-                            strlen( control_message->file_update_available.list[id_file]
-                                        .fingerprint ) CBOR_CONTEXT_PARAM,
+                            control_message->file_update_available.list[id_file]
+                                .fingerprint_len CBOR_CONTEXT_PARAM,
                             &err ),
                         &err );
 
@@ -154,13 +153,14 @@ err_handling:;
 
 void xi_utest_cbor_ASSERT_control_message_string( const char* str1, const char* str2 )
 {
-    if ( NULL == str1 )
+    if ( str1 && str2 )
     {
-        tt_want_int_op( str1, ==, str2 );
+        tt_want_int_op( 0, ==, strcmp( str1, str2 ) );
     }
     else
     {
-        tt_want_int_op( 0, ==, strcmp( str1, str2 ) );
+        // both have to be NULL here
+        tt_want_int_op( str1, ==, str2 );
     }
 }
 
@@ -182,13 +182,13 @@ void xi_utest_cbor_ASSERT_control_messages_match( const xi_control_message_t* cm
             uint8_t id_file = 0;
             for ( ; id_file < cm1->file_update_available.list_len; ++id_file )
             {
-                tt_want_int_op( 0, ==,
-                                strcmp( cm1->file_update_available.list[id_file].name,
-                                        cm2->file_update_available.list[id_file].name ) );
+                xi_utest_cbor_ASSERT_control_message_string(
+                    cm1->file_update_available.list[id_file].name,
+                    cm2->file_update_available.list[id_file].name );
 
-                tt_want_int_op(
-                    0, ==, strcmp( cm1->file_update_available.list[id_file].revision,
-                                   cm2->file_update_available.list[id_file].revision ) );
+                xi_utest_cbor_ASSERT_control_message_string(
+                    cm1->file_update_available.list[id_file].revision,
+                    cm2->file_update_available.list[id_file].revision );
 
                 tt_want_int_op( cm1->file_update_available.list[id_file].file_operation,
                                 ==,
@@ -198,13 +198,20 @@ void xi_utest_cbor_ASSERT_control_messages_match( const xi_control_message_t* cm
                                 ==,
                                 cm2->file_update_available.list[id_file].size_in_bytes );
 
+                tt_want_int_op(
+                    cm1->file_update_available.list[id_file].fingerprint_len, ==,
+                    cm2->file_update_available.list[id_file].fingerprint_len );
+
+                tt_want_int_op(
+                    0, ==,
+                    memcmp( cm1->file_update_available.list[id_file].fingerprint,
+                            cm2->file_update_available.list[id_file].fingerprint,
+                            cm1->file_update_available.list[id_file].fingerprint_len ) );
+
+#if 0
                 if ( cm1->file_update_available.list[id_file].fingerprint &&
                      cm2->file_update_available.list[id_file].fingerprint )
                 {
-                    tt_want_int_op(
-                        0, ==,
-                        strcmp( cm1->file_update_available.list[id_file].fingerprint,
-                                cm2->file_update_available.list[id_file].fingerprint ) );
                 }
                 else
                 {
@@ -213,6 +220,7 @@ void xi_utest_cbor_ASSERT_control_messages_match( const xi_control_message_t* cm
                         cm1->file_update_available.list[id_file].fingerprint, ==,
                         cm2->file_update_available.list[id_file].fingerprint );
                 }
+#endif
 
                 /*xi_debug_printf( "name: [%s]\n",
                                  cm2->file_update_available.list[id_file].name );
@@ -295,11 +303,58 @@ XI_TT_TESTCASE_WITH_SETUP(
     {
         // ARRANGE
         xi_control_message_file_desc_ext_t single_file_list[1] = {
-            {.name           = "name of file to update",
-             .revision       = "new revision",
-             .file_operation = 99,
-             .size_in_bytes  = 123,
-             .fingerprint    = "my fingerprint 888"}};
+            {.name            = "first_SFT_test.cfg",
+             .revision        = "1",
+             .file_operation  = 0,
+             .size_in_bytes   = 109489,
+             .fingerprint     = ( uint8_t* )"first_SFT_test_artificial_checksum.cfg",
+             .fingerprint_len = 39}};
+
+        const xi_control_message_t file_update_available_in = {
+            .file_update_available = {
+                .common = {.msgtype = XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE,
+                           .msgver  = 1},
+                .list_len = 1,
+                .list     = single_file_list}};
+
+        uint8_t* encoded     = NULL;
+        uint32_t encoded_len = 0;
+
+        xi_utest_cbor_codec_ct_encode( &file_update_available_in, &encoded,
+                                       &encoded_len );
+
+        // xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 0 );
+        // xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 1 );
+
+        // ACT
+        xi_control_message_t* file_update_available_out =
+            xi_cbor_codec_ct_decode( encoded, encoded_len );
+
+        // xi_debug_control_message_dump( &file_update_available_in, "in" );
+        // xi_debug_control_message_dump( file_update_available_out, "out" );
+
+        // ASSERT
+        xi_utest_cbor_ASSERT_control_messages_match( &file_update_available_in,
+                                                     file_update_available_out );
+
+        XI_SAFE_FREE( encoded );
+        xi_control_message_free( &file_update_available_out );
+
+    } )
+
+XI_TT_TESTCASE_WITH_SETUP(
+    xi_utest_cbor_codec_ct_decode__file_update_available__single_file_null_values,
+    xi_utest_setup_basic,
+    xi_utest_teardown_basic,
+    NULL,
+    {
+        // ARRANGE
+        xi_control_message_file_desc_ext_t single_file_list[1] = {{.name           = NULL,
+                                                                   .revision       = NULL,
+                                                                   .file_operation = 0,
+                                                                   .size_in_bytes  = 10,
+                                                                   .fingerprint    = NULL,
+                                                                   .fingerprint_len = 0}};
 
         const xi_control_message_t file_update_available_in = {
             .file_update_available = {
@@ -338,21 +393,24 @@ XI_TT_TESTCASE_WITH_SETUP(
     {
         // ARRANGE
         xi_control_message_file_desc_ext_t three_file_list[3] = {
-            {.name           = "filename 1",
-             .revision       = "revision 11",
-             .file_operation = 11,
-             .size_in_bytes  = 111,
-             .fingerprint    = "fingerprint 111"},
-            {.name           = "filename 2",
-             .revision       = "revision 22",
-             .file_operation = 22,
-             .size_in_bytes  = 222,
-             .fingerprint    = "fingerprint 222"},
-            {.name           = "filename 3",
-             .revision       = "revision 33",
-             .file_operation = 33,
-             .size_in_bytes  = 333,
-             .fingerprint    = "fingerprint 333"}};
+            {.name            = "filename 1",
+             .revision        = "revision 11",
+             .file_operation  = 11,
+             .size_in_bytes   = 111,
+             .fingerprint     = ( uint8_t* )"fingerprint 111",
+             .fingerprint_len = 15},
+            {.name            = "filename 2",
+             .revision        = "revision 22",
+             .file_operation  = 22,
+             .size_in_bytes   = 222,
+             .fingerprint     = ( uint8_t* )"fingerprint 222",
+             .fingerprint_len = 15},
+            {.name            = "filename 3",
+             .revision        = "revision 33",
+             .file_operation  = 33,
+             .size_in_bytes   = 333,
+             .fingerprint     = ( uint8_t[] ){0x55, 0x56, 0x0, 0x56, 0x55},
+             .fingerprint_len = 5}};
 
         const xi_control_message_t file_update_available_in = {
             .file_update_available = {

@@ -30,7 +30,9 @@ typedef struct xi_control_message_file_desc_ext_s
 
     uint8_t file_operation;
     uint32_t size_in_bytes;
-    char* fingerprint;
+
+    uint8_t* fingerprint;
+    uint16_t fingerprint_len;
 } xi_control_message_file_desc_ext_t;
 
 
