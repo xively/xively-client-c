@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    LwIP/LwIP_HTTP_Server_Netconn_RTOS/Inc/app_ethernet.h 
   * @author  MCD Application Team
-  * @version V1.0.2
-  * @date    06-May-2016
+  * @version V1.1.0
+  * @date    17-February-2017
   * @brief   Header for app_ethernet.c module
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright © 2016 STMicroelectronics International N.V. 
+  * <h2><center>&copy; Copyright © 2017 STMicroelectronics International N.V.
   * All rights reserved.</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without 
@@ -58,6 +58,7 @@
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* DHCP process states */
+#define DHCP_OFF                   (uint8_t) 0
 #define DHCP_START                 (uint8_t) 1
 #define DHCP_WAIT_ADDRESS          (uint8_t) 2
 #define DHCP_ADDRESS_ASSIGNED      (uint8_t) 3
