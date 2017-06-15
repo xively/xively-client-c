@@ -190,7 +190,15 @@ xi_state_t xi_cbor_codec_ct_decode_getvalue( cn_cbor* source,
 
         switch ( source_value->type )
         {
+            case CN_CBOR_FALSE:
+            case CN_CBOR_TRUE:
+            case CN_CBOR_NULL:
+            case CN_CBOR_UNDEF:
             case CN_CBOR_UINT:
+            case CN_CBOR_INT:
+            case CN_CBOR_TAG:
+            case CN_CBOR_SIMPLE:
+            case CN_CBOR_DOUBLE:
 
                 // xi_debug_printf( "source_value: %lu\n", source_value->v.uint );
 
@@ -230,7 +238,11 @@ xi_state_t xi_cbor_codec_ct_decode_getvalue( cn_cbor* source,
 
                 break;
 
-            default:
+            case CN_CBOR_BYTES_CHUNKED:
+            case CN_CBOR_TEXT_CHUNKED:
+            case CN_CBOR_ARRAY:
+            case CN_CBOR_MAP:
+            case CN_CBOR_INVALID:
                 state = XI_NOT_IMPLEMENTED;
                 break;
         }
