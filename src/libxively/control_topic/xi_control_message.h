@@ -53,7 +53,7 @@ typedef union xi_control_message_u {
 
     } file_info;
 
-    struct
+    struct file_update_available_s
     {
         struct xi_control_message_common_s common;
 
@@ -66,11 +66,11 @@ typedef union xi_control_message_u {
     {
         struct xi_control_message_common_s common;
 
-        const char* name;
-        const char* revision;
+        char* name;
+        char* revision;
 
-        const uint32_t offset;
-        const uint32_t length;
+        uint32_t offset;
+        uint32_t length;
 
     } file_get_chunk;
 
@@ -106,6 +106,11 @@ typedef union xi_control_message_u {
 xi_control_message_t* xi_control_message_create_file_info( const char** filenames,
                                                            const char** revisions,
                                                            uint16_t count );
+
+xi_control_message_t* xi_control_message_create_file_get_chunk( const char* filename,
+                                                                const char* revision,
+                                                                uint32_t offset,
+                                                                uint32_t length );
 
 void xi_control_message_free( xi_control_message_t** control_message );
 

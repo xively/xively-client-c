@@ -22,32 +22,67 @@ xi_control_message_t* xi_control_message_create_file_info( const char** filename
 
     xi_state_t state = XI_STATE_OK;
 
-    XI_ALLOC( xi_control_message_t, file_info, state );
+    XI_ALLOC( xi_control_message_t, sft_message, state );
 
-    file_info->file_info.common.msgtype = XI_CONTROL_MESSAGE_CS_FILE_INFO;
-    file_info->file_info.common.msgver  = 1;
+    sft_message->file_info.common.msgtype = XI_CONTROL_MESSAGE_CS_FILE_INFO;
+    sft_message->file_info.common.msgver  = 1;
 
-    XI_ALLOC_BUFFER_AT( xi_control_message_file_desc_t, file_info->file_info.list,
+    XI_ALLOC_BUFFER_AT( xi_control_message_file_desc_t, sft_message->file_info.list,
                         sizeof( xi_control_message_file_desc_t ) * count, state );
 
-    file_info->file_info.list_len = count;
+    sft_message->file_info.list_len = count;
 
     uint16_t id_file = 0;
     for ( ; id_file < count; ++id_file )
     {
-        file_info->file_info.list[id_file].name = xi_str_dup( *filenames );
+        sft_message->file_info.list[id_file].name = xi_str_dup( *filenames );
         ++filenames;
 
         if ( NULL != revisions )
         {
-            file_info->file_info.list[id_file].revision = xi_str_dup( *revisions );
+            sft_message->file_info.list[id_file].revision = xi_str_dup( *revisions );
             ++revisions;
         }
     }
 
+    return sft_message;
+
 err_handling:
 
-    return file_info;
+    xi_control_message_free( &sft_message );
+
+    return sft_message;
+}
+
+xi_control_message_t* xi_control_message_create_file_get_chunk( const char* filename,
+                                                                const char* revision,
+                                                                uint32_t offset,
+                                                                uint32_t length )
+{
+    if ( NULL == filename || NULL == revision )
+    {
+        return NULL;
+    }
+
+    xi_state_t state = XI_STATE_OK;
+
+    XI_ALLOC( xi_control_message_t, sft_message, state );
+
+    sft_message->common.msgtype               = XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK;
+    sft_message->file_get_chunk.common.msgver = 1;
+
+    sft_message->file_get_chunk.name     = xi_str_dup( filename );
+    sft_message->file_get_chunk.revision = xi_str_dup( revision );
+    sft_message->file_get_chunk.offset   = offset;
+    sft_message->file_get_chunk.length   = length;
+
+    return sft_message;
+
+err_handling:
+
+    xi_control_message_free( &sft_message );
+
+    return sft_message;
 }
 
 void xi_control_message_free( xi_control_message_t** control_message )
@@ -97,12 +132,16 @@ void xi_control_message_free( xi_control_message_t** control_message )
 
         case XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK:
 
+            XI_SAFE_FREE( ( *control_message )->file_get_chunk.name );
+            XI_SAFE_FREE( ( *control_message )->file_get_chunk.revision );
+
             break;
 
         case XI_CONTROL_MESSAGE_SC_FILE_CHUNK:
 
             XI_SAFE_FREE( ( *control_message )->file_chunk.name );
             XI_SAFE_FREE( ( *control_message )->file_chunk.revision );
+            XI_SAFE_FREE( ( *control_message )->file_chunk.chunk );
 
             break;
 
@@ -176,9 +215,29 @@ void xi_debug_control_message_dump( const xi_control_message_t* control_message,
             }
         }
         break;
+
+        case XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK:
+            printf( "+++ XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK\n" );
+            printf( "+++ name: [%s], revision: [%s]\n",
+                    control_message->file_get_chunk.name,
+                    control_message->file_get_chunk.revision );
+            printf( "+++ offset: %d, length: %d\n",
+                    control_message->file_get_chunk.offset,
+                    control_message->file_get_chunk.length );
+            break;
+
+        case XI_CONTROL_MESSAGE_SC_FILE_CHUNK:
+            printf( "+++ XI_CONTROL_MESSAGE_SC_FILE_CHUNK\n" );
+            printf( "+++ name: [%s], revision: [%s]\n", control_message->file_chunk.name,
+                    control_message->file_chunk.revision );
+            printf( "+++ offset: %d, length: %d\n", control_message->file_chunk.offset,
+                    control_message->file_chunk.length );
+            printf( "+++ status: %d, chunk ptr: %p\n", control_message->file_chunk.status,
+                    control_message->file_chunk.chunk );
+            break;
         default:;
     }
 
-    printf( "++++++++++++++++++++++++++++++++++++++++++++++++++++ [%s]\n", custom_label );
+    printf( "+++++++++++++++++++++++++++++++++++++++++++++++++++ [%s]\n", custom_label );
 }
 #endif

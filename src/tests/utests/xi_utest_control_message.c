@@ -25,7 +25,7 @@ XI_TT_TESTGROUP_BEGIN( utest_control_message )
  * FILE_INFO *****************************************
  *****************************************************/
 
-XI_TT_TESTCASE_WITH_SETUP( xi_utest__invalid_input__null_output_expected,
+XI_TT_TESTCASE_WITH_SETUP( xi_utest__FILE_INFO__invalid_input__null_output_expected,
                            xi_utest_setup_basic,
                            xi_utest_teardown_basic,
                            NULL,
@@ -33,11 +33,11 @@ XI_TT_TESTCASE_WITH_SETUP( xi_utest__invalid_input__null_output_expected,
                                xi_control_message_t* message_file_info =
                                    xi_control_message_create_file_info( NULL, NULL, 0 );
 
-                               tt_want_ptr_op( 0, ==, message_file_info );
+                               tt_want_ptr_op( NULL, ==, message_file_info );
                            } )
 
 XI_TT_TESTCASE_WITH_SETUP(
-    xi_utest__invalid_input_revision_is_not_enough__null_output_expected,
+    xi_utest__FILE_INFO__invalid_input_revision_is_not_enough__null_output_expected,
     xi_utest_setup_basic,
     xi_utest_teardown_basic,
     NULL,
@@ -47,11 +47,11 @@ XI_TT_TESTCASE_WITH_SETUP(
         xi_control_message_t* message_file_info =
             xi_control_message_create_file_info( NULL, &single_revision, 1 );
 
-        tt_want_ptr_op( 0, ==, message_file_info );
+        tt_want_ptr_op( NULL, ==, message_file_info );
     } )
 
 XI_TT_TESTCASE_WITH_SETUP(
-    xi_utest__single_filename_provided_but_zero_count__null_output_expected,
+    xi_utest__FILE_INFO__single_filename_provided_but_zero_count__null_output_expected,
     xi_utest_setup_basic,
     xi_utest_teardown_basic,
     NULL,
@@ -61,11 +61,11 @@ XI_TT_TESTCASE_WITH_SETUP(
         xi_control_message_t* message_file_info =
             xi_control_message_create_file_info( &single_filename, NULL, 0 );
 
-        tt_want_ptr_op( 0, ==, message_file_info );
+        tt_want_ptr_op( NULL, ==, message_file_info );
     } )
 
 XI_TT_TESTCASE_WITH_SETUP(
-    xi_utest__single_filename_provided__valid_output_message_expected,
+    xi_utest__FILE_INFO__single_filename_provided__valid_output_message_expected,
     xi_utest_setup_basic,
     xi_utest_teardown_basic,
     NULL,
@@ -75,7 +75,7 @@ XI_TT_TESTCASE_WITH_SETUP(
         xi_control_message_t* message_file_info =
             xi_control_message_create_file_info( &single_filename, NULL, 1 );
 
-        tt_ptr_op( 0, !=, message_file_info );
+        tt_ptr_op( NULL, !=, message_file_info );
         tt_want_int_op( XI_CONTROL_MESSAGE_CS_FILE_INFO, ==,
                         message_file_info->common.msgtype );
         tt_want_int_op( 1, ==, message_file_info->common.msgver );
@@ -95,7 +95,7 @@ XI_TT_TESTCASE_WITH_SETUP(
     } )
 
 XI_TT_TESTCASE_WITH_SETUP(
-    xi_utest__single_filename_and_revision_provided__valid_output_message_expected,
+    xi_utest__FILE_INFO__single_filename_and_revision_provided__valid_output_message_expected,
     xi_utest_setup_basic,
     xi_utest_teardown_basic,
     NULL,
@@ -106,7 +106,7 @@ XI_TT_TESTCASE_WITH_SETUP(
         xi_control_message_t* message_file_info =
             xi_control_message_create_file_info( &single_filename, &single_revision, 1 );
 
-        tt_ptr_op( 0, !=, message_file_info );
+        tt_ptr_op( NULL, !=, message_file_info );
         tt_want_int_op( XI_CONTROL_MESSAGE_CS_FILE_INFO, ==,
                         message_file_info->common.msgtype );
         tt_want_int_op( 1, ==, message_file_info->common.msgver );
@@ -129,7 +129,7 @@ XI_TT_TESTCASE_WITH_SETUP(
     } )
 
 XI_TT_TESTCASE_WITH_SETUP(
-    xi_utest__three_filenames_and_revisions_provided__valid_output_message_expected,
+    xi_utest__FILE_INFO__three_filenames_and_revisions_provided__valid_output_message_expected,
     xi_utest_setup_basic,
     xi_utest_teardown_basic,
     NULL,
@@ -141,7 +141,7 @@ XI_TT_TESTCASE_WITH_SETUP(
         xi_control_message_t* message_file_info =
             xi_control_message_create_file_info( filenames, revisions, file_count );
 
-        tt_ptr_op( 0, !=, message_file_info );
+        tt_ptr_op( NULL, !=, message_file_info );
 
         tt_want_int_op( file_count, ==, message_file_info->file_info.list_len );
         tt_ptr_op( NULL, !=, message_file_info->file_info.list );
@@ -164,6 +164,49 @@ XI_TT_TESTCASE_WITH_SETUP(
 
     end:;
     } )
+
+
+/*****************************************************
+ * FILE_GET_CHUNK ************************************
+ *****************************************************/
+
+XI_TT_TESTCASE_WITH_SETUP( xi_utest__FILE_GET_CHUNK__null_filename__message_not_created,
+                           xi_utest_setup_basic,
+                           xi_utest_teardown_basic,
+                           NULL,
+                           {
+                               xi_control_message_t* message_file_get_chunk =
+                                   xi_control_message_create_file_get_chunk(
+                                       NULL, "filerevision", 0, 128 );
+
+                               tt_want_ptr_op( NULL, ==, message_file_get_chunk );
+                           } )
+
+XI_TT_TESTCASE_WITH_SETUP( xi_utest__FILE_GET_CHUNK__null_revision__message_not_created,
+                           xi_utest_setup_basic,
+                           xi_utest_teardown_basic,
+                           NULL,
+                           {
+                               xi_control_message_t* message_file_get_chunk =
+                                   xi_control_message_create_file_get_chunk(
+                                       "filename", NULL, 0, 128 );
+
+                               tt_want_ptr_op( NULL, ==, message_file_get_chunk );
+                           } )
+
+XI_TT_TESTCASE_WITH_SETUP( xi_utest__FILE_GET_CHUNK__basic,
+                           xi_utest_setup_basic,
+                           xi_utest_teardown_basic,
+                           NULL,
+                           {
+                               xi_control_message_t* message_file_get_chunk =
+                                   xi_control_message_create_file_get_chunk(
+                                       "filename", "filerevision", 0, 128 );
+
+                               tt_want_ptr_op( NULL, !=, message_file_get_chunk );
+
+                               xi_control_message_free( &message_file_get_chunk );
+                           } )
 
 
 XI_TT_TESTGROUP_END

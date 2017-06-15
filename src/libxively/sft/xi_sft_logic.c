@@ -70,29 +70,49 @@ xi_state_t xi_sft_on_connected( xi_sft_context_t* context )
 }
 
 xi_state_t
-xi_sft_on_message( xi_sft_context_t* context, const xi_control_message_t* sft_message )
+xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message )
 {
     if ( NULL == context || NULL == sft_message )
     {
         return XI_INVALID_PARAMETER;
     }
 
+    xi_state_t state = XI_STATE_OK;
+
     switch ( sft_message->common.msgtype )
     {
         case XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE:
+        {
             /* - check whether device is ready to start download of file
                - get the first chunk of file in question with FILE_GET_CHUNK */
-            break;
+
+            context->ongoing_file_update = &sft_message->file_update_available;
+
+            if ( 0 < context->ongoing_file_update->list_len &&
+                 NULL != context->ongoing_file_update->list )
+            {
+                xi_control_message_t* message_file_get_chunk =
+                    xi_control_message_create_file_get_chunk(
+                        context->ongoing_file_update->list[0].name,
+                        context->ongoing_file_update->list[0].revision, 1, 127 );
+
+                ( *context->fn_send_message )( context->send_message_user_data,
+                                               message_file_get_chunk );
+            }
+        }
+        break;
         case XI_CONTROL_MESSAGE_SC_FILE_CHUNK:
             /* - store the chunk through file/firmware BSP
                - get the next chunk, XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK
                - if last chunk close file, start appropriate action
-                    - if firmware: start firmware update or "just" report downloaded and
+                    - if firmware: start firmware update or "just" report downloaded
+               and
                       wait for remote FWU trigger
-                    - other files may have their own action, no-operation is an option */
+                    - other files may have their own action, no-operation is an option
+               */
             break;
         default:;
     }
 
-    return XI_STATE_OK;
+    return state;
 }
