@@ -47,6 +47,8 @@
 #include <simplelinkWifi/provisioning_task.h>
 
 #include "xively.h"
+#include "xi_bsp_rng.h"
+#include "xi_bsp_time.h"
 #include "config_file.h"
 
 #ifdef DEBUG_WOLFSSL
@@ -311,10 +313,10 @@ void* xivelyExampleThread( void* arg )
     /* Add Interrupt Callbacks for the board's two side buttons */
     /* the application will use these interrupts to publish events */
     /* to the xively service on the corresponding button topic */
-    GPIO_setCallback( Board_BUTTON0, button_interrupt_handler );
+    GPIO_setCallback( Board_BUTTON0, ( GPIO_CallbackFxn )button_interrupt_handler );
     GPIO_enableInt( Board_BUTTON0 );
 
-    GPIO_setCallback( Board_BUTTON1, button_interrupt_handler );
+    GPIO_setCallback( Board_BUTTON1, ( GPIO_CallbackFxn )button_interrupt_handler );
     GPIO_enableInt( Board_BUTTON1 );
 
     /* create a periodic Clock for updating LED button states depending on
