@@ -128,6 +128,19 @@ void xi_utest_cbor_codec_ct_encode( const xi_control_message_t* control_message,
                                     &err ),
                 &err );
 
+            cn_cbor_map_put(
+                cb_map, cn_cbor_string_create( "S" CBOR_CONTEXT_PARAM, &err ),
+                cn_cbor_int_create( control_message->file_chunk.status CBOR_CONTEXT_PARAM,
+                                    &err ),
+                &err );
+
+            cn_cbor_map_put(
+                cb_map, cn_cbor_string_create( "C" CBOR_CONTEXT_PARAM, &err ),
+                cn_cbor_data_create(
+                    control_message->file_chunk.chunk,
+                    control_message->file_chunk.length CBOR_CONTEXT_PARAM, &err ),
+                &err );
+
             break;
 
         case XI_CONTROL_MESSAGE_CS_FILE_INFO:
@@ -242,6 +255,10 @@ void xi_utest_cbor_ASSERT_control_messages_match( const xi_control_message_t* cm
 
             tt_want_int_op( cm1->file_chunk.offset, ==, cm2->file_chunk.offset );
             tt_want_int_op( cm1->file_chunk.length, ==, cm2->file_chunk.length );
+            tt_want_int_op( cm1->file_chunk.status, ==, cm2->file_chunk.status );
+
+            tt_want_int_op( 0, ==, memcmp( cm1->file_chunk.chunk, cm2->file_chunk.chunk,
+                                           cm1->file_chunk.length ) );
 
             break;
 
@@ -459,7 +476,9 @@ XI_TT_TESTCASE_WITH_SETUP(
                 .name     = "filename for filechunk message",
                 .revision = "revision for filechunk message",
                 .offset   = 0,
-                .length   = 1024}};
+                .length   = 15, /* including terminating zero */
+                .status   = 77,
+                .chunk    = ( uint8_t* )"my chunk hello"}};
 
         uint8_t* encoded     = NULL;
         uint32_t encoded_len = 0;
@@ -472,6 +491,9 @@ XI_TT_TESTCASE_WITH_SETUP(
         // ACT
         xi_control_message_t* file_chunk_out =
             xi_cbor_codec_ct_decode( encoded, encoded_len );
+
+        xi_debug_control_message_dump( &file_chunk_in, "in" );
+        xi_debug_control_message_dump( file_chunk_out, "out" );
 
         // ASSERT
         xi_utest_cbor_ASSERT_control_messages_match( &file_chunk_in, file_chunk_out );
@@ -493,14 +515,16 @@ XI_TT_TESTCASE_WITH_SETUP(
                 .name     = NULL,
                 .revision = "",
                 .offset   = -1,
-                .length   = 0}};
+                .length   = 0,
+                .status   = 0,
+                .chunk    = NULL}};
 
         uint8_t* encoded     = NULL;
         uint32_t encoded_len = 0;
 
         xi_utest_cbor_codec_ct_encode( &file_chunk_in, &encoded, &encoded_len );
 
-        // xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 0 );
+        // xi_utest_cbor_bin_to_stdout( encoded, ehncoded_len, 0 );
         // xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 1 );
 
         // ACT

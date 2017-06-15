@@ -52,6 +52,8 @@ cn_cbor_context* context = &cn_cbor_context_object;
 
 #define XI_CBOR_CODEC_CT_STRING_FILECHUNK_OFFSET "O"
 #define XI_CBOR_CODEC_CT_STRING_FILECHUNK_LENGTH "L"
+#define XI_CBOR_CODEC_CT_STRING_FILECHUNK_STATUS "S"
+#define XI_CBOR_CODEC_CT_STRING_FILECHUNK_CHUNK "C"
 
 void xi_cbor_put_name_and_revision( cn_cbor* cb_map,
                                     const char* name,
@@ -208,6 +210,10 @@ xi_state_t xi_cbor_codec_ct_decode_getvalue( cn_cbor* source,
 
             case CN_CBOR_BYTES:
 
+                if ( 0 == source_value->length )
+                {
+                    break;
+                }
                 // xi_debug_printf( "CN_CBOR_BYTES / source_value: %s, length: %d\n",
                 //                  ( char* )source_value->v.bytes, source_value->length
                 //                  );
@@ -356,9 +362,18 @@ xi_control_message_t* xi_cbor_codec_ct_decode( const uint8_t* data, const uint32
                     cb_map, XI_CBOR_CODEC_CT_STRING_FILECHUNK_OFFSET,
                     &control_message_out->file_chunk.offset, NULL );
 
-                xi_cbor_codec_ct_decode_getvalue(
+                /*xi_cbor_codec_ct_decode_getvalue(
                     cb_map, XI_CBOR_CODEC_CT_STRING_FILECHUNK_LENGTH,
-                    &control_message_out->file_chunk.length, NULL );
+                    &control_message_out->file_chunk.length, NULL );*/
+
+                xi_cbor_codec_ct_decode_getvalue(
+                    cb_map, XI_CBOR_CODEC_CT_STRING_FILECHUNK_STATUS,
+                    &control_message_out->file_chunk.status, NULL );
+
+                xi_cbor_codec_ct_decode_getvalue(
+                    cb_map, XI_CBOR_CODEC_CT_STRING_FILECHUNK_CHUNK,
+                    &control_message_out->file_chunk.chunk,
+                    ( uint16_t* )&control_message_out->file_chunk.length );
 
                 break;
 
