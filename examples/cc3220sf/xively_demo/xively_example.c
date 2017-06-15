@@ -47,6 +47,8 @@
 #include <simplelinkWifi/provisioning_task.h>
 
 #include "xively.h"
+#include "xi_bsp_rng.h"
+#include "xi_bsp_time.h"
 #include "config_file.h"
 
 #ifdef DEBUG_WOLFSSL
@@ -311,10 +313,10 @@ void* xivelyExampleThread( void* arg )
     /* Add Interrupt Callbacks for the board's two side buttons */
     /* the application will use these interrupts to publish events */
     /* to the xively service on the corresponding button topic */
-    GPIO_setCallback( Board_BUTTON0, button_interrupt_handler );
+    GPIO_setCallback( Board_BUTTON0, ( GPIO_CallbackFxn )button_interrupt_handler );
     GPIO_enableInt( Board_BUTTON0 );
 
-    GPIO_setCallback( Board_BUTTON1, button_interrupt_handler );
+    GPIO_setCallback( Board_BUTTON1, ( GPIO_CallbackFxn )button_interrupt_handler );
     GPIO_enableInt( Board_BUTTON1 );
 
     /* create a periodic Clock for updating LED button states depending on
@@ -429,11 +431,11 @@ void ConnectToXively()
 {
     Report( "\t- Xively Account ID: %s\n", gApplicationControlBlock.xivelyAccountId );
     Report( "\t- Xively Device ID: %s\n", gApplicationControlBlock.xivelyDeviceId );
-    Report( "\t- Xively Device Pwd: %s\n",
-            gApplicationControlBlock.xivelyDevicePassword );
-    // Report( "\t- Xively Device Password: <secret>\n" );
+    Report( "\t- Xively Device Password: <secret>\n" );
+    // Report( "\t- Xively Device Pwd: %s\n",
+    //        gApplicationControlBlock.xivelyDevicePassword );
     xi_state_t ret_state = xi_initialize( gApplicationControlBlock.xivelyAccountId,
-                                          gApplicationControlBlock.xivelyDeviceId, 0 );
+                                          gApplicationControlBlock.xivelyDeviceId );
 
     if ( XI_STATE_OK != ret_state )
     {
