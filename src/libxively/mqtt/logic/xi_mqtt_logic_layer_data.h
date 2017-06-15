@@ -103,7 +103,7 @@ typedef struct
 
 /* pseudo constructors */
 extern xi_mqtt_logic_task_t*
-xi_mqtt_logic_make_publish_task( char* topic,
+xi_mqtt_logic_make_publish_task( const char* topic,
                                  xi_data_desc_t* data,
                                  const xi_mqtt_qos_t qos,
                                  const xi_mqtt_retain_t retain,
