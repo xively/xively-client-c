@@ -755,8 +755,9 @@ ConfigureSimpleLinkToDefaultState()
     g_SecParams.Key = (signed char*) gApplicationControlBlock.desiredWifiKey;
     g_SecParams.KeyLen = strlen( (const char*) gApplicationControlBlock.desiredWifiKey );
     g_SecParams.Type = gApplicationControlBlock.desiredWifiSecurityType;
-    ret = sl_WlanProfileAdd( (const signed char *) gApplicationControlBlock.desiredWifiSSID
-    						, strlen(gApplicationControlBlock.desiredWifiSSID), 0, &g_SecParams, 0, 1, 0 );
+    ret = sl_WlanProfileAdd(
+        ( const signed char* )gApplicationControlBlock.desiredWifiSSID,
+        strlen( gApplicationControlBlock.desiredWifiSSID ), 0, &g_SecParams, 0, 1, 0 );
     ASSERT_ON_ERROR(ret);
 
     /* Set connection policy to Auto (no AutoProvisioning)  */
@@ -1176,10 +1177,10 @@ static _i32 validateLocalLinkConnection(SlWlanMode_e *deviceRole)
 	*deviceRole = ROLE_STA;
 
 	SlWlanSecParams_t g_SecParams;
-    g_SecParams.Key = (char*)gApplicationControlBlock.desiredWifiKey;
+    g_SecParams.Key = (signed char*)gApplicationControlBlock.desiredWifiKey;
     g_SecParams.KeyLen = strlen( (const char*) g_SecParams.Key );
     g_SecParams.Type = gApplicationControlBlock.desiredWifiSecurityType;
-    sl_WlanProfileAdd( (char*)gApplicationControlBlock.desiredWifiSSID,
+    sl_WlanProfileAdd( (const signed char*)gApplicationControlBlock.desiredWifiSSID,
     				   strlen(gApplicationControlBlock.desiredWifiSSID),
 					   0, &g_SecParams, 0, 1, 0 );
 
