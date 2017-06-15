@@ -429,11 +429,11 @@ void ConnectToXively()
 {
     Report( "\t- Xively Account ID: %s\n", gApplicationControlBlock.xivelyAccountId );
     Report( "\t- Xively Device ID: %s\n", gApplicationControlBlock.xivelyDeviceId );
-    Report( "\t- Xively Device Pwd: %s\n",
-            gApplicationControlBlock.xivelyDevicePassword );
-    // Report( "\t- Xively Device Password: <secret>\n" );
+    Report( "\t- Xively Device Password: <secret>\n" );
+    // Report( "\t- Xively Device Pwd: %s\n",
+    //        gApplicationControlBlock.xivelyDevicePassword );
     xi_state_t ret_state = xi_initialize( gApplicationControlBlock.xivelyAccountId,
-                                          gApplicationControlBlock.xivelyDeviceId, 0 );
+                                          gApplicationControlBlock.xivelyDeviceId );
 
     if ( XI_STATE_OK != ret_state )
     {
