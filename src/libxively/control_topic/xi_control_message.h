@@ -112,6 +112,10 @@ xi_control_message_t* xi_control_message_create_file_get_chunk( const char* file
                                                                 uint32_t offset,
                                                                 uint32_t length );
 
+const xi_control_message_file_desc_ext_t*
+xi_control_message_file_update_available_get_next_file_desc_ext(
+    const struct file_update_available_s* message_fua, const char* filename );
+
 void xi_control_message_free( xi_control_message_t** control_message );
 
 #if 1 // XI_DEBUG_OUTPUT

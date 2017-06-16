@@ -19,7 +19,8 @@ typedef struct
     const char** updateable_files;
     uint16_t updateable_files_count;
 
-    struct file_update_available_s* ongoing_file_update;
+    xi_control_message_t* update_message_fua;
+    const xi_control_message_file_desc_ext_t* update_current_file;
 } xi_sft_context_t;
 
 

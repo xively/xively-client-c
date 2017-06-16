@@ -85,6 +85,32 @@ err_handling:
     return sft_message;
 }
 
+const xi_control_message_file_desc_ext_t*
+xi_control_message_file_update_available_get_next_file_desc_ext(
+    const struct file_update_available_s* message_fua, const char* filename )
+{
+    if ( NULL == message_fua || NULL == filename )
+    {
+        return NULL;
+    }
+
+    uint16_t id_file = 0;
+    for ( ; id_file < message_fua->list_len; ++id_file )
+    {
+        if ( NULL != message_fua->list[id_file].name &&
+             0 == strcmp( filename, message_fua->list[id_file].name ) )
+        {
+            ++id_file;
+            if ( id_file < message_fua->list_len )
+            {
+                return &message_fua->list[id_file];
+            }
+        }
+    }
+
+    return NULL;
+}
+
 void xi_control_message_free( xi_control_message_t** control_message )
 {
     if ( NULL == control_message || NULL == *control_message )
