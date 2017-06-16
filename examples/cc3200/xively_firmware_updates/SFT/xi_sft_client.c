@@ -35,9 +35,9 @@
 #define MAX_INCOMING_FILENAME_LENGTH 50
 #define MAX_STRING_LENGTH 50
 
-//
-// TYPEDEFS
-//
+/*
+ * TYPEDEFS
+ */
 typedef unsigned char uchar;
 typedef unsigned int uint;
 
@@ -53,6 +53,12 @@ typedef enum
     sft_missing_cbor_field_error,       /* 7 */
     sft_publish_error,                  /* 8 */
     sft_fingerprint_mismatch_error,     /* 9 */
+    sft_unexpected_filename_error,      /* 10 */
+    sft_cbor_encoding_error,            /* 11 */
+    sft_fingerprint_too_large_error,    /* 12 */
+    sft_internal_error,                 /* 13 */
+    sft_offset_error,                   /* 14 */
+    sft_cbor_error_field_set_error,     /* 15 */
 
     sft_status_max
 
@@ -123,30 +129,85 @@ const char* sft_status_strings[] =
     "sft_missing_cbor_field_error",         /* 7 */
     "sft_publish_error",                    /* 8 */
     "sft_fingerprint_mismatch_error",       /* 9 */
+    "sft_unexpected_filename_error",        /* 10 */
+    "sft_cbor_encoding_error",              /* 11 */
+    "sft_fingerprint_too_large_error",      /* 12 */
+    "sft_internal_error",                   /* 13 */
+    "sft_offset_error",                     /* 14 */
+    "sft_cbor_error_field_set_error",       /* 15 */
 
     "SFT_MAX_ERROR"
 };
 
+/*
+ *  Function Declarations
+ */
 
+int xi_sft_init( xi_context_handle_t in_context_handle, char *account_id, char *device_id );
+void on_sft_message( xi_context_handle_t in_context_handle, xi_sub_call_type_t call_type,
+                            const xi_sub_call_params_t* const params, xi_state_t state, void* user_data );
 
-void xi_parse_file_update_available( xi_context_handle_t in_context_handle, cn_cbor *cb );
-
-
-void xi_publish_file_info( xi_context_handle_t in_context_handle );
-int xi_publish_file_chunk_request( xi_context_handle_t in_context_handle, const char* file_name, const char* file_revision, int offset );
-
+/* incoming message handling functions */
 void xi_process_file_chunk( xi_context_handle_t in_context_handle, cn_cbor* in_cb );
-int xi_parse_file_chunk( cn_cbor* in_cb, xi_sft_file_chunk_t* out_sft_file_chunk );
+void xi_parse_file_update_available( xi_context_handle_t in_context_handle, cn_cbor *cb );
+void xi_parse_file_chunk( xi_context_handle_t in_context_handle, cn_cbor* in_cb, xi_sft_file_chunk_t* out_sft_file_chunk );
 
-void print_hash( unsigned char hash[] )
+/* outgoing message formating and publication functions */
+void xi_publish_file_info( xi_context_handle_t in_context_handle );
+void xi_publish_file_chunk_request( xi_context_handle_t in_context_handle, const char* file_name, const char* file_revision, int offset );
+
+/* Error Handling Functions */
+void xi_set_sft_error( sft_status_t status );
+void xi_missing_cbor_field_error( xi_context_handle_t in_context_handle, const char* cbor_message_name, const char* field_name );
+
+/* Device Log Functions */
+void xi_publish_device_log( xi_context_handle_t in_context_handle, const char* message_str, const char* details_str, const sft_status_t status );
+void xi_publish_device_log_format_int( xi_context_handle_t in_context_handle, const char* message_str, const char* details_str, const int value_int,
+                                  const sft_status_t status );
+void xi_publish_device_log_format_int_int( xi_context_handle_t in_context_handle, const char* message_str, const char* details_str,
+                                      const int value_int1, const int value_int2, const sft_status_t status );
+void xi_publish_device_log_format_str( xi_context_handle_t in_context_handle, const char* message_str, const char* details_str, const char* value_str,
+                                  const sft_status_t status );
+void xi_publish_device_log_format_str_str( xi_context_handle_t in_context_handle, const char* message_str, const char* details_str,
+                                      const char* value_str1, const char* value_str2, const sft_status_t status );
+
+/* Output Utility Functions */
+void print_hash( unsigned char hash[] );
+
+
+
+int xi_sft_init( xi_context_handle_t in_context_handle, char *account_id, char *device_id )
 {
-   int idx;
-   for ( idx=0; idx < 32; idx++ )
-   {
-      printf( "%02x",hash[idx] );
-   }
-   printf( "\n" );
+    /* Accept the latest firmware if we get here. */
+    if( sl_extlib_FlcIsPendingCommit() )
+    {
+        printf("******************* Committing this revision\n");
+        sl_extlib_FlcCommit( FLC_COMMITED );
+    }
+
+    if( NULL == account_id || NULL == device_id )
+    {
+        return -1;
+    }
+
+    /* xi_stopic is the MQTT topic we PUB to to send messages to the broker. */
+    snprintf(xi_stopic, sizeof(xi_stopic),"xi/ctrl/v1/%s/svc", device_id);
+
+    /* xi_ctopic is the MQTT topic we SUBSCRIBE to to receive messages from the broker. */
+    snprintf(xi_ctopic, sizeof(xi_ctopic),"xi/ctrl/v1/%s/cln", device_id);
+
+    /* xi_logtopic is the MQTT topic we PUB to to add log messages. */
+    snprintf(xi_logtopic, sizeof(xi_logtopic),"xi/blue/v1/%s/d/%s/_log",account_id, device_id);
+
+    /* Everything interesting happens in the on_sft_message() state machine. */
+    void* user_data = NULL;
+    xi_subscribe(in_context_handle, xi_ctopic, XI_MQTT_QOS_AT_MOST_ONCE, on_sft_message, user_data );
+
+    return 0;
 }
+
+
+
 
 /* Reboot the device
  * This is invoked through a timed task from the xively client after the
@@ -173,60 +234,7 @@ static void reboot_mcu( const xi_context_handle_t in_context_handle,
   {  }
 }
 
-/* Formats a message in the correct Xively Device Logs format and publishes it
- * to the device logs topic. Note that, due to the asynchronous behavior
- * of the client for the platform, this requires a few Xively ticks before
- * sending, so don't reboot immediately following a logged error!
- */
-void publish_device_log( xi_context_handle_t context_handle, const char* message_str, const char* details_str, const sft_status_t status )
-{
-    static char* notice_str = "notice";
-    static char* error_str = "error";
 
-    if( NULL == message || NULL == details_str )
-    {
-        printf("\nWarning: publish_device_log invoked with a null string parameter\n\n");
-        return;
-    }
-
-    if( sft_status_max <= status )
-    {
-        printf("\nWarning: publish_device_log invoked with an invalid status parameter\n\n");
-        return;
-    }
-
-    const char* severity_str;
-    if( sft_status_ok == status )
-    {
-        severity_str = notice_str;
-    }
-    else
-    {
-        severity_str = error_str;
-    }
-
-    char device_log_buffer[400];
-#if 1
-    printf("publish details string: %s\n", details_str);
-    printf(".\n");
-    printf("message string: %s\n", message_str );
-    printf(".\n");
-    printf("severity string: %s\n", severity_str);
-    printf(".\n");
-    printf("status code: %d\n", status );
-    printf("sft_status_strings: %s\n", sft_status_strings[status] );
-    printf(".\n");
-    printf("details_str: %s\n", details_str );
-    printf(".\n");
-#endif
-
-    snprintf( device_log_buffer, sizeof(device_log_buffer),
-                  "{\"message\":\"%s\",\"severity\":\"%s\",\"code\":\"%d\",\"details\":\"%s: %s\"}",
-                  message_str, severity_str, status, sft_status_strings[ status ], details_str );
-    printf( "publishing device log: %s\n", device_log_buffer );
-
-    xi_publish( context_handle, xi_logtopic, device_log_buffer, XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
-}
 
 /* Converts the locally computed hash into a string
  * and compares it to the SFT hash string 'fingerprint'
@@ -257,14 +265,13 @@ void verify_sha256( xi_context_handle_t in_context_handle )
     /* are they the same? If not then raise the red flag */
     if( 0 != strncmp( local_fingerprint_str, download_context.file_sft_fingerprint_str, 64 ) )
     {
-        /* set the error code in the context */
-        download_context.result = sft_fingerprint_mismatch_error;
-
-        /* log the error */
-        char log_details[LOGDETAILSSIZE];
-        snprintf( log_details, LOGDETAILSSIZE,"sft fingerprint: %s device-calculated fingerprint: %s ",
-                  download_context.file_sft_fingerprint_str, local_fingerprint_str );
-        publish_device_log( in_context_handle, "File Update Fingerprint Mismatch", log_details, sft_fingerprint_mismatch_error );
+        printf("File Update Fingerprint mismatch.  SFT Fingerprint: %s  device-calculated fingerprint: %s\n",
+               download_context.file_sft_fingerprint_str, local_fingerprint_str );
+        xi_set_sft_error( sft_fingerprint_mismatch_error );
+        xi_publish_device_log_format_str_str( in_context_handle, "File Update Fingerprint Mismatch",
+                                              "sft fingerprint: %s device-calculated fingerprint: %s ",
+                                              download_context.file_sft_fingerprint_str, local_fingerprint_str,
+                                              sft_fingerprint_mismatch_error );
         return;
     }
 }
@@ -301,7 +308,7 @@ void on_sft_message( xi_context_handle_t in_context_handle,
             payload_length = params->message.temporary_payload_data_length;
 
             /* Figure out what the packet type is and then call the appropriate parser */
-            cb = cn_cbor_decode(payload_data, payload_length, 0);
+            cb = cn_cbor_decode( payload_data, payload_length, 0 );
 
             if (cb) {
 #ifdef XI_DEBUGSFT
@@ -343,14 +350,10 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                                 if( open_file_result < 0 )
                                 {
                                     printf(" ERROR: mcuimgA.bin open returned %d\n", open_file_result );
-                                    download_context.result = sft_open_file_error;
-
-                                    char log_details_str[LOGDETAILSSIZE];
-                                    snprintf( log_details_str, sizeof( log_details_str ), "FlcOpenFile returned: %d", open_file_result );
-                                    publish_device_log( in_context_handle, "File update, open failed", log_details_str, download_context.result );
-
-                                    /* if we can't open the file, then we're no longer in the downloading state */
-                                    downloading = 0;
+                                    xi_set_sft_error( sft_open_file_error );
+                                    xi_publish_device_log_format_int( in_context_handle, "File update, open failed",
+                                                                      "FlcOpenFile returned: %d",
+                                                                      open_file_result, sft_open_file_error );
                                 }
                             }
                             break;
@@ -386,22 +389,21 @@ void on_sft_message( xi_context_handle_t in_context_handle,
 							    }
 
                                 /* Close the firmware file */
-                                const int file_close_result = sl_extlib_FlcCloseFile( download_context.file_handle, NULL, NULL, 0 );
-                                if(  0 != file_close_result )
+                                const int close_files_result = sl_extlib_FlcCloseFile( download_context.file_handle, NULL, NULL, 0 );
+                                if(  0 != close_files_result )
                                 {
-                                    printf("ERROR: firmware file close via FlcCloseFile result: %d\n", file_close_result );
-                                    download_context.result = sft_close_file_error;
-
-                                    char log_details_str[LOGDETAILSSIZE];
-                                    snprintf( log_details_str, sizeof( log_details_str ), "FlcCloseFile returned: %d", file_close_result );
-                                    publish_device_log( in_context_handle, "File update, close failed", log_details_str, download_context.result );
+                                    printf( "ERROR: firmware file close via FlcCloseFile result: %d\n", close_files_result );
+                                    xi_set_sft_error( sft_close_file_error );
+                                    xi_publish_device_log_format_int( in_context_handle, "File update, close failed",
+                                                                      "FlcCloseFile returned: %d",
+                                                                      close_files_result, sft_open_file_error );
                                 }
 
                                 /* Log the download complete information */
                                 char log_details[LOGDETAILSSIZE];
                                 snprintf( log_details, sizeof( log_details ),
                                           "filename=%s revision=%s length = %d", firmware_filename , download_context.file_revision, download_context.file_length );
-                                publish_device_log( in_context_handle, "File download complete.", log_details, download_context.result );
+                                xi_publish_device_log( in_context_handle, "File download complete.", log_details, download_context.result );
 
                                 printf( "=================\n");
                                 printf( "Done downloading.\n");
@@ -439,9 +441,6 @@ void on_sft_message( xi_context_handle_t in_context_handle,
 void
 xi_publish_file_info( xi_context_handle_t in_context_handle )
 {
-    unsigned char encoded[128];
-    ssize_t enc_sz;
-
     /* Let's try making a XI_FILE_INFO packet */
     cn_cbor_errback err;
     cn_cbor *cb_map = cn_cbor_map_create( &err );
@@ -464,12 +463,17 @@ xi_publish_file_info( xi_context_handle_t in_context_handle )
     cn_cbor_map_put( cb_map, cn_cbor_string_create( "list", &err ),
                      a, &err );
 
-    enc_sz = cn_cbor_encoder_write( encoded, 0, sizeof( encoded ), cb_map );
+    unsigned char encoded[128];
+    const ssize_t enc_sz = cn_cbor_encoder_write( encoded, 0, sizeof( encoded ), cb_map );
     cn_cbor_free( cb_map CBOR_CONTEXT_PARAM );
 
     if( 0 >= enc_sz )
     {
-        /* TODO: Log error to Device Logs. */
+        xi_set_sft_error( sft_cbor_encoding_error );
+        xi_publish_device_log_format_int( in_context_handle, "FILE_INFO Encoding Error",
+                                          "encoding FILE_INFO cbor error: %d",
+                                           enc_sz, sft_cbor_encoding_error );
+        return;
     }
 
     /* publish the FILE_INFO message */
@@ -499,14 +503,11 @@ void xi_parse_file_update_available( xi_context_handle_t in_context_handle, cn_c
     {
         if( 1 != cb_item->v.uint )
         {
+            xi_set_sft_error( sft_unsupported_protocol_version );
+            xi_publish_device_log_format_int( in_context_handle, "File update available error",
+                                              "File Update Available SFT Packet version: %d is unsupported",
+                                              cb_item->v.uint, sft_unsupported_protocol_version );
             printf("ERROR: Unsupported FILE_UPDATE_AVIALABLE message version: %d\n", cb_item->v.uint );
-            download_context.result = sft_unsupported_protocol_version;
-
-            char log_details_str[LOGDETAILSSIZE];
-            snprintf( log_details_str, sizeof( log_details_str ),
-                      "File Update Available SFT Packet version: %d is unsupported", cb_item->v.uint );
-            publish_device_log( in_context_handle, "File update available error",
-                                log_details_str, sft_unsupported_protocol_version );
             return;
         }
     }
@@ -525,30 +526,27 @@ void xi_parse_file_update_available( xi_context_handle_t in_context_handle, cn_c
 
         if( cb_item )
         {
-        	    // File 'N'ame
+        	    /* File 'N'ame */
             cb_file = cn_cbor_mapget_string(cb_item, "N");
             if( cb_file )
             {
                 if( strlen( firmware_filename ) != cb_file->length ||
                     strncmp( firmware_filename, cb_file->v.str, cb_file->length ) != 0 )
                 {
-                    printf( "ERROR: incoming file update has an unexpected name: \"" );
-                    int i;
-                    for( i = 0; i < cb_file->length; ++i )
-                    {
-                        printf( "%c", cb_file->v.str[i] );
-                    }
-                    printf( "\", expected: \"%s\"\n", firmware_filename );
+                    xi_set_sft_error( sft_unexpected_filename_error );
+                    xi_publish_device_log( in_context_handle, "File update available error",
+                                            "Unexpected filename, expected firmware", sft_unexpected_filename_error );
+                    printf( "ERROR: incoming file update has an unexpected name. Expected `firmware`" );
                     return;
                 }
             }
             else
             {
-                printf( "No key called N\n" );
+                xi_missing_cbor_field_error( in_context_handle, "FILE_UPDATE_AVIALABLE", "N" );
                 return;
             }
 
-            // File 'R'evision
+            /* File 'R'evision */
             cb_file = cn_cbor_mapget_string(cb_item, "R");
             if( cb_file )
             {
@@ -563,38 +561,38 @@ void xi_parse_file_update_available( xi_context_handle_t in_context_handle, cn_c
             }
             else
             {
-                printf("No key called R\n");
+                xi_missing_cbor_field_error( in_context_handle, "FILE_UPDATE_AVIALABLE", "R" );
                 return;
             }
 
-            // File 'S'ize
+            /* File 'S'ize */
             cb_file = cn_cbor_mapget_string(cb_item, "S");
             if(cb_file)
             {
                 printf( "FILE_UPDATE_AVAILABLE: file length = %d\n",cb_file->v.sint );
                 download_context.file_length = cb_file->v.sint;
+
+                /* initialize progress tracking */
                 tenpercent = download_context.file_length / 10;
                 currenttenpercent = tenpercent;
             }
             else
             {
-                printf("No key called S\n");
+                xi_missing_cbor_field_error( in_context_handle, "FILE_UPDATE_AVIALABLE", "S" );
                 return;
             }
 
-            // File 'F'ingerprint
+            /* File 'F'ingerprint */
             cb_file = cn_cbor_mapget_string(cb_item, "F");
             if( cb_file )
             {
-                printf( "Storing fingerprint: ");
-                printf( "length: %d\n", cb_file->length );
-                printf(" string: %s\n", cb_file->v.str );
-
-                if( sizeof(download_context.file_sft_fingerprint_str) - 1 < cb_file->length )
+                if( sizeof( download_context.file_sft_fingerprint_str ) - 1 < cb_file->length )
                 {
-                    /* TODO:
-                     * log error
-                     * set error flag for downoading state */
+                    xi_set_sft_error( sft_fingerprint_too_large_error );
+                    xi_publish_device_log( in_context_handle, "File update available error",
+                                            "Fingerprint size too large.",
+                                            sft_fingerprint_too_large_error );
+                    printf( "ERROR: incoming fingerprint to large for local storage buffer.");
                 }
                 else
                 {
@@ -605,13 +603,13 @@ void xi_parse_file_update_available( xi_context_handle_t in_context_handle, cn_c
             }
             else
             {
-                printf("No key called F\n");
+                xi_missing_cbor_field_error( in_context_handle, "FILE_UPDATE_AVIALABLE", "F" );
                 return;
             }
         }
         else
         {
-            printf("No item at index %d\n",i);
+            xi_missing_cbor_field_error( in_context_handle, "FILE_UPDATE_AVIALABLE", "list" );
             return;
         }
     }
@@ -621,28 +619,15 @@ void xi_parse_file_update_available( xi_context_handle_t in_context_handle, cn_c
         char log_details_str[LOGDETAILSSIZE];
         snprintf( log_details_str, sizeof( log_details_str ), "name=%s revision=%s length = %d",
                   firmware_filename, download_context.file_revision, download_context.file_length );
-        publish_device_log( in_context_handle, "File update available", log_details_str, sft_status_ok );
+        xi_publish_device_log( in_context_handle, "File update available", log_details_str, sft_status_ok );
     }
 
     /* Set Download State to Active */
     downloading = 1;
 
     /* Send the Chunk Request */
-    xi_state_t xi_state = xi_publish_file_chunk_request( in_context_handle, firmware_filename, download_context.file_revision,
+    xi_publish_file_chunk_request( in_context_handle, firmware_filename, download_context.file_revision,
                                                                download_context.file_storage_offset );
-
-    /* Fetch the initial chunk of the file */
-    if( XI_STATE_OK != xi_state )
-    {
-        /* Warning: the likelihood that the following Device Logs publish works after the previous
-         * publish failing its quite slim. */
-        char log_details[LOGDETAILSSIZE];
-        snprintf( log_details, LOGDETAILSSIZE,"error publishing GET_FILE_CHUNK request. xi_status c client code: %d", xi_state );
-        publish_device_log( in_context_handle, "GET_FILE_CHUNK error. ", log_details, sft_fingerprint_mismatch_error );
-
-        downloading = 0;
-        download_context.result = sft_publish_error;
-    }
 }
 
 /*
@@ -652,7 +637,7 @@ void xi_parse_file_update_available( xi_context_handle_t in_context_handle, cn_c
  * Returns 0 on success, or -1 if the message could not be queued for publication
  * (probably due to a too-small encoding buffer)
  */
-int xi_publish_file_chunk_request( xi_context_handle_t in_context_handle, const char* file_name, const char* file_revision, int offset )
+void xi_publish_file_chunk_request( xi_context_handle_t in_context_handle, const char* file_name, const char* file_revision, int offset )
 {
     const int message_type = XI_FILE_GET_CHUNK;
     const int message_version = 1;
@@ -688,24 +673,28 @@ int xi_publish_file_chunk_request( xi_context_handle_t in_context_handle, const 
     cn_cbor_map_put( cb_map, cn_cbor_string_create("L", &err ),
                      cn_cbor_int_create(chunk_length, &err ), &err );
 
-    unsigned char encoded_cbor_msg[128];
-    ssize_t encoded_size = cn_cbor_encoder_write( encoded_cbor_msg, 0, sizeof( encoded_cbor_msg ), cb_map );
+    unsigned char encoded[128];
+    const ssize_t enc_sz = cn_cbor_encoder_write( encoded, 0, sizeof( encoded ), cb_map );
     cn_cbor_free( cb_map CBOR_CONTEXT_PARAM );
 
-    if( 0 >= encoded_size )
+    if( 0 >= enc_sz )
     {
-        printf("Could not encode the FILE_CHUNK request in the specified buffer\n");
-        return -1;
+        xi_set_sft_error( sft_cbor_encoding_error );
+        xi_publish_device_log_format_int( in_context_handle, "FILE_GET_CHUNK Encoding Error",
+                                          "encoding FILE_GET_CHUNK cbor error: %d",
+                                           enc_sz, sft_cbor_encoding_error );
+        return;
     }
 
-    if( 0 != xi_publish_data( in_context_handle, xi_stopic, encoded_cbor_msg, encoded_size,
-                                         XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL ) )
+    xi_state_t xi_state = xi_publish_data( in_context_handle, xi_stopic, encoded, enc_sz,
+                                           XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
+    if( XI_STATE_OK != xi_state )
     {
-        printf("Xively Publish returned an error\n");
-        return -1;
+        xi_set_sft_error( sft_publish_error );
+        xi_publish_device_log_format_int( in_context_handle, "Publish Error",
+                                              "Error publishing GET_FILE_CHUNK request. xi_status code from xively client: %d",
+                                              xi_state, sft_publish_error );
     }
-
-    return 0;
 }
 
 /* Process the cbor object as a FILE_CHUNK message, calling xi_parse_file_chunk to extract the
@@ -716,10 +705,9 @@ int xi_publish_file_chunk_request( xi_context_handle_t in_context_handle, const 
 void xi_process_file_chunk( xi_context_handle_t in_context_handle, cn_cbor *cb )
 {
     xi_sft_file_chunk_t file_chunk_data;
-    if( 0 != xi_parse_file_chunk( cb, &file_chunk_data ) )
+    xi_parse_file_chunk( in_context_handle, cb, &file_chunk_data );
+    if( sft_status_ok != download_context.result )
     {
-        download_context.result = -1;
-        downloading = 0;
         return;
     }
 
@@ -728,12 +716,12 @@ void xi_process_file_chunk( xi_context_handle_t in_context_handle, cn_cbor *cb )
     /* Ensure that this chunk starts where we left off. */
     if( download_context.file_storage_offset != file_chunk_data.offset )
     {
-        /* TODO: Report error to SFT
-         * TODO: Report error to Device Logs */
         printf("ERROR: unexpected Chunk Offset Delivered by SFT!\n");
-        printf("  expected: %d  sft chunk offset: %d\n", download_context.file_storage_offset, file_chunk_data.offset );
-        download_context.result = -1;
-        downloading = 0;
+        xi_set_sft_error( sft_offset_error );
+        xi_publish_device_log_format_int_int( in_context_handle, "File Chunk Offset Error",
+                                          "Expected offset: %d but recieved offset: %d",
+                                          download_context.file_storage_offset, file_chunk_data.offset, sft_offset_error );
+        return;
     }
 
     /* Track Progress */
@@ -745,85 +733,84 @@ void xi_process_file_chunk( xi_context_handle_t in_context_handle, cn_cbor *cb )
     }
 
     /* Ensure that we have a buffer to write from */
-    if( file_chunk_data.array_length )
+    if( 0 == file_chunk_data.array_length )
     {
-        /* convert from unsigned to signed becuase TI's API has a signed length variable */
-        if( file_chunk_data.offset + file_chunk_data.array_length > download_context.file_length )
-        {
-            /* Request to write past the file length
-             * TODO: Report error to SFT
-             * TODO: Report error to Device Logs */
-            downloading = 0;
-        }
+        printf( "ERROR: FILE_CHUNK cbor message has zero length byte array\n" );
+        xi_set_sft_error( sft_empty_length_array_error );
+        xi_publish_device_log( in_context_handle, "File Chunk Data Error",
+                               "FILE_CHUNK message from SFT has a zero length data array.",
+                               sft_empty_length_array_error );
+        return;
+    }
 
-        /* update the SHA256 digest with the provided data */
-        sha256_update( &download_context.sha256_context, (unsigned char *) file_chunk_data.byte_array, file_chunk_data.array_length );
+    /* convert from unsigned to signed becuase TI's API has a signed length variable */
+    if( file_chunk_data.offset + file_chunk_data.array_length > download_context.file_length )
+    {
+        printf( "ERROR: Chunk offset + length extends beyond length of file\n" );
+        xi_set_sft_error( sft_offset_error );
+        xi_publish_device_log_format_int_int( in_context_handle, "File Chunk Offset Error",
+                                              "Offset: %d length: %d goes beyond bounds of file length.",
+                                              file_chunk_data.offset + file_chunk_data.array_length,
+                                              download_context.file_length, sft_offset_error );
+        return;
+    }
 
-        int write_length = (int) file_chunk_data.array_length;
-        if( 0 == write_length )
-        {
-            /* TODO: check the status code
-             * TODO: Report error to SFT
-             * TODO: Report error to Device Logs */
-            downloading = 0;
-        }
+    /* update the SHA256 digest with the provided data */
+    sha256_update( &download_context.sha256_context, (unsigned char *) file_chunk_data.byte_array, file_chunk_data.array_length );
 
-        if( 0 > write_length )
-        {
-            /* Negative values means that we lost data in the unsigned -> signed conversion.
-             * TODO: Report error to SFT
-             * TODO: Report error to Device Logs */
-            printf("ERROR: WriteBuffer is too large for CC3200 sl_extlib_FlcWriteFile operations\n");
-            downloading = 0;
-            download_context.result = -1;
-        }
-        else
-        {
-            int bytes_written = sl_extlib_FlcWriteFile( download_context.file_handle, file_chunk_data.offset,
-                                                        (unsigned char *) file_chunk_data.byte_array, write_length );
-            if( 0 >= bytes_written )
-            {
-                /* Write Failed
-                 * TODO: Report error to SFT
-                 * TODO: Report error to Device Logs */
-                printf("ERROR: Write Returned error code: %d\n", bytes_written );
-                download_context.result = -1;
-                downloading = 0;
-            }
-            else
-            {
-                /* Track our progress through the file */
-                download_context.file_storage_offset = file_chunk_data.offset + bytes_written;
+    int write_length = (int) file_chunk_data.array_length;
+    if( 0 == write_length )
+    {
+        printf( "ERROR: Chunk offset + length extends beyond length of file\n" );
+        xi_set_sft_error( sft_offset_error );
+        xi_publish_device_log( sft_write_error, "File Chunk Write Error",
+                               "Casting file chunk array length is zero", sft_write_error );
+        return;
+    }
 
-                /* Check for completeness */
-                if( download_context.file_storage_offset >= download_context.file_length )
-                {
-                    /* Download Complete */
-                    downloading = 0;
-                }
-            }
-        }
+    if( 0 > write_length )
+    {
+        /* Negative values means that we lost data in the unsigned -> signed conversion. */
+        printf("ERROR: WriteBuffer is too large for CC3200 sl_extlib_FlcWriteFile operations\n");
+        xi_set_sft_error( sft_write_error );
+        xi_publish_device_log( in_context_handle, "File Chunk Write Error",
+                               "WriteBuffer is too large for CC3200 sl_extlib_FlcWriteFile operations", sft_write_error );
+        return;
+    }
+
+    int bytes_written = sl_extlib_FlcWriteFile( download_context.file_handle, file_chunk_data.offset,
+                                                (unsigned char *) file_chunk_data.byte_array, write_length );
+    if( 0 >= bytes_written )
+    {
+        printf( "ERROR: sl_extlib_FlcWriteFile returned error code: %d\n", bytes_written );
+        xi_set_sft_error( sft_write_error );
+        xi_publish_device_log_format_int( in_context_handle, "File Write Error",
+                                          "l_extlib_FlcWriteFile returned error code: %d.",
+                                          bytes_written, sft_write_error );
+        return;
     }
     else
     {
-        /* Zero Length Write Buffer
-         * TODO: check for status of 1 for EoF
-         * TODO: Report error to SFT
-         * TODO: Report error to Device Logs */
-        printf("ERROR: Write Buffer from SFT is of zero length\n" );
-        download_context.result = -1;
-        downloading = 0;
+        /* Track our progress through the file */
+        download_context.file_storage_offset = file_chunk_data.offset + bytes_written;
+
+        /* Check for completeness */
+        if( download_context.file_storage_offset >= download_context.file_length )
+        {
+            /* Download Complete */
+            downloading = 0;
+            xi_publish_device_log( in_context_handle, "Download is complete",
+                                   "Downloaded and Written full file", sft_status_ok );
+        }
     }
 
-    /* TODO: check for status of 1 for EoF */
-    if( file_chunk_data.status > 1 )
+    if( 1 < file_chunk_data.status )
     {
         printf("ERROR: SFT packet reported Chunk Status Request Error: %d\n", file_chunk_data.status );
-
-        /* TODO: Report error to SFT
-         * TODO: Report error to Device Logs */
-        download_context.result = -1;
-        downloading = 0;
+        xi_set_sft_error( sft_cbor_error_field_set_error );
+        xi_publish_device_log_format_int( in_context_handle, "File Chunk Status Error",
+                                          "FILE_CHUNK status CBOR field contains an error status: %d",
+                                          file_chunk_data.status, sft_cbor_error_field_set_error );
     }
 
     if( 1 == downloading )
@@ -838,11 +825,14 @@ void xi_process_file_chunk( xi_context_handle_t in_context_handle, cn_cbor *cb )
  * and places the data in the out_sft_file_chunk structure
  * Returns 0 on success, or -1 if there are missing fields or null parameters
  */
-int xi_parse_file_chunk( cn_cbor* in_cb, xi_sft_file_chunk_t* out_sft_file_chunk )
+void xi_parse_file_chunk( xi_context_handle_t in_context_handle, cn_cbor* in_cb, xi_sft_file_chunk_t* out_sft_file_chunk )
 {
     if( NULL == in_cb || NULL == out_sft_file_chunk )
     {
-        return -1;
+        xi_set_sft_error( sft_internal_error );
+        xi_publish_device_log( in_context_handle, "Internal Error",
+                                   "xi_parse_file_chunk null pointer parameter",
+                                   sft_internal_error );
     }
 
     /* use the RED LED to signal downloading progress */
@@ -858,7 +848,7 @@ int xi_parse_file_chunk( cn_cbor* in_cb, xi_sft_file_chunk_t* out_sft_file_chunk
     }
 
     cn_cbor *cb_item = NULL;
-    memset( out_sft_file_chunk, 0, sizeof(xi_sft_file_chunk_t) );
+    memset( out_sft_file_chunk, 0, sizeof( xi_sft_file_chunk_t ) );
 
     /* msg version */
     cb_item = cn_cbor_mapget_string( in_cb, "msgver" );
@@ -866,14 +856,18 @@ int xi_parse_file_chunk( cn_cbor* in_cb, xi_sft_file_chunk_t* out_sft_file_chunk
     {
         if( 1 != cb_item->v.uint )
         {
-            printf( "FILE_CHUNK unsupported message version: %d\n", cb_item->v.uint );
-            return -1;
+            printf( "ERROR: Unsupported FILE_CHUNK message version: %d\n", cb_item->v.uint );
+            xi_set_sft_error( sft_unsupported_protocol_version );
+            xi_publish_device_log_format_int( in_context_handle, "FILE_CHUNK error",
+                                              "FILE_CHUNK Packet version: %d is unsupported",
+                                              cb_item->v.uint, sft_unsupported_protocol_version );
+            return;
         }
     }
     else
     {
-       printf( "FILE_CHUNK message missing message version field\n" );
-       return -1;
+       xi_missing_cbor_field_error( in_context_handle, "FILE_CHUNK", "msgver" );
+       return;
     }
 
     /* chunk offset */
@@ -884,8 +878,8 @@ int xi_parse_file_chunk( cn_cbor* in_cb, xi_sft_file_chunk_t* out_sft_file_chunk
     }
     else
     {
-        printf("FILE_CHUNK message missing offset field\n");
-        return -1;
+        xi_missing_cbor_field_error( in_context_handle, "FILE_CHUNK", "O" );
+        return;
     }
 
     /* chunk length */
@@ -896,8 +890,8 @@ int xi_parse_file_chunk( cn_cbor* in_cb, xi_sft_file_chunk_t* out_sft_file_chunk
     }
     else
     {
-        printf( "FILE_CHUNK message missing length field\n" );
-        return -1;
+        xi_missing_cbor_field_error( in_context_handle, "FILE_CHUNK", "L" );
+        return;
     }
 
     /* Status */
@@ -908,8 +902,8 @@ int xi_parse_file_chunk( cn_cbor* in_cb, xi_sft_file_chunk_t* out_sft_file_chunk
     }
     else
     {
-        printf( "FILE_CHUNK message missing status field\n" );
-        return -1;
+        xi_missing_cbor_field_error( in_context_handle, "FILE_CHUNK", "S" );
+        return;
     }
 
     /* Byte Array */
@@ -921,56 +915,153 @@ int xi_parse_file_chunk( cn_cbor* in_cb, xi_sft_file_chunk_t* out_sft_file_chunk
     }
     else
     {
-        printf( "FILE_CHUNK message missing byte array field\n" );
-        return -1;
+        xi_missing_cbor_field_error( in_context_handle, "FILE_CHUNK", "C" );
+        return;
     }
-
-    return 0;
 }
 
 
-int
-xi_sft_init(xi_context_handle_t in_context_handle, char *account_id, char *device_id)
+/*
+ * Error Handling functions
+ */
+void xi_set_sft_error( sft_status_t status )
 {
-	/* Accept the latest firmware if we get here. */
-	if( sl_extlib_FlcIsPendingCommit() )
-	{
-	    printf("******************* Committing this revision\n");
-	    sl_extlib_FlcCommit(FLC_COMMITED);
-	}
+    downloading = 0;
+    download_context.result = status;
+}
 
-	if( NULL == account_id )
-	{
-	    return -1;
-	}
+void xi_missing_cbor_field_error( xi_context_handle_t in_context_handle,
+                                       const char* cbor_message_name, const char* field_name )
+{
+    xi_set_sft_error( sft_missing_cbor_field_error );
 
-	if( NULL == device_id )
+    if( NULL == cbor_message_name || NULL == field_name )
     {
-	    return -1;
+        printf( "ERROR: invalid parameter passed to missing_cbor_field_error\n" );
+        return;
     }
 
-	/*
-	 * Mangle the SFT and Device Logs topics with the provided credentials
-	 */
+    printf("ERROR: SFT Message: %s missing CBOR field: %s\n", cbor_message_name, field_name );
 
-	/* xi_stopic is the MQTT topic we PUB to to send messages to the broker. */
-	snprintf(xi_stopic, sizeof(xi_stopic),"xi/ctrl/v1/%s/svc", device_id);
+    /* Send to Device Logs */
+    char log_details_str[LOGDETAILSSIZE];
+    snprintf( log_details_str, sizeof( log_details_str ),
+              "SFT Message: %s missing CBOR field: %s", field_name );
 
-	/* xi_ctopic is the MQTT topic we SUBSCRIBE to to receive messages from the broker. */
-	snprintf(xi_ctopic, sizeof(xi_ctopic),"xi/ctrl/v1/%s/cln", device_id);
+    xi_publish_device_log( in_context_handle, "File update available error",
+                        log_details_str, sft_missing_cbor_field_error );
+}
 
-	/* xi_logtopic is the MQTT topic we PUB to to add log messages. */
-	snprintf(xi_logtopic, sizeof(xi_logtopic),"xi/blue/v1/%s/d/%s/_log",account_id, device_id);
+/*
+ * Device Log Functions
+ * Note: Device log entires appear in the 'Logs' tab in Xively CPM's Device Details page of your
+ * particular Xively provisioned device.
+ */
 
-	/* Everything interesting happens in the on_sft_message() state machine. */
-	void* user_data = NULL;
-	xi_subscribe(in_context_handle, xi_ctopic, XI_MQTT_QOS_AT_MOST_ONCE, on_sft_message, user_data );
+void xi_publish_device_log( xi_context_handle_t in_context_handle, const char* message_str, const char* details_str, const sft_status_t status )
+{
+    /* Formats a message in the correct Xively Device Logs format and publishes it
+     * to the device logs topic. Note that, due to the asynchronous behavior
+     * of the client for the platform, this requires a few Xively ticks before
+     * sending, so don't reboot immediately following a logged error! */
+    static char* notice_str = "notice";
+    static char* error_str = "error";
 
-	return 0;
+    if( NULL == message || NULL == details_str )
+    {
+        printf("\nWarning: xi_publish_device_log invoked with a null string parameter\n\n");
+        return;
+    }
+
+    if( sft_status_max <= status )
+    {
+        printf("\nWarning: xi_publish_device_log invoked with an invalid status parameter\n\n");
+        return;
+    }
+
+    const char* severity_str;
+    if( sft_status_ok == status )
+    {
+        severity_str = notice_str;
+    }
+    else
+    {
+        severity_str = error_str;
+    }
+
+    char device_log_buffer[400];
+#if 0
+    printf("publish details string: %s\n", details_str);
+    printf(".\n");
+    printf("message string: %s\n", message_str );
+    printf(".\n");
+    printf("severity string: %s\n", severity_str);
+    printf(".\n");
+    printf("status code: %d\n", status );
+    printf("sft_status_strings: %s\n", sft_status_strings[status] );
+    printf(".\n");
+    printf("details_str: %s\n", details_str );
+    printf(".\n");
+#endif
+
+    snprintf( device_log_buffer, sizeof(device_log_buffer),
+                  "{\"message\":\"%s\",\"severity\":\"%s\",\"code\":\"%d\",\"details\":\"%s: %s\"}",
+                  message_str, severity_str, status, sft_status_strings[ status ], details_str );
+
+    printf( "publishing device log: %s\n", device_log_buffer );
+    xi_publish( in_context_handle, xi_logtopic, device_log_buffer, XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
+}
+
+void xi_publish_device_log_format_int( xi_context_handle_t in_context_handle, const char* message_str, const char* details_str,
+                                  const int value_int, const sft_status_t status )
+{
+    char log_details[LOGDETAILSSIZE];
+    strncpy( log_details, details_str, LOGDETAILSSIZE );
+    snprintf( log_details, LOGDETAILSSIZE, details_str, value_int );
+    xi_publish_device_log( in_context_handle, message_str, log_details, status );
+}
+
+void xi_publish_device_log_format_int_int( xi_context_handle_t in_context_handle, const char* message_str, const char* details_str,
+                                      const int value_int1, const int value_int2, const sft_status_t status )
+{
+    char log_details[LOGDETAILSSIZE];
+    strncpy( log_details, details_str, LOGDETAILSSIZE );
+    snprintf( log_details, LOGDETAILSSIZE, details_str, value_int1, value_int2 );
+    xi_publish_device_log( in_context_handle, message_str, log_details, status );
 }
 
 
-// Functions useful for debugging:
+void xi_publish_device_log_format_str( xi_context_handle_t in_context_handle, const char* message_str, const char* details_str,
+                                  const char* value_str, const sft_status_t status )
+{
+    char log_details[LOGDETAILSSIZE];
+    strncpy( log_details, details_str, LOGDETAILSSIZE );
+    snprintf( log_details, LOGDETAILSSIZE, details_str, value_str );
+    xi_publish_device_log( in_context_handle, message_str, log_details, status );
+}
+
+void xi_publish_device_log_format_str_str( xi_context_handle_t in_context_handle, const char* message_str, const char* details_str,
+                                      const char* value_str1, const char* value_str2, const sft_status_t status )
+
+{
+    char log_details[LOGDETAILSSIZE];
+    strncpy( log_details, details_str, LOGDETAILSSIZE );
+    snprintf( log_details, LOGDETAILSSIZE, details_str, value_str1, value_str2 );
+    xi_publish_device_log( in_context_handle, message_str, log_details, status );
+}
+
+
+/* Functions useful for debugging */
+void print_hash( unsigned char hash[] )
+{
+   int idx;
+   for ( idx=0; idx < 32; idx++ )
+   {
+      printf( "%02x",hash[idx] );
+   }
+   printf( "\n" );
+}
+
 #ifdef XI_DEBUGSFT
 void dump(const cn_cbor* cb, char* out, char** end, int indent) {
     int i;
