@@ -9,7 +9,8 @@
 #include <xi_macros.h>
 #include <xi_debug.h>
 
-#define XI_SFT_DOWNLOAD_BYTES_PER_FILE_CHUNK 1024
+// #define XI_SFT_DOWNLOAD_BYTES_PER_FILE_CHUNK 1024
+#define XI_SFT_DOWNLOAD_BYTES_PER_FILE_CHUNK 4 * 1024
 
 xi_state_t xi_sft_make_context( xi_sft_context_t** context,
                                 const char** updateable_files,
@@ -163,6 +164,37 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message 
                 else
                 {
                     /* file downloaded, continue with next file in list */
+
+                    {
+                        xi_control_message_t* message_file_status =
+                            xi_control_message_create_file_status(
+                                context->update_current_file->name,
+                                context->update_current_file->revision,
+                                XI_CONTROL_MESSAGE_FILE_STATUS_PHASE_DOWNLOADED,
+                                XI_CONTROL_MESSAGE_FILE_STATUS_CODE_SUCCESS );
+
+                        ( *context->fn_send_message )( context->send_message_user_data,
+                                                       message_file_status );
+
+                        message_file_status = xi_control_message_create_file_status(
+                            context->update_current_file->name,
+                            context->update_current_file->revision,
+                            XI_CONTROL_MESSAGE_FILE_STATUS_PHASE_PROCESSING,
+                            XI_CONTROL_MESSAGE_FILE_STATUS_CODE_SUCCESS );
+
+                        ( *context->fn_send_message )( context->send_message_user_data,
+                                                       message_file_status );
+
+                        message_file_status = xi_control_message_create_file_status(
+                            context->update_current_file->name,
+                            context->update_current_file->revision,
+                            XI_CONTROL_MESSAGE_FILE_STATUS_PHASE_FINISHED,
+                            XI_CONTROL_MESSAGE_FILE_STATUS_CODE_SUCCESS );
+
+                        ( *context->fn_send_message )( context->send_message_user_data,
+                                                       message_file_status );
+                    }
+
                     context->update_current_file =
                         xi_control_message_file_update_available_get_next_file_desc_ext(
                             &context->update_message_fua->file_update_available,

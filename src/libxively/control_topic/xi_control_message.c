@@ -295,7 +295,13 @@ void xi_debug_control_message_dump( const xi_control_message_t* control_message,
             printf( "+++ status: %d, chunk ptr: %p\n", control_message->file_chunk.status,
                     control_message->file_chunk.chunk );
             break;
-        default:;
+        case XI_CONTROL_MESSAGE_CS_FILE_STATUS:
+            printf( "+++ XI_CONTROL_MESSAGE_SC_FILE_STATUS\n" );
+            printf( "+++ name: [%s], revision: [%s]\n", control_message->file_status.name,
+                    control_message->file_status.revision );
+            printf( "+++ phase: %d, code: %d\n", control_message->file_status.phase,
+                    control_message->file_status.code );
+            break;
     }
 
     printf( "+++++++++++++++++++++++++++++++++++++++++++++++++++ [%s]\n", custom_label );

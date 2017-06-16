@@ -215,7 +215,9 @@ XI_TT_TESTCASE_WITH_SETUP( xi_utest__FILE_GET_CHUNK__basic,
 XI_TT_TESTCASE_WITH_SETUP(
     xi_utest__FILE_STATUS__basic, xi_utest_setup_basic, xi_utest_teardown_basic, NULL, {
         xi_control_message_t* message_file_status = xi_control_message_create_file_status(
-            "name of file", "revision of file", 11, 0 );
+            "name of file", "revision of file",
+            XI_CONTROL_MESSAGE_FILE_STATUS_PHASE_PROCESSING,
+            XI_CONTROL_MESSAGE_FILE_STATUS_CODE_SUCCESS );
 
         tt_want_ptr_op( NULL, !=, message_file_status );
 
@@ -229,7 +231,9 @@ XI_TT_TESTCASE_WITH_SETUP( xi_utest__FILE_STATUS__null_filename__no_message_crea
                            {
                                xi_control_message_t* message_file_status =
                                    xi_control_message_create_file_status(
-                                       NULL, "revision", 0, 0 );
+                                       NULL, "revision",
+                                       XI_CONTROL_MESSAGE_FILE_STATUS_PHASE_FINISHED,
+                                       XI_CONTROL_MESSAGE_FILE_STATUS_CODE_SUCCESS );
 
                                tt_want_ptr_op( NULL, ==, message_file_status );
                            } )

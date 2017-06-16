@@ -17,6 +17,17 @@ typedef enum xi_control_message_type_e {
     XI_CONTROL_MESSAGE_CS_FILE_STATUS
 } xi_control_message_type_t;
 
+typedef enum xi_control_message_file_status_phase_e {
+    XI_CONTROL_MESSAGE_FILE_STATUS_PHASE_DOWNLOADED = 3,
+    XI_CONTROL_MESSAGE_FILE_STATUS_PHASE_PROCESSING = 4,
+    XI_CONTROL_MESSAGE_FILE_STATUS_PHASE_FINISHED   = 5
+} xi_control_message_file_status_t;
+
+typedef enum xi_control_message_file_status_code_e {
+    XI_CONTROL_MESSAGE_FILE_STATUS_CODE_SUCCESS         = 0,
+    XI_CONTROL_MESSAGE_FILE_STATUS_CODE_ADD_ERRORS_HERE = 1
+} xi_control_message_file_status_code_t;
+
 typedef struct xi_control_message_file_desc_s
 {
     char* name;
