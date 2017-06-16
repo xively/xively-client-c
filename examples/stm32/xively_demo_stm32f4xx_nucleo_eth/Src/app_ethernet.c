@@ -46,6 +46,9 @@
   */
 /* Includes ------------------------------------------------------------------*/
 #include "lwip/dhcp.h"
+#include "cmsis_os.h"
+
+#include "xi_bsp_rng.h"
 
 #include "app_ethernet.h"
 #include "main.h"

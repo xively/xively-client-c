@@ -9,6 +9,7 @@
 #include <string.h>
 #include <time.h>
 #include "cmsis_os.h"
+
 #include "xively.h"
 #include "xively_client.h"
 #include "xi_bsp_rng.h"
@@ -319,8 +320,6 @@ static xi_state_t subscribe_cb_common( const xi_context_handle_t ctx,
 {
     xc_topic_info_t* t_info = xc_topic_info + topic_e;
     xi_mqtt_suback_status_t status;
-    char* msg_ptr;
-    int msg_val;
     xi_state_t rval;
 
     ( void )ctx;
@@ -349,6 +348,8 @@ static xi_state_t subscribe_cb_common( const xi_context_handle_t ctx,
             rval = XI_STATE_OK;
 
 #if 0
+            char* msg_ptr;
+            int msg_val;
             xi_mqtt_message_t *msg = (xi_mqtt_message_t*)data;
 
             if (!msg->publish.content || !msg->publish.content->data_ptr)
@@ -515,7 +516,8 @@ static void xc_subscribe_next( const xi_context_handle_t ctx )
                       t_info->name );
 
             printf( "Xively: Subscribe Pending \"%s\".\n", t_info->name );
-            xi_subscribe( ctx, fq_topic, t_info->qos, t_info->subscribe_cb, 0 );
+            xi_subscribe( ctx, fq_topic, t_info->qos,
+                          ( xi_user_subscription_callback_t* )t_info->subscribe_cb, 0 );
             e++;
             xc_subscribe_next_topic = e;
             break;
@@ -756,12 +758,12 @@ connect_cb( const xi_context_handle_t ctx, void* data, xi_state_t state )
         case XI_CONNECTION_STATE_OPEN_FAILED:
         {
             printf( "[%d] Xively: Connection failed to %s:%d, error %d\n",
-                    xi_bsp_time_getcurrenttime_seconds(), conn_data->host,
+                    ( int )xi_bsp_time_getcurrenttime_seconds(), conn_data->host,
                     conn_data->port, state );
 
             xi_connect( ctx, conn_data->username, conn_data->password,
                         conn_data->connection_timeout, conn_data->keepalive_timeout,
-                        conn_data->session_type, &connect_cb );
+                        conn_data->session_type, ( xi_user_callback_t* )&connect_cb );
 
             rval = XI_STATE_OK;
             break;
@@ -774,7 +776,7 @@ connect_cb( const xi_context_handle_t ctx, void* data, xi_state_t state )
         case XI_CONNECTION_STATE_CLOSED:
         {
             printf( "[%d] Xively: Connection closed, error %d\n",
-                    xi_bsp_time_getcurrenttime_seconds(), state );
+                    ( int )xi_bsp_time_getcurrenttime_seconds(), state );
 
             /* Connection closed */
             xi_events_stop();
@@ -790,7 +792,7 @@ connect_cb( const xi_context_handle_t ctx, void* data, xi_state_t state )
         case XI_CONNECTION_STATE_OPENED:
         {
             printf( "[%d] Xively: Connected %s:%d\n",
-                    xi_bsp_time_getcurrenttime_seconds(), conn_data->host,
+                    ( int )xi_bsp_time_getcurrenttime_seconds(), conn_data->host,
                     conn_data->port );
             rval = XI_STATE_OK;
 
@@ -803,7 +805,8 @@ connect_cb( const xi_context_handle_t ctx, void* data, xi_state_t state )
         default:
         {
             printf( "[%d] Xively: Connection invalid, error %d\n",
-                    xi_bsp_time_getcurrenttime_seconds(), conn_data->connection_state );
+                    ( int )xi_bsp_time_getcurrenttime_seconds(),
+                    conn_data->connection_state );
             rval = XI_INVALID_PARAMETER;
             break;
         }
@@ -981,16 +984,16 @@ static int xc_main( void )
 
 
         xi_connect( xc_ctx, device_id, password, XC_CONNECT_TO, XC_KEEPALIVE_TO,
-                    XI_SESSION_CLEAN, &connect_cb );
+                    XI_SESSION_CLEAN, ( xi_user_callback_t* ) &connect_cb );
 
         /*  Loop forever */
         while ( XI_STATE_OK == xi_events_process_tick() )
         {
             if ( 1 == abs( button_pressed_interrupt_flag ) )
             {
-                xi_schedule_timed_task( xc_ctx, pub_button, 0, 0,
-                                        ( 1 == button_pressed_interrupt_flag ) ? "1"
-                                                                               : "0" );
+                xi_schedule_timed_task( xc_ctx, ( xi_user_task_callback_t* )pub_button, 0,
+                                        0, ( 1 == button_pressed_interrupt_flag ) ? "1"
+                                                                                  : "0" );
 
                 /* turn 1 to -2 or -1 to 2 */
                 button_pressed_interrupt_flag -= 3 * button_pressed_interrupt_flag;
