@@ -1038,7 +1038,7 @@ static void xc_task( void const* args )
 {
     ( void )args;
 
-    printf( "Xively: Pausing...\n" );
+    printf( "\nXively: Pausing...\n" );
 
     /*
      * Sleep for 10 seconds to let the network start
