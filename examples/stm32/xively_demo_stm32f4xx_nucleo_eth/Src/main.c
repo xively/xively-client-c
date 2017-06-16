@@ -55,7 +55,7 @@
 #include "ethernetif.h"
 #include "app_ethernet.h"
 #include "httpserver-netconn.h"
-#include <xively_client.h>
+#include "xively_client.h"
 #include "demo_io.h"
 
 /* Private typedef -----------------------------------------------------------*/
