@@ -55,6 +55,9 @@ cn_cbor_context* context = &cn_cbor_context_object;
 #define XI_CBOR_CODEC_CT_STRING_FILECHUNK_STATUS "S"
 #define XI_CBOR_CODEC_CT_STRING_FILECHUNK_CHUNK "C"
 
+#define XI_CBOR_CODEC_CT_STRING_FILESTATUS_PHASE "P"
+#define XI_CBOR_CODEC_CT_STRING_FILESTATUS_CODE "S"
+
 void xi_cbor_put_name_and_revision( cn_cbor* cb_map,
                                     const char* name,
                                     const char* revision,
@@ -130,13 +133,17 @@ void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
                                            &err );
 
             cn_cbor_map_put(
-                cb_map, cn_cbor_string_create( "O" CBOR_CONTEXT_PARAM, &err ),
+                cb_map,
+                cn_cbor_string_create(
+                    XI_CBOR_CODEC_CT_STRING_FILECHUNK_OFFSET CBOR_CONTEXT_PARAM, &err ),
                 cn_cbor_int_create(
                     control_message->file_get_chunk.offset CBOR_CONTEXT_PARAM, &err ),
                 &err );
 
             cn_cbor_map_put(
-                cb_map, cn_cbor_string_create( "L" CBOR_CONTEXT_PARAM, &err ),
+                cb_map,
+                cn_cbor_string_create(
+                    XI_CBOR_CODEC_CT_STRING_FILECHUNK_LENGTH CBOR_CONTEXT_PARAM, &err ),
                 cn_cbor_int_create(
                     control_message->file_get_chunk.length CBOR_CONTEXT_PARAM, &err ),
                 &err );
@@ -145,7 +152,24 @@ void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
 
         case XI_CONTROL_MESSAGE_CS_FILE_STATUS:
 
-            // todo_atigyi
+            xi_cbor_put_name_and_revision( cb_map, control_message->file_status.name,
+                                           control_message->file_status.revision, &err );
+
+            cn_cbor_map_put(
+                cb_map,
+                cn_cbor_string_create(
+                    XI_CBOR_CODEC_CT_STRING_FILESTATUS_PHASE CBOR_CONTEXT_PARAM, &err ),
+                cn_cbor_int_create( control_message->file_status.phase CBOR_CONTEXT_PARAM,
+                                    &err ),
+                &err );
+
+            cn_cbor_map_put(
+                cb_map,
+                cn_cbor_string_create(
+                    XI_CBOR_CODEC_CT_STRING_FILESTATUS_CODE CBOR_CONTEXT_PARAM, &err ),
+                cn_cbor_int_create( control_message->file_status.code CBOR_CONTEXT_PARAM,
+                                    &err ),
+                &err );
 
             break;
 

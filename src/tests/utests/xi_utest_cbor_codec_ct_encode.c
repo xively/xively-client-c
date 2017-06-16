@@ -282,6 +282,45 @@ XI_TT_TESTCASE_WITH_SETUP(
         XI_SAFE_FREE( encoded );
     } )
 
+
+/*****************************************************
+ * FILE_STATUS ***************************************
+ *****************************************************/
+
+XI_TT_TESTCASE_WITH_SETUP(
+    xi_utest_cbor_codec_ct_encode__file_status__basic,
+    xi_utest_setup_basic,
+    xi_utest_teardown_basic,
+    NULL,
+    {
+        xi_control_message_t* sft_message = xi_control_message_create_file_status(
+            "name for FILE_STATUS message", "revision for FILE_STATUS message", 77, 99 );
+
+        uint8_t* encoded     = NULL;
+        uint32_t encoded_len = 0;
+
+        xi_cbor_codec_ct_encode( sft_message, &encoded, &encoded_len );
+
+        xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 0 );
+        xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 1 );
+
+        const uint8_t expected_cbor[] = {
+            0xa6, 0x67, 0x6d, 0x73, 0x67, 0x74, 0x79, 0x70, 0x65, 0x04, 0x66, 0x6d,
+            0x73, 0x67, 0x76, 0x65, 0x72, 0x01, 0x61, 0x4e, 0x78, 0x1c, 0x6e, 0x61,
+            0x6d, 0x65, 0x20, 0x66, 0x6f, 0x72, 0x20, 0x46, 0x49, 0x4c, 0x45, 0x5f,
+            0x53, 0x54, 0x41, 0x54, 0x55, 0x53, 0x20, 0x6d, 0x65, 0x73, 0x73, 0x61,
+            0x67, 0x65, 0x61, 0x52, 0x78, 0x20, 0x72, 0x65, 0x76, 0x69, 0x73, 0x69,
+            0x6f, 0x6e, 0x20, 0x66, 0x6f, 0x72, 0x20, 0x46, 0x49, 0x4c, 0x45, 0x5f,
+            0x53, 0x54, 0x41, 0x54, 0x55, 0x53, 0x20, 0x6d, 0x65, 0x73, 0x73, 0x61,
+            0x67, 0x65, 0x61, 0x50, 0x18, 0x4d, 0x61, 0x53, 0x18, 0x63};
+
+        tt_want_int_op( 0, ==, memcmp( expected_cbor, encoded, encoded_len ) );
+        tt_want_int_op( sizeof( expected_cbor ), ==, encoded_len );
+
+        xi_control_message_free( &sft_message );
+        XI_SAFE_FREE( encoded );
+    } )
+
 XI_TT_TESTGROUP_END
 
 #ifndef XI_TT_TESTCASE_ENUMERATION__SECONDPREPROCESSORRUN

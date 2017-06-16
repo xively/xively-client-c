@@ -85,6 +85,37 @@ err_handling:
     return sft_message;
 }
 
+xi_control_message_t* xi_control_message_create_file_status( const char* filename,
+                                                             const char* revision,
+                                                             uint8_t phase,
+                                                             uint8_t code )
+{
+    if ( NULL == filename || NULL == revision )
+    {
+        return NULL;
+    }
+
+    xi_state_t state = XI_STATE_OK;
+
+    XI_ALLOC( xi_control_message_t, sft_message, state );
+
+    sft_message->common.msgtype            = XI_CONTROL_MESSAGE_CS_FILE_STATUS;
+    sft_message->file_status.common.msgver = 1;
+
+    sft_message->file_status.name     = xi_str_dup( filename );
+    sft_message->file_status.revision = xi_str_dup( revision );
+    sft_message->file_status.phase    = phase;
+    sft_message->file_status.code     = code;
+
+    return sft_message;
+
+err_handling:
+
+    xi_control_message_free( &sft_message );
+
+    return sft_message;
+}
+
 const xi_control_message_file_desc_ext_t*
 xi_control_message_file_update_available_get_next_file_desc_ext(
     const struct file_update_available_s* message_fua, const char* filename )
@@ -172,6 +203,9 @@ void xi_control_message_free( xi_control_message_t** control_message )
             break;
 
         case XI_CONTROL_MESSAGE_CS_FILE_STATUS:
+
+            XI_SAFE_FREE( ( *control_message )->file_status.name );
+            XI_SAFE_FREE( ( *control_message )->file_status.revision );
 
             break;
     }

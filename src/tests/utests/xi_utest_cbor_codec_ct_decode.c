@@ -220,27 +220,6 @@ void xi_utest_cbor_ASSERT_control_messages_match( const xi_control_message_t* cm
                     memcmp( cm1->file_update_available.list[id_file].fingerprint,
                             cm2->file_update_available.list[id_file].fingerprint,
                             cm1->file_update_available.list[id_file].fingerprint_len ) );
-
-#if 0
-                if ( cm1->file_update_available.list[id_file].fingerprint &&
-                     cm2->file_update_available.list[id_file].fingerprint )
-                {
-                }
-                else
-                {
-                    // both have to be NULL here
-                    tt_want_ptr_op(
-                        cm1->file_update_available.list[id_file].fingerprint, ==,
-                        cm2->file_update_available.list[id_file].fingerprint );
-                }
-#endif
-
-                /*xi_debug_printf( "name: [%s]\n",
-                                 cm2->file_update_available.list[id_file].name );
-                xi_debug_printf( "name: [%s]\n",
-                                 cm2->file_update_available.list[id_file].revision );
-                xi_debug_printf( "name: [%s]\n",
-                                 cm2->file_update_available.list[id_file].fingerprint );*/
             }
 
             break;

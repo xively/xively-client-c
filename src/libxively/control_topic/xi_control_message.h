@@ -93,11 +93,11 @@ typedef union xi_control_message_u {
     {
         struct xi_control_message_common_s common;
 
-        const char* name;
-        const char* revision;
+        char* name;
+        char* revision;
 
-        const char* status_message;
-        uint8_t status_code;
+        uint8_t phase;
+        uint8_t code;
 
     } file_status;
 
@@ -111,6 +111,11 @@ xi_control_message_t* xi_control_message_create_file_get_chunk( const char* file
                                                                 const char* revision,
                                                                 uint32_t offset,
                                                                 uint32_t length );
+
+xi_control_message_t* xi_control_message_create_file_status( const char* filename,
+                                                             const char* revision,
+                                                             uint8_t phase,
+                                                             uint8_t code );
 
 const xi_control_message_file_desc_ext_t*
 xi_control_message_file_update_available_get_next_file_desc_ext(
