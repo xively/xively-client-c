@@ -492,8 +492,44 @@ XI_TT_TESTCASE_WITH_SETUP(
         xi_control_message_t* file_chunk_out =
             xi_cbor_codec_ct_decode( encoded, encoded_len );
 
-        xi_debug_control_message_dump( &file_chunk_in, "in" );
-        xi_debug_control_message_dump( file_chunk_out, "out" );
+        // ASSERT
+        xi_utest_cbor_ASSERT_control_messages_match( &file_chunk_in, file_chunk_out );
+
+        XI_SAFE_FREE( encoded );
+        xi_control_message_free( &file_chunk_out );
+    } )
+
+XI_TT_TESTCASE_WITH_SETUP(
+    xi_utest_cbor_codec_ct_decode__file_chunk__binary_chunk,
+    xi_utest_setup_basic,
+    xi_utest_teardown_basic,
+    NULL,
+    {
+        // ARRANGE
+        const xi_control_message_t file_chunk_in = {
+            .file_chunk = {
+                .common = {.msgtype = XI_CONTROL_MESSAGE_SC_FILE_CHUNK, .msgver = -1},
+                .name     = "filename for binary chunk !@#Q#$DFVS@#$   \t sdfgsdf",
+                .revision = NULL,
+                .offset   = 555,
+                .length   = 15,
+                .status   = 33,
+                .chunk    = ( uint8_t[] ){1, 2, 3, 4, 3, 2, 1, 0, 0, 1, 0, 1, 0, 5, 5}}};
+
+        uint8_t* encoded     = NULL;
+        uint32_t encoded_len = 0;
+
+        xi_utest_cbor_codec_ct_encode( &file_chunk_in, &encoded, &encoded_len );
+
+        // xi_utest_cbor_bin_to_stdout( encoded, ehncoded_len, 0 );
+        // xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 1 );
+
+        // ACT
+        xi_control_message_t* file_chunk_out =
+            xi_cbor_codec_ct_decode( encoded, encoded_len );
+
+        // xi_debug_control_message_dump( &file_chunk_in, "in" );
+        // xi_debug_control_message_dump( file_chunk_out, "out" );
 
         // ASSERT
         xi_utest_cbor_ASSERT_control_messages_match( &file_chunk_in, file_chunk_out );
@@ -537,7 +573,6 @@ XI_TT_TESTCASE_WITH_SETUP(
         XI_SAFE_FREE( encoded );
         xi_control_message_free( &file_chunk_out );
     } )
-
 
 XI_TT_TESTGROUP_END
 
