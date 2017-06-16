@@ -246,6 +246,218 @@ XI_TT_TESTCASE_WITH_SETUP( xi_utest__FILE_STATUS__null_revision__no_message_crea
                                tt_want_ptr_op( NULL, ==, message_file_status );
                            } )
 
+
+/*****************************************************
+ * FILE_UPDATE_AVAILABLE get_next_file_desc_ext ******
+ *****************************************************/
+
+XI_TT_TESTCASE_WITH_SETUP(
+    xi_utest__get_next_file_desc_ext__get_1sts_successor,
+    xi_utest_setup_basic,
+    xi_utest_teardown_basic,
+    NULL,
+    {
+        // ARRANGE
+        xi_control_message_file_desc_ext_t three_file_list[3] = {
+            {.name            = "filename 1",
+             .revision        = "revision 11",
+             .file_operation  = 11,
+             .size_in_bytes   = 111,
+             .fingerprint     = ( uint8_t* )"fingerprint 111",
+             .fingerprint_len = 15},
+            {.name            = "filename 2",
+             .revision        = "revision 22",
+             .file_operation  = 22,
+             .size_in_bytes   = 222,
+             .fingerprint     = ( uint8_t* )"fingerprint 222",
+             .fingerprint_len = 15},
+            {.name            = "filename 3",
+             .revision        = "revision 33",
+             .file_operation  = 33,
+             .size_in_bytes   = 333,
+             .fingerprint     = ( uint8_t[] ){0x55, 0x56, 0x0, 0x56, 0x55},
+             .fingerprint_len = 5}};
+
+        const xi_control_message_t file_update_available = {
+            .file_update_available = {
+                .common = {.msgtype = XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE,
+                           .msgver  = 1},
+                .list_len = 3,
+                .list     = three_file_list}};
+
+        const xi_control_message_file_desc_ext_t* file_desc =
+            xi_control_message_file_update_available_get_next_file_desc_ext(
+                &file_update_available.file_update_available, "filename 1" );
+
+        tt_want_str_op( "filename 2", ==, file_desc->name );
+        tt_want_ptr_op( &three_file_list[1], ==, file_desc );
+    } )
+
+XI_TT_TESTCASE_WITH_SETUP(
+    xi_utest__get_next_file_desc_ext__get_2nds_successor,
+    xi_utest_setup_basic,
+    xi_utest_teardown_basic,
+    NULL,
+    {
+        // ARRANGE
+        xi_control_message_file_desc_ext_t three_file_list[3] = {
+            {.name            = "filename 1",
+             .revision        = "revision 11",
+             .file_operation  = 11,
+             .size_in_bytes   = 111,
+             .fingerprint     = ( uint8_t* )"fingerprint 111",
+             .fingerprint_len = 15},
+            {.name            = "filename 2",
+             .revision        = "revision 22",
+             .file_operation  = 22,
+             .size_in_bytes   = 222,
+             .fingerprint     = ( uint8_t* )"fingerprint 222",
+             .fingerprint_len = 15},
+            {.name            = "filename 3",
+             .revision        = "revision 33",
+             .file_operation  = 33,
+             .size_in_bytes   = 333,
+             .fingerprint     = ( uint8_t[] ){0x55, 0x56, 0x0, 0x56, 0x55},
+             .fingerprint_len = 5}};
+
+        const xi_control_message_t file_update_available = {
+            .file_update_available = {
+                .common = {.msgtype = XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE,
+                           .msgver  = 1},
+                .list_len = 3,
+                .list     = three_file_list}};
+
+        const xi_control_message_file_desc_ext_t* file_desc =
+            xi_control_message_file_update_available_get_next_file_desc_ext(
+                &file_update_available.file_update_available, "filename 2" );
+
+        tt_want_str_op( "filename 3", ==, file_desc->name );
+        tt_want_ptr_op( &three_file_list[2], ==, file_desc );
+    } )
+
+XI_TT_TESTCASE_WITH_SETUP(
+    xi_utest__get_next_file_desc_ext__get_lasts_successor,
+    xi_utest_setup_basic,
+    xi_utest_teardown_basic,
+    NULL,
+    {
+        // ARRANGE
+        xi_control_message_file_desc_ext_t three_file_list[3] = {
+            {.name            = "filename 1",
+             .revision        = "revision 11",
+             .file_operation  = 11,
+             .size_in_bytes   = 111,
+             .fingerprint     = ( uint8_t* )"fingerprint 111",
+             .fingerprint_len = 15},
+            {.name            = "filename 2",
+             .revision        = "revision 22",
+             .file_operation  = 22,
+             .size_in_bytes   = 222,
+             .fingerprint     = ( uint8_t* )"fingerprint 222",
+             .fingerprint_len = 15},
+            {.name            = "filename 3",
+             .revision        = "revision 33",
+             .file_operation  = 33,
+             .size_in_bytes   = 333,
+             .fingerprint     = ( uint8_t[] ){0x55, 0x56, 0x0, 0x56, 0x55},
+             .fingerprint_len = 5}};
+
+        const xi_control_message_t file_update_available = {
+            .file_update_available = {
+                .common = {.msgtype = XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE,
+                           .msgver  = 1},
+                .list_len = 3,
+                .list     = three_file_list}};
+
+        const xi_control_message_file_desc_ext_t* file_desc =
+            xi_control_message_file_update_available_get_next_file_desc_ext(
+                &file_update_available.file_update_available, "filename 3" );
+
+        tt_want_ptr_op( NULL, ==, file_desc );
+    } )
+
+XI_TT_TESTCASE_WITH_SETUP(
+    xi_utest__get_next_file_desc_ext__get_on_null_name,
+    xi_utest_setup_basic,
+    xi_utest_teardown_basic,
+    NULL,
+    {
+        // ARRANGE
+        xi_control_message_file_desc_ext_t three_file_list[3] = {
+            {.name            = "filename 1",
+             .revision        = "revision 11",
+             .file_operation  = 11,
+             .size_in_bytes   = 111,
+             .fingerprint     = ( uint8_t* )"fingerprint 111",
+             .fingerprint_len = 15},
+            {.name            = "filename 2",
+             .revision        = "revision 22",
+             .file_operation  = 22,
+             .size_in_bytes   = 222,
+             .fingerprint     = ( uint8_t* )"fingerprint 222",
+             .fingerprint_len = 15},
+            {.name            = "filename 3",
+             .revision        = "revision 33",
+             .file_operation  = 33,
+             .size_in_bytes   = 333,
+             .fingerprint     = ( uint8_t[] ){0x55, 0x56, 0x0, 0x56, 0x55},
+             .fingerprint_len = 5}};
+
+        const xi_control_message_t file_update_available = {
+            .file_update_available = {
+                .common = {.msgtype = XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE,
+                           .msgver  = 1},
+                .list_len = 3,
+                .list     = three_file_list}};
+
+        const xi_control_message_file_desc_ext_t* file_desc =
+            xi_control_message_file_update_available_get_next_file_desc_ext(
+                &file_update_available.file_update_available, NULL );
+
+        tt_want_ptr_op( NULL, ==, file_desc );
+    } )
+
+XI_TT_TESTCASE_WITH_SETUP(
+    xi_utest__get_next_file_desc_ext__get_a_non_existing_filename,
+    xi_utest_setup_basic,
+    xi_utest_teardown_basic,
+    NULL,
+    {
+        // ARRANGE
+        xi_control_message_file_desc_ext_t three_file_list[3] = {
+            {.name            = "filename 1",
+             .revision        = "revision 11",
+             .file_operation  = 11,
+             .size_in_bytes   = 111,
+             .fingerprint     = ( uint8_t* )"fingerprint 111",
+             .fingerprint_len = 15},
+            {.name            = "filename 2",
+             .revision        = "revision 22",
+             .file_operation  = 22,
+             .size_in_bytes   = 222,
+             .fingerprint     = ( uint8_t* )"fingerprint 222",
+             .fingerprint_len = 15},
+            {.name            = "filename 3",
+             .revision        = "revision 33",
+             .file_operation  = 33,
+             .size_in_bytes   = 333,
+             .fingerprint     = ( uint8_t[] ){0x55, 0x56, 0x0, 0x56, 0x55},
+             .fingerprint_len = 5}};
+
+        const xi_control_message_t file_update_available = {
+            .file_update_available = {
+                .common = {.msgtype = XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE,
+                           .msgver  = 1},
+                .list_len = 3,
+                .list     = three_file_list}};
+
+        const xi_control_message_file_desc_ext_t* file_desc =
+            xi_control_message_file_update_available_get_next_file_desc_ext(
+                &file_update_available.file_update_available, "non existing filename" );
+
+        tt_want_ptr_op( NULL, ==, file_desc );
+    } )
+
 XI_TT_TESTGROUP_END
 
 #ifndef XI_TT_TESTCASE_ENUMERATION__SECONDPREPROCESSORRUN
