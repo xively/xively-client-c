@@ -31,9 +31,15 @@
 #undef   printf
 #define  printf      Report
 
-///// Test these individually
+
+/*
+ * DEFINES
+ */
 #define MAX_INCOMING_FILENAME_LENGTH 50
 #define MAX_STRING_LENGTH 50
+#define MESSAGESIZE 50
+#define LOGDETAILSSIZE 400
+
 
 /*
  * TYPEDEFS
@@ -44,26 +50,33 @@ typedef unsigned int uint;
 typedef enum
 {
     sft_status_ok = 0,                  /* 0 */
-    sft_unsupported_protocol_version,   /* 1 */
+
+    sft_status_rebooting,               /* 1 */
+
     sft_open_file_error,                /* 2 */
     sft_close_file_error,               /* 3 */
     sft_write_error,                    /* 4 */
-    sft_empty_length_array_error,       /* 5 */
-    sft_data_out_of_bounds_error,       /* 6 */
-    sft_missing_cbor_field_error,       /* 7 */
-    sft_publish_error,                  /* 8 */
-    sft_fingerprint_mismatch_error,     /* 9 */
-    sft_unexpected_filename_error,      /* 10 */
+
+    sft_unsupported_protocol_version,   /* 5 */
+    sft_unexpected_filename_error,      /* 6 */
+    sft_empty_length_array_error,       /* 7 */
+    sft_data_out_of_bounds_error,       /* 8 */
+    sft_file_data_offset_error,         /* 9 */
+
+    sft_cbor_missing_field_error,       /* 10 */
     sft_cbor_encoding_error,            /* 11 */
-    sft_fingerprint_too_large_error,    /* 12 */
-    sft_internal_error,                 /* 13 */
-    sft_offset_error,                   /* 14 */
-    sft_cbor_error_field_set_error,     /* 15 */
+    sft_cbor_error_field_set_error,     /* 12 */
+
+    sft_publish_error,                  /* 13 */
+    sft_internal_error,                 /* 14 */
+    sft_fingerprint_mismatch_error,     /* 15 */
+    sft_fingerprint_too_large_error,    /* 16 */
 
     sft_status_max
 
 } sft_status_t;
 
+/* stores state data for the download state machine */
 typedef struct file_download_ctx_s
 {
     int file_length;
@@ -82,6 +95,8 @@ typedef struct file_download_ctx_s
 
 } file_download_ctx_t;
 
+/* data is extracted from FILE_CHUNK cbor messages and
+ * temporarily stored in this more accessible structure */
 typedef struct xi_sft_file_chunk_s
 {
     uint offset;
@@ -90,6 +105,7 @@ typedef struct xi_sft_file_chunk_s
     uint status;
     unsigned char* byte_array;
 } xi_sft_file_chunk_t;
+
 
 /*
  * VARIABLES
@@ -104,11 +120,9 @@ char firmware_revision[] = "1.0";
 
 file_download_ctx_t download_context;
 
+/* TODO: remove these? */
 char buffer[400];
 
-#define MESSAGESIZE 50
-char message[MESSAGESIZE];
-#define LOGDETAILSSIZE 400
 
 /* Buffers to hold the formatted topics.
  * Topics are mangled by account and device ids.
@@ -117,32 +131,40 @@ char xi_stopic[128];
 char xi_logtopic[128];
 char xi_ctopic[128];
 
+/* strings that correspond to the xi_status_t enumeration.
+ * used for publishing messages to the Xivel Device Logs service.
+ */
 const char* sft_status_strings[] =
 {
-    "sft_status_ok",                        /* 0 */
-    "sft_unsupported_protocol_version",     /* 1 */
-    "sft_open_file_error",                  /* 2 */
-    "sft_close_file_error",                 /* 3 */
-    "sft_write_error",                      /* 4 */
-    "sft_empty_length_array_error",         /* 5 */
-    "sft_data_out_of_bounds_error",         /* 6 */
-    "sft_missing_cbor_field_error",         /* 7 */
-    "sft_publish_error",                    /* 8 */
-    "sft_fingerprint_mismatch_error",       /* 9 */
-    "sft_unexpected_filename_error",        /* 10 */
-    "sft_cbor_encoding_error",              /* 11 */
-    "sft_fingerprint_too_large_error",      /* 12 */
-    "sft_internal_error",                   /* 13 */
-    "sft_offset_error",                     /* 14 */
-    "sft_cbor_error_field_set_error",       /* 15 */
+     "sft_status_ok",                      /* 0 */
+     "sft_status_rebooting",               /* 1 */
 
-    "SFT_MAX_ERROR"
+     "sft_open_file_error",                /* 2 */
+     "sft_close_file_error",               /* 3 */
+     "sft_write_error",                    /* 4 */
+
+     "sft_unsupported_protocol_version",   /* 5 */
+     "sft_unexpected_filename_error",      /* 6 */
+     "sft_empty_length_array_error",       /* 7 */
+     "sft_data_out_of_bounds_error",       /* 8 */
+     "sft_file_data_offset_error",         /* 9 */
+
+     "sft_cbor_missing_field_error",       /* 10 */
+     "sft_cbor_encoding_error",            /* 11 */
+     "sft_cbor_error_field_set_error",     /* 12 */
+
+     "sft_publish_error",                  /* 13 */
+     "sft_internal_error",                 /* 14 */
+     "sft_fingerprint_mismatch_error",     /* 15 */
+     "sft_fingerprint_too_large_error",    /* 16 */
+
+     "sft_status_max"
 };
+
 
 /*
  *  Function Declarations
  */
-
 int xi_sft_init( xi_context_handle_t in_context_handle, char *account_id, char *device_id );
 void on_sft_message( xi_context_handle_t in_context_handle, xi_sub_call_type_t call_type,
                             const xi_sub_call_params_t* const params, xi_state_t state, void* user_data );
@@ -171,20 +193,14 @@ void xi_publish_device_log_format_str( xi_context_handle_t in_context_handle, co
 void xi_publish_device_log_format_str_str( xi_context_handle_t in_context_handle, const char* message_str, const char* details_str,
                                       const char* value_str1, const char* value_str2, const sft_status_t status );
 
-/* Output Utility Functions */
+/* Utility Functions */
 void print_hash( unsigned char hash[] );
+void verify_sha256( xi_context_handle_t in_context_handle );
 
 
 
 int xi_sft_init( xi_context_handle_t in_context_handle, char *account_id, char *device_id )
 {
-    /* Accept the latest firmware if we get here. */
-    if( sl_extlib_FlcIsPendingCommit() )
-    {
-        printf("******************* Committing this revision\n");
-        sl_extlib_FlcCommit( FLC_COMMITED );
-    }
-
     if( NULL == account_id || NULL == device_id )
     {
         return -1;
@@ -199,14 +215,23 @@ int xi_sft_init( xi_context_handle_t in_context_handle, char *account_id, char *
     /* xi_logtopic is the MQTT topic we PUB to to add log messages. */
     snprintf(xi_logtopic, sizeof(xi_logtopic),"xi/blue/v1/%s/d/%s/_log",account_id, device_id);
 
-    /* Everything interesting happens in the on_sft_message() state machine. */
+    /* Accept the latest firmware if we get here. */
+    if( sl_extlib_FlcIsPendingCommit() )
+    {
+        printf("\n********** Committing this revision **********\n");
+        sl_extlib_FlcCommit( FLC_COMMITED );
+        printf("invoking xi_publish_device_log\n");
+        xi_publish_device_log( in_context_handle, "Firmware Committed",
+                               "Boot loader will now boot to new image", sft_status_ok );
+    }
+
+    /* Subscribe to SFT topic.  Everything interesting that happens will occur when an incoming message
+     * arrives, handled by a state machine in on_sft_message(). */
     void* user_data = NULL;
     xi_subscribe(in_context_handle, xi_ctopic, XI_MQTT_QOS_AT_MOST_ONCE, on_sft_message, user_data );
 
     return 0;
 }
-
-
 
 
 /* Reboot the device
@@ -236,45 +261,7 @@ static void reboot_mcu( const xi_context_handle_t in_context_handle,
 
 
 
-/* Converts the locally computed hash into a string
- * and compares it to the SFT hash string 'fingerprint'
- * that we received during the FILE_UPDATE_AVAILABLE message.
- * Reports an error to Device Logs if there's a mis match,
- * and marks the error state.
- */
-void verify_sha256( xi_context_handle_t in_context_handle )
-{
-    /* Finalize SHA256 Digest */
-    sha256_final( &download_context.sha256_context, download_context.file_local_computed_fingerprint );
-    printf( "Calculated hash = 0x" );
-    print_hash( download_context.file_local_computed_fingerprint );
 
-    char local_fingerprint_str[65];
-    char* buff_ptr = local_fingerprint_str;
-
-    /* convert binary to a string matching SFT fingprint format */
-    int i;
-    for( i = 0; i < 32; ++i )
-    {
-        buff_ptr += sprintf( buff_ptr, "%02x", download_context.file_local_computed_fingerprint[i] );
-    }
-
-    /* null terminate the string */
-    *buff_ptr = '\0';
-
-    /* are they the same? If not then raise the red flag */
-    if( 0 != strncmp( local_fingerprint_str, download_context.file_sft_fingerprint_str, 64 ) )
-    {
-        printf("File Update Fingerprint mismatch.  SFT Fingerprint: %s  device-calculated fingerprint: %s\n",
-               download_context.file_sft_fingerprint_str, local_fingerprint_str );
-        xi_set_sft_error( sft_fingerprint_mismatch_error );
-        xi_publish_device_log_format_str_str( in_context_handle, "File Update Fingerprint Mismatch",
-                                              "sft fingerprint: %s device-calculated fingerprint: %s ",
-                                              download_context.file_sft_fingerprint_str, local_fingerprint_str,
-                                              sft_fingerprint_mismatch_error );
-        return;
-    }
-}
 
 void on_sft_message( xi_context_handle_t in_context_handle,
                             xi_sub_call_type_t call_type,
@@ -324,7 +311,6 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                     {
                         case XI_FILE_UPDATE_AVAILABLE:
 
-							printf("Got FILE_UPDATE_AVAILABLE\n");
 							if( downloading )
 							{
 							    printf("WARNING: ALREADY DOWNLOADING!\n");
@@ -345,7 +331,6 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                                 int open_file_result =  sl_extlib_FlcOpenFile("/sys/mcuimgA.bin", download_context.file_length,
                                                                               &download_context.file_token, &download_context.file_handle,
                                                                               FS_MODE_OPEN_WRITE );
-
                                 /* Check for errors */
                                 if( open_file_result < 0 )
                                 {
@@ -403,7 +388,7 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                                 char log_details[LOGDETAILSSIZE];
                                 snprintf( log_details, sizeof( log_details ),
                                           "filename=%s revision=%s length = %d", firmware_filename , download_context.file_revision, download_context.file_length );
-                                xi_publish_device_log( in_context_handle, "File download complete.", log_details, download_context.result );
+                                xi_publish_device_log( in_context_handle, "Firmware Update Finished.", log_details, download_context.result );
 
                                 printf( "=================\n");
                                 printf( "Done downloading.\n");
@@ -417,6 +402,7 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                                 }
                                 else
                                 {
+                                    xi_publish_device_log( in_context_handle, "Rebooting Device to Test Firmware.", "Device will reboot in 3 seconds", sft_status_ok );
                                     sl_extlib_FlcTest( FLC_TEST_RESET_MCU | FLC_TEST_RESET_MCU_WITH_APP );
 
                                     /* Schedule a callback to reboot the device to test the image
@@ -505,7 +491,7 @@ void xi_parse_file_update_available( xi_context_handle_t in_context_handle, cn_c
         {
             xi_set_sft_error( sft_unsupported_protocol_version );
             xi_publish_device_log_format_int( in_context_handle, "File update available error",
-                                              "File Update Available SFT Packet version: %d is unsupported",
+                                              "FILE_UPDATE_AVAILABLE SFT message version: %d is unsupported",
                                               cb_item->v.uint, sft_unsupported_protocol_version );
             printf("ERROR: Unsupported FILE_UPDATE_AVIALABLE message version: %d\n", cb_item->v.uint );
             return;
@@ -534,8 +520,8 @@ void xi_parse_file_update_available( xi_context_handle_t in_context_handle, cn_c
                     strncmp( firmware_filename, cb_file->v.str, cb_file->length ) != 0 )
                 {
                     xi_set_sft_error( sft_unexpected_filename_error );
-                    xi_publish_device_log( in_context_handle, "File update available error",
-                                            "Unexpected filename, expected firmware", sft_unexpected_filename_error );
+                    xi_publish_device_log( in_context_handle, "Unexpected Filename Error",
+                                            "Unexpected filename, expected 'firmware'", sft_unexpected_filename_error );
                     printf( "ERROR: incoming file update has an unexpected name. Expected `firmware`" );
                     return;
                 }
@@ -711,16 +697,14 @@ void xi_process_file_chunk( xi_context_handle_t in_context_handle, cn_cbor *cb )
         return;
     }
 
-    /* printf( "---- FILE_CHUNK: length = %d FILE_LENGTH: %d\n", file_chunk_data.chunk_length, download_context.file_length ); */
-
     /* Ensure that this chunk starts where we left off. */
     if( download_context.file_storage_offset != file_chunk_data.offset )
     {
         printf("ERROR: unexpected Chunk Offset Delivered by SFT!\n");
-        xi_set_sft_error( sft_offset_error );
+        xi_set_sft_error( sft_file_data_offset_error );
         xi_publish_device_log_format_int_int( in_context_handle, "File Chunk Offset Error",
                                           "Expected offset: %d but recieved offset: %d",
-                                          download_context.file_storage_offset, file_chunk_data.offset, sft_offset_error );
+                                          download_context.file_storage_offset, file_chunk_data.offset, sft_file_data_offset_error );
         return;
     }
 
@@ -747,24 +731,21 @@ void xi_process_file_chunk( xi_context_handle_t in_context_handle, cn_cbor *cb )
     if( file_chunk_data.offset + file_chunk_data.array_length > download_context.file_length )
     {
         printf( "ERROR: Chunk offset + length extends beyond length of file\n" );
-        xi_set_sft_error( sft_offset_error );
+        xi_set_sft_error( sft_file_data_offset_error );
         xi_publish_device_log_format_int_int( in_context_handle, "File Chunk Offset Error",
                                               "Offset: %d length: %d goes beyond bounds of file length.",
                                               file_chunk_data.offset + file_chunk_data.array_length,
-                                              download_context.file_length, sft_offset_error );
+                                              download_context.file_length, sft_file_data_offset_error );
         return;
     }
-
-    /* update the SHA256 digest with the provided data */
-    sha256_update( &download_context.sha256_context, (unsigned char *) file_chunk_data.byte_array, file_chunk_data.array_length );
 
     int write_length = (int) file_chunk_data.array_length;
     if( 0 == write_length )
     {
-        printf( "ERROR: Chunk offset + length extends beyond length of file\n" );
-        xi_set_sft_error( sft_offset_error );
-        xi_publish_device_log( sft_write_error, "File Chunk Write Error",
-                               "Casting file chunk array length is zero", sft_write_error );
+        printf( "ERROR: FILE_CHUNK zero length data array\n" );
+        xi_set_sft_error( sft_empty_length_array_error );
+        xi_publish_device_log( in_context_handle, "File Chunk Write Error",
+                               "Casting file chunk array length is zero", sft_empty_length_array_error );
         return;
     }
 
@@ -791,6 +772,9 @@ void xi_process_file_chunk( xi_context_handle_t in_context_handle, cn_cbor *cb )
     }
     else
     {
+        /* update the SHA256 digest with the provided data */
+        sha256_update( &download_context.sha256_context, (unsigned char *) file_chunk_data.byte_array, bytes_written );
+
         /* Track our progress through the file */
         download_context.file_storage_offset = file_chunk_data.offset + bytes_written;
 
@@ -799,8 +783,8 @@ void xi_process_file_chunk( xi_context_handle_t in_context_handle, cn_cbor *cb )
         {
             /* Download Complete */
             downloading = 0;
-            xi_publish_device_log( in_context_handle, "Download is complete",
-                                   "Downloaded and Written full file", sft_status_ok );
+            xi_publish_device_log( in_context_handle, "File download is complete",
+                                  "Downloaded and Written full file: firmware", sft_status_ok );
         }
     }
 
@@ -921,6 +905,47 @@ void xi_parse_file_chunk( xi_context_handle_t in_context_handle, cn_cbor* in_cb,
 }
 
 
+/* Invoked when file download is complete.
+ * Converts the locally computed hash into a string
+ * and compares it to the SFT hash string 'fingerprint'
+ * that we received during the FILE_UPDATE_AVAILABLE message.
+ * Reports an error to Device Logs if there's a mis match,
+ * and marks the error state.
+ */
+void verify_sha256( xi_context_handle_t in_context_handle )
+{
+    /* Finalize SHA256 Digest */
+    sha256_final( &download_context.sha256_context, download_context.file_local_computed_fingerprint );
+    printf( "Calculated hash = 0x" );
+    print_hash( download_context.file_local_computed_fingerprint );
+
+    char local_fingerprint_str[65];
+    char* buff_ptr = local_fingerprint_str;
+
+    /* convert binary to a string matching SFT fingprint format */
+    int i;
+    for( i = 0; i < 32; ++i )
+    {
+        buff_ptr += sprintf( buff_ptr, "%02x", download_context.file_local_computed_fingerprint[i] );
+    }
+
+    /* null terminate the string */
+    *buff_ptr = '\0';
+
+    /* are they the same? If not then raise the red flag */
+    if( 0 != strncmp( local_fingerprint_str, download_context.file_sft_fingerprint_str, 64 ) )
+    {
+        printf("File Update Fingerprint mismatch.  SFT Fingerprint: %s  device-calculated fingerprint: %s\n",
+               download_context.file_sft_fingerprint_str, local_fingerprint_str );
+        xi_set_sft_error( sft_fingerprint_mismatch_error );
+        xi_publish_device_log_format_str_str( in_context_handle, "File Update Fingerprint Mismatch",
+                                              "sft fingerprint: %s device-calculated fingerprint: %s ",
+                                              download_context.file_sft_fingerprint_str, local_fingerprint_str,
+                                              sft_fingerprint_mismatch_error );
+        return;
+    }
+}
+
 /*
  * Error Handling functions
  */
@@ -933,7 +958,7 @@ void xi_set_sft_error( sft_status_t status )
 void xi_missing_cbor_field_error( xi_context_handle_t in_context_handle,
                                        const char* cbor_message_name, const char* field_name )
 {
-    xi_set_sft_error( sft_missing_cbor_field_error );
+    xi_set_sft_error( sft_cbor_missing_field_error );
 
     if( NULL == cbor_message_name || NULL == field_name )
     {
@@ -946,10 +971,10 @@ void xi_missing_cbor_field_error( xi_context_handle_t in_context_handle,
     /* Send to Device Logs */
     char log_details_str[LOGDETAILSSIZE];
     snprintf( log_details_str, sizeof( log_details_str ),
-              "SFT Message: %s missing CBOR field: %s", field_name );
+              "SFT Message: %s missing CBOR field: %s", cbor_message_name, field_name );
 
     xi_publish_device_log( in_context_handle, "File update available error",
-                        log_details_str, sft_missing_cbor_field_error );
+                        log_details_str, sft_cbor_missing_field_error );
 }
 
 /*
@@ -964,51 +989,37 @@ void xi_publish_device_log( xi_context_handle_t in_context_handle, const char* m
      * to the device logs topic. Note that, due to the asynchronous behavior
      * of the client for the platform, this requires a few Xively ticks before
      * sending, so don't reboot immediately following a logged error! */
-    static char* notice_str = "notice";
-    static char* error_str = "error";
 
-    if( NULL == message || NULL == details_str )
+    if( NULL == message_str || NULL == details_str )
     {
-        printf("\nWarning: xi_publish_device_log invoked with a null string parameter\n\n");
+        printf("\nWarning: xi_publish_device_log invoked with a null string parameter\n");
+        return;
+    }
+    else if( sft_status_max <= status )
+    {
+        printf("\nWarning: xi_publish_device_log invoked with an invalid status parametern");
         return;
     }
 
-    if( sft_status_max <= status )
+    char* severity_str = "";
+    switch( status )
     {
-        printf("\nWarning: xi_publish_device_log invoked with an invalid status parameter\n\n");
-        return;
-    }
-
-    const char* severity_str;
-    if( sft_status_ok == status )
-    {
-        severity_str = notice_str;
-    }
-    else
-    {
-        severity_str = error_str;
+    case sft_status_rebooting:
+        severity_str = "alert";
+        break;
+    case sft_status_ok:
+        severity_str = "notice";
+        break;
+    default:
+        severity_str = "error";
+        break;
     }
 
     char device_log_buffer[400];
-#if 0
-    printf("publish details string: %s\n", details_str);
-    printf(".\n");
-    printf("message string: %s\n", message_str );
-    printf(".\n");
-    printf("severity string: %s\n", severity_str);
-    printf(".\n");
-    printf("status code: %d\n", status );
-    printf("sft_status_strings: %s\n", sft_status_strings[status] );
-    printf(".\n");
-    printf("details_str: %s\n", details_str );
-    printf(".\n");
-#endif
-
     snprintf( device_log_buffer, sizeof(device_log_buffer),
                   "{\"message\":\"%s\",\"severity\":\"%s\",\"code\":\"%d\",\"details\":\"%s: %s\"}",
                   message_str, severity_str, status, sft_status_strings[ status ], details_str );
 
-    printf( "publishing device log: %s\n", device_log_buffer );
     xi_publish( in_context_handle, xi_logtopic, device_log_buffer, XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
 
