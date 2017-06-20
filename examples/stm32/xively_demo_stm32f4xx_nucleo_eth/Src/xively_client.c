@@ -757,8 +757,8 @@ connect_cb( const xi_context_handle_t ctx, void* data, xi_state_t state )
          */
         case XI_CONNECTION_STATE_OPEN_FAILED:
         {
-            printf( "[%d] Xively: Connection failed to %s:%d, error %d\n",
-                    ( int )xi_bsp_time_getcurrenttime_seconds(), conn_data->host,
+            printf( "[%ld] Xively: Connection failed to %s:%d, error %d\n",
+                    xi_bsp_time_getcurrenttime_seconds(), conn_data->host,
                     conn_data->port, state );
 
             xi_connect( ctx, conn_data->username, conn_data->password,
@@ -775,8 +775,8 @@ connect_cb( const xi_context_handle_t ctx, void* data, xi_state_t state )
          */
         case XI_CONNECTION_STATE_CLOSED:
         {
-            printf( "[%d] Xively: Connection closed, error %d\n",
-                    ( int )xi_bsp_time_getcurrenttime_seconds(), state );
+            printf( "[%ld] Xively: Connection closed, error %d\n",
+                    xi_bsp_time_getcurrenttime_seconds(), state );
 
             /* Connection closed */
             xi_events_stop();
@@ -791,8 +791,8 @@ connect_cb( const xi_context_handle_t ctx, void* data, xi_state_t state )
          */
         case XI_CONNECTION_STATE_OPENED:
         {
-            printf( "[%d] Xively: Connected %s:%d\n",
-                    ( int )xi_bsp_time_getcurrenttime_seconds(), conn_data->host,
+            printf( "[%ld] Xively: Connected %s:%d\n",
+                    xi_bsp_time_getcurrenttime_seconds(), conn_data->host,
                     conn_data->port );
             rval = XI_STATE_OK;
 
@@ -804,8 +804,8 @@ connect_cb( const xi_context_handle_t ctx, void* data, xi_state_t state )
 
         default:
         {
-            printf( "[%d] Xively: Connection invalid, error %d\n",
-                    ( int )xi_bsp_time_getcurrenttime_seconds(),
+            printf( "[%ld] Xively: Connection invalid, error %d\n",
+                    xi_bsp_time_getcurrenttime_seconds(),
                     conn_data->connection_state );
             rval = XI_INVALID_PARAMETER;
             break;
