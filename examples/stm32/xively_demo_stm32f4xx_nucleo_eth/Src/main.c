@@ -137,8 +137,16 @@ int main( void )
     }
 
     printf( "\r\n>> Initializing the sensor extension board" );
-    io_nucleoboard_init();
-    io_sensorboard_init();
+    if ( io_nucleoboard_init() < 0 )
+    {
+        printf( "\r\n>> ERROR initializing Nucleo board. Abort" );
+        Error_Handler();
+    }
+    if ( io_sensorboard_init() < 0 )
+    {
+        printf( "\r\n>> ERROR initializing sensor extension board. Abort" );
+        Error_Handler();
+    }
     io_sensorboard_enable();
 
 /* Init thread */
@@ -182,9 +190,6 @@ static void StartThread( void const* argument )
 
     /* Initialize the LwIP stack */
     Netif_Config();
-
-    /* Initialize webserver demo */
-    // http_server_netconn_init();
 
     /* Notify user about the network interface config */
     User_notification( &gnetif );
