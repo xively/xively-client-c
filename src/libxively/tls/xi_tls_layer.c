@@ -330,7 +330,7 @@ static xi_state_t recv_handler( void* context, void* data, xi_state_t in_out_sta
     if ( NULL != layer_data->raw_buffer ||
          xi_bsp_tls_pending( layer_data->tls_context ) > 0 )
     {
-        xi_debug_logger( "XI_PROCESS_PULL_ON_THIS_LAYER" );
+        // xi_debug_logger( "XI_PROCESS_PULL_ON_THIS_LAYER" );
         XI_PROCESS_PULL_ON_THIS_LAYER( context, NULL, XI_STATE_WANT_READ );
     }
 
