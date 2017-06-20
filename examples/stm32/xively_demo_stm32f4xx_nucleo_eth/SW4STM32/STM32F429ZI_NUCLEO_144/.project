@@ -27,11 +27,6 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>Doc/readme.txt</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/readme.txt</locationURI>
-		</link>
-		<link>
 			<name>Application/SW4STM32/startup_stm32f429xx.s</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/startup_stm32f429xx.s</locationURI>
@@ -115,6 +110,11 @@
 			<name>Drivers/CMSIS/system_stm32f4xx.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/Src/system_stm32f4xx.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/Doc/readme.txt</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/readme.txt</locationURI>
 		</link>
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal.c</name>
@@ -920,7 +920,7 @@
 	<variableList>
 		<variable>
 			<name>XI_STMCUBE_MEMS_PATH</name>
-			<value>file:/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_MEMS1_V3.0.0</value>
+			<value>file:/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_MEMS1_V4.0.0</value>
 		</variable>
 		<variable>
 			<name>XI_STMCUBE_PATH</name>
