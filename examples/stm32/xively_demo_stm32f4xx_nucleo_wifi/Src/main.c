@@ -44,13 +44,15 @@
  */
 /* Includes ------------------------------------------------------------------*/
 #include <assert.h>
-#include "main.h"
-#include "wifi_interface.h"
 #include "stdio.h"
 #include "string.h"
+
+#include "main.h"
+#include "wifi_interface.h"
 #include "user_data.h"
 #include "demo_bsp.h"
 #include "demo_io.h"
+#include "provisioning.h"
 
 /* Xively's headers */
 #include "xively.h"
@@ -82,10 +84,13 @@
 /* Private define ------------------------------------------------------------*/
 #define DEBUG_UART_BAUDRATE 115200
 #define WIFI_BOARD_UART_BAUDRATE 115200
-#define USE_FLASH_STORAGE 1
 #define WIFI_SCAN_BUFFER_LIST 25
 
-#define USE_HARDCODED_CREDENTIALS 0 /* Overrules USE_FLASH_STORAGE */
+#ifndef USE_HARDCODED_CREDENTIALS
+/* Default workflow uses runtime provisioning and flash storage for user data */
+#define USE_HARDCODED_CREDENTIALS 0
+#endif /* USE_HARDCODED_CREDENTIALS */
+
 #if USE_HARDCODED_CREDENTIALS
 #define USER_CONFIG_WIFI_SSID "User's WiFi Network Name"
 #define USER_CONFIG_WIFI_PWD "User's WiFi Network Password"
@@ -93,7 +98,8 @@
 #define USER_CONFIG_XI_ACCOUNT_ID "Xively Account ID"
 #define USER_CONFIG_XI_DEVICE_ID "Xively Device ID"
 #define USER_CONFIG_XI_DEVICE_PWD "Xively Device Password"
-#endif
+#endif /* USE_HARDCODED_CREDENTIALS */
+
 /* Private macro -------------------------------------------------------------*/
 
 /* Private variables ---------------------------------------------------------*/
@@ -111,10 +117,6 @@ xi_context_handle_t gXivelyContextHandle      = XI_INVALID_CONTEXT_HANDLE;
 xi_timed_task_handle_t gXivelyTimedTaskHandle = XI_INVALID_TIMED_TASK_HANDLE;
 
 /* Private function prototypes -----------------------------------------------*/
-static inline void print_user_config_debug_banner( void );
-static int8_t user_config_init( user_data_t* dst );
-static int8_t get_ap_credentials( user_data_t* udata );
-static int8_t get_xively_credentials( user_data_t* udata );
 
 /* the interval for the time function */
 #define XI_PUBLISH_INTERVAL_SEC 5
@@ -535,15 +537,15 @@ static inline int8_t system_init( void )
     {
         return -1;
     }
-#endif
+#endif /* USART_PRINT_MSG */
 
-#ifdef USE_FLASH_STORAGE
+#if !USE_HARDCODED_CREDENTIALS
     if ( user_data_flash_init() < 0 )
     {
         printf( "\r\n>> User data flash initialization [ERROR]" );
         return -1;
     }
-#endif
+#endif /* !USE_HARDCODED_CREDENTIALS */
 
     /* Init the sensor board */
     printf( "\r\n>> Initializing the sensor extension board" );
@@ -589,6 +591,7 @@ int main( void )
     wifi_bool SSID_found = WIFI_FALSE;
     WiFi_Status_t status = WiFi_MODULE_SUCCESS;
 
+    /* Initialize uC and peripherals */
     if ( 0 > system_init() )
     {
         printf( "\r\n>> System initialization [ERROR] - System boot aborted" );
@@ -596,13 +599,42 @@ int main( void )
             ;
     }
 
-    if ( 0 > user_config_init( &user_config ) )
+#if USE_HARDCODED_CREDENTIALS
+    user_data_set_wifi_ssid( dst, USER_CONFIG_WIFI_SSID );
+    user_data_set_wifi_psk( dst, USER_CONFIG_WIFI_PWD );
+    user_data_set_wifi_encryption( dst, USER_CONFIG_WIFI_ENCR );
+    user_data_set_xi_account_id( dst, USER_CONFIG_XI_ACCOUNT_ID );
+    user_data_set_xi_device_id( dst, USER_CONFIG_XI_DEVICE_ID );
+    user_data_set_xi_device_password( dst, USER_CONFIG_XI_DEVICE_PWD );
+#else
+    /* Read user data from flash */
+    if ( user_data_copy_from_flash( &user_config ) < 0 )
     {
-        printf( "\r\n>> User data initialization [ERROR] - System boot aborted" );
+        printf( "\r\n>> [ERROR] trying to copy user data from flash. Abort" );
         while ( 1 )
             ;
     }
+    printf( "\r\n>> User data retrieved from flash:" );
+    user_data_printf( &user_config );
+    fflush( stdout );
 
+    /* Provision the device if requested or if flash data is missing||corrupt */
+    int8_t provisioning_bootmode = io_read_button();
+    if ( provisioning_bootmode || ( 0 > user_data_validate_checksum( &user_config ) ) )
+    {
+        ( provisioning_bootmode == 1 )
+            ? printf( "\r\n>> User requested device reprovisioning" )
+            : printf( "\r\n>> [ERROR] Invalid credentials recovered from flash" );
+        if ( 0 > provisioning_start( &user_config ) )
+        {
+            printf( "\r\n>> Device provisioning [ERROR]. Abort" );
+            while ( 1 )
+                ;
+        }
+    }
+#endif /* USE_HARDCODED_CREDENTIALS */
+
+    /* Application state machine */
     while ( 1 )
     {
         xi_events_process_tick();
@@ -662,8 +694,7 @@ int main( void )
                 printf( "\r\n\t* Account ID:  [%s]", user_config.xi_account_id );
                 printf( "\r\n\t* Device ID:   [%s]", user_config.xi_device_id );
                 printf( "\r\n\t* Device Pass: ( REDACTED )\n" );
-                // printf( "\r\n\t* Device Pass: [%s]\n", user_config.xi_device_password
-                // );
+                // printf( "\r\n\t* Device Pass: [%s]\n", user_config.xi_device_password );
 
                 if ( socket_open == 0 )
                 {
@@ -767,200 +798,6 @@ ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
     }
 }
 #endif
-
-static inline void print_user_config_debug_banner( void )
-{
-    printf( "\r\n|********************************************************|" );
-    printf( "\r\n|               User Configuration Routine               |" );
-    printf( "\r\n|               --------------------------               |" );
-    printf( "\r\n| WARNING: Copy-pasting long strings to your serial      |" );
-    printf( "\r\n| -------  terminal may result in loss of characters.    |" );
-    printf( "\r\n|          To solve this issue use a delay between       |" );
-    printf( "\r\n|          characters in the terminal settings.          |" );
-    printf( "\r\n|          E.g in coolTerm:                              |" );
-    printf( "\r\n|   Options->Transmit->Use transmit character delay      |" );
-    printf( "\r\n|                                                        |" );
-    printf( "\r\n| NOTE: You will only need to do this once.              |" );
-    printf( "\r\n|                                                        |" );
-    printf( "\r\n| NOTE: Next time you want to update these, keep the     |" );
-    printf( "\r\n|       nucleo board's User button pressed during boot   |" );
-    printf( "\r\n|********************************************************|" );
-    fflush( stdout );
-}
-
-static int8_t user_config_init( user_data_t* dst )
-{
-#if USE_HARDCODED_CREDENTIALS
-    user_data_set_wifi_ssid( dst, USER_CONFIG_WIFI_SSID );
-    user_data_set_wifi_psk( dst, USER_CONFIG_WIFI_PWD );
-    user_data_set_wifi_encryption( dst, USER_CONFIG_WIFI_ENCR );
-    user_data_set_xi_account_id( dst, USER_CONFIG_XI_ACCOUNT_ID );
-    user_data_set_xi_device_id( dst, USER_CONFIG_XI_DEVICE_ID );
-    user_data_set_xi_device_password( dst, USER_CONFIG_XI_DEVICE_PWD );
-#elif USE_FLASH_STORAGE
-    if ( user_data_copy_from_flash( dst ) < 0 )
-    {
-        printf( "\r\n>> [ERROR] trying to copy user data from flash" );
-        return -1;
-    }
-    printf( "\r\n>> User data retrieved from flash:" );
-    user_data_printf( dst );
-    fflush( stdout );
-
-    if ( io_read_button() || ( user_data_validate_checksum( dst ) < 0 ) )
-    {
-        printf( "\r\n>> Starting forced user configuration mode" );
-        print_user_config_debug_banner();
-
-        /* Get WiFi AP Credentials from the user */
-        switch ( get_ap_credentials( dst ) )
-        {
-            case 1:
-                printf( "\r\n>> Saving user data to flash" );
-                user_data_save_to_flash( dst );
-                break;
-            case 0:
-                break;
-            default:
-                printf( "\r\n\t[ERROR] Getting AP credentials from user" );
-                return -1;
-        }
-
-        /* Get Xively Credentials from the user */
-        switch ( get_xively_credentials( dst ) )
-        {
-            case 1:
-                printf( "\r\n>> Saving user data to flash" );
-                user_data_save_to_flash( dst );
-                break;
-            case 0:
-                break;
-            default:
-                printf( "\r\n\t[ERROR] Getting AP credentials from user" );
-                return -1;
-        }
-    }
-#else
-    print_user_config_debug_banner();
-
-    /* Get Xively Credentials from the user */
-    if ( get_ap_credentials( dst ) < 0 )
-    {
-        printf( "\r\n\t[ERROR] Getting AP credentials from user" );
-        return -1;
-    }
-
-    /* Get WiFi AP Credentials from the user */
-    if ( get_xively_credentials( dst ) < 0 )
-    {
-        printf( "\r\n\t[ERROR] Getting Xively credentials from user" );
-        return -1;
-    }
-#endif
-    return 0;
-}
-
-/**
- * @brief  Gather WiFi credentials from the end user via UART
- * @param  udata: pointer to the user_data_t structure to be updated
- * @retval <0: Error
- * @retval 0: User decided not to update these credentials
- * @retval 1: Credentials updated OK
- */
-/* TODO: This insecure implementation is temporary until we've got HTTP config mode */
-static int8_t get_ap_credentials( user_data_t* udata )
-{
-    char single_char_input[2] = "0";
-
-    printf( "\r\n|********************************************************|" );
-    printf( "\r\n|              Gathering WiFi AP Credentials             |" );
-    printf( "\r\n|********************************************************|" );
-    fflush( stdout );
-
-    printf( "\r\n>> Would you like to update your WiFi credentials? [y/N]: " );
-    fflush( stdout );
-    scanf( "%2s", single_char_input );
-    switch ( single_char_input[0] )
-    {
-        case 'y':
-        case 'Y':
-            break;
-        default:
-            return 0;
-    }
-
-    printf( "\r\n>> Enter WiFi SSID: " );
-    fflush( stdout );
-    scanf( "%s", udata->wifi_client_ssid );
-
-    printf( "\r\n>> Enter WiFi Password: " );
-    fflush( stdout );
-    scanf( "%s", udata->wifi_client_password );
-
-    printf( "\r\n>> Enter WiFi encryption mode [0:Open, 1:WEP, 2:WPA2/WPA2-Personal]: " );
-    fflush( stdout );
-    scanf( "%2s", single_char_input );
-    switch ( single_char_input[0] )
-    {
-        case '0':
-            user_data_set_wifi_encryption( udata, None );
-            break;
-        case '1':
-            user_data_set_wifi_encryption( udata, WEP );
-            break;
-        case '2':
-            user_data_set_wifi_encryption( udata, WPA_Personal );
-            break;
-        default:
-            printf( "\r\n>> Wrong Entry. Mode [%s] is not an option", single_char_input );
-            return -2;
-    }
-    return 1;
-}
-
-/**
- * @brief  Gather MQTT credentials from the end user via UART
- * @param  udata: pointer to the user_data_t structure to be updated
- * @retval <0: Error
- * @retval 0: User decided not to update these credentials
- * @retval 1: Credentials updated OK
- */
-/* TODO: This insecure implementation is temporary until we've got HTTP config mode */
-static int8_t get_xively_credentials( user_data_t* udata )
-{
-    char single_char_input[2] = "0";
-
-    printf( "\r\n|********************************************************|" );
-    printf( "\r\n|              Gathering Xively Credentials              |" );
-    printf( "\r\n|********************************************************|" );
-    fflush( stdout );
-
-    printf( "\r\n>> Would you like to update your MQTT credentials? [y/N]: " );
-    fflush( stdout );
-    scanf( "%2s", single_char_input );
-    switch ( single_char_input[0] )
-    {
-        case 'y':
-        case 'Y':
-            break;
-        default:
-            return 0;
-    }
-
-    printf( "\r\n>> Enter the Xively Account ID: " );
-    fflush( stdout );
-    scanf( "%s", udata->xi_account_id );
-
-    printf( "\r\n>> Enter the Xively Device ID: " );
-    fflush( stdout );
-    scanf( "%s", udata->xi_device_id );
-
-    printf( "\r\n>> Enter the Xively Device Password: " );
-    fflush( stdout );
-    scanf( "%s", udata->xi_device_password );
-
-    return 1;
-}
 
 /******** Wi-Fi Indication User Callback *********/
 
