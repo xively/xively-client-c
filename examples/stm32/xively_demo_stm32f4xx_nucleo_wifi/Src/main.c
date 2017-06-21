@@ -158,6 +158,11 @@ static xi_state_t pub_gyroscope( void );
 static xi_state_t pub_humidity( void );
 static xi_state_t pub_temperature( void );
 static void pub_button_interrupt( void );
+static void on_led_msg( xi_context_handle_t in_context_handle,
+                        xi_sub_call_type_t call_type,
+                        const xi_sub_call_params_t* const params,
+                        xi_state_t state,
+                        void* user_data );
 
 /* topic's initialisation function */
 static xi_state_t init_xively_topics( xi_context_handle_t in_context_handle );
@@ -600,12 +605,12 @@ int main( void )
     }
 
 #if USE_HARDCODED_CREDENTIALS
-    user_data_set_wifi_ssid( dst, USER_CONFIG_WIFI_SSID );
-    user_data_set_wifi_psk( dst, USER_CONFIG_WIFI_PWD );
-    user_data_set_wifi_encryption( dst, USER_CONFIG_WIFI_ENCR );
-    user_data_set_xi_account_id( dst, USER_CONFIG_XI_ACCOUNT_ID );
-    user_data_set_xi_device_id( dst, USER_CONFIG_XI_DEVICE_ID );
-    user_data_set_xi_device_password( dst, USER_CONFIG_XI_DEVICE_PWD );
+    user_data_set_wifi_ssid( (&user_config), USER_CONFIG_WIFI_SSID );
+    user_data_set_wifi_psk( (&user_config), USER_CONFIG_WIFI_PWD );
+    user_data_set_wifi_encryption( (&user_config), USER_CONFIG_WIFI_ENCR );
+    user_data_set_xi_account_id( (&user_config), USER_CONFIG_XI_ACCOUNT_ID );
+    user_data_set_xi_device_id( (&user_config), USER_CONFIG_XI_DEVICE_ID );
+    user_data_set_xi_device_password( (&user_config), USER_CONFIG_XI_DEVICE_PWD );
 #else
     /* Read user data from flash */
     if ( user_data_copy_from_flash( &user_config ) < 0 )
