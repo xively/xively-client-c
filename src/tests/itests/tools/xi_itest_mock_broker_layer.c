@@ -29,11 +29,19 @@ xi_state_t xi_mock_broker_layer_push__ERROR_CHANNEL()
     return mock_type( xi_state_t );
 }
 
+xi_mock_broker_control_t xi_mock_broker_layer__check_expected__LEVEL0()
+{
+    return mock_type( xi_mock_broker_control_t );
+}
+
 xi_state_t xi_mock_broker_layer_push( void* context, void* data, xi_state_t in_out_state )
 {
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
 
-    check_expected( in_out_state );
+    if ( CONTROL_SKIP_CHECK_EXPECTED != xi_mock_broker_layer__check_expected__LEVEL0() )
+    {
+        check_expected( in_out_state );
+    }
 
     const xi_mock_broker_control_t control = mock_type( xi_mock_broker_control_t );
 
@@ -103,9 +111,14 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
         XI_CONNACK_REFUSED_NOT_AUTHORIZED        = 5
     };
 
-    check_expected( in_out_state );
+    if ( CONTROL_SKIP_CHECK_EXPECTED != xi_mock_broker_layer__check_expected__LEVEL0() )
+    {
+        check_expected( in_out_state );
+    }
 
     xi_mqtt_message_t* recvd_msg = ( xi_mqtt_message_t* )data;
+
+    xi_debug_mqtt_message_dump( recvd_msg );
 
     /* mock broker behavior: decoded MQTT messages arrive here,
      * note the PULL to PUSH conversion */
@@ -145,7 +158,7 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
                 check_expected( subscribe_topic_name );
 
                 XI_ALLOC( xi_mqtt_message_t, msg_suback, in_out_state );
-                // note: fill subscribe can be used for fill subsck only because the
+                // note: fill subscribe can be used for fill suback only because the
                 // memory map of the two structs are identical since unions are used
                 XI_CHECK_STATE(
                     in_out_state = fill_with_subscribe_data(
@@ -206,7 +219,10 @@ xi_mock_broker_layer_close( void* context, void* data, xi_state_t in_out_state )
 {
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
 
-    check_expected( in_out_state );
+    if ( CONTROL_SKIP_CHECK_EXPECTED != xi_mock_broker_layer__check_expected__LEVEL0() )
+    {
+        check_expected( in_out_state );
+    }
 
     return XI_PROCESS_CLOSE_ON_PREV_LAYER( context, data, in_out_state );
 }
@@ -227,7 +243,10 @@ xi_state_t xi_mock_broker_layer_init( void* context, void* data, xi_state_t in_o
 {
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
 
-    check_expected( in_out_state );
+    if ( CONTROL_SKIP_CHECK_EXPECTED != xi_mock_broker_layer__check_expected__LEVEL0() )
+    {
+        check_expected( in_out_state );
+    }
 
     const xi_mock_broker_control_t control = mock_type( xi_mock_broker_control_t );
 
@@ -245,9 +264,17 @@ xi_mock_broker_layer_connect( void* context, void* data, xi_state_t in_out_state
 {
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
 
-    check_expected( in_out_state );
+    if ( CONTROL_SKIP_CHECK_EXPECTED != xi_mock_broker_layer__check_expected__LEVEL0() )
+    {
+        check_expected( in_out_state );
+    }
 
-    return XI_PROCESS_CONNECT_ON_NEXT_LAYER( context, data, in_out_state );
+    if ( XI_NEXT_LAYER( context ) != 0 )
+    {
+        return XI_PROCESS_CONNECT_ON_NEXT_LAYER( context, data, in_out_state );
+    }
+
+    return XI_STATE_OK;
 }
 
 
@@ -263,7 +290,10 @@ xi_mock_broker_secondary_layer_push( void* context, void* data, xi_state_t in_ou
     XI_UNUSED( XI_LAYER_CHAIN_CT_ML_MCSIZE_SUFFIX );
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
 
-    check_expected( in_out_state );
+    if ( CONTROL_SKIP_CHECK_EXPECTED != xi_mock_broker_layer__check_expected__LEVEL0() )
+    {
+        check_expected( in_out_state );
+    }
 
     const xi_mock_broker_control_t control = mock_type( xi_mock_broker_control_t );
 
@@ -289,7 +319,8 @@ xi_mock_broker_secondary_layer_push( void* context, void* data, xi_state_t in_ou
 
     if ( in_out_state == XI_STATE_OK )
     {
-        /* jump to SUT libxively's codec layer pull function, mimicing incoming encoded
+        /* jump to SUT libxively's codec layer pull function, mimicing incoming
+         * encoded
          * message */
         xi_evtd_execute_in(
             xi_globals.evtd_instance,
@@ -353,11 +384,7 @@ xi_mock_broker_secondary_layer_init( void* context, void* data, xi_state_t in_ou
 {
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
 
-    XI_UNUSED( context );
-    XI_UNUSED( data );
-    XI_UNUSED( in_out_state );
-
-    return XI_STATE_OK;
+    return XI_PROCESS_CONNECT_ON_THIS_LAYER( context, data, in_out_state );
 }
 
 xi_state_t xi_mock_broker_secondary_layer_connect( void* context,
@@ -366,11 +393,7 @@ xi_state_t xi_mock_broker_secondary_layer_connect( void* context,
 {
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
 
-    XI_UNUSED( context );
-    XI_UNUSED( data );
-    XI_UNUSED( in_out_state );
-
-    return XI_STATE_OK;
+    return XI_PROCESS_CONNECT_ON_NEXT_LAYER( context, data, in_out_state );
 }
 
 #ifdef __cplusplus

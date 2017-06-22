@@ -281,6 +281,7 @@ void xi_itest_tls_error__tls_pull_PUBACK_errors__graceful_error_handling(
             expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_layer_tls_prev_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_layer_tls_prev_connect, in_out_state, XI_STATE_OK );
+            expect_value( xi_mock_broker_layer_connect, in_out_state, XI_STATE_OK );
 
             expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_broker_layer_connect, in_out_state, XI_STATE_OK );
@@ -392,6 +393,7 @@ void xi_itest_tls_error__tls_pull_SUBACK_errors__graceful_error_handling(
             expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_layer_tls_prev_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_layer_tls_prev_connect, in_out_state, XI_STATE_OK );
+            expect_value( xi_mock_broker_layer_connect, in_out_state, XI_STATE_OK );
 
             expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_broker_layer_connect, in_out_state, XI_STATE_OK );
@@ -475,6 +477,7 @@ void xi_itest_tls_error__tls_pull_CONNACK_errors__graceful_error_handling(
             expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_layer_tls_prev_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_layer_tls_prev_connect, in_out_state, XI_STATE_OK );
+            expect_value( xi_mock_broker_layer_connect, in_out_state, XI_STATE_OK );
 
             expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_broker_layer_connect, in_out_state, XI_STATE_OK );
@@ -532,6 +535,7 @@ void xi_itest_tls_error__tls_push_CONNECT_errors__graceful_error_handling(
             expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_layer_tls_prev_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_layer_tls_prev_connect, in_out_state, XI_STATE_OK );
+            expect_value( xi_mock_broker_layer_connect, in_out_state, XI_STATE_OK );
 
             expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_broker_layer_connect, in_out_state, XI_STATE_OK );
@@ -577,6 +581,7 @@ void xi_itest_tls_error__tls_push_infinite_SUBSCRIBE_errors__reSUBSCRIBE_occurs_
             expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_layer_tls_prev_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_layer_tls_prev_connect, in_out_state, XI_STATE_OK );
+            expect_value( xi_mock_broker_layer_connect, in_out_state, XI_STATE_OK );
 
             expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_broker_layer_connect, in_out_state, XI_STATE_OK );
@@ -666,6 +671,7 @@ void xi_itest_tls_error__tls_push_SUBSCRIBE_errors__graceful_error_handling(
             expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_layer_tls_prev_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_layer_tls_prev_connect, in_out_state, XI_STATE_OK );
+            expect_value( xi_mock_broker_layer_connect, in_out_state, XI_STATE_OK );
 
             expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_broker_layer_connect, in_out_state, XI_STATE_OK );
@@ -772,6 +778,7 @@ void xi_itest_tls_error__tls_push_PUBLISH_errors__graceful_error_handling(
             expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_layer_tls_prev_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_layer_tls_prev_connect, in_out_state, XI_STATE_OK );
+            expect_value( xi_mock_broker_layer_connect, in_out_state, XI_STATE_OK );
 
             expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
             expect_value( xi_mock_broker_layer_connect, in_out_state, XI_STATE_OK );
@@ -904,6 +911,7 @@ void xi_itest_tls_error__tls_init_and_connect_errors__graceful_error_handling(
             /* one call for mock broker layer chain init*/
             expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
             will_return( xi_mock_broker_layer_init, CONTROL_CONTINUE );
+            expect_value( xi_mock_broker_layer_connect, in_out_state, XI_STATE_OK );
 
             expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
             /* --- ERROR --- HERE --- ERROR --- HERE --- ERROR ---*/
@@ -938,6 +946,7 @@ void xi_itest_tls_error__connection_flow__basic_checks( void** fixture_void )
     expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
     expect_value( xi_mock_layer_tls_prev_init, in_out_state, XI_STATE_OK );
     expect_value( xi_mock_layer_tls_prev_connect, in_out_state, XI_STATE_OK );
+    expect_value( xi_mock_broker_layer_connect, in_out_state, XI_STATE_OK );
 
     /* expected activity of the libxively's control topci + mqtt logic + mqtt codec layer
      * stack*/

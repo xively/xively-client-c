@@ -16,6 +16,11 @@ extern "C" {
 
 extern xi_context_t* xi_context_mockbroker; // test mock broker context
 
+xi_mock_broker_control_t xi_mock_layer_tls_prev__check_expected__LEVEL0()
+{
+    return mock_type( xi_mock_broker_control_t );
+}
+
 xi_state_t
 xi_mock_layer_tls_prev_push( void* context, void* data, xi_state_t in_out_state )
 {
@@ -24,7 +29,11 @@ xi_mock_layer_tls_prev_push( void* context, void* data, xi_state_t in_out_state 
     XI_UNUSED( itest_mock_broker_codec_layer_chain );
     XI_UNUSED( XI_LAYER_CHAIN_MOCK_BROKER_CODECSIZE_SUFFIX );
 
-    check_expected( in_out_state );
+    if ( CONTROL_SKIP_CHECK_EXPECTED != xi_mock_layer_tls_prev__check_expected__LEVEL0() )
+    {
+        check_expected( in_out_state );
+    }
+
     const xi_mock_layer_tls_prev_control_t mock_control_directive =
         mock_type( xi_mock_layer_tls_prev_control_t );
 
@@ -66,7 +75,10 @@ xi_mock_layer_tls_prev_pull( void* context, void* data, xi_state_t in_out_state 
 {
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
 
-    check_expected( in_out_state );
+    if ( CONTROL_SKIP_CHECK_EXPECTED != xi_mock_layer_tls_prev__check_expected__LEVEL0() )
+    {
+        check_expected( in_out_state );
+    }
 
     return XI_PROCESS_PULL_ON_NEXT_LAYER( context, data, in_out_state );
 }
@@ -76,7 +88,10 @@ xi_mock_layer_tls_prev_close( void* context, void* data, xi_state_t in_out_state
 {
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
 
-    check_expected( in_out_state );
+    if ( CONTROL_SKIP_CHECK_EXPECTED != xi_mock_layer_tls_prev__check_expected__LEVEL0() )
+    {
+        check_expected( in_out_state );
+    }
 
     /* Call close on the mockbroker chain */
     if ( NULL != xi_context_mockbroker )
@@ -102,7 +117,10 @@ xi_state_t xi_mock_layer_tls_prev_close_externally( void* context,
 {
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
 
-    check_expected( in_out_state );
+    if ( CONTROL_SKIP_CHECK_EXPECTED != xi_mock_layer_tls_prev__check_expected__LEVEL0() )
+    {
+        check_expected( in_out_state );
+    }
 
     return XI_PROCESS_CLOSE_EXTERNALLY_ON_NEXT_LAYER( context, data, in_out_state );
 }
@@ -112,7 +130,10 @@ xi_mock_layer_tls_prev_init( void* context, void* data, xi_state_t in_out_state 
 {
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
 
-    check_expected( in_out_state );
+    if ( CONTROL_SKIP_CHECK_EXPECTED != xi_mock_layer_tls_prev__check_expected__LEVEL0() )
+    {
+        check_expected( in_out_state );
+    }
 
     return XI_PROCESS_CONNECT_ON_THIS_LAYER( context, data, in_out_state );
 }
@@ -122,7 +143,10 @@ xi_mock_layer_tls_prev_connect( void* context, void* data, xi_state_t in_out_sta
 {
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
 
-    check_expected( in_out_state );
+    if ( CONTROL_SKIP_CHECK_EXPECTED != xi_mock_layer_tls_prev__check_expected__LEVEL0() )
+    {
+        check_expected( in_out_state );
+    }
 
     return XI_PROCESS_CONNECT_ON_NEXT_LAYER( context, data, in_out_state );
 }

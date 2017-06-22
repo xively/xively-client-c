@@ -15,7 +15,8 @@ extern "C" {
 
 typedef enum xi_mock_broker_control_init_e {
     CONTROL_CONTINUE,
-    CONTROL_ERROR
+    CONTROL_ERROR,
+    CONTROL_SKIP_CHECK_EXPECTED
 } xi_mock_broker_control_t;
 
 /**
