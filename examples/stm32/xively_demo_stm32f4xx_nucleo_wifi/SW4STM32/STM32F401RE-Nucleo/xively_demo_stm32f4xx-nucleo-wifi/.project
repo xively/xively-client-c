@@ -823,7 +823,7 @@
 	<variableList>
 		<variable>
 			<name>XI_STMCUBE_MEMS_PATH</name>
-			<value>file:/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_MEMS1_V3.0.0</value>
+			<value>file:/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_MEMS1_V4.0.0</value>
 		</variable>
 		<variable>
 			<name>XI_STMCUBE_PATH</name>
