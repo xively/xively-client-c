@@ -16,6 +16,22 @@
 #include "xi_itest_layerchain_ct_ml_mc.h"
 #include "xi_itest_mock_broker_layerchain.h"
 
+/*
+ * xi_itest_layerchain_ct_ml_mc.h
+ *  |
+ *  L->   CT - ML - MC - MB - TLSPREV
+ *                       |
+ *                       MC
+ *                       |
+ *                       MBSecondary
+ *
+ *                       A
+ *                       |
+ *                       |
+ *                  xi_itest_mock_broker_layerchain.h
+ */
+
+
 /* Depends on the xi_itest_tls_error.c */
 extern xi_context_t* xi_context;
 extern xi_context_handle_t xi_context_handle;

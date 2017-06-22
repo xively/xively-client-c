@@ -37,11 +37,19 @@ xi_context_t* xi_context_mockbroker   = NULL;
  *
  * The two layer chains intersect each other:
  *
- *        CT - ML - MC - MB - TLSPREV
+ * xi_itest_layerchain_ct_ml_mc.h
+ *  |
+ *  L->   CT - ML - MC - MB - TLSPREV
  *                       |
  *                       MC
  *                       |
  *                       MBS
+ *
+ *                       A
+ *                       |
+ *                       |
+ *                  xi_itest_mock_broker_layerchain.h
+ *
  *
  * The horizontal layer chain acts like libxively, MB intercepts messages from the
  * 3 SUT layers, forwards it to two directions: TLSPREV which behaves like IO layer
