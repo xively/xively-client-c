@@ -68,6 +68,7 @@
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1886211624" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="USE_HAL_DRIVER"/>
+									<listOptionValue builtIn="false" value="USER_DATA_WIFI_DEVICE=0"/>
 									<listOptionValue builtIn="false" value="IKS01A2_SENSOR_BOARD"/>
 									<listOptionValue builtIn="false" value="STM32F429xx"/>
 									<listOptionValue builtIn="false" value="USE_STM32F4XX_NUCLEO_144"/>
