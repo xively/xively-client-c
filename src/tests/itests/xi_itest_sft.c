@@ -43,8 +43,10 @@ extern xi_context_t* xi_context_mockbroker;
  ********************************************************************************/
 typedef struct xi_itest_sft__test_fixture_s
 {
-    const char* control_topic_name_in;
-    const char* control_topic_name_out;
+    const char* control_topic_name_client_in;
+    const char* control_topic_name_client_out;
+
+    xi_mock_broker_data_t* broker_data;
 
     uint8_t loop_id__manual_disconnect;
 
@@ -55,12 +57,12 @@ typedef struct xi_itest_sft__test_fixture_s
 
 xi_itest_sft__test_fixture_t* xi_itest_sft__generate_fixture()
 {
-    xi_state_t xi_state = XI_STATE_OK;
+    xi_state_t state = XI_STATE_OK;
 
-    XI_ALLOC( xi_itest_sft__test_fixture_t, fixture, xi_state );
+    XI_ALLOC( xi_itest_sft__test_fixture_t, fixture, state );
 
-    fixture->control_topic_name_in  = ( "xi/ctrl/v1/xi_itest_sft_device_id/cln" );
-    fixture->control_topic_name_out = ( "xi/ctrl/v1/xi_itest_sft_device_id/svc" );
+    fixture->control_topic_name_client_in  = ( "xi/ctrl/v1/xi_itest_sft_device_id/cln" );
+    fixture->control_topic_name_client_out = ( "xi/ctrl/v1/xi_itest_sft_device_id/svc" );
 
     fixture->loop_id__manual_disconnect = 15;
     fixture->max_loop_count             = 20;
@@ -150,16 +152,23 @@ static void xi_itest_sft__act( void** fixture_void,
                                const char* updateable_filenames[],
                                uint16_t updateable_file_count )
 {
+    xi_state_t state = XI_STATE_OK;
+
+    const xi_itest_sft__test_fixture_t* const fixture =
+        ( xi_itest_sft__test_fixture_t* )*fixture_void;
+
+    XI_ALLOC( xi_mock_broker_data_t, broker_data, state );
+    broker_data->control_topic_name_broker_in  = fixture->control_topic_name_client_out;
+    broker_data->control_topic_name_broker_out = fixture->control_topic_name_client_in;
+
     XI_PROCESS_INIT_ON_THIS_LAYER(
-        &xi_context_mockbroker->layer_chain.top->layer_connection, NULL, XI_STATE_OK );
+        &xi_context_mockbroker->layer_chain.top->layer_connection, broker_data,
+        XI_STATE_OK );
 
     xi_evtd_step( xi_globals.evtd_instance, xi_bsp_time_getcurrenttime_seconds() );
 
     xi_set_updateable_files( xi_context_handle, updateable_filenames,
                              updateable_file_count );
-
-    const xi_itest_sft__test_fixture_t* const fixture =
-        ( xi_itest_sft__test_fixture_t* )*fixture_void;
 
     const uint16_t connection_timeout = 20;
     const uint16_t keepalive_timeout  = fixture->max_loop_count;
@@ -180,6 +189,8 @@ static void xi_itest_sft__act( void** fixture_void,
             xi_shutdown_connection( xi_context_handle );
         }
     }
+
+err_handling:;
 }
 
 /*********************************************************************************
@@ -202,12 +213,12 @@ void xi_itest_sft__basic_flow__SFT_protocol_intact( void** fixture_void )
     /* control topic subscription */
     expect_value( xi_mock_broker_layer_pull, recvd_msg_type, XI_MQTT_TYPE_SUBSCRIBE );
     expect_string( xi_mock_broker_layer_pull, subscribe_topic_name,
-                   fixture->control_topic_name_in );
+                   fixture->control_topic_name_client_in );
 
     /* SFT FILE_INFO */
     expect_value( xi_mock_broker_layer_pull, recvd_msg_type, XI_MQTT_TYPE_PUBLISH );
     expect_string( xi_mock_broker_layer_pull, publish_topic_name,
-                   fixture->control_topic_name_out );
+                   fixture->control_topic_name_client_out );
 
     expect_value( xi_mock_broker_layer_pull, recvd_msg_type, XI_MQTT_TYPE_DISCONNECT );
 

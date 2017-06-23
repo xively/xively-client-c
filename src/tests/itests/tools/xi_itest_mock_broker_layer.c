@@ -34,6 +34,8 @@ xi_mock_broker_control_t xi_mock_broker_layer__check_expected__LEVEL0()
     return mock_type( xi_mock_broker_control_t );
 }
 
+#define IS_MOCK_BROKER_LAYER_CHAIN ( NULL == XI_NEXT_LAYER( context ) )
+
 xi_state_t xi_mock_broker_layer_push( void* context, void* data, xi_state_t in_out_state )
 {
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
@@ -79,7 +81,7 @@ xi_state_t xi_mock_broker_layer_push( void* context, void* data, xi_state_t in_o
     }
     else
     {
-        if ( NULL != XI_NEXT_LAYER( context ) )
+        if ( !IS_MOCK_BROKER_LAYER_CHAIN )
         {
             /* next layer is not null only for the SUT layerchain, so this is the default
              * libxively behaviour */
@@ -116,7 +118,9 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
         check_expected( in_out_state );
     }
 
-    xi_mqtt_message_t* recvd_msg = ( xi_mqtt_message_t* )data;
+    xi_layer_t* layer                 = ( xi_layer_t* )XI_THIS_LAYER( context );
+    xi_mock_broker_data_t* layer_data = ( xi_mock_broker_data_t* )layer->user_data;
+    xi_mqtt_message_t* recvd_msg      = ( xi_mqtt_message_t* )data;
 
     /* mock broker behavior: decoded MQTT messages arrive here,
      * note the PULL to PUSH conversion */
@@ -184,6 +188,13 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
 
                 check_expected( publish_topic_name );
 
+                if ( NULL != layer_data &&
+                     0 == strcmp( publish_topic_name,
+                                  layer_data->control_topic_name_broker_in ) )
+                {
+                    printf( "--- control topic\n" );
+                }
+
                 if ( 0 < recvd_msg->common.common_u.common_bits.qos )
                 {
                     XI_ALLOC( xi_mqtt_message_t, msg_puback, in_out_state );
@@ -226,6 +237,11 @@ xi_mock_broker_layer_close( void* context, void* data, xi_state_t in_out_state )
         check_expected( in_out_state );
     }
 
+    xi_layer_t* layer                 = ( xi_layer_t* )XI_THIS_LAYER( context );
+    xi_mock_broker_data_t* layer_data = ( xi_mock_broker_data_t* )layer->user_data;
+
+    XI_SAFE_FREE( layer_data );
+
     return XI_PROCESS_CLOSE_ON_PREV_LAYER( context, data, in_out_state );
 }
 
@@ -258,6 +274,12 @@ xi_state_t xi_mock_broker_layer_init( void* context, void* data, xi_state_t in_o
         return XI_PROCESS_CONNECT_ON_THIS_LAYER( context, data, return_state );
     }
 
+    if ( IS_MOCK_BROKER_LAYER_CHAIN )
+    {
+        xi_layer_t* layer = ( xi_layer_t* )XI_THIS_LAYER( context );
+        layer->user_data  = data;
+    }
+
     return XI_PROCESS_INIT_ON_PREV_LAYER( context, data, in_out_state );
 }
 
@@ -271,7 +293,7 @@ xi_mock_broker_layer_connect( void* context, void* data, xi_state_t in_out_state
         check_expected( in_out_state );
     }
 
-    if ( XI_NEXT_LAYER( context ) != 0 )
+    if ( !IS_MOCK_BROKER_LAYER_CHAIN )
     {
         return XI_PROCESS_CONNECT_ON_NEXT_LAYER( context, data, in_out_state );
     }
