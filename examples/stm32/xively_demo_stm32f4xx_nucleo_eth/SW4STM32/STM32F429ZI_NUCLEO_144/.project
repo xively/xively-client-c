@@ -317,16 +317,6 @@
 			<locationURI>XI_STMCUBE_PATH/Drivers/BSP/STM32F4xx_Nucleo_144/stm32f4xx_nucleo_144.c</locationURI>
 		</link>
 		<link>
-			<name>Drivers/BSP/X_NUCLEO_IKS01A1/.x_nucleo_iks01a1_accelero.c.swp</name>
-			<type>1</type>
-			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A1/.x_nucleo_iks01a1_accelero.c.swp</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/X_NUCLEO_IKS01A1/.x_nucleo_iks01a1_temperature.h.swp</name>
-			<type>1</type>
-			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A1/.x_nucleo_iks01a1_temperature.h.swp</locationURI>
-		</link>
-		<link>
 			<name>Drivers/BSP/X_NUCLEO_IKS01A1/Release_Notes.html</name>
 			<type>1</type>
 			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A1/Release_Notes.html</locationURI>
