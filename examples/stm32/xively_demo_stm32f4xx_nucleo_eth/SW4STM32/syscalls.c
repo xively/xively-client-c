@@ -133,14 +133,9 @@ int _lseek(int file, int ptr, int dir)
 
 int _read(int file, char *ptr, int len)
 {
-	int DataIdx;
-
-	for (DataIdx = 0; DataIdx < len; DataIdx++)
-	{
-	  *ptr++ = __io_getchar();
-	}
-
-   return len;
+    /* scanf calls _read() with len=1024, so eat one character at time */
+    *ptr = __io_getchar();
+    return 1;
 }
 
 int _open(char *path, int flags, ...)
