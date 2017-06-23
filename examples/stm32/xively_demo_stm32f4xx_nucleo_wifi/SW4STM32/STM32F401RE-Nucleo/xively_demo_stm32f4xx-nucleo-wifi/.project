@@ -206,6 +206,11 @@
 			<locationURI>PARENT-3-PROJECT_LOC/Src/main.c</locationURI>
 		</link>
 		<link>
+			<name>Example/User/provisioning.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Src/provisioning.c</locationURI>
+		</link>
+		<link>
 			<name>Example/User/stm32_xx_hal_msp.c</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Src/stm32_xx_hal_msp.c</locationURI>
