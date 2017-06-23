@@ -1,17 +1,22 @@
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "provisioning.h"
+
+#if USER_DATA_WIFI_DEVICE
 #include "wifi_interface.h"
+static int8_t provisioning_get_ap_credentials( user_data_t* udata );
+#endif /* USER_DATA_WIFI_DEVICE */
 
 static inline void provisioning_print_banner( void );
-static int8_t provisioning_get_ap_credentials( user_data_t* udata );
 static int8_t provisioning_get_xively_credentials( user_data_t* udata );
 
 int8_t provisioning_start( user_data_t* dst )
 {
     provisioning_print_banner();
 
+#if USER_DATA_WIFI_DEVICE
     /* Get WiFi AP Credentials from the user */
     switch ( provisioning_get_ap_credentials( dst ) )
     {
@@ -25,6 +30,7 @@ int8_t provisioning_start( user_data_t* dst )
             printf( "\r\n\t[ERROR] Getting AP credentials from user" );
             return -1;
     }
+#endif /* USER_DATA_WIFI_DEVICE */
 
     /* Get Xively Credentials from the user */
     switch ( provisioning_get_xively_credentials( dst ) )
@@ -42,6 +48,7 @@ int8_t provisioning_start( user_data_t* dst )
     return 0;
 }
 
+#if USER_DATA_WIFI_DEVICE
 /**
  * @brief  Gather WiFi credentials from the end user via UART
  * @param  udata: pointer to the user_data_t structure to be updated
@@ -99,6 +106,7 @@ static int8_t provisioning_get_ap_credentials( user_data_t* udata )
     }
     return 1;
 }
+#endif /* USER_DATA_WIFI_DEVICE */
 
 /**
  * @brief  Gather MQTT credentials from the end user via UART

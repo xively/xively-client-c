@@ -67,7 +67,8 @@ int8_t io_nucleoboard_init( void )
 int8_t io_read_button( void )
 {
     int32_t pin_state = BSP_PB_GetState( IO_NUCLEO_BUTTON_PIN );
-    ( pin_state == 1 ) ? ( pin_state = 0 ) : ( pin_state = 1 );
+    //( pin_state == 1 ) ? ( pin_state = 0 ) : ( pin_state = 1 ); /* The ethernet nucleo board's input is pulled up when pressed, not down like the wifi */
+    printf( "\r\n>> Button status read [OK] Status: %ld", pin_state );
     return ( int8_t )pin_state;
 }
 
@@ -409,6 +410,7 @@ int8_t io_float_to_string( float input, char* buf , int32_t buf_size )
     retv = snprintf( buf, buf_size, "%ld.%02ld", input_integer, input_fractional );
     if ( retv >= buf_size )
     {
+        printf( "\r\n\t[ERROR] trying to build string from float value" );
         return -1;
     }
     return 0;
@@ -437,6 +439,7 @@ int8_t io_axes_to_json( SensorAxes_t axes, char* buf , int32_t buf_size )
                      axes.AXIS_X, axes.AXIS_Y, axes.AXIS_Z );
     if ( retv >= buf_size )
     {
+        printf( "\r\n\t[ERROR] trying to create JSON string from sensor input" );
         return -1;
     }
     return 0;

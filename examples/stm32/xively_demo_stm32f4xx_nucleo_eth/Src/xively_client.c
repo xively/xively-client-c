@@ -17,6 +17,7 @@
 #include "xi_bsp_time.h"
 #include "demo_io.h"
 #include "user_data.h"
+#include "provisioning.h"
 
 /******************************************************************************
  *                                                                            *
@@ -26,13 +27,10 @@
 
 #ifndef USE_HARDCODED_CREDENTIALS
 /* Default workflow uses runtime provisioning and flash storage for user data */
-#define USE_HARDCODED_CREDENTIALS 1 /* TODO: Set back to 0 */
+#define USE_HARDCODED_CREDENTIALS 0
 #endif /* USE_HARDCODED_CREDENTIALS */
 
 #if USE_HARDCODED_CREDENTIALS
-#define USER_CONFIG_WIFI_SSID "User's WiFi Network Name"
-#define USER_CONFIG_WIFI_PWD "User's WiFi Network Password"
-#define USER_CONFIG_WIFI_ENCR WPA_Personal /* [ WPA_Personal | WEP | None ] */
 #define USER_CONFIG_XI_ACCOUNT_ID "Xively Account ID"
 #define USER_CONFIG_XI_DEVICE_ID "Xively Device ID"
 #define USER_CONFIG_XI_DEVICE_PWD "Xively Device Password"
@@ -563,6 +561,37 @@ static int xc_main( void )
     user_data_set_xi_account_id( (&user_config), USER_CONFIG_XI_ACCOUNT_ID );
     user_data_set_xi_device_id( (&user_config), USER_CONFIG_XI_DEVICE_ID );
     user_data_set_xi_device_password( (&user_config), USER_CONFIG_XI_DEVICE_PWD );
+#else
+    if ( user_data_flash_init() < 0 )
+    {
+        printf( "\r\n>> User data flash initialization [ERROR]" );
+        return -1;
+    }
+    /* Read user data from flash */
+    if ( user_data_copy_from_flash( &user_config ) < 0 )
+    {
+        printf( "\r\n>> [ERROR] trying to copy user data from flash. Abort" );
+        while ( 1 )
+            ;
+    }
+    printf( "\r\n>> User data retrieved from flash:" );
+    user_data_printf( &user_config );
+    fflush( stdout );
+
+    /* Provision the device if requested or if flash data is missing||corrupt */
+    int8_t provisioning_bootmode = io_read_button();
+    if ( provisioning_bootmode || ( 0 > user_data_validate_checksum( &user_config ) ) )
+    {
+        ( provisioning_bootmode == 1 )
+            ? printf( "\r\n>> User requested device reprovisioning" )
+            : printf( "\r\n>> [ERROR] Invalid credentials recovered from flash" );
+        if ( 0 > provisioning_start( &user_config ) )
+        {
+            printf( "\r\n>> Device provisioning [ERROR]. Abort" );
+            while ( 1 )
+                ;
+        }
+    }
 #endif /* USE_HARDCODED_CREDENTIALS */
 
     rval = 0;

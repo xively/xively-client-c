@@ -944,7 +944,7 @@ static int xc_main( void )
 
     while ( 1 )
     {
-        printf( "Xively: ...continue.\n" );
+        printf( "\nXively: ...continue.\n" );
         //        test_alloc_report (-1);
 
         /*
