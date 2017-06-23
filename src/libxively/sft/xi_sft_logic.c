@@ -66,7 +66,7 @@ xi_state_t xi_sft_on_connected( xi_sft_context_t* context )
     }
 
     xi_control_message_t* message_file_info = xi_control_message_create_file_info(
-        context->updateable_files, ( const char* [] ){"rev 1", "rev 2"},
+        context->updateable_files, ( const char* [] ){"rev 1", "rev 2", "rev 3"},
         context->updateable_files_count );
 
     ( *context->fn_send_message )( context->send_message_user_data, message_file_info );

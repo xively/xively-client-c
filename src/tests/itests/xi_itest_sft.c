@@ -43,7 +43,8 @@ extern xi_context_t* xi_context_mockbroker;
  ********************************************************************************/
 typedef struct xi_itest_sft__test_fixture_s
 {
-    const char* control_topic_name;
+    const char* control_topic_name_in;
+    const char* control_topic_name_out;
 
     uint8_t loop_id__manual_disconnect;
 
@@ -58,7 +59,8 @@ xi_itest_sft__test_fixture_t* xi_itest_sft__generate_fixture()
 
     XI_ALLOC( xi_itest_sft__test_fixture_t, fixture, xi_state );
 
-    fixture->control_topic_name = ( "xi/ctrl/v1/xi_itest_sft_device_id/cln" );
+    fixture->control_topic_name_in  = ( "xi/ctrl/v1/xi_itest_sft_device_id/cln" );
+    fixture->control_topic_name_out = ( "xi/ctrl/v1/xi_itest_sft_device_id/svc" );
 
     fixture->loop_id__manual_disconnect = 15;
     fixture->max_loop_count             = 20;
@@ -89,10 +91,6 @@ int xi_itest_sft_setup( void** fixture_void )
     xi_cancel_backoff_event();
 
     xi_initialize( "xi_itest_sft_account_id", "xi_itest_sft_device_id" );
-
-    // xi_initialize_add_updateable_file( ( const char* [] ){"file1", "file2", "file3"}, 3
-    // );
-    // xi_initialize_add_updateable_file( ( const char* [] ){"file1"}, 1 );
 
     XI_CHECK_STATE( xi_create_context_with_custom_layers(
         &xi_context, itest_ct_ml_mc_layer_chain, XI_LAYER_CHAIN_CT_ML_MC,
@@ -147,15 +145,18 @@ void xi_itest_sft__on_connection_state_changed( xi_context_handle_t in_context_h
 /*********************************************************************************
  * act ***************************************************************************
  ********************************************************************************/
-static void xi_itest_sft__act( void** fixture_void, char do_disconnect_flag )
+static void xi_itest_sft__act( void** fixture_void,
+                               char do_disconnect_flag,
+                               const char* updateable_filenames[],
+                               uint16_t updateable_file_count )
 {
-    XI_UNUSED( fixture_void );
-    XI_UNUSED( do_disconnect_flag );
-
     XI_PROCESS_INIT_ON_THIS_LAYER(
         &xi_context_mockbroker->layer_chain.top->layer_connection, NULL, XI_STATE_OK );
 
     xi_evtd_step( xi_globals.evtd_instance, xi_bsp_time_getcurrenttime_seconds() );
+
+    xi_set_updateable_files( xi_context_handle, updateable_filenames,
+                             updateable_file_count );
 
     const xi_itest_sft__test_fixture_t* const fixture =
         ( xi_itest_sft__test_fixture_t* )*fixture_void;
@@ -181,7 +182,9 @@ static void xi_itest_sft__act( void** fixture_void, char do_disconnect_flag )
     }
 }
 
-
+/*********************************************************************************
+ * test cases ********************************************************************
+ ********************************************************************************/
 void xi_itest_sft__basic_flow__SFT_protocol_intact( void** fixture_void )
 {
     const xi_itest_sft__test_fixture_t* const fixture =
@@ -193,12 +196,22 @@ void xi_itest_sft__basic_flow__SFT_protocol_intact( void** fixture_void )
     will_return_always( xi_mock_layer_tls_prev__check_expected__LEVEL0,
                         CONTROL_SKIP_CHECK_EXPECTED );
 
+    /* MQTT connect */
     expect_value( xi_mock_broker_layer_pull, recvd_msg_type, XI_MQTT_TYPE_CONNECT );
+
+    /* control topic subscription */
     expect_value( xi_mock_broker_layer_pull, recvd_msg_type, XI_MQTT_TYPE_SUBSCRIBE );
     expect_string( xi_mock_broker_layer_pull, subscribe_topic_name,
-                   fixture->control_topic_name );
+                   fixture->control_topic_name_in );
+
+    /* SFT FILE_INFO */
+    expect_value( xi_mock_broker_layer_pull, recvd_msg_type, XI_MQTT_TYPE_PUBLISH );
+    expect_string( xi_mock_broker_layer_pull, publish_topic_name,
+                   fixture->control_topic_name_out );
+
     expect_value( xi_mock_broker_layer_pull, recvd_msg_type, XI_MQTT_TYPE_DISCONNECT );
 
     // ACT
-    xi_itest_sft__act( fixture_void, 1 );
+    xi_itest_sft__act( fixture_void, 1, ( const char* [] ){"file1", "file2", "file3"},
+                       3 );
 }

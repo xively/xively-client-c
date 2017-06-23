@@ -79,7 +79,7 @@ xi_state_t xi_mock_broker_layer_push( void* context, void* data, xi_state_t in_o
     }
     else
     {
-        if ( XI_NEXT_LAYER( context ) != 0 )
+        if ( NULL != XI_NEXT_LAYER( context ) )
         {
             /* next layer is not null only for the SUT layerchain, so this is the default
              * libxively behaviour */
@@ -117,8 +117,6 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
     }
 
     xi_mqtt_message_t* recvd_msg = ( xi_mqtt_message_t* )data;
-
-    xi_debug_mqtt_message_dump( recvd_msg );
 
     /* mock broker behavior: decoded MQTT messages arrive here,
      * note the PULL to PUSH conversion */
@@ -186,12 +184,16 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
 
                 check_expected( publish_topic_name );
 
-                XI_ALLOC( xi_mqtt_message_t, msg_puback, in_out_state );
-                XI_CHECK_STATE( in_out_state = fill_with_puback_data(
-                                    msg_puback, recvd_msg->publish.message_id ) );
+                if ( 0 < recvd_msg->common.common_u.common_bits.qos )
+                {
+                    XI_ALLOC( xi_mqtt_message_t, msg_puback, in_out_state );
+                    XI_CHECK_STATE( in_out_state = fill_with_puback_data(
+                                        msg_puback, recvd_msg->publish.message_id ) );
 
-                xi_mqtt_message_free( &recvd_msg );
-                return XI_PROCESS_PUSH_ON_PREV_LAYER( context, msg_puback, in_out_state );
+                    xi_mqtt_message_free( &recvd_msg );
+                    return XI_PROCESS_PUSH_ON_PREV_LAYER( context, msg_puback,
+                                                          in_out_state );
+                }
             }
             break;
 
