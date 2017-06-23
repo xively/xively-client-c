@@ -311,11 +311,6 @@
 			<locationURI>XI_STMCUBE_PATH/Drivers/BSP/X-NUCLEO-IDW0xx1/stm32_spwf_wifi.h</locationURI>
 		</link>
 		<link>
-			<name>Drivers/BSP/X_NUCLEO_IKS01A1/.x_nucleo_iks01a1_accelero.c.swp</name>
-			<type>1</type>
-			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A1/.x_nucleo_iks01a1_accelero.c.swp</locationURI>
-		</link>
-		<link>
 			<name>Drivers/BSP/X_NUCLEO_IKS01A1/x_nucleo_iks01a1.c</name>
 			<type>1</type>
 			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A1/x_nucleo_iks01a1.c</locationURI>
