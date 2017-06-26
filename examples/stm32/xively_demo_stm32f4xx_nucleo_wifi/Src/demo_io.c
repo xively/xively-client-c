@@ -114,33 +114,30 @@ int8_t io_button_exti_debouncer( uint16_t gpio_pin )
  * @brief  Initialize all sensors on the sensor board
  * @param  None
  * @retval -1 error, 0 success
- * @TODO: This function differs for the IKS01A1 and IKS01A2 sensor boards.
- *        The current implementation was lifted from the IKS01A1 examples
  */
 int8_t io_sensorboard_init( void )
 {
     printf( "\r\n>> Initializing sensor board" );
-    /* Try to use LSM6DS3 DIL24 if present, otherwise use LSM6DS0 on board */
     printf( "\r\n\tInitializing accelerometer" );
     if ( COMPONENT_OK != BSP_ACCELERO_Init( ACCELERO_SENSORS_AUTO, &ACCELERO_handle ) )
         return -1;
-    /* Try to use LSM6DS3 if present, otherwise use LSM6DS0 */
+
     printf( "\r\n\tInitializing gyroscope" );
     if ( COMPONENT_OK != BSP_GYRO_Init( GYRO_SENSORS_AUTO, &GYRO_handle ) )
         return -1;
-    /* Force to use LIS3MDL */
+
     printf( "\r\n\tInitializing magnetometer" );
     if ( COMPONENT_OK != BSP_MAGNETO_Init( MAGNETO_SENSORS_AUTO, &MAGNETO_handle ) )
         return -1;
-    /* Force to use HTS221 */
+
     printf( "\r\n\tInitializing humidity sensor" );
     if ( COMPONENT_OK != BSP_HUMIDITY_Init( HUMIDITY_SENSORS_AUTO, &HUMIDITY_handle ) )
         return -1;
-    /* Force to use HTS221 */
+
     printf( "\r\n\tInitializing temperature sensor" );
     if ( COMPONENT_OK != BSP_TEMPERATURE_Init( TEMPERATURE_SENSORS_AUTO, &TEMPERATURE_handle ) )
         return -1;
-    /* Try to use LPS25HB DIL24 if present, otherwise use LPS25HB on board */
+
     printf( "\r\n\tInitializing barometer" );
     if ( COMPONENT_OK != BSP_PRESSURE_Init( PRESSURE_SENSORS_AUTO, &PRESSURE_handle ) )
         return -1;

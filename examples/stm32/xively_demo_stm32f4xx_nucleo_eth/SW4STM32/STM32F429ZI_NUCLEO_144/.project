@@ -42,6 +42,11 @@
 			<locationURI>PARENT-2-PROJECT_LOC/Src/app_ethernet.c</locationURI>
 		</link>
 		<link>
+			<name>Application/User/console.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Src/console.c</locationURI>
+		</link>
+		<link>
 			<name>Application/User/demo_io.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/Src/demo_io.c</locationURI>
@@ -67,6 +72,11 @@
 			<locationURI>PARENT-2-PROJECT_LOC/Src/main.c</locationURI>
 		</link>
 		<link>
+			<name>Application/User/provisioning.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Src/provisioning.c</locationURI>
+		</link>
+		<link>
 			<name>Application/User/stm32f4xx_hal_msp.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/Src/stm32f4xx_hal_msp.c</locationURI>
@@ -85,6 +95,11 @@
 			<name>Application/User/stm32f4xx_it.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/Src/stm32f4xx_it.c</locationURI>
+		</link>
+		<link>
+			<name>Application/User/user_data.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Src/user_data.c</locationURI>
 		</link>
 		<link>
 			<name>Application/User/xively_client.c</name>
@@ -125,6 +140,11 @@
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_cortex.c</name>
 			<type>1</type>
 			<locationURI>XI_STMCUBE_PATH/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_crc.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_PATH/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_crc.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_dma.c</name>
@@ -295,16 +315,6 @@
 			<name>Drivers/BSP/STM32F4xx_Nucleo_144/stm32f4xx_nucleo_144.c</name>
 			<type>1</type>
 			<locationURI>XI_STMCUBE_PATH/Drivers/BSP/STM32F4xx_Nucleo_144/stm32f4xx_nucleo_144.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/X_NUCLEO_IKS01A1/.x_nucleo_iks01a1_accelero.c.swp</name>
-			<type>1</type>
-			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A1/.x_nucleo_iks01a1_accelero.c.swp</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/X_NUCLEO_IKS01A1/.x_nucleo_iks01a1_temperature.h.swp</name>
-			<type>1</type>
-			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A1/.x_nucleo_iks01a1_temperature.h.swp</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/X_NUCLEO_IKS01A1/Release_Notes.html</name>
