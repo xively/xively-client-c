@@ -380,7 +380,7 @@ int8_t user_data_validate_checksum( user_data_t* user_data )
  */
 void user_data_printf( user_data_t* user_data )
 {
-#if 0
+#if 1
     /* This debug message dumps the given *user_data memory block. Very useful
     to find possible errors when modifying the user_data_t datastructure */
     for ( uint32_t i = 0; i < sizeof( user_data_t ) / sizeof( int32_t ); i++ )
