@@ -363,12 +363,12 @@ void on_blink_topic( xi_context_handle_t in_context_handle,
             if( toggle_lights )
             {
                GPIO_IF_LedOn( MCU_GREEN_LED_GPIO );
-               GPIO_IF_LedOn( MCU_ORANGE_LED_GPIO );
+               GPIO_IF_LedOff( MCU_ORANGE_LED_GPIO );
             }
             else
             {
                 GPIO_IF_LedOff( MCU_GREEN_LED_GPIO );
-                GPIO_IF_LedOff( MCU_ORANGE_LED_GPIO );
+                GPIO_IF_LedOn( MCU_ORANGE_LED_GPIO );
             }
             return;
         }
@@ -432,7 +432,7 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
     switch ( conn_data->connection_state )
     {
         case XI_CONNECTION_STATE_OPEN_FAILED:
-            XIVELY_DEMO_PRINT( "connection to %s:%d has failed reason %d\n",
+            printf( "connection to %s:%d has failed reason %d\n",
                                conn_data->host, conn_data->port, state );
 
             xi_connect( in_context_handle, conn_data->username, conn_data->password,
@@ -441,7 +441,7 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
 
             return;
         case XI_CONNECTION_STATE_OPENED:
-            XIVELY_DEMO_PRINT( "connected to %s:%d\n", conn_data->host, conn_data->port );
+            printf( "connected to %s:%d\n", conn_data->host, conn_data->port );
 
             subscribe_to_topic( in_context_handle, "blink", on_blink_topic, NULL );
 
@@ -453,7 +453,7 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
 
             break;
         case XI_CONNECTION_STATE_CLOSED:
-            XIVELY_DEMO_PRINT( "connection closed - reason %d!\n", state );
+            printf( "connection closed - reason %d!\n", state );
 
             /* disable button interrupts so the messages for button push/release events
              * won't be sent */
@@ -474,7 +474,7 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
             }
             return;
         default:
-            XIVELY_DEMO_PRINT( "invalid parameter %d\n", conn_data->connection_state );
+            printf( "invalid parameter %d\n", conn_data->connection_state );
             return;
     }
 }
@@ -512,7 +512,7 @@ long MainLogic()
     if ( lRetVal < 0 )
     {
         if ( DEVICE_NOT_IN_STATION_MODE == lRetVal )
-            XIVELY_DEMO_PRINT( "Failed to configure the device "
+            printf( "Failed to configure the device "
                                "in its default state \n" );
 
         return lRetVal;
@@ -524,7 +524,7 @@ long MainLogic()
     lRetVal = sl_Start( 0, 0, 0 );
     if ( lRetVal < 0 || ROLE_STA != lRetVal )
     {
-        XIVELY_DEMO_PRINT( "Failed to start the device \n" );
+        printf( "Failed to start the device \n" );
         return lRetVal;
     }
 
@@ -584,66 +584,21 @@ long MainLogic()
  */
 void parseCredentialsFromConfigFile()
 {
-#if 0
-    const char* config_file =
-                    "\"account_id\": \"223151b6-7476-4832-b189-e52def8c6a7e\"\n\"device_id\": \"4cf1c080-78c1-4d9a-bd4d-164c1718cc67\"\n\"password\": \"wsvM295gDlnXBWVoUDpUAaIQtiXuCAkFuRqsfWiB8mo=\"\n\"wifi_security_type\": \"wpa2\"\n\"wifi_ssid\": \"LMI-GUEST\"\n\"wifi_password\": \"21SimplyPossible!\"\n";
-
-    int32_t fd = 0;
-    int file_length = strlen( config_file ) + 256;
-    printf("file length: %d\n", file_length );
-    int result = sl_FsOpen( XIVELY_CFG_FILE, FS_MODE_OPEN_CREATE( file_length,
-                                                                  _FS_FILE_OPEN_FLAG_COMMIT | _FS_FILE_PUBLIC_WRITE ), NULL, &fd );
-    if( 0 != result )
-    {
-        printf("could not open file to write, filename: %s error: %d\n", XIVELY_CFG_FILE, result );
-        return;
-    }
-    else
-    {
-
-        result = sl_FsWrite( fd, 0, config_file, strlen( config_file ) );
-
-        printf("Write result: %d  size of buffer: %d\n", result, file_length );
-        result = sl_FsClose( fd, 0, 0, 0 );
-        printf("Close result: %d\n", result );
-    }
-#endif
-
     config_entry_t* config_file_context;
     int err = read_config_file( XIVELY_CFG_FILE, &config_file_context );
     if ( err )
     {
-
-
         printf( ". Reading %s config file failed. returned %d\n\r", XIVELY_CFG_FILE, err );
         if ( SL_FS_ERR_FILE_NOT_EXISTS == err )
         {
             Report( ". File does not exist on flash file system.\n\r" );
         }
         Report( ". Cannot recover from error.\n\r" );
-#if 1
         Report( ". Looping forever.\n\r" );
         while ( 1 )
             ;
-#else
-        printf("using default credentials\n");
-        g_wifi_device_credentials.desiredWifiSecurityType = mapWifiSecurityTypeStringToInt( "wpa2" );
-
-        memcpy( g_wifi_device_credentials.desiredWifiSSID, ENT_NAME, strlen( ENT_NAME ) );
-        memcpy( g_wifi_device_credentials.desiredWifiKey, PASSWORD,
-                strlen( PASSWORD ) );
-        memcpy( g_wifi_device_credentials.xivelyAccountId, XIVELY_ACCOUNT_ID,
-                strlen( XIVELY_ACCOUNT_ID) );
-        memcpy( g_wifi_device_credentials.xivelyDeviceId, XIVELY_DEVICE_ID,
-                strlen( XIVELY_DEVICE_ID ) );
-        memcpy( g_wifi_device_credentials.xivelyDevicePassword, XIVELY_DEVICE_SECRET,
-                strlen( XIVELY_DEVICE_SECRET ) );
-        printf("returning\n");
-        return;
-#endif
     }
 
-    printf("parsing\n");
     /* parse wifi credentials from config file */
     static char *wifi_ssid = NULL, *wifi_security_type = NULL, *wifi_password = NULL;
 
@@ -957,7 +912,7 @@ void SimpleLinkWlanEventHandler( SlWlanEvent_t* pWlanEvent )
                     pWlanEvent->EventData.STAandP2PModeWlanConnected.bssid,
                     SL_BSSID_LENGTH );
 
-            XIVELY_DEMO_PRINT( "[WLAN EVENT] STA Connected to the AP: %s , "
+            printf( "[WLAN EVENT] STA Connected to the AP: %s , "
                                "BSSID: %x:%x:%x:%x:%x:%x\n",
                                g_ucConnectionSSID, g_ucConnectionBSSID[0],
                                g_ucConnectionBSSID[1], g_ucConnectionBSSID[2],
@@ -979,7 +934,7 @@ void SimpleLinkWlanEventHandler( SlWlanEvent_t* pWlanEvent )
              * 'reason_code' is SL_WLAN_DISCONNECT_USER_INITIATED_DISCONNECTION */
             if ( SL_USER_INITIATED_DISCONNECTION == pEventData->reason_code )
             {
-                XIVELY_DEMO_PRINT( "[WLAN EVENT]Device disconnected from the AP: %s, "
+                printf( "[WLAN EVENT]Device disconnected from the AP: %s, "
                                    "BSSID: %x:%x:%x:%x:%x:%x on application's request \n",
                                    g_ucConnectionSSID, g_ucConnectionBSSID[0],
                                    g_ucConnectionBSSID[1], g_ucConnectionBSSID[2],
@@ -988,7 +943,7 @@ void SimpleLinkWlanEventHandler( SlWlanEvent_t* pWlanEvent )
             }
             else
             {
-                XIVELY_DEMO_PRINT( "[WLAN ERROR]Device disconnected from the AP AP: %s,"
+                printf( "[WLAN ERROR]Device disconnected from the AP AP: %s,"
                                    "BSSID: %x:%x:%x:%x:%x:%x on an ERROR..!! \n",
                                    g_ucConnectionSSID, g_ucConnectionBSSID[0],
                                    g_ucConnectionBSSID[1], g_ucConnectionBSSID[2],
@@ -1002,7 +957,7 @@ void SimpleLinkWlanEventHandler( SlWlanEvent_t* pWlanEvent )
 
         default:
         {
-            XIVELY_DEMO_PRINT( "[WLAN EVENT] Unexpected event [0x%x]\n",
+            printf( "[WLAN EVENT] Unexpected event [0x%x]\n",
                                pWlanEvent->Event );
         }
         break;
@@ -1030,7 +985,7 @@ void SimpleLinkNetAppEventHandler( SlNetAppEvent_t* pNetAppEvent )
             /* Gateway IP address */
             g_ulGatewayIP = pEventData->gateway;
 
-            XIVELY_DEMO_PRINT(
+            printf(
                 "[NETAPP EVENT] IP Acquired: IP=%d.%d.%d.%d ,"
                 "Gateway=%d.%d.%d.%d\n",
                 SL_IPV4_BYTE( pNetAppEvent->EventData.ipAcquiredV4.ip, 3 ),
@@ -1046,7 +1001,7 @@ void SimpleLinkNetAppEventHandler( SlNetAppEvent_t* pNetAppEvent )
 
         default:
         {
-            XIVELY_DEMO_PRINT( "[NETAPP EVENT] Unexpected event [0x%x] \n",
+            printf( "[NETAPP EVENT] Unexpected event [0x%x] \n",
                                pNetAppEvent->Event );
         }
         break;
@@ -1061,7 +1016,7 @@ void SimpleLinkHttpServerCallback( SlHttpServerEvent_t* pHttpEvent,
 
 void SimpleLinkGeneralEventHandler( SlDeviceEvent_t* pDevEvent )
 {
-    XIVELY_DEMO_PRINT( "[GENERAL EVENT] - ID=[%d] Sender=[%d]\n\n",
+    printf( "[GENERAL EVENT] - ID=[%d] Sender=[%d]\n\n",
                        pDevEvent->EventData.deviceEvent.status,
                        pDevEvent->EventData.deviceEvent.sender );
 }
@@ -1080,12 +1035,12 @@ void SimpleLinkSockEventHandler( SlSockEvent_t* pSock )
             switch ( pSock->socketAsyncEvent.SockTxFailData.status )
             {
                 case SL_ECLOSE:
-                    XIVELY_DEMO_PRINT( "[SOCK ERROR] - close socket (%d) operation "
+                    printf( "[SOCK ERROR] - close socket (%d) operation "
                                        "failed to transmit all queued packets\n\n",
                                        pSock->socketAsyncEvent.SockTxFailData.sd );
                     break;
                 default:
-                    XIVELY_DEMO_PRINT( "[SOCK ERROR] - TX FAILED  :  socket %d , reason "
+                    printf( "[SOCK ERROR] - TX FAILED  :  socket %d , reason "
                                        "(%d) \n\n",
                                        pSock->socketAsyncEvent.SockTxFailData.sd,
                                        pSock->socketAsyncEvent.SockTxFailData.status );
@@ -1094,7 +1049,7 @@ void SimpleLinkSockEventHandler( SlSockEvent_t* pSock )
             break;
 
         default:
-            XIVELY_DEMO_PRINT( "[SOCK EVENT] - Unexpected Event [%x0x]\n\n",
+            printf( "[SOCK EVENT] - Unexpected Event [%x0x]\n\n",
                                pSock->Event );
             break;
     }
@@ -1185,8 +1140,8 @@ static long ConfigureSimpleLinkToDefaultState()
                          ( unsigned char* )( &ver ) );
     ASSERT_ON_ERROR( lRetVal );
 
-    XIVELY_DEMO_PRINT( "Host Driver Version: %s\n", SL_DRIVER_VERSION );
-    XIVELY_DEMO_PRINT(
+    printf( "Host Driver Version: %s\n", SL_DRIVER_VERSION );
+    printf(
         "Build Version %d.%d.%d.%d.31.%d.%d.%d.%d.%d.%d.%d.%d\n", ver.NwpVersion[0],
         ver.NwpVersion[1], ver.NwpVersion[2], ver.NwpVersion[3],
         ver.ChipFwAndPhyVersion.FwVersion[0], ver.ChipFwAndPhyVersion.FwVersion[1],
