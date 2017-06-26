@@ -9,6 +9,5 @@ We don't plan on maintaining the example for every SDK release. We're not
 removing it either, in case it's useful to developers looking to use this
 platform.
 
-You should expect a significant amount of work to get it working. An SDK update
-to v1.16.0 was implemented for the stm32f4_ethernet example in
+An SDK update to v1.16.0 was implemented for the stm32f4_ethernet example in
 [this pull request](https://github.com/xively/xively-client-c/pull/122).
