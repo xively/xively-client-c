@@ -8,6 +8,7 @@
 #include "xi_itest_helpers.h"
 #include "xi_itest_layerchain_ct_ml_mc.h"
 #include "xi_itest_mock_broker_layer.h"
+#include "xi_itest_mock_broker_layer_sft.h"
 #include "xi_itest_mock_broker_layerchain.h"
 #include "xi_layer_macros.h"
 #include "xi_mqtt_logic_layer_data_helpers.h"
@@ -192,7 +193,7 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
                      0 == strcmp( publish_topic_name,
                                   layer_data->control_topic_name_broker_in ) )
                 {
-                    printf( "--- control topic\n" );
+                    xi_mock_broker_sft_on_message();
                 }
 
                 if ( 0 < recvd_msg->common.common_u.common_bits.qos )
