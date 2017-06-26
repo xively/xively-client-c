@@ -606,7 +606,7 @@ int main( void )
 
 #if USE_HARDCODED_CREDENTIALS
     user_data_set_wifi_ssid( (&user_config), USER_CONFIG_WIFI_SSID );
-    user_data_set_wifi_psk( (&user_config), USER_CONFIG_WIFI_PWD );
+    user_data_set_wifi_password( (&user_config), USER_CONFIG_WIFI_PWD );
     user_data_set_wifi_encryption( (&user_config), USER_CONFIG_WIFI_ENCR );
     user_data_set_xi_account_id( (&user_config), USER_CONFIG_XI_ACCOUNT_ID );
     user_data_set_xi_device_id( (&user_config), USER_CONFIG_XI_DEVICE_ID );
@@ -624,13 +624,14 @@ int main( void )
     fflush( stdout );
 
     /* Provision the device if requested or if flash data is missing||corrupt */
-    int8_t provisioning_bootmode = io_read_button();
-    if ( provisioning_bootmode || ( 0 > user_data_validate_checksum( &user_config ) ) )
+    const int8_t provisioning_bootmode = io_read_button();
+    if ( ( 1 == provisioning_bootmode ) ||
+         ( 0 > user_data_validate_checksum( &user_config ) ) )
     {
-        ( provisioning_bootmode == 1 )
+        ( 1 == provisioning_bootmode )
             ? printf( "\r\n>> User requested device reprovisioning" )
             : printf( "\r\n>> [ERROR] Invalid credentials recovered from flash" );
-        if ( 0 > provisioning_start( &user_config ) )
+        if ( 0 > provisioning_gather_user_data( &user_config ) )
         {
             printf( "\r\n>> Device provisioning [ERROR]. Abort" );
             while ( 1 )

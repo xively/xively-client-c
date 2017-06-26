@@ -55,19 +55,14 @@ int8_t io_nucleoboard_init( void )
 }
 
 /**
- * @brief  Read the status of the Nucleo board's button. The pin is normally
- *         pulled up to 1, and and becomes 0 when pressed.
- *         This function negates the electrical value of the pin, and returns a
- *         1 for pressed and a 0 for not pressed.
- *         Call it after io_nucleoboard_init()
+ * @brief  Read the status of the Nucleo board's button.
  * @param  None
- * @retval 0 Button NOT pressed, 0 success
+ * @retval 0 Button NOT pressed
  * @retval 1 Button pressed
  */
 int8_t io_read_button( void )
 {
     int32_t pin_state = BSP_PB_GetState( IO_NUCLEO_BUTTON_PIN );
-    //( pin_state == 1 ) ? ( pin_state = 0 ) : ( pin_state = 1 ); /* The ethernet nucleo board's input is pulled up when pressed, not down like the wifi */
     printf( "\r\n>> Button status read [OK] Status: %ld", pin_state );
     return ( int8_t )pin_state;
 }

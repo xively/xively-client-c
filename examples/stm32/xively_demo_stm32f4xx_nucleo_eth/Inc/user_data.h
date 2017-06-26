@@ -34,8 +34,8 @@ void user_data_printf( user_data_t* user_data );
     ( data_ptr->wifi_client_encryption_mode = ( int32_t )encryption )
 #define user_data_set_wifi_ssid( data_ptr, ssid )                     \
     strncpy( data_ptr->wifi_client_ssid, ssid, USER_DATA_STR_SIZE )
-#define user_data_set_wifi_psk( data_ptr, psk )                       \
-    strncpy( data_ptr->wifi_client_password, psk, USER_DATA_STR_SIZE )
+#define user_data_set_wifi_password( data_ptr, password )             \
+    strncpy( data_ptr->wifi_client_password, password, USER_DATA_STR_SIZE )
 #endif /* USER_DATA_WIFI_DEVICE */
 
 #define user_data_set_xi_account_id( data_ptr, acc_id )               \

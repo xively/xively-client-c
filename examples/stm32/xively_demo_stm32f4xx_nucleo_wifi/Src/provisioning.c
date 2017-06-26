@@ -8,7 +8,7 @@ static inline void provisioning_print_banner( void );
 static int8_t provisioning_get_ap_credentials( user_data_t* udata );
 static int8_t provisioning_get_xively_credentials( user_data_t* udata );
 
-int8_t provisioning_start( user_data_t* dst )
+int8_t provisioning_gather_user_data( user_data_t* dst )
 {
     provisioning_print_banner();
 
