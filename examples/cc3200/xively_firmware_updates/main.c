@@ -83,14 +83,14 @@
 /*****************************************************************************
  *                              Defines
  *****************************************************************************/
-#define XIVELY_CRED_LEN_MAX (64)
-#define WIFI_KEY_LEN_MAX    (64)
-#define XIVELY_CRED_LEN_MAX (64)
+#define XIVELY_CRED_LEN_MAX ( 64 )
+#define WIFI_KEY_LEN_MAX ( 64 )
+#define XIVELY_CRED_LEN_MAX ( 64 )
 
 /* Path to load the configuration file from device's flash file system.
  * This config file contains Xively connection credentials and WiFi SSID
  * and password credentials */
-#define XIVELY_CFG_FILE  "/etc/xively_cfg.txt"
+#define XIVELY_CFG_FILE "/etc/xively_cfg.txt"
 
 /* Some defaults for the optional connection address configuration values */
 #define XIVELY_DEFAULT_BROKER "broker.xively.com"
@@ -130,21 +130,21 @@ typedef enum {
  * from configuration file in FFS. */
 typedef struct WifiDeviceCredentials_s
 {
-    int       desiredWifiSecurityType;                /* see SL_WLAN_SEC_TYPE in wlan.h */
-    char      desiredWifiSSID[ SSID_LEN_MAX+1 ];      /* user configured host wifi SSID */
-    char      desiredWifiKey[ WIFI_KEY_LEN_MAX+1 ];   /* user configured wifi password */
-    char      xivelyAccountId[ XIVELY_CRED_LEN_MAX ];
-    char      xivelyDeviceId[ XIVELY_CRED_LEN_MAX ];
-    char      xivelyDevicePassword[ XIVELY_CRED_LEN_MAX ];
+    int desiredWifiSecurityType;               /* see SL_WLAN_SEC_TYPE in wlan.h */
+    char desiredWifiSSID[SSID_LEN_MAX + 1];    /* user configured host wifi SSID */
+    char desiredWifiKey[WIFI_KEY_LEN_MAX + 1]; /* user configured wifi password */
+    char xivelyAccountId[XIVELY_CRED_LEN_MAX];
+    char xivelyDeviceId[XIVELY_CRED_LEN_MAX];
+    char xivelyDevicePassword[XIVELY_CRED_LEN_MAX];
 } WifiDeviceCredentials_t;
 
 /*****************************************************************************
  *                           GLOBAL VARIABLES
  *****************************************************************************/
-volatile unsigned long g_ulStatus = 0;              /* SimpleLink Status */
+volatile unsigned long g_ulStatus = 0; /* SimpleLink Status */
 
 /* Stores Provisioned Network information after acquiring WiFi network connection */
-unsigned long g_ulGatewayIP       = 0;              /* Network Gateway IP address */
+unsigned long g_ulGatewayIP = 0;                    /* Network Gateway IP address */
 unsigned char g_ucConnectionSSID[SSID_LEN_MAX + 1]; /* Connection SSID */
 unsigned char g_ucConnectionBSSID[BSSID_LEN_MAX];   /* Connection BSSID */
 
@@ -163,15 +163,18 @@ xi_context_handle_t gXivelyContextHandle = -1;
 /* Xively Functions */
 void ConnectToXively();
 void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t state );
-void send_fileinfo( const xi_context_handle_t context_handle, const xi_timed_task_handle_t timed_task_handle,
+void send_fileinfo( const xi_context_handle_t context_handle,
+                    const xi_timed_task_handle_t timed_task_handle,
                     void* user_data );
 void pushButtonInterruptHandlerSW2();
 void pushButtonInterruptHandlerSW3();
 
 /* Xively and Wifi Config File Parsing functions */
 static void parseCredentialsFromConfigFile();
-static int8_t parseKeyValue( config_entry_t* config_file_context, const char* key,
-                             const uint8_t is_required, char** out_value );
+static int8_t parseKeyValue( config_entry_t* config_file_context,
+                             const char* key,
+                             const uint8_t is_required,
+                             char** out_value );
 static int8_t mapWifiSecurityTypeStringToInt( const char* security_type );
 
 /* Xively and Wifi Config value verification functions */
@@ -179,8 +182,8 @@ static int8_t validateWifiConfigurationVariables( const char* wifi_ssid,
                                                   const char* wifi_password,
                                                   const char* wifi_security_type );
 
-static int8_t validateXivelyCredentialBufferRequirement( const char* config_key,
-                                                         const char* value );
+static int8_t
+validateXivelyCredentialBufferRequirement( const char* config_key, const char* value );
 
 /* CCS requirement */
 extern void ( *const g_pfnVectors[] )( void );
@@ -260,8 +263,7 @@ void ConnectToXively()
 
     if ( XI_INVALID_CONTEXT_HANDLE == gXivelyContextHandle )
     {
-        printf( " xi failed to create context, error: %d\n",
-                           -gXivelyContextHandle );
+        printf( " xi failed to create context, error: %d\n", -gXivelyContextHandle );
         return;
     }
 
@@ -287,7 +289,7 @@ void send_fileinfo( const xi_context_handle_t context_handle,
 {
     /* guard against multiple sends */
     static int sent = 0;
-    if( ! sent )
+    if ( !sent )
     {
         xi_publish_file_info( context_handle );
         sent = 1;
@@ -305,7 +307,7 @@ void pushButtonInterruptHandlerSW2()
     if ( GPIOPinRead( GPIOA2_BASE, GPIO_PIN_6 ) != 0 )
     {
         if ( XI_INVALID_TIMED_TASK_HANDLE ==
-                xi_schedule_timed_task( gXivelyContextHandle, send_fileinfo, 1, 0, NULL ) )
+             xi_schedule_timed_task( gXivelyContextHandle, send_fileinfo, 1, 0, NULL ) )
         {
             printf( "send_file_info couldn't be registered\n" );
         }
@@ -358,12 +360,12 @@ void on_blink_topic( xi_context_handle_t in_context_handle,
         case XI_SUB_CALL_MESSAGE:
         {
             static int toggle_lights = 0;
-            toggle_lights = (toggle_lights + 1) % 2;
+            toggle_lights            = ( toggle_lights + 1 ) % 2;
 
-            if( toggle_lights )
+            if ( toggle_lights )
             {
-               GPIO_IF_LedOn( MCU_GREEN_LED_GPIO );
-               GPIO_IF_LedOff( MCU_ORANGE_LED_GPIO );
+                GPIO_IF_LedOn( MCU_GREEN_LED_GPIO );
+                GPIO_IF_LedOff( MCU_ORANGE_LED_GPIO );
             }
             else
             {
@@ -432,8 +434,8 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
     switch ( conn_data->connection_state )
     {
         case XI_CONNECTION_STATE_OPEN_FAILED:
-            printf( "connection to %s:%d has failed reason %d\n",
-                               conn_data->host, conn_data->port, state );
+            printf( "connection to %s:%d has failed reason %d\n", conn_data->host,
+                    conn_data->port, state );
 
             xi_connect( in_context_handle, conn_data->username, conn_data->password,
                         conn_data->connection_timeout, conn_data->keepalive_timeout,
@@ -513,7 +515,7 @@ long MainLogic()
     {
         if ( DEVICE_NOT_IN_STATION_MODE == lRetVal )
             printf( "Failed to configure the device "
-                               "in its default state \n" );
+                    "in its default state \n" );
 
         return lRetVal;
     }
@@ -532,9 +534,10 @@ long MainLogic()
     parseCredentialsFromConfigFile();
 
     /* start ent wlan connection */
-    g_SecParams.Key    = g_wifi_device_credentials.desiredWifiKey;
-    g_SecParams.KeyLen = strlen( ( const char* )g_wifi_device_credentials.desiredWifiKey );
-    g_SecParams.Type   = g_wifi_device_credentials.desiredWifiSecurityType;
+    g_SecParams.Key = g_wifi_device_credentials.desiredWifiKey;
+    g_SecParams.KeyLen =
+        strlen( ( const char* )g_wifi_device_credentials.desiredWifiKey );
+    g_SecParams.Type = g_wifi_device_credentials.desiredWifiSecurityType;
 
     /* 0 - Disable the server authnetication | 1 - Enable (this is the default) */
     pValues = 0;
@@ -542,7 +545,8 @@ long MainLogic()
 
     /* add the wlan profile */
     sl_WlanProfileAdd( g_wifi_device_credentials.desiredWifiSSID,
-                       strlen( g_wifi_device_credentials.desiredWifiSSID ), 0, &g_SecParams, 0, 1, 0 );
+                       strlen( g_wifi_device_credentials.desiredWifiSSID ), 0,
+                       &g_SecParams, 0, 1, 0 );
 
     /* set the connection policy to auto */
     pValues = 0;
@@ -588,7 +592,8 @@ void parseCredentialsFromConfigFile()
     int err = read_config_file( XIVELY_CFG_FILE, &config_file_context );
     if ( err )
     {
-        printf( ". Reading %s config file failed. returned %d\n\r", XIVELY_CFG_FILE, err );
+        printf( ". Reading %s config file failed. returned %d\n\r", XIVELY_CFG_FILE,
+                err );
         if ( SL_FS_ERR_FILE_NOT_EXISTS == err )
         {
             Report( ". File does not exist on flash file system.\n\r" );
@@ -659,7 +664,8 @@ void parseCredentialsFromConfigFile()
     }
 
     /* assign the variables into the Application Control Block. */
-    g_wifi_device_credentials.desiredWifiSecurityType = mapWifiSecurityTypeStringToInt( ( const char* ) wifi_security_type );
+    g_wifi_device_credentials.desiredWifiSecurityType =
+        mapWifiSecurityTypeStringToInt( ( const char* )wifi_security_type );
 
     memcpy( g_wifi_device_credentials.desiredWifiSSID, wifi_ssid, strlen( wifi_ssid ) );
     memcpy( g_wifi_device_credentials.desiredWifiKey, wifi_password,
@@ -913,11 +919,10 @@ void SimpleLinkWlanEventHandler( SlWlanEvent_t* pWlanEvent )
                     SL_BSSID_LENGTH );
 
             printf( "[WLAN EVENT] STA Connected to the AP: %s , "
-                               "BSSID: %x:%x:%x:%x:%x:%x\n",
-                               g_ucConnectionSSID, g_ucConnectionBSSID[0],
-                               g_ucConnectionBSSID[1], g_ucConnectionBSSID[2],
-                               g_ucConnectionBSSID[3], g_ucConnectionBSSID[4],
-                               g_ucConnectionBSSID[5] );
+                    "BSSID: %x:%x:%x:%x:%x:%x\n",
+                    g_ucConnectionSSID, g_ucConnectionBSSID[0], g_ucConnectionBSSID[1],
+                    g_ucConnectionBSSID[2], g_ucConnectionBSSID[3],
+                    g_ucConnectionBSSID[4], g_ucConnectionBSSID[5] );
         }
         break;
 
@@ -935,20 +940,20 @@ void SimpleLinkWlanEventHandler( SlWlanEvent_t* pWlanEvent )
             if ( SL_USER_INITIATED_DISCONNECTION == pEventData->reason_code )
             {
                 printf( "[WLAN EVENT]Device disconnected from the AP: %s, "
-                                   "BSSID: %x:%x:%x:%x:%x:%x on application's request \n",
-                                   g_ucConnectionSSID, g_ucConnectionBSSID[0],
-                                   g_ucConnectionBSSID[1], g_ucConnectionBSSID[2],
-                                   g_ucConnectionBSSID[3], g_ucConnectionBSSID[4],
-                                   g_ucConnectionBSSID[5] );
+                        "BSSID: %x:%x:%x:%x:%x:%x on application's request \n",
+                        g_ucConnectionSSID, g_ucConnectionBSSID[0],
+                        g_ucConnectionBSSID[1], g_ucConnectionBSSID[2],
+                        g_ucConnectionBSSID[3], g_ucConnectionBSSID[4],
+                        g_ucConnectionBSSID[5] );
             }
             else
             {
                 printf( "[WLAN ERROR]Device disconnected from the AP AP: %s,"
-                                   "BSSID: %x:%x:%x:%x:%x:%x on an ERROR..!! \n",
-                                   g_ucConnectionSSID, g_ucConnectionBSSID[0],
-                                   g_ucConnectionBSSID[1], g_ucConnectionBSSID[2],
-                                   g_ucConnectionBSSID[3], g_ucConnectionBSSID[4],
-                                   g_ucConnectionBSSID[5] );
+                        "BSSID: %x:%x:%x:%x:%x:%x on an ERROR..!! \n",
+                        g_ucConnectionSSID, g_ucConnectionBSSID[0],
+                        g_ucConnectionBSSID[1], g_ucConnectionBSSID[2],
+                        g_ucConnectionBSSID[3], g_ucConnectionBSSID[4],
+                        g_ucConnectionBSSID[5] );
             }
             memset( g_ucConnectionSSID, 0, sizeof( g_ucConnectionSSID ) );
             memset( g_ucConnectionBSSID, 0, sizeof( g_ucConnectionBSSID ) );
@@ -957,8 +962,7 @@ void SimpleLinkWlanEventHandler( SlWlanEvent_t* pWlanEvent )
 
         default:
         {
-            printf( "[WLAN EVENT] Unexpected event [0x%x]\n",
-                               pWlanEvent->Event );
+            printf( "[WLAN EVENT] Unexpected event [0x%x]\n", pWlanEvent->Event );
         }
         break;
     }
@@ -985,24 +989,22 @@ void SimpleLinkNetAppEventHandler( SlNetAppEvent_t* pNetAppEvent )
             /* Gateway IP address */
             g_ulGatewayIP = pEventData->gateway;
 
-            printf(
-                "[NETAPP EVENT] IP Acquired: IP=%d.%d.%d.%d ,"
-                "Gateway=%d.%d.%d.%d\n",
-                SL_IPV4_BYTE( pNetAppEvent->EventData.ipAcquiredV4.ip, 3 ),
-                SL_IPV4_BYTE( pNetAppEvent->EventData.ipAcquiredV4.ip, 2 ),
-                SL_IPV4_BYTE( pNetAppEvent->EventData.ipAcquiredV4.ip, 1 ),
-                SL_IPV4_BYTE( pNetAppEvent->EventData.ipAcquiredV4.ip, 0 ),
-                SL_IPV4_BYTE( pNetAppEvent->EventData.ipAcquiredV4.gateway, 3 ),
-                SL_IPV4_BYTE( pNetAppEvent->EventData.ipAcquiredV4.gateway, 2 ),
-                SL_IPV4_BYTE( pNetAppEvent->EventData.ipAcquiredV4.gateway, 1 ),
-                SL_IPV4_BYTE( pNetAppEvent->EventData.ipAcquiredV4.gateway, 0 ) );
+            printf( "[NETAPP EVENT] IP Acquired: IP=%d.%d.%d.%d ,"
+                    "Gateway=%d.%d.%d.%d\n",
+                    SL_IPV4_BYTE( pNetAppEvent->EventData.ipAcquiredV4.ip, 3 ),
+                    SL_IPV4_BYTE( pNetAppEvent->EventData.ipAcquiredV4.ip, 2 ),
+                    SL_IPV4_BYTE( pNetAppEvent->EventData.ipAcquiredV4.ip, 1 ),
+                    SL_IPV4_BYTE( pNetAppEvent->EventData.ipAcquiredV4.ip, 0 ),
+                    SL_IPV4_BYTE( pNetAppEvent->EventData.ipAcquiredV4.gateway, 3 ),
+                    SL_IPV4_BYTE( pNetAppEvent->EventData.ipAcquiredV4.gateway, 2 ),
+                    SL_IPV4_BYTE( pNetAppEvent->EventData.ipAcquiredV4.gateway, 1 ),
+                    SL_IPV4_BYTE( pNetAppEvent->EventData.ipAcquiredV4.gateway, 0 ) );
         }
         break;
 
         default:
         {
-            printf( "[NETAPP EVENT] Unexpected event [0x%x] \n",
-                               pNetAppEvent->Event );
+            printf( "[NETAPP EVENT] Unexpected event [0x%x] \n", pNetAppEvent->Event );
         }
         break;
     }
@@ -1017,8 +1019,8 @@ void SimpleLinkHttpServerCallback( SlHttpServerEvent_t* pHttpEvent,
 void SimpleLinkGeneralEventHandler( SlDeviceEvent_t* pDevEvent )
 {
     printf( "[GENERAL EVENT] - ID=[%d] Sender=[%d]\n\n",
-                       pDevEvent->EventData.deviceEvent.status,
-                       pDevEvent->EventData.deviceEvent.sender );
+            pDevEvent->EventData.deviceEvent.status,
+            pDevEvent->EventData.deviceEvent.sender );
 }
 
 void SimpleLinkSockEventHandler( SlSockEvent_t* pSock )
@@ -1036,21 +1038,20 @@ void SimpleLinkSockEventHandler( SlSockEvent_t* pSock )
             {
                 case SL_ECLOSE:
                     printf( "[SOCK ERROR] - close socket (%d) operation "
-                                       "failed to transmit all queued packets\n\n",
-                                       pSock->socketAsyncEvent.SockTxFailData.sd );
+                            "failed to transmit all queued packets\n\n",
+                            pSock->socketAsyncEvent.SockTxFailData.sd );
                     break;
                 default:
                     printf( "[SOCK ERROR] - TX FAILED  :  socket %d , reason "
-                                       "(%d) \n\n",
-                                       pSock->socketAsyncEvent.SockTxFailData.sd,
-                                       pSock->socketAsyncEvent.SockTxFailData.status );
+                            "(%d) \n\n",
+                            pSock->socketAsyncEvent.SockTxFailData.sd,
+                            pSock->socketAsyncEvent.SockTxFailData.status );
                     break;
             }
             break;
 
         default:
-            printf( "[SOCK EVENT] - Unexpected Event [%x0x]\n\n",
-                               pSock->Event );
+            printf( "[SOCK EVENT] - Unexpected Event [%x0x]\n\n", pSock->Event );
             break;
     }
 }
@@ -1141,13 +1142,13 @@ static long ConfigureSimpleLinkToDefaultState()
     ASSERT_ON_ERROR( lRetVal );
 
     printf( "Host Driver Version: %s\n", SL_DRIVER_VERSION );
-    printf(
-        "Build Version %d.%d.%d.%d.31.%d.%d.%d.%d.%d.%d.%d.%d\n", ver.NwpVersion[0],
-        ver.NwpVersion[1], ver.NwpVersion[2], ver.NwpVersion[3],
-        ver.ChipFwAndPhyVersion.FwVersion[0], ver.ChipFwAndPhyVersion.FwVersion[1],
-        ver.ChipFwAndPhyVersion.FwVersion[2], ver.ChipFwAndPhyVersion.FwVersion[3],
-        ver.ChipFwAndPhyVersion.PhyVersion[0], ver.ChipFwAndPhyVersion.PhyVersion[1],
-        ver.ChipFwAndPhyVersion.PhyVersion[2], ver.ChipFwAndPhyVersion.PhyVersion[3] );
+    printf( "Build Version %d.%d.%d.%d.31.%d.%d.%d.%d.%d.%d.%d.%d\n", ver.NwpVersion[0],
+            ver.NwpVersion[1], ver.NwpVersion[2], ver.NwpVersion[3],
+            ver.ChipFwAndPhyVersion.FwVersion[0], ver.ChipFwAndPhyVersion.FwVersion[1],
+            ver.ChipFwAndPhyVersion.FwVersion[2], ver.ChipFwAndPhyVersion.FwVersion[3],
+            ver.ChipFwAndPhyVersion.PhyVersion[0], ver.ChipFwAndPhyVersion.PhyVersion[1],
+            ver.ChipFwAndPhyVersion.PhyVersion[2],
+            ver.ChipFwAndPhyVersion.PhyVersion[3] );
 
     /* Set connection policy to Auto + SmartConfig
      *    (Device's default connection policy) */

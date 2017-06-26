@@ -61,7 +61,8 @@ static int fio_open( const unsigned char* fname, fio_fd** fd_pp, unsigned long* 
     }
     else
     {
-        rval = sl_FsOpen( (const _u8 *)fname, FS_MODE_OPEN_READ, NULL, (_i32 *)&fd->sl_fh );
+        rval = sl_FsOpen( ( const _u8* )fname, FS_MODE_OPEN_READ, NULL,
+                          ( _i32* )&fd->sl_fh );
     }
 
     if ( rval == FIO_SUCCESS )
