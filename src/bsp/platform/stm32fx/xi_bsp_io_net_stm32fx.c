@@ -6,9 +6,9 @@
 
 #include <xi_bsp_io_net.h>
 
+#include <sys/select.h>
 #include <lwip/netdb.h>
 
-#include <errno.h>
 #include <string.h>
 
 #ifdef __cplusplus
@@ -43,6 +43,7 @@ xi_bsp_io_net_state_t
 xi_bsp_io_net_connect( xi_bsp_socket_t* xi_socket, const char* host, uint16_t port )
 {
     struct hostent* hostinfo = gethostbyname( host );
+    int errno_cpy = 0; /* errno is reset every time it's read */
 
     /* if null it means that the address has not been found */
     if ( NULL == hostinfo )
@@ -59,8 +60,9 @@ xi_bsp_io_net_connect( xi_bsp_socket_t* xi_socket, const char* host, uint16_t po
     if ( -1 ==
          connect( *xi_socket, ( struct sockaddr* )&name, sizeof( struct sockaddr ) ) )
     {
-        return ( EINPROGRESS == errno ) ? XI_BSP_IO_NET_STATE_OK
-                                        : XI_BSP_IO_NET_STATE_ERROR;
+        errno_cpy = errno;
+        return ( EINPROGRESS == errno_cpy ) ? XI_BSP_IO_NET_STATE_OK
+                                            : XI_BSP_IO_NET_STATE_ERROR;
     }
     else
     {

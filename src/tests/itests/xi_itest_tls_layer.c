@@ -57,8 +57,7 @@ int xi_itest_tls_layer_setup( void** fixture_void )
     *fixture_void = xi_itest_tls_layer__generate_fixture();
 
     assert_int_equal( XI_STATE_OK, xi_initialize( "xi_itest_tls_error_account_id",
-                                                  "xi_itest_tls_error_device_id",
-                                                  "./libxively_consumer.creds" ) );
+                                                  "xi_itest_tls_error_device_id" ) );
 
     XI_CHECK_STATE( xi_create_context_with_custom_layers(
         &xi_context__itest_tls_layer, itest_layer_chain_tls, XI_LAYER_CHAIN_TLS,
@@ -85,9 +84,7 @@ int xi_itest_tls_layer_teardown( void** fixture_void )
 
     xi_shutdown();
 
-    xi_memory_limiter_teardown();
-
-    return 0;
+    return !xi_memory_limiter_teardown();
 }
 
 /**

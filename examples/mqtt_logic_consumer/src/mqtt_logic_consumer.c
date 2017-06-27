@@ -60,16 +60,7 @@ const char* get_unique_device_id()
 /*
  * -main-
  * The main entry point for this example binary.
- *
- * There are two different ways of starting this application:
- * 1: If you already have a username and password stored in libxively_consumer.creds
- *  (see below) then you need only specify on the topic name that you want the
- *  libxively_consumer to publish to.
- *  For instance:
- *      ./libxively_consumer -t test/topic
- *
- * 2: If the file libxively_consumer.creds does not exist or is empty then you must
- *  specify the username and password on the command line, followed by the
+ *  You must specify the username and password on the command line, followed by the
  *  topic that you want the libxively_consumer to publish to.
  *  For instance:
  *      ./libxively_consumer -u your_username -P your_password -t test/topic
@@ -129,8 +120,7 @@ int xi_mqtt_logic_consumer_main( xi_embedded_args_t* xi_embedded_args )
     /* initialize xi library and create a context to use to connect to the Xively Service
      * Device-id must be the same as username
      */
-    const xi_state_t error_init =
-        xi_initialize( xi_account_id, xi_username, "./libxively_consumer.creds" );
+    const xi_state_t error_init = xi_initialize( xi_account_id, xi_username );
 
     if ( XI_STATE_OK != error_init )
     {

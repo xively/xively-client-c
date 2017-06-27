@@ -68,4 +68,4 @@ struct CMUnitTest xi_itests_tls_error[] = {
         xi_itest_tls_error_teardown )};
 #endif
 
-#endif // __XI_ITEST_TLS_ERROR_H__
+#endif /* __XI_ITEST_TLS_ERROR_H__ */

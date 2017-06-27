@@ -33,6 +33,7 @@
 #include <stdint.h>
 #include "stm32f4xx.h"
 #include "stm32f4xx_hal_conf.h"
+#include "stm32f4xx_hal_crc.h"
 #include "user_data.h"
 
 #define CRC_REGISTER_SIZE sizeof( int32_t )
@@ -278,14 +279,21 @@ error_out:
  */
 static int8_t calculate_checksum( user_data_t* user_data, int32_t* out_checksum )
 {
+#if USER_DATA_WIFI_DEVICE
     char* string_ptrs[] = {user_data->wifi_client_ssid,
                            user_data->wifi_client_password,
                            user_data->xi_account_id,
                            user_data->xi_device_id,
                            user_data->xi_device_password};
-    uint32_t wifi_encryption_32t = ( uint32_t )user_data->wifi_client_encryption_mode;
-    uint32_t crc_code            = 0x00000000;
+    uint32_t wifi_encryption_u32t = ( uint32_t )user_data->wifi_client_encryption_mode;
+#else
+    char* string_ptrs[] = {user_data->xi_account_id,
+                           user_data->xi_device_id,
+                           user_data->xi_device_password};
+#endif /* USER_DATA_WIFI_DEVICE */
+    uint32_t crc_code = 0x00000000;
     static CRC_HandleTypeDef crc_config;
+    uint32_t i = 0;
 
     if ( ( NULL == user_data ) || ( NULL == out_checksum ) )
     {
@@ -302,17 +310,25 @@ static int8_t calculate_checksum( user_data_t* user_data, int32_t* out_checksum 
     }
 
     /* Reset CRC register and calculate the first code */
-    crc_code = HAL_CRC_Calculate( &crc_config, &wifi_encryption_32t, 1 );
+    crc_code = HAL_CRC_Calculate( &crc_config, ( uint32_t* )string_ptrs[i],
+                                  USER_DATA_STR_SIZE / CRC_REGISTER_SIZE );
 
-    /* Iterate through the relevant strings and accumulate their results */
-    printf( "\r\n>> Computing CRC checksum for user data: [0x%08lx] ", crc_code );
-    for ( uint32_t i = 0; i < sizeof( string_ptrs ) / sizeof( char* ); i++ )
+    /* Iterate through the data strings and accumulate their results */
+    printf( "\r\n>> Computing CRC checksum for user data: [0x%08lx]", crc_code );
+    for ( ++i; i < sizeof( string_ptrs ) / sizeof( char* ); i++ )
     {
         crc_code = HAL_CRC_Accumulate( &crc_config, ( uint32_t* )string_ptrs[i],
                                        USER_DATA_STR_SIZE / CRC_REGISTER_SIZE );
-        printf( "+ [0x%08lx] ", crc_code );
+        printf( " -> [0x%08lx]", crc_code );
     }
-    printf( "= [0x%08lx]", crc_code );
+
+#if USER_DATA_WIFI_DEVICE
+    /* Accumulate checksum of the WiFi encryption mode integer */
+    crc_code = HAL_CRC_Accumulate( &crc_config, &wifi_encryption_u32t,
+                                   sizeof( wifi_encryption_u32t ) / CRC_REGISTER_SIZE );
+    printf( " -> [0x%08lx]", crc_code );
+#endif /* USER_DATA_WIFI_DEVICE */
+
     *out_checksum = crc_code;
 
     /* DeInit */
@@ -344,7 +360,7 @@ int8_t user_data_validate_checksum( user_data_t* user_data )
     if ( new_checksum != user_data->crc_checksum )
     {
         printf( "\r\n>> User data [CORRUPT] stored checksum %08lx doesn't match %08lx",
-                new_checksum, user_data->crc_checksum );
+                user_data->crc_checksum, new_checksum );
         return -2;
     }
     printf( "\r\n>> User data integrity validation [OK]" );
@@ -376,10 +392,13 @@ void user_data_printf( user_data_t* user_data )
         printf( "%08lx ", *( ( int32_t* )user_data + i ) );
     }
 #endif
+
+#if USER_DATA_WIFI_DEVICE
     printf( "\r\n\t* WiFi Security: [%ld]", user_data->wifi_client_encryption_mode );
     printf( "\r\n\t* WiFi SSID: [%.64s]", user_data->wifi_client_ssid );
     //printf( "\r\n\t* WiFi Pwd: [%.64s]", user_data->wifi_client_password );
     printf( "\r\n\t* WiFi Pwd: ( REDACTED )" );
+#endif /* USER_DATA_WIFI_DEVICE */
     printf( "\r\n\t* Xi Acc ID: [%.64s]", user_data->xi_account_id );
     printf( "\r\n\t* Xi Dev ID: [%.64s]", user_data->xi_device_id );
     //printf( "\r\n\t* Xi Dev Pwd: [%.64s]", user_data->xi_device_password );

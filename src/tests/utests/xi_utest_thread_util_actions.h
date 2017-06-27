@@ -64,4 +64,4 @@ xi_state_t xi_utest_local_action_decrease_by_11(
     return XI_STATE_OK;
 }
 
-#endif // __XI_UTEST_THREAD_UTIL_ACTIONS_H__
+#endif /* __XI_UTEST_THREAD_UTIL_ACTIONS_H__ */

@@ -27,11 +27,6 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>Doc/readme.txt</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/readme.txt</locationURI>
-		</link>
-		<link>
 			<name>Application/SW4STM32/startup_stm32f429xx.s</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/startup_stm32f429xx.s</locationURI>
@@ -44,7 +39,12 @@
 		<link>
 			<name>Application/User/app_ethernet.c</name>
 			<type>1</type>
-			<locationURI>XI_STMCUBE_PATH/Projects/STM32F429ZI-Nucleo/Applications/LwIP/LwIP_HTTP_Server_Netconn_RTOS/Src/app_ethernet.c</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/Src/app_ethernet.c</locationURI>
+		</link>
+		<link>
+			<name>Application/User/console.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Src/console.c</locationURI>
 		</link>
 		<link>
 			<name>Application/User/demo_io.c</name>
@@ -54,22 +54,27 @@
 		<link>
 			<name>Application/User/ethernetif.c</name>
 			<type>1</type>
-			<locationURI>XI_STMCUBE_PATH/Projects/STM32F429ZI-Nucleo/Applications/LwIP/LwIP_HTTP_Server_Netconn_RTOS/Src/ethernetif.c</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/Src/ethernetif.c</locationURI>
 		</link>
 		<link>
 			<name>Application/User/fs.c</name>
 			<type>1</type>
-			<locationURI>XI_STMCUBE_PATH/Projects/STM32F429ZI-Nucleo/Applications/LwIP/LwIP_HTTP_Server_Netconn_RTOS/Src/fs.c</locationURI>
+			<locationURI>XI_STMCUBE_PATH/Middlewares/Third_Party/LwIP/src/apps/httpd/fs.c</locationURI>
 		</link>
 		<link>
 			<name>Application/User/httpserver-netconn.c</name>
 			<type>1</type>
-			<locationURI>XI_STMCUBE_PATH/Projects/STM32F429ZI-Nucleo/Applications/LwIP/LwIP_HTTP_Server_Netconn_RTOS/Src/httpserver-netconn.c</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/Src/httpserver-netconn.c</locationURI>
 		</link>
 		<link>
 			<name>Application/User/main.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/Src/main.c</locationURI>
+		</link>
+		<link>
+			<name>Application/User/provisioning.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Src/provisioning.c</locationURI>
 		</link>
 		<link>
 			<name>Application/User/stm32f4xx_hal_msp.c</name>
@@ -84,12 +89,17 @@
 		<link>
 			<name>Application/User/stm32f4xx_hal_timebase_tim.c</name>
 			<type>1</type>
-			<locationURI>XI_STMCUBE_PATH/Projects/STM32F429ZI-Nucleo/Applications/LwIP/LwIP_HTTP_Server_Netconn_RTOS/Src/stm32f4xx_hal_timebase_tim.c</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/Src/stm32f4xx_hal_timebase_tim.c</locationURI>
 		</link>
 		<link>
 			<name>Application/User/stm32f4xx_it.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/Src/stm32f4xx_it.c</locationURI>
+		</link>
+		<link>
+			<name>Application/User/user_data.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Src/user_data.c</locationURI>
 		</link>
 		<link>
 			<name>Application/User/xively_client.c</name>
@@ -114,7 +124,12 @@
 		<link>
 			<name>Drivers/CMSIS/system_stm32f4xx.c</name>
 			<type>1</type>
-			<locationURI>XI_STMCUBE_PATH/Projects/STM32F429ZI-Nucleo/Applications/LwIP/LwIP_HTTP_Server_Netconn_RTOS/Src/system_stm32f4xx.c</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/Src/system_stm32f4xx.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/Doc/readme.txt</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/readme.txt</locationURI>
 		</link>
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal.c</name>
@@ -125,6 +140,11 @@
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_cortex.c</name>
 			<type>1</type>
 			<locationURI>XI_STMCUBE_PATH/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_crc.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_PATH/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_crc.c</locationURI>
 		</link>
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_dma.c</name>
@@ -295,16 +315,6 @@
 			<name>Drivers/BSP/STM32F4xx_Nucleo_144/stm32f4xx_nucleo_144.c</name>
 			<type>1</type>
 			<locationURI>XI_STMCUBE_PATH/Drivers/BSP/STM32F4xx_Nucleo_144/stm32f4xx_nucleo_144.c</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/X_NUCLEO_IKS01A1/.x_nucleo_iks01a1_accelero.c.swp</name>
-			<type>1</type>
-			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A1/.x_nucleo_iks01a1_accelero.c.swp</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/X_NUCLEO_IKS01A1/.x_nucleo_iks01a1_temperature.h.swp</name>
-			<type>1</type>
-			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A1/.x_nucleo_iks01a1_temperature.h.swp</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/X_NUCLEO_IKS01A1/Release_Notes.html</name>
@@ -504,7 +514,7 @@
 		<link>
 			<name>Middlewares/LwIP/Api/pppapi.c</name>
 			<type>1</type>
-			<locationURI>XI_STMCUBE_PATH/Middlewares/Third_Party/LwIP/src/api/pppapi.c</locationURI>
+			<locationURI>XI_STMCUBE_PATH/Middlewares/Third_Party/LwIP/src/netif/ppp/pppapi.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/LwIP/Api/sockets.c</name>
@@ -537,9 +547,14 @@
 			<locationURI>XI_STMCUBE_PATH/Middlewares/Third_Party/LwIP/src/core/init.c</locationURI>
 		</link>
 		<link>
+			<name>Middlewares/LwIP/Core/ip.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_PATH/Middlewares/Third_Party/LwIP/src/core/ip.c</locationURI>
+		</link>
+		<link>
 			<name>Middlewares/LwIP/Core/lwip_timers.c</name>
 			<type>1</type>
-			<locationURI>XI_STMCUBE_PATH/Middlewares/Third_Party/LwIP/src/core/lwip_timers.c</locationURI>
+			<locationURI>XI_STMCUBE_PATH/Middlewares/Third_Party/LwIP/src/core/timeouts.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/LwIP/Core/mem.c</name>
@@ -597,9 +612,9 @@
 			<locationURI>XI_STMCUBE_PATH/Middlewares/Third_Party/LwIP/src/core/udp.c</locationURI>
 		</link>
 		<link>
-			<name>Middlewares/LwIP/Netif/etharp.c</name>
+			<name>Middlewares/LwIP/Netif/ethernet.c</name>
 			<type>1</type>
-			<locationURI>XI_STMCUBE_PATH/Middlewares/Third_Party/LwIP/src/netif/etharp.c</locationURI>
+			<locationURI>XI_STMCUBE_PATH/Middlewares/Third_Party/LwIP/src/netif/ethernet.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/LwIP/Netif/sys_arch.c</name>
@@ -882,6 +897,11 @@
 			<locationURI>XI_STMCUBE_PATH/Middlewares/Third_Party/LwIP/src/core/ipv4/dhcp.c</locationURI>
 		</link>
 		<link>
+			<name>Middlewares/LwIP/Core/IPv4/etharp.c</name>
+			<type>1</type>
+			<locationURI>XI_STMCUBE_PATH/Middlewares/Third_Party/LwIP/src/core/ipv4/etharp.c</locationURI>
+		</link>
+		<link>
 			<name>Middlewares/LwIP/Core/IPv4/icmp.c</name>
 			<type>1</type>
 			<locationURI>XI_STMCUBE_PATH/Middlewares/Third_Party/LwIP/src/core/ipv4/icmp.c</locationURI>
@@ -904,17 +924,17 @@
 		<link>
 			<name>Middlewares/LwIP/Core/IPv4/ip_frag.c</name>
 			<type>1</type>
-			<locationURI>XI_STMCUBE_PATH/Middlewares/Third_Party/LwIP/src/core/ipv4/ip_frag.c</locationURI>
+			<locationURI>XI_STMCUBE_PATH/Middlewares/Third_Party/LwIP/src/core/ipv4/ip4_frag.c</locationURI>
 		</link>
 	</linkedResources>
 	<variableList>
 		<variable>
 			<name>XI_STMCUBE_MEMS_PATH</name>
-			<value>file:/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_MEMS1_V3.0.0</value>
+			<value>file:/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_MEMS1_V4.0.0</value>
 		</variable>
 		<variable>
 			<name>XI_STMCUBE_PATH</name>
-			<value>file:/Users/palantir/Work/Xively/stm32f4xx/STM32Cube_FW_F4_V1.14.0</value>
+			<value>file:/Users/palantir/Work/Xively/stm32f4xx/STM32Cube_FW_F4_V1.16.0</value>
 		</variable>
 	</variableList>
 </projectDescription>
