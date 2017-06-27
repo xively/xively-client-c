@@ -365,12 +365,12 @@ void on_blink_topic( xi_context_handle_t in_context_handle,
             if ( toggle_lights )
             {
                 GPIO_IF_LedOn( MCU_GREEN_LED_GPIO );
-                GPIO_IF_LedOff( MCU_ORANGE_LED_GPIO );
+                GPIO_IF_LedOn( MCU_ORANGE_LED_GPIO );
             }
             else
             {
                 GPIO_IF_LedOff( MCU_GREEN_LED_GPIO );
-                GPIO_IF_LedOn( MCU_ORANGE_LED_GPIO );
+                GPIO_IF_LedOff( MCU_ORANGE_LED_GPIO );
             }
             return;
         }
@@ -389,7 +389,7 @@ void on_blink_topic( xi_context_handle_t in_context_handle,
  * topic structure is:  xi/blue/v1/{accountId}/d/{deviceId}/{channel}.
  * @param callback a pointer to the callback function that handles subscription
  * status updates and incoming messages on the topic.  For this example application
- * this is on_led_topic as specified in the invocation of this function in
+ * this is on_blink_topic as specified in the invocation of this function in
  * on_connected() (above.)
  * @param user_data an abstract data pointer that can be anything, and will be
  * passed to the subscription handler on all invocations.  In this case the GPIO

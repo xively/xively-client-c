@@ -1,7 +1,6 @@
 /*  Copyright (c) 2003-2017, LogMeIn, Inc. All rights reserved.
     This is part of Xively C library. */
 
-
 /*
  * HEADERS
  */
@@ -45,6 +44,7 @@
 #define MAX_STRING_LENGTH 50
 #define MESSAGESIZE 50
 #define LOGDETAILSSIZE 400
+#define XIVELY_TOPIC_LEN 128
 
 /*
  * TYPEDEFS
@@ -52,29 +52,30 @@
 typedef unsigned char uchar;
 typedef unsigned int uint;
 
-typedef enum {
-    sft_status_ok = 0, /* 0 */
+typedef enum
+{
+    sft_status_ok = 0,
 
-    sft_status_rebooting, /* 1 */
+    sft_status_rebooting = 1,
 
-    sft_open_file_error,  /* 2 */
-    sft_close_file_error, /* 3 */
-    sft_write_error,      /* 4 */
+    sft_open_file_error  = 2,
+    sft_close_file_error = 3,
+    sft_write_error      = 4,
 
-    sft_unsupported_protocol_version, /* 5 */
-    sft_unexpected_filename_error,    /* 6 */
-    sft_empty_length_array_error,     /* 7 */
-    sft_data_out_of_bounds_error,     /* 8 */
-    sft_file_data_offset_error,       /* 9 */
+    sft_unsupported_protocol_version = 5,
+    sft_unexpected_filename_error    = 6,
+    sft_empty_length_array_error     = 7,
+    sft_data_out_of_bounds_error     = 8,
+    sft_file_data_offset_error       = 9,
 
-    sft_cbor_missing_field_error,   /* 10 */
-    sft_cbor_encoding_error,        /* 11 */
-    sft_cbor_error_field_set_error, /* 12 */
+    sft_cbor_missing_field_error     = 10,
+    sft_cbor_encoding_error          = 11,
+    sft_cbor_error_field_set_error   = 12,
 
-    sft_publish_error,               /* 13 */
-    sft_internal_error,              /* 14 */
-    sft_fingerprint_mismatch_error,  /* 15 */
-    sft_fingerprint_too_large_error, /* 16 */
+    sft_publish_error                = 13,
+    sft_internal_error               = 14,
+    sft_fingerprint_mismatch_error   = 15,
+    sft_fingerprint_too_large_error  = 16,
 
     sft_status_max
 
@@ -124,15 +125,13 @@ char firmware_revision[] = "1.0";
 file_download_ctx_t download_ctx;
 
 /* Buffers to hold the formatted topics.
- * Topics are mangled by account and device ids.
- */
-char xi_stopic[128];
-char xi_logtopic[128];
-char xi_ctopic[128];
+ * Topics are mangled by account and device ids. */
+char xi_stopic[ XIVELY_TOPIC_LEN ];
+char xi_logtopic[ XIVELY_TOPIC_LEN ];
+char xi_ctopic[ XIVELY_TOPIC_LEN ];
 
 /* strings that correspond to the xi_status_t enumeration.
- * used for publishing messages to the Xivel Device Logs service.
- */
+ * used for publishing messages to the Xivel Device Logs service. */
 const char* sft_status_strings[] = {"sft_status_ok",        /* 0 */
                                     "sft_status_rebooting", /* 1 */
 
