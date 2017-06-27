@@ -251,7 +251,7 @@ void ConnectToXively()
     Button_IF_DisableInterrupt( SW2 | SW3 );
 
     xi_state_t ret_state = xi_initialize( g_wifi_device_credentials.xivelyAccountId,
-                                          g_wifi_device_credentials.xivelyDeviceId, 0 );
+                                          g_wifi_device_credentials.xivelyDeviceId );
 
     if ( XI_STATE_OK != ret_state )
     {

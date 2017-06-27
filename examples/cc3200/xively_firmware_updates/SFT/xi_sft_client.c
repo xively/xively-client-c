@@ -260,7 +260,7 @@ int xi_sft_init( xi_context_handle_t in_context_handle,
                 firmware_revision );
         sl_extlib_FlcCommit( FLC_COMMITED );
         xi_publish_device_log( in_context_handle, "Firmware Committed",
-                               "Boot loader will now boot to new image", sft_status_ok );
+                               "Boot loader will now boot to new image from now on", sft_status_ok );
     }
 
     /* Subscribe to SFT topic.  Everything interesting that happens will occur when an
