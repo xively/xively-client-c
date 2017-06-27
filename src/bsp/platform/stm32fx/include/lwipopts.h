@@ -149,7 +149,9 @@ a lot of data that needs to be copied, this should be set high. */
 
 /* ---------- Statistics options ---------- */
 #define LWIP_STATS 0
-#define LWIP_PROVIDE_ERRNO 1
+
+#define LWIP_PROVIDE_ERRNO
+#define LWIP_SOCKET_SET_ERRNO 1
 
 /* ---------- link callback options ---------- */
 /* LWIP_NETIF_LINK_CALLBACK==1: Support a callback function from an interface
@@ -227,6 +229,11 @@ hardware:
 
 #define LWIP_DNS 1
 
+/* With GNU GCC Toolchains the struct timeval is already defined */
+#ifdef __GNUC__
+#define LWIP_TIMEVAL_PRIVATE 0
+#endif
+
 /*
    -----------------------------------
    ---------- DEBUG options ----------
@@ -249,8 +256,6 @@ hardware:
 #define DEFAULT_ACCEPTMBOX_SIZE 2000
 #define DEFAULT_THREAD_STACKSIZE 500
 #define TCPIP_THREAD_PRIO ( configMAX_PRIORITIES - 2 )
-#define LWIP_COMPAT_MUTEX 1
-
 
 #endif /* __LWIPOPTS_H__ */
 

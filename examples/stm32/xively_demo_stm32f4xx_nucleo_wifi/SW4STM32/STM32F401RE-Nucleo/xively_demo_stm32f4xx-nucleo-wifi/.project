@@ -206,6 +206,11 @@
 			<locationURI>PARENT-3-PROJECT_LOC/Src/main.c</locationURI>
 		</link>
 		<link>
+			<name>Example/User/provisioning.c</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Src/provisioning.c</locationURI>
+		</link>
+		<link>
 			<name>Example/User/stm32_xx_hal_msp.c</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Src/stm32_xx_hal_msp.c</locationURI>
@@ -304,11 +309,6 @@
 			<name>Drivers/BSP/X-NUCLEO-IDW0xx1/stm32_spwf_wifi.h</name>
 			<type>1</type>
 			<locationURI>XI_STMCUBE_PATH/Drivers/BSP/X-NUCLEO-IDW0xx1/stm32_spwf_wifi.h</locationURI>
-		</link>
-		<link>
-			<name>Drivers/BSP/X_NUCLEO_IKS01A1/.x_nucleo_iks01a1_accelero.c.swp</name>
-			<type>1</type>
-			<locationURI>XI_STMCUBE_MEMS_PATH/Drivers/BSP/X_NUCLEO_IKS01A1/.x_nucleo_iks01a1_accelero.c.swp</locationURI>
 		</link>
 		<link>
 			<name>Drivers/BSP/X_NUCLEO_IKS01A1/x_nucleo_iks01a1.c</name>
@@ -823,7 +823,7 @@
 	<variableList>
 		<variable>
 			<name>XI_STMCUBE_MEMS_PATH</name>
-			<value>file:/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_MEMS1_V3.0.0</value>
+			<value>file:/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_MEMS1_V4.0.0</value>
 		</variable>
 		<variable>
 			<name>XI_STMCUBE_PATH</name>

@@ -93,9 +93,7 @@ extern "C" {
  * function succesfully.
  * @retval XI_INVALID_PARAMETER     If device_unique_id is null.
  */
-extern xi_state_t xi_initialize( const char* account_id,
-                                 const char* device_unique_id,
-                                 const char* device_credentials_file_absolute_path );
+extern xi_state_t xi_initialize( const char* account_id, const char* device_unique_id );
 
 /**
  * @brief     Signals the xively library to cleanup any internal memory
@@ -118,7 +116,7 @@ extern xi_state_t xi_initialize( const char* account_id,
 extern xi_state_t xi_shutdown();
 
 /**
- * @brief     Teturns the device unique string that was passed to the xively
+ * @brief     Returns the device unique string that was passed to the xively
  * library during initialization.
  *
  * @retval NULL  If the system has not been succesfully initialized. Otherwise a
@@ -211,6 +209,9 @@ extern xi_state_t xi_events_process_tick();
  */
 extern void xi_events_stop();
 
+extern xi_state_t xi_set_updateable_files( xi_context_handle_t xih,
+                                           const char* filenames[],
+                                           uint16_t count );
 
 /**
  * @brief     Opens a connection to the xively service using the provided context,

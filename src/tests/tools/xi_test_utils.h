@@ -35,4 +35,4 @@ void xi_test_init( int argc, char const* argv[] )
 #endif /* not XI_EMBEDDED_TESTS */
 }
 
-#endif // __XI_TEST_UTILS_H__
+#endif /* __XI_TEST_UTILS_H__ */

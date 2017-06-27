@@ -31,4 +31,4 @@ typedef struct xi_critical_section_s
 }
 #endif
 
-#endif // __XI_POSIX_CRITICAL_SECTION_H__
+#endif /* __XI_POSIX_CRITICAL_SECTION_H__ */

@@ -48,4 +48,4 @@ struct CMUnitTest xi_itests_tls_layer[] = {
         xi_itest_tls_layer_teardown )};
 #endif
 
-#endif // __XI_ITEST_TLS_LAYER_H__
+#endif /* __XI_ITEST_TLS_LAYER_H__ */

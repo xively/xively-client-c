@@ -30,4 +30,4 @@ xi_state_t xi_mock_layer_tls_next_connect( void* context, void* data, xi_state_t
 }
 #endif
 
-#endif // __XI_ITEST_MOCK_LAYER_TLS_NEXT_H__
+#endif /* __XI_ITEST_MOCK_LAYER_TLS_NEXT_H__ */

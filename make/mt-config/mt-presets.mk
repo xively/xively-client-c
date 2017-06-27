@@ -20,6 +20,9 @@ CONFIG_DUMMY_MIN                =memory_fs
 CONFIG_CC3200                   =memory_fs-tls_bsp
 CONFIG_CC3200_TLS_SOCKET        =memory_fs-tls_socket
 
+CONFIG_CC3220SF                   =bsp_cc3220sf-memory_fs-tls_bsp
+CONFIG_CC3220SF_TLS_SOCKET        =bsp_cc3220sf-memory_fs-tls_socket
+
 CONFIG_STM32FX                  =memory_fs-tls_bsp
 CONFIG_STM32FX_NUCLEO_WIFI      =memory_fs-tls_socket
 
@@ -97,6 +100,20 @@ else ifeq ($(PRESET), CC3200_TLS_SOCKET)
     TARGET = $(TARGET_STATIC_REL)
     XI_BSP_PLATFORM = cc3200
     XI_TARGET_PLATFORM = cc3200
+
+# -------------------------------------------------------
+# Texas Instruments CC3220SF
+else ifeq ($(PRESET), CC3220SF)
+    CONFIG = $(CONFIG_CC3220SF)
+    TARGET = $(TARGET_STATIC_REL)
+    XI_BSP_PLATFORM = cc3220sf
+    XI_TARGET_PLATFORM = cc3220sf
+else ifeq ($(PRESET), CC3220SF_TLS_SOCKET)
+    CONFIG = $(CONFIG_CC3220SF_TLS_SOCKET)
+    TARGET = $(TARGET_STATIC_REL)
+    XI_BSP_PLATFORM = cc3220sf
+    XI_TARGET_PLATFORM = cc3220sf
+
 
 # -------------------------------------------------------
 # ST Micro STM32FX

@@ -6,7 +6,7 @@
 				<macros>
 					<stringMacro name="XI_STMCUBE_PATH" type="VALUE_PATH_DIR" value="/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_WIFI1_V3.0.1"/>
 					<stringMacro name="XI_CLIENT_PATH" type="VALUE_PATH_DIR" value="../../../../../../.."/>
-					<stringMacro name="XI_MEMS_STMCUBE_PATH" type="VALUE_PATH_DIR" value="/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_MEMS1_V3.0.0"/>
+					<stringMacro name="XI_MEMS_STMCUBE_PATH" type="VALUE_PATH_DIR" value="/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_MEMS1_V4.0.0"/>
 				</macros>
 				<externalSettings>
 					<externalSetting/>
@@ -124,7 +124,7 @@
 				<macros>
 					<stringMacro name="XI_STMCUBE_PATH" type="VALUE_PATH_DIR" value="/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_WIFI1_V3.0.1"/>
 					<stringMacro name="XI_CLIENT_PATH" type="VALUE_PATH_DIR" value="../../../../../../.."/>
-					<stringMacro name="XI_MEMS_STMCUBE_PATH" type="VALUE_PATH_DIR" value="/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_MEMS1_V3.0.0"/>
+					<stringMacro name="XI_MEMS_STMCUBE_PATH" type="VALUE_PATH_DIR" value="/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_MEMS1_V4.0.0"/>
 				</macros>
 				<externalSettings>
 					<externalSetting/>

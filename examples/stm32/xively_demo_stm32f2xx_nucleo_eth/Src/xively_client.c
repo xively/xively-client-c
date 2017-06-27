@@ -944,13 +944,13 @@ static int xc_main( void )
 
     while ( 1 )
     {
-        printf( "Xively: ...continue.\n" );
+        printf( "\nXively: ...continue.\n" );
         //        test_alloc_report (-1);
 
         /*
          *  Initialize xively client library.
          */
-        if ( ( xi_rc = xi_initialize( account_id, device_id, NULL ) ) == XI_STATE_OK )
+        if ( ( xi_rc = xi_initialize( account_id, device_id ) ) == XI_STATE_OK )
         {
             if ( ( xc_ctx = xi_create_context() ) < 0 )
             {

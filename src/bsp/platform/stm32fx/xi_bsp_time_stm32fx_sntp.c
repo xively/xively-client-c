@@ -18,6 +18,7 @@
 
 int printf( const char* format, ... );
 
+#include <sys/select.h>
 #include <lwip/netdb.h>
 
 /* Local includes */

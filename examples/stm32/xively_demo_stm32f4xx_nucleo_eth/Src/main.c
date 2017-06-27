@@ -55,7 +55,7 @@
 #include "ethernetif.h"
 #include "app_ethernet.h"
 #include "httpserver-netconn.h"
-#include <xively_client.h>
+#include "xively_client.h"
 #include "demo_io.h"
 
 /* Private typedef -----------------------------------------------------------*/
@@ -68,13 +68,6 @@ struct netif gnetif; /* network interface structure */
 UART_HandleTypeDef UartHandle;
 
 /* Private function prototypes -----------------------------------------------*/
-#ifdef __GNUC__
-/* With GCC/RAISONANCE, small printf (option LD Linker->Libraries->Small printf
-   set to 'Yes') calls __io_putchar() */
-#define PUTCHAR_PROTOTYPE int __io_putchar( int ch )
-#else
-#define PUTCHAR_PROTOTYPE int fputc( int ch, FILE* f )
-#endif /* __GNUC__ */
 
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config( void );
@@ -137,8 +130,16 @@ int main( void )
     }
 
     printf( "\r\n>> Initializing the sensor extension board" );
-    io_nucleoboard_init();
-    io_sensorboard_init();
+    if ( io_nucleoboard_init() < 0 )
+    {
+        printf( "\r\n>> ERROR initializing Nucleo board. Abort" );
+        Error_Handler();
+    }
+    if ( io_sensorboard_init() < 0 )
+    {
+        printf( "\r\n>> ERROR initializing sensor extension board. Abort" );
+        Error_Handler();
+    }
     io_sensorboard_enable();
 
 /* Init thread */
@@ -158,14 +159,6 @@ int main( void )
         ;
 }
 
-PUTCHAR_PROTOTYPE
-{
-    /* Place your implementation of fputc here */
-    /* e.g. write a character to the USART3 and Loop until the end of transmission */
-    HAL_UART_Transmit( &UartHandle, ( uint8_t* )&ch, 1, 0xFFFF );
-
-    return ch;
-}
 
 /**
   * @brief  Start Thread
@@ -182,9 +175,6 @@ static void StartThread( void const* argument )
 
     /* Initialize the LwIP stack */
     Netif_Config();
-
-    /* Initialize webserver demo */
-    // http_server_netconn_init();
 
     /* Notify user about the network interface config */
     User_notification( &gnetif );

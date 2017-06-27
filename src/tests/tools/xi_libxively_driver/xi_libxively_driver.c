@@ -36,10 +36,10 @@ const char* xi_memory_checks_get_filename( const char* filename_and_path )
 
 void xi_memory_checks_log_memory_leak( const xi_memory_limiter_entry_t* entry )
 {
-    fprintf(
-        stderr, "\x1b[33m \t [MLD] --- %zu bytes lost, allocated in %s:%zu\x1b[0m\n",
-        entry->size, xi_memory_checks_get_filename( entry->allocation_origin_file_name ),
-        entry->allocation_origin_line_number );
+    fprintf( stderr, "\x1b[33m \t [MLD] --- %zu bytes lost, allocated in %s:%zu\x1b[0m\n",
+             entry->size,
+             xi_memory_checks_get_filename( entry->allocation_origin_file_name ),
+             entry->allocation_origin_line_number );
 
 #ifdef XI_PLATFORM_BASE_POSIX
     fprintf( stderr, "\x1b[33m\t\tbacktrace:\x1b[0m\n" );
@@ -57,7 +57,7 @@ void xi_memory_checks_log_memory_leak( const xi_memory_limiter_entry_t* entry )
 }
 #endif /* XI_DEBUG_EXTRA_INFO */
 
-void _xi_memory_limiter_teardown()
+uint8_t _xi_memory_limiter_teardown()
 {
     /* check for memory leaks */
     if ( !xi_is_whole_memory_deallocated() )
@@ -81,6 +81,8 @@ void _xi_memory_limiter_teardown()
     }
 
     fflush( stderr );
+
+    return 0;
 }
 
 #endif
@@ -88,12 +90,12 @@ void _xi_memory_limiter_teardown()
 #ifdef XI_MEMORY_LIMITER_ENABLED
 #define xi_is_whole_memory_deallocated() ( xi_memory_limiter_get_allocated_space() == 0 )
 
-void _xi_memory_limiter_teardown();
+uint8_t _xi_memory_limiter_teardown();
 #define xi_memory_limiter_teardown _xi_memory_limiter_teardown
 
 #else
 #define xi_is_whole_memory_deallocated() 1
-#define xi_memory_limiter_teardown()
+#define xi_memory_limiter_teardown() 1
 #endif
 
 
@@ -133,7 +135,7 @@ int main( int argc, char const* argv[] )
     /*************************************
      * libxively initialization **********
      *************************************/
-    xi_initialize( "unique account id", "unique device id", NULL );
+    xi_initialize( "unique account id", "unique device id" );
 
     xi_context_handle_t xi_app_context_handle = xi_create_context();
     if ( XI_INVALID_CONTEXT_HANDLE >= xi_app_context_handle )
@@ -191,7 +193,5 @@ int main( int argc, char const* argv[] )
     xi_delete_context( xi_app_context_handle );
     xi_shutdown();
 
-    xi_memory_limiter_teardown();
-
-    return 0;
+    return xi_memory_limiter_teardown() ? 0 : 1;
 }

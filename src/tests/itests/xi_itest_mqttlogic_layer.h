@@ -67,4 +67,4 @@ struct CMUnitTest xi_itests_mqttlogic_layer[] = {
         xi_itest_mqttlogic_layer_teardown )};
 #endif
 
-#endif // __XI_ITEST_MQTTLOGIC_LAYER_H__
+#endif /* __XI_ITEST_MQTTLOGIC_LAYER_H__ */
