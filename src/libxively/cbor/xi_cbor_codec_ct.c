@@ -353,47 +353,47 @@ xi_control_message_t* xi_cbor_codec_ct_decode( const uint8_t* data, const uint32
                     }
                 }
             }
+        }
+
+        break;
+
+        case XI_CONTROL_MESSAGE_SC_FILE_CHUNK:
+
+            xi_cbor_codec_ct_decode_getvalue( cb_map, XI_CBOR_CODEC_CT_STRING_FILE_NAME,
+                                              &control_message_out->file_chunk.name,
+                                              NULL );
+
+            xi_cbor_codec_ct_decode_getvalue(
+                cb_map, XI_CBOR_CODEC_CT_STRING_FILE_REVISION,
+                &control_message_out->file_chunk.revision, NULL );
+
+            xi_cbor_codec_ct_decode_getvalue(
+                cb_map, XI_CBOR_CODEC_CT_STRING_FILECHUNK_OFFSET,
+                &control_message_out->file_chunk.offset, NULL );
+
+            /*  This 'length' field is redundant since the CBOR encoding has
+                the length of the byte array right in the array itself. So here
+                we don't rely on this protocol's length but the CBRO's array size.
+                Thus ignoring the 'length' field itself.
+
+            xi_cbor_codec_ct_decode_getvalue(
+                cb_map, XI_CBOR_CODEC_CT_STRING_FILECHUNK_LENGTH,
+                &control_message_out->file_chunk.length, NULL );*/
+
+            xi_cbor_codec_ct_decode_getvalue(
+                cb_map, XI_CBOR_CODEC_CT_STRING_FILECHUNK_STATUS,
+                &control_message_out->file_chunk.status, NULL );
+
+            xi_cbor_codec_ct_decode_getvalue(
+                cb_map, XI_CBOR_CODEC_CT_STRING_FILECHUNK_CHUNK,
+                &control_message_out->file_chunk.chunk,
+                ( uint16_t* )&control_message_out->file_chunk.length );
 
             break;
 
-            case XI_CONTROL_MESSAGE_SC_FILE_CHUNK:
-
-                xi_cbor_codec_ct_decode_getvalue(
-                    cb_map, XI_CBOR_CODEC_CT_STRING_FILE_NAME,
-                    &control_message_out->file_chunk.name, NULL );
-
-                xi_cbor_codec_ct_decode_getvalue(
-                    cb_map, XI_CBOR_CODEC_CT_STRING_FILE_REVISION,
-                    &control_message_out->file_chunk.revision, NULL );
-
-                xi_cbor_codec_ct_decode_getvalue(
-                    cb_map, XI_CBOR_CODEC_CT_STRING_FILECHUNK_OFFSET,
-                    &control_message_out->file_chunk.offset, NULL );
-
-                /*  This 'length' field is redundant since the CBOR encoding has
-                    the length of the byte array right in the array itself. So here
-                    we don't rely on this protocol's length but the CBRO's array size.
-                    Thus ignoring the 'length' field itself.
-
-                xi_cbor_codec_ct_decode_getvalue(
-                    cb_map, XI_CBOR_CODEC_CT_STRING_FILECHUNK_LENGTH,
-                    &control_message_out->file_chunk.length, NULL );*/
-
-                xi_cbor_codec_ct_decode_getvalue(
-                    cb_map, XI_CBOR_CODEC_CT_STRING_FILECHUNK_STATUS,
-                    &control_message_out->file_chunk.status, NULL );
-
-                xi_cbor_codec_ct_decode_getvalue(
-                    cb_map, XI_CBOR_CODEC_CT_STRING_FILECHUNK_CHUNK,
-                    &control_message_out->file_chunk.chunk,
-                    ( uint16_t* )&control_message_out->file_chunk.length );
-
-                break;
-
-            case XI_CONTROL_MESSAGE_CS_FILE_INFO:
-            case XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK:
-            case XI_CONTROL_MESSAGE_CS_FILE_STATUS:;
-        }
+        case XI_CONTROL_MESSAGE_CS_FILE_INFO:
+        case XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK:
+        case XI_CONTROL_MESSAGE_CS_FILE_STATUS:;
     }
 
     cn_cbor_free( cb_map CBOR_CONTEXT_PARAM );
