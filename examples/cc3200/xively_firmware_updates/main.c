@@ -108,7 +108,7 @@
 #define XIVELY_DEV_KEY "device_id"
 #define XIVELY_PWD_KEY "password"
 
-/* Used to detect if the user has configured their xively_config.txt file
+/* Used to detect if the user has configured their xively_cfg.txt file
  * on the device before the execution of the application */
 #define XIVELY_DEFAULT_CONFIG_FIELD_VALUE "<PASTE_XIVELY_CREDENTIAL_HERE>"
 #define WIFI_DEFAULT_CONFIG_FIELD_VALUE "<ENTER_WIFI_CREDENTIAL_HERE>"
