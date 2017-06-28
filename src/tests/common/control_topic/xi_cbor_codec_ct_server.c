@@ -20,7 +20,7 @@ extern cn_cbor_context* context;
 
 #endif
 
-/* using tools from libxively here in the mock broker */
+/* using the getvalue tool from libxively here in the mock broker */
 xi_state_t xi_cbor_codec_ct_decode_getvalue( cn_cbor* source,
                                              const char* key,
                                              void* out_destination,
@@ -90,52 +90,52 @@ xi_cbor_codec_ct_server_decode( const uint8_t* data, const uint32_t len )
                     }
                 }
             }
+        }
+
+        break;
+
+        case XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK:
+
+            xi_cbor_codec_ct_decode_getvalue( cb_map, XI_CBOR_CODEC_CT_STRING_FILE_NAME,
+                                              &control_message_out->file_get_chunk.name,
+                                              NULL );
+
+            xi_cbor_codec_ct_decode_getvalue(
+                cb_map, XI_CBOR_CODEC_CT_STRING_FILE_REVISION,
+                &control_message_out->file_get_chunk.revision, NULL );
+
+            xi_cbor_codec_ct_decode_getvalue(
+                cb_map, XI_CBOR_CODEC_CT_STRING_FILECHUNK_OFFSET,
+                &control_message_out->file_get_chunk.offset, NULL );
+
+            xi_cbor_codec_ct_decode_getvalue(
+                cb_map, XI_CBOR_CODEC_CT_STRING_FILECHUNK_LENGTH,
+                &control_message_out->file_get_chunk.length, NULL );
 
             break;
 
-            case XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK:
+        case XI_CONTROL_MESSAGE_CS_FILE_STATUS:
 
-                xi_cbor_codec_ct_decode_getvalue(
-                    cb_map, XI_CBOR_CODEC_CT_STRING_FILE_NAME,
-                    &control_message_out->file_get_chunk.name, NULL );
+            xi_cbor_codec_ct_decode_getvalue( cb_map, XI_CBOR_CODEC_CT_STRING_FILE_NAME,
+                                              &control_message_out->file_status.name,
+                                              NULL );
 
-                xi_cbor_codec_ct_decode_getvalue(
-                    cb_map, XI_CBOR_CODEC_CT_STRING_FILE_REVISION,
-                    &control_message_out->file_get_chunk.revision, NULL );
+            xi_cbor_codec_ct_decode_getvalue(
+                cb_map, XI_CBOR_CODEC_CT_STRING_FILE_REVISION,
+                &control_message_out->file_status.revision, NULL );
 
-                xi_cbor_codec_ct_decode_getvalue(
-                    cb_map, XI_CBOR_CODEC_CT_STRING_FILECHUNK_OFFSET,
-                    &control_message_out->file_get_chunk.offset, NULL );
+            xi_cbor_codec_ct_decode_getvalue(
+                cb_map, XI_CBOR_CODEC_CT_STRING_FILESTATUS_PHASE,
+                &control_message_out->file_status.phase, NULL );
 
-                xi_cbor_codec_ct_decode_getvalue(
-                    cb_map, XI_CBOR_CODEC_CT_STRING_FILECHUNK_LENGTH,
-                    &control_message_out->file_get_chunk.length, NULL );
+            xi_cbor_codec_ct_decode_getvalue(
+                cb_map, XI_CBOR_CODEC_CT_STRING_FILESTATUS_CODE,
+                &control_message_out->file_status.code, NULL );
 
-                break;
+            break;
 
-            case XI_CONTROL_MESSAGE_CS_FILE_STATUS:
-
-                xi_cbor_codec_ct_decode_getvalue(
-                    cb_map, XI_CBOR_CODEC_CT_STRING_FILE_NAME,
-                    &control_message_out->file_status.name, NULL );
-
-                xi_cbor_codec_ct_decode_getvalue(
-                    cb_map, XI_CBOR_CODEC_CT_STRING_FILE_REVISION,
-                    &control_message_out->file_status.revision, NULL );
-
-                xi_cbor_codec_ct_decode_getvalue(
-                    cb_map, XI_CBOR_CODEC_CT_STRING_FILESTATUS_PHASE,
-                    &control_message_out->file_status.phase, NULL );
-
-                xi_cbor_codec_ct_decode_getvalue(
-                    cb_map, XI_CBOR_CODEC_CT_STRING_FILESTATUS_CODE,
-                    &control_message_out->file_status.code, NULL );
-
-                break;
-
-            case XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE:
-            case XI_CONTROL_MESSAGE_SC_FILE_CHUNK:;
-        }
+        case XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE:
+        case XI_CONTROL_MESSAGE_SC_FILE_CHUNK:;
     }
 
     cn_cbor_free( cb_map CBOR_CONTEXT_PARAM );
