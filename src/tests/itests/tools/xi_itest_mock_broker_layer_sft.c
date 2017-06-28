@@ -9,19 +9,121 @@
 
 #include <xi_control_message.h>
 #include <xi_cbor_codec_ct_server.h>
+#include "xi_itest_helpers.h"
 
-void xi_mock_broker_sft_on_message( const xi_data_desc_t* control_message_encoded )
+xi_control_message_t*
+xi_mock_broker_sft_logic_on_file_info( const xi_control_message_t* control_message )
 {
+    if ( NULL == control_message )
+    {
+        return NULL;
+    }
+
+    xi_state_t state = XI_STATE_OK;
+
+    XI_ALLOC( xi_control_message_t, control_message_reply, state );
+
+    control_message_reply->common.msgtype = XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE;
+    control_message_reply->common.msgver  = 1;
+
+    XI_ALLOC_BUFFER_AT( xi_control_message_file_desc_ext_t,
+                        control_message_reply->file_update_available.list,
+                        sizeof( xi_control_message_file_desc_ext_t ) *
+                            control_message->file_info.list_len,
+                        state );
+
+    control_message_reply->file_update_available.list_len =
+        control_message->file_info.list_len;
+
+    uint16_t id_file = 0;
+    for ( ; id_file < control_message->file_info.list_len; ++id_file )
+    {
+        control_message_reply->file_update_available.list[id_file].name =
+            control_message->file_info.list[id_file].name;
+        control_message->file_info.list[id_file].name = NULL;
+
+        control_message_reply->file_update_available.list[id_file].revision =
+            control_message->file_info.list[id_file].revision;
+        control_message->file_info.list[id_file].revision = NULL;
+
+        // todo_atigyi: fill in size and fingerprint
+    }
+
+    return control_message_reply;
+
+err_handling:
+
+    xi_control_message_free( &control_message_reply );
+
+    return NULL;
+}
+
+xi_data_desc_t*
+xi_mock_broker_sft_logic_on_message( const xi_data_desc_t* control_message_encoded )
+{
+    xi_data_desc_t* cbor_reply_message_data_desc = NULL;
+
+    if ( NULL == control_message_encoded )
+    {
+        return cbor_reply_message_data_desc;
+    }
+
+    /* CBOR decode */
     xi_control_message_t* control_message = xi_cbor_codec_ct_server_decode(
         control_message_encoded->data_ptr, control_message_encoded->length );
 
     xi_debug_control_message_dump( control_message, "mock broker --- INCOMING" );
 
+    if ( NULL == control_message )
+    {
+        return cbor_reply_message_data_desc;
+    }
+
+    check_expected( control_message->common.msgtype );
+
+    xi_control_message_t* ( *mock_broker_logic_by_msgtype[XI_CONTROL_MESSAGE_COUNT] )(
+        const xi_control_message_t* ) = {0};
+
+    mock_broker_logic_by_msgtype[XI_CONTROL_MESSAGE_CS_FILE_INFO] =
+        &xi_mock_broker_sft_logic_on_file_info;
+    mock_broker_logic_by_msgtype[XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK] = NULL;
+    mock_broker_logic_by_msgtype[XI_CONTROL_MESSAGE_CS_FILE_STATUS]    = NULL;
+
+    /* applying mock broker logic */
+    if ( NULL != mock_broker_logic_by_msgtype[control_message->common.msgtype] )
+    {
+        xi_control_message_t* reply_message =
+            ( mock_broker_logic_by_msgtype[control_message->common.msgtype] )(
+                control_message );
+
+        uint8_t* cbor_reply_message     = NULL;
+        uint32_t cbor_reply_message_len = 0;
+
+        /* CBOR encode */
+        xi_cbor_codec_ct_server_encode( reply_message, &cbor_reply_message,
+                                        &cbor_reply_message_len );
+
+        cbor_reply_message_data_desc =
+            xi_make_desc_from_buffer_share( cbor_reply_message, cbor_reply_message_len );
+        // todo_atigyi: make more elegant ownership passing
+        cbor_reply_message_data_desc->memory_type = XI_MEMORY_TYPE_MANAGED;
+
+        xi_debug_control_message_dump( reply_message, "mock broker --- OUTGOING" );
+
+        xi_control_message_free( &reply_message );
+    }
+    else
+    {
+        xi_debug_format( "[WARNING] no message handler found for msgtype: %d",
+                         control_message->common.msgtype );
+    }
+
     xi_control_message_free( &control_message );
 
-    // - 1 liner: decode CS SFT messagem, will result in a xi_control_message_t struct
+    return cbor_reply_message_data_desc;
+
     // - channel each msg type into separate functions (3 messages) to help failure
-    //   control from test case
+    //   control from integration test case
     // - apply mock broker logic: happy broker OR controlled failure -->
     //   xi_control_message_t
     // - encode and send to client

@@ -193,7 +193,10 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
                      0 == strcmp( publish_topic_name,
                                   layer_data->control_topic_name_broker_in ) )
                 {
-                    xi_mock_broker_sft_on_message( recvd_msg->publish.content );
+                    xi_data_desc_t* reply =
+                        xi_mock_broker_sft_logic_on_message( recvd_msg->publish.content );
+
+                    xi_free_desc( &reply );
                 }
 
                 if ( 0 < recvd_msg->common.common_u.common_bits.qos )

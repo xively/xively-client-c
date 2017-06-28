@@ -20,6 +20,48 @@ extern cn_cbor_context* context;
 
 #endif
 
+void xi_cbor_codec_ct_server_encode( const xi_control_message_t* control_message,
+                                     uint8_t** out_encoded_allocated_inside,
+                                     uint32_t* out_len )
+{
+    if ( NULL == control_message )
+    {
+        *out_len = 0;
+        return;
+    }
+
+    cn_cbor_errback err;
+    cn_cbor* cb_map = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMA & err );
+
+    cn_cbor_map_put(
+        cb_map,
+        cn_cbor_string_create( XI_CBOR_CODEC_CT_STRING_MSGTYPE CBOR_CONTEXT_PARAM, &err ),
+        cn_cbor_int_create( control_message->common.msgtype CBOR_CONTEXT_PARAM, &err ),
+        &err );
+
+    cn_cbor_map_put(
+        cb_map,
+        cn_cbor_string_create( XI_CBOR_CODEC_CT_STRING_MSGVER CBOR_CONTEXT_PARAM, &err ),
+        cn_cbor_int_create( control_message->common.msgver CBOR_CONTEXT_PARAM, &err ),
+        &err );
+
+
+    printf( "*** todo_atigyi: continue here with proper encoding of outgoing messages: "
+            "FILE_UPDATE_AVAILABLE and FILE_CHUNK\n" );
+
+    unsigned char encoded[512];
+    *out_len = cn_cbor_encoder_write( encoded, 0, sizeof( encoded ), cb_map );
+
+    cn_cbor_free( cb_map CBOR_CONTEXT_PARAM );
+
+    xi_state_t state = XI_STATE_OK;
+    XI_ALLOC_BUFFER_AT( uint8_t, *out_encoded_allocated_inside, *out_len, state );
+
+    memcpy( *out_encoded_allocated_inside, encoded, *out_len );
+
+err_handling:;
+}
+
 /* using the getvalue tool from libxively here in the mock broker */
 xi_state_t xi_cbor_codec_ct_decode_getvalue( cn_cbor* source,
                                              const char* key,

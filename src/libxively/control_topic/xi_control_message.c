@@ -24,8 +24,8 @@ xi_control_message_t* xi_control_message_create_file_info( const char** filename
 
     XI_ALLOC( xi_control_message_t, sft_message, state );
 
-    sft_message->file_info.common.msgtype = XI_CONTROL_MESSAGE_CS_FILE_INFO;
-    sft_message->file_info.common.msgver  = 1;
+    sft_message->common.msgtype = XI_CONTROL_MESSAGE_CS_FILE_INFO;
+    sft_message->common.msgver  = 1;
 
     XI_ALLOC_BUFFER_AT( xi_control_message_file_desc_t, sft_message->file_info.list,
                         sizeof( xi_control_message_file_desc_t ) * count, state );
@@ -68,8 +68,8 @@ xi_control_message_t* xi_control_message_create_file_get_chunk( const char* file
 
     XI_ALLOC( xi_control_message_t, sft_message, state );
 
-    sft_message->common.msgtype               = XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK;
-    sft_message->file_get_chunk.common.msgver = 1;
+    sft_message->common.msgtype = XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK;
+    sft_message->common.msgver  = 1;
 
     sft_message->file_get_chunk.name     = xi_str_dup( filename );
     sft_message->file_get_chunk.revision = xi_str_dup( revision );
@@ -99,8 +99,8 @@ xi_control_message_t* xi_control_message_create_file_status( const char* filenam
 
     XI_ALLOC( xi_control_message_t, sft_message, state );
 
-    sft_message->common.msgtype            = XI_CONTROL_MESSAGE_CS_FILE_STATUS;
-    sft_message->file_status.common.msgver = 1;
+    sft_message->common.msgtype = XI_CONTROL_MESSAGE_CS_FILE_STATUS;
+    sft_message->common.msgver  = 1;
 
     sft_message->file_status.name     = xi_str_dup( filename );
     sft_message->file_status.revision = xi_str_dup( revision );
@@ -208,6 +208,8 @@ void xi_control_message_free( xi_control_message_t** control_message )
             XI_SAFE_FREE( ( *control_message )->file_status.revision );
 
             break;
+
+        case XI_CONTROL_MESSAGE_COUNT:;
     }
 
     XI_SAFE_FREE( *control_message );
@@ -304,6 +306,7 @@ void xi_debug_control_message_dump( const xi_control_message_t* control_message,
             printf( "+++ phase: %d, code: %d\n", control_message->file_status.phase,
                     control_message->file_status.code );
             break;
+        case XI_CONTROL_MESSAGE_COUNT:;
     }
 
     printf( "+++++++++++++++++++++++++++++++++++++++++++++++++++ [%s]\n", custom_label );

@@ -16,6 +16,8 @@
 #include "xi_itest_layerchain_ct_ml_mc.h"
 #include "xi_itest_mock_broker_layerchain.h"
 
+#include "xi_control_message.h"
+
 /*
  * xi_itest_layerchain_ct_ml_mc.h
  *  |
@@ -222,7 +224,9 @@ void xi_itest_sft__basic_flow__SFT_protocol_intact( void** fixture_void )
 
     expect_value( xi_mock_broker_layer_pull, recvd_msg_type, XI_MQTT_TYPE_DISCONNECT );
 
+    expect_value( xi_mock_broker_sft_logic_on_message, control_message->common.msgtype,
+                  XI_CONTROL_MESSAGE_CS_FILE_INFO );
+
     // ACT
-    xi_itest_sft__act( fixture_void, 1, ( const char* [] ){"file1", "file2", "file3"},
-                       3 );
+    xi_itest_sft__act( fixture_void, 1, ( const char* [] ){"file1", "file2"}, 2 );
 }

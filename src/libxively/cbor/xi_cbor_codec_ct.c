@@ -67,6 +67,12 @@ void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
                               uint8_t** out_encoded_allocated_inside,
                               uint32_t* out_len )
 {
+    if ( NULL == control_message )
+    {
+        *out_len = 0;
+        return;
+    }
+
     cn_cbor_errback err;
     cn_cbor* cb_map = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMA & err );
 

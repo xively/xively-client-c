@@ -14,7 +14,8 @@ typedef enum xi_control_message_type_e {
     XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE, /* SC = Service to Client */
     XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK,
     XI_CONTROL_MESSAGE_SC_FILE_CHUNK,
-    XI_CONTROL_MESSAGE_CS_FILE_STATUS
+    XI_CONTROL_MESSAGE_CS_FILE_STATUS,
+    XI_CONTROL_MESSAGE_COUNT
 } xi_control_message_type_t;
 
 typedef enum xi_control_message_file_status_phase_e {
