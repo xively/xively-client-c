@@ -7,6 +7,8 @@
 #ifndef __XI_ITEST_MOCK_BROKER_LAYER_SFT_H__
 #define __XI_ITEST_MOCK_BROKER_LAYER_SFT_H__
 
-void xi_mock_broker_sft_on_message();
+#include <xi_data_desc.h>
+
+void xi_mock_broker_sft_on_message( const xi_data_desc_t* control_message );
 
 #endif /* __XI_ITEST_MOCK_BROKER_LAYER_SFT_H__ */

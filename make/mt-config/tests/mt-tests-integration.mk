@@ -42,7 +42,10 @@ XI_ITESTS := $(XI_TEST_BINDIR)/$(XI_ITESTS_SUITE)
 XI_ITESTS_SOURCES += $(wildcard $(XI_ITESTS_SOURCE_DIR)/xi_itest_*.c)
 XI_ITESTS_SOURCES += $(wildcard $(XI_ITESTS_SOURCE_DIR)/tools/xi_*.c)
 XI_ITESTS_SOURCES += $(wildcard $(XI_ITESTS_SOURCE_DIR)/tools/dummy/*.c)
+
+# ADD INTEGRATION TEST TOOLS AND COMMON FILES
 XI_ITESTS_SOURCES += $(wildcard $(XI_TEST_DIR)/*.c)
+XI_ITESTS_SOURCES += $(wildcard $(XI_TEST_DIR)/common/control_topic/*.c)
 
 # ADD dummy io layer
 XI_ITESTS_SOURCES += $(wildcard $(LIBXIVELY)/src/libxively/io/dummy/*.c)
@@ -59,6 +62,7 @@ XI_ITEST_OBJS := $(subst $(LIBXIVELY)/src, $(XI_OBJDIR), $(XI_ITEST_OBJS))
 XI_ITESTS_INCLUDE_FLAGS += -I$(CMOCKA_INCLUDE_DIR)
 XI_ITESTS_INCLUDE_FLAGS += -I$(XI_TEST_DIR)
 XI_ITESTS_INCLUDE_FLAGS += -I$(XI_TEST_DIR)/tools
+XI_ITESTS_INCLUDE_FLAGS += -I$(XI_TEST_DIR)/common/control_topic
 XI_ITESTS_INCLUDE_FLAGS += -I$(XI_TEST_DIR)/itests
 XI_ITESTS_INCLUDE_FLAGS += -I$(XI_TEST_DIR)/itests/tools
 XI_ITESTS_INCLUDE_FLAGS += -I$(XI_TEST_DIR)/itests/tools/dummy

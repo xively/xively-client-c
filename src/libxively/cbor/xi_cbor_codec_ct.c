@@ -5,6 +5,7 @@
  */
 
 #include <xi_cbor_codec_ct.h>
+#include <xi_cbor_codec_ct_keys.h>
 
 #include <cbor.h>
 #include <cn-cbor/cn-cbor.h>
@@ -39,24 +40,6 @@ static cn_cbor_context cn_cbor_context_object = {.calloc_func = xi_cn_calloc_fun
 cn_cbor_context* context = &cn_cbor_context_object;
 
 #endif
-
-
-#define XI_CBOR_CODEC_CT_STRING_MSGTYPE "msgtype"
-#define XI_CBOR_CODEC_CT_STRING_MSGVER "msgver"
-#define XI_CBOR_CODEC_CT_STRING_LIST "list"
-#define XI_CBOR_CODEC_CT_STRING_FILE_NAME "N"
-#define XI_CBOR_CODEC_CT_STRING_FILE_REVISION "R"
-#define XI_CBOR_CODEC_CT_STRING_FILE_OPERATION "O"
-#define XI_CBOR_CODEC_CT_STRING_FILE_IMAGESIZE "S"
-#define XI_CBOR_CODEC_CT_STRING_FILE_FINGERPRINT "F"
-
-#define XI_CBOR_CODEC_CT_STRING_FILECHUNK_OFFSET "O"
-#define XI_CBOR_CODEC_CT_STRING_FILECHUNK_LENGTH "L"
-#define XI_CBOR_CODEC_CT_STRING_FILECHUNK_STATUS "S"
-#define XI_CBOR_CODEC_CT_STRING_FILECHUNK_CHUNK "C"
-
-#define XI_CBOR_CODEC_CT_STRING_FILESTATUS_PHASE "P"
-#define XI_CBOR_CODEC_CT_STRING_FILESTATUS_CODE "S"
 
 void xi_cbor_put_name_and_revision( cn_cbor* cb_map,
                                     const char* name,
@@ -328,7 +311,8 @@ xi_control_message_t* xi_cbor_codec_ct_decode( const uint8_t* data, const uint32
                 {
                     XI_ALLOC_BUFFER_AT( xi_control_message_file_desc_ext_t,
                                         control_message_out->file_update_available.list,
-                                        sizeof( xi_control_message_t ) * list->length,
+                                        sizeof( xi_control_message_file_desc_ext_t ) *
+                                            list->length,
                                         state );
 
                     uint16_t id_file = 0;
@@ -408,10 +392,7 @@ xi_control_message_t* xi_cbor_codec_ct_decode( const uint8_t* data, const uint32
 
             case XI_CONTROL_MESSAGE_CS_FILE_INFO:
             case XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK:
-            case XI_CONTROL_MESSAGE_CS_FILE_STATUS:
-            default:
-                cn_cbor_free( cb_map CBOR_CONTEXT_PARAM );
-                return NULL;
+            case XI_CONTROL_MESSAGE_CS_FILE_STATUS:;
         }
     }
 

@@ -217,12 +217,14 @@ void xi_control_message_free( xi_control_message_t** control_message )
 void xi_debug_control_message_dump( const xi_control_message_t* control_message,
                                     const char* custom_label )
 {
+    printf( "+++ xi_control_message_t: +++++++++++++++++++++++++ [%s] \n", custom_label );
+
     if ( NULL == control_message )
     {
+        printf( "+++ control message pointer is NULL\n" );
         return;
     }
 
-    printf( "+++ xi_control_message_t: +++++++++++++++++++++++++ [%s] \n", custom_label );
     printf( "+++ msgtype: %d, msgver: %d\n", control_message->common.msgtype,
             control_message->common.msgver );
 
