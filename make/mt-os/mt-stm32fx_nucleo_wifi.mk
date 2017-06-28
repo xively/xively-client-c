@@ -6,7 +6,7 @@
 include make/mt-os/mt-os-common.mk
 include make/mt-utils/mt-get-gnu-arm-toolchain.mk
 
-XI_STM32_PATH_SDK = $(HOME)/Downloads/xively-client-artifactory/st/STM32CubeExpansion_WIFI1_V3.0.1
+XI_STM32_PATH_SDK = $(HOME)/Downloads/xively-client-artifactory/st/STM32CubeExpansion_WIFI1_V3.0.2
 
 # This BSP folder MUST be included before the SDK's X-NUCLEO-IDW0xx1/.
 # More info available in src/bsp/platform/stm32fx_nucleo_wifi/stm32_spwf_wifi.h
