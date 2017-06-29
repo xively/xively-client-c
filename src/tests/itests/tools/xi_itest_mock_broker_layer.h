@@ -23,6 +23,8 @@ typedef struct xi_mock_broker_data_s
 {
     const char* control_topic_name_broker_in;
     const char* control_topic_name_broker_out;
+
+    xi_data_desc_t* outgoing_publish_content;
 } xi_mock_broker_data_t;
 
 /**

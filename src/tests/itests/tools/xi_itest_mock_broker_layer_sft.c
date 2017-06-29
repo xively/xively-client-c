@@ -10,6 +10,7 @@
 #include <xi_control_message.h>
 #include <xi_cbor_codec_ct_server.h>
 #include "xi_itest_helpers.h"
+#include "xi_helpers.h"
 
 xi_control_message_t*
 xi_mock_broker_sft_logic_on_file_info( const xi_control_message_t* control_message )
@@ -40,13 +41,23 @@ xi_mock_broker_sft_logic_on_file_info( const xi_control_message_t* control_messa
     {
         control_message_reply->file_update_available.list[id_file].name =
             control_message->file_info.list[id_file].name;
+        /* prevent deallocation of reused name */
         control_message->file_info.list[id_file].name = NULL;
 
         control_message_reply->file_update_available.list[id_file].revision =
-            control_message->file_info.list[id_file].revision;
-        control_message->file_info.list[id_file].revision = NULL;
+            xi_str_cat( control_message->file_info.list[id_file].revision, " - update" );
 
-        // todo_atigyi: fill in size and fingerprint
+        control_message_reply->file_update_available.list[id_file].file_operation = 0;
+        control_message_reply->file_update_available.list[id_file].size_in_bytes =
+            777 * ( 1 + id_file );
+
+        const char* fingerprint =
+            xi_str_cat( "@#$@#$@$xxx^ - test fingerprint - ",
+                        control_message_reply->file_update_available.list[id_file].name );
+        control_message_reply->file_update_available.list[id_file].fingerprint =
+            ( uint8_t* )fingerprint;
+        control_message_reply->file_update_available.list[id_file].fingerprint_len =
+            strlen( fingerprint );
     }
 
     return control_message_reply;

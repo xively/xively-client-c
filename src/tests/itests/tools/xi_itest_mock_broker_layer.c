@@ -35,6 +35,7 @@ xi_mock_broker_control_t xi_mock_broker_layer__check_expected__LEVEL0()
     return mock_type( xi_mock_broker_control_t );
 }
 
+/* next layer is not null only for the SUT layerchain */
 #define IS_MOCK_BROKER_LAYER_CHAIN ( NULL == XI_NEXT_LAYER( context ) )
 
 xi_state_t xi_mock_broker_layer_push( void* context, void* data, xi_state_t in_out_state )
@@ -84,14 +85,23 @@ xi_state_t xi_mock_broker_layer_push( void* context, void* data, xi_state_t in_o
     {
         if ( !IS_MOCK_BROKER_LAYER_CHAIN )
         {
-            /* next layer is not null only for the SUT layerchain, so this is the default
-             * libxively behaviour */
+            /* default libxively behaviour */
             return XI_PROCESS_PUSH_ON_NEXT_LAYER( context, data, in_out_state );
         }
         else if ( XI_STATE_WRITTEN == in_out_state ||
                   XI_STATE_FAILED_WRITING == in_out_state )
         {
             /* this is the mockbroker layerchain behaviour */
+
+            xi_layer_t* layer = ( xi_layer_t* )XI_THIS_LAYER( context );
+            xi_mock_broker_data_t* layer_data =
+                ( xi_mock_broker_data_t* )layer->user_data;
+
+            if ( NULL != layer_data )
+            {
+                xi_free_desc( &layer_data->outgoing_publish_content );
+            }
+
             xi_mqtt_written_data_t* written_data = ( xi_mqtt_written_data_t* )data;
             XI_SAFE_FREE_TUPLE( written_data );
         }
@@ -193,10 +203,29 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
                      0 == strcmp( publish_topic_name,
                                   layer_data->control_topic_name_broker_in ) )
                 {
-                    xi_data_desc_t* reply =
+                    /* message arrived on control topic, handle it with mock broker's SFT
+                     * logic */
+                    xi_data_desc_t* reply_sft_cbor_encoded =
                         xi_mock_broker_sft_logic_on_message( recvd_msg->publish.content );
 
-                    xi_free_desc( &reply );
+                    XI_ALLOC( xi_mqtt_message_t, mqtt_publish_sft_reply, in_out_state );
+
+                    in_out_state = fill_with_publish_data(
+                        mqtt_publish_sft_reply, layer_data->control_topic_name_broker_out,
+                        reply_sft_cbor_encoded,
+                        recvd_msg->common.common_u.common_bits.qos,
+                        recvd_msg->common.common_u.common_bits.retain,
+                        recvd_msg->common.common_u.common_bits.dup,
+                        recvd_msg->publish.message_id );
+
+
+                    layer_data->outgoing_publish_content = reply_sft_cbor_encoded;
+                    // xi_free_desc( &reply_sft_cbor_encoded );
+
+                    xi_mqtt_message_free( &recvd_msg );
+
+                    return XI_PROCESS_PUSH_ON_PREV_LAYER( context, mqtt_publish_sft_reply,
+                                                          in_out_state );
                 }
 
                 if ( 0 < recvd_msg->common.common_u.common_bits.qos )
@@ -348,8 +377,7 @@ xi_mock_broker_secondary_layer_push( void* context, void* data, xi_state_t in_ou
     if ( in_out_state == XI_STATE_OK )
     {
         /* jump to SUT libxively's codec layer pull function, mimicing incoming
-         * encoded
-         * message */
+         * encoded message */
         xi_evtd_execute_in(
             xi_globals.evtd_instance,
             xi_make_handle(
