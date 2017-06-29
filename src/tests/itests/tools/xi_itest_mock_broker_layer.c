@@ -218,9 +218,7 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
                         recvd_msg->common.common_u.common_bits.dup,
                         recvd_msg->publish.message_id );
 
-
                     layer_data->outgoing_publish_content = reply_sft_cbor_encoded;
-                    // xi_free_desc( &reply_sft_cbor_encoded );
 
                     xi_mqtt_message_free( &recvd_msg );
 
@@ -376,6 +374,16 @@ xi_mock_broker_secondary_layer_push( void* context, void* data, xi_state_t in_ou
 
     if ( in_out_state == XI_STATE_OK )
     {
+        /* duplicate the data before forwarding it to SUT layer since this is done by the
+         * network as well. This is required for PUBLISH payloads which are not copied
+         * between layers */
+        xi_data_desc_t* orig = ( xi_data_desc_t* )data;
+        xi_data_desc_t* copy =
+            xi_make_desc_from_buffer_copy( orig->data_ptr, orig->length );
+
+        /* data_desc deallocation is done by the real IO layer too */
+        xi_free_desc( &orig );
+
         /* jump to SUT libxively's codec layer pull function, mimicing incoming
          * encoded message */
         xi_evtd_execute_in(
@@ -385,7 +393,7 @@ xi_mock_broker_secondary_layer_push( void* context, void* data, xi_state_t in_ou
                     ->layer_funcs->pull,
                 &xi_itest_find_layer( xi_context, XI_LAYER_TYPE_MQTT_CODEC_SUT )
                      ->layer_connection,
-                data, in_out_state ),
+                copy, in_out_state ),
             1, NULL );
 
         return XI_PROCESS_PUSH_ON_NEXT_LAYER( context, NULL, XI_STATE_WRITTEN );
