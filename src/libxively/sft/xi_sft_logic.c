@@ -49,6 +49,8 @@ xi_state_t xi_sft_free_context( xi_sft_context_t** context )
 {
     if ( NULL != context && NULL != *context )
     {
+        xi_control_message_free( &( *context )->update_message_fua );
+
         XI_SAFE_FREE( *context );
     }
 
