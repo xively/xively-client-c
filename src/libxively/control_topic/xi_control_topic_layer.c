@@ -229,7 +229,7 @@ xi_state_t xi_control_topic_subscribe( void* context, char* subscribe_control_to
     xi_mqtt_logic_task_t* task = NULL;
 
     xi_event_handle_t handler = xi_make_threaded_handle(
-        XI_THREADID_THREAD_0, &xi_user_sub_call_wrapper, NULL, NULL, XI_STATE_OK,
+        XI_THREADID_MAINTHREAD, &xi_user_sub_call_wrapper, NULL, NULL, XI_STATE_OK,
         ( void* )&xi_on_control_message, ( void* )context, ( void* )NULL );
 
     /* create the proper task */
