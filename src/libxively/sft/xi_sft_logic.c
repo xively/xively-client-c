@@ -121,7 +121,7 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message 
         case XI_CONTROL_MESSAGE_SC_FILE_CHUNK:
         {
             /* - store the chunk through file/firmware BSP
-               - get the next chunk, XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK
+               - get the next chunk, XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK
                - if last chunk close file, start appropriate action
                     - if firmware: start firmware update or "just" report downloaded
                and

@@ -90,7 +90,7 @@ void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
 
     switch ( control_message->common.msgtype )
     {
-        case XI_CONTROL_MESSAGE_CS_FILE_INFO:
+        case XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO:
 
             if ( 0 < control_message->file_info.list_len )
             {
@@ -115,7 +115,7 @@ void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
             }
             break;
 
-        case XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK:
+        case XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK:
 
             xi_cbor_put_name_and_revision( cb_map, control_message->file_get_chunk.name,
                                            control_message->file_get_chunk.revision,
@@ -139,7 +139,7 @@ void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
 
             break;
 
-        case XI_CONTROL_MESSAGE_CS_FILE_STATUS:
+        case XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS:
 
             xi_cbor_put_name_and_revision( cb_map, control_message->file_status.name,
                                            control_message->file_status.revision, &err );
@@ -395,9 +395,9 @@ xi_control_message_t* xi_cbor_codec_ct_decode( const uint8_t* data, const uint32
 
             break;
 
-        case XI_CONTROL_MESSAGE_CS_FILE_INFO:
-        case XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK:
-        case XI_CONTROL_MESSAGE_CS_FILE_STATUS:;
+        case XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO:
+        case XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK:
+        case XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS:;
     }
 
     cn_cbor_free( cb_map CBOR_CONTEXT_PARAM );

@@ -213,10 +213,10 @@ void xi_itest_sft__basic_flow__SFT_protocol_intact( void** fixture_void )
 
 
     expect_value( xi_mock_broker_sft_logic_on_message, control_message->common.msgtype,
-                  XI_CONTROL_MESSAGE_CS_FILE_INFO );
+                  XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO );
 
     expect_value( xi_mock_broker_sft_logic_on_message, control_message->common.msgtype,
-                  XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK );
+                  XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK );
 
     // ACT
     xi_itest_sft__act( fixture_void, 1, ( const char* [] ){"file1", "file2"}, 2 );

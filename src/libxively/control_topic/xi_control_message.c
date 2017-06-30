@@ -24,7 +24,7 @@ xi_control_message_t* xi_control_message_create_file_info( const char** filename
 
     XI_ALLOC( xi_control_message_t, sft_message, state );
 
-    sft_message->common.msgtype = XI_CONTROL_MESSAGE_CS_FILE_INFO;
+    sft_message->common.msgtype = XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO;
     sft_message->common.msgver  = 1;
 
     XI_ALLOC_BUFFER_AT( xi_control_message_file_desc_t, sft_message->file_info.list,
@@ -68,7 +68,7 @@ xi_control_message_t* xi_control_message_create_file_get_chunk( const char* file
 
     XI_ALLOC( xi_control_message_t, sft_message, state );
 
-    sft_message->common.msgtype = XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK;
+    sft_message->common.msgtype = XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK;
     sft_message->common.msgver  = 1;
 
     sft_message->file_get_chunk.name     = xi_str_dup( filename );
@@ -99,7 +99,7 @@ xi_control_message_t* xi_control_message_create_file_status( const char* filenam
 
     XI_ALLOC( xi_control_message_t, sft_message, state );
 
-    sft_message->common.msgtype = XI_CONTROL_MESSAGE_CS_FILE_STATUS;
+    sft_message->common.msgtype = XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS;
     sft_message->common.msgver  = 1;
 
     sft_message->file_status.name     = xi_str_dup( filename );
@@ -151,7 +151,7 @@ void xi_control_message_free( xi_control_message_t** control_message )
 
     switch ( ( *control_message )->common.msgtype )
     {
-        case XI_CONTROL_MESSAGE_CS_FILE_INFO:
+        case XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO:
         {
             uint16_t id_file = 0;
             for ( ; id_file < ( *control_message )->file_info.list_len; ++id_file )
@@ -187,7 +187,7 @@ void xi_control_message_free( xi_control_message_t** control_message )
 
         break;
 
-        case XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK:
+        case XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK:
 
             XI_SAFE_FREE( ( *control_message )->file_get_chunk.name );
             XI_SAFE_FREE( ( *control_message )->file_get_chunk.revision );
@@ -202,7 +202,7 @@ void xi_control_message_free( xi_control_message_t** control_message )
 
             break;
 
-        case XI_CONTROL_MESSAGE_CS_FILE_STATUS:
+        case XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS:
 
             XI_SAFE_FREE( ( *control_message )->file_status.name );
             XI_SAFE_FREE( ( *control_message )->file_status.revision );
@@ -232,7 +232,7 @@ void xi_debug_control_message_dump( const xi_control_message_t* control_message,
 
     switch ( control_message->common.msgtype )
     {
-        case XI_CONTROL_MESSAGE_CS_FILE_INFO:
+        case XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO:
         {
             printf( "+++ SFT FILE_INFO, list_len %d\n",
                     control_message->file_info.list_len );
@@ -280,8 +280,8 @@ void xi_debug_control_message_dump( const xi_control_message_t* control_message,
         }
         break;
 
-        case XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK:
-            printf( "+++ XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK\n" );
+        case XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK:
+            printf( "+++ XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK\n" );
             printf( "+++ name: [%s], revision: [%s]\n",
                     control_message->file_get_chunk.name,
                     control_message->file_get_chunk.revision );
@@ -299,7 +299,7 @@ void xi_debug_control_message_dump( const xi_control_message_t* control_message,
             printf( "+++ status: %d, chunk ptr: %p\n", control_message->file_chunk.status,
                     control_message->file_chunk.chunk );
             break;
-        case XI_CONTROL_MESSAGE_CS_FILE_STATUS:
+        case XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS:
             printf( "+++ XI_CONTROL_MESSAGE_SC_FILE_STATUS\n" );
             printf( "+++ name: [%s], revision: [%s]\n", control_message->file_status.name,
                     control_message->file_status.revision );

@@ -210,7 +210,7 @@ xi_cbor_codec_ct_server_decode( const uint8_t* data, const uint32_t len )
 
     switch ( msgtype->v.uint )
     {
-        case XI_CONTROL_MESSAGE_CS_FILE_INFO:
+        case XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO:
         {
             cn_cbor* list = cn_cbor_mapget_string( cb_map, XI_CBOR_CODEC_CT_STRING_LIST );
 
@@ -245,7 +245,7 @@ xi_cbor_codec_ct_server_decode( const uint8_t* data, const uint32_t len )
 
         break;
 
-        case XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK:
+        case XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK:
 
             xi_cbor_codec_ct_decode_getvalue( cb_map, XI_CBOR_CODEC_CT_STRING_FILE_NAME,
                                               &control_message_out->file_get_chunk.name,
@@ -265,7 +265,7 @@ xi_cbor_codec_ct_server_decode( const uint8_t* data, const uint32_t len )
 
             break;
 
-        case XI_CONTROL_MESSAGE_CS_FILE_STATUS:
+        case XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS:
 
             xi_cbor_codec_ct_decode_getvalue( cb_map, XI_CBOR_CODEC_CT_STRING_FILE_NAME,
                                               &control_message_out->file_status.name,

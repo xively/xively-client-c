@@ -119,15 +119,15 @@ xi_mock_broker_sft_logic_on_message( const xi_data_desc_t* control_message_encod
     xi_control_message_t* ( *mock_broker_logic_by_msgtype[XI_CONTROL_MESSAGE_COUNT] )(
         const xi_control_message_t* ) = {0};
 
-    mock_broker_logic_by_msgtype[XI_CONTROL_MESSAGE_CS_FILE_INFO] =
+    mock_broker_logic_by_msgtype[XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO] =
         &xi_mock_broker_sft_logic_on_file_info;
-    mock_broker_logic_by_msgtype[XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK] =
+    mock_broker_logic_by_msgtype[XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK] =
         &xi_mock_broker_sft_logic_on_file_get_chunk;
-    mock_broker_logic_by_msgtype[XI_CONTROL_MESSAGE_CS_FILE_STATUS] = NULL;
+    mock_broker_logic_by_msgtype[XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS] = NULL;
 
-    /* applying mock broker logic */
     if ( NULL != mock_broker_logic_by_msgtype[control_message->common.msgtype] )
     {
+        /* applying mock broker logic */
         xi_control_message_t* reply_message =
             ( mock_broker_logic_by_msgtype[control_message->common.msgtype] )(
                 control_message );

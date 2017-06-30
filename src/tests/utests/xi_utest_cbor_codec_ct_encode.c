@@ -55,7 +55,7 @@ XI_TT_TESTCASE_WITH_SETUP(
     {
         const xi_control_message_t file_info_empty = {
             .file_info = {
-                .common = {.msgtype = XI_CONTROL_MESSAGE_CS_FILE_INFO, .msgver = 1},
+                .common = {.msgtype = XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO, .msgver = 1},
                 .list_len = 0,
                 .list     = NULL}};
 
@@ -86,7 +86,7 @@ XI_TT_TESTCASE_WITH_SETUP(
 
         const xi_control_message_t file_info_single_file = {
             .file_info = {
-                .common = {.msgtype = XI_CONTROL_MESSAGE_CS_FILE_INFO, .msgver = 1},
+                .common = {.msgtype = XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO, .msgver = 1},
                 .list_len = 1,
                 .list     = &file_desc}};
 
@@ -120,7 +120,7 @@ XI_TT_TESTCASE_WITH_SETUP(
 
         const xi_control_message_t file_info_single_file = {
             .file_info = {
-                .common = {.msgtype = XI_CONTROL_MESSAGE_CS_FILE_INFO, .msgver = 1},
+                .common = {.msgtype = XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO, .msgver = 1},
                 .list_len = 1,
                 .list     = &file_desc}};
 
@@ -157,7 +157,7 @@ XI_TT_TESTCASE_WITH_SETUP(
 
         const xi_control_message_t file_info_three_files = {
             .file_info = {
-                .common = {.msgtype = XI_CONTROL_MESSAGE_CS_FILE_INFO, .msgver = 55},
+                .common = {.msgtype = XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO, .msgver = 55},
                 .list_len = 3,
                 .list     = three_file_desc}};
 
@@ -216,7 +216,8 @@ XI_TT_TESTCASE_WITH_SETUP(
     {
         const xi_control_message_t file_get_chunk = {
             .file_get_chunk = {
-                .common = {.msgtype = XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK, .msgver = 1},
+                .common = {.msgtype = XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK,
+                           .msgver  = 1},
                 .name     = "givemethischunkboy",
                 .revision = "theperfect revision please 123",
                 .offset   = 11,
@@ -254,12 +255,13 @@ XI_TT_TESTCASE_WITH_SETUP(
     NULL,
     {
         const xi_control_message_t file_get_chunk = {
-            .file_get_chunk = {.common = {.msgtype = XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK,
-                                          .msgver  = 123},
-                               .name     = "zero",
-                               .revision = "zero 999",
-                               .offset   = 0,
-                               .length   = 0}};
+            .file_get_chunk = {
+                .common = {.msgtype = XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK,
+                           .msgver  = 123},
+                .name     = "zero",
+                .revision = "zero 999",
+                .offset   = 0,
+                .length   = 0}};
 
         uint8_t* encoded     = NULL;
         uint32_t encoded_len = 0;

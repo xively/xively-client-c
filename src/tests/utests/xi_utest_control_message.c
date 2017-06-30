@@ -76,7 +76,7 @@ XI_TT_TESTCASE_WITH_SETUP(
             xi_control_message_create_file_info( &single_filename, NULL, 1 );
 
         tt_ptr_op( NULL, !=, message_file_info );
-        tt_want_int_op( XI_CONTROL_MESSAGE_CS_FILE_INFO, ==,
+        tt_want_int_op( XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO, ==,
                         message_file_info->common.msgtype );
         tt_want_int_op( 1, ==, message_file_info->common.msgver );
 
@@ -107,7 +107,7 @@ XI_TT_TESTCASE_WITH_SETUP(
             xi_control_message_create_file_info( &single_filename, &single_revision, 1 );
 
         tt_ptr_op( NULL, !=, message_file_info );
-        tt_want_int_op( XI_CONTROL_MESSAGE_CS_FILE_INFO, ==,
+        tt_want_int_op( XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO, ==,
                         message_file_info->common.msgtype );
         tt_want_int_op( 1, ==, message_file_info->common.msgver );
 
