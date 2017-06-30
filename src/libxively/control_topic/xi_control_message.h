@@ -87,7 +87,7 @@ typedef union xi_control_message_u {
 
     } file_get_chunk;
 
-    struct
+    struct file_chunk_s
     {
         struct xi_control_message_common_s common;
 

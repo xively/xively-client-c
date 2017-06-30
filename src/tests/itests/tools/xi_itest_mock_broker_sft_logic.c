@@ -13,7 +13,7 @@
 #include "xi_helpers.h"
 
 xi_control_message_t*
-xi_mock_broker_sft_logic_on_file_info( const xi_control_message_t* control_message )
+xi_mock_broker_sft_logic_on_file_info( xi_control_message_t* control_message )
 {
     if ( NULL == control_message )
     {
@@ -70,25 +70,49 @@ err_handling:
 }
 
 xi_control_message_t*
-xi_mock_broker_sft_logic_on_file_get_chunk( const xi_control_message_t* control_message )
+xi_mock_broker_sft_logic_on_file_get_chunk( xi_control_message_t* control_message )
 {
     if ( NULL == control_message )
     {
         return NULL;
     }
 
-    xi_state_t state = XI_STATE_OK;
+    xi_state_t state                   = XI_STATE_OK;
+    uint8_t* file_chunk_out_artificial = NULL;
+
+    enum XI_MOCK_BROKER_SFT_FILE_CHUNK_STATUS
+    {
+        MOCK_BROKER_SFT_FILE_CHUNK__REQUEST_IS_CORRECT                       = 0,
+        MOCK_BROKER_SFT_FILE_CHUNK__END_OF_FILE_CHUNK_MIGHT_BE_SHORTER       = 1,
+        MOCK_BROKER_SFT_FILE_CHUNK__OFFSET_IS_GREATER_THAN_FILE_LENGTH       = 2,
+        MOCK_BROKER_SFT_FILE_CHUNK__REQUESTED_LENGTH_IS_GREATER_THAN_MAXIMUM = 3,
+        MOCK_BROKER_SFT_FILE_CHUNK__FILE_UNAVAILABLE                         = 4,
+    };
 
     XI_ALLOC( xi_control_message_t, control_message_reply, state );
+    XI_ALLOC_BUFFER_AT( uint8_t, file_chunk_out_artificial,
+                        control_message->file_get_chunk.length, state );
 
-    control_message_reply->common.msgtype = XI_CONTROL_MESSAGE_SC_FILE_CHUNK;
-    control_message_reply->common.msgver  = 1;
+    control_message_reply->file_chunk = ( struct file_chunk_s ){
+        .common = {.msgtype = XI_CONTROL_MESSAGE_SC_FILE_CHUNK, .msgver = 1},
+        .name     = control_message->file_get_chunk.name,
+        .revision = control_message->file_get_chunk.revision,
+        .offset   = control_message->file_get_chunk.offset,
+        .length   = control_message->file_get_chunk.length,
+        .status   = MOCK_BROKER_SFT_FILE_CHUNK__REQUEST_IS_CORRECT,
+        .chunk    = file_chunk_out_artificial};
+
+
+    /* prevent deallocation of name and revision since these are reused in reply msg */
+    control_message->file_get_chunk.name     = NULL;
+    control_message->file_get_chunk.revision = NULL;
 
     return control_message_reply;
 
 err_handling:
 
     xi_control_message_free( &control_message_reply );
+    XI_SAFE_FREE( file_chunk_out_artificial );
 
     return NULL;
 }
@@ -117,7 +141,7 @@ xi_mock_broker_sft_logic_on_message( const xi_data_desc_t* control_message_encod
     check_expected( control_message->common.msgtype );
 
     xi_control_message_t* ( *mock_broker_logic_by_msgtype[XI_CONTROL_MESSAGE_COUNT] )(
-        const xi_control_message_t* ) = {0};
+        xi_control_message_t* ) = {0};
 
     mock_broker_logic_by_msgtype[XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO] =
         &xi_mock_broker_sft_logic_on_file_info;

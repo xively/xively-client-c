@@ -66,8 +66,8 @@ xi_itest_sft__test_fixture_t* xi_itest_sft__generate_fixture()
     fixture->control_topic_name_client_in  = ( "xi/ctrl/v1/xi_itest_sft_device_id/cln" );
     fixture->control_topic_name_client_out = ( "xi/ctrl/v1/xi_itest_sft_device_id/svc" );
 
-    fixture->loop_id__manual_disconnect = 15;
-    fixture->max_loop_count             = 20;
+    fixture->loop_id__manual_disconnect = 35;
+    fixture->max_loop_count             = 40;
 
     return fixture;
 
@@ -215,8 +215,23 @@ void xi_itest_sft__basic_flow__SFT_protocol_intact( void** fixture_void )
     expect_value( xi_mock_broker_sft_logic_on_message, control_message->common.msgtype,
                   XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO );
 
-    expect_value( xi_mock_broker_sft_logic_on_message, control_message->common.msgtype,
-                  XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK );
+    /* 1st file */
+    expect_value_count( xi_mock_broker_sft_logic_on_message,
+                        control_message->common.msgtype,
+                        XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK, 2 );
+
+    expect_value_count( xi_mock_broker_sft_logic_on_message,
+                        control_message->common.msgtype,
+                        XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 3 );
+
+    /* 2nd file */
+    expect_value_count( xi_mock_broker_sft_logic_on_message,
+                        control_message->common.msgtype,
+                        XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK, 4 );
+
+    expect_value_count( xi_mock_broker_sft_logic_on_message,
+                        control_message->common.msgtype,
+                        XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 3 );
 
     // ACT
     xi_itest_sft__act( fixture_void, 1, ( const char* [] ){"file1", "file2"}, 2 );

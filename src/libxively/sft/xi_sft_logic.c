@@ -9,7 +9,7 @@
 #include <xi_macros.h>
 #include <xi_debug.h>
 
-// #define XI_SFT_DOWNLOAD_BYTES_PER_FILE_CHUNK 1024
+// #define XI_SFT_DOWNLOAD_BYTES_PER_FILE_CHUNK 1 * 1024
 #define XI_SFT_DOWNLOAD_BYTES_PER_FILE_CHUNK 4 * 1024
 
 xi_state_t xi_sft_make_context( xi_sft_context_t** context,
@@ -77,16 +77,16 @@ xi_state_t xi_sft_on_connected( xi_sft_context_t* context )
 }
 
 xi_state_t
-xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message )
+xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_in )
 {
-    if ( NULL == context || NULL == sft_message )
+    if ( NULL == context || NULL == sft_message_in )
     {
         return XI_INVALID_PARAMETER;
     }
 
     xi_state_t state = XI_STATE_OK;
 
-    switch ( sft_message->common.msgtype )
+    switch ( sft_message_in->common.msgtype )
     {
         case XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE:
         {
@@ -98,7 +98,7 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message 
                 xi_control_message_free( &context->update_message_fua );
             }
 
-            context->update_message_fua = sft_message;
+            context->update_message_fua = sft_message_in;
 
             if ( 0 < context->update_message_fua->file_update_available.list_len &&
                  NULL != context->update_message_fua->file_update_available.list )
@@ -121,7 +121,6 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message 
         case XI_CONTROL_MESSAGE_SC_FILE_CHUNK:
         {
             /* - store the chunk through file/firmware BSP
-               - get the next chunk, XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK
                - if last chunk close file, start appropriate action
                     - if firmware: start firmware update or "just" report downloaded
                and
@@ -134,12 +133,14 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message 
 
             if ( NULL != context->update_current_file &&
                  NULL != context->update_current_file->name &&
-                 NULL != sft_message->file_chunk.name &&
+                 NULL != sft_message_in->file_chunk.name &&
                  0 == strcmp( context->update_current_file->name,
-                              sft_message->file_chunk.name ) )
+                              sft_message_in->file_chunk.name ) )
             {
                 const uint32_t all_downloaded_bytes =
-                    sft_message->file_chunk.offset + sft_message->file_chunk.length;
+                    sft_message_in->file_chunk.offset + sft_message_in->file_chunk.length;
+
+                /* HERE process the bytes in sft_message_in->file_chunk.chunk */
 
                 if ( all_downloaded_bytes < context->update_current_file->size_in_bytes )
                 {
@@ -200,7 +201,7 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message 
                     context->update_current_file =
                         xi_control_message_file_update_available_get_next_file_desc_ext(
                             &context->update_message_fua->file_update_available,
-                            sft_message->file_chunk.name );
+                            sft_message_in->file_chunk.name );
 
                     if ( NULL != context->update_current_file )
                     {
@@ -234,7 +235,7 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message 
                                      : "n/a" );
             }
 
-            xi_control_message_free( &sft_message );
+            xi_control_message_free( &sft_message_in );
         }
         break;
         default:;

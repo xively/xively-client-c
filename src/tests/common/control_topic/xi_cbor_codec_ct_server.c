@@ -144,21 +144,25 @@ void xi_cbor_codec_ct_server_encode( const xi_control_message_t* control_message
                                     &err ),
                 &err );
 
-            cn_cbor_map_put(
-                cb_map,
-                cn_cbor_string_create(
-                    XI_CBOR_CODEC_CT_STRING_FILECHUNK_CHUNK CBOR_CONTEXT_PARAM, &err ),
-                cn_cbor_data_create(
-                    control_message->file_chunk.chunk,
-                    control_message->file_chunk.length CBOR_CONTEXT_PARAM, &err ),
-                &err );
+            if ( NULL != control_message->file_chunk.chunk )
+            {
+                cn_cbor_map_put(
+                    cb_map,
+                    cn_cbor_string_create(
+                        XI_CBOR_CODEC_CT_STRING_FILECHUNK_CHUNK CBOR_CONTEXT_PARAM,
+                        &err ),
+                    cn_cbor_data_create(
+                        control_message->file_chunk.chunk,
+                        control_message->file_chunk.length CBOR_CONTEXT_PARAM, &err ),
+                    &err );
+            }
 
             break;
 
         default:;
     }
 
-    unsigned char encoded[512];
+    unsigned char encoded[8192];
     *out_len = cn_cbor_encoder_write( encoded, 0, sizeof( encoded ), cb_map );
 
     cn_cbor_free( cb_map CBOR_CONTEXT_PARAM );
