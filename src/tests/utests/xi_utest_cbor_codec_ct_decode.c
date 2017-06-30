@@ -33,134 +33,10 @@ void xi_utest_cbor_bin_to_stdout( const uint8_t* data,
                                   uint32_t len,
                                   uint8_t hex_output_type );
 
-void xi_cbor_put_name_and_revision( cn_cbor* cb_map,
-                                    const char* name,
-                                    const char* revision,
-                                    cn_cbor_errback* errp );
-
-void xi_utest_cbor_codec_ct_encode( const xi_control_message_t* control_message,
-                                    uint8_t** out_encoded_allocated_inside,
-                                    uint32_t* out_len )
-{
-    cn_cbor_errback err;
-    cn_cbor* cb_map = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMA & err );
-
-    cn_cbor_map_put(
-        cb_map, cn_cbor_string_create( "msgtype" CBOR_CONTEXT_PARAM, &err ),
-        cn_cbor_int_create( control_message->common.msgtype CBOR_CONTEXT_PARAM, &err ),
-        &err );
-
-    cn_cbor_map_put(
-        cb_map, cn_cbor_string_create( "msgver" CBOR_CONTEXT_PARAM, &err ),
-        cn_cbor_int_create( control_message->common.msgver CBOR_CONTEXT_PARAM, &err ),
-        &err );
-
-    switch ( control_message->common.msgtype )
-    {
-        /* the followings are encoded by the broker and decoded by the client */
-        case XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE:
-
-            if ( 0 < control_message->file_update_available.list_len )
-            {
-                cn_cbor* files = cn_cbor_array_create( CBOR_CONTEXT_PARAM_COMA & err );
-
-                uint16_t id_file = 0;
-                for ( ; id_file < control_message->file_update_available.list_len;
-                      ++id_file )
-                {
-                    cn_cbor* file = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMA & err );
-
-                    xi_cbor_put_name_and_revision(
-                        file, control_message->file_update_available.list[id_file].name,
-                        control_message->file_update_available.list[id_file].revision,
-                        &err );
-
-                    cn_cbor_map_put(
-                        file, cn_cbor_string_create( "O" CBOR_CONTEXT_PARAM, &err ),
-                        cn_cbor_int_create(
-                            control_message->file_update_available.list[id_file]
-                                .file_operation CBOR_CONTEXT_PARAM,
-                            &err ),
-                        &err );
-
-                    cn_cbor_map_put(
-                        file, cn_cbor_string_create( "S" CBOR_CONTEXT_PARAM, &err ),
-                        cn_cbor_int_create(
-                            control_message->file_update_available.list[id_file]
-                                .size_in_bytes CBOR_CONTEXT_PARAM,
-                            &err ),
-                        &err );
-
-                    cn_cbor_map_put(
-                        file, cn_cbor_string_create( "F" CBOR_CONTEXT_PARAM, &err ),
-                        cn_cbor_data_create(
-                            control_message->file_update_available.list[id_file]
-                                .fingerprint,
-                            control_message->file_update_available.list[id_file]
-                                .fingerprint_len CBOR_CONTEXT_PARAM,
-                            &err ),
-                        &err );
-
-                    cn_cbor_array_append( files, file, &err );
-                }
-
-                cn_cbor_map_put( cb_map,
-                                 cn_cbor_string_create( "list" CBOR_CONTEXT_PARAM, &err ),
-                                 files, &err );
-            }
-
-            break;
-
-        case XI_CONTROL_MESSAGE_SC_FILE_CHUNK:
-
-            xi_cbor_put_name_and_revision( cb_map, control_message->file_chunk.name,
-                                           control_message->file_chunk.revision, &err );
-
-            cn_cbor_map_put(
-                cb_map, cn_cbor_string_create( "O" CBOR_CONTEXT_PARAM, &err ),
-                cn_cbor_int_create( control_message->file_chunk.offset CBOR_CONTEXT_PARAM,
-                                    &err ),
-                &err );
-
-            cn_cbor_map_put(
-                cb_map, cn_cbor_string_create( "L" CBOR_CONTEXT_PARAM, &err ),
-                cn_cbor_int_create( control_message->file_chunk.length CBOR_CONTEXT_PARAM,
-                                    &err ),
-                &err );
-
-            cn_cbor_map_put(
-                cb_map, cn_cbor_string_create( "S" CBOR_CONTEXT_PARAM, &err ),
-                cn_cbor_int_create( control_message->file_chunk.status CBOR_CONTEXT_PARAM,
-                                    &err ),
-                &err );
-
-            cn_cbor_map_put(
-                cb_map, cn_cbor_string_create( "C" CBOR_CONTEXT_PARAM, &err ),
-                cn_cbor_data_create(
-                    control_message->file_chunk.chunk,
-                    control_message->file_chunk.length CBOR_CONTEXT_PARAM, &err ),
-                &err );
-
-            break;
-
-        case XI_CONTROL_MESSAGE_CS_FILE_INFO:
-        case XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK:
-        case XI_CONTROL_MESSAGE_CS_FILE_STATUS:
-        default:;
-    }
-
-    unsigned char encoded[512];
-    *out_len = cn_cbor_encoder_write( encoded, 0, sizeof( encoded ), cb_map );
-
-    cn_cbor_free( cb_map CBOR_CONTEXT_PARAM );
-
-    xi_state_t state = XI_STATE_OK;
-    XI_ALLOC_BUFFER_AT( uint8_t, *out_encoded_allocated_inside, *out_len, state );
-
-    memcpy( *out_encoded_allocated_inside, encoded, *out_len );
-
-err_handling:;
-}
+/* using the common server CBOR encoder, shared usage with the itests' mock broker */
+void xi_cbor_codec_ct_server_encode( const xi_control_message_t* control_message,
+                                     uint8_t** out_encoded_allocated_inside,
+                                     uint32_t* out_len );
 
 void xi_utest_cbor_ASSERT_control_message_string( const char* str1, const char* str2 )
 {
@@ -270,8 +146,8 @@ XI_TT_TESTCASE_WITH_SETUP(
         uint8_t* encoded     = NULL;
         uint32_t encoded_len = 0;
 
-        xi_utest_cbor_codec_ct_encode( &file_update_available_in, &encoded,
-                                       &encoded_len );
+        xi_cbor_codec_ct_server_encode( &file_update_available_in, &encoded,
+                                        &encoded_len );
 
         // xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 0 );
         // xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 1 );
@@ -314,8 +190,8 @@ XI_TT_TESTCASE_WITH_SETUP(
         uint8_t* encoded     = NULL;
         uint32_t encoded_len = 0;
 
-        xi_utest_cbor_codec_ct_encode( &file_update_available_in, &encoded,
-                                       &encoded_len );
+        xi_cbor_codec_ct_server_encode( &file_update_available_in, &encoded,
+                                        &encoded_len );
 
         // xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 0 );
         // xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 1 );
@@ -360,8 +236,8 @@ XI_TT_TESTCASE_WITH_SETUP(
         uint8_t* encoded     = NULL;
         uint32_t encoded_len = 0;
 
-        xi_utest_cbor_codec_ct_encode( &file_update_available_in, &encoded,
-                                       &encoded_len );
+        xi_cbor_codec_ct_server_encode( &file_update_available_in, &encoded,
+                                        &encoded_len );
 
         // xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 0 );
         // xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 1 );
@@ -416,8 +292,8 @@ XI_TT_TESTCASE_WITH_SETUP(
         uint8_t* encoded     = NULL;
         uint32_t encoded_len = 0;
 
-        xi_utest_cbor_codec_ct_encode( &file_update_available_in, &encoded,
-                                       &encoded_len );
+        xi_cbor_codec_ct_server_encode( &file_update_available_in, &encoded,
+                                        &encoded_len );
 
         // xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 0 );
         // xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 1 );
@@ -460,7 +336,7 @@ XI_TT_TESTCASE_WITH_SETUP(
         uint8_t* encoded     = NULL;
         uint32_t encoded_len = 0;
 
-        xi_utest_cbor_codec_ct_encode( &file_chunk_in, &encoded, &encoded_len );
+        xi_cbor_codec_ct_server_encode( &file_chunk_in, &encoded, &encoded_len );
 
         // xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 0 );
         // xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 1 );
@@ -496,7 +372,7 @@ XI_TT_TESTCASE_WITH_SETUP(
         uint8_t* encoded     = NULL;
         uint32_t encoded_len = 0;
 
-        xi_utest_cbor_codec_ct_encode( &file_chunk_in, &encoded, &encoded_len );
+        xi_cbor_codec_ct_server_encode( &file_chunk_in, &encoded, &encoded_len );
 
         // xi_utest_cbor_bin_to_stdout( encoded, ehncoded_len, 0 );
         // xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 1 );
@@ -535,7 +411,7 @@ XI_TT_TESTCASE_WITH_SETUP(
         uint8_t* encoded     = NULL;
         uint32_t encoded_len = 0;
 
-        xi_utest_cbor_codec_ct_encode( &file_chunk_in, &encoded, &encoded_len );
+        xi_cbor_codec_ct_server_encode( &file_chunk_in, &encoded, &encoded_len );
 
         // xi_utest_cbor_bin_to_stdout( encoded, ehncoded_len, 0 );
         // xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 1 );
