@@ -4,7 +4,7 @@
  * it is licensed under the BSD 3-Clause license.
  */
 
-#include "xi_itest_mock_broker_layer_sft.h"
+#include "xi_itest_mock_broker_sft_logic.h"
 #include <stdio.h>
 
 #include <xi_control_message.h>

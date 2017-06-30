@@ -4,12 +4,12 @@
  * it is licensed under the BSD 3-Clause license.
  */
 
-#ifndef __XI_ITEST_MOCK_BROKER_LAYER_SFT_H__
-#define __XI_ITEST_MOCK_BROKER_LAYER_SFT_H__
+#ifndef __XI_ITEST_MOCK_BROKER_SFT_LOGIC_H__
+#define __XI_ITEST_MOCK_BROKER_SFT_LOGIC_H__
 
 #include <xi_data_desc.h>
 
 xi_data_desc_t*
 xi_mock_broker_sft_logic_on_message( const xi_data_desc_t* control_message );
 
-#endif /* __XI_ITEST_MOCK_BROKER_LAYER_SFT_H__ */
+#endif /* __XI_ITEST_MOCK_BROKER_SFT_LOGIC_H__ */

@@ -8,7 +8,7 @@
 #include "xi_itest_helpers.h"
 #include "xi_itest_layerchain_ct_ml_mc.h"
 #include "xi_itest_mock_broker_layer.h"
-#include "xi_itest_mock_broker_layer_sft.h"
+#include "xi_itest_mock_broker_sft_logic.h"
 #include "xi_itest_mock_broker_layerchain.h"
 #include "xi_layer_macros.h"
 #include "xi_mqtt_logic_layer_data_helpers.h"
