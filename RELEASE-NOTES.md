@@ -1,10 +1,39 @@
+
+# Xively Client version 1.2.6
+#### Jun 30 2017
+
+## Documentation
+
+- Fixes to `doc/porting_guide.md` referring to improper make enviornment CONFIG flag `tls`. It should be `tls_bsp`.
+
+## Features
+
+- Secure File Transfer: A new TI CC3200 client that allows firmware updates over MQTT via the Xively SFT service.
+- Updates to the User Guide to reflect the new Open Source porting process. Also added links to our CC3200 and STM32 Nucleo examples, and to our Further Readings.
+
+###TI CC3200
+- Contains a new example `xively_firmware_updates` as our first reference implemention of using Xively Secure File Transfer to update the firwmare of a CC3200.
+
+###TI CC3220SF
+- Added TI CC3220SF demo application sources and build process for tutorials on Xively Developer Center.
+
+###STM32F4 Nucleo
+- Updated STM32F4 examples to build against latest ST SDKs. 
+- New build configurations to support both sensor boards (IKS01A1 and IKS01A1) out of the box.
+- The github repository is extended with a prebuilt binary for STM32F401RE + WiFi IDW01M1 + MEMS IKS01A1. Tier 1 tutorial (how to use the precompiled binary) is also provided.
+- STM32F4 ethernet example now supports runtime provisioning over serial and flash storage of Xively credentials.
+- Convenience fixes for Ethernet and WiFi project examples to increase ease use of the tutorial.
+
+## Internal Development
+- CI system now builds against ST SDKs v1.16.0 for Ethernet and v3.0.2 for WiFi.
+
+
 # Xively Client version 1.2.5
-#### March 14 2017
+#### Mar 14 2017
 
 ## Features
 
 - STM32F401RE Nucleo board + wifi X-NUCLEO-IDW01M1 expansion board support. Example Eclipse project and Tutorial (https://developer.xively.com/docs/stm32f4xx-nucleo) included. TLS connection to Xively Servers uses the wifi expansion on-board TLS solution. Accurate time initialised from SNTP servers.
-
 
 
 # Xively Client version 1.2.4
