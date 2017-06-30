@@ -146,9 +146,7 @@ void xi_utest_cbor_codec_ct_encode( const xi_control_message_t* control_message,
         case XI_CONTROL_MESSAGE_CS_FILE_INFO:
         case XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK:
         case XI_CONTROL_MESSAGE_CS_FILE_STATUS:
-        default:
-            cn_cbor_free( cb_map CBOR_CONTEXT_PARAM );
-            return;
+        default:;
     }
 
     unsigned char encoded[512];

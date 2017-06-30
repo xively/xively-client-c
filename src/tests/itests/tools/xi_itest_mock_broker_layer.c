@@ -30,10 +30,22 @@ xi_state_t xi_mock_broker_layer_push__ERROR_CHANNEL()
     return mock_type( xi_state_t );
 }
 
-xi_mock_broker_control_t xi_mock_broker_layer__check_expected__LEVEL0()
+xi_mock_broker_control_t xi_mock_broker_layer__check_expected__LAYER_LEVEL()
 {
     return mock_type( xi_mock_broker_control_t );
 }
+
+xi_mock_broker_control_t xi_mock_broker_layer__check_expected__MQTT_LEVEL()
+{
+    return mock_type( xi_mock_broker_control_t );
+}
+
+#define XI_MOCK_BROKER_CONDITIONAL__CHECK_EXPECTED( variable_to_check, level )           \
+    if ( CONTROL_SKIP_CHECK_EXPECTED !=                                                  \
+         xi_mock_broker_layer__check_expected__##level() )                               \
+    {                                                                                    \
+        check_expected( variable_to_check );                                             \
+    }
 
 /* next layer is not null only for the SUT layerchain */
 #define IS_MOCK_BROKER_LAYER_CHAIN ( NULL == XI_NEXT_LAYER( context ) )
@@ -42,10 +54,7 @@ xi_state_t xi_mock_broker_layer_push( void* context, void* data, xi_state_t in_o
 {
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
 
-    if ( CONTROL_SKIP_CHECK_EXPECTED != xi_mock_broker_layer__check_expected__LEVEL0() )
-    {
-        check_expected( in_out_state );
-    }
+    XI_MOCK_BROKER_CONDITIONAL__CHECK_EXPECTED( in_out_state, LAYER_LEVEL );
 
     const xi_mock_broker_control_t control = mock_type( xi_mock_broker_control_t );
 
@@ -124,10 +133,7 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
         XI_CONNACK_REFUSED_NOT_AUTHORIZED        = 5
     };
 
-    if ( CONTROL_SKIP_CHECK_EXPECTED != xi_mock_broker_layer__check_expected__LEVEL0() )
-    {
-        check_expected( in_out_state );
-    }
+    XI_MOCK_BROKER_CONDITIONAL__CHECK_EXPECTED( in_out_state, LAYER_LEVEL );
 
     xi_layer_t* layer                 = ( xi_layer_t* )XI_THIS_LAYER( context );
     xi_mock_broker_data_t* layer_data = ( xi_mock_broker_data_t* )layer->user_data;
@@ -144,7 +150,7 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
 
         xi_debug_format( "mock broker received message with type %d ", recvd_msg_type );
 
-        check_expected( recvd_msg_type );
+        XI_MOCK_BROKER_CONDITIONAL__CHECK_EXPECTED( recvd_msg_type, MQTT_LEVEL );
 
         switch ( recvd_msg_type )
         {
@@ -168,7 +174,8 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
                 xi_debug_format( "subscribe arrived on topic `%s`",
                                  subscribe_topic_name );
 
-                check_expected( subscribe_topic_name );
+                XI_MOCK_BROKER_CONDITIONAL__CHECK_EXPECTED( subscribe_topic_name,
+                                                            MQTT_LEVEL );
 
                 XI_ALLOC( xi_mqtt_message_t, msg_suback, in_out_state );
                 // note: fill subscribe can be used for fill suback only because the
@@ -197,35 +204,10 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
                 xi_debug_format( "publish arrived on topic `%s`, msgid: %d",
                                  publish_topic_name, recvd_msg->publish.message_id );
 
-                check_expected( publish_topic_name );
+                XI_MOCK_BROKER_CONDITIONAL__CHECK_EXPECTED( publish_topic_name,
+                                                            MQTT_LEVEL );
 
-                if ( NULL != layer_data &&
-                     0 == strcmp( publish_topic_name,
-                                  layer_data->control_topic_name_broker_in ) )
-                {
-                    /* message arrived on control topic, handle it with mock broker's SFT
-                     * logic */
-                    xi_data_desc_t* reply_sft_cbor_encoded =
-                        xi_mock_broker_sft_logic_on_message( recvd_msg->publish.content );
-
-                    XI_ALLOC( xi_mqtt_message_t, mqtt_publish_sft_reply, in_out_state );
-
-                    in_out_state = fill_with_publish_data(
-                        mqtt_publish_sft_reply, layer_data->control_topic_name_broker_out,
-                        reply_sft_cbor_encoded,
-                        recvd_msg->common.common_u.common_bits.qos,
-                        recvd_msg->common.common_u.common_bits.retain,
-                        recvd_msg->common.common_u.common_bits.dup,
-                        recvd_msg->publish.message_id );
-
-                    layer_data->outgoing_publish_content = reply_sft_cbor_encoded;
-
-                    xi_mqtt_message_free( &recvd_msg );
-
-                    return XI_PROCESS_PUSH_ON_PREV_LAYER( context, mqtt_publish_sft_reply,
-                                                          in_out_state );
-                }
-
+                /* PUBACK if necessary */
                 if ( 0 < recvd_msg->common.common_u.common_bits.qos )
                 {
                     XI_ALLOC( xi_mqtt_message_t, msg_puback, in_out_state );
@@ -236,11 +218,46 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
                     return XI_PROCESS_PUSH_ON_PREV_LAYER( context, msg_puback,
                                                           in_out_state );
                 }
+
+                /* handling CONTROL TOPIC messages */
+                if ( NULL != layer_data &&
+                     0 == strcmp( publish_topic_name,
+                                  layer_data->control_topic_name_broker_in ) )
+                {
+                    /* currently only Secure File Transfer messages travel on control
+                     * topic */
+                    xi_data_desc_t* reply_sft_cbor_encoded =
+                        xi_mock_broker_sft_logic_on_message( recvd_msg->publish.content );
+
+                    if ( NULL != reply_sft_cbor_encoded )
+                    {
+                        XI_ALLOC( xi_mqtt_message_t, mqtt_publish_sft_reply,
+                                  in_out_state );
+
+                        in_out_state = fill_with_publish_data(
+                            mqtt_publish_sft_reply,
+                            layer_data->control_topic_name_broker_out,
+                            reply_sft_cbor_encoded,
+                            recvd_msg->common.common_u.common_bits.qos,
+                            recvd_msg->common.common_u.common_bits.retain,
+                            recvd_msg->common.common_u.common_bits.dup,
+                            recvd_msg->publish.message_id );
+
+                        layer_data->outgoing_publish_content = reply_sft_cbor_encoded;
+
+                        xi_mqtt_message_free( &recvd_msg );
+
+                        return XI_PROCESS_PUSH_ON_PREV_LAYER(
+                            context, mqtt_publish_sft_reply, in_out_state );
+                    }
+                }
             }
             break;
 
             case XI_MQTT_TYPE_DISCONNECT:
                 // do nothing
+                xi_debug_printf(
+                    "================= DISCONNECT arrived at mock broker\n" );
                 xi_mqtt_message_free( &recvd_msg );
                 return XI_STATE_OK;
                 break;
@@ -263,10 +280,7 @@ xi_mock_broker_layer_close( void* context, void* data, xi_state_t in_out_state )
 {
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
 
-    if ( CONTROL_SKIP_CHECK_EXPECTED != xi_mock_broker_layer__check_expected__LEVEL0() )
-    {
-        check_expected( in_out_state );
-    }
+    XI_MOCK_BROKER_CONDITIONAL__CHECK_EXPECTED( in_out_state, LAYER_LEVEL );
 
     xi_layer_t* layer                 = ( xi_layer_t* )XI_THIS_LAYER( context );
     xi_mock_broker_data_t* layer_data = ( xi_mock_broker_data_t* )layer->user_data;
@@ -292,10 +306,7 @@ xi_state_t xi_mock_broker_layer_init( void* context, void* data, xi_state_t in_o
 {
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
 
-    if ( CONTROL_SKIP_CHECK_EXPECTED != xi_mock_broker_layer__check_expected__LEVEL0() )
-    {
-        check_expected( in_out_state );
-    }
+    XI_MOCK_BROKER_CONDITIONAL__CHECK_EXPECTED( in_out_state, LAYER_LEVEL );
 
     const xi_mock_broker_control_t control = mock_type( xi_mock_broker_control_t );
 
@@ -319,10 +330,7 @@ xi_mock_broker_layer_connect( void* context, void* data, xi_state_t in_out_state
 {
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
 
-    if ( CONTROL_SKIP_CHECK_EXPECTED != xi_mock_broker_layer__check_expected__LEVEL0() )
-    {
-        check_expected( in_out_state );
-    }
+    XI_MOCK_BROKER_CONDITIONAL__CHECK_EXPECTED( in_out_state, LAYER_LEVEL );
 
     if ( !IS_MOCK_BROKER_LAYER_CHAIN )
     {
@@ -345,10 +353,7 @@ xi_mock_broker_secondary_layer_push( void* context, void* data, xi_state_t in_ou
     XI_UNUSED( XI_LAYER_CHAIN_CT_ML_MCSIZE_SUFFIX );
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
 
-    if ( CONTROL_SKIP_CHECK_EXPECTED != xi_mock_broker_layer__check_expected__LEVEL0() )
-    {
-        check_expected( in_out_state );
-    }
+    XI_MOCK_BROKER_CONDITIONAL__CHECK_EXPECTED( in_out_state, LAYER_LEVEL );
 
     const xi_mock_broker_control_t control = mock_type( xi_mock_broker_control_t );
 

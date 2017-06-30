@@ -225,11 +225,13 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message 
             {
                 /* Something went wrong. Somehow the current file under update
                  * is not in sync with arrived FILE_CHUNK message. */
-                xi_debug_format(
-                    "ERROR: context->update_current_file is out of sync. [%p] [%s]",
-                    context->update_current_file,
-                    context->update_current_file ? context->update_current_file->name
-                                                 : "n/a" );
+                xi_debug_format( "ERROR: context->update_current_file is out of sync. "
+                                 "[%p] [%s]. Dropping this FILE_CHUNK message, waiting "
+                                 "for the proper one...",
+                                 context->update_current_file,
+                                 context->update_current_file
+                                     ? context->update_current_file->name
+                                     : "n/a" );
             }
 
             xi_control_message_free( &sft_message );

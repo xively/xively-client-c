@@ -165,9 +165,7 @@ void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
         /* the followings are encoded by the broker and decoded by the client */
         case XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE:
         case XI_CONTROL_MESSAGE_SC_FILE_CHUNK:
-        default:
-            cn_cbor_free( cb_map CBOR_CONTEXT_PARAM );
-            return;
+        default:;
     }
 
     unsigned char encoded[512];

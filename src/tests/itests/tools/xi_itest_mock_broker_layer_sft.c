@@ -49,7 +49,7 @@ xi_mock_broker_sft_logic_on_file_info( const xi_control_message_t* control_messa
 
         control_message_reply->file_update_available.list[id_file].file_operation = 0;
         control_message_reply->file_update_available.list[id_file].size_in_bytes =
-            777 * ( 1 + id_file );
+            7777 * ( 1 + id_file );
 
         const char* fingerprint =
             xi_str_cat( "@#$@#$@$xxx^ - test fingerprint - ",
@@ -59,6 +59,30 @@ xi_mock_broker_sft_logic_on_file_info( const xi_control_message_t* control_messa
         control_message_reply->file_update_available.list[id_file].fingerprint_len =
             strlen( fingerprint );
     }
+
+    return control_message_reply;
+
+err_handling:
+
+    xi_control_message_free( &control_message_reply );
+
+    return NULL;
+}
+
+xi_control_message_t*
+xi_mock_broker_sft_logic_on_file_get_chunk( const xi_control_message_t* control_message )
+{
+    if ( NULL == control_message )
+    {
+        return NULL;
+    }
+
+    xi_state_t state = XI_STATE_OK;
+
+    XI_ALLOC( xi_control_message_t, control_message_reply, state );
+
+    control_message_reply->common.msgtype = XI_CONTROL_MESSAGE_SC_FILE_CHUNK;
+    control_message_reply->common.msgver  = 1;
 
     return control_message_reply;
 
@@ -97,8 +121,9 @@ xi_mock_broker_sft_logic_on_message( const xi_data_desc_t* control_message_encod
 
     mock_broker_logic_by_msgtype[XI_CONTROL_MESSAGE_CS_FILE_INFO] =
         &xi_mock_broker_sft_logic_on_file_info;
-    mock_broker_logic_by_msgtype[XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK] = NULL;
-    mock_broker_logic_by_msgtype[XI_CONTROL_MESSAGE_CS_FILE_STATUS]    = NULL;
+    mock_broker_logic_by_msgtype[XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK] =
+        &xi_mock_broker_sft_logic_on_file_get_chunk;
+    mock_broker_logic_by_msgtype[XI_CONTROL_MESSAGE_CS_FILE_STATUS] = NULL;
 
     /* applying mock broker logic */
     if ( NULL != mock_broker_logic_by_msgtype[control_message->common.msgtype] )
@@ -107,6 +132,8 @@ xi_mock_broker_sft_logic_on_message( const xi_data_desc_t* control_message_encod
             ( mock_broker_logic_by_msgtype[control_message->common.msgtype] )(
                 control_message );
 
+        xi_debug_control_message_dump( reply_message, "mock broker --- OUTGOING" );
+
         uint8_t* cbor_reply_message     = NULL;
         uint32_t cbor_reply_message_len = 0;
 
@@ -114,12 +141,19 @@ xi_mock_broker_sft_logic_on_message( const xi_data_desc_t* control_message_encod
         xi_cbor_codec_ct_server_encode( reply_message, &cbor_reply_message,
                                         &cbor_reply_message_len );
 
-        cbor_reply_message_data_desc =
-            xi_make_desc_from_buffer_share( cbor_reply_message, cbor_reply_message_len );
-        // todo_atigyi: make more elegant ownership passing
-        cbor_reply_message_data_desc->memory_type = XI_MEMORY_TYPE_MANAGED;
 
-        xi_debug_control_message_dump( reply_message, "mock broker --- OUTGOING" );
+        if ( NULL != cbor_reply_message )
+        {
+            cbor_reply_message_data_desc = xi_make_desc_from_buffer_share(
+                cbor_reply_message, cbor_reply_message_len );
+            // todo_atigyi: make more elegant ownership passing
+            cbor_reply_message_data_desc->memory_type = XI_MEMORY_TYPE_MANAGED;
+        }
+        else
+        {
+            xi_debug_logger( "WARNING: CBOR encoding failed" );
+        }
+
 
         xi_control_message_free( &reply_message );
     }

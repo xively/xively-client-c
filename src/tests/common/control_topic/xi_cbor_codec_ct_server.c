@@ -20,6 +20,12 @@ extern cn_cbor_context* context;
 
 #endif
 
+/* reusing the put_name_and_revision function from libxively here in the mock broker */
+void xi_cbor_put_name_and_revision( cn_cbor* cb_map,
+                                    const char* name,
+                                    const char* revision,
+                                    cn_cbor_errback* errp );
+
 void xi_cbor_codec_ct_server_encode( const xi_control_message_t* control_message,
                                      uint8_t** out_encoded_allocated_inside,
                                      uint32_t* out_len )
@@ -45,9 +51,112 @@ void xi_cbor_codec_ct_server_encode( const xi_control_message_t* control_message
         cn_cbor_int_create( control_message->common.msgver CBOR_CONTEXT_PARAM, &err ),
         &err );
 
+    switch ( control_message->common.msgtype )
+    {
+        case XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE:
 
-    printf( "*** todo_atigyi: continue here with proper encoding of outgoing messages: "
-            "FILE_UPDATE_AVAILABLE and FILE_CHUNK\n" );
+            if ( 0 < control_message->file_update_available.list_len )
+            {
+                cn_cbor* files = cn_cbor_array_create( CBOR_CONTEXT_PARAM_COMA & err );
+
+                uint16_t id_file = 0;
+                for ( ; id_file < control_message->file_update_available.list_len;
+                      ++id_file )
+                {
+                    cn_cbor* file = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMA & err );
+
+                    xi_cbor_put_name_and_revision(
+                        file, control_message->file_update_available.list[id_file].name,
+                        control_message->file_update_available.list[id_file].revision,
+                        &err );
+
+                    cn_cbor_map_put(
+                        file,
+                        cn_cbor_string_create(
+                            XI_CBOR_CODEC_CT_STRING_FILE_OPERATION CBOR_CONTEXT_PARAM,
+                            &err ),
+                        cn_cbor_int_create(
+                            control_message->file_update_available.list[id_file]
+                                .file_operation CBOR_CONTEXT_PARAM,
+                            &err ),
+                        &err );
+
+                    cn_cbor_map_put(
+                        file,
+                        cn_cbor_string_create(
+                            XI_CBOR_CODEC_CT_STRING_FILE_IMAGESIZE CBOR_CONTEXT_PARAM,
+                            &err ),
+                        cn_cbor_int_create(
+                            control_message->file_update_available.list[id_file]
+                                .size_in_bytes CBOR_CONTEXT_PARAM,
+                            &err ),
+                        &err );
+
+                    cn_cbor_map_put(
+                        file,
+                        cn_cbor_string_create(
+                            XI_CBOR_CODEC_CT_STRING_FILE_FINGERPRINT CBOR_CONTEXT_PARAM,
+                            &err ),
+                        cn_cbor_data_create(
+                            control_message->file_update_available.list[id_file]
+                                .fingerprint,
+                            control_message->file_update_available.list[id_file]
+                                .fingerprint_len CBOR_CONTEXT_PARAM,
+                            &err ),
+                        &err );
+
+                    cn_cbor_array_append( files, file, &err );
+                }
+
+                cn_cbor_map_put(
+                    cb_map, cn_cbor_string_create(
+                                XI_CBOR_CODEC_CT_STRING_LIST CBOR_CONTEXT_PARAM, &err ),
+                    files, &err );
+            }
+            break;
+
+        case XI_CONTROL_MESSAGE_SC_FILE_CHUNK:
+
+            xi_cbor_put_name_and_revision( cb_map, control_message->file_chunk.name,
+                                           control_message->file_chunk.revision, &err );
+
+            cn_cbor_map_put(
+                cb_map,
+                cn_cbor_string_create(
+                    XI_CBOR_CODEC_CT_STRING_FILECHUNK_OFFSET CBOR_CONTEXT_PARAM, &err ),
+                cn_cbor_int_create( control_message->file_chunk.offset CBOR_CONTEXT_PARAM,
+                                    &err ),
+                &err );
+
+            cn_cbor_map_put(
+                cb_map,
+                cn_cbor_string_create(
+                    XI_CBOR_CODEC_CT_STRING_FILECHUNK_LENGTH CBOR_CONTEXT_PARAM, &err ),
+                cn_cbor_int_create( control_message->file_chunk.length CBOR_CONTEXT_PARAM,
+                                    &err ),
+                &err );
+
+            cn_cbor_map_put(
+                cb_map,
+                cn_cbor_string_create(
+                    XI_CBOR_CODEC_CT_STRING_FILECHUNK_STATUS CBOR_CONTEXT_PARAM, &err ),
+                cn_cbor_int_create( control_message->file_chunk.status CBOR_CONTEXT_PARAM,
+                                    &err ),
+                &err );
+
+            cn_cbor_map_put(
+                cb_map,
+                cn_cbor_string_create(
+                    XI_CBOR_CODEC_CT_STRING_FILECHUNK_CHUNK CBOR_CONTEXT_PARAM, &err ),
+                cn_cbor_data_create(
+                    control_message->file_chunk.chunk,
+                    control_message->file_chunk.length CBOR_CONTEXT_PARAM, &err ),
+                &err );
+
+            break;
+
+        default:;
+    }
 
     unsigned char encoded[512];
     *out_len = cn_cbor_encoder_write( encoded, 0, sizeof( encoded ), cb_map );
@@ -62,7 +171,7 @@ void xi_cbor_codec_ct_server_encode( const xi_control_message_t* control_message
 err_handling:;
 }
 
-/* using the getvalue tool from libxively here in the mock broker */
+/* reusing the getvalue function from libxively here in the mock broker */
 xi_state_t xi_cbor_codec_ct_decode_getvalue( cn_cbor* source,
                                              const char* key,
                                              void* out_destination,

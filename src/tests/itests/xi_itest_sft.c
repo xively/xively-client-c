@@ -200,32 +200,23 @@ err_handling:;
  ********************************************************************************/
 void xi_itest_sft__basic_flow__SFT_protocol_intact( void** fixture_void )
 {
-    const xi_itest_sft__test_fixture_t* const fixture =
-        ( xi_itest_sft__test_fixture_t* )*fixture_void;
-
-    will_return_always( xi_mock_broker_layer__check_expected__LEVEL0,
+    /* turn off LAYER and MQTT LEVEL expectation checks to concentrate only on SFT
+     * protocol messages */
+    will_return_always( xi_mock_broker_layer__check_expected__LAYER_LEVEL,
                         CONTROL_SKIP_CHECK_EXPECTED );
 
-    will_return_always( xi_mock_layer_tls_prev__check_expected__LEVEL0,
+    will_return_always( xi_mock_broker_layer__check_expected__MQTT_LEVEL,
                         CONTROL_SKIP_CHECK_EXPECTED );
 
-    /* MQTT connect */
-    expect_value( xi_mock_broker_layer_pull, recvd_msg_type, XI_MQTT_TYPE_CONNECT );
+    will_return_always( xi_mock_layer_tls_prev__check_expected__LAYER_LEVEL,
+                        CONTROL_SKIP_CHECK_EXPECTED );
 
-    /* control topic subscription */
-    expect_value( xi_mock_broker_layer_pull, recvd_msg_type, XI_MQTT_TYPE_SUBSCRIBE );
-    expect_string( xi_mock_broker_layer_pull, subscribe_topic_name,
-                   fixture->control_topic_name_client_in );
-
-    /* SFT FILE_INFO */
-    expect_value( xi_mock_broker_layer_pull, recvd_msg_type, XI_MQTT_TYPE_PUBLISH );
-    expect_string( xi_mock_broker_layer_pull, publish_topic_name,
-                   fixture->control_topic_name_client_out );
-
-    expect_value( xi_mock_broker_layer_pull, recvd_msg_type, XI_MQTT_TYPE_DISCONNECT );
 
     expect_value( xi_mock_broker_sft_logic_on_message, control_message->common.msgtype,
                   XI_CONTROL_MESSAGE_CS_FILE_INFO );
+
+    expect_value( xi_mock_broker_sft_logic_on_message, control_message->common.msgtype,
+                  XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK );
 
     // ACT
     xi_itest_sft__act( fixture_void, 1, ( const char* [] ){"file1", "file2"}, 2 );
