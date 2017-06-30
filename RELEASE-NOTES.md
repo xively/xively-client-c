@@ -11,13 +11,13 @@
 - Secure File Transfer: A new TI CC3200 client that allows firmware updates over MQTT via the Xively SFT service.
 - Updates to the User Guide to reflect the new Open Source porting process. Also added links to our CC3200 and STM32 Nucleo examples, and to our Further Readings.
 
-###TI CC3200
+### TI CC3200
 - Contains a new example `xively_firmware_updates` as our first reference implemention of using Xively Secure File Transfer to update the firwmare of a CC3200.
 
-###TI CC3220SF
+### TI CC3220SF
 - Added TI CC3220SF demo application sources and build process for tutorials on Xively Developer Center.
 
-###STM32F4 Nucleo
+### STM32F4 Nucleo
 - Updated STM32F4 examples to build against latest ST SDKs. 
 - New build configurations to support both sensor boards (IKS01A1 and IKS01A1) out of the box.
 - The github repository is extended with a prebuilt binary for STM32F401RE + WiFi IDW01M1 + MEMS IKS01A1. Tier 1 tutorial (how to use the precompiled binary) is also provided.
