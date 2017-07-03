@@ -78,6 +78,8 @@ xi_mock_broker_sft_logic_on_file_get_chunk( xi_control_message_t* control_messag
         return NULL;
     }
 
+    check_expected( control_message->file_get_chunk.name );
+
     uint8_t* file_chunk_out_artificial = NULL;
 
     xi_control_message_t* control_message_reply = mock_type( xi_control_message_t* );
@@ -128,6 +130,14 @@ err_handling:
     return NULL;
 }
 
+xi_control_message_t*
+xi_mock_broker_sft_logic_on_file_status( xi_control_message_t* control_message )
+{
+    XI_UNUSED( control_message );
+
+    return NULL;
+}
+
 xi_data_desc_t*
 xi_mock_broker_sft_logic_on_message( const xi_data_desc_t* control_message_encoded )
 {
@@ -158,7 +168,8 @@ xi_mock_broker_sft_logic_on_message( const xi_data_desc_t* control_message_encod
         &xi_mock_broker_sft_logic_on_file_info;
     mock_broker_logic_by_msgtype[XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK] =
         &xi_mock_broker_sft_logic_on_file_get_chunk;
-    mock_broker_logic_by_msgtype[XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS] = NULL;
+    mock_broker_logic_by_msgtype[XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS] =
+        &xi_mock_broker_sft_logic_on_file_status;
 
     if ( NULL != mock_broker_logic_by_msgtype[control_message->common.msgtype] )
     {

@@ -11,6 +11,7 @@
 #include "xi_debug.h"
 #include "xi_globals.h"
 #include "xi_handle.h"
+#include "xi_helpers.h"
 
 #include "xi_memory_checks.h"
 #include "xi_itest_layerchain_ct_ml_mc.h"
@@ -232,6 +233,9 @@ void xi_itest_sft__basic_flow__SFT_with_happy_broker__protocol_intact(
                         control_message->common.msgtype,
                         XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK, 2 );
 
+    expect_string_count( xi_mock_broker_sft_logic_on_file_get_chunk,
+                         control_message->file_get_chunk.name, "file1", 2 );
+
     expect_value_count( xi_mock_broker_sft_logic_on_message,
                         control_message->common.msgtype,
                         XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 3 );
@@ -240,6 +244,9 @@ void xi_itest_sft__basic_flow__SFT_with_happy_broker__protocol_intact(
     expect_value_count( xi_mock_broker_sft_logic_on_message,
                         control_message->common.msgtype,
                         XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK, 4 );
+
+    expect_string_count( xi_mock_broker_sft_logic_on_file_get_chunk,
+                         control_message->file_get_chunk.name, "file2", 4 );
 
     expect_value_count( xi_mock_broker_sft_logic_on_message,
                         control_message->common.msgtype,
@@ -256,6 +263,8 @@ void xi_itest_sft__broker_replies_FILE_INFO_on_FILE_GET_CHUNK__client_does_not_c
 
     XI_ALLOC( xi_control_message_t, control_message_reply, state );
 
+    control_message_reply->common.msgtype = XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO;
+
     will_return( xi_mock_broker_sft_logic_on_file_get_chunk, control_message_reply );
 
     expect_value( xi_mock_broker_sft_logic_on_message, control_message->common.msgtype,
@@ -265,6 +274,63 @@ void xi_itest_sft__broker_replies_FILE_INFO_on_FILE_GET_CHUNK__client_does_not_c
     expect_value_count( xi_mock_broker_sft_logic_on_message,
                         control_message->common.msgtype,
                         XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK, 1 );
+
+    expect_string_count( xi_mock_broker_sft_logic_on_file_get_chunk,
+                         control_message->file_get_chunk.name, "file1", 1 );
+
+    // ACT
+    xi_itest_sft__act( fixture_void, 1, ( const char* [] ){"file1"}, 1 );
+
+err_handling:;
+}
+
+void xi_itest_sft__broker_replies_FUA_on_FILE_GET_CHUNK__client_does_not_crash_or_leak(
+    void** fixture_void )
+{
+    xi_state_t state = XI_STATE_OK;
+
+    XI_ALLOC( xi_control_message_t, control_message_reply, state );
+    XI_ALLOC( xi_control_message_file_desc_ext_t, single_file_desc, state );
+
+    *single_file_desc =
+        ( xi_control_message_file_desc_ext_t ){xi_str_dup( "file2" ),
+                                               xi_str_dup( "rev2" ),
+                                               11,
+                                               22,
+                                               ( uint8_t* )xi_str_dup( "fingerprint1" ),
+                                               12};
+
+    control_message_reply->common.msgtype =
+        XI_CONTROL_MESSAGE_SC__SFT_FILE_UPDATE_AVAILABLE;
+    control_message_reply->common.msgver = 1;
+
+    control_message_reply->file_update_available.list_len = 1;
+    control_message_reply->file_update_available.list     = single_file_desc;
+
+    will_return( xi_mock_broker_sft_logic_on_file_get_chunk, control_message_reply );
+
+    expect_value( xi_mock_broker_sft_logic_on_message, control_message->common.msgtype,
+                  XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO );
+
+    /* 1st file */
+    expect_value_count( xi_mock_broker_sft_logic_on_message,
+                        control_message->common.msgtype,
+                        XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK, 1 );
+
+    expect_string_count( xi_mock_broker_sft_logic_on_file_get_chunk,
+                         control_message->file_get_chunk.name, "file1", 1 );
+
+    /* new file */
+    expect_value_count( xi_mock_broker_sft_logic_on_message,
+                        control_message->common.msgtype,
+                        XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK, 1 );
+
+    expect_string_count( xi_mock_broker_sft_logic_on_file_get_chunk,
+                         control_message->file_get_chunk.name, "file2", 1 );
+
+    expect_value_count( xi_mock_broker_sft_logic_on_message,
+                        control_message->common.msgtype,
+                        XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 3 );
 
     // ACT
     xi_itest_sft__act( fixture_void, 1, ( const char* [] ){"file1"}, 1 );

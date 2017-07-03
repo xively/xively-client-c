@@ -90,8 +90,7 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
     {
         case XI_CONTROL_MESSAGE_SC__SFT_FILE_UPDATE_AVAILABLE:
         {
-            /* - check whether device is ready to start download of file
-               - get the first chunk of file in question with FILE_GET_CHUNK */
+            /* - check whether device is ready to start download of file */
 
             if ( NULL != context->update_message_fua )
             {
