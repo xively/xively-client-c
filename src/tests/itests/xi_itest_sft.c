@@ -154,6 +154,19 @@ static void xi_itest_sft__act( void** fixture_void,
                                const char* updateable_filenames[],
                                uint16_t updateable_file_count )
 {
+    {
+        /* turn off LAYER and MQTT LEVEL expectation checks to concentrate only on SFT
+         * protocol messages */
+        will_return_always( xi_mock_broker_layer__check_expected__LAYER_LEVEL,
+                            CONTROL_SKIP_CHECK_EXPECTED );
+
+        will_return_always( xi_mock_broker_layer__check_expected__MQTT_LEVEL,
+                            CONTROL_SKIP_CHECK_EXPECTED );
+
+        will_return_always( xi_mock_layer_tls_prev__check_expected__LAYER_LEVEL,
+                            CONTROL_SKIP_CHECK_EXPECTED );
+    }
+
     xi_state_t state = XI_STATE_OK;
 
     const xi_itest_sft__test_fixture_t* const fixture =
@@ -198,20 +211,19 @@ err_handling:;
 /*********************************************************************************
  * test cases ********************************************************************
  ********************************************************************************/
-void xi_itest_sft__basic_flow__SFT_protocol_intact( void** fixture_void )
+void xi_itest_sft__client_doesnt_start_SFT_if_no_update_file_is_set( void** fixture_void )
 {
-    /* turn off LAYER and MQTT LEVEL expectation checks to concentrate only on SFT
-     * protocol messages */
-    will_return_always( xi_mock_broker_layer__check_expected__LAYER_LEVEL,
-                        CONTROL_SKIP_CHECK_EXPECTED );
+    /* SFT process does not start at all in case of not set updateable files.
+     * Here the lack of expectations means no expected SFT messages arriving on broker
+     * side. */
 
-    will_return_always( xi_mock_broker_layer__check_expected__MQTT_LEVEL,
-                        CONTROL_SKIP_CHECK_EXPECTED );
+    // ACT
+    xi_itest_sft__act( fixture_void, 1, NULL, 0 );
+}
 
-    will_return_always( xi_mock_layer_tls_prev__check_expected__LAYER_LEVEL,
-                        CONTROL_SKIP_CHECK_EXPECTED );
-
-
+void xi_itest_sft__basic_flow__SFT_with_happy_broker__protocol_intact(
+    void** fixture_void )
+{
     expect_value( xi_mock_broker_sft_logic_on_message, control_message->common.msgtype,
                   XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO );
 
@@ -235,4 +247,27 @@ void xi_itest_sft__basic_flow__SFT_protocol_intact( void** fixture_void )
 
     // ACT
     xi_itest_sft__act( fixture_void, 1, ( const char* [] ){"file1", "file2"}, 2 );
+}
+
+void xi_itest_sft__broker_replies_FILE_INFO_on_FILE_GET_CHUNK__client_does_not_crash_or_leak(
+    void** fixture_void )
+{
+    xi_state_t state = XI_STATE_OK;
+
+    XI_ALLOC( xi_control_message_t, control_message_reply, state );
+
+    will_return( xi_mock_broker_sft_logic_on_file_get_chunk, control_message_reply );
+
+    expect_value( xi_mock_broker_sft_logic_on_message, control_message->common.msgtype,
+                  XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO );
+
+    /* 1st file */
+    expect_value_count( xi_mock_broker_sft_logic_on_message,
+                        control_message->common.msgtype,
+                        XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK, 1 );
+
+    // ACT
+    xi_itest_sft__act( fixture_void, 1, ( const char* [] ){"file1"}, 1 );
+
+err_handling:;
 }

@@ -78,35 +78,45 @@ xi_mock_broker_sft_logic_on_file_get_chunk( xi_control_message_t* control_messag
         return NULL;
     }
 
-    xi_state_t state                   = XI_STATE_OK;
     uint8_t* file_chunk_out_artificial = NULL;
 
-    enum XI_MOCK_BROKER_SFT_FILE_CHUNK_STATUS
+    xi_control_message_t* control_message_reply = mock_type( xi_control_message_t* );
+
+    if ( NULL == control_message_reply )
     {
-        MOCK_BROKER_SFT_FILE_CHUNK__REQUEST_IS_CORRECT                       = 0,
-        MOCK_BROKER_SFT_FILE_CHUNK__END_OF_FILE_CHUNK_MIGHT_BE_SHORTER       = 1,
-        MOCK_BROKER_SFT_FILE_CHUNK__OFFSET_IS_GREATER_THAN_FILE_LENGTH       = 2,
-        MOCK_BROKER_SFT_FILE_CHUNK__REQUESTED_LENGTH_IS_GREATER_THAN_MAXIMUM = 3,
-        MOCK_BROKER_SFT_FILE_CHUNK__FILE_UNAVAILABLE                         = 4,
-    };
+        printf( "--- %s ---, control_message_reply: %p\n", __FUNCTION__,
+                control_message_reply );
 
-    XI_ALLOC( xi_control_message_t, control_message_reply, state );
-    XI_ALLOC_BUFFER_AT( uint8_t, file_chunk_out_artificial,
-                        control_message->file_get_chunk.length, state );
+        xi_state_t state = XI_STATE_OK;
 
-    control_message_reply->file_chunk = ( struct file_chunk_s ){
-        .common = {.msgtype = XI_CONTROL_MESSAGE_SC__SFT_FILE_CHUNK, .msgver = 1},
-        .name     = control_message->file_get_chunk.name,
-        .revision = control_message->file_get_chunk.revision,
-        .offset   = control_message->file_get_chunk.offset,
-        .length   = control_message->file_get_chunk.length,
-        .status   = MOCK_BROKER_SFT_FILE_CHUNK__REQUEST_IS_CORRECT,
-        .chunk    = file_chunk_out_artificial};
+        enum XI_MOCK_BROKER_SFT_FILE_CHUNK_STATUS
+        {
+            MOCK_BROKER_SFT_FILE_CHUNK__REQUEST_IS_CORRECT                       = 0,
+            MOCK_BROKER_SFT_FILE_CHUNK__END_OF_FILE_CHUNK_MIGHT_BE_SHORTER       = 1,
+            MOCK_BROKER_SFT_FILE_CHUNK__OFFSET_IS_GREATER_THAN_FILE_LENGTH       = 2,
+            MOCK_BROKER_SFT_FILE_CHUNK__REQUESTED_LENGTH_IS_GREATER_THAN_MAXIMUM = 3,
+            MOCK_BROKER_SFT_FILE_CHUNK__FILE_UNAVAILABLE                         = 4,
+        };
+
+        XI_ALLOC_AT( xi_control_message_t, control_message_reply, state );
+        XI_ALLOC_BUFFER_AT( uint8_t, file_chunk_out_artificial,
+                            control_message->file_get_chunk.length, state );
+
+        control_message_reply->file_chunk = ( struct file_chunk_s ){
+            .common = {.msgtype = XI_CONTROL_MESSAGE_SC__SFT_FILE_CHUNK, .msgver = 1},
+            .name     = control_message->file_get_chunk.name,
+            .revision = control_message->file_get_chunk.revision,
+            .offset   = control_message->file_get_chunk.offset,
+            .length   = control_message->file_get_chunk.length,
+            .status   = MOCK_BROKER_SFT_FILE_CHUNK__REQUEST_IS_CORRECT,
+            .chunk    = file_chunk_out_artificial};
 
 
-    /* prevent deallocation of name and revision since these are reused in reply msg */
-    control_message->file_get_chunk.name     = NULL;
-    control_message->file_get_chunk.revision = NULL;
+        /* prevent deallocation of name and revision since these are reused in reply msg
+         */
+        control_message->file_get_chunk.name     = NULL;
+        control_message->file_get_chunk.revision = NULL;
+    }
 
     return control_message_reply;
 

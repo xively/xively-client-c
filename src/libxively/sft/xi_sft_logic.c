@@ -99,6 +99,8 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
             }
 
             context->update_message_fua = sft_message_in;
+            /* prevent deallocation */
+            sft_message_in = NULL;
 
             if ( 0 < context->update_message_fua->file_update_available.list_len &&
                  NULL != context->update_message_fua->file_update_available.list )
@@ -140,6 +142,12 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                 const uint32_t all_downloaded_bytes =
                     sft_message_in->file_chunk.offset + sft_message_in->file_chunk.length;
 
+                printf( "downloading file: %s, %d / %d, [%d%%]\n",
+                        context->update_current_file->name,
+                        context->update_current_file->size_in_bytes, all_downloaded_bytes,
+                        ( all_downloaded_bytes * 100 ) /
+                            context->update_current_file->size_in_bytes );
+
                 /* HERE process the bytes in sft_message_in->file_chunk.chunk */
 
                 if ( all_downloaded_bytes < context->update_current_file->size_in_bytes )
@@ -156,13 +164,6 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
 
                     ( *context->fn_send_message )( context->send_message_user_data,
                                                    message_file_get_chunk );
-
-                    printf( "--- downloading file: %s, %d / %d, [%d%%]\n",
-                            context->update_current_file->name,
-                            context->update_current_file->size_in_bytes,
-                            all_downloaded_bytes,
-                            ( all_downloaded_bytes * 100 ) /
-                                context->update_current_file->size_in_bytes );
                 }
                 else
                 {
@@ -234,12 +235,12 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                                      ? context->update_current_file->name
                                      : "n/a" );
             }
-
-            xi_control_message_free( &sft_message_in );
         }
         break;
         default:;
     }
+
+    xi_control_message_free( &sft_message_in );
 
     return state;
 }
