@@ -15,7 +15,7 @@ xi_itest_sft__client_doesnt_start_SFT_if_no_update_file_is_set( void** state );
 extern void
 xi_itest_sft__basic_flow__SFT_with_happy_broker__protocol_intact( void** state );
 extern void
-xi_itest_sft__broker_replies_FUA_on_FILE_GET_CHUNK__client_does_not_crash_or_leak(
+xi_itest_sft__broker_replies_FILE_INFO_on_FILE_GET_CHUNK__client_does_not_crash_or_leak(
     void** state );
 
 
@@ -30,7 +30,7 @@ struct CMUnitTest xi_itests_sft[] = {
         xi_itest_sft_setup,
         xi_itest_sft_teardown ),
     cmocka_unit_test_setup_teardown(
-        xi_itest_sft__broker_replies_FUA_on_FILE_GET_CHUNK__client_does_not_crash_or_leak,
+        xi_itest_sft__broker_replies_FILE_INFO_on_FILE_GET_CHUNK__client_does_not_crash_or_leak,
         xi_itest_sft_setup,
         xi_itest_sft_teardown )};
 
