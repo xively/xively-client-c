@@ -88,7 +88,7 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
 
     switch ( sft_message_in->common.msgtype )
     {
-        case XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE:
+        case XI_CONTROL_MESSAGE_SC__SFT_FILE_UPDATE_AVAILABLE:
         {
             /* - check whether device is ready to start download of file
                - get the first chunk of file in question with FILE_GET_CHUNK */
@@ -118,7 +118,7 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
             }
         }
         break;
-        case XI_CONTROL_MESSAGE_SC_FILE_CHUNK:
+        case XI_CONTROL_MESSAGE_SC__SFT_FILE_CHUNK:
         {
             /* - store the chunk through file/firmware BSP
                - if last chunk close file, start appropriate action

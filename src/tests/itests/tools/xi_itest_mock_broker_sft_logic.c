@@ -24,8 +24,9 @@ xi_mock_broker_sft_logic_on_file_info( xi_control_message_t* control_message )
 
     XI_ALLOC( xi_control_message_t, control_message_reply, state );
 
-    control_message_reply->common.msgtype = XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE;
-    control_message_reply->common.msgver  = 1;
+    control_message_reply->common.msgtype =
+        XI_CONTROL_MESSAGE_SC__SFT_FILE_UPDATE_AVAILABLE;
+    control_message_reply->common.msgver = 1;
 
     XI_ALLOC_BUFFER_AT( xi_control_message_file_desc_ext_t,
                         control_message_reply->file_update_available.list,
@@ -94,7 +95,7 @@ xi_mock_broker_sft_logic_on_file_get_chunk( xi_control_message_t* control_messag
                         control_message->file_get_chunk.length, state );
 
     control_message_reply->file_chunk = ( struct file_chunk_s ){
-        .common = {.msgtype = XI_CONTROL_MESSAGE_SC_FILE_CHUNK, .msgver = 1},
+        .common = {.msgtype = XI_CONTROL_MESSAGE_SC__SFT_FILE_CHUNK, .msgver = 1},
         .name     = control_message->file_get_chunk.name,
         .revision = control_message->file_get_chunk.revision,
         .offset   = control_message->file_get_chunk.offset,

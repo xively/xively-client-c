@@ -62,7 +62,7 @@ void xi_utest_cbor_ASSERT_control_messages_match( const xi_control_message_t* cm
 
     switch ( cm1->common.msgtype )
     {
-        case XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE:
+        case XI_CONTROL_MESSAGE_SC__SFT_FILE_UPDATE_AVAILABLE:
             tt_int_op( cm1->file_update_available.list_len, ==,
                        cm2->file_update_available.list_len );
 
@@ -98,7 +98,7 @@ void xi_utest_cbor_ASSERT_control_messages_match( const xi_control_message_t* cm
 
             break;
 
-        case XI_CONTROL_MESSAGE_SC_FILE_CHUNK:
+        case XI_CONTROL_MESSAGE_SC__SFT_FILE_CHUNK:
 
             xi_utest_cbor_ASSERT_control_message_string( cm1->file_chunk.name,
                                                          cm2->file_chunk.name );
@@ -126,7 +126,7 @@ XI_TT_TESTGROUP_BEGIN( utest_cbor_codec_ct_decode )
 
 
 /*****************************************************
- * XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE *******
+ * XI_CONTROL_MESSAGE_SC__SFT_FILE_UPDATE_AVAILABLE **
  *****************************************************/
 
 XI_TT_TESTCASE_WITH_SETUP(
@@ -138,7 +138,7 @@ XI_TT_TESTCASE_WITH_SETUP(
         // ARRANGE
         const xi_control_message_t file_update_available_in = {
             .file_update_available = {
-                .common = {.msgtype = XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE,
+                .common = {.msgtype = XI_CONTROL_MESSAGE_SC__SFT_FILE_UPDATE_AVAILABLE,
                            .msgver  = 1},
                 .list_len = 0,
                 .list     = NULL}};
@@ -182,7 +182,7 @@ XI_TT_TESTCASE_WITH_SETUP(
 
         const xi_control_message_t file_update_available_in = {
             .file_update_available = {
-                .common = {.msgtype = XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE,
+                .common = {.msgtype = XI_CONTROL_MESSAGE_SC__SFT_FILE_UPDATE_AVAILABLE,
                            .msgver  = 1},
                 .list_len = 1,
                 .list     = single_file_list}};
@@ -228,7 +228,7 @@ XI_TT_TESTCASE_WITH_SETUP(
 
         const xi_control_message_t file_update_available_in = {
             .file_update_available = {
-                .common = {.msgtype = XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE,
+                .common = {.msgtype = XI_CONTROL_MESSAGE_SC__SFT_FILE_UPDATE_AVAILABLE,
                            .msgver  = 1},
                 .list_len = 1,
                 .list     = single_file_list}};
@@ -284,7 +284,7 @@ XI_TT_TESTCASE_WITH_SETUP(
 
         const xi_control_message_t file_update_available_in = {
             .file_update_available = {
-                .common = {.msgtype = XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE,
+                .common = {.msgtype = XI_CONTROL_MESSAGE_SC__SFT_FILE_UPDATE_AVAILABLE,
                            .msgver  = 1},
                 .list_len = 3,
                 .list     = three_file_list}};
@@ -313,7 +313,7 @@ XI_TT_TESTCASE_WITH_SETUP(
 
 
 /*****************************************************
- * XI_CONTROL_MESSAGE_SC_FILE_CHUNK ******************
+ * XI_CONTROL_MESSAGE_SC__SFT_FILE_CHUNK *************
  *****************************************************/
 
 XI_TT_TESTCASE_WITH_SETUP(
@@ -325,7 +325,7 @@ XI_TT_TESTCASE_WITH_SETUP(
         // ARRANGE
         const xi_control_message_t file_chunk_in = {
             .file_chunk = {
-                .common = {.msgtype = XI_CONTROL_MESSAGE_SC_FILE_CHUNK, .msgver = 1},
+                .common = {.msgtype = XI_CONTROL_MESSAGE_SC__SFT_FILE_CHUNK, .msgver = 1},
                 .name     = "filename for filechunk message",
                 .revision = "revision for filechunk message",
                 .offset   = 0,
@@ -361,7 +361,8 @@ XI_TT_TESTCASE_WITH_SETUP(
         // ARRANGE
         const xi_control_message_t file_chunk_in = {
             .file_chunk = {
-                .common = {.msgtype = XI_CONTROL_MESSAGE_SC_FILE_CHUNK, .msgver = -1},
+                .common = {.msgtype = XI_CONTROL_MESSAGE_SC__SFT_FILE_CHUNK,
+                           .msgver  = -1},
                 .name     = "filename for binary chunk !@#Q#$DFVS@#$   \t sdfgsdf",
                 .revision = NULL,
                 .offset   = 555,
@@ -399,14 +400,14 @@ XI_TT_TESTCASE_WITH_SETUP(
     {
         // ARRANGE
         const xi_control_message_t file_chunk_in = {
-            .file_chunk = {
-                .common = {.msgtype = XI_CONTROL_MESSAGE_SC_FILE_CHUNK, .msgver = -1},
-                .name     = NULL,
-                .revision = "",
-                .offset   = -1,
-                .length   = 0,
-                .status   = 0,
-                .chunk    = NULL}};
+            .file_chunk = {.common = {.msgtype = XI_CONTROL_MESSAGE_SC__SFT_FILE_CHUNK,
+                                      .msgver  = -1},
+                           .name     = NULL,
+                           .revision = "",
+                           .offset   = -1,
+                           .length   = 0,
+                           .status   = 0,
+                           .chunk    = NULL}};
 
         uint8_t* encoded     = NULL;
         uint32_t encoded_len = 0;

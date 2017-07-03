@@ -163,8 +163,8 @@ void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
             break;
 
         /* the followings are encoded by the broker and decoded by the client */
-        case XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE:
-        case XI_CONTROL_MESSAGE_SC_FILE_CHUNK:
+        case XI_CONTROL_MESSAGE_SC__SFT_FILE_UPDATE_AVAILABLE:
+        case XI_CONTROL_MESSAGE_SC__SFT_FILE_CHUNK:
         default:;
     }
 
@@ -303,7 +303,7 @@ xi_control_message_t* xi_cbor_codec_ct_decode( const uint8_t* data, const uint32
 
     switch ( msgtype->v.uint )
     {
-        case XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE:
+        case XI_CONTROL_MESSAGE_SC__SFT_FILE_UPDATE_AVAILABLE:
         {
             cn_cbor* list = cn_cbor_mapget_string( cb_map, XI_CBOR_CODEC_CT_STRING_LIST );
 
@@ -361,7 +361,7 @@ xi_control_message_t* xi_cbor_codec_ct_decode( const uint8_t* data, const uint32
 
         break;
 
-        case XI_CONTROL_MESSAGE_SC_FILE_CHUNK:
+        case XI_CONTROL_MESSAGE_SC__SFT_FILE_CHUNK:
 
             xi_cbor_codec_ct_decode_getvalue( cb_map, XI_CBOR_CODEC_CT_STRING_FILE_NAME,
                                               &control_message_out->file_chunk.name,

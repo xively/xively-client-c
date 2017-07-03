@@ -284,7 +284,7 @@ XI_TT_TESTCASE_WITH_SETUP(
 
         const xi_control_message_t file_update_available = {
             .file_update_available = {
-                .common = {.msgtype = XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE,
+                .common = {.msgtype = XI_CONTROL_MESSAGE_SC__SFT_FILE_UPDATE_AVAILABLE,
                            .msgver  = 1},
                 .list_len = 3,
                 .list     = three_file_list}};
@@ -326,7 +326,7 @@ XI_TT_TESTCASE_WITH_SETUP(
 
         const xi_control_message_t file_update_available = {
             .file_update_available = {
-                .common = {.msgtype = XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE,
+                .common = {.msgtype = XI_CONTROL_MESSAGE_SC__SFT_FILE_UPDATE_AVAILABLE,
                            .msgver  = 1},
                 .list_len = 3,
                 .list     = three_file_list}};
@@ -368,7 +368,7 @@ XI_TT_TESTCASE_WITH_SETUP(
 
         const xi_control_message_t file_update_available = {
             .file_update_available = {
-                .common = {.msgtype = XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE,
+                .common = {.msgtype = XI_CONTROL_MESSAGE_SC__SFT_FILE_UPDATE_AVAILABLE,
                            .msgver  = 1},
                 .list_len = 3,
                 .list     = three_file_list}};
@@ -409,7 +409,7 @@ XI_TT_TESTCASE_WITH_SETUP(
 
         const xi_control_message_t file_update_available = {
             .file_update_available = {
-                .common = {.msgtype = XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE,
+                .common = {.msgtype = XI_CONTROL_MESSAGE_SC__SFT_FILE_UPDATE_AVAILABLE,
                            .msgver  = 1},
                 .list_len = 3,
                 .list     = three_file_list}};
@@ -450,7 +450,7 @@ XI_TT_TESTCASE_WITH_SETUP(
 
         const xi_control_message_t file_update_available = {
             .file_update_available = {
-                .common = {.msgtype = XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE,
+                .common = {.msgtype = XI_CONTROL_MESSAGE_SC__SFT_FILE_UPDATE_AVAILABLE,
                            .msgver  = 1},
                 .list_len = 3,
                 .list     = three_file_list}};

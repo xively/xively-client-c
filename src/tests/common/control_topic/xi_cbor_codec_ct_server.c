@@ -53,7 +53,7 @@ void xi_cbor_codec_ct_server_encode( const xi_control_message_t* control_message
 
     switch ( control_message->common.msgtype )
     {
-        case XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE:
+        case XI_CONTROL_MESSAGE_SC__SFT_FILE_UPDATE_AVAILABLE:
 
             if ( 0 < control_message->file_update_available.list_len )
             {
@@ -115,7 +115,7 @@ void xi_cbor_codec_ct_server_encode( const xi_control_message_t* control_message
             }
             break;
 
-        case XI_CONTROL_MESSAGE_SC_FILE_CHUNK:
+        case XI_CONTROL_MESSAGE_SC__SFT_FILE_CHUNK:
 
             xi_cbor_put_name_and_revision( cb_map, control_message->file_chunk.name,
                                            control_message->file_chunk.revision, &err );
@@ -289,8 +289,8 @@ xi_cbor_codec_ct_server_decode( const uint8_t* data, const uint32_t len )
 
             break;
 
-        case XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE:
-        case XI_CONTROL_MESSAGE_SC_FILE_CHUNK:;
+        case XI_CONTROL_MESSAGE_SC__SFT_FILE_UPDATE_AVAILABLE:
+        case XI_CONTROL_MESSAGE_SC__SFT_FILE_CHUNK:;
     }
 
     cn_cbor_free( cb_map CBOR_CONTEXT_PARAM );

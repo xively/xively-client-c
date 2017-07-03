@@ -166,7 +166,7 @@ void xi_control_message_free( xi_control_message_t** control_message )
 
         break;
 
-        case XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE:
+        case XI_CONTROL_MESSAGE_SC__SFT_FILE_UPDATE_AVAILABLE:
         {
             uint16_t id_file = 0;
             for ( ; id_file < ( *control_message )->file_update_available.list_len;
@@ -194,7 +194,7 @@ void xi_control_message_free( xi_control_message_t** control_message )
 
             break;
 
-        case XI_CONTROL_MESSAGE_SC_FILE_CHUNK:
+        case XI_CONTROL_MESSAGE_SC__SFT_FILE_CHUNK:
 
             XI_SAFE_FREE( ( *control_message )->file_chunk.name );
             XI_SAFE_FREE( ( *control_message )->file_chunk.revision );
@@ -248,7 +248,7 @@ void xi_debug_control_message_dump( const xi_control_message_t* control_message,
         }
         break;
 
-        case XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE:
+        case XI_CONTROL_MESSAGE_SC__SFT_FILE_UPDATE_AVAILABLE:
         {
             printf( "+++ SFT FILE_UPDATE_AVAILABLE, list_len %d\n",
                     control_message->file_update_available.list_len );
@@ -281,7 +281,7 @@ void xi_debug_control_message_dump( const xi_control_message_t* control_message,
         break;
 
         case XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK:
-            printf( "+++ XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK\n" );
+            printf( "+++ SFT FILE_GET_CHUNK\n" );
             printf( "+++ name: [%s], revision: [%s]\n",
                     control_message->file_get_chunk.name,
                     control_message->file_get_chunk.revision );
@@ -290,8 +290,8 @@ void xi_debug_control_message_dump( const xi_control_message_t* control_message,
                     control_message->file_get_chunk.length );
             break;
 
-        case XI_CONTROL_MESSAGE_SC_FILE_CHUNK:
-            printf( "+++ XI_CONTROL_MESSAGE_SC_FILE_CHUNK\n" );
+        case XI_CONTROL_MESSAGE_SC__SFT_FILE_CHUNK:
+            printf( "+++ SFT FILE_CHUNK\n" );
             printf( "+++ name: [%s], revision: [%s]\n", control_message->file_chunk.name,
                     control_message->file_chunk.revision );
             printf( "+++ offset: %d, length: %d\n", control_message->file_chunk.offset,
@@ -300,7 +300,7 @@ void xi_debug_control_message_dump( const xi_control_message_t* control_message,
                     control_message->file_chunk.chunk );
             break;
         case XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS:
-            printf( "+++ XI_CONTROL_MESSAGE_SC_FILE_STATUS\n" );
+            printf( "+++ SFT FILE_STATUS\n" );
             printf( "+++ name: [%s], revision: [%s]\n", control_message->file_status.name,
                     control_message->file_status.revision );
             printf( "+++ phase: %d, code: %d\n", control_message->file_status.phase,
