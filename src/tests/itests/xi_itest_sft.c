@@ -340,18 +340,18 @@ void xi_itest_sft__broker_replies_FUA_on_FILE_GET_CHUNK__client_does_not_crash_o
 err_handling:;
 }
 
+#define XI_ITEST_SFT__FILE_NUMBER 211
+
 void xi_itest_sft__manymany_updateable_files( void** fixture_void )
 {
     expect_value( xi_mock_broker_sft_logic_on_message, control_message->common.msgtype,
                   XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO );
 
-    const uint16_t num_of_files = 211;
-
-    char file_names_strings[num_of_files][8] = {{0}};
-    char* file_names_ptrs[num_of_files]      = {0};
+    char file_names_strings[XI_ITEST_SFT__FILE_NUMBER][8] = {{0}};
+    char* file_names_ptrs[XI_ITEST_SFT__FILE_NUMBER]      = {0};
 
     uint16_t id_file = 0;
-    for ( ; id_file < num_of_files; ++id_file )
+    for ( ; id_file < XI_ITEST_SFT__FILE_NUMBER; ++id_file )
     {
         /* dynamic genration of filenames */
         file_names_strings[id_file][0] = id_file % 95 + 33;
@@ -382,5 +382,6 @@ void xi_itest_sft__manymany_updateable_files( void** fixture_void )
     }
 
     // ACT
-    xi_itest_sft__act( fixture_void, 1, ( const char** )file_names_ptrs, num_of_files );
+    xi_itest_sft__act( fixture_void, 1, ( const char** )file_names_ptrs,
+                       XI_ITEST_SFT__FILE_NUMBER );
 }
