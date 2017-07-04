@@ -46,11 +46,14 @@ xi_mock_broker_sft_logic_on_file_info( xi_control_message_t* control_message )
         control_message->file_info.list[id_file].name = NULL;
 
         control_message_reply->file_update_available.list[id_file].revision =
-            xi_str_cat( control_message->file_info.list[id_file].revision, " - update" );
+            xi_str_cat( control_message->file_info.list[id_file].revision
+                            ? control_message->file_info.list[id_file].revision
+                            : "[NULL]",
+                        " - update" );
 
         control_message_reply->file_update_available.list[id_file].file_operation = 0;
         control_message_reply->file_update_available.list[id_file].size_in_bytes =
-            7777 * ( 1 + id_file );
+            7777 * ( id_file % 3 + 1 );
 
         const char* fingerprint =
             xi_str_cat( "@#$@#$@$xxx^ - test fingerprint - ",
@@ -86,9 +89,6 @@ xi_mock_broker_sft_logic_on_file_get_chunk( xi_control_message_t* control_messag
 
     if ( NULL == control_message_reply )
     {
-        printf( "--- %s ---, control_message_reply: %p\n", __FUNCTION__,
-                control_message_reply );
-
         xi_state_t state = XI_STATE_OK;
 
         enum XI_MOCK_BROKER_SFT_FILE_CHUNK_STATUS

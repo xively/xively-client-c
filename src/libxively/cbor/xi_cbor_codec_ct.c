@@ -168,17 +168,47 @@ void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
         default:;
     }
 
-    unsigned char encoded[512];
-    *out_len = cn_cbor_encoder_write( encoded, 0, sizeof( encoded ), cb_map );
+    xi_state_t state = XI_STATE_OK;
+
+    uint8_t* encoded     = NULL;
+    uint32_t encoded_len = 256;
+
+    for ( ; encoded_len < 100000; encoded_len *= 2 )
+    {
+        XI_ALLOC_BUFFER_AT( uint8_t, encoded, encoded_len, state );
+
+        const ssize_t encode_result =
+            cn_cbor_encoder_write( encoded, 0, encoded_len, cb_map );
+
+        if ( encode_result <= 0 )
+        {
+            /* failure during encoding */
+            XI_SAFE_FREE( encoded );
+        }
+        else
+        {
+            /* successful encoding */
+            *out_len = encode_result;
+            break;
+        }
+    }
 
     cn_cbor_free( cb_map CBOR_CONTEXT_PARAM );
 
-    xi_state_t state = XI_STATE_OK;
-    XI_ALLOC_BUFFER_AT( uint8_t, *out_encoded_allocated_inside, *out_len, state );
+    if ( 0 < *out_len )
+    {
+        XI_ALLOC_BUFFER_AT( uint8_t, *out_encoded_allocated_inside, *out_len, state );
 
-    memcpy( *out_encoded_allocated_inside, encoded, *out_len );
+        memcpy( *out_encoded_allocated_inside, encoded, *out_len );
+    }
+    XI_SAFE_FREE( encoded );
+
+    return;
 
 err_handling:;
+
+    XI_SAFE_FREE( encoded );
+    XI_SAFE_FREE( *out_encoded_allocated_inside );
 }
 
 xi_state_t xi_cbor_codec_ct_decode_getvalue( cn_cbor* source,

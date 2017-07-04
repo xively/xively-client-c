@@ -51,9 +51,9 @@ typedef struct xi_itest_sft__test_fixture_s
 
     xi_mock_broker_data_t* broker_data;
 
-    uint8_t loop_id__manual_disconnect;
+    uint16_t loop_id__manual_disconnect;
 
-    uint8_t max_loop_count;
+    uint16_t max_loop_count;
 
 } xi_itest_sft__test_fixture_t;
 
@@ -67,8 +67,8 @@ xi_itest_sft__test_fixture_t* xi_itest_sft__generate_fixture()
     fixture->control_topic_name_client_in  = ( "xi/ctrl/v1/xi_itest_sft_device_id/cln" );
     fixture->control_topic_name_client_out = ( "xi/ctrl/v1/xi_itest_sft_device_id/svc" );
 
-    fixture->loop_id__manual_disconnect = 35;
-    fixture->max_loop_count             = 40;
+    fixture->loop_id__manual_disconnect = 0xFFFF - 5;
+    fixture->max_loop_count             = 0xFFFF;
 
     return fixture;
 
@@ -152,7 +152,7 @@ void xi_itest_sft__on_connection_state_changed( xi_context_handle_t in_context_h
  ********************************************************************************/
 static void xi_itest_sft__act( void** fixture_void,
                                char do_disconnect_flag,
-                               const char* updateable_filenames[],
+                               const char** updateable_filenames,
                                uint16_t updateable_file_count )
 {
     {
@@ -186,13 +186,13 @@ static void xi_itest_sft__act( void** fixture_void,
     xi_set_updateable_files( xi_context_handle, updateable_filenames,
                              updateable_file_count );
 
-    const uint16_t connection_timeout = 20;
+    const uint16_t connection_timeout = fixture->max_loop_count;
     const uint16_t keepalive_timeout  = fixture->max_loop_count;
     xi_connect( xi_context_handle, "itest_username", "itest_password", connection_timeout,
                 keepalive_timeout, XI_SESSION_CLEAN,
                 &xi_itest_sft__on_connection_state_changed );
 
-    uint8_t loop_counter = 0;
+    uint16_t loop_counter = 0;
     while ( xi_evtd_dispatcher_continue( xi_globals.evtd_instance ) == 1 &&
             loop_counter < keepalive_timeout )
     {
@@ -307,6 +307,8 @@ void xi_itest_sft__broker_replies_FUA_on_FILE_GET_CHUNK__client_does_not_crash_o
     control_message_reply->file_update_available.list_len = 1;
     control_message_reply->file_update_available.list     = single_file_desc;
 
+    /* This will cause mock broker to reply with FILE_UPDATE_AVAILABLE message on
+     * a FILE_GET_CHUNK message which is a protocol violation */
     will_return( xi_mock_broker_sft_logic_on_file_get_chunk, control_message_reply );
 
     expect_value( xi_mock_broker_sft_logic_on_message, control_message->common.msgtype,
@@ -336,4 +338,49 @@ void xi_itest_sft__broker_replies_FUA_on_FILE_GET_CHUNK__client_does_not_crash_o
     xi_itest_sft__act( fixture_void, 1, ( const char* [] ){"file1"}, 1 );
 
 err_handling:;
+}
+
+void xi_itest_sft__manymany_updateable_files( void** fixture_void )
+{
+    expect_value( xi_mock_broker_sft_logic_on_message, control_message->common.msgtype,
+                  XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO );
+
+    const uint16_t num_of_files = 211;
+
+    char file_names_strings[num_of_files][8] = {{0}};
+    char* file_names_ptrs[num_of_files]      = {0};
+
+    uint16_t id_file = 0;
+    for ( ; id_file < num_of_files; ++id_file )
+    {
+        /* dynamic genration of filenames */
+        file_names_strings[id_file][0] = id_file % 95 + 33;
+        file_names_strings[id_file][1] = id_file % 95 + 34;
+        file_names_strings[id_file][2] = '-';
+        file_names_strings[id_file][3] = id_file / 1000 + '0';
+        file_names_strings[id_file][4] = id_file % 1000 / 100 + '0';
+        file_names_strings[id_file][5] = id_file % 100 / 10 + '0';
+        file_names_strings[id_file][6] = id_file % 10 + '0';
+        file_names_strings[id_file][7] = 0; /* end of string */
+
+        file_names_ptrs[id_file] = file_names_strings[id_file];
+
+        /* calculating expected number of FILE_GET_CHUNK messages */
+        const uint32_t num_of_file_get_chunks = 7777 * ( id_file % 3 + 1 ) / 4096 + 1;
+
+        expect_value_count(
+            xi_mock_broker_sft_logic_on_message, control_message->common.msgtype,
+            XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK, num_of_file_get_chunks );
+
+        expect_string_count( xi_mock_broker_sft_logic_on_file_get_chunk,
+                             control_message->file_get_chunk.name,
+                             file_names_ptrs[id_file], num_of_file_get_chunks );
+
+        expect_value_count( xi_mock_broker_sft_logic_on_message,
+                            control_message->common.msgtype,
+                            XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 3 );
+    }
+
+    // ACT
+    xi_itest_sft__act( fixture_void, 1, ( const char** )file_names_ptrs, num_of_files );
 }

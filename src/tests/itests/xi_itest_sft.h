@@ -20,6 +20,7 @@ xi_itest_sft__broker_replies_FILE_INFO_on_FILE_GET_CHUNK__client_does_not_crash_
 extern void
 xi_itest_sft__broker_replies_FUA_on_FILE_GET_CHUNK__client_does_not_crash_or_leak(
     void** state );
+extern void xi_itest_sft__manymany_updateable_files( void** state );
 
 
 #ifdef XI_MOCK_TEST_PREPROCESSOR_RUN
@@ -39,7 +40,10 @@ struct CMUnitTest xi_itests_sft[] = {
     cmocka_unit_test_setup_teardown(
         xi_itest_sft__broker_replies_FUA_on_FILE_GET_CHUNK__client_does_not_crash_or_leak,
         xi_itest_sft_setup,
-        xi_itest_sft_teardown )};
+        xi_itest_sft_teardown ),
+    cmocka_unit_test_setup_teardown( xi_itest_sft__manymany_updateable_files,
+                                     xi_itest_sft_setup,
+                                     xi_itest_sft_teardown )};
 
 #endif
 

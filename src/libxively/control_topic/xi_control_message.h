@@ -136,7 +136,7 @@ xi_control_message_file_update_available_get_next_file_desc_ext(
 
 void xi_control_message_free( xi_control_message_t** control_message );
 
-#if 1 // XI_DEBUG_OUTPUT
+#if XI_DEBUG_OUTPUT
 void xi_debug_control_message_dump( const xi_control_message_t* control_message,
                                     const char* custom_label );
 #else

@@ -258,21 +258,20 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
                 // do nothing
                 xi_debug_printf(
                     "================= DISCONNECT arrived at mock broker\n" );
-                xi_mqtt_message_free( &recvd_msg );
-                return XI_STATE_OK;
                 break;
 
             default:
-                xi_mqtt_message_free( &recvd_msg );
                 xi_debug_printf( "*** *** unhandled message arrived\n" );
+                in_out_state = XI_MQTT_UNKNOWN_MESSAGE_ID;
                 break;
         }
     }
 
+err_handling:
+
     xi_mqtt_message_free( &recvd_msg );
 
-err_handling:
-    return XI_MQTT_UNKNOWN_MESSAGE_ID;
+    return in_out_state;
 }
 
 xi_state_t

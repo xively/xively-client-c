@@ -455,9 +455,8 @@ xi_state_t xi_events_process_tick()
 }
 
 
-xi_state_t xi_set_updateable_files( xi_context_handle_t xih,
-                                    const char* filenames[],
-                                    uint16_t count )
+xi_state_t
+xi_set_updateable_files( xi_context_handle_t xih, const char** filenames, uint16_t count )
 {
     if ( NULL == filenames || NULL == *filenames || 0 == count )
     {

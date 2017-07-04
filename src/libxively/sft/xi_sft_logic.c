@@ -68,7 +68,8 @@ xi_state_t xi_sft_on_connected( xi_sft_context_t* context )
     }
 
     xi_control_message_t* message_file_info = xi_control_message_create_file_info(
-        context->updateable_files, ( const char* [] ){"rev 1", "rev 2", "rev 3"},
+        context->updateable_files, NULL /* todo_atigyi: handle revisions */,
+        // ( const char* [] ){"rev1", "rev2", "rev3"},
         context->updateable_files_count );
 
     ( *context->fn_send_message )( context->send_message_user_data, message_file_info );
@@ -141,7 +142,7 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                 const uint32_t all_downloaded_bytes =
                     sft_message_in->file_chunk.offset + sft_message_in->file_chunk.length;
 
-                printf( "downloading file: %s, %d / %d, [%d%%]\n",
+                printf( "         === === === downloading file: %s, %d / %d, [%d%%]\n",
                         context->update_current_file->name,
                         context->update_current_file->size_in_bytes, all_downloaded_bytes,
                         ( all_downloaded_bytes * 100 ) /
