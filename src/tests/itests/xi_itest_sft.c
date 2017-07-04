@@ -340,7 +340,7 @@ void xi_itest_sft__broker_replies_FUA_on_FILE_GET_CHUNK__client_does_not_crash_o
 err_handling:;
 }
 
-#define XI_ITEST_SFT__FILE_NUMBER 211
+#define XI_ITEST_SFT__FILE_NUMBER 111
 
 void xi_itest_sft__manymany_updateable_files( void** fixture_void )
 {
