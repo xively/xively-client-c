@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include "src/cbor.h"
 #include "include/cn-cbor/cn-cbor.h"
-#include "../sha256/sha256.h"
+#include "xi_bsp_crypt.h"
 #include "xi_sft.h"
 
 /* Simpelink EXT lib includes */
@@ -96,7 +96,7 @@ typedef struct file_download_ctx_s
     unsigned char file_sft_fingerprint_str[65];
     unsigned char file_local_computed_fingerprint[32];
 
-    SHA256_CTX sha256_context;
+    void* sha256_context;
 
 } file_download_ctx_t;
 
@@ -554,7 +554,7 @@ void xi_parse_file_update_available( xi_context_handle_t in_context_handle, cn_c
     memset( &download_ctx, 0, sizeof( file_download_ctx_t ) );
 
     /* Initialize sha256 digest of the file and tracking variables */
-    sha256_init( &download_ctx.sha256_context );
+    xi_bsp_crypt_sha256_init( &download_ctx.sha256_context );
 
     /* check message version */
     cb_item = cn_cbor_mapget_string( cb, "msgver" );
@@ -888,8 +888,9 @@ void xi_process_file_chunk( xi_context_handle_t in_context_handle, cn_cbor* cb )
     else
     {
         /* update the SHA256 digest with the provided data */
-        sha256_update( &download_ctx.sha256_context,
-                       ( unsigned char* )file_chunk_data.byte_array, bytes_written );
+        xi_bsp_crypt_sha256_update( &download_ctx.sha256_context,
+                                    ( unsigned char* )file_chunk_data.byte_array,
+                                    bytes_written );
 
         /* Track our progress through the file */
         download_ctx.file_storage_offset = file_chunk_data.offset + bytes_written;
@@ -1041,8 +1042,8 @@ void xi_parse_file_chunk( xi_context_handle_t in_context_handle,
 void verify_sha256( xi_context_handle_t in_context_handle )
 {
     /* Finalize SHA256 Digest */
-    sha256_final( &download_ctx.sha256_context,
-                  download_ctx.file_local_computed_fingerprint );
+    xi_bsp_crypt_sha256_final( &download_ctx.sha256_context,
+                               download_ctx.file_local_computed_fingerprint );
     printf( "Calculated hash = 0x" );
     print_hash( download_ctx.file_local_computed_fingerprint );
 
