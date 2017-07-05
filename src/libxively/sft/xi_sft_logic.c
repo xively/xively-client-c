@@ -69,7 +69,6 @@ xi_state_t xi_sft_on_connected( xi_sft_context_t* context )
 
     xi_control_message_t* message_file_info = xi_control_message_create_file_info(
         context->updateable_files, NULL /* todo_atigyi: handle revisions */,
-        // ( const char* [] ){"rev1", "rev2", "rev3"},
         context->updateable_files_count );
 
     ( *context->fn_send_message )( context->send_message_user_data, message_file_info );
@@ -91,7 +90,7 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
     {
         case XI_CONTROL_MESSAGE_SC__SFT_FILE_UPDATE_AVAILABLE:
         {
-            /* - check whether device is ready to start download of file */
+            /* todo?: check whether device is ready to start download of file */
 
             if ( NULL != context->update_message_fua )
             {
@@ -174,8 +173,8 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                             xi_control_message_create_file_status(
                                 context->update_current_file->name,
                                 context->update_current_file->revision,
-                                XI_CONTROL_MESSAGE_FILE_STATUS_PHASE_DOWNLOADED,
-                                XI_CONTROL_MESSAGE_FILE_STATUS_CODE_SUCCESS );
+                                XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADED,
+                                XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
 
                         ( *context->fn_send_message )( context->send_message_user_data,
                                                        message_file_status );
@@ -183,8 +182,8 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                         message_file_status = xi_control_message_create_file_status(
                             context->update_current_file->name,
                             context->update_current_file->revision,
-                            XI_CONTROL_MESSAGE_FILE_STATUS_PHASE_PROCESSING,
-                            XI_CONTROL_MESSAGE_FILE_STATUS_CODE_SUCCESS );
+                            XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_PROCESSING,
+                            XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
 
                         ( *context->fn_send_message )( context->send_message_user_data,
                                                        message_file_status );
@@ -192,8 +191,8 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                         message_file_status = xi_control_message_create_file_status(
                             context->update_current_file->name,
                             context->update_current_file->revision,
-                            XI_CONTROL_MESSAGE_FILE_STATUS_PHASE_FINISHED,
-                            XI_CONTROL_MESSAGE_FILE_STATUS_CODE_SUCCESS );
+                            XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_FINISHED,
+                            XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
 
                         ( *context->fn_send_message )( context->send_message_user_data,
                                                        message_file_status );

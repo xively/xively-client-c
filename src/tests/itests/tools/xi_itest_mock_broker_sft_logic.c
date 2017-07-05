@@ -212,10 +212,4 @@ xi_mock_broker_sft_logic_on_message( const xi_data_desc_t* control_message_encod
     xi_control_message_free( &control_message );
 
     return cbor_reply_message_data_desc;
-
-    // - channel each msg type into separate functions (3 messages) to help failure
-    //   control from integration test case
-    // - apply mock broker logic: happy broker OR controlled failure -->
-    //   xi_control_message_t
-    // - encode and send to client
 }

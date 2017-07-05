@@ -28,7 +28,7 @@
 extern "C" {
 #endif
 
-#define XI_FEATURE_DEV_SFT_ON 1
+#define XI_FEATURE_DEV_SFT_ON 0
 
 #ifdef XI_CONTROL_TOPIC_ENABLED
 
@@ -172,6 +172,7 @@ xi_state_t xi_on_control_message( xi_context_handle_t in_context_handle,
         ( xi_control_topic_layer_data_t* )XI_THIS_LAYER( context )->user_data;
 
     assert( layer_data != NULL );
+    XI_UNUSED( layer_data );
 
     switch ( call_type )
     {

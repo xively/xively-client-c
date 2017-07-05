@@ -284,7 +284,7 @@ void xi_itest_sft__broker_replies_FILE_INFO_on_FILE_GET_CHUNK__client_does_not_c
 err_handling:;
 }
 
-void xi_itest_sft__broker_replies_FUA_on_FILE_GET_CHUNK__client_does_not_crash_or_leak(
+void xi_itest_sft__broker_replies_FUA_on_FILE_GET_CHUNK__client_processes_2nd_FUA(
     void** fixture_void )
 {
     xi_state_t state = XI_STATE_OK;

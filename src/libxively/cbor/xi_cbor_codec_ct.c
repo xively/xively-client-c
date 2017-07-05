@@ -405,9 +405,9 @@ xi_control_message_t* xi_cbor_codec_ct_decode( const uint8_t* data, const uint32
                 cb_map, XI_CBOR_CODEC_CT_STRING_FILECHUNK_OFFSET,
                 &control_message_out->file_chunk.offset, NULL );
 
-            /*  This 'length' field is redundant since the CBOR encoding has
-                the length of the byte array right in the array itself. So here
-                we don't rely on this protocol's length but the CBRO's array size.
+            /*  This 'length' field is redundant since the CBOR encoding contains
+                the length of the byte array right in the array. So here we don't
+                rely on protocol's length field but the CBOR's array size.
                 Thus ignoring the 'length' field itself.
 
             xi_cbor_codec_ct_decode_getvalue(
