@@ -27,6 +27,7 @@ XI_EXAMPLE_BIN := $(XI_EXAMPLE_BINDIR)/$(XI_EXAMPLE_NAME)
 
 XI_CLIENT_PATH ?= $(CURDIR)/../../
 XI_CLIENT_INC_PATH += $(CURDIR)/../../include
+XI_CLIENT_INC_PATH += $(CURDIR)/../../include/bsp
 XI_CLIENT_LIB_PATH ?= $(CURDIR)/../../bin/$(XI_TARGET_PLATFORM)
 
 XI_CLIENT_ROOTCA_LIST := $(CURDIR)/../../res/trusted_RootCA_certs/xi_RootCA_list.pem

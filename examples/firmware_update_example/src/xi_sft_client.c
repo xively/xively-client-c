@@ -4,9 +4,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "../cbor/cbor.h"
-#include "../cbor/cn-cbor/cn-cbor.h"
-#include "../sha256/sha256.h"
+#include "cbor.h"
+#include "cn-cbor.h"
+#include "xi_bsp_crypt.h"
 #include "xi_sft.h"
 
 /** This file contains the implementation of the firmware update protocol using the cbor
@@ -58,7 +58,7 @@ typedef unsigned int uint;
 void* lFileHandle = NULL;
 unsigned long ulToken;
 
-SHA256_CTX ctx;
+void* sha_ctx;
 
 char buffer[1024 * 1024 * 32];
 
@@ -183,7 +183,7 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                             xi_publish( in_context_handle, xi_logtopic, buffer,
                                         XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE,
                                         NULL, NULL );
-                            sha256_init( &ctx );
+                            xi_bsp_crypt_sha256_init( &sha_ctx );
                             offset = 0;
                             retVal = openFileForWrite( test_firmware_filename, filelength,
                                                        &lFileHandle );
@@ -226,7 +226,7 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                                     xi_publish( in_context_handle, xi_logtopic, buffer,
                                                 XI_MQTT_QOS_AT_MOST_ONCE,
                                                 XI_MQTT_RETAIN_FALSE, NULL, NULL );
-                                    sha256_final( &ctx, hash );
+                                    xi_bsp_crypt_sha256_final( &sha_ctx, hash );
                                     xi_sft_debug_logger( "Calculated hash = 0x" );
                                     print_hash( hash );
                                     offset = 0;
@@ -460,7 +460,8 @@ void xi_parse_file_chunk( cn_cbor* cb )
         xi_sft_debug_format( "cb_item->length = %d", cb_item->length );
         if ( cb_item->length > 0 )
         {
-            sha256_update( &ctx, ( BYTE* )cb_item->v.str, cb_item->length );
+            xi_bsp_crypt_sha256_update( &sha_ctx, ( const uint8_t* )cb_item->v.str,
+                                        cb_item->length );
 
             xi_sft_debug_format( "lFileHandle = %p", lFileHandle );
 
