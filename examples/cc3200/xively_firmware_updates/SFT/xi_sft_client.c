@@ -10,8 +10,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "../cbor/cbor.h"
-#include "../cbor/cn-cbor/cn-cbor.h"
+#include "src/cbor.h"
+#include "include/cn-cbor/cn-cbor.h"
 #include "../sha256/sha256.h"
 #include "xi_sft.h"
 
@@ -52,8 +52,7 @@
 typedef unsigned char uchar;
 typedef unsigned int uint;
 
-typedef enum
-{
+typedef enum {
     sft_status_ok = 0,
 
     sft_status_rebooting = 1,
@@ -68,14 +67,14 @@ typedef enum
     sft_data_out_of_bounds_error     = 8,
     sft_file_data_offset_error       = 9,
 
-    sft_cbor_missing_field_error     = 10,
-    sft_cbor_encoding_error          = 11,
-    sft_cbor_error_field_set_error   = 12,
+    sft_cbor_missing_field_error   = 10,
+    sft_cbor_encoding_error        = 11,
+    sft_cbor_error_field_set_error = 12,
 
-    sft_publish_error                = 13,
-    sft_internal_error               = 14,
-    sft_fingerprint_mismatch_error   = 15,
-    sft_fingerprint_too_large_error  = 16,
+    sft_publish_error               = 13,
+    sft_internal_error              = 14,
+    sft_fingerprint_mismatch_error  = 15,
+    sft_fingerprint_too_large_error = 16,
 
     sft_status_max
 
@@ -124,11 +123,15 @@ char firmware_revision[] = "1.0";
 
 file_download_ctx_t download_ctx;
 
+#ifdef USE_CBOR_CONTEXT
+extern cn_cbor_context* context;
+#endif
+
 /* Buffers to hold the formatted topics.
  * Topics are mangled by account and device ids. */
-char xi_stopic[ XIVELY_TOPIC_LEN ];
-char xi_logtopic[ XIVELY_TOPIC_LEN ];
-char xi_ctopic[ XIVELY_TOPIC_LEN ];
+char xi_stopic[XIVELY_TOPIC_LEN];
+char xi_logtopic[XIVELY_TOPIC_LEN];
+char xi_ctopic[XIVELY_TOPIC_LEN];
 
 /* strings that correspond to the xi_status_t enumeration.
  * used for publishing messages to the Xivel Device Logs service. */
@@ -259,7 +262,8 @@ int xi_sft_init( xi_context_handle_t in_context_handle,
                 firmware_revision );
         sl_extlib_FlcCommit( FLC_COMMITED );
         xi_publish_device_log( in_context_handle, "Firmware Committed",
-                               "Boot loader will now boot to new image from now on", sft_status_ok );
+                               "Boot loader will now boot to new image from now on",
+                               sft_status_ok );
     }
 
     /* Subscribe to SFT topic.  Everything interesting that happens will occur when an
@@ -344,7 +348,7 @@ void on_sft_message( xi_context_handle_t in_context_handle,
             payload_length = params->message.temporary_payload_data_length;
 
             /* Figure out what the packet type is and then call the appropriate parser */
-            cb = cn_cbor_decode( payload_data, payload_length, 0 );
+            cb = cn_cbor_decode( payload_data, payload_length CBOR_CONTEXT_PARAM, 0 );
 
             if ( cb )
             {
@@ -497,24 +501,26 @@ void xi_publish_file_info( xi_context_handle_t in_context_handle )
 {
     /* Let's try making a XI_FILE_INFO packet */
     cn_cbor_errback err;
-    cn_cbor* cb_map = cn_cbor_map_create( &err );
+    cn_cbor* cb_map = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMA & err );
 
-    cn_cbor_map_put( cb_map, cn_cbor_string_create( "msgtype", &err ),
-                     cn_cbor_int_create( XI_FILE_INFO, &err ), &err );
+    cn_cbor_map_put( cb_map, cn_cbor_string_create( "msgtype" CBOR_CONTEXT_PARAM, &err ),
+                     cn_cbor_int_create( XI_FILE_INFO CBOR_CONTEXT_PARAM, &err ), &err );
 
-    cn_cbor_map_put( cb_map, cn_cbor_string_create( "msgver", &err ),
-                     cn_cbor_int_create( 1, &err ), &err );
+    cn_cbor_map_put( cb_map, cn_cbor_string_create( "msgver" CBOR_CONTEXT_PARAM, &err ),
+                     cn_cbor_int_create( 1 CBOR_CONTEXT_PARAM, &err ), &err );
 
-    cn_cbor* a        = cn_cbor_array_create( &err );
-    cn_cbor* cb_file1 = cn_cbor_map_create( &err );
-    cn_cbor_map_put( cb_file1, cn_cbor_string_create( "N", &err ),
-                     cn_cbor_string_create( firmware_filename, &err ), &err );
+    cn_cbor* a        = cn_cbor_array_create( CBOR_CONTEXT_PARAM_COMA & err );
+    cn_cbor* cb_file1 = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMA & err );
+    cn_cbor_map_put( cb_file1, cn_cbor_string_create( "N" CBOR_CONTEXT_PARAM, &err ),
+                     cn_cbor_string_create( firmware_filename CBOR_CONTEXT_PARAM, &err ),
+                     &err );
 
-    cn_cbor_map_put( cb_file1, cn_cbor_string_create( "R", &err ),
-                     cn_cbor_string_create( "-1", &err ), &err );
+    cn_cbor_map_put( cb_file1, cn_cbor_string_create( "R" CBOR_CONTEXT_PARAM, &err ),
+                     cn_cbor_string_create( "-1" CBOR_CONTEXT_PARAM, &err ), &err );
 
     cn_cbor_array_append( a, cb_file1, &err );
-    cn_cbor_map_put( cb_map, cn_cbor_string_create( "list", &err ), a, &err );
+    cn_cbor_map_put( cb_map, cn_cbor_string_create( "list" CBOR_CONTEXT_PARAM, &err ), a,
+                     &err );
 
     unsigned char encoded[128];
     const ssize_t enc_sz = cn_cbor_encoder_write( encoded, 0, sizeof( encoded ), cb_map );
@@ -663,8 +669,8 @@ void xi_parse_file_update_available( xi_context_handle_t in_context_handle, cn_c
                 {
                     memset( download_ctx.file_sft_fingerprint_str, '\0',
                             sizeof( download_ctx.file_sft_fingerprint_str ) );
-                    strncpy( download_ctx.file_sft_fingerprint_str, cb_file->v.str,
-                             cb_file->length );
+                    strncpy( ( char* )download_ctx.file_sft_fingerprint_str,
+                             cb_file->v.str, cb_file->length );
                 }
             }
             else
@@ -727,25 +733,27 @@ void xi_publish_file_chunk_request( xi_context_handle_t in_context_handle,
 
     /* Format a CBOR message of the FILE_GET_CHUNK message type. */
     cn_cbor_errback err;
-    cn_cbor* cb_map = cn_cbor_map_create( &err );
+    cn_cbor* cb_map = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMA & err );
 
-    cn_cbor_map_put( cb_map, cn_cbor_string_create( "msgtype", &err ),
-                     cn_cbor_int_create( message_type, &err ), &err );
+    cn_cbor_map_put( cb_map, cn_cbor_string_create( "msgtype" CBOR_CONTEXT_PARAM, &err ),
+                     cn_cbor_int_create( message_type CBOR_CONTEXT_PARAM, &err ), &err );
 
-    cn_cbor_map_put( cb_map, cn_cbor_string_create( "msgver", &err ),
-                     cn_cbor_int_create( message_version, &err ), &err );
+    cn_cbor_map_put( cb_map, cn_cbor_string_create( "msgver" CBOR_CONTEXT_PARAM, &err ),
+                     cn_cbor_int_create( message_version CBOR_CONTEXT_PARAM, &err ),
+                     &err );
 
-    cn_cbor_map_put( cb_map, cn_cbor_string_create( "N", &err ),
-                     cn_cbor_string_create( file_name, &err ), &err );
+    cn_cbor_map_put( cb_map, cn_cbor_string_create( "N" CBOR_CONTEXT_PARAM, &err ),
+                     cn_cbor_string_create( file_name CBOR_CONTEXT_PARAM, &err ), &err );
 
-    cn_cbor_map_put( cb_map, cn_cbor_string_create( "R", &err ),
-                     cn_cbor_string_create( file_revision, &err ), &err );
+    cn_cbor_map_put( cb_map, cn_cbor_string_create( "R" CBOR_CONTEXT_PARAM, &err ),
+                     cn_cbor_string_create( file_revision CBOR_CONTEXT_PARAM, &err ),
+                     &err );
 
-    cn_cbor_map_put( cb_map, cn_cbor_string_create( "O", &err ),
-                     cn_cbor_int_create( offset, &err ), &err );
+    cn_cbor_map_put( cb_map, cn_cbor_string_create( "O" CBOR_CONTEXT_PARAM, &err ),
+                     cn_cbor_int_create( offset CBOR_CONTEXT_PARAM, &err ), &err );
 
-    cn_cbor_map_put( cb_map, cn_cbor_string_create( "L", &err ),
-                     cn_cbor_int_create( chunk_length, &err ), &err );
+    cn_cbor_map_put( cb_map, cn_cbor_string_create( "L" CBOR_CONTEXT_PARAM, &err ),
+                     cn_cbor_int_create( chunk_length CBOR_CONTEXT_PARAM, &err ), &err );
 
     unsigned char encoded[128];
     const ssize_t enc_sz = cn_cbor_encoder_write( encoded, 0, sizeof( encoded ), cb_map );
@@ -1053,8 +1061,8 @@ void verify_sha256( xi_context_handle_t in_context_handle )
     *buff_ptr = '\0';
 
     /* are they the same? If not then raise the red flag */
-    if ( 0 !=
-         strncmp( local_fingerprint_str, download_ctx.file_sft_fingerprint_str, 64 ) )
+    if ( 0 != strncmp( local_fingerprint_str,
+                       ( char* )download_ctx.file_sft_fingerprint_str, 64 ) )
     {
         printf( "File Update Fingerprint mismatch.  SFT Fingerprint: %s  "
                 "device-calculated fingerprint: %s\n",
@@ -1063,7 +1071,7 @@ void verify_sha256( xi_context_handle_t in_context_handle )
         xi_publish_device_log_format_str_str(
             in_context_handle, "File Update Fingerprint Mismatch",
             "sft fingerprint: %s device-calculated fingerprint: %s ",
-            download_ctx.file_sft_fingerprint_str, local_fingerprint_str,
+            ( char* )download_ctx.file_sft_fingerprint_str, local_fingerprint_str,
             sft_fingerprint_mismatch_error );
         return;
     }
