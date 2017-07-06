@@ -888,7 +888,7 @@ void xi_process_file_chunk( xi_context_handle_t in_context_handle, cn_cbor* cb )
     else
     {
         /* update the SHA256 digest with the provided data */
-        xi_bsp_crypt_sha256_update( &download_ctx.sha256_context,
+        xi_bsp_crypt_sha256_update( download_ctx.sha256_context,
                                     ( unsigned char* )file_chunk_data.byte_array,
                                     bytes_written );
 
@@ -1042,7 +1042,7 @@ void xi_parse_file_chunk( xi_context_handle_t in_context_handle,
 void verify_sha256( xi_context_handle_t in_context_handle )
 {
     /* Finalize SHA256 Digest */
-    xi_bsp_crypt_sha256_final( &download_ctx.sha256_context,
+    xi_bsp_crypt_sha256_final( download_ctx.sha256_context,
                                download_ctx.file_local_computed_fingerprint );
     printf( "Calculated hash = 0x" );
     print_hash( download_ctx.file_local_computed_fingerprint );

@@ -34,7 +34,7 @@ XI_CLIENT_ROOTCA_LIST := $(CURDIR)/../../res/trusted_RootCA_certs/xi_RootCA_list
 
 XI_FLAGS_INCLUDE += $(foreach i,$(XI_CLIENT_INC_PATH),-I$i)
 
-XI_FLAGS_COMPILER ?= -Wall -Werror -Wno-pointer-arith -Wno-format -fstrict-aliasing -Os -Wextra
+XI_FLAGS_COMPILER ?= -Wall -Werror -Wno-pointer-arith -Wno-format -fstrict-aliasing -Os -Wextra -DUSE_CBOR_CONTEXT
 
 # TLS BSP related configuration
 XI_BSP_TLS ?= wolfssl

@@ -75,6 +75,10 @@ char xi_ctopic[128];
 char incomingfilename[50];
 char test_firmware_filename[50];
 
+#ifdef USE_CBOR_CONTEXT
+extern cn_cbor_context* context;
+#endif
+
 void xi_parse_file_chunk( cn_cbor* cb );
 void xi_parse_file_update_available( cn_cbor* cb );
 void xi_publish_file_info( xi_context_handle_t in_context_handle );
@@ -135,7 +139,7 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                                  params->message.temporary_payload_data_length );
 
             /* Figure out what the packet type is and then call the appropriate parser */
-            cb = cn_cbor_decode( payload_data, payload_length, 0 );
+            cb = cn_cbor_decode( payload_data, payload_length CBOR_CONTEXT_PARAM, NULL );
 
             if ( cb )
             {
@@ -226,7 +230,7 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                                     xi_publish( in_context_handle, xi_logtopic, buffer,
                                                 XI_MQTT_QOS_AT_MOST_ONCE,
                                                 XI_MQTT_RETAIN_FALSE, NULL, NULL );
-                                    xi_bsp_crypt_sha256_final( &sha_ctx, hash );
+                                    xi_bsp_crypt_sha256_final( sha_ctx, hash );
                                     xi_sft_debug_logger( "Calculated hash = 0x" );
                                     print_hash( hash );
                                     offset = 0;
@@ -256,26 +260,27 @@ void xi_publish_file_info( xi_context_handle_t in_context_handle )
 
     /* Let's try making a XI_FILE_INFO packet */
     cn_cbor_errback err;
-    cn_cbor* cb_map = cn_cbor_map_create( &err );
+    cn_cbor* cb_map = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMA & err );
 
-    cn_cbor_map_put( cb_map, cn_cbor_string_create( "msgtype", &err ),
-                     cn_cbor_int_create( XI_FILE_INFO, &err ), &err );
+    cn_cbor_map_put( cb_map, cn_cbor_string_create( "msgtype" CBOR_CONTEXT_PARAM, &err ),
+                     cn_cbor_int_create( XI_FILE_INFO CBOR_CONTEXT_PARAM, &err ), &err );
 
-    cn_cbor_map_put( cb_map, cn_cbor_string_create( "msgver", &err ),
-                     cn_cbor_int_create( 1, &err ), &err );
+    cn_cbor_map_put( cb_map, cn_cbor_string_create( "msgver" CBOR_CONTEXT_PARAM, &err ),
+                     cn_cbor_int_create( 1 CBOR_CONTEXT_PARAM, &err ), &err );
 
 
-    cn_cbor* a        = cn_cbor_array_create( &err );
-    cn_cbor* cb_file1 = cn_cbor_map_create( &err );
+    cn_cbor* a        = cn_cbor_array_create( CBOR_CONTEXT_PARAM_COMA & err );
+    cn_cbor* cb_file1 = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMA & err );
 
-    cn_cbor_map_put( cb_file1, cn_cbor_string_create( "N", &err ),
-                     cn_cbor_string_create( filename, &err ), &err );
-    cn_cbor_map_put( cb_file1, cn_cbor_string_create( "R", &err ),
-                     cn_cbor_string_create( "-1", &err ), &err );
+    cn_cbor_map_put( cb_file1, cn_cbor_string_create( "N" CBOR_CONTEXT_PARAM, &err ),
+                     cn_cbor_string_create( filename CBOR_CONTEXT_PARAM, &err ), &err );
+    cn_cbor_map_put( cb_file1, cn_cbor_string_create( "R" CBOR_CONTEXT_PARAM, &err ),
+                     cn_cbor_string_create( "-1" CBOR_CONTEXT_PARAM, &err ), &err );
 
     cn_cbor_array_append( a, cb_file1, &err );
 
-    cn_cbor_map_put( cb_map, cn_cbor_string_create( "list", &err ), a, &err );
+    cn_cbor_map_put( cb_map, cn_cbor_string_create( "list" CBOR_CONTEXT_PARAM, &err ), a,
+                     &err );
 
     enc_sz = cn_cbor_encoder_write( encoded, 0, sizeof( encoded ), cb_map );
 
@@ -395,21 +400,24 @@ void xi_parse_file_update_available( cn_cbor* cb )
     xi_sft_debug_format( "->%s<- ->%s<-", filename, filerevision );
     /* Let's try making a GET_CHUNK packet */
     cn_cbor_errback err;
-    cn_cbor* cb_map = cn_cbor_map_create( &err );
+    cn_cbor* cb_map = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMA & err );
 
-    cn_cbor_map_put( cb_map, cn_cbor_string_create( "msgtype", &err ),
-                     cn_cbor_int_create( XI_FILE_GET_CHUNK, &err ), &err );
+    cn_cbor_map_put( cb_map, cn_cbor_string_create( "msgtype" CBOR_CONTEXT_PARAM, &err ),
+                     cn_cbor_int_create( XI_FILE_GET_CHUNK CBOR_CONTEXT_PARAM, &err ),
+                     &err );
 
-    cn_cbor_map_put( cb_map, cn_cbor_string_create( "msgver", &err ),
-                     cn_cbor_int_create( 1, &err ), &err );
-    cn_cbor_map_put( cb_map, cn_cbor_string_create( "N", &err ),
-                     cn_cbor_string_create( incomingfilename, &err ), &err );
-    cn_cbor_map_put( cb_map, cn_cbor_string_create( "R", &err ),
-                     cn_cbor_string_create( filerevision, &err ), &err );
-    cn_cbor_map_put( cb_map, cn_cbor_string_create( "O", &err ),
-                     cn_cbor_int_create( 0, &err ), &err );
-    cn_cbor_map_put( cb_map, cn_cbor_string_create( "L", &err ),
-                     cn_cbor_int_create( 2048, &err ), &err );
+    cn_cbor_map_put( cb_map, cn_cbor_string_create( "msgver" CBOR_CONTEXT_PARAM, &err ),
+                     cn_cbor_int_create( 1 CBOR_CONTEXT_PARAM, &err ), &err );
+    cn_cbor_map_put( cb_map, cn_cbor_string_create( "N" CBOR_CONTEXT_PARAM, &err ),
+                     cn_cbor_string_create( incomingfilename CBOR_CONTEXT_PARAM, &err ),
+                     &err );
+    cn_cbor_map_put( cb_map, cn_cbor_string_create( "R" CBOR_CONTEXT_PARAM, &err ),
+                     cn_cbor_string_create( filerevision CBOR_CONTEXT_PARAM, &err ),
+                     &err );
+    cn_cbor_map_put( cb_map, cn_cbor_string_create( "O" CBOR_CONTEXT_PARAM, &err ),
+                     cn_cbor_int_create( 0 CBOR_CONTEXT_PARAM, &err ), &err );
+    cn_cbor_map_put( cb_map, cn_cbor_string_create( "L" CBOR_CONTEXT_PARAM, &err ),
+                     cn_cbor_int_create( 2048 CBOR_CONTEXT_PARAM, &err ), &err );
 
     enc_sz = cn_cbor_encoder_write( encoded, 0, sizeof( encoded ), cb_map );
     cn_cbor_free( cb_map CBOR_CONTEXT_PARAM );
@@ -460,7 +468,7 @@ void xi_parse_file_chunk( cn_cbor* cb )
         xi_sft_debug_format( "cb_item->length = %d", cb_item->length );
         if ( cb_item->length > 0 )
         {
-            xi_bsp_crypt_sha256_update( &sha_ctx, ( const uint8_t* )cb_item->v.str,
+            xi_bsp_crypt_sha256_update( sha_ctx, ( const uint8_t* )cb_item->v.str,
                                         cb_item->length );
 
             xi_sft_debug_format( "lFileHandle = %p", lFileHandle );
@@ -508,21 +516,25 @@ void xi_parse_file_chunk( cn_cbor* cb )
     {
         /* Let's try making a GET_CHUNK packet */
         cn_cbor_errback err;
-        cn_cbor* cb_map = cn_cbor_map_create( &err );
+        cn_cbor* cb_map = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMA & err );
 
-        cn_cbor_map_put( cb_map, cn_cbor_string_create( "msgtype", &err ),
-                         cn_cbor_int_create( XI_FILE_GET_CHUNK, &err ), &err );
+        cn_cbor_map_put(
+            cb_map, cn_cbor_string_create( "msgtype" CBOR_CONTEXT_PARAM, &err ),
+            cn_cbor_int_create( XI_FILE_GET_CHUNK CBOR_CONTEXT_PARAM, &err ), &err );
 
-        cn_cbor_map_put( cb_map, cn_cbor_string_create( "msgver", &err ),
-                         cn_cbor_int_create( 1, &err ), &err );
-        cn_cbor_map_put( cb_map, cn_cbor_string_create( "N", &err ),
-                         cn_cbor_string_create( incomingfilename, &err ), &err );
-        cn_cbor_map_put( cb_map, cn_cbor_string_create( "R", &err ),
-                         cn_cbor_string_create( filerevision, &err ), &err );
-        cn_cbor_map_put( cb_map, cn_cbor_string_create( "O", &err ),
-                         cn_cbor_int_create( offset, &err ), &err );
-        cn_cbor_map_put( cb_map, cn_cbor_string_create( "L", &err ),
-                         cn_cbor_int_create( 2048, &err ), &err );
+        cn_cbor_map_put( cb_map,
+                         cn_cbor_string_create( "msgver" CBOR_CONTEXT_PARAM, &err ),
+                         cn_cbor_int_create( 1 CBOR_CONTEXT_PARAM, &err ), &err );
+        cn_cbor_map_put(
+            cb_map, cn_cbor_string_create( "N" CBOR_CONTEXT_PARAM, &err ),
+            cn_cbor_string_create( incomingfilename CBOR_CONTEXT_PARAM, &err ), &err );
+        cn_cbor_map_put( cb_map, cn_cbor_string_create( "R" CBOR_CONTEXT_PARAM, &err ),
+                         cn_cbor_string_create( filerevision CBOR_CONTEXT_PARAM, &err ),
+                         &err );
+        cn_cbor_map_put( cb_map, cn_cbor_string_create( "O" CBOR_CONTEXT_PARAM, &err ),
+                         cn_cbor_int_create( offset CBOR_CONTEXT_PARAM, &err ), &err );
+        cn_cbor_map_put( cb_map, cn_cbor_string_create( "L" CBOR_CONTEXT_PARAM, &err ),
+                         cn_cbor_int_create( 2048 CBOR_CONTEXT_PARAM, &err ), &err );
 
         enc_sz = cn_cbor_encoder_write( encoded, 0, sizeof( encoded ), cb_map );
         cn_cbor_free( cb_map CBOR_CONTEXT_PARAM );
