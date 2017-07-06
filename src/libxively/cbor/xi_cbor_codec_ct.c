@@ -36,7 +36,7 @@ static cn_cbor_context cn_cbor_context_object = {.calloc_func = xi_cn_calloc_fun
                                                  .free_func   = xi_cn_free_func_wrapper,
                                                  .context     = NULL};
 
-cn_cbor_context* context = &cn_cbor_context_object;
+cn_cbor_context* context_cbor = &cn_cbor_context_object;
 
 #endif
 

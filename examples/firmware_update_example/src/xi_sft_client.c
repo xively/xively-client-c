@@ -76,7 +76,7 @@ char incomingfilename[50];
 char test_firmware_filename[50];
 
 #ifdef USE_CBOR_CONTEXT
-extern cn_cbor_context* context;
+extern cn_cbor_context* context_cbor;
 #endif
 
 void xi_parse_file_chunk( cn_cbor* cb );

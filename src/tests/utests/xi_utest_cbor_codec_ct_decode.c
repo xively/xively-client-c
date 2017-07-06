@@ -26,7 +26,7 @@
 #ifndef XI_TT_TESTCASE_ENUMERATION__SECONDPREPROCESSORRUN
 
 #ifdef USE_CBOR_CONTEXT
-extern cn_cbor_context* context;
+extern cn_cbor_context* context_cbor;
 #endif
 
 void xi_utest_cbor_bin_to_stdout( const uint8_t* data,

@@ -124,7 +124,7 @@ char firmware_revision[] = "1.0";
 file_download_ctx_t download_ctx;
 
 #ifdef USE_CBOR_CONTEXT
-extern cn_cbor_context* context;
+extern cn_cbor_context* context_cbor;
 #endif
 
 /* Buffers to hold the formatted topics.
