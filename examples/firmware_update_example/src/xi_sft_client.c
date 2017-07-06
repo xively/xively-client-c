@@ -260,7 +260,7 @@ void xi_publish_file_info( xi_context_handle_t in_context_handle )
 
     /* Let's try making a XI_FILE_INFO packet */
     cn_cbor_errback err;
-    cn_cbor* cb_map = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMA & err );
+    cn_cbor* cb_map = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMMA & err );
 
     cn_cbor_map_put( cb_map, cn_cbor_string_create( "msgtype" CBOR_CONTEXT_PARAM, &err ),
                      cn_cbor_int_create( XI_FILE_INFO CBOR_CONTEXT_PARAM, &err ), &err );
@@ -269,8 +269,8 @@ void xi_publish_file_info( xi_context_handle_t in_context_handle )
                      cn_cbor_int_create( 1 CBOR_CONTEXT_PARAM, &err ), &err );
 
 
-    cn_cbor* a        = cn_cbor_array_create( CBOR_CONTEXT_PARAM_COMA & err );
-    cn_cbor* cb_file1 = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMA & err );
+    cn_cbor* a        = cn_cbor_array_create( CBOR_CONTEXT_PARAM_COMMA & err );
+    cn_cbor* cb_file1 = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMMA & err );
 
     cn_cbor_map_put( cb_file1, cn_cbor_string_create( "N" CBOR_CONTEXT_PARAM, &err ),
                      cn_cbor_string_create( filename CBOR_CONTEXT_PARAM, &err ), &err );
@@ -400,7 +400,7 @@ void xi_parse_file_update_available( cn_cbor* cb )
     xi_sft_debug_format( "->%s<- ->%s<-", filename, filerevision );
     /* Let's try making a GET_CHUNK packet */
     cn_cbor_errback err;
-    cn_cbor* cb_map = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMA & err );
+    cn_cbor* cb_map = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMMA & err );
 
     cn_cbor_map_put( cb_map, cn_cbor_string_create( "msgtype" CBOR_CONTEXT_PARAM, &err ),
                      cn_cbor_int_create( XI_FILE_GET_CHUNK CBOR_CONTEXT_PARAM, &err ),
@@ -516,7 +516,7 @@ void xi_parse_file_chunk( cn_cbor* cb )
     {
         /* Let's try making a GET_CHUNK packet */
         cn_cbor_errback err;
-        cn_cbor* cb_map = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMA & err );
+        cn_cbor* cb_map = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMMA & err );
 
         cn_cbor_map_put(
             cb_map, cn_cbor_string_create( "msgtype" CBOR_CONTEXT_PARAM, &err ),

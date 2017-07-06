@@ -92,14 +92,14 @@
     free((ptr));
 
 #define CBOR_CONTEXT_PARAM , context_cbor
-#define CBOR_CONTEXT_PARAM_COMA context_cbor ,
+#define CBOR_CONTEXT_PARAM_COMMA context_cbor ,
 #define CN_CALLOC_CONTEXT() CN_CALLOC(context_cbor)
 #define CN_CBOR_FREE_CONTEXT(p) CN_FREE(p, context_cbor)
 
 #else
 
 #define CBOR_CONTEXT_PARAM
-#define CBOR_CONTEXT_PARAM_COMA
+#define CBOR_CONTEXT_PARAM_COMMA
 #define CN_CALLOC_CONTEXT() CN_CALLOC
 #define CN_CBOR_FREE_CONTEXT(p) CN_FREE(p)
 

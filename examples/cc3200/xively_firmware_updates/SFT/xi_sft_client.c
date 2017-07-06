@@ -501,7 +501,7 @@ void xi_publish_file_info( xi_context_handle_t in_context_handle )
 {
     /* Let's try making a XI_FILE_INFO packet */
     cn_cbor_errback err;
-    cn_cbor* cb_map = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMA & err );
+    cn_cbor* cb_map = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMMA & err );
 
     cn_cbor_map_put( cb_map, cn_cbor_string_create( "msgtype" CBOR_CONTEXT_PARAM, &err ),
                      cn_cbor_int_create( XI_FILE_INFO CBOR_CONTEXT_PARAM, &err ), &err );
@@ -509,8 +509,8 @@ void xi_publish_file_info( xi_context_handle_t in_context_handle )
     cn_cbor_map_put( cb_map, cn_cbor_string_create( "msgver" CBOR_CONTEXT_PARAM, &err ),
                      cn_cbor_int_create( 1 CBOR_CONTEXT_PARAM, &err ), &err );
 
-    cn_cbor* a        = cn_cbor_array_create( CBOR_CONTEXT_PARAM_COMA & err );
-    cn_cbor* cb_file1 = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMA & err );
+    cn_cbor* a        = cn_cbor_array_create( CBOR_CONTEXT_PARAM_COMMA & err );
+    cn_cbor* cb_file1 = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMMA & err );
     cn_cbor_map_put( cb_file1, cn_cbor_string_create( "N" CBOR_CONTEXT_PARAM, &err ),
                      cn_cbor_string_create( firmware_filename CBOR_CONTEXT_PARAM, &err ),
                      &err );
@@ -733,7 +733,7 @@ void xi_publish_file_chunk_request( xi_context_handle_t in_context_handle,
 
     /* Format a CBOR message of the FILE_GET_CHUNK message type. */
     cn_cbor_errback err;
-    cn_cbor* cb_map = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMA & err );
+    cn_cbor* cb_map = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMMA & err );
 
     cn_cbor_map_put( cb_map, cn_cbor_string_create( "msgtype" CBOR_CONTEXT_PARAM, &err ),
                      cn_cbor_int_create( message_type CBOR_CONTEXT_PARAM, &err ), &err );
