@@ -26,6 +26,13 @@ void xi_cbor_put_name_and_revision( cn_cbor* cb_map,
                                     const char* revision,
                                     cn_cbor_errback* errp );
 
+/* reusing the buffer generator function */
+void xi_cbor_codec_ct_encode_generate_buffer( cn_cbor* cb_map,
+                                              uint8_t** out_encoded_allocated_inside,
+                                              uint32_t* out_len,
+                                              uint32_t buffer_size_min,
+                                              uint32_t buffer_size_max );
+
 void xi_cbor_codec_ct_server_encode( const xi_control_message_t* control_message,
                                      uint8_t** out_encoded_allocated_inside,
                                      uint32_t* out_len )
@@ -162,48 +169,9 @@ void xi_cbor_codec_ct_server_encode( const xi_control_message_t* control_message
         default:;
     }
 
-    xi_state_t state = XI_STATE_OK;
-
-    uint8_t* encoded     = NULL;
-    uint32_t encoded_len = 8192;
-
-    for ( ; encoded_len < 100000; encoded_len *= 2 )
-    {
-        XI_ALLOC_BUFFER_AT( uint8_t, encoded, encoded_len, state );
-
-        const ssize_t encode_result =
-            cn_cbor_encoder_write( encoded, 0, encoded_len, cb_map );
-
-        if ( encode_result <= 0 )
-        {
-            /* failure during encoding */
-            XI_SAFE_FREE( encoded );
-        }
-        else
-        {
-            /* successful encoding */
-            *out_len = encode_result;
-            break;
-        }
-    }
-
-    cn_cbor_free( cb_map CBOR_CONTEXT_PARAM );
-
-    if ( 0 < *out_len )
-    {
-        XI_ALLOC_BUFFER_AT( uint8_t, *out_encoded_allocated_inside, *out_len, state );
-
-        memcpy( *out_encoded_allocated_inside, encoded, *out_len );
-    }
-    XI_SAFE_FREE( encoded );
-
-    return;
-
-err_handling:;
-
-    printf( "error handling, state: %d\n", state );
-    XI_SAFE_FREE( encoded );
-    XI_SAFE_FREE( *out_encoded_allocated_inside );
+    xi_cbor_codec_ct_encode_generate_buffer( cb_map, out_encoded_allocated_inside,
+                                             out_len, XI_CBOR_MESSAGE_MIN_BUFFER_SIZE,
+                                             XI_CBOR_MESSAGE_MAX_BUFFER_SIZE );
 }
 
 /* reusing the getvalue function from libxively here in the mock broker */
