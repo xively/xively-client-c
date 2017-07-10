@@ -69,11 +69,16 @@ void xi_cbor_codec_ct_encode_generate_buffer( cn_cbor* cb_map,
                                               uint32_t buffer_size_min,
                                               uint32_t buffer_size_max )
 {
+    /* This function generates CBOR encoded message buffer. Starts at a minimum buffer
+     * size and doubles it until message fits into the buffer or the maximum allowed size
+     * is reached. At the end output binary is trimmed at exactly required size. */
+
     xi_state_t state = XI_STATE_OK;
 
     uint8_t* encoded     = NULL;
     uint32_t encoded_len = buffer_size_min;
 
+    /* doubling buffer size until it fits or ceiling is reached */
     for ( ; encoded_len < buffer_size_max; encoded_len *= 2 )
     {
         XI_ALLOC_BUFFER_AT( uint8_t, encoded, encoded_len, state );
@@ -83,7 +88,7 @@ void xi_cbor_codec_ct_encode_generate_buffer( cn_cbor* cb_map,
 
         if ( encode_result <= 0 )
         {
-            /* failure during encoding */
+            /* failure during encoding, probably buffer size is not enough */
             XI_SAFE_FREE( encoded );
         }
         else
