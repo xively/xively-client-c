@@ -4,7 +4,7 @@
  * it is licensed under the BSD 3-Clause license.
  */
 
-#include <xi_bsp_crypt.h>
+#include <stdint.h>
 #include <xi_bsp_mem.h>
 #include <sha256.h>
 

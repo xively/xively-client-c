@@ -10,12 +10,29 @@
 #include <stdint.h>
 
 typedef enum xi_control_message_type_e {
-    XI_CONTROL_MESSAGE_CS_FILE_INFO = 0, /* CS = message goes from Client to Service */
-    XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE, /* SC = Service to Client */
-    XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK,
-    XI_CONTROL_MESSAGE_SC_FILE_CHUNK,
-    XI_CONTROL_MESSAGE_CS_FILE_STATUS
+    XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO =
+        0, /* CS = message goes from Client to Service */
+    XI_CONTROL_MESSAGE_SC__SFT_FILE_UPDATE_AVAILABLE, /* SC = Service to Client */
+    XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK,
+    XI_CONTROL_MESSAGE_SC__SFT_FILE_CHUNK,
+    XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS,
+    XI_CONTROL_MESSAGE_COUNT
 } xi_control_message_type_t;
+
+typedef enum xi_control_message__sft_file_status_phase_e {
+    /* 0-2 - Reserved, set by Xively Broker itself, ignored when received from clients
+       (Unreported, Reported, Downloading) */
+    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADED = 3,
+    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_PROCESSING = 4,
+    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_FINISHED   = 5
+} xi_control_message__sft_file_status_phase_t;
+
+typedef enum xi_control_message__sft_file_status_code_e {
+    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__UNEXPECTED_FILE_CHUNK_ARRIVED = -100,
+    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS                              = 0,
+    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ADD_ERRORS_HERE                      = 1,
+
+} xi_control_message__sft_file_status_code_t;
 
 typedef struct xi_control_message_file_desc_s
 {
@@ -30,7 +47,9 @@ typedef struct xi_control_message_file_desc_ext_s
 
     uint8_t file_operation;
     uint32_t size_in_bytes;
-    char* fingerprint;
+
+    uint8_t* fingerprint;
+    uint16_t fingerprint_len;
 } xi_control_message_file_desc_ext_t;
 
 
@@ -51,7 +70,7 @@ typedef union xi_control_message_u {
 
     } file_info;
 
-    struct
+    struct file_update_available_s
     {
         struct xi_control_message_common_s common;
 
@@ -64,15 +83,15 @@ typedef union xi_control_message_u {
     {
         struct xi_control_message_common_s common;
 
-        const char* name;
-        const char* revision;
+        char* name;
+        char* revision;
 
-        const uint32_t offset;
-        const uint32_t length;
+        uint32_t offset;
+        uint32_t length;
 
     } file_get_chunk;
 
-    struct
+    struct file_chunk_s
     {
         struct xi_control_message_common_s common;
 
@@ -91,11 +110,11 @@ typedef union xi_control_message_u {
     {
         struct xi_control_message_common_s common;
 
-        const char* name;
-        const char* revision;
+        char* name;
+        char* revision;
 
-        const char* status_message;
-        uint8_t status_code;
+        uint8_t phase;
+        uint8_t code;
 
     } file_status;
 
@@ -105,6 +124,27 @@ xi_control_message_t* xi_control_message_create_file_info( const char** filename
                                                            const char** revisions,
                                                            uint16_t count );
 
+xi_control_message_t* xi_control_message_create_file_get_chunk( const char* filename,
+                                                                const char* revision,
+                                                                uint32_t offset,
+                                                                uint32_t length );
+
+xi_control_message_t* xi_control_message_create_file_status( const char* filename,
+                                                             const char* revision,
+                                                             uint8_t phase,
+                                                             uint8_t code );
+
+const xi_control_message_file_desc_ext_t*
+xi_control_message_file_update_available_get_next_file_desc_ext(
+    const struct file_update_available_s* message_fua, const char* filename );
+
 void xi_control_message_free( xi_control_message_t** control_message );
+
+#if XI_DEBUG_OUTPUT
+void xi_debug_control_message_dump( const xi_control_message_t* control_message,
+                                    const char* custom_label );
+#else
+#define xi_debug_control_message_dump( ... )
+#endif
 
 #endif /* __XI_CONTROL_MESSAGE_H__ */

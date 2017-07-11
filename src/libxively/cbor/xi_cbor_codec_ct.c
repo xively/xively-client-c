@@ -5,6 +5,7 @@
  */
 
 #include <xi_cbor_codec_ct.h>
+#include <xi_cbor_codec_ct_keys.h>
 
 #include <cbor.h>
 #include <cn-cbor/cn-cbor.h>
@@ -40,19 +41,6 @@ cn_cbor_context* context = &cn_cbor_context_object;
 
 #endif
 
-
-#define XI_CBOR_CODEC_CT_STRING_MSGTYPE "msgtype"
-#define XI_CBOR_CODEC_CT_STRING_MSGVER "msgver"
-#define XI_CBOR_CODEC_CT_STRING_LIST "list"
-#define XI_CBOR_CODEC_CT_STRING_FILE_NAME "N"
-#define XI_CBOR_CODEC_CT_STRING_FILE_REVISION "R"
-#define XI_CBOR_CODEC_CT_STRING_FILE_OPERATION "O"
-#define XI_CBOR_CODEC_CT_STRING_FILE_IMAGESIZE "S"
-#define XI_CBOR_CODEC_CT_STRING_FILE_FINGERPRINT "F"
-
-#define XI_CBOR_CODEC_CT_STRING_FILECHUNK_OFFSET "O"
-#define XI_CBOR_CODEC_CT_STRING_FILECHUNK_LENGTH "L"
-
 void xi_cbor_put_name_and_revision( cn_cbor* cb_map,
                                     const char* name,
                                     const char* revision,
@@ -75,10 +63,70 @@ void xi_cbor_put_name_and_revision( cn_cbor* cb_map,
     }
 }
 
+void xi_cbor_codec_ct_encode_generate_buffer( cn_cbor* cb_map,
+                                              uint8_t** out_encoded_allocated_inside,
+                                              uint32_t* out_len,
+                                              uint32_t buffer_size_min,
+                                              uint32_t buffer_size_max )
+{
+    /* This function generates CBOR encoded message buffer. Starts at a minimum buffer
+     * size and doubles it until message fits into the buffer or the maximum allowed size
+     * is reached. At the end output binary is trimmed at exactly required size. */
+
+    xi_state_t state = XI_STATE_OK;
+
+    uint8_t* encoded     = NULL;
+    uint32_t encoded_len = buffer_size_min;
+
+    /* doubling buffer size until it fits or ceiling is reached */
+    for ( ; encoded_len < buffer_size_max; encoded_len *= 2 )
+    {
+        XI_ALLOC_BUFFER_AT( uint8_t, encoded, encoded_len, state );
+
+        const ssize_t encode_result =
+            cn_cbor_encoder_write( encoded, 0, encoded_len, cb_map );
+
+        if ( encode_result <= 0 )
+        {
+            /* failure during encoding, probably buffer size is not enough */
+            XI_SAFE_FREE( encoded );
+        }
+        else
+        {
+            /* successful encoding */
+            *out_len = encode_result;
+            break;
+        }
+    }
+
+    cn_cbor_free( cb_map CBOR_CONTEXT_PARAM );
+
+    if ( 0 < *out_len )
+    {
+        XI_ALLOC_BUFFER_AT( uint8_t, *out_encoded_allocated_inside, *out_len, state );
+
+        memcpy( *out_encoded_allocated_inside, encoded, *out_len );
+    }
+    XI_SAFE_FREE( encoded );
+
+    return;
+
+err_handling:;
+
+    XI_SAFE_FREE( encoded );
+    XI_SAFE_FREE( *out_encoded_allocated_inside );
+}
+
 void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
                               uint8_t** out_encoded_allocated_inside,
                               uint32_t* out_len )
 {
+    if ( NULL == control_message )
+    {
+        *out_len = 0;
+        return;
+    }
+
     cn_cbor_errback err;
     cn_cbor* cb_map = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMA & err );
 
@@ -96,7 +144,7 @@ void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
 
     switch ( control_message->common.msgtype )
     {
-        case XI_CONTROL_MESSAGE_CS_FILE_INFO:
+        case XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO:
 
             if ( 0 < control_message->file_info.list_len )
             {
@@ -121,55 +169,72 @@ void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
             }
             break;
 
-        case XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK:
+        case XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK:
 
             xi_cbor_put_name_and_revision( cb_map, control_message->file_get_chunk.name,
                                            control_message->file_get_chunk.revision,
                                            &err );
 
             cn_cbor_map_put(
-                cb_map, cn_cbor_string_create( "O" CBOR_CONTEXT_PARAM, &err ),
+                cb_map,
+                cn_cbor_string_create(
+                    XI_CBOR_CODEC_CT_STRING_FILECHUNK_OFFSET CBOR_CONTEXT_PARAM, &err ),
                 cn_cbor_int_create(
                     control_message->file_get_chunk.offset CBOR_CONTEXT_PARAM, &err ),
                 &err );
 
             cn_cbor_map_put(
-                cb_map, cn_cbor_string_create( "L" CBOR_CONTEXT_PARAM, &err ),
+                cb_map,
+                cn_cbor_string_create(
+                    XI_CBOR_CODEC_CT_STRING_FILECHUNK_LENGTH CBOR_CONTEXT_PARAM, &err ),
                 cn_cbor_int_create(
                     control_message->file_get_chunk.length CBOR_CONTEXT_PARAM, &err ),
                 &err );
 
             break;
 
-        case XI_CONTROL_MESSAGE_CS_FILE_STATUS:
+        case XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS:
 
-            // todo_atigyi
+            xi_cbor_put_name_and_revision( cb_map, control_message->file_status.name,
+                                           control_message->file_status.revision, &err );
+
+            cn_cbor_map_put(
+                cb_map,
+                cn_cbor_string_create(
+                    XI_CBOR_CODEC_CT_STRING_FILESTATUS_PHASE CBOR_CONTEXT_PARAM, &err ),
+                cn_cbor_int_create( control_message->file_status.phase CBOR_CONTEXT_PARAM,
+                                    &err ),
+                &err );
+
+            cn_cbor_map_put(
+                cb_map,
+                cn_cbor_string_create(
+                    XI_CBOR_CODEC_CT_STRING_FILESTATUS_CODE CBOR_CONTEXT_PARAM, &err ),
+                cn_cbor_int_create( control_message->file_status.code CBOR_CONTEXT_PARAM,
+                                    &err ),
+                &err );
 
             break;
 
         /* the followings are encoded by the broker and decoded by the client */
-        case XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE:
-        case XI_CONTROL_MESSAGE_SC_FILE_CHUNK:
+        case XI_CONTROL_MESSAGE_SC__SFT_FILE_UPDATE_AVAILABLE:
+        case XI_CONTROL_MESSAGE_SC__SFT_FILE_CHUNK:
         default:
-            cn_cbor_free( cb_map CBOR_CONTEXT_PARAM );
-            return;
+
+            xi_debug_format(
+                "WARNING: CBOR encoder was called with server to client message type %d",
+                control_message->common.msgtype );
     }
 
-    unsigned char encoded[512];
-    *out_len = cn_cbor_encoder_write( encoded, 0, sizeof( encoded ), cb_map );
-
-    cn_cbor_free( cb_map CBOR_CONTEXT_PARAM );
-
-    xi_state_t state = XI_STATE_OK;
-    XI_ALLOC_BUFFER_AT( uint8_t, *out_encoded_allocated_inside, *out_len, state );
-
-    memcpy( *out_encoded_allocated_inside, encoded, *out_len );
-
-err_handling:;
+    xi_cbor_codec_ct_encode_generate_buffer( cb_map, out_encoded_allocated_inside,
+                                             out_len, XI_CBOR_MESSAGE_MIN_BUFFER_SIZE,
+                                             XI_CBOR_MESSAGE_MAX_BUFFER_SIZE );
 }
 
-xi_state_t
-xi_cbor_codec_ct_decode_getvalue( cn_cbor* source, const char* key, void* destination )
+xi_state_t xi_cbor_codec_ct_decode_getvalue( cn_cbor* source,
+                                             const char* key,
+                                             void* out_destination,
+                                             uint16_t* out_len )
 {
     xi_state_t state = XI_INVALID_PARAMETER;
 
@@ -182,17 +247,48 @@ xi_cbor_codec_ct_decode_getvalue( cn_cbor* source, const char* key, void* destin
 
     if ( NULL != source_value )
     {
-        // xi_debug_printf( "type: %d,\n", source_value->type );
+        // xi_debug_printf( "[ CBOR ] type: %d,\n", source_value->type );
 
         state = XI_STATE_OK;
 
         switch ( source_value->type )
         {
+            case CN_CBOR_FALSE:
+            case CN_CBOR_TRUE:
+            case CN_CBOR_NULL:
+            case CN_CBOR_UNDEF:
             case CN_CBOR_UINT:
+            case CN_CBOR_INT:
+            case CN_CBOR_TAG:
+            case CN_CBOR_SIMPLE:
+            case CN_CBOR_DOUBLE:
 
                 // xi_debug_printf( "source_value: %lu\n", source_value->v.uint );
 
-                *( ( uint32_t* )destination ) = source_value->v.uint;
+                *( ( uint32_t* )out_destination ) = source_value->v.uint;
+
+                break;
+
+            case CN_CBOR_BYTES:
+
+                if ( 0 == source_value->length )
+                {
+                    break;
+                }
+                // xi_debug_printf( "CN_CBOR_BYTES / source_value: %s, length: %d\n",
+                //                  ( char* )source_value->v.bytes, source_value->length
+                //                  );
+
+                XI_ALLOC_BUFFER_AT( uint8_t, *( uint8_t** )out_destination,
+                                    source_value->length, state );
+
+                memcpy( *( uint8_t** )out_destination, source_value->v.bytes,
+                        source_value->length );
+
+                if ( NULL != out_len )
+                {
+                    *out_len = source_value->length;
+                }
 
                 break;
 
@@ -201,20 +297,26 @@ xi_cbor_codec_ct_decode_getvalue( cn_cbor* source, const char* key, void* destin
                 // xi_debug_printf( "source_value: %s, length: %d\n", source_value->v.str,
                 //                  source_value->length );
 
-                XI_ALLOC_BUFFER_AT( char, *( char** )destination,
+                XI_ALLOC_BUFFER_AT( char, *( char** )out_destination,
                                     source_value->length + 1, state );
-                memcpy( *( char** )destination, source_value->v.str,
+
+                memcpy( *( char** )out_destination, source_value->v.str,
                         source_value->length );
 
                 break;
 
-            default:
+            case CN_CBOR_BYTES_CHUNKED:
+            case CN_CBOR_TEXT_CHUNKED:
+            case CN_CBOR_ARRAY:
+            case CN_CBOR_MAP:
+            case CN_CBOR_INVALID:
                 state = XI_NOT_IMPLEMENTED;
                 break;
         }
     }
     else
     {
+        xi_debug_printf( "[ CBOR ] element not found for key: '%s'\n", key );
         state = XI_ELEMENT_NOT_FOUND;
     }
 
@@ -249,9 +351,9 @@ xi_control_message_t* xi_cbor_codec_ct_decode( const uint8_t* data, const uint32
     control_message_out->common.msgver = msgver->v.uint;
 
 
-    switch ( msgtype->v.uint )
+    switch ( ( xi_control_message_type_t )msgtype->v.uint )
     {
-        case XI_CONTROL_MESSAGE_SC_FILE_UPDATE_AVAILABLE:
+        case XI_CONTROL_MESSAGE_SC__SFT_FILE_UPDATE_AVAILABLE:
         {
             cn_cbor* list = cn_cbor_mapget_string( cb_map, XI_CBOR_CODEC_CT_STRING_LIST );
 
@@ -263,7 +365,8 @@ xi_control_message_t* xi_cbor_codec_ct_decode( const uint8_t* data, const uint32
                 {
                     XI_ALLOC_BUFFER_AT( xi_control_message_file_desc_ext_t,
                                         control_message_out->file_update_available.list,
-                                        sizeof( xi_control_message_t ) * list->length,
+                                        sizeof( xi_control_message_file_desc_ext_t ) *
+                                            list->length,
                                         state );
 
                     uint16_t id_file = 0;
@@ -274,60 +377,82 @@ xi_control_message_t* xi_cbor_codec_ct_decode( const uint8_t* data, const uint32
                         xi_cbor_codec_ct_decode_getvalue(
                             file, XI_CBOR_CODEC_CT_STRING_FILE_NAME,
                             &control_message_out->file_update_available.list[id_file]
-                                 .name );
+                                 .name,
+                            NULL );
 
                         xi_cbor_codec_ct_decode_getvalue(
                             file, XI_CBOR_CODEC_CT_STRING_FILE_REVISION,
                             &control_message_out->file_update_available.list[id_file]
-                                 .revision );
+                                 .revision,
+                            NULL );
 
                         xi_cbor_codec_ct_decode_getvalue(
                             file, XI_CBOR_CODEC_CT_STRING_FILE_OPERATION,
                             &control_message_out->file_update_available.list[id_file]
-                                 .file_operation );
+                                 .file_operation,
+                            NULL );
 
                         xi_cbor_codec_ct_decode_getvalue(
                             file, XI_CBOR_CODEC_CT_STRING_FILE_IMAGESIZE,
                             &control_message_out->file_update_available.list[id_file]
-                                 .size_in_bytes );
+                                 .size_in_bytes,
+                            NULL );
 
                         xi_cbor_codec_ct_decode_getvalue(
                             file, XI_CBOR_CODEC_CT_STRING_FILE_FINGERPRINT,
                             &control_message_out->file_update_available.list[id_file]
-                                 .fingerprint );
+                                 .fingerprint,
+                            &control_message_out->file_update_available.list[id_file]
+                                 .fingerprint_len );
                     }
                 }
             }
+        }
+
+        break;
+
+        case XI_CONTROL_MESSAGE_SC__SFT_FILE_CHUNK:
+
+            xi_cbor_codec_ct_decode_getvalue( cb_map, XI_CBOR_CODEC_CT_STRING_FILE_NAME,
+                                              &control_message_out->file_chunk.name,
+                                              NULL );
+
+            xi_cbor_codec_ct_decode_getvalue(
+                cb_map, XI_CBOR_CODEC_CT_STRING_FILE_REVISION,
+                &control_message_out->file_chunk.revision, NULL );
+
+            xi_cbor_codec_ct_decode_getvalue(
+                cb_map, XI_CBOR_CODEC_CT_STRING_FILECHUNK_OFFSET,
+                &control_message_out->file_chunk.offset, NULL );
+
+            /*  This 'length' field is redundant since the CBOR encoding contains
+                the length of the byte array right in the array. So here we don't
+                rely on protocol's length field but the CBOR's array size.
+                Thus ignoring the 'length' field itself.
+
+            xi_cbor_codec_ct_decode_getvalue(
+                cb_map, XI_CBOR_CODEC_CT_STRING_FILECHUNK_LENGTH,
+                &control_message_out->file_chunk.length, NULL );*/
+
+            xi_cbor_codec_ct_decode_getvalue(
+                cb_map, XI_CBOR_CODEC_CT_STRING_FILECHUNK_STATUS,
+                &control_message_out->file_chunk.status, NULL );
+
+            xi_cbor_codec_ct_decode_getvalue(
+                cb_map, XI_CBOR_CODEC_CT_STRING_FILECHUNK_CHUNK,
+                &control_message_out->file_chunk.chunk,
+                ( uint16_t* )&control_message_out->file_chunk.length );
 
             break;
 
-            case XI_CONTROL_MESSAGE_SC_FILE_CHUNK:
+        case XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO:
+        case XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK:
+        case XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS:
+        default:
 
-                xi_cbor_codec_ct_decode_getvalue( cb_map,
-                                                  XI_CBOR_CODEC_CT_STRING_FILE_NAME,
-                                                  &control_message_out->file_chunk.name );
-
-                xi_cbor_codec_ct_decode_getvalue(
-                    cb_map, XI_CBOR_CODEC_CT_STRING_FILE_REVISION,
-                    &control_message_out->file_chunk.revision );
-
-                xi_cbor_codec_ct_decode_getvalue(
-                    cb_map, XI_CBOR_CODEC_CT_STRING_FILECHUNK_OFFSET,
-                    &control_message_out->file_chunk.offset );
-
-                xi_cbor_codec_ct_decode_getvalue(
-                    cb_map, XI_CBOR_CODEC_CT_STRING_FILECHUNK_LENGTH,
-                    &control_message_out->file_chunk.length );
-
-                break;
-
-            case XI_CONTROL_MESSAGE_CS_FILE_INFO:
-            case XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK:
-            case XI_CONTROL_MESSAGE_CS_FILE_STATUS:
-            default:
-                cn_cbor_free( cb_map CBOR_CONTEXT_PARAM );
-                return NULL;
-        }
+            xi_debug_format(
+                "WARNING: CBOR decoder was called with client to server message type %d",
+                msgtype->v.uint );
     }
 
     cn_cbor_free( cb_map CBOR_CONTEXT_PARAM );

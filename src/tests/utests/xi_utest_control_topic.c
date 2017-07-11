@@ -32,7 +32,7 @@
 #define CONTROL_TOPIC_DEVICE_ID3                                                         \
     "some-very-long-1232343-mixed-with-23423423-numbers-device-id-$$$$$"
 #define CONTROL_TOPIC_CHANNEL_NAME_PUBLISH "svc"
-#define CONTROL_TOPIC_CHANNEL_NAME_SUBSCRIBE "clt"
+#define CONTROL_TOPIC_CHANNEL_NAME_SUBSCRIBE "cln"
 
 /**
  * @brief The utest_control_topic_topic_name_s struct
