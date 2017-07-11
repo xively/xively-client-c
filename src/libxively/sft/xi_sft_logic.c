@@ -9,9 +9,6 @@
 #include <xi_macros.h>
 #include <xi_debug.h>
 
-// #define XI_SFT_DOWNLOAD_BYTES_PER_FILE_CHUNK 1 * 1024
-#define XI_SFT_DOWNLOAD_BYTES_PER_FILE_CHUNK 4 * 1024
-
 xi_state_t xi_sft_make_context( xi_sft_context_t** context,
                                 const char** updateable_files,
                                 uint16_t updateable_files_count,
@@ -111,7 +108,7 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                     xi_control_message_create_file_get_chunk(
                         context->update_current_file->name,
                         context->update_current_file->revision, 0,
-                        XI_MIN( XI_SFT_DOWNLOAD_BYTES_PER_FILE_CHUNK,
+                        XI_MIN( XI_SFT_FILE_CHUNK_SIZE,
                                 context->update_current_file->size_in_bytes ) );
 
                 ( *context->fn_send_message )( context->send_message_user_data,
@@ -157,7 +154,7 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                         xi_control_message_create_file_get_chunk(
                             context->update_current_file->name,
                             context->update_current_file->revision, all_downloaded_bytes,
-                            XI_MIN( XI_SFT_DOWNLOAD_BYTES_PER_FILE_CHUNK,
+                            XI_MIN( XI_SFT_FILE_CHUNK_SIZE,
                                     context->update_current_file->size_in_bytes -
                                         all_downloaded_bytes /* == bytes left */ ) );
 
@@ -209,7 +206,7 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                             xi_control_message_create_file_get_chunk(
                                 context->update_current_file->name,
                                 context->update_current_file->revision, 0,
-                                XI_MIN( XI_SFT_DOWNLOAD_BYTES_PER_FILE_CHUNK,
+                                XI_MIN( XI_SFT_FILE_CHUNK_SIZE,
                                         context->update_current_file->size_in_bytes ) );
 
                         ( *context->fn_send_message )( context->send_message_user_data,

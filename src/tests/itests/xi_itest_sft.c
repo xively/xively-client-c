@@ -229,12 +229,13 @@ void xi_itest_sft__basic_flow__SFT_with_happy_broker__protocol_intact(
                   XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO );
 
     /* 1st file */
-    expect_value_count( xi_mock_broker_sft_logic_on_message,
-                        control_message->common.msgtype,
-                        XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK, 2 );
+    expect_value_count(
+        xi_mock_broker_sft_logic_on_message, control_message->common.msgtype,
+        XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK, 7777 / XI_SFT_FILE_CHUNK_SIZE + 1 );
 
     expect_string_count( xi_mock_broker_sft_logic_on_file_get_chunk,
-                         control_message->file_get_chunk.name, "file1", 2 );
+                         control_message->file_get_chunk.name, "file1",
+                         7777 / XI_SFT_FILE_CHUNK_SIZE + 1 );
 
     expect_value_count( xi_mock_broker_sft_logic_on_message,
                         control_message->common.msgtype,
@@ -243,10 +244,12 @@ void xi_itest_sft__basic_flow__SFT_with_happy_broker__protocol_intact(
     /* 2nd file */
     expect_value_count( xi_mock_broker_sft_logic_on_message,
                         control_message->common.msgtype,
-                        XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK, 4 );
+                        XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK,
+                        2 * 7777 / XI_SFT_FILE_CHUNK_SIZE + 1 );
 
     expect_string_count( xi_mock_broker_sft_logic_on_file_get_chunk,
-                         control_message->file_get_chunk.name, "file2", 4 );
+                         control_message->file_get_chunk.name, "file2",
+                         2 * 7777 / XI_SFT_FILE_CHUNK_SIZE + 1 );
 
     expect_value_count( xi_mock_broker_sft_logic_on_message,
                         control_message->common.msgtype,
@@ -366,7 +369,8 @@ void xi_itest_sft__manymany_updateable_files( void** fixture_void )
         file_names_ptrs[id_file] = file_names_strings[id_file];
 
         /* calculating expected number of FILE_GET_CHUNK messages */
-        const uint32_t num_of_file_get_chunks = 7777 * ( id_file % 3 + 1 ) / 4096 + 1;
+        const uint32_t num_of_file_get_chunks =
+            7777 * ( id_file % 3 + 1 ) / XI_SFT_FILE_CHUNK_SIZE + 1;
 
         expect_value_count(
             xi_mock_broker_sft_logic_on_message, control_message->common.msgtype,
