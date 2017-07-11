@@ -118,17 +118,15 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
         break;
         case XI_CONTROL_MESSAGE_SC__SFT_FILE_CHUNK:
         {
-            /* - store the chunk through file/firmware BSP
-               - if last chunk close file, start appropriate action
-                    - if firmware: start firmware update or "just" report downloaded
-               and
-                      wait for remote FWU trigger
-                    - other files may have their own action, no-operation is an option
-               */
+            /*
+             *  - store the chunk through file/firmware BSP
+             *  - if last chunk close file, start appropriate action
+             *      - if firmware: start firmware update or "just" report downloaded
+             *        and wait for remote FWU trigger
+             *       - other files may have their own action, no-operation is an option
+             */
 
-            // todo: check whether FILE_CHUNK belongs to exactly to which file was
-            // requested
-
+            /* check whether FILE_CHUNK's filename matches the requested filename */
             if ( NULL != context->update_current_file &&
                  NULL != context->update_current_file->name &&
                  NULL != sft_message_in->file_chunk.name &&
@@ -144,7 +142,7 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                         ( all_downloaded_bytes * 100 ) /
                             context->update_current_file->size_in_bytes );
 
-                /* HERE process the bytes in sft_message_in->file_chunk.chunk */
+                /* todo_atigyi  : process the bytes in sft_message_in->file_chunk.chunk */
 
                 if ( all_downloaded_bytes < context->update_current_file->size_in_bytes )
                 {
@@ -223,6 +221,17 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
             {
                 /* Something went wrong. Somehow the current file under update
                  * is not in sync with arrived FILE_CHUNK message. */
+
+                xi_control_message_t* message_file_status =
+                    xi_control_message_create_file_status(
+                        context->update_current_file->name,
+                        context->update_current_file->revision,
+                        XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADED,
+                        XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__UNEXPECTED_FILE_CHUNK_ARRIVED );
+
+                ( *context->fn_send_message )( context->send_message_user_data,
+                                               message_file_status );
+
                 xi_debug_format( "ERROR: context->update_current_file is out of sync. "
                                  "[%p] [%s]. Dropping this FILE_CHUNK message, waiting "
                                  "for the proper one...",

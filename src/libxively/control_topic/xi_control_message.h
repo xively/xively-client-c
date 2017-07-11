@@ -20,14 +20,18 @@ typedef enum xi_control_message_type_e {
 } xi_control_message_type_t;
 
 typedef enum xi_control_message__sft_file_status_phase_e {
+    /* 0-2 - Reserved, set by Xively Broker itself, ignored when received from clients
+       (Unreported, Reported, Downloading) */
     XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADED = 3,
     XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_PROCESSING = 4,
     XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_FINISHED   = 5
 } xi_control_message__sft_file_status_phase_t;
 
 typedef enum xi_control_message__sft_file_status_code_e {
-    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS         = 0,
-    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ADD_ERRORS_HERE = 1
+    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__UNEXPECTED_FILE_CHUNK_ARRIVED = -100,
+    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS                              = 0,
+    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ADD_ERRORS_HERE                      = 1,
+
 } xi_control_message__sft_file_status_code_t;
 
 typedef struct xi_control_message_file_desc_s
