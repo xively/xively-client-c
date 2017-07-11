@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-xi_mqtt_logic_task_t* xi_mqtt_logic_make_publish_task( char* topic,
+xi_mqtt_logic_task_t* xi_mqtt_logic_make_publish_task( const char* topic,
                                                        xi_data_desc_t* data,
                                                        const xi_mqtt_qos_t qos,
                                                        const xi_mqtt_retain_t retain,
@@ -34,7 +34,7 @@ xi_mqtt_logic_task_t* xi_mqtt_logic_make_publish_task( char* topic,
     XI_ALLOC_AT( xi_mqtt_task_specific_data_t, task->data.data_u, state );
 
     task->data.data_u->publish.retain = retain;
-    task->data.data_u->publish.topic  = topic;
+    task->data.data_u->publish.topic  = xi_str_dup( topic );
     task->data.data_u->publish.data   = data;
 
     return task;

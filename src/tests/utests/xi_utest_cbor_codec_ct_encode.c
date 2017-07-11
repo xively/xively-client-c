@@ -55,7 +55,7 @@ XI_TT_TESTCASE_WITH_SETUP(
     {
         const xi_control_message_t file_info_empty = {
             .file_info = {
-                .common = {.msgtype = XI_CONTROL_MESSAGE_CS_FILE_INFO, .msgver = 1},
+                .common = {.msgtype = XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO, .msgver = 1},
                 .list_len = 0,
                 .list     = NULL}};
 
@@ -86,7 +86,7 @@ XI_TT_TESTCASE_WITH_SETUP(
 
         const xi_control_message_t file_info_single_file = {
             .file_info = {
-                .common = {.msgtype = XI_CONTROL_MESSAGE_CS_FILE_INFO, .msgver = 1},
+                .common = {.msgtype = XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO, .msgver = 1},
                 .list_len = 1,
                 .list     = &file_desc}};
 
@@ -120,7 +120,7 @@ XI_TT_TESTCASE_WITH_SETUP(
 
         const xi_control_message_t file_info_single_file = {
             .file_info = {
-                .common = {.msgtype = XI_CONTROL_MESSAGE_CS_FILE_INFO, .msgver = 1},
+                .common = {.msgtype = XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO, .msgver = 1},
                 .list_len = 1,
                 .list     = &file_desc}};
 
@@ -157,7 +157,7 @@ XI_TT_TESTCASE_WITH_SETUP(
 
         const xi_control_message_t file_info_three_files = {
             .file_info = {
-                .common = {.msgtype = XI_CONTROL_MESSAGE_CS_FILE_INFO, .msgver = 55},
+                .common = {.msgtype = XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO, .msgver = 55},
                 .list_len = 3,
                 .list     = three_file_desc}};
 
@@ -216,7 +216,8 @@ XI_TT_TESTCASE_WITH_SETUP(
     {
         const xi_control_message_t file_get_chunk = {
             .file_get_chunk = {
-                .common = {.msgtype = XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK, .msgver = 1},
+                .common = {.msgtype = XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK,
+                           .msgver  = 1},
                 .name     = "givemethischunkboy",
                 .revision = "theperfect revision please 123",
                 .offset   = 11,
@@ -254,12 +255,13 @@ XI_TT_TESTCASE_WITH_SETUP(
     NULL,
     {
         const xi_control_message_t file_get_chunk = {
-            .file_get_chunk = {.common = {.msgtype = XI_CONTROL_MESSAGE_CS_FILE_GET_CHUNK,
-                                          .msgver  = 123},
-                               .name     = "zero",
-                               .revision = "zero 999",
-                               .offset   = 0,
-                               .length   = 0}};
+            .file_get_chunk = {
+                .common = {.msgtype = XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK,
+                           .msgver  = 123},
+                .name     = "zero",
+                .revision = "zero 999",
+                .offset   = 0,
+                .length   = 0}};
 
         uint8_t* encoded     = NULL;
         uint32_t encoded_len = 0;
@@ -279,6 +281,42 @@ XI_TT_TESTCASE_WITH_SETUP(
         tt_want_int_op( 0, ==, memcmp( expected_cbor, encoded, encoded_len ) );
         tt_want_int_op( sizeof( expected_cbor ), ==, encoded_len );
 
+        XI_SAFE_FREE( encoded );
+    } )
+
+
+/*****************************************************
+ * FILE_STATUS ***************************************
+ *****************************************************/
+
+XI_TT_TESTCASE_WITH_SETUP(
+    xi_utest_cbor_codec_ct_encode__file_status__basic,
+    xi_utest_setup_basic,
+    xi_utest_teardown_basic,
+    NULL,
+    {
+        xi_control_message_t* sft_message = xi_control_message_create_file_status(
+            "name for FILE_STATUS message", "revision for FILE_STATUS message", 77, 99 );
+
+        uint8_t* encoded     = NULL;
+        uint32_t encoded_len = 0;
+
+        xi_cbor_codec_ct_encode( sft_message, &encoded, &encoded_len );
+
+        const uint8_t expected_cbor[] = {
+            0xa6, 0x67, 0x6d, 0x73, 0x67, 0x74, 0x79, 0x70, 0x65, 0x04, 0x66, 0x6d,
+            0x73, 0x67, 0x76, 0x65, 0x72, 0x01, 0x61, 0x4e, 0x78, 0x1c, 0x6e, 0x61,
+            0x6d, 0x65, 0x20, 0x66, 0x6f, 0x72, 0x20, 0x46, 0x49, 0x4c, 0x45, 0x5f,
+            0x53, 0x54, 0x41, 0x54, 0x55, 0x53, 0x20, 0x6d, 0x65, 0x73, 0x73, 0x61,
+            0x67, 0x65, 0x61, 0x52, 0x78, 0x20, 0x72, 0x65, 0x76, 0x69, 0x73, 0x69,
+            0x6f, 0x6e, 0x20, 0x66, 0x6f, 0x72, 0x20, 0x46, 0x49, 0x4c, 0x45, 0x5f,
+            0x53, 0x54, 0x41, 0x54, 0x55, 0x53, 0x20, 0x6d, 0x65, 0x73, 0x73, 0x61,
+            0x67, 0x65, 0x61, 0x50, 0x18, 0x4d, 0x61, 0x53, 0x18, 0x63};
+
+        tt_want_int_op( 0, ==, memcmp( expected_cbor, encoded, encoded_len ) );
+        tt_want_int_op( sizeof( expected_cbor ), ==, encoded_len );
+
+        xi_control_message_free( &sft_message );
         XI_SAFE_FREE( encoded );
     } )
 

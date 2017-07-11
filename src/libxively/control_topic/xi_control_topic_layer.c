@@ -28,9 +28,11 @@
 extern "C" {
 #endif
 
+#define XI_FEATURE_DEV_SFT_ON 0
+
 #ifdef XI_CONTROL_TOPIC_ENABLED
 
-#if 0
+#if XI_FEATURE_DEV_SFT_ON
 /**
  * @brief xi_control_topic_publish_on_topic
  *
@@ -78,7 +80,7 @@ xi_control_topic_subscribe( void* context, char* subscribe_control_topic_name );
 static xi_state_t
 xi_control_topic_connection_state_changed( void* context, xi_state_t state );
 
-#if 0
+#if XI_FEATURE_DEV_SFT_ON
 static xi_state_t
 xi_control_topic_publish_on_topic( void* context, xi_control_message_t* control_message )
 {
@@ -101,6 +103,8 @@ xi_control_topic_publish_on_topic( void* context, xi_control_message_t* control_
 
         xi_cbor_codec_ct_encode( control_message, &encoded_message,
                                  &encoded_message_len );
+
+        xi_debug_control_message_dump( control_message, "OUTGOING" );
 
         xi_control_message_free( &control_message );
 
@@ -159,7 +163,16 @@ xi_state_t xi_on_control_message( xi_context_handle_t in_context_handle,
                                   void* user_data )
 {
     XI_UNUSED( in_context_handle );
-    XI_UNUSED( user_data );
+
+    xi_context_t* context = ( xi_context_t* )user_data;
+
+    assert( NULL != context );
+
+    xi_control_topic_layer_data_t* layer_data =
+        ( xi_control_topic_layer_data_t* )XI_THIS_LAYER( context )->user_data;
+
+    assert( layer_data != NULL );
+    XI_UNUSED( layer_data );
 
     switch ( call_type )
     {
@@ -173,6 +186,10 @@ xi_state_t xi_on_control_message( xi_context_handle_t in_context_handle,
             {
                 xi_debug_format( "Subscription to control topic successfull with QoS %d",
                                  params->suback.suback_status );
+
+#if XI_FEATURE_DEV_SFT_ON
+                xi_sft_on_connected( layer_data->sft_context );
+#endif
             }
             return state;
         }
@@ -181,26 +198,16 @@ xi_state_t xi_on_control_message( xi_context_handle_t in_context_handle,
             xi_debug_format( "received data on control topic length: %zu ",
                              params->message.temporary_payload_data_length );
 
-
+#if XI_FEATURE_DEV_SFT_ON
             /* CBOR decoding */
-            /*
             xi_control_message_t* control_message =
                 xi_cbor_codec_ct_decode( params->message.temporary_payload_data,
                                          params->message.temporary_payload_data_length );
 
-            {
-                xi_context_t* context = xi_object_for_handle(
-                    xi_globals.context_handles_vector, in_context_handle );
-                assert( NULL != context );
+            xi_debug_control_message_dump( control_message, "INCOMING" );
 
-                xi_control_topic_layer_data_t* layer_data =
-                    ( xi_control_topic_layer_data_t* )XI_THIS_LAYER( context )->user_data;
-
-                assert( layer_data != NULL );
-
-                xi_sft_on_message( layer_data->sft_context, control_message );
-            }
-            */
+            xi_sft_on_message( layer_data->sft_context, control_message );
+#endif
 
             return state;
         }
@@ -223,7 +230,7 @@ xi_state_t xi_control_topic_subscribe( void* context, char* subscribe_control_to
     xi_mqtt_logic_task_t* task = NULL;
 
     xi_event_handle_t handler = xi_make_threaded_handle(
-        XI_THREADID_THREAD_0, &xi_user_sub_call_wrapper, NULL, NULL, XI_STATE_OK,
+        XI_THREADID_MAINTHREAD, &xi_user_sub_call_wrapper, NULL, NULL, XI_STATE_OK,
         ( void* )&xi_on_control_message, ( void* )context, ( void* )NULL );
 
     /* create the proper task */
@@ -306,13 +313,12 @@ xi_control_topic_layer_init( void* context, void* data, xi_state_t in_out_state 
         layer_data =
             ( xi_control_topic_layer_data_t* )XI_THIS_LAYER( context )->user_data;
 
-        /*
-                xi_sft_make_context( &layer_data->sft_context,
-                                     ( const char** )XI_CONTEXT_DATA( context
-           )->updateable_files,
-                                     XI_CONTEXT_DATA( context )->updateable_files_count,
-                                     &xi_control_topic_publish_on_topic, context );
-                                     */
+#if XI_FEATURE_DEV_SFT_ON
+        xi_sft_make_context( &layer_data->sft_context,
+                             ( const char** )XI_CONTEXT_DATA( context )->updateable_files,
+                             XI_CONTEXT_DATA( context )->updateable_files_count,
+                             &xi_control_topic_publish_on_topic, context );
+#endif
     }
 
     assert( NULL != layer_data );
@@ -357,11 +363,11 @@ xi_control_topic_layer_connect( void* context, void* data, xi_state_t in_out_sta
         in_out_state = xi_control_topic_connection_state_changed( context, in_out_state );
         XI_CHECK_STATE( in_out_state );
 
+        xi_debug_format( "subscribing on topic: %s", subscribe_control_topic_name );
+
         in_out_state =
             xi_control_topic_subscribe( context, subscribe_control_topic_name );
         XI_CHECK_STATE( in_out_state );
-
-        /* xi_sft_on_connected( layer_data->sft_context ); */
 
         return in_out_state;
     }
@@ -425,7 +431,9 @@ xi_state_t xi_control_topic_layer_close_externally( void* context,
         /* release memory required for topic names */
         XI_SAFE_FREE( layer_data->publish_topic_name );
 
-        /* xi_sft_free_context( &layer_data->sft_context ); */
+#if XI_FEATURE_DEV_SFT_ON
+        xi_sft_free_context( &layer_data->sft_context );
+#endif
 
         /* release layer memory */
         XI_SAFE_FREE( XI_THIS_LAYER( context )->user_data );
