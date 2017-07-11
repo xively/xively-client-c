@@ -166,7 +166,11 @@ void xi_cbor_codec_ct_server_encode( const xi_control_message_t* control_message
 
             break;
 
-        default:;
+        default:
+
+            xi_debug_format( "WARNING: CBOR-SERVER encoder was called with client to "
+                             "server message type %d",
+                             control_message->common.msgtype );
     }
 
     xi_cbor_codec_ct_encode_generate_buffer( cb_map, out_encoded_allocated_inside,
@@ -211,7 +215,7 @@ xi_cbor_codec_ct_server_decode( const uint8_t* data, const uint32_t len )
     control_message_out->common.msgver = msgver->v.uint;
 
 
-    switch ( msgtype->v.uint )
+    switch ( ( xi_control_message_type_t )msgtype->v.uint )
     {
         case XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO:
         {
@@ -289,7 +293,12 @@ xi_cbor_codec_ct_server_decode( const uint8_t* data, const uint32_t len )
             break;
 
         case XI_CONTROL_MESSAGE_SC__SFT_FILE_UPDATE_AVAILABLE:
-        case XI_CONTROL_MESSAGE_SC__SFT_FILE_CHUNK:;
+        case XI_CONTROL_MESSAGE_SC__SFT_FILE_CHUNK:
+        default:
+
+            xi_debug_format( "WARNING: CBOR-SERVER decoder was called with server to "
+                             "client message type %d",
+                             msgtype->v.uint );
     }
 
     cn_cbor_free( cb_map CBOR_CONTEXT_PARAM );

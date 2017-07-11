@@ -219,7 +219,11 @@ void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
         /* the followings are encoded by the broker and decoded by the client */
         case XI_CONTROL_MESSAGE_SC__SFT_FILE_UPDATE_AVAILABLE:
         case XI_CONTROL_MESSAGE_SC__SFT_FILE_CHUNK:
-        default:;
+        default:
+
+            xi_debug_format(
+                "WARNING: CBOR encoder was called with server to client message type %d",
+                control_message->common.msgtype );
     }
 
     xi_cbor_codec_ct_encode_generate_buffer( cb_map, out_encoded_allocated_inside,
@@ -347,7 +351,7 @@ xi_control_message_t* xi_cbor_codec_ct_decode( const uint8_t* data, const uint32
     control_message_out->common.msgver = msgver->v.uint;
 
 
-    switch ( msgtype->v.uint )
+    switch ( ( xi_control_message_type_t )msgtype->v.uint )
     {
         case XI_CONTROL_MESSAGE_SC__SFT_FILE_UPDATE_AVAILABLE:
         {
@@ -443,7 +447,12 @@ xi_control_message_t* xi_cbor_codec_ct_decode( const uint8_t* data, const uint32
 
         case XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO:
         case XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK:
-        case XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS:;
+        case XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS:
+        default:
+
+            xi_debug_format(
+                "WARNING: CBOR decoder was called with client to server message type %d",
+                msgtype->v.uint );
     }
 
     cn_cbor_free( cb_map CBOR_CONTEXT_PARAM );

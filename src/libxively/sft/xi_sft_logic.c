@@ -242,7 +242,11 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
             }
         }
         break;
-        default:;
+
+        default:
+
+            xi_debug_format( "WARNING: unhandled incoming SFT message with type: %d",
+                             sft_message_in->common.msgtype );
     }
 
     xi_control_message_free( &sft_message_in );
