@@ -72,6 +72,7 @@ void xi_debug_mqtt_message_dump( const xi_mqtt_message_t* message )
     }
     else if ( message->common.common_u.common_bits.type == XI_MQTT_TYPE_PUBLISH )
     {
+        xi_debug_printf( "  message_id:        %d\n", message->publish.message_id );
         xi_debug_printf( "topic_name: \n" );
         if ( message->publish.topic_name )
             xi_debug_data_desc_dump( message->publish.topic_name );
@@ -80,6 +81,10 @@ void xi_debug_mqtt_message_dump( const xi_mqtt_message_t* message )
         if ( message->publish.content )
             xi_debug_data_desc_dump( message->publish.content );
         xi_debug_printf( "\n" );
+    }
+    else if ( message->common.common_u.common_bits.type == XI_MQTT_TYPE_PUBACK )
+    {
+        xi_debug_printf( "  message_id:        %d\n", message->puback.message_id );
     }
 }
 #endif

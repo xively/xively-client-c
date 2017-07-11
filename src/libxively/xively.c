@@ -455,9 +455,8 @@ xi_state_t xi_events_process_tick()
 }
 
 
-xi_state_t xi_set_updateable_files( xi_context_handle_t xih,
-                                    const char* filenames[],
-                                    uint16_t count )
+xi_state_t
+xi_set_updateable_files( xi_context_handle_t xih, const char** filenames, uint16_t count )
 {
     if ( NULL == filenames || NULL == *filenames || 0 == count )
     {
@@ -739,18 +738,13 @@ xi_state_t xi_publish_data_impl( xi_context_handle_t xih,
     xi_mqtt_logic_task_t* task = NULL;
     xi_state_t state           = XI_STATE_OK;
     xi_layer_t* input_layer    = xi->layer_chain.top;
-    char* internal_topic       = NULL;
 
     xi_mqtt_logic_layer_data_t* layer_data =
         ( xi_mqtt_logic_layer_data_t* )input_layer->user_data;
 
     XI_UNUSED( layer_data );
 
-    internal_topic = xi_str_dup( topic );
-
-    XI_CHECK_MEMORY( internal_topic, state );
-
-    task = xi_mqtt_logic_make_publish_task( internal_topic, data, effective_qos, retain,
+    task = xi_mqtt_logic_make_publish_task( topic, data, effective_qos, retain,
                                             event_handle );
 
     XI_CHECK_MEMORY( task, state );
@@ -763,7 +757,6 @@ err_handling:
     {
         xi_mqtt_logic_free_task( &task );
     }
-    XI_SAFE_FREE( internal_topic );
 
     return state;
 }

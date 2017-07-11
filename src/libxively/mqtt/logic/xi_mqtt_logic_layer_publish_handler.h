@@ -22,8 +22,7 @@ extern "C" {
 #endif
 
 static inline void
-call_topic_handler( void* context /* should be the context of the logic layer */
-                    ,
+call_topic_handler( void* context, /* should be the context of the logic layer */
                     void* msg_data )
 {
     xi_mqtt_logic_layer_data_t* layer_data =
@@ -32,7 +31,7 @@ call_topic_handler( void* context /* should be the context of the logic layer */
     xi_mqtt_message_t* msg_memory = ( xi_mqtt_message_t* )msg_data;
 
     // pre-conditions
-    assert( msg_memory != 0 );
+    assert( NULL != msg_memory );
 
     xi_vector_index_type_t index = 0;
 
@@ -193,8 +192,7 @@ err_handling:
 }
 
 static inline xi_state_t on_publish_recieved(
-    xi_layer_connectivity_t* context /* should be the context of the logic layer */
-    ,
+    xi_layer_connectivity_t* context, /* should be the context of the logic layer */
     xi_mqtt_message_t* msg_memory,
     xi_state_t state )
 {
