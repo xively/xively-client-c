@@ -98,6 +98,7 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
             /* prevent deallocation */
             sft_message_in = NULL;
 
+            /* SFT flow: start file download with the first file in list */
             if ( 0 < context->update_message_fua->file_update_available.list_len &&
                  NULL != context->update_message_fua->file_update_available.list )
             {
@@ -136,17 +137,27 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                 const uint32_t all_downloaded_bytes =
                     sft_message_in->file_chunk.offset + sft_message_in->file_chunk.length;
 
-                printf( "         === === === downloading file: %s, %d / %d, [%d%%]\n",
+                printf( "         === === === downloading file: %s, %d / %d, [%d%%], "
+                        "status: %d\n",
                         context->update_current_file->name,
                         context->update_current_file->size_in_bytes, all_downloaded_bytes,
                         ( all_downloaded_bytes * 100 ) /
-                            context->update_current_file->size_in_bytes );
+                            context->update_current_file->size_in_bytes,
+                        sft_message_in->file_chunk.status );
 
-                /* todo_atigyi  : process the bytes in sft_message_in->file_chunk.chunk */
+                { /* processing content */
+                    if ( 0 == sft_message_in->file_chunk.offset )
+                    {
+                        /* first chunk: FILE BSP - open file */
+                    }
 
+                    /* pass bytes to FILE BSP - write bytes */
+                }
+
+                /* Secure File Transfer flow management */
                 if ( all_downloaded_bytes < context->update_current_file->size_in_bytes )
                 {
-                    /* current file is not downloaded yet, continue the download */
+                    /* SFT flow: file is not downloaded yet, continue with this file */
 
                     xi_control_message_t* message_file_get_chunk =
                         xi_control_message_create_file_get_chunk(
@@ -161,9 +172,11 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                 }
                 else
                 {
-                    /* file downloaded, continue with next file in list */
+                    /* SFT flow: file downloaded, continue with next file in list */
 
-                    {
+                    /* todo_atigyi: FILE BSP close file */
+
+                    { /* temporary: report file status messages */
                         xi_control_message_t* message_file_status =
                             xi_control_message_create_file_status(
                                 context->update_current_file->name,
