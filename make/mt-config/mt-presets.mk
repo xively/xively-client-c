@@ -26,6 +26,9 @@ CONFIG_CC3220SF_TLS_SOCKET        =bsp_cc3220sf-memory_fs-tls_socket
 CONFIG_STM32FX                  =memory_fs-tls_bsp
 CONFIG_STM32FX_NUCLEO_WIFI      =memory_fs-tls_socket
 
+# xtensa configs
+CONFIG_ESP32 =memory_fs-tls_bsp
+
 # TARGET presets
 TARGET_STATIC_DEV               =-static-debug
 TARGET_STATIC_REL               =-static-release
@@ -129,6 +132,14 @@ else ifeq ($(PRESET), STM32FX_NUCLEO_WIFI)
     TARGET = $(TARGET_STATIC_REL)
     XI_BSP_PLATFORM = stm32fx_nucleo_wifi
     XI_TARGET_PLATFORM = stm32fx_nucleo_wifi
+
+# -------------------------------------------------------
+# Espressif ESP32
+else ifeq ($(PRESET), ESP32)
+    CONFIG = $(CONFIG_ESP32)
+    TARGET = $(TARGET_STATIC_REL)
+    XI_BSP_PLATFORM = esp32
+    XI_TARGET_PLATFORM = esp32
 
 # -------------------------------------------------------
 # Fuzz Tests
