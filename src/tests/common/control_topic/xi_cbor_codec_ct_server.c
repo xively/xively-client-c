@@ -16,7 +16,7 @@
 
 #ifdef USE_CBOR_CONTEXT
 
-extern cn_cbor_context* context;
+extern cn_cbor_context* context_cbor;
 
 #endif
 
@@ -44,7 +44,7 @@ void xi_cbor_codec_ct_server_encode( const xi_control_message_t* control_message
     }
 
     cn_cbor_errback err;
-    cn_cbor* cb_map = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMA & err );
+    cn_cbor* cb_map = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMMA & err );
 
     cn_cbor_map_put(
         cb_map,
@@ -64,13 +64,13 @@ void xi_cbor_codec_ct_server_encode( const xi_control_message_t* control_message
 
             if ( 0 < control_message->file_update_available.list_len )
             {
-                cn_cbor* files = cn_cbor_array_create( CBOR_CONTEXT_PARAM_COMA & err );
+                cn_cbor* files = cn_cbor_array_create( CBOR_CONTEXT_PARAM_COMMA & err );
 
                 uint16_t id_file = 0;
                 for ( ; id_file < control_message->file_update_available.list_len;
                       ++id_file )
                 {
-                    cn_cbor* file = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMA & err );
+                    cn_cbor* file = cn_cbor_map_create( CBOR_CONTEXT_PARAM_COMMA & err );
 
                     xi_cbor_put_name_and_revision(
                         file, control_message->file_update_available.list[id_file].name,

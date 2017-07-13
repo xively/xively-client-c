@@ -27,13 +27,14 @@ XI_EXAMPLE_BIN := $(XI_EXAMPLE_BINDIR)/$(XI_EXAMPLE_NAME)
 
 XI_CLIENT_PATH ?= $(CURDIR)/../../
 XI_CLIENT_INC_PATH += $(CURDIR)/../../include
+XI_CLIENT_INC_PATH += $(CURDIR)/../../include/bsp
 XI_CLIENT_LIB_PATH ?= $(CURDIR)/../../bin/$(XI_TARGET_PLATFORM)
 
 XI_CLIENT_ROOTCA_LIST := $(CURDIR)/../../res/trusted_RootCA_certs/xi_RootCA_list.pem
 
 XI_FLAGS_INCLUDE += $(foreach i,$(XI_CLIENT_INC_PATH),-I$i)
 
-XI_FLAGS_COMPILER ?= -Wall -Werror -Wno-pointer-arith -Wno-format -fstrict-aliasing -Os -Wextra
+XI_FLAGS_COMPILER ?= -Wall -Werror -Wno-pointer-arith -Wno-format -fstrict-aliasing -Os -Wextra -DUSE_CBOR_CONTEXT
 
 # TLS BSP related configuration
 XI_BSP_TLS ?= wolfssl
