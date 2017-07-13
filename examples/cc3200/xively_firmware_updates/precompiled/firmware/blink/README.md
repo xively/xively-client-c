@@ -11,7 +11,7 @@ Please see the [Xively SFT CC3200 Example Tutorial in our Xively Developer Cente
 ## Behavior
 Both firmware images will publish their Firmware Revision string to the Xively SFT Service when a button is pressed on the device.  The images will subsequently fetch and store new firmware file revisions with the name of `firmware` from the Xively SFT service.  Any other files supplied by the SFT service will be rejected and errors will be logged to the serial console.
 
-Remote tracking of the firmware installation progress and errors is done via Xively Device Logs. These logs can be viewed in Xively CPM on the Device's Details Page.  wnload and testing.
+Remote tracking of the firmware installation progress and errors is done via Xively Device Logs. These logs can be viewed in Xively CPM on the Device's Details Page.
 
 The device will automatically reboot itself when new firwmare has been downloaded. This boot will be a test boot of the firwmare. The device will revert to the previous firmware image if the test boot fails.  If the device can successfully build a connection to the Xivel service when in test mode, then the new firmware will be marked as valid and committed.
 
@@ -20,7 +20,9 @@ In order for this demo to work, one of the firmware images must be flashed onto 
 ## Files
 
 ### firmwareA.bin
-Subscribes to a blink topic for the device. Incoming messages on that topic will toggle the **Green and Orange Light in unison.**
+Subscribes to a blink topic for the device. Incoming messages on that topic will toggle the **Green and Orange Light in unison.** 
+
+You can send messages to the blink topic from the Messaging Widget via the Device Details Page, or by running a python script from your PC.  Please see the aformentioned tutorial (above) for more information.
 
 The button **SW2** on the device forces the device to publish its current firmware revision string, which is `1.0`
 
