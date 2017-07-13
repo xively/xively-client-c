@@ -202,8 +202,8 @@ XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/datastructures
 XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/mqtt/codec
 XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/mqtt/logic
 XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/control_topic
+XI_SRCDIRS += $(LIBXIVELY_SRC)/import/cn-cbor/src
 XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/cbor
-XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/cbor/cn-cbor/src
 XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/sft
 
 ifneq (,$(findstring senml,$(CONFIG)))
@@ -213,7 +213,7 @@ ifneq (,$(findstring senml,$(CONFIG)))
 endif
 
 ifneq (,$(findstring control_topic,$(CONFIG)))
-	XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/../import/protobuf-c/library
+	XI_SRCDIRS += $(LIBXIVELY_SRC)/import/protobuf-c/library
 	XI_PROTOFILES := $(wildcard $(XI_PROTO_DIR)/*.proto)
 	XI_PROTOFILES := $(XI_PROTOFILES:$(XI_PROTO_DIR)/%=%)
 	XI_PROTOFILES_C := $(addprefix $(XI_PROTOBUF_GENERATED)/,$(XI_PROTOFILES:.proto=.pb-c.c))
@@ -232,7 +232,7 @@ XI_INCLUDE_FLAGS += $(foreach platformdep,$(XI_PLATFORM_MODULES) \
 XI_INCLUDE_FLAGS += $(foreach d, $(LIBXIVELY_INTERFACE_INCLUDE_DIRS), -I$d)
 
 XI_INCLUDE_FLAGS += -I$(LIBXIVELY_SOURCE_DIR)
-XI_INCLUDE_FLAGS += -I$(LIBXIVELY_SOURCE_DIR)/cbor/cn-cbor/include
+XI_INCLUDE_FLAGS += -I$(LIBXIVELY_SRC)/import/cn-cbor/include
 
 XI_INCLUDE_FLAGS += $(foreach d, $(XI_SRCDIRS), -I$d)
 

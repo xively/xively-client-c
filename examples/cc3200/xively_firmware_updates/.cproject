@@ -33,6 +33,7 @@
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_15.12.compilerID.DEFINE.2042571456" name="Pre-define NAME (--define, -D)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_15.12.compilerID.DEFINE" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="ccs"/>
 									<listOptionValue builtIn="false" value="cc3200"/>
+									<listOptionValue builtIn="false" value="USE_CBOR_CONTEXT"/>
 								</option>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_15.12.compilerID.SILICON_VERSION.2080446975" name="Target processor version (--silicon_version, -mv)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_15.12.compilerID.SILICON_VERSION" value="com.ti.ccstudio.buildDefinitions.TMS470_15.12.compilerID.SILICON_VERSION.7M4" valueType="enumerated"/>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_15.12.compilerID.CODE_STATE.291365411" name="Designate code state, 16-bit (thumb) or 32-bit (--code_state)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_15.12.compilerID.CODE_STATE" value="com.ti.ccstudio.buildDefinitions.TMS470_15.12.compilerID.CODE_STATE.16" valueType="enumerated"/>
@@ -48,6 +49,8 @@
 									<listOptionValue builtIn="false" value="&quot;${PROJECT_LOC}/SFT&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${XIVELY_LIBRARY_C_ROOT}/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${XIVELY_LIBRARY_C_ROOT}/include/bsp&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${XIVELY_LIBRARY_C_ROOT}/src/import/cn-cbor&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${XIVELY_LIBRARY_C_ROOT}/src/bsp/platform/cc3200&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${CC3200_SDK_ROOT}/driverlib/&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${CC3200_SDK_ROOT}/simplelink/&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${CC3200_SDK_ROOT}/simplelink_extlib/include&quot;"/>

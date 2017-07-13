@@ -16,12 +16,7 @@ extern "C" {
 
 #include <stdbool.h>
 #include <stdint.h>
-#ifndef cc3200
-#include <unistd.h>
-#else
-typedef int ssize_t;
-#include <socket.h>
-#endif
+#include <xi_bsp_hton.h>
 
 /**
  * All of the different kinds of CBOR values.
@@ -66,7 +61,6 @@ typedef enum cn_cbor_type {
  * `cn_cbor` structure.
  */
 typedef enum cn_cbor_flags {
-  CN_CBOR_FL_NOTHING = 0,
   /** The count field will be used for parsing */
   CN_CBOR_FL_COUNT = 1,
   /** An indefinite number of children */
@@ -203,10 +197,10 @@ typedef struct cn_cbor_context {
 
 /** When USE_CBOR_CONTEXT is defined, many functions take an extra `context`
   * parameter */
-#define CBOR_CONTEXT , cn_cbor_context *context
+#define CBOR_CONTEXT , cn_cbor_context *context_cbor
 /** When USE_CBOR_CONTEXT is defined, some functions take an extra `context`
   * parameter at the beginning */
-#define CBOR_CONTEXT_COMMA cn_cbor_context *context,
+#define CBOR_CONTEXT_COMMA cn_cbor_context *context_cbor,
 
 #else
 
