@@ -8,15 +8,12 @@
 #include "tinytest_macros.h"
 #include "xi_tt_testcase_management.h"
 #include "xi_utest_basic_testcase_frame.h"
+#include "xi_bsp_crypt.h"
 
 #include <stdio.h>
 #include <time.h>
 #include <stdint.h>
 #include <string.h>
-
-void xi_bsp_crypt_sha256_init( void** );
-void xi_bsp_crypt_sha256_update( void*, const uint8_t*, uint32_t );
-void xi_bsp_crypt_sha256_final( void*, uint8_t* );
 
 #ifndef XI_TT_TESTCASE_ENUMERATION__SECONDPREPROCESSORRUN
 
