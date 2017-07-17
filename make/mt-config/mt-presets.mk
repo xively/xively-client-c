@@ -20,8 +20,8 @@ CONFIG_DUMMY_MIN                =memory_fs
 CONFIG_CC3200                   =memory_fs-tls_bsp
 CONFIG_CC3200_TLS_SOCKET        =memory_fs-tls_socket
 
-CONFIG_CC3220SF                   =bsp_cc3220sf-memory_fs-tls_bsp
-CONFIG_CC3220SF_TLS_SOCKET        =bsp_cc3220sf-memory_fs-tls_socket
+CONFIG_CC3220SF                 =bsp_cc3220sf-memory_fs-tls_bsp
+CONFIG_CC3220SF_TLS_SOCKET      =bsp_cc3220sf-memory_fs-tls_socket
 
 CONFIG_STM32FX                  =memory_fs-tls_bsp
 CONFIG_STM32FX_NUCLEO_WIFI      =memory_fs-tls_socket

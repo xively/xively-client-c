@@ -114,7 +114,7 @@ typedef union xi_control_message_u {
         char* revision;
 
         uint8_t phase;
-        uint8_t code;
+        int8_t code; /* negative means error */
 
     } file_status;
 
@@ -132,7 +132,7 @@ xi_control_message_t* xi_control_message_create_file_get_chunk( const char* file
 xi_control_message_t* xi_control_message_create_file_status( const char* filename,
                                                              const char* revision,
                                                              uint8_t phase,
-                                                             uint8_t code );
+                                                             int8_t code );
 
 const xi_control_message_file_desc_ext_t*
 xi_control_message_file_update_available_get_next_file_desc_ext(

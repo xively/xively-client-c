@@ -88,7 +88,7 @@ err_handling:
 xi_control_message_t* xi_control_message_create_file_status( const char* filename,
                                                              const char* revision,
                                                              uint8_t phase,
-                                                             uint8_t code )
+                                                             int8_t code )
 {
     if ( NULL == filename || NULL == revision )
     {
