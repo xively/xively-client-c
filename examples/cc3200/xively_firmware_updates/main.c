@@ -534,7 +534,7 @@ long MainLogic()
     parseCredentialsFromConfigFile();
 
     /* start ent wlan connection */
-    g_SecParams.Key = g_wifi_device_credentials.desiredWifiKey;
+    g_SecParams.Key = ( _i8* )g_wifi_device_credentials.desiredWifiKey;
     g_SecParams.KeyLen =
         strlen( ( const char* )g_wifi_device_credentials.desiredWifiKey );
     g_SecParams.Type = g_wifi_device_credentials.desiredWifiSecurityType;
@@ -544,7 +544,7 @@ long MainLogic()
     sl_WlanSet( SL_WLAN_CFG_GENERAL_PARAM_ID, 19, 1, &pValues );
 
     /* add the wlan profile */
-    sl_WlanProfileAdd( g_wifi_device_credentials.desiredWifiSSID,
+    sl_WlanProfileAdd( ( _i8* )g_wifi_device_credentials.desiredWifiSSID,
                        strlen( g_wifi_device_credentials.desiredWifiSSID ), 0,
                        &g_SecParams, 0, 1, 0 );
 
@@ -627,10 +627,9 @@ void parseCredentialsFromConfigFile()
         broker_name = XIVELY_DEFAULT_BROKER;
     }
 
-    static uint16_t broker_port = XIVELY_DEFAULT_PORT;
     if ( 0 == parseKeyValue( config_file_context, XIVELY_PORT_KEY, 0, &broker_port_str ) )
     {
-        if ( 0 == ( broker_port = atoi( broker_port_str ) ) )
+        if ( 0 == ( atoi( broker_port_str ) ) )
         {
             printf( ". \"%s\" value \"%s\" is an invalid \"port\" value\n",
                     XIVELY_PORT_KEY, broker_port_str );
@@ -983,7 +982,7 @@ void SimpleLinkNetAppEventHandler( SlNetAppEvent_t* pNetAppEvent )
 
             SET_STATUS_BIT( g_ulStatus, STATUS_BIT_IP_AQUIRED );
 
-            /* Ip Acquired Event Data *.
+            /* Ip Acquired Event Data */
             pEventData = &pNetAppEvent->EventData.ipAcquiredV4;
 
             /* Gateway IP address */

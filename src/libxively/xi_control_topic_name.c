@@ -21,7 +21,7 @@ static const char* const control_topic_service_id = "ctrl";
 static const char* const control_topic_version_id = "v1";
 
 static const char* const channel_name_publish   = "svc";
-static const char* const channel_name_subscribe = "clt";
+static const char* const channel_name_subscribe = "cln";
 
 static const char* const control_topic_name_pat = "%s/%s/%s/%s/%s";
 static const char* const device_id_is_missing   = "device-id-is-missing";

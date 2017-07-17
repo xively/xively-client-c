@@ -210,7 +210,7 @@ extern xi_state_t xi_events_process_tick();
 extern void xi_events_stop();
 
 extern xi_state_t xi_set_updateable_files( xi_context_handle_t xih,
-                                           const char* filenames[],
+                                           const char** filenames,
                                            uint16_t count );
 
 /**

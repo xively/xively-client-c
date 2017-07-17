@@ -15,8 +15,17 @@ extern "C" {
 
 typedef enum xi_mock_broker_control_init_e {
     CONTROL_CONTINUE,
-    CONTROL_ERROR
+    CONTROL_ERROR,
+    CONTROL_SKIP_CHECK_EXPECTED
 } xi_mock_broker_control_t;
+
+typedef struct xi_mock_broker_data_s
+{
+    const char* control_topic_name_broker_in;
+    const char* control_topic_name_broker_out;
+
+    xi_data_desc_t* outgoing_publish_content;
+} xi_mock_broker_data_t;
 
 /**
  * @name    mock broker primary and secondary layers

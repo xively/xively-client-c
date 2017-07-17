@@ -30,6 +30,7 @@ XI_UTEST_EXCLUDED := $(addprefix $(XI_UTEST_SOURCE_DIR)/, $(XI_UTEST_EXCLUDED))
 
 XI_UTEST_SOURCES := $(wildcard $(XI_UTEST_SOURCE_DIR)/*.c)
 XI_UTEST_SOURCES += $(wildcard $(XI_TEST_DIR)/*.c)
+XI_UTEST_SOURCES += $(wildcard $(XI_TEST_DIR)/common/control_topic/*.c)
 XI_UTEST_SOURCES := $(filter-out $(XI_UTEST_EXCLUDED), $(XI_UTEST_SOURCES))
 XI_UTEST_SOURCES := $(subst $(XI_UTEST_SUITE_SOURCE),,$(XI_UTEST_SOURCES))
 XI_UTEST_OBJS := $(filter-out $(XI_UTEST_SOURCES), $(XI_UTEST_SOURCES:.c=.o))
