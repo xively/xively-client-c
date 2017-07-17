@@ -8,6 +8,7 @@
 #define __XI_BSP_IO_FS_H__
 
 #include <stdlib.h>
+#include <stdint.h>
 #include <xively_error.h>
 
 #ifdef __cplusplus
