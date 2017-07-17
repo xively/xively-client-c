@@ -26,26 +26,27 @@ static uint32_t sntp_retrieved_time = 0;
 /* On success, the SDK's sntp.c will set accurate datetime in the ESP's RTC */
 int xi_bsp_time_sntp_init( void )
 {
-    int retry             = 0;
     const int retry_count = 10;
+    int retry             = 0;
 
-    /* Kickstart SNTP */
-    sntp_setoperatingmode( SNTP_OPMODE_POLL );
     for ( uint8_t i = 0; i < SNTP_MAX_SERVERS; i++ )
     {
         sntp_setservername( i, sntp_servers[i] );
     }
+
     sntp_init();
 
     /* Wait for time to be set in the RTC module */
-    while ( ( sntp_retrieved_time <= 0 ) && ( ++retry < retry_count ) )
+    while ( sntp_retrieved_time <= 0 )
     {
+        if( ++retry >= retry_count )
+        {
+            return -1;
+        }
         xi_bsp_debug_format( "Waiting for system time to be set... [%d/%d]", retry,
                              retry_count );
         vTaskDelay( 2000 / portTICK_PERIOD_MS );
-        /* update 'now' variable with current time */
         XI_ESP32_GET_TIME_FROM_RTC( ( time_t* )&sntp_retrieved_time );
-        return -1;
     }
     xi_bsp_debug_format( "Current datetime successfully configured in the RTC: %d",
                          sntp_retrieved_time );
