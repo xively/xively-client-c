@@ -101,12 +101,9 @@ xi_fs_posix_file_list_cnd( xi_fs_posix_file_handle_container_t* list, FILE* fp )
     return ( list->posix_fp == fp ) ? 1 : 0;
 }
 
-xi_state_t xi_bsp_io_fs_stat( const xi_fs_resource_type_t resource_type,
-                              const char* const resource_name,
-                              xi_fs_stat_t* resource_stat )
+xi_state_t
+xi_bsp_io_fs_stat( const char* const resource_name, xi_fs_stat_t* resource_stat )
 {
-    ( void )resource_type;
-
     if ( NULL == resource_stat || NULL == resource_name )
     {
         return XI_INVALID_PARAMETER;
@@ -129,22 +126,19 @@ err_handling:
     return ret;
 }
 
-xi_state_t xi_bsp_io_fs_open( const xi_fs_resource_type_t resource_type,
-                              const char* const resource_name,
+xi_state_t xi_bsp_io_fs_open( const char* const resource_name,
                               const xi_fs_open_flags_t open_flags,
-                              xi_fs_resource_handle_t* resource_handle )
+                              xi_fs_resource_handle_t* resource_handle_out )
 {
-    ( void )resource_type;
     ( void )open_flags;
 
-    if ( NULL == resource_name || NULL == resource_handle )
+    if ( NULL == resource_name || NULL == resource_handle_out )
     {
         return XI_INVALID_PARAMETER;
     }
 
-    /* we only allow XI_FS_OPEN_READ */
-    if ( XI_FS_OPEN_APPEND == ( open_flags & XI_FS_OPEN_APPEND ) ||
-         XI_FS_OPEN_WRITE == ( open_flags & XI_FS_OPEN_WRITE ) )
+    /* append not supported */
+    if ( XI_FS_OPEN_APPEND == ( open_flags & XI_FS_OPEN_APPEND ) )
     {
         return XI_INVALID_PARAMETER;
     }
@@ -152,8 +146,7 @@ xi_state_t xi_bsp_io_fs_open( const xi_fs_resource_type_t resource_type,
     xi_fs_posix_file_handle_container_t* new_entry = NULL;
     xi_state_t ret                                 = XI_STATE_OK;
 
-    /* at this stage we will use "rb" only */
-    FILE* fp = fopen( resource_name, "rb" );
+    FILE* fp = fopen( resource_name, ( open_flags & XI_FS_OPEN_READ ) ? "rb" : "wb" );
 
     /* if error on fopen check the errno value */
     XI_BSP_IO_FS_CHECK_CND( NULL == fp, xi_fs_posix_errno_2_xi_state( errno ), ret );
@@ -173,7 +166,7 @@ xi_state_t xi_bsp_io_fs_open( const xi_fs_resource_type_t resource_type,
     assert( sizeof( fp ) == sizeof( xi_fs_resource_handle_t ) );
 
     /* return fp as a resource handle */
-    *resource_handle = ( xi_fs_resource_handle_t )fp;
+    *resource_handle_out = ( xi_fs_resource_handle_t )fp;
 
     return ret;
 
@@ -183,7 +176,7 @@ err_handling:
         fclose( fp );
     }
     xi_bsp_mem_free( new_entry );
-    *resource_handle = xi_fs_init_resource_handle();
+    *resource_handle_out = xi_fs_init_resource_handle();
     return ret;
 }
 
@@ -247,13 +240,36 @@ xi_state_t xi_bsp_io_fs_write( const xi_fs_resource_handle_t resource_handle,
                                const size_t offset,
                                size_t* const bytes_written )
 {
-    ( void )resource_handle;
-    ( void )buffer;
-    ( void )buffer_size;
-    ( void )offset;
-    ( void )bytes_written;
+    if ( NULL == buffer || 0 == buffer_size ||
+         XI_FS_INVALID_RESOURCE_HANDLE == resource_handle )
+    {
+        return XI_INVALID_PARAMETER;
+    }
 
-    return XI_FS_ERROR;
+    xi_state_t ret = XI_STATE_OK;
+    FILE* fp       = ( FILE* )resource_handle;
+
+    xi_fs_posix_file_handle_container_t* elem = NULL;
+    XI_LIST_FIND( xi_fs_posix_file_handle_container_t, xi_fs_posix_files_container,
+                  xi_fs_posix_file_list_cnd, fp, elem );
+
+    XI_BSP_IO_FS_CHECK_CND( NULL == elem, XI_FS_RESOURCE_NOT_AVAILABLE, ret );
+
+    /* let's set the offset */
+    const int fop_ret = fseek( fp, offset, SEEK_SET );
+
+    /* if error on fseek check errno */
+    XI_BSP_IO_FS_CHECK_CND( fop_ret != 0, xi_fs_posix_errno_2_xi_state( errno ), ret );
+
+    *bytes_written = fwrite( buffer, ( size_t )1, buffer_size, fp );
+
+    /* if error on fwrite check errno */
+    XI_BSP_IO_FS_CHECK_CND( buffer_size != *bytes_written,
+                            xi_fs_posix_errno_2_xi_state( ferror( fp ) ), ret );
+
+err_handling:
+
+    return ret;
 }
 
 xi_state_t xi_bsp_io_fs_close( const xi_fs_resource_handle_t resource_handle )
@@ -297,10 +313,8 @@ err_handling:
     return ret;
 }
 
-xi_state_t xi_bsp_io_fs_remove( const xi_fs_resource_type_t resource_type,
-                                const char* const resource_name )
+xi_state_t xi_bsp_io_fs_remove( const char* const resource_name )
 {
-    ( void )resource_type;
     ( void )resource_name;
 
     return XI_FS_RESOURCE_NOT_AVAILABLE;

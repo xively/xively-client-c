@@ -13,8 +13,9 @@ xi_state_t xi_fs_stat( const void* context,
                        xi_fs_stat_t* resource_stat )
 {
     XI_UNUSED( context );
+    XI_UNUSED( resource_type );
 
-    return xi_bsp_io_fs_stat( resource_type, resource_name, resource_stat );
+    return xi_bsp_io_fs_stat( resource_name, resource_stat );
 }
 
 xi_state_t xi_fs_open( const void* context,
@@ -24,8 +25,9 @@ xi_state_t xi_fs_open( const void* context,
                        xi_fs_resource_handle_t* resource_handle )
 {
     XI_UNUSED( context );
+    XI_UNUSED( resource_type );
 
-    return xi_bsp_io_fs_open( resource_type, resource_name, open_flags, resource_handle );
+    return xi_bsp_io_fs_open( resource_name, open_flags, resource_handle );
 }
 
 xi_state_t xi_fs_read( const void* context,
@@ -65,6 +67,7 @@ xi_state_t xi_fs_remove( const void* context,
                          const char* const resource_name )
 {
     XI_UNUSED( context );
+    XI_UNUSED( resource_type );
 
-    return xi_bsp_io_fs_remove( resource_type, resource_name );
+    return xi_bsp_io_fs_remove( resource_name );
 }

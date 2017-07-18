@@ -9,6 +9,7 @@
 
 #include <xively_error.h>
 #include <xi_control_message.h>
+#include <xi_bsp_io_fs.h>
 
 typedef xi_state_t ( *fn_send_control_message )( void*, xi_control_message_t* );
 
@@ -21,6 +22,7 @@ typedef struct
 
     xi_control_message_t* update_message_fua;
     const xi_control_message_file_desc_ext_t* update_current_file;
+    xi_fs_resource_handle_t update_file_handle;
 } xi_sft_context_t;
 
 

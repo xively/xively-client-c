@@ -50,14 +50,12 @@ typedef enum {
     XI_FS_OPEN_APPEND = 1 << 2,
 } xi_fs_open_flags_t;
 
-xi_state_t xi_bsp_io_fs_stat( const xi_fs_resource_type_t resource_type,
-                              const char* const resource_name,
-                              xi_fs_stat_t* resource_stat );
+xi_state_t
+xi_bsp_io_fs_stat( const char* const resource_name, xi_fs_stat_t* resource_stat );
 
-xi_state_t xi_bsp_io_fs_open( const xi_fs_resource_type_t resource_type,
-                              const char* const resource_name,
+xi_state_t xi_bsp_io_fs_open( const char* const resource_name,
                               const xi_fs_open_flags_t open_flags,
-                              xi_fs_resource_handle_t* resource_handle );
+                              xi_fs_resource_handle_t* resource_handle_out );
 
 xi_state_t xi_bsp_io_fs_read( const xi_fs_resource_handle_t resource_handle,
                               const size_t offset,
@@ -72,8 +70,7 @@ xi_state_t xi_bsp_io_fs_write( const xi_fs_resource_handle_t resource_handle,
 
 xi_state_t xi_bsp_io_fs_close( const xi_fs_resource_handle_t resource_handle );
 
-xi_state_t xi_bsp_io_fs_remove( const xi_fs_resource_type_t resource_type,
-                                const char* const resource_name );
+xi_state_t xi_bsp_io_fs_remove( const char* const resource_name );
 
 #ifdef __cplusplus
 }

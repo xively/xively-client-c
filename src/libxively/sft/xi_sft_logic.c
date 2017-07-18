@@ -8,6 +8,7 @@
 #include <stddef.h>
 #include <xi_macros.h>
 #include <xi_debug.h>
+#include <xi_bsp_io_fs.h>
 
 xi_state_t xi_sft_make_context( xi_sft_context_t** context,
                                 const char** updateable_files,
@@ -137,6 +138,7 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                 const uint32_t all_downloaded_bytes =
                     sft_message_in->file_chunk.offset + sft_message_in->file_chunk.length;
 
+#if 0
                 printf( "         === === === downloading file: %s, %d / %d, [%d%%], "
                         "status: %d\n",
                         context->update_current_file->name,
@@ -144,14 +146,31 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                         ( all_downloaded_bytes * 100 ) /
                             context->update_current_file->size_in_bytes,
                         sft_message_in->file_chunk.status );
+#endif
 
                 { /* processing content */
                     if ( 0 == sft_message_in->file_chunk.offset )
                     {
-                        /* first chunk: FILE BSP - open file */
+                        /* open file at first chunk */
+                        state = xi_bsp_io_fs_open( sft_message_in->file_chunk.name,
+                                                   XI_FS_OPEN_WRITE,
+                                                   &context->update_file_handle );
+
+                        printf( " --- %s, open, filename: %s, state: %d\n", __FUNCTION__,
+                                sft_message_in->file_chunk.name, state );
                     }
 
+                    size_t bytes_written = 0;
                     /* pass bytes to FILE BSP - write bytes */
+                    state = xi_bsp_io_fs_write(
+                        context->update_file_handle, sft_message_in->file_chunk.chunk,
+                        sft_message_in->file_chunk.length,
+                        sft_message_in->file_chunk.offset, &bytes_written );
+
+                    if ( 0 == sft_message_in->file_chunk.offset )
+                    {
+                        printf( " --- %s, write, state: %d\n", __FUNCTION__, state );
+                    }
                 }
 
                 /* Secure File Transfer flow management */
@@ -174,7 +193,9 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                 {
                     /* SFT flow: file downloaded, continue with next file in list */
 
-                    /* todo_atigyi: FILE BSP close file */
+                    state = xi_bsp_io_fs_close( context->update_file_handle );
+                    context->update_file_handle = ( xi_fs_resource_handle_t )NULL;
+                    printf( " --- %s, close, state: %d\n", __FUNCTION__, state );
 
                     { /* temporary: report file status messages */
                         xi_control_message_t* message_file_status =
