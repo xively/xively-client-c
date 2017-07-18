@@ -227,6 +227,7 @@ xi_state_t xi_bsp_io_fs_read( const xi_fs_resource_handle_t resource_handle,
     return XI_STATE_OK;
 
 err_handling:
+
     *buffer      = NULL;
     *buffer_size = 0;
     xi_bsp_mem_free( elem->memory_buffer );
@@ -305,6 +306,7 @@ xi_state_t xi_bsp_io_fs_close( const xi_fs_resource_handle_t resource_handle )
     return XI_STATE_OK;
 
 err_handling:
+
     if ( NULL != elem )
     {
         xi_bsp_mem_free( elem->memory_buffer );
@@ -315,7 +317,11 @@ err_handling:
 
 xi_state_t xi_bsp_io_fs_remove( const char* const resource_name )
 {
-    ( void )resource_name;
+    int ret = remove( resource_name );
 
-    return XI_FS_RESOURCE_NOT_AVAILABLE;
+    XI_BSP_IO_FS_CHECK_CND( 0 != ret, xi_fs_posix_errno_2_xi_state( errno ), ret );
+
+err_handling:
+
+    return ret;
 }

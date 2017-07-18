@@ -7,6 +7,7 @@
 #include <xi_itest_sft.h>
 #include "xi_itest_helpers.h"
 #include "xi_backoff_status_api.h"
+#include "xi_bsp_io_fs.h"
 
 #include "xi_debug.h"
 #include "xi_globals.h"
@@ -147,13 +148,24 @@ void xi_itest_sft__on_connection_state_changed( xi_context_handle_t in_context_h
     XI_UNUSED( state );
 }
 
+void xi_itest_sft__remove_files( const char** filenames, uint16_t files_count )
+{
+    uint16_t id_file = 0;
+    for ( ; id_file < files_count; ++id_file )
+    {
+        xi_state_t state = xi_bsp_io_fs_remove( filenames[id_file] );
+
+        printf( "--- %s, %s, state: %d\n", __FUNCTION__, filenames[id_file], state );
+    }
+}
+
 /*********************************************************************************
  * act ***************************************************************************
  ********************************************************************************/
 static void xi_itest_sft__act( void** fixture_void,
                                char do_disconnect_flag,
                                const char** updateable_filenames,
-                               uint16_t updateable_file_count )
+                               uint16_t updateable_files_count )
 {
     {
         /* turn off LAYER and MQTT LEVEL expectation checks to concentrate only on SFT
@@ -184,7 +196,7 @@ static void xi_itest_sft__act( void** fixture_void,
     xi_evtd_step( xi_globals.evtd_instance, xi_bsp_time_getcurrenttime_seconds() );
 
     xi_set_updateable_files( xi_context_handle, updateable_filenames,
-                             updateable_file_count );
+                             updateable_files_count );
 
     const uint16_t connection_timeout = fixture->max_loop_count;
     const uint16_t keepalive_timeout  = fixture->max_loop_count;
@@ -206,7 +218,9 @@ static void xi_itest_sft__act( void** fixture_void,
         }
     }
 
-err_handling:;
+err_handling:
+
+    xi_itest_sft__remove_files( updateable_filenames, updateable_files_count );
 }
 
 /*********************************************************************************
@@ -339,6 +353,8 @@ void xi_itest_sft__broker_replies_FUA_on_FILE_GET_CHUNK__client_processes_2nd_FU
 
     // ACT
     xi_itest_sft__act( fixture_void, 1, ( const char* [] ){"file1"}, 1 );
+
+    xi_itest_sft__remove_files( ( const char* [] ){"file2"}, 1 );
 
 err_handling:;
 }
