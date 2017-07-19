@@ -451,7 +451,7 @@ xi_control_message_t* xi_cbor_codec_ct_decode( const uint8_t* data, const uint32
         default:
 
             xi_debug_format(
-                "WARNING: CBOR decoder was called with client to server message type %d",
+                "WARNING: CBOR decoder was called with client to server message type %lu",
                 msgtype->v.uint );
     }
 
