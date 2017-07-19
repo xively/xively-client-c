@@ -54,6 +54,7 @@ xi_state_t
 xi_bsp_io_fs_stat( const char* const resource_name, xi_fs_stat_t* resource_stat );
 
 xi_state_t xi_bsp_io_fs_open( const char* const resource_name,
+                              const uint32_t size,
                               const xi_fs_open_flags_t open_flags,
                               xi_fs_resource_handle_t* resource_handle_out );
 

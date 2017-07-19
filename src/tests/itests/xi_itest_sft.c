@@ -153,9 +153,7 @@ void xi_itest_sft__remove_files( const char** filenames, uint16_t files_count )
     uint16_t id_file = 0;
     for ( ; id_file < files_count; ++id_file )
     {
-        xi_state_t state = xi_bsp_io_fs_remove( filenames[id_file] );
-
-        printf( "--- %s, %s, state: %d\n", __FUNCTION__, filenames[id_file], state );
+        xi_bsp_io_fs_remove( filenames[id_file] );
     }
 }
 

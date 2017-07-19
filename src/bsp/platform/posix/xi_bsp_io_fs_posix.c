@@ -127,10 +127,11 @@ err_handling:
 }
 
 xi_state_t xi_bsp_io_fs_open( const char* const resource_name,
+                              const uint32_t size,
                               const xi_fs_open_flags_t open_flags,
                               xi_fs_resource_handle_t* resource_handle_out )
 {
-    ( void )open_flags;
+    ( void )size;
 
     if ( NULL == resource_name || NULL == resource_handle_out )
     {

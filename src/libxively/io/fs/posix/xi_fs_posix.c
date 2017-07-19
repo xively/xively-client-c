@@ -27,7 +27,8 @@ xi_state_t xi_fs_open( const void* context,
     XI_UNUSED( context );
     XI_UNUSED( resource_type );
 
-    return xi_bsp_io_fs_open( resource_name, open_flags, resource_handle );
+    return xi_bsp_io_fs_open( resource_name, 0 /* not used in POSIX version */,
+                              open_flags, resource_handle );
 }
 
 xi_state_t xi_fs_read( const void* context,
