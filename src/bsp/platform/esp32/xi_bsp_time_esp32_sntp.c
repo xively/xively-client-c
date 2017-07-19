@@ -8,6 +8,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
+#define DEVELOPMENT_DATETIME ( 1500312469UL )
 #define XI_SNTP_MAX_RETRIES 10
 
 #ifndef SNTP_MAX_SERVERS
@@ -37,9 +38,9 @@ int xi_bsp_time_sntp_init( void )
     sntp_init();
 
     /* Wait for time to be set in the RTC module */
-    while ( sntp_retrieved_time <= 0 )
+    while ( sntp_retrieved_time < DEVELOPMENT_DATETIME )
     {
-        if( ++retry >= retry_count )
+        if( ++retry > retry_count )
         {
             return -1;
         }

@@ -12,17 +12,30 @@ XI_BUILD_PRECONDITIONS := $(CC)
 
 XI_ESP_IDF_SDK_PATH = $(HOME)/Work/Xively/esp32/esp-idf
 
-# Xively Client config flags
+##################
+# Libxively Config
+##################
 XI_CONFIG_FLAGS += -DXI_CROSS_TARGET
 XI_CONFIG_FLAGS += -DXI_EMBEDDED_TESTS
 
-###################
-# LWIP Include Dirs
-###################
+################
+# WolfSSL Config
+################
+#ifeq (XI_TLS_BSP, "wolfssl")
+XI_CONFIG_FLAGS += -DNO_WRITEV
+XI_COMPILER_FLAGS += -DSINGLE_THREADED
+#endif
+
+#########################
+# ESP System Include Dirs
+#########################
 XI_COMPILER_FLAGS += -I$(XI_ESP_IDF_SDK_PATH)/components/driver/include
 XI_COMPILER_FLAGS += -I$(XI_ESP_IDF_SDK_PATH)/components/soc/esp32/include
 XI_COMPILER_FLAGS += -I$(XI_ESP_IDF_SDK_PATH)/components/esp32/include
 
+###################
+# LWIP Include Dirs
+###################
 XI_COMPILER_FLAGS += -I$(XI_ESP_IDF_SDK_PATH)/components/lwip/system
 XI_COMPILER_FLAGS += -I$(XI_ESP_IDF_SDK_PATH)/components/lwip/include/lwip
 XI_COMPILER_FLAGS += -I$(XI_ESP_IDF_SDK_PATH)/components/lwip/include/lwip/port

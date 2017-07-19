@@ -6,6 +6,9 @@
 
 #include <xi_bsp_mem.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include "FreeRTOS.h"
+#include "FreeRTOS/task.h"
 
 // Forward declarations of external funcitons from FreeRTOS portable.h
 void* pvPortMalloc( size_t );
@@ -25,15 +28,11 @@ void* xi_bsp_mem_alloc( size_t byte_count )
 
 void* xi_bsp_mem_realloc( void* ptr, size_t byte_count )
 {
-    ( void )ptr;
-    void* new_ptr = NULL;
-
-    if ( NULL == new_ptr )
-    {
-        printf( "Failed to reallocate %d\n", byte_count );
-    }
-
-    return new_ptr;
+    void* new_ptr;
+    vTaskSuspendAll();
+    new_ptr = realloc( ptr, byte_count );
+	xTaskResumeAll();
+	return new_ptr;
 }
 
 void xi_bsp_mem_free( void* ptr )

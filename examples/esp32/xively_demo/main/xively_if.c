@@ -240,6 +240,7 @@ static void xif_publish_counter( void )
     char msg_counter_s[32];
     xi_state_t ret_state = XI_STATE_OK;
     sprintf( msg_counter_s, "%ld", msg_counter );
+    printf( "\nPublishing MQTT message [%s]", msg_counter_s );
     ret_state =
         xi_publish( xif_context_handle, xif_mqtt_topics.button_topic, msg_counter_s,
                     XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );

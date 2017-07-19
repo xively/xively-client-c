@@ -5,6 +5,7 @@
  */
 #include "xi_bsp_time_esp32_sntp.h"
 #include "xi_bsp_time.h"
+#include <time.h> /* For the gmtime() function */
 
 void xi_bsp_time_init()
 {
@@ -23,4 +24,26 @@ xi_time_t xi_bsp_time_getcurrenttime_seconds()
 xi_time_t xi_bsp_time_getcurrenttime_milliseconds()
 {
     return xi_bsp_time_getcurrenttime_seconds() * 1000;
+}
+
+/**
+ * Function required by WolfSSL to track the current time.
+ */
+time_t XTIME( time_t* timer )
+{
+    time_t current_time = xi_bsp_time_getcurrenttime_seconds();
+    if ( timer )
+    {
+        *timer = current_time;
+    }
+    return current_time;
+}
+
+/**
+ * Function required by WolfSSL to track the current time.
+ */
+struct tm* XGMTIME( const time_t* timer, struct tm* tmp )
+{
+    ( void )tmp;
+    return gmtime( timer );
 }
