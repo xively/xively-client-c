@@ -17,8 +17,8 @@ CONFIG_POSIX_MIN_UNSECURE       =posix_fs-posix_platform
 CONFIG_DUMMY_MAX                =memory_fs-memory_limiter-control_topic-senml
 CONFIG_DUMMY_MIN                =memory_fs
 
-CONFIG_CC3200                   =memory_fs-tls_bsp
-CONFIG_CC3200_TLS_SOCKET        =memory_fs-tls_socket
+CONFIG_CC3200                   =memory_fs-control_topic-tls_bsp
+CONFIG_CC3200_TLS_SOCKET        =memory_fs-control_topic-tls_socket
 
 CONFIG_CC3220SF                 =bsp_cc3220sf-memory_fs-tls_bsp
 CONFIG_CC3220SF_TLS_SOCKET      =bsp_cc3220sf-memory_fs-tls_socket
