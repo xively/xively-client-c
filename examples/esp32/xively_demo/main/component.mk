@@ -7,9 +7,10 @@
 # please read the ESP-IDF documents if you need to do this.
 #
 
-#TODO: Make these paths relative and test
-COMPONENT_EXTRA_INCLUDES += /Users/palantir/Work/Xively/esp32/xively-client-c/src/import/tls/wolfssl
-COMPONENT_ADD_LDFLAGS += /Users/palantir/Work/Xively/esp32/xively-client-c/bin/esp32/libwolfssl.a
+XI_CLIENT_C_PATH = $(realpath $(PROJECT_PATH)/../../..)
 
-COMPONENT_EXTRA_INCLUDES += /Users/palantir/Work/Xively/esp32/xively-client-c/include
-COMPONENT_ADD_LDFLAGS += /Users/palantir/Work/Xively/esp32/xively-client-c/bin/esp32/libxively.a
+COMPONENT_EXTRA_INCLUDES += $(XI_CLIENT_C_PATH)/src/import/tls/wolfssl
+COMPONENT_ADD_LDFLAGS    += $(XI_CLIENT_C_PATH)/bin/esp32/libwolfssl.a
+
+COMPONENT_EXTRA_INCLUDES += $(XI_CLIENT_C_PATH)/include
+COMPONENT_ADD_LDFLAGS    += $(XI_CLIENT_C_PATH)/bin/esp32/libxively.a

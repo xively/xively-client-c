@@ -1,10 +1,12 @@
-GCC_XTENSA_TOOLCHAIN_PATH := /Users/palantir/Work/Xively/esp32/toolchain/xtensa-esp32-elf
+GCC_XTENSA_TOOLCHAIN_PATH ?= /Users/palantir/Work/Xively/esp32/toolchain/xtensa-esp32-elf
+
+#$(IDF_PATH) This is exported in the shell as a requirement of the IDF SDK
+ESP_SDK_DIR := $(IDF_PATH)
+XI_BASE_DIR ?= $(realpath ../../../..)
+
 CC := $(GCC_XTENSA_TOOLCHAIN_PATH)/bin/xtensa-esp32-elf-gcc
 AR := $(GCC_XTENSA_TOOLCHAIN_PATH)/bin/xtensa-esp32-elf-ar
 
-ESP_SDK_DIR      := /Users/palantir/Work/Xively/esp32/esp-idf
-
-XI_BASE_DIR      := /Users/palantir/Work/Xively/esp32/xively-client-c
 WOLFSSL_BASE_DIR := $(XI_BASE_DIR)/src/import/tls/wolfssl
 
 WOLFSSL_OUTPUT_OBJ_DIR := $(XI_BASE_DIR)/obj/esp32/wolfssl
@@ -46,9 +48,9 @@ WOLFSSL_INCDIRS = \
     -I${WOLFSSL_BASE_DIR}
 
 LWIP_INCDIRS =                                    \
-    -I${ESP_SDK_DIR}/components/lwip/system       \
-    -I${ESP_SDK_DIR}/components/lwip/include/lwip \
-    -I${ESP_SDK_DIR}/components/lwip/include/lwip/port
+    -I$(ESP_SDK_DIR)/components/lwip/system       \
+    -I$(ESP_SDK_DIR)/components/lwip/include/lwip \
+    -I$(ESP_SDK_DIR)/components/lwip/include/lwip/port
 
 FREERTOS_INCDIRS =                               \
     -I$(ESP_SDK_DIR)/components/freertos/include \
@@ -114,7 +116,7 @@ WOLFSSL_OUTPUT_OBJ := $(patsubst $(WOLFSSL_BASE_DIR)%.c,$(WOLFSSL_OUTPUT_OBJ_DIR
 # default/lib: build the wolfssl library
 #
 ###############################################################################
-lib: $(WOLFSSL_OUTPUT_LIB) | $(WOLFSSL_BASE_DIR)
+lib: $(WOLFSSL_BASE_DIR) $(WOLFSSL_OUTPUT_LIB)
 
 $(WOLFSSL_BASE_DIR):
 	cd $(XI_BASE_DIR)/src/import/tls/ && ./download_and_compile_wolfssl.sh
