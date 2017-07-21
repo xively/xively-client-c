@@ -4,6 +4,22 @@ Pre-requisites
 1. Set up xtensa-esp32 GCC toolchain: https://esp-idf.readthedocs.io/en/latest/get-started/index.html#setup-toolchain
 2. Set up the ESP-IDF SDK: https://esp-idf.readthedocs.io/en/latest/get-started/index.html#get-esp-idf
 
+WiFi and Xively Credentials Configuration
+=========================================
+
+[This step is provisional until we have runtime provisioning via serial or web interface]
+
+Open the `$(XIVELY_CLIENT_C_PATH)/examples/esp32/xively_demo/main/main.c` file
+with your favourite editor, and set your credentials in these macros:
+
+```
+#define APP_XI_ACCOUNT_ID "[SET YOUR XIVELY ACCOUNT ID HERE]"
+#define APP_XI_DEVICE_ID  "[SET YOUR XIVELY DEVICE  ID HERE]"
+#define APP_XI_DEVICE_PWD "[SET YOUR XIVELY DEVICE PASSWORD HERE]"
+#define APP_WIFI_SSID "[SET YOUR WIFI NETWORK NAME HERE]"
+#define APP_WIFI_PASS "[SET YOUR WIFI NETWORK PASSWORD HERE]"
+```
+
 Build instructions
 ==================
 
