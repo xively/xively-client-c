@@ -8,7 +8,9 @@
 #include <stddef.h>
 #include <xi_macros.h>
 #include <xi_debug.h>
+
 #include <xi_bsp_io_fs.h>
+#include <xi_bsp_fwu.h>
 
 xi_state_t xi_sft_make_context( xi_sft_context_t** context,
                                 const char** updateable_files,
@@ -30,10 +32,14 @@ xi_state_t xi_sft_make_context( xi_sft_context_t** context,
 
     XI_ALLOC_AT( xi_sft_context_t, *context, state );
 
-    ( *context )->fn_send_message        = fn_send_message;
-    ( *context )->send_message_user_data = user_data;
-    ( *context )->updateable_files       = updateable_files;
-    ( *context )->updateable_files_count = updateable_files_count;
+    ( *context )->fn_send_message            = fn_send_message;
+    ( *context )->send_message_user_data     = user_data;
+    ( *context )->updateable_files           = updateable_files;
+    ( *context )->updateable_files_count     = updateable_files_count;
+    ( *context )->update_message_fua         = NULL;
+    ( *context )->update_current_file        = NULL;
+    ( *context )->update_file_handle         = 0;
+    ( *context )->firmware_in_update_package = 0;
 
     return state;
 
@@ -59,6 +65,10 @@ xi_state_t xi_sft_on_connected( xi_sft_context_t* context )
 {
     // printf( "%s, updateable_files_count: %d\n", __FUNCTION__,
     //         context->updateable_files_count );
+
+    /* todo_atigyi: commit after a self check, also find a place where new FW can be
+     * denied */
+    xi_bsp_fwu_commit();
 
     if ( NULL == context )
     {
@@ -161,6 +171,17 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                         // %lu\n",
                         //         __FUNCTION__, sft_message_in->file_chunk.name, state,
                         //         context->update_file_handle );
+
+                        if ( 1 ==
+                             xi_bsp_fwu_is_firmware( sft_message_in->file_chunk.name ) )
+                        {
+                            context->firmware_in_update_package = 1;
+                        }
+                        else if ( XI_STATE_OK != state )
+                        {
+                            /* ERROR: report error file status, do not send FILE_GET_CHUNK
+                             */
+                        }
                     }
 
                     size_t bytes_written = 0;
@@ -173,6 +194,11 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                     if ( 0 == sft_message_in->file_chunk.offset )
                     {
                         // printf( " --- %s, write, state: %d\n", __FUNCTION__, state );
+                    }
+
+                    if ( XI_STATE_OK != state )
+                    {
+                        /* ERROR: report error file status, do not send FILE_GET_CHUNK */
                     }
                 }
 
@@ -199,6 +225,11 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                     state = xi_bsp_io_fs_close( context->update_file_handle );
                     context->update_file_handle = XI_FS_INVALID_RESOURCE_HANDLE;
                     // printf( " --- %s, close, state: %d\n", __FUNCTION__, state );
+
+                    if ( XI_STATE_OK != state )
+                    {
+                        /* ERROR during file close, what to do? */
+                    }
 
                     { /* temporary: report file status messages */
                         xi_control_message_t* message_file_status =
@@ -251,6 +282,15 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                     {
                         /* no further files to download, finished with download process */
                         xi_control_message_free( &context->update_message_fua );
+
+                        /* if there was firmware in the update package, then try to
+                         * execute it */
+                        if ( 1 == context->firmware_in_update_package )
+                        {
+                            xi_bsp_fwu_test();
+
+                            xi_bsp_fwu_reboot();
+                        }
                     }
                 }
             }
