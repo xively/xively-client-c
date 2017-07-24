@@ -5,18 +5,53 @@
  */
 
 #include <xi_bsp_io_fs.h>
+#include <xi_bsp_fwu.h>
 #include <string.h>
 #include <stdio.h>
 
 #include <simplelink.h>
-#include <flc_api.h>
+#include <gpio_if.h>
 
 static _i32 firmware_file_handle_last_opened = 0;
 
-static uint8_t xi_bsp_io_fs__is_firmware( const char* const resource_name )
+#define XI_DEBUG__FOR_FIRMWARE_UPDATE_TESTING_PURPOSES
+
+#ifdef XI_DEBUG__FOR_FIRMWARE_UPDATE_TESTING_PURPOSES
+
+#include <flc_api.h>
+typedef struct sBootInfo
 {
-    return ( 0 == strcmp( "firmware.bin", resource_name ) ) ? 1 : 0;
+    _u8 ucActiveImg;
+    _u32 ulImgStatus;
+
+} sBootInfo_t;
+
+static sBootInfo_t sBootInfo;
+#define IMG_ACT_USER1 1
+#define IMG_ACT_USER2 2
+#define IMG_BOOT_INFO "/sys/mcubootinfo.bin"
+
+/* copied from TI SDK's flc.c file */
+static _i32 _ReadBootInfo( sBootInfo_t* psBootInfo )
+{
+    _i32 lFileHandle;
+    _u32 ulToken;
+    _i32 status = -1;
+
+    if ( 0 ==
+         sl_FsOpen( ( _u8* )IMG_BOOT_INFO, FS_MODE_OPEN_READ, &ulToken, &lFileHandle ) )
+    {
+        if ( 0 < sl_FsRead( lFileHandle, 0, ( _u8* )psBootInfo, sizeof( sBootInfo_t ) ) )
+        {
+            status = 0;
+        }
+        sl_FsClose( lFileHandle, 0, 0, 0 );
+    }
+
+    return status;
 }
+
+#endif
 
 xi_state_t xi_bsp_io_fs_open( const char* const resource_name,
                               const uint32_t size,
@@ -25,7 +60,11 @@ xi_state_t xi_bsp_io_fs_open( const char* const resource_name,
 {
     ( void )open_flags;
 
-    if ( 1 == xi_bsp_io_fs__is_firmware( resource_name ) )
+#ifdef XI_DEBUG__FOR_FIRMWARE_UPDATE_TESTING_PURPOSES
+    _ReadBootInfo( &sBootInfo );
+#endif
+
+    if ( 1 == xi_bsp_fwu_is_firmware( resource_name ) )
     {
         /* the resource is firmware, handle with FLC (flc_api.h) */
 
@@ -39,9 +78,6 @@ xi_state_t xi_bsp_io_fs_open( const char* const resource_name,
         }
 
         *resource_handle_out = firmware_file_handle_last_opened;
-
-        printf( "--- file_handle: %d\n", firmware_file_handle_last_opened );
-        printf( "---  res_handle: %d\n", *resource_handle_out );
     }
     else
     {
@@ -57,6 +93,23 @@ xi_state_t xi_bsp_io_fs_write( const xi_fs_resource_handle_t resource_handle,
                                const size_t offset,
                                size_t* const bytes_written )
 {
+    { /* led indicator of file writes */
+#ifdef XI_DEBUG__FOR_FIRMWARE_UPDATE_TESTING_PURPOSES
+        if ( IMG_ACT_USER1 == sBootInfo.ucActiveImg )
+        {
+            GPIO_IF_LedOff( MCU_ORANGE_LED_GPIO );
+            GPIO_IF_LedToggle( MCU_GREEN_LED_GPIO );
+        }
+        else
+        {
+            GPIO_IF_LedOff( MCU_GREEN_LED_GPIO );
+            GPIO_IF_LedToggle( MCU_ORANGE_LED_GPIO );
+        }
+#else
+        GPIO_IF_LedToggle( MCU_GREEN_LED_GPIO );
+#endif
+    }
+
     /* reasonably NOT supporting simultanenous firmware writes */
     if ( resource_handle == firmware_file_handle_last_opened )
     {
