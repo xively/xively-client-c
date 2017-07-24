@@ -5,7 +5,7 @@
 
 include make/mt-config/mt-target-platform.mk
 
-# CONFIG presets
+# CONFIG for POSIX presets
 CONFIG_POSIX_MAX                =posix_fs-posix_platform-tls_bsp-senml-control_topic-memory_limiter
 CONFIG_POSIX_MAX_THREADING      =posix_fs-posix_platform-tls_bsp-senml-control_topic-threading-memory_limiter
 CONFIG_POSIX_MID                =posix_fs-posix_platform-tls_bsp-senml-control_topic
@@ -13,24 +13,25 @@ CONFIG_POSIX_MID_UNSECURE       =posix_fs-posix_platform-senml-control_topic
 CONFIG_POSIX_MIN                =posix_fs-posix_platform-tls_bsp
 CONFIG_POSIX_MIN_UNSECURE       =posix_fs-posix_platform
 
-# arm configs
+# CONFIG for ARM
 CONFIG_DUMMY_MAX                =memory_fs-memory_limiter-control_topic-senml
 CONFIG_DUMMY_MIN                =memory_fs
 
+# CONFIG for CC3200
 CONFIG_CC3200                   =memory_fs-control_topic-tls_bsp
 CONFIG_CC3200_TLS_SOCKET        =memory_fs-control_topic-tls_socket
 
+# CONFIG for CC3220
 CONFIG_CC3220SF                 =bsp_cc3220sf-memory_fs-tls_bsp
 CONFIG_CC3220SF_TLS_SOCKET      =bsp_cc3220sf-memory_fs-tls_socket
 
-CONFIG_STM32FX                  =memory_fs-tls_bsp
-CONFIG_STM32FX_NUCLEO_WIFI      =memory_fs-tls_socket
+# CONFIG for STM32
+CONFIG_STM32FX                  =memory_fs-control_topic-tls_bsp
+CONFIG_STM32FX_NUCLEO_WIFI      =memory_fs-control_topic-tls_socket
 
 # TARGET presets
 TARGET_STATIC_DEV               =-static-debug
 TARGET_STATIC_REL               =-static-release
-
-TARGET_ARM_REL                  =-static-release
 
 PRESET ?= POSIX_REL
 
@@ -73,12 +74,12 @@ else ifeq ($(PRESET), POSIX_THREADING_REL)
 # ARM
 else ifeq ($(PRESET), ARM_REL_MIN)
     CONFIG = $(CONFIG_DUMMY_MIN)
-    TARGET = $(TARGET_ARM_REL)
+    TARGET = $(TARGET_STATIC_REL)
     XI_BSP_PLATFORM = dummy
     XI_TARGET_PLATFORM = arm-linux
 else ifeq ($(PRESET), ARM_REL)
     CONFIG = $(CONFIG_DUMMY_MAX)
-    TARGET = $(TARGET_ARM_REL)
+    TARGET = $(TARGET_STATIC_REL)
     XI_BSP_PLATFORM = dummy
     XI_TARGET_PLATFORM = arm-linux
 
