@@ -53,6 +53,21 @@ static _i32 _ReadBootInfo( sBootInfo_t* psBootInfo )
 
 #endif
 
+_u32 xi_bsp_io_fs_open_flags_to_sl_flags( const uint32_t size,
+                                          const xi_fs_open_flags_t open_flags )
+{
+    switch ( open_flags )
+    {
+        case XI_FS_OPEN_WRITE:
+            return FS_MODE_OPEN_CREATE( size, FS_MODE_OPEN_WRITE );
+        case XI_FS_OPEN_APPEND:
+            return FS_MODE_OPEN_WRITE;
+        case XI_FS_OPEN_READ:
+        default:
+            return FS_MODE_OPEN_READ;
+    }
+}
+
 xi_state_t xi_bsp_io_fs_open( const char* const resource_name,
                               const uint32_t size,
                               const xi_fs_open_flags_t open_flags,
@@ -74,7 +89,7 @@ xi_state_t xi_bsp_io_fs_open( const char* const resource_name,
         {
             firmware_file_handle_last_opened = 0;
             *resource_handle_out             = 0;
-            return XI_FS_ERROR;
+            return XI_FS_OPEN_ERROR;
         }
 
         *resource_handle_out = firmware_file_handle_last_opened;
@@ -82,9 +97,52 @@ xi_state_t xi_bsp_io_fs_open( const char* const resource_name,
     else
     {
         /* it's an ordinary file, handle with file io (fs.h) */
+
+        if ( 0 != sl_FsOpen( ( _u8* )resource_name,
+                             xi_bsp_io_fs_open_flags_to_sl_flags( size, open_flags ),
+                             NULL, ( _i32* )*resource_handle_out ) )
+        {
+            *resource_handle_out = 0;
+            return XI_FS_OPEN_ERROR;
+        }
     }
 
     return XI_STATE_OK;
+}
+
+#define XI_BSP_IO_FS_READ_BUFFER_SIZE 1024
+
+xi_state_t xi_bsp_io_fs_read( const xi_fs_resource_handle_t resource_handle,
+                              const size_t offset,
+                              const uint8_t** buffer,
+                              size_t* const buffer_size )
+{
+    _i32 result_file_read = 0;
+
+    static _u8 read_buffer[XI_BSP_IO_FS_READ_BUFFER_SIZE];
+
+    if ( resource_handle == firmware_file_handle_last_opened )
+    {
+        result_file_read = sl_extlib_FlcReadFile( resource_handle, offset, read_buffer,
+                                                  XI_BSP_IO_FS_READ_BUFFER_SIZE );
+    }
+    else
+    {
+        result_file_read = sl_FsRead( resource_handle, offset, read_buffer,
+                                      XI_BSP_IO_FS_READ_BUFFER_SIZE );
+    }
+
+    if ( result_file_read < 0 )
+    {
+        return XI_FS_READ_ERROR;
+    }
+    else
+    {
+        *buffer      = read_buffer;
+        *buffer_size = result_file_read;
+
+        return XI_STATE_OK;
+    }
 }
 
 xi_state_t xi_bsp_io_fs_write( const xi_fs_resource_handle_t resource_handle,
@@ -120,9 +178,11 @@ xi_state_t xi_bsp_io_fs_write( const xi_fs_resource_handle_t resource_handle,
     else
     {
         /* write ordinary file */
+        *bytes_written =
+            sl_FsWrite( resource_handle, offset, ( _u8* )buffer, buffer_size );
     }
 
-    return ( buffer_size == *bytes_written ) ? XI_STATE_OK : XI_FS_ERROR;
+    return ( buffer_size == *bytes_written ) ? XI_STATE_OK : XI_FS_WRITE_ERROR;
 }
 
 xi_state_t xi_bsp_io_fs_close( const xi_fs_resource_handle_t resource_handle )
@@ -133,12 +193,12 @@ xi_state_t xi_bsp_io_fs_close( const xi_fs_resource_handle_t resource_handle )
 
         return ( 0 == sl_extlib_FlcCloseFile( resource_handle, NULL, NULL, 0 ) )
                    ? XI_STATE_OK
-                   : XI_FS_ERROR;
+                   : XI_FS_CLOSE_ERROR;
     }
     else
     {
         return ( 0 == sl_FsClose( resource_handle, NULL, NULL, 0 ) ) ? XI_STATE_OK
-                                                                     : XI_FS_ERROR;
+                                                                     : XI_FS_CLOSE_ERROR;
     }
 }
 

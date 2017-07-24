@@ -47,8 +47,7 @@ typedef xi_state_t( xi_fs_open_resource_t )( const void* context,
  * @name xi_fs_read_resource_t
  * @brief reads data using a given offset from the beginnig of the resource from
  * the previously opened resource described via resource handle, returns a
- * buffer
- * of data and a size of that buffer
+ * buffer of data and a size of that buffer
  *
  *
  * @brief it is up to the implementation of this API to free the buffer, if
