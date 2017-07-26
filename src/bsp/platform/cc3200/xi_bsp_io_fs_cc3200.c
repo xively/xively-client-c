@@ -98,13 +98,17 @@ xi_state_t xi_bsp_io_fs_open( const char* const resource_name,
     {
         /* it's an ordinary file, handle with file io (fs.h) */
 
+        _i32 file_handle = 0;
+
         if ( 0 != sl_FsOpen( ( _u8* )resource_name,
                              xi_bsp_io_fs_open_flags_to_sl_flags( size, open_flags ),
-                             NULL, ( _i32* )*resource_handle_out ) )
+                             NULL, &file_handle ) )
         {
             *resource_handle_out = 0;
             return XI_FS_OPEN_ERROR;
         }
+
+        *resource_handle_out = file_handle;
     }
 
     return XI_STATE_OK;
