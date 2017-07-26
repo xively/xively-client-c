@@ -251,7 +251,7 @@ void xi_itest_sft__basic_flow__SFT_with_happy_broker__protocol_intact(
 
     expect_value_count( xi_mock_broker_sft_logic_on_message,
                         control_message->common.msgtype,
-                        XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 3 );
+                        XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 2 );
 
     /* 2nd file */
     expect_value_count( xi_mock_broker_sft_logic_on_message,
@@ -265,7 +265,7 @@ void xi_itest_sft__basic_flow__SFT_with_happy_broker__protocol_intact(
 
     expect_value_count( xi_mock_broker_sft_logic_on_message,
                         control_message->common.msgtype,
-                        XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 3 );
+                        XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 2 );
 
     // ACT
     xi_itest_sft__act( fixture_void, 1, ( const char* [] ){"file1", "file2"}, 2 );
@@ -347,7 +347,7 @@ void xi_itest_sft__broker_replies_FUA_on_FILE_GET_CHUNK__client_processes_2nd_FU
 
     expect_value_count( xi_mock_broker_sft_logic_on_message,
                         control_message->common.msgtype,
-                        XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 3 );
+                        XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 2 );
 
     // ACT
     xi_itest_sft__act( fixture_void, 1, ( const char* [] ){"file1"}, 1 );
@@ -370,9 +370,9 @@ void xi_itest_sft__manymany_updateable_files( void** fixture_void )
     uint16_t id_file = 0;
     for ( ; id_file < XI_ITEST_SFT__FILE_NUMBER; ++id_file )
     {
-        /* dynamic genration of filenames */
-        file_names_strings[id_file][0] = id_file % 95 + 33;
-        file_names_strings[id_file][1] = id_file % 95 + 34;
+        /* dynamic filename genration, trying to avoid invalid characters in filenames */
+        file_names_strings[id_file][0] = id_file % 75 + 48;
+        file_names_strings[id_file][1] = id_file % 75 + 49;
         file_names_strings[id_file][2] = '-';
         file_names_strings[id_file][3] = id_file / 1000 + '0';
         file_names_strings[id_file][4] = id_file % 1000 / 100 + '0';
@@ -396,7 +396,7 @@ void xi_itest_sft__manymany_updateable_files( void** fixture_void )
 
         expect_value_count( xi_mock_broker_sft_logic_on_message,
                             control_message->common.msgtype,
-                            XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 3 );
+                            XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 2 );
     }
 
     // ACT
@@ -421,7 +421,7 @@ void xi_itest_sft__firmware_bin_received__firmware_test_commit_triggered(
 
     expect_value_count( xi_mock_broker_sft_logic_on_message,
                         control_message->common.msgtype,
-                        XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 3 );
+                        XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 2 );
 
     /* 2nd file */
     expect_value_count( xi_mock_broker_sft_logic_on_message,
@@ -435,7 +435,7 @@ void xi_itest_sft__firmware_bin_received__firmware_test_commit_triggered(
 
     expect_value_count( xi_mock_broker_sft_logic_on_message,
                         control_message->common.msgtype,
-                        XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 3 );
+                        XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 1 );
 
     /* 3rd file */
     expect_value_count( xi_mock_broker_sft_logic_on_message,
@@ -449,7 +449,12 @@ void xi_itest_sft__firmware_bin_received__firmware_test_commit_triggered(
 
     expect_value_count( xi_mock_broker_sft_logic_on_message,
                         control_message->common.msgtype,
-                        XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 3 );
+                        XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 2 );
+
+    /* this is the firmware FILE_STATUS report */
+    expect_value_count( xi_mock_broker_sft_logic_on_message,
+                        control_message->common.msgtype,
+                        XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 1 );
 
     // ACT
     xi_itest_sft__act( fixture_void, 1,
