@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 
-uint8_t xi_bsp_fwu_is_firmware( const char* const resource_name )
+uint8_t xi_bsp_fwu_is_this_firmware( const char* const resource_name )
 {
     return ( 0 == strcmp( "firmware.bin", resource_name ) ) ? 1 : 0;
 }

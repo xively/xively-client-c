@@ -196,8 +196,8 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                             goto err_handling;
                         }
 
-                        if ( 1 ==
-                             xi_bsp_fwu_is_firmware( sft_message_in->file_chunk.name ) )
+                        if ( 1 == xi_bsp_fwu_is_this_firmware(
+                                      sft_message_in->file_chunk.name ) )
                         {
                             context->update_firmware = context->update_current_file;
                         }

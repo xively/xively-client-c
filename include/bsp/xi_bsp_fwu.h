@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 
-uint8_t xi_bsp_fwu_is_firmware( const char* const resource_name );
+uint8_t xi_bsp_fwu_is_this_firmware( const char* const resource_name );
 
 xi_state_t xi_bsp_fwu_commit();
 

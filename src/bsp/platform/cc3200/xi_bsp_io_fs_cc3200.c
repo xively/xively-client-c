@@ -79,7 +79,7 @@ xi_state_t xi_bsp_io_fs_open( const char* const resource_name,
     _ReadBootInfo( &sBootInfo );
 #endif
 
-    if ( 1 == xi_bsp_fwu_is_firmware( resource_name ) )
+    if ( 1 == xi_bsp_fwu_is_this_firmware( resource_name ) )
     {
         /* the resource is firmware, handle with FLC (flc_api.h) */
 
