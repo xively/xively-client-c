@@ -171,7 +171,8 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                         sft_message_in->file_chunk.status );
 #endif
 
-                { /* processing content */
+                {
+                    /* processing content */
                     if ( 0 == sft_message_in->file_chunk.offset )
                     {
                         /* open file at first chunk */

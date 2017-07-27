@@ -52,10 +52,5 @@ xi_state_t xi_bsp_fwu_reboot()
     PRCMHibernateEnter();
 
     /* Control should never reach here */
-    /*while ( 1 )
-    {
-        ;
-    }*/
-
-    return XI_STATE_OK;
+    return XI_INTERNAL_ERROR;
 }

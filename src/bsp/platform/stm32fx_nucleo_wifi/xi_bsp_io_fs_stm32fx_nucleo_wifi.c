@@ -20,11 +20,11 @@ xi_state_t xi_bsp_io_fs_open( const char* const resource_name,
 
     if ( 1 == xi_bsp_fwu_is_firmware( resource_name ) )
     {
-        /* the resource is firmware, handle with FLC (flc_api.h) */
+        /* the resource is firmware */
     }
     else
     {
-        /* it's an ordinary file, handle with file io (fs.h) */
+        /* it's an ordinary file */
     }
 
     return XI_NOT_IMPLEMENTED;
