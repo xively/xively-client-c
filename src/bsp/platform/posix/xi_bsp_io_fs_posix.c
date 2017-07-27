@@ -116,7 +116,8 @@ xi_bsp_io_fs_stat( const char* const resource_name, xi_fs_stat_t* resource_stat 
 
     int res = stat( resource_name, &stat_struct );
 
-    /* verification of the os function result */
+    /* Verification of the os function result.
+     * Jump to err_handling label in case of failure. */
     XI_BSP_IO_FS_CHECK_CND( 0 != res, xi_fs_posix_errno_2_xi_state( errno ), ret );
 
     /* here we translate stat posix os stat structure to libxively version */
@@ -163,7 +164,7 @@ xi_state_t xi_bsp_io_fs_open( const char* const resource_name,
     XI_LIST_PUSH_BACK( xi_fs_posix_file_handle_container_t, xi_fs_posix_files_container,
                        new_entry );
 
-    /* make sure that size does not matter */
+    /* make sure that the size is as expected. */
     assert( sizeof( fp ) == sizeof( xi_fs_resource_handle_t ) );
 
     /* return fp as a resource handle */

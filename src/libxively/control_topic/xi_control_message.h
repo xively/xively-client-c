@@ -28,12 +28,12 @@ typedef enum xi_control_message__sft_file_status_phase_e {
 } xi_control_message__sft_file_status_phase_t;
 
 typedef enum xi_control_message__sft_file_status_code_e {
+    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__ADD_MORE_ERRORS_HERE  = -5,
     XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__FILE_CLOSE            = -4,
     XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__FILE_WRITE            = -3,
     XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__FILE_OPEN             = -2,
     XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__UNEXPECTED_FILE_CHUNK = -1,
     XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS                      = 0,
-    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ADD_ERRORS_HERE              = 1,
 
 } xi_control_message__sft_file_status_code_t;
 
