@@ -93,12 +93,12 @@ static xi_state_t xi_fs_posix_stat_2_xi_stat( const struct stat* const posix_sta
  * @return 1 if list element is the one with the matching fp 0 otherwise
  */
 static uint8_t
-xi_fs_posix_file_list_cnd( xi_fs_posix_file_handle_container_t* list, FILE* fp )
+xi_fs_posix_file_list_cnd( xi_fs_posix_file_handle_container_t* list_element, FILE* fp )
 {
-    assert( NULL != list );
+    assert( NULL != list_element );
     assert( NULL != fp );
 
-    return ( list->posix_fp == fp ) ? 1 : 0;
+    return ( list_element->posix_fp == fp ) ? 1 : 0;
 }
 
 xi_state_t

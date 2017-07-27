@@ -12,9 +12,9 @@
 #include <simplelink.h>
 #include <gpio_if.h>
 
-static _i32 firmware_file_handle_last_opened = 0;
-
 #define XI_DEBUG__FOR_FIRMWARE_UPDATE_TESTING_PURPOSES
+
+static _i32 firmware_file_handle_last_opened = 0;
 
 #ifdef XI_DEBUG__FOR_FIRMWARE_UPDATE_TESTING_PURPOSES
 
@@ -51,7 +51,7 @@ static _i32 _ReadBootInfo( sBootInfo_t* psBootInfo )
     return status;
 }
 
-#endif
+#endif /* XI_DEBUG__FOR_FIRMWARE_UPDATE_TESTING_PURPOSES */
 
 _u32 xi_bsp_io_fs_open_flags_to_sl_flags( const uint32_t size,
                                           const xi_fs_open_flags_t open_flags )
