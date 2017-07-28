@@ -5,7 +5,6 @@
  */
 
 #include "xi_bsp_mem.h"
-
 #include <stdlib.h>
 
 void* xi_bsp_mem_alloc( size_t byte_count )

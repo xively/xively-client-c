@@ -342,7 +342,7 @@ xi_control_message_t* xi_cbor_codec_ct_decode( const uint8_t* data, const uint32
     cn_cbor* msgtype = cn_cbor_mapget_string( cb_map, XI_CBOR_CODEC_CT_STRING_MSGTYPE );
     XI_CHECK_CND_DBGMESSAGE( NULL == msgtype, XI_INVALID_PARAMETER, state,
                              "ERROR: no 'msgtype' found" );
-    control_message_out->common.msgtype = msgtype->v.uint;
+    control_message_out->common.msgtype = ( xi_control_message_type_t )msgtype->v.uint;
 
 
     cn_cbor* msgver = cn_cbor_mapget_string( cb_map, XI_CBOR_CODEC_CT_STRING_MSGVER );
@@ -451,7 +451,7 @@ xi_control_message_t* xi_cbor_codec_ct_decode( const uint8_t* data, const uint32
         default:
 
             xi_debug_format(
-                "WARNING: CBOR decoder was called with client to server message type %d",
+                "WARNING: CBOR decoder was called with client to server message type %lu",
                 msgtype->v.uint );
     }
 

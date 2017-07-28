@@ -29,7 +29,7 @@ XI_TT_TESTGROUP_BEGIN( utest_fs_memory )
 
 #ifndef XI_NO_TLS_LAYER
 XI_TT_TESTCASE( utest__xi_fs_memory_stat__valid_data__stat_returned, {
-    xi_fs_stat_t stat = xi_fs_init_stat();
+    xi_fs_stat_t stat = {.resource_size = 0};
     xi_state_t ret =
         xi_fs_stat( NULL, XI_FS_CERTIFICATE, XI_GLOBAL_CERTIFICATE_FILE_NAME, &stat );
 

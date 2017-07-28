@@ -81,6 +81,10 @@ typedef enum {
     XI_STATE_RESEND,                       /* 60 */
     XI_NULL_HOST,                          /* 61 */
     XI_TLS_FAILED_CERT_ERROR,              /* 62 */
+    XI_FS_OPEN_ERROR,                      /* 63 */
+    XI_FS_READ_ERROR,                      /* 64 */
+    XI_FS_WRITE_ERROR,                     /* 65 */
+    XI_FS_CLOSE_ERROR,                     /* 66 */
     XI_ERROR_COUNT /* add above this line, and this sould always be last. */
 } xi_state_t;
 

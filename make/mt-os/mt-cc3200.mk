@@ -96,6 +96,7 @@ XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_SDK)/inc
 XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_SDK)/example/common
 XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_SDK)/simplelink/include
 XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_SDK)/simplelink_extlib/provisioninglib
+XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_SDK)/simplelink_extlib/include
 
 XI_COMPILER_FLAGS += -I$(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/include
 
