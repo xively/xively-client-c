@@ -85,6 +85,7 @@ typedef enum {
     XI_FS_READ_ERROR,                      /* 64 */
     XI_FS_WRITE_ERROR,                     /* 65 */
     XI_FS_CLOSE_ERROR,                     /* 66 */
+    XI_FS_REMOVE_ERROR,                    /* 67 */
     XI_ERROR_COUNT /* add above this line, and this sould always be last. */
 } xi_state_t;
 
