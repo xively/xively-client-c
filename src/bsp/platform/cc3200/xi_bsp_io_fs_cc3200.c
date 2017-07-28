@@ -55,7 +55,8 @@ static _i32 _ReadBootInfo( sBootInfo_t* psBootInfo )
 
 uint8_t xi_bsp_io_fs_is_this_cc3200_firmware_filename( const char* const filename )
 {
-    if ( ( 0 == strcmp( "/sys/mcuimg1.bin", filename ) ) ||
+    if ( ( 0 == strcmp( "/sys/mcuimg.bin", filename ) ) ||
+         ( 0 == strcmp( "/sys/mcuimg1.bin", filename ) ) ||
          ( 0 == strcmp( "/sys/mcuimg2.bin", filename ) ) ||
          ( 0 == strcmp( "/sys/mcuimg3.bin", filename ) ) )
     {
