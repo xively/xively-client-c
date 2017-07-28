@@ -154,8 +154,8 @@ XI_TT_TESTCASE_WITH_SETUP( utest__xi_fs_stat_posix__valid_data__stat_returned,
                            utest__xi_fs_posix__clean,
                            NULL,
                            {
-                               xi_fs_stat_t resource_stat = xi_fs_init_stat();
-                               xi_state_t res             = xi_fs_stat(
+                               xi_fs_stat_t resource_stat = {.resource_size = 0};
+                               xi_state_t res = xi_fs_stat(
                                    NULL, XI_FS_CERTIFICATE,
                                    xi_utest_fs_posix_existing_file_name, &resource_stat );
 
@@ -167,7 +167,7 @@ XI_TT_TESTCASE_WITH_SETUP( utest__xi_fs_stat_posix__valid_data__stat_returned,
                            } )
 
 XI_TT_TESTCASE( utest__xi_fs_stat_posix__valid_data__file_does_not_exist, {
-    xi_fs_stat_t resource_stat = xi_fs_init_stat();
+    xi_fs_stat_t resource_stat = {.resource_size = 0};
     xi_state_t res =
         xi_fs_stat( NULL, XI_FS_CERTIFICATE, xi_utest_fs_posix_not_existing_file_name,
                     &resource_stat );

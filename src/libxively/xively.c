@@ -502,7 +502,6 @@ xi_state_t xi_connect_with_lastwill_to_impl( xi_context_handle_t xih,
     xi_state_t state               = XI_STATE_OK;
     xi_context_t* xi               = NULL;
     xi_event_handle_t event_handle = xi_make_empty_event_handle();
-    xi_state_t local_state         = XI_STATE_OK;
     xi_layer_t* input_layer        = NULL;
     uint32_t new_backoff           = 0;
 
@@ -556,10 +555,10 @@ xi_state_t xi_connect_with_lastwill_to_impl( xi_context_handle_t xih,
 
     if ( NULL != xi->context_data.connection_data )
     {
-        XI_CHECK_STATE( local_state = xi_connection_data_update_lastwill(
-                            xi->context_data.connection_data, host, port, username,
-                            password, connection_timeout, keepalive_timeout, session_type,
-                            will_topic, will_message, will_qos, will_retain ) );
+        XI_CHECK_STATE( xi_connection_data_update_lastwill(
+            xi->context_data.connection_data, host, port, username, password,
+            connection_timeout, keepalive_timeout, session_type, will_topic, will_message,
+            will_qos, will_retain ) );
     }
     else
     {

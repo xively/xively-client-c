@@ -1,4 +1,4 @@
-/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+/* Copyright (c) 2003-2017, LogMeIn, Inc. All rights reserved.
  *
  * This is part of the Xively C Client library,
  * it is licensed under the BSD 3-Clause license.
@@ -10,47 +10,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "xi_err.h"
-
-typedef intptr_t xi_fs_resource_handle_t;
-
-#define XI_FS_INVALID_RESOURCE_HANDLE -1
-#define xi_fs_init_resource_handle() XI_FS_INVALID_RESOURCE_HANDLE
-
-/**
- * @enum xi_fs_resource_type_t
- * @brief describes types of resources that are availible through fs API the
- * types were created in order to differenciate types based on their security
- * class
- */
-typedef enum {
-    XI_FS_CERTIFICATE = 0,
-    XI_FS_CREDENTIALS,
-    XI_FS_CONFIG_DATA
-} xi_fs_resource_type_t;
-
-/**
- * @enum xi_fs_open_flags_t
- */
-typedef enum {
-    XI_FS_OPEN_READ   = 1 << 0,
-    XI_FS_OPEN_WRITE  = 1 << 1,
-    XI_FS_OPEN_APPEND = 1 << 2,
-} xi_fs_open_flags_t;
-
-/*
- * @name xi_fs_stat_s
- * @brief information returned via stat call
- */
-typedef struct xi_fs_stat_s
-{
-    size_t resource_size;
-} xi_fs_stat_t;
-
-#define xi_fs_init_stat()                                                                \
-    {                                                                                    \
-        0                                                                                \
-    }
+#include <xi_err.h>
+#include <xi_bsp_io_fs.h>
 
 /* The size of the buffer to be used for reads */
 extern const size_t xi_fs_buffer_size;
@@ -86,8 +47,7 @@ typedef xi_state_t( xi_fs_open_resource_t )( const void* context,
  * @name xi_fs_read_resource_t
  * @brief reads data using a given offset from the beginnig of the resource from
  * the previously opened resource described via resource handle, returns a
- * buffer
- * of data and a size of that buffer
+ * buffer of data and a size of that buffer
  *
  *
  * @brief it is up to the implementation of this API to free the buffer, if
