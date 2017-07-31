@@ -113,12 +113,15 @@ xi_state_t xi_bsp_io_fs_open( const char* const resource_name,
 
         _i32 file_handle = 0;
 
-        /* prevent accidental wirte of CC3200 firmware files by limiting access rights to
+        const _u32 access_mode_desired =
+            xi_bsp_io_fs_open_flags_to_sl_flags( size, open_flags );
+
+        /* prevent accidental write of CC3200 firmware files by limiting access rights to
          * read only */
         const _u32 access_mode =
             ( 1 == xi_bsp_io_fs_is_this_cc3200_firmware_filename( resource_name ) )
                 ? FS_MODE_OPEN_READ
-                : xi_bsp_io_fs_open_flags_to_sl_flags( size, open_flags );
+                : access_mode_desired;
 
         if ( 0 != sl_FsOpen( ( _u8* )resource_name, access_mode, NULL, &file_handle ) )
         {
@@ -127,6 +130,9 @@ xi_state_t xi_bsp_io_fs_open( const char* const resource_name,
         }
 
         *resource_handle_out = file_handle;
+
+        return ( access_mode == access_mode_desired ) ? XI_STATE_OK
+                                                      : XI_FS_OPEN_READ_ONLY;
     }
 
     return XI_STATE_OK;
