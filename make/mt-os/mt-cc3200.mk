@@ -8,7 +8,7 @@ include make/mt-os/mt-os-common.mk
 ###
 ## COMPILER NAME
 ###
-COMPILER ?= arm_15.12.3.LTS
+COMPILER ?= ti-cgt-arm_16.9.3.LTS
 
 XI_CC3200_SDK ?= CC3200SDK_1.1.0
 $(info .    XI_CC3200_SDK:   [$(XI_CC3200_SDK)] )
@@ -19,7 +19,7 @@ $(info .    XI_CC3200_SDK:   [$(XI_CC3200_SDK)] )
 ifeq ($(XI_HOST_PLATFORM),Darwin)
 	# osx cross-compilation downloads
 
-	XI_CC3200_PATH_CCS_TOOLS ?= /Applications/ti/ccsv6/tools
+	XI_CC3200_PATH_CCS_TOOLS ?= /Applications/ti/ccsv7/tools
 	XI_CC3200_PATH_SDK ?= $(HOME)/ti/tirex-content/$(XI_CC3200_SDK)/cc3200-sdk
 
 	CC = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armcl
@@ -31,8 +31,8 @@ ifeq ($(XI_HOST_PLATFORM),Darwin)
 else ifneq (,$(findstring Windows,$(XI_HOST_PLATFORM)))
 	# windows cross-compilation
 
-	XI_CC3200_PATH_CCS_TOOLS ?= C:/ti/ccsv6/tools
-	XI_CC3200_PATH_SDK ?= C:/ti/tirex-content/$(XI_CC3200_SDK)/cc3200-sdk/
+	XI_CC3200_PATH_CCS_TOOLS ?= C:/ti/ccsv7/tools
+	XI_CC3200_PATH_SDK ?= C:/ti/$(XI_CC3200_SDK)/cc3200-sdk/
 
 	CC = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armcl
 	AR = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armar
