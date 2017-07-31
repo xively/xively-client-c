@@ -5,17 +5,35 @@
 
 include make/mt-os/mt-os-common.mk
 
+ifdef XI_TRAVIS_BUILD
+	# For Xively C Client Continuous Integration only.
+	COMPILER ?= arm_15.12.3.LTS
+endif
+
+
 ###
-## COMPILER NAME
-###
+## STEP 1: COMPILER NAME AND SDK
+##
+## Set the version names of tools and SDK.
+## If you don't know the name of your compiler
+## please check the TI CCSv7 tools directory for the subdirectory compiler.
+## In that directory there should be a directory with a name similar
+## to the default COMPILER value below.
+### 
+
 COMPILER ?= ti-cgt-arm_16.9.3.LTS
-
 XI_CC3200_SDK ?= CC3200SDK_1.1.0
-$(info .    XI_CC3200_SDK:   [$(XI_CC3200_SDK)] )
 
 ###
-## MAC HOST OS
+## STEP 2: HOST SYSTEM PATHS
+##
+## Configure the paths to where you've installed your CC3200 toolchain and
+## SDK depending on if you're running on macOS, Windows, or Linux.
 ###
+
+#
+## MAC HOST OS
+#
 ifeq ($(XI_HOST_PLATFORM),Darwin)
 	# osx cross-compilation downloads
 
@@ -25,9 +43,9 @@ ifeq ($(XI_HOST_PLATFORM),Darwin)
 	CC = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armcl
 	AR = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armar
 
-###
+#
 ## WINDOWS HOST OS
-###
+#
 else ifneq (,$(findstring Windows,$(XI_HOST_PLATFORM)))
 	# windows cross-compilation
 
@@ -37,9 +55,9 @@ else ifneq (,$(findstring Windows,$(XI_HOST_PLATFORM)))
 	CC = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armcl
 	AR = $(XI_CC3200_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armar
 
-###
+#
 ## LINUX HOST OS
-###
+#
 else ifeq ($(XI_HOST_PLATFORM),Linux)
 	# linux cross-compilation prerequisite downloads
 
@@ -51,6 +69,7 @@ else ifeq ($(XI_HOST_PLATFORM),Linux)
 
 ifdef XI_TRAVIS_BUILD
 ### TOOLCHAIN AUTODOWNLOAD SECTION --- BEGIN
+# for Xively C Client Continuous Integration only.
 	XI_BUILD_PRECONDITIONS := $(CC)
 
 $(CC):
@@ -59,6 +78,9 @@ $(CC):
 ### TOOLCHAIN AUTODOWNLOAD SECTION --- END
 endif
 endif
+
+$(info .    XI_CC3200_SDK:   [$(XI_CC3200_SDK)] )
+$(info .    XI_CC3200_COMPILERPATH:  [$(CC)] )
 
 # removing these compiler flags since they are not parsed and emit warnings
 XI_COMPILER_FLAGS_TMP := $(filter-out -Wall -Werror -Wno-pointer-arith -Wno-format -Wextra -Os -g -O0, $(XI_COMPILER_FLAGS))
