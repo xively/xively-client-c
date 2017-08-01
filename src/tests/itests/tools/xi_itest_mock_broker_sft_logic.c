@@ -45,11 +45,18 @@ xi_mock_broker_sft_logic_on_file_info( xi_control_message_t* control_message )
         /* prevent deallocation of reused name */
         control_message->file_info.list[id_file].name = NULL;
 
+        /* altering last character, just to return different revision */
+        if ( NULL != control_message->file_info.list[id_file].revision )
+        {
+            control_message->file_info.list[id_file]
+                .revision[strlen( control_message->file_info.list[id_file].revision ) -
+                          1]++;
+        }
+
         control_message_reply->file_update_available.list[id_file].revision =
-            xi_str_cat( control_message->file_info.list[id_file].revision
+            xi_str_dup( control_message->file_info.list[id_file].revision
                             ? control_message->file_info.list[id_file].revision
-                            : "[NULL]",
-                        " - update" );
+                            : "mock broker generated revision 0" );
 
         control_message_reply->file_update_available.list[id_file].file_operation = 0;
         control_message_reply->file_update_available.list[id_file].size_in_bytes =

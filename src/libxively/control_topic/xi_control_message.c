@@ -10,6 +10,8 @@
 #include <xi_helpers.h>
 
 #include <stdio.h>
+#include <xi_bsp_fwu.h>
+#include <xi_bsp_mem.h>
 
 xi_control_message_t* xi_control_message_create_file_info( const char** filenames,
                                                            const char** revisions,
@@ -36,13 +38,27 @@ xi_control_message_t* xi_control_message_create_file_info( const char** filename
     for ( ; id_file < count; ++id_file )
     {
         sft_message->file_info.list[id_file].name = xi_str_dup( *filenames );
-        ++filenames;
 
         if ( NULL != revisions )
         {
             sft_message->file_info.list[id_file].revision = xi_str_dup( *revisions );
             ++revisions;
         }
+        else
+        {
+            char* revision_from_bsp = NULL;
+            state = xi_bsp_fwu_get_revision( *filenames, &revision_from_bsp );
+
+            if ( XI_STATE_OK == state )
+            {
+                sft_message->file_info.list[id_file].revision =
+                    xi_str_dup( revision_from_bsp );
+            }
+
+            xi_bsp_mem_free( revision_from_bsp );
+        }
+
+        ++filenames;
     }
 
     return sft_message;

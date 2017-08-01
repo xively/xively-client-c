@@ -268,6 +268,9 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                             XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
                     }
 
+                    xi_bsp_fwu_set_revision( context->update_current_file->name,
+                                             context->update_current_file->revision );
+
                     /* jump to next file in the update package */
                     context->update_current_file =
                         xi_control_message_file_update_available_get_next_file_desc_ext(
