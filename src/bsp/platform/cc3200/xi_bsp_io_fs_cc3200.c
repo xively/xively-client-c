@@ -53,6 +53,19 @@ static _i32 _ReadBootInfo( sBootInfo_t* psBootInfo )
 
 #endif /* XI_DEBUG__FOR_FIRMWARE_UPDATE_TESTING_PURPOSES */
 
+uint8_t xi_bsp_io_fs_is_this_cc3200_firmware_filename( const char* const filename )
+{
+    if ( ( 0 == strcmp( "/sys/mcuimg.bin", filename ) ) ||
+         ( 0 == strcmp( "/sys/mcuimg1.bin", filename ) ) ||
+         ( 0 == strcmp( "/sys/mcuimg2.bin", filename ) ) ||
+         ( 0 == strcmp( "/sys/mcuimg3.bin", filename ) ) )
+    {
+        return 1;
+    }
+
+    return 0;
+}
+
 _u32 xi_bsp_io_fs_open_flags_to_sl_flags( const uint32_t size,
                                           const xi_fs_open_flags_t open_flags )
 {
@@ -100,15 +113,26 @@ xi_state_t xi_bsp_io_fs_open( const char* const resource_name,
 
         _i32 file_handle = 0;
 
-        if ( 0 != sl_FsOpen( ( _u8* )resource_name,
-                             xi_bsp_io_fs_open_flags_to_sl_flags( size, open_flags ),
-                             NULL, &file_handle ) )
+        const _u32 access_mode_desired =
+            xi_bsp_io_fs_open_flags_to_sl_flags( size, open_flags );
+
+        /* prevent accidental write of CC3200 firmware files by limiting access rights to
+         * read only */
+        const _u32 access_mode =
+            ( 1 == xi_bsp_io_fs_is_this_cc3200_firmware_filename( resource_name ) )
+                ? FS_MODE_OPEN_READ
+                : access_mode_desired;
+
+        if ( 0 != sl_FsOpen( ( _u8* )resource_name, access_mode, NULL, &file_handle ) )
         {
             *resource_handle_out = 0;
             return XI_FS_OPEN_ERROR;
         }
 
         *resource_handle_out = file_handle;
+
+        return ( access_mode == access_mode_desired ) ? XI_STATE_OK
+                                                      : XI_FS_OPEN_READ_ONLY;
     }
 
     return XI_STATE_OK;
@@ -208,6 +232,12 @@ xi_state_t xi_bsp_io_fs_close( const xi_fs_resource_handle_t resource_handle )
 
 xi_state_t xi_bsp_io_fs_remove( const char* const resource_name )
 {
+    /* prevent possible firmware file deletion */
+    if ( 1 == xi_bsp_io_fs_is_this_cc3200_firmware_filename( resource_name ) )
+    {
+        return XI_FS_REMOVE_ERROR;
+    }
+
     return ( 0 == sl_FsDel( ( const _u8* )resource_name, NULL ) ) ? XI_STATE_OK
-                                                                  : XI_FS_ERROR;
+                                                                  : XI_FS_REMOVE_ERROR;
 }
