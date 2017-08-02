@@ -50,10 +50,8 @@ xi_control_message_t* xi_control_message_create_file_info( const char** filename
 
             if ( XI_STATE_OK == state && NULL != revision_from_bsp )
             {
-                sft_message->file_info.list[id_file].revision =
-                    xi_str_dup( revision_from_bsp );
-
-                XI_SAFE_FREE( revision_from_bsp );
+                /* passing ownership */
+                sft_message->file_info.list[id_file].revision = revision_from_bsp;
             }
             else
             {
