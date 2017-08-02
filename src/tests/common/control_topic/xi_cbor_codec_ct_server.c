@@ -169,7 +169,7 @@ void xi_cbor_codec_ct_server_encode( const xi_control_message_t* control_message
         default:
 
             xi_debug_format( "WARNING: CBOR-SERVER encoder was called with client to "
-                             "server message type %d",
+                             "server message type %u",
                              control_message->common.msgtype );
     }
 
@@ -297,7 +297,7 @@ xi_cbor_codec_ct_server_decode( const uint8_t* data, const uint32_t len )
         default:
 
             xi_debug_format( "WARNING: CBOR-SERVER decoder was called with server to "
-                             "client message type %d",
+                             "client message type %lu",
                              msgtype->v.uint );
     }
 
