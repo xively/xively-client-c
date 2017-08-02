@@ -7,7 +7,6 @@
 #include "xi_sft_revision.h"
 
 #include <xi_bsp_io_fs.h>
-#include <xi_bsp_mem.h>
 
 #include <xi_helpers.h>
 #include <xi_macros.h>
@@ -15,13 +14,13 @@
 #include <string.h>
 
 
-#define XI_BSP_FWU_GET_REVISION_RESOURCENAME( resource_name )                            \
+#define XI_SFT_REVISION_RESOURCENAME( resource_name )                                    \
     xi_str_cat( resource_name, ".xirev" )
 
 xi_state_t
 xi_sft_revision_set( const char* const resource_name, const char* const revision )
 {
-    char* resource_name_revision = XI_BSP_FWU_GET_REVISION_RESOURCENAME( resource_name );
+    char* resource_name_revision = XI_SFT_REVISION_RESOURCENAME( resource_name );
 
     xi_fs_resource_handle_t resource_handle = XI_FS_INVALID_RESOURCE_HANDLE;
 
@@ -54,7 +53,7 @@ err_handling:
 
 xi_state_t xi_sft_revision_get( const char* const resource_name, char** revision_out )
 {
-    char* resource_name_revision = XI_BSP_FWU_GET_REVISION_RESOURCENAME( resource_name );
+    char* resource_name_revision = XI_SFT_REVISION_RESOURCENAME( resource_name );
 
     xi_fs_resource_handle_t resource_handle = XI_FS_INVALID_RESOURCE_HANDLE;
 
@@ -80,22 +79,10 @@ xi_state_t xi_sft_revision_get( const char* const resource_name, char** revision
 
     xi_bsp_io_fs_close( resource_handle );
 
-    {
-        /* copy revision buffer into output buffer */
-        const size_t revision_len = buffer_size + 1;
+    /* copy revision buffer into output buffer */
+    XI_ALLOC_BUFFER_AT( char, *revision_out, buffer_size + 1, state );
 
-        *revision_out = xi_bsp_mem_alloc( revision_len );
-
-        if ( NULL == *revision_out )
-        {
-            state = XI_OUT_OF_MEMORY;
-            goto err_handling;
-        }
-
-        memset( *revision_out, 0, revision_len );
-
-        memcpy( *revision_out, buffer, buffer_size );
-    }
+    memcpy( *revision_out, buffer, buffer_size );
 
 err_handling:
 

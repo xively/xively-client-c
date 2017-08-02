@@ -11,7 +11,6 @@
 
 #include <stdio.h>
 #include <xi_sft_revision.h>
-#include <xi_bsp_mem.h>
 
 xi_control_message_t* xi_control_message_create_file_info( const char** filenames,
                                                            const char** revisions,
@@ -54,7 +53,7 @@ xi_control_message_t* xi_control_message_create_file_info( const char** filename
                 sft_message->file_info.list[id_file].revision =
                     xi_str_dup( revision_from_bsp );
 
-                xi_bsp_mem_free( revision_from_bsp );
+                XI_SAFE_FREE( revision_from_bsp );
             }
             else
             {
