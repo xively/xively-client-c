@@ -6,8 +6,6 @@
 
 #include <xi_bsp_io_fs.h>
 #include <xi_bsp_fwu.h>
-#include <string.h>
-#include <stdio.h>
 
 xi_state_t xi_bsp_io_fs_open( const char* const resource_name,
                               const size_t size,

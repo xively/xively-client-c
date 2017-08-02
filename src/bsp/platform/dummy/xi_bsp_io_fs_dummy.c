@@ -5,25 +5,16 @@
  */
 
 #include <xi_bsp_io_fs.h>
-#include <xi_bsp_fwu.h>
 
 xi_state_t xi_bsp_io_fs_open( const char* const resource_name,
                               const size_t size,
                               const xi_fs_open_flags_t open_flags,
                               xi_fs_resource_handle_t* resource_handle_out )
 {
+    ( void )resource_name;
     ( void )size;
     ( void )open_flags;
     ( void )resource_handle_out;
-
-    if ( 1 == xi_bsp_fwu_is_this_firmware( resource_name ) )
-    {
-        /* the resource is firmware */
-    }
-    else
-    {
-        /* it's an ordinary file */
-    }
 
     return XI_NOT_IMPLEMENTED;
 }
