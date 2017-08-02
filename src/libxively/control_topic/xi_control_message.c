@@ -10,7 +10,7 @@
 #include <xi_helpers.h>
 
 #include <stdio.h>
-#include <xi_bsp_fwu.h>
+#include <xi_sft_revision.h>
 #include <xi_bsp_mem.h>
 
 xi_control_message_t* xi_control_message_create_file_info( const char** filenames,
@@ -47,15 +47,21 @@ xi_control_message_t* xi_control_message_create_file_info( const char** filename
         else
         {
             char* revision_from_bsp = NULL;
-            state = xi_bsp_fwu_get_revision( *filenames, &revision_from_bsp );
+            state = xi_sft_revision_get( *filenames, &revision_from_bsp );
 
-            if ( XI_STATE_OK == state )
+            if ( XI_STATE_OK == state && NULL != revision_from_bsp )
             {
                 sft_message->file_info.list[id_file].revision =
                     xi_str_dup( revision_from_bsp );
-            }
 
-            xi_bsp_mem_free( revision_from_bsp );
+                xi_bsp_mem_free( revision_from_bsp );
+            }
+            else
+            {
+                sft_message->file_info.list[id_file].revision =
+                    xi_str_dup( "[revision is not available on the device, this is a "
+                                "generated revision]" );
+            }
         }
 
         ++filenames;

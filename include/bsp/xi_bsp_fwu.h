@@ -22,12 +22,6 @@ xi_state_t xi_bsp_fwu_test();
 
 xi_state_t xi_bsp_fwu_reboot();
 
-xi_state_t
-xi_bsp_fwu_set_revision( const char* const resource_name, const char* const revision );
-
-xi_state_t
-xi_bsp_fwu_get_revision( const char* const resource_name, char** revision_out );
-
 #ifdef __cplusplus
 }
 #endif
