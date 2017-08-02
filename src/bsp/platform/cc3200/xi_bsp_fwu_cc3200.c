@@ -7,19 +7,12 @@
 #include <xi_bsp_fwu.h>
 #include <xively_error.h>
 
-#include <xi_bsp_mem.h>
-#include <xi_bsp_io_fs.h>
-
-#include <xi_helpers.h>
-#include <xi_macros.h>
-
 #include <simplelink.h>
 #include <flc_api.h>
 #include "hw_types.h"
 #include "rom_map.h"
 #include "prcm.h"
 #include "utils.h"
-
 
 uint8_t xi_bsp_fwu_is_this_firmware( const char* const resource_name )
 {

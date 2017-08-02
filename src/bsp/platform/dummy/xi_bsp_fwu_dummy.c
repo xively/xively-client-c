@@ -27,21 +27,3 @@ xi_state_t xi_bsp_fwu_reboot()
 {
     return XI_NOT_IMPLEMENTED;
 }
-
-
-xi_state_t
-xi_bsp_fwu_set_revision( const char* const resource_name, const char* const revision )
-{
-    ( void )resource_name;
-    ( void )revision;
-
-    return XI_NOT_IMPLEMENTED;
-}
-
-xi_state_t xi_bsp_fwu_get_revision( const char* const resource_name, char** revision_out )
-{
-    ( void )resource_name;
-    ( void )revision_out;
-
-    return XI_NOT_IMPLEMENTED;
-}

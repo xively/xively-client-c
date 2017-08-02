@@ -7,10 +7,6 @@
 #include <xi_bsp_fwu.h>
 #include <stdio.h>
 #include <string.h>
-#include <xi_bsp_mem.h>
-#include <xi_bsp_io_fs.h>
-#include <xi_helpers.h>
-#include <xi_macros.h>
 
 uint8_t xi_bsp_fwu_is_this_firmware( const char* const resource_name )
 {
