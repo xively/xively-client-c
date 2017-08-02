@@ -156,7 +156,7 @@ void xi_itest_sft__remove_files( const char** filenames, uint16_t files_count )
         /* delete files generated during tests (files received from mock broker) */
         xi_bsp_io_fs_remove( filenames[id_file] );
 
-#if 0
+#if 1
         /* delete files containing revisionstrings */
         char* filename_revision = xi_str_cat( filenames[id_file], ".xirev" );
         xi_bsp_io_fs_remove( filename_revision );
