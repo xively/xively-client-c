@@ -87,7 +87,8 @@ XI_TT_TESTCASE_WITH_SETUP(
         tt_ptr_op( NULL, !=, message_file_info->file_info.list->name );
         tt_want_int_op(
             0, ==, strcmp( single_filename, message_file_info->file_info.list->name ) );
-        tt_want_ptr_op( NULL, ==, message_file_info->file_info.list->revision );
+
+        tt_want_ptr_op( NULL, !=, message_file_info->file_info.list->revision );
 
         xi_control_message_free( &message_file_info );
 
