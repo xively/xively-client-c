@@ -12,9 +12,8 @@
 #include <stdio.h>
 #include <xi_sft_revision.h>
 
-xi_control_message_t* xi_control_message_create_file_info( const char** filenames,
-                                                           const char** revisions,
-                                                           uint16_t count )
+xi_control_message_t*
+xi_control_message_create_file_info( const char** filenames, uint16_t count )
 {
     if ( NULL == filenames || NULL == *filenames || 0 == count )
     {
@@ -38,27 +37,18 @@ xi_control_message_t* xi_control_message_create_file_info( const char** filename
     {
         sft_message->file_info.list[id_file].name = xi_str_dup( *filenames );
 
-        if ( NULL != revisions )
+        char* revision = NULL;
+        state          = xi_sft_revision_get( *filenames, &revision );
+
+        if ( XI_STATE_OK == state && NULL != revision )
         {
-            sft_message->file_info.list[id_file].revision = xi_str_dup( *revisions );
-            ++revisions;
+            /* passing ownership */
+            sft_message->file_info.list[id_file].revision = revision;
         }
         else
         {
-            char* revision_from_bsp = NULL;
-            state = xi_sft_revision_get( *filenames, &revision_from_bsp );
-
-            if ( XI_STATE_OK == state && NULL != revision_from_bsp )
-            {
-                /* passing ownership */
-                sft_message->file_info.list[id_file].revision = revision_from_bsp;
-            }
-            else
-            {
-                sft_message->file_info.list[id_file].revision =
-                    xi_str_dup( "revision is not available on the device, this is a "
-                                "generated revision 0" );
-            }
+            sft_message->file_info.list[id_file].revision =
+                xi_str_dup( XI_CONTROL_MESSAGE_GENERATED_REVISION );
         }
 
         ++filenames;

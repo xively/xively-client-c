@@ -491,19 +491,19 @@ void xi_itest_sft__check_revision_file( const char** filenames, uint16_t files_c
 
         state = xi_bsp_io_fs_read( resource_handle, 0, &buffer, &buffer_size );
 
-        printf( "=== %s, %s, buffer: [%s], buffer_size: %lu\n", __FUNCTION__,
-                filename_revision, ( const char* )buffer, buffer_size );
-
         assert_non_null( buffer );
         assert_int_equal( 71, buffer_size );
         assert_int_equal( XI_STATE_OK, state );
 
+        char* expected_revision = xi_str_dup( XI_CONTROL_MESSAGE_GENERATED_REVISION );
+        /* replay mock broker's last character incrementation */
+        ++expected_revision[strlen( expected_revision ) - 1];
+
         /* client fills up revision if empty, mock broker increments last character by
-         * one,
-         * that's the expected string */
-        assert_memory_equal(
-            "revision is not available on the device, this is a generated revision 1",
-            buffer, buffer_size );
+         * one, that's the expected string */
+        assert_memory_equal( expected_revision, buffer, buffer_size );
+
+        XI_SAFE_FREE( expected_revision );
 
         state = xi_bsp_io_fs_close( resource_handle );
 

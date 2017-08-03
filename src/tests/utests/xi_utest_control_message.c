@@ -31,24 +31,10 @@ XI_TT_TESTCASE_WITH_SETUP( xi_utest__FILE_INFO__invalid_input__null_output_expec
                            NULL,
                            {
                                xi_control_message_t* message_file_info =
-                                   xi_control_message_create_file_info( NULL, NULL, 0 );
+                                   xi_control_message_create_file_info( NULL, 0 );
 
                                tt_want_ptr_op( NULL, ==, message_file_info );
                            } )
-
-XI_TT_TESTCASE_WITH_SETUP(
-    xi_utest__FILE_INFO__invalid_input_revision_is_not_enough__null_output_expected,
-    xi_utest_setup_basic,
-    xi_utest_teardown_basic,
-    NULL,
-    {
-        const char* single_revision = "revision";
-
-        xi_control_message_t* message_file_info =
-            xi_control_message_create_file_info( NULL, &single_revision, 1 );
-
-        tt_want_ptr_op( NULL, ==, message_file_info );
-    } )
 
 XI_TT_TESTCASE_WITH_SETUP(
     xi_utest__FILE_INFO__single_filename_provided_but_zero_count__null_output_expected,
@@ -59,7 +45,7 @@ XI_TT_TESTCASE_WITH_SETUP(
         const char* single_filename = "filename";
 
         xi_control_message_t* message_file_info =
-            xi_control_message_create_file_info( &single_filename, NULL, 0 );
+            xi_control_message_create_file_info( &single_filename, 0 );
 
         tt_want_ptr_op( NULL, ==, message_file_info );
     } )
@@ -73,7 +59,7 @@ XI_TT_TESTCASE_WITH_SETUP(
         const char* single_filename = "filename";
 
         xi_control_message_t* message_file_info =
-            xi_control_message_create_file_info( &single_filename, NULL, 1 );
+            xi_control_message_create_file_info( &single_filename, 1 );
 
         tt_ptr_op( NULL, !=, message_file_info );
         tt_want_int_op( XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO, ==,
@@ -102,10 +88,9 @@ XI_TT_TESTCASE_WITH_SETUP(
     NULL,
     {
         const char* single_filename = "filename";
-        const char* single_revision = "revision";
 
         xi_control_message_t* message_file_info =
-            xi_control_message_create_file_info( &single_filename, &single_revision, 1 );
+            xi_control_message_create_file_info( &single_filename, 1 );
 
         tt_ptr_op( NULL, !=, message_file_info );
         tt_want_int_op( XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO, ==,
@@ -121,7 +106,7 @@ XI_TT_TESTCASE_WITH_SETUP(
             0, ==, strcmp( single_filename, message_file_info->file_info.list->name ) );
 
         tt_ptr_op( NULL, !=, message_file_info->file_info.list->revision );
-        tt_want_int_op( 0, ==, strcmp( single_revision,
+        tt_want_int_op( 0, ==, strcmp( XI_CONTROL_MESSAGE_GENERATED_REVISION,
                                        message_file_info->file_info.list->revision ) );
 
         xi_control_message_free( &message_file_info );
@@ -136,11 +121,10 @@ XI_TT_TESTCASE_WITH_SETUP(
     NULL,
     {
         const char* filenames[]   = {"filename1", "filename2", "filename3"};
-        const char* revisions[]   = {"revision1", "revision2", "revision3"};
         const uint16_t file_count = sizeof( filenames ) / sizeof( char* );
 
         xi_control_message_t* message_file_info =
-            xi_control_message_create_file_info( filenames, revisions, file_count );
+            xi_control_message_create_file_info( filenames, file_count );
 
         tt_ptr_op( NULL, !=, message_file_info );
 
@@ -157,7 +141,7 @@ XI_TT_TESTCASE_WITH_SETUP(
 
             tt_ptr_op( NULL, !=, message_file_info->file_info.list[id_file].revision );
             tt_want_int_op(
-                0, ==, strcmp( revisions[id_file],
+                0, ==, strcmp( XI_CONTROL_MESSAGE_GENERATED_REVISION,
                                message_file_info->file_info.list[id_file].revision ) );
         }
 
