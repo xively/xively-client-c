@@ -187,45 +187,6 @@
 									<listOptionValue builtIn="false" value="STM32F429xx"/>
 									<listOptionValue builtIn="false" value="USE_STM32F4XX_NUCLEO_144"/>
 									<listOptionValue builtIn="false" value="USE_STM32F4XX_NUCLEO"/>
-									<listOptionValue builtIn="false" value="NO_DH"/>
-									<listOptionValue builtIn="false" value="NO_DES"/>
-									<listOptionValue builtIn="false" value="NO_DES3"/>
-									<listOptionValue builtIn="false" value="NO_DSA"/>
-									<listOptionValue builtIn="false" value="NO_HC128"/>
-									<listOptionValue builtIn="false" value="NO_MD4"/>
-									<listOptionValue builtIn="false" value="NO_OLD_TLS"/>
-									<listOptionValue builtIn="false" value="NO_PSK"/>
-									<listOptionValue builtIn="false" value="NO_PWDBASED"/>
-									<listOptionValue builtIn="false" value="NO_RC4"/>
-									<listOptionValue builtIn="false" value="NO_RABBIT"/>
-									<listOptionValue builtIn="false" value="NO_SHA512"/>
-									<listOptionValue builtIn="false" value="SINGLE_THREADED"/>
-									<listOptionValue builtIn="false" value="CUSTOM_RAND_GENERATE=xively_ssl_rand_generate"/>
-									<listOptionValue builtIn="false" value="HAVE_SNI"/>
-									<listOptionValue builtIn="false" value="HAVE_OCSP"/>
-									<listOptionValue builtIn="false" value="HAVE_CERTIFICATE_STATUS_REQUEST"/>
-									<listOptionValue builtIn="false" value="SMALL_SESSION_CACHE"/>
-									<listOptionValue builtIn="false" value="NO_CLIENT_CACHE"/>
-									<listOptionValue builtIn="false" value="WOLFSSL_SMALL_STACK"/>
-									<listOptionValue builtIn="false" value="WOLFSSL_USER_IO"/>
-									<listOptionValue builtIn="false" value="SIZEOF_LONG_LONG=8"/>
-									<listOptionValue builtIn="false" value="NO_WRITEV"/>
-									<listOptionValue builtIn="false" value="NO_WOLFSSL_DIR"/>
-									<listOptionValue builtIn="false" value="USE_FAST_MATH"/>
-									<listOptionValue builtIn="false" value="TFM_TIMING_RESISTANT"/>
-									<listOptionValue builtIn="false" value="NO_DEV_RANDOM"/>
-									<listOptionValue builtIn="false" value="NO_FILESYSTEM"/>
-									<listOptionValue builtIn="false" value="USE_CERT_BUFFERS_2048"/>
-									<listOptionValue builtIn="false" value="NO_ERROR_STRINGS"/>
-									<listOptionValue builtIn="false" value="NO_SERVER"/>
-									<listOptionValue builtIn="false" value="USER_TIME"/>
-									<listOptionValue builtIn="false" value="HAVE_ECC"/>
-									<listOptionValue builtIn="false" value="HAVE_TLS_EXTENSIONS"/>
-									<listOptionValue builtIn="false" value="HAVE_AESGCM"/>
-									<listOptionValue builtIn="false" value="ALT_ECC_SIZE"/>
-									<listOptionValue builtIn="false" value="NO_FILESYSTEM"/>
-									<listOptionValue builtIn="false" value="WC_RSA_BLINDING"/>
-									<listOptionValue builtIn="false" value="WOLFSSL_NO_SOCK"/>
 								</option>
 								<option id="fr.ac6.managedbuild.gnu.c.compiler.option.misc.other.554329310.1248798272" superClass="fr.ac6.managedbuild.gnu.c.compiler.option.misc.other" useByScannerDiscovery="false" value="-fmessage-length=0" valueType="string"/>
 								<option id="gnu.c.compiler.option.dialect.std.1687368792" name="Language standard" superClass="gnu.c.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.c.compiler.dialect.default" valueType="enumerated"/>

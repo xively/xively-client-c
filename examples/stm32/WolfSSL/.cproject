@@ -76,9 +76,6 @@
 									<listOptionValue builtIn="false" value="HAVE_TLS_EXTENSIONS"/>
 									<listOptionValue builtIn="false" value="HAVE_AESGCM"/>
 									<listOptionValue builtIn="false" value="ALT_ECC_SIZE"/>
-									<listOptionValue builtIn="false" value="NO_FILESYSTEM"/>
-									<listOptionValue builtIn="false" value="WC_RSA_BLINDING"/>
-									<listOptionValue builtIn="false" value="WOLFSSL_NO_SOCK"/>
 								</option>
 								<option id="gnu.c.compiler.option.include.paths.646785072" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="../../../../src/import/tls/wolfssl"/>
