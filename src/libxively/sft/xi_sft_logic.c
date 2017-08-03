@@ -9,6 +9,8 @@
 #include <xi_macros.h>
 #include <xi_debug.h>
 
+#include <xi_sft_revision.h>
+
 #include <xi_bsp_io_fs.h>
 #include <xi_bsp_fwu.h>
 
@@ -267,6 +269,9 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                             XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_FINISHED,
                             XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
                     }
+
+                    xi_sft_revision_set( context->update_current_file->name,
+                                         context->update_current_file->revision );
 
                     /* jump to next file in the update package */
                     context->update_current_file =

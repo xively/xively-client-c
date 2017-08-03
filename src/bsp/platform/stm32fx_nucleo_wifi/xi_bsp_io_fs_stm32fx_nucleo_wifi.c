@@ -6,11 +6,9 @@
 
 #include <xi_bsp_io_fs.h>
 #include <xi_bsp_fwu.h>
-#include <string.h>
-#include <stdio.h>
 
 xi_state_t xi_bsp_io_fs_open( const char* const resource_name,
-                              const uint32_t size,
+                              const size_t size,
                               const xi_fs_open_flags_t open_flags,
                               xi_fs_resource_handle_t* resource_handle_out )
 {
@@ -26,6 +24,19 @@ xi_state_t xi_bsp_io_fs_open( const char* const resource_name,
     {
         /* it's an ordinary file */
     }
+
+    return XI_NOT_IMPLEMENTED;
+}
+
+xi_state_t xi_bsp_io_fs_read( const xi_fs_resource_handle_t resource_handle,
+                              const size_t offset,
+                              const uint8_t** buffer,
+                              size_t* const buffer_size )
+{
+    ( void )resource_handle;
+    ( void )offset;
+    ( void )buffer;
+    ( void )buffer_size;
 
     return XI_NOT_IMPLEMENTED;
 }

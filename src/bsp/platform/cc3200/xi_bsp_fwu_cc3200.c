@@ -9,7 +9,6 @@
 
 #include <simplelink.h>
 #include <flc_api.h>
-
 #include "hw_types.h"
 #include "rom_map.h"
 #include "prcm.h"
