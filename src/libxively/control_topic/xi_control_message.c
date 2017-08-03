@@ -56,8 +56,8 @@ xi_control_message_t* xi_control_message_create_file_info( const char** filename
             else
             {
                 sft_message->file_info.list[id_file].revision =
-                    xi_str_dup( "[revision is not available on the device, this is a "
-                                "generated revision]" );
+                    xi_str_dup( "revision is not available on the device, this is a "
+                                "generated revision 0" );
             }
         }
 
