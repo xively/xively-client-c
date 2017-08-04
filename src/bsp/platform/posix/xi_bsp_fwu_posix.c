@@ -19,13 +19,7 @@ xi_state_t xi_bsp_fwu_commit()
     return XI_STATE_OK;
 }
 
-xi_state_t xi_bsp_fwu_test()
-{
-    printf( "--- %s, no operation\n", __FUNCTION__ );
-    return XI_STATE_OK;
-}
-
-xi_state_t xi_bsp_fwu_reboot()
+xi_state_t xi_bsp_fwu_on_firmware_package_download_finished()
 {
     printf( "--- %s, no operation\n", __FUNCTION__ );
     return XI_STATE_OK;

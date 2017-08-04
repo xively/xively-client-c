@@ -303,9 +303,7 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                          * execute it */
                         if ( NULL != context->update_firmware )
                         {
-                            xi_bsp_fwu_test();
-
-                            xi_bsp_fwu_reboot();
+                            xi_bsp_fwu_on_firmware_package_download_finished();
                         }
                     }
                 }

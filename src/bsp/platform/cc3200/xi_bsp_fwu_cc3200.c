@@ -29,15 +29,12 @@ xi_state_t xi_bsp_fwu_commit()
     return XI_STATE_OK;
 }
 
-xi_state_t xi_bsp_fwu_test()
+xi_state_t xi_bsp_fwu_on_firmware_package_download_finished()
 {
     sl_extlib_FlcTest( FLC_TEST_RESET_MCU | FLC_TEST_RESET_MCU_WITH_APP );
 
-    return XI_STATE_OK;
-}
+    /* reboot the device */
 
-xi_state_t xi_bsp_fwu_reboot()
-{
     /* Configure hibernate RTC wakeup */
     PRCMHibernateWakeupSourceEnable( PRCM_HIB_SLOW_CLK_CTR );
 

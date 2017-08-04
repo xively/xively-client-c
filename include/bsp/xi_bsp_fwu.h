@@ -18,9 +18,7 @@ uint8_t xi_bsp_fwu_is_this_firmware( const char* const resource_name );
 
 xi_state_t xi_bsp_fwu_commit();
 
-xi_state_t xi_bsp_fwu_test();
-
-xi_state_t xi_bsp_fwu_reboot();
+xi_state_t xi_bsp_fwu_on_firmware_package_download_finished();
 
 #ifdef __cplusplus
 }

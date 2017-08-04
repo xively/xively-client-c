@@ -18,12 +18,7 @@ xi_state_t xi_bsp_fwu_commit()
     return XI_NOT_IMPLEMENTED;
 }
 
-xi_state_t xi_bsp_fwu_test()
-{
-    return XI_NOT_IMPLEMENTED;
-}
-
-xi_state_t xi_bsp_fwu_reboot()
+xi_state_t xi_bsp_fwu_on_firmware_package_download_finished()
 {
     return XI_NOT_IMPLEMENTED;
 }
