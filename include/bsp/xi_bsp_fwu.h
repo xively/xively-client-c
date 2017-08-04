@@ -24,12 +24,13 @@ xi_state_t xi_bsp_fwu_on_firmware_package_download_finished(
     const char* const firmware_resource_name );
 
 
-xi_state_t xi_bsp_fwu_checksum_init( void** checksum_context );
+void xi_bsp_fwu_checksum_init( void** checksum_context );
 
-xi_state_t
-xi_bsp_fwu_checksum_update( void* checksum_context, const uint8_t* data, uint32_t len );
+void xi_bsp_fwu_checksum_update( void* checksum_context,
+                                 const uint8_t* data,
+                                 uint32_t len );
 
-xi_state_t xi_bsp_fwu_checksum_final( void* checksum_context, uint8_t* buffer_out );
+void xi_bsp_fwu_checksum_final( void* checksum_context, uint8_t* buffer_out );
 
 #ifdef __cplusplus
 }

@@ -5,26 +5,25 @@
  */
 
 #include <stdint.h>
+#include <xi_bsp_fwu.h>
 #include <xi_bsp_mem.h>
-#include <mbedtls/sha256.h>
+#include <sha256.h>
 
 void xi_bsp_fwu_checksum_init( void** sha_ctx )
 {
-    *sha_ctx = xi_bsp_mem_alloc( sizeof( mbedtls_sha256_context ) );
+    *sha_ctx = xi_bsp_mem_alloc( sizeof( SHA256_CTX ) );
 
-    mbedtls_sha256_init( ( mbedtls_sha256_context* )*sha_ctx );
+    sha256_init( ( SHA256_CTX* )*sha_ctx );
 }
 
 void xi_bsp_fwu_checksum_update( void* sha_ctx, const uint8_t* data, uint32_t len )
 {
-    mbedtls_sha256_starts( ( mbedtls_sha256_context* )sha_ctx, 0 );
-
-    mbedtls_sha256_update( ( mbedtls_sha256_context* )sha_ctx, data, len );
+    sha256_update( ( SHA256_CTX* )sha_ctx, data, len );
 }
 
 void xi_bsp_fwu_checksum_final( void* sha_ctx, uint8_t* out )
 {
-    mbedtls_sha256_finish( ( mbedtls_sha256_context* )sha_ctx, out );
+    sha256_final( ( SHA256_CTX* )sha_ctx, out );
 
     xi_bsp_mem_free( sha_ctx );
 }

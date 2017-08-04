@@ -5,6 +5,7 @@
  */
 
 #include <stdint.h>
+#include <xi_bsp_fwu.h>
 #include <xi_bsp_mem.h>
 #include <wolfssl/wolfcrypt/sha256.h>
 
