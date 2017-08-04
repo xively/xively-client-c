@@ -70,7 +70,7 @@ xi_state_t xi_sft_on_connected( xi_sft_context_t* context )
 
     /* todo_atigyi: commit after a self check, also find a place where new FW can be
      * denied */
-    xi_bsp_fwu_commit();
+    xi_bsp_fwu_on_new_firmware_ok();
 
     if ( NULL == context )
     {

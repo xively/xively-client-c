@@ -19,7 +19,7 @@ uint8_t xi_bsp_fwu_is_this_firmware( const char* const resource_name )
     return ( 0 == strcmp( "firmware.bin", resource_name ) ) ? 1 : 0;
 }
 
-xi_state_t xi_bsp_fwu_commit()
+xi_state_t xi_bsp_fwu_on_new_firmware_ok()
 {
     if ( sl_extlib_FlcIsPendingCommit() )
     {
