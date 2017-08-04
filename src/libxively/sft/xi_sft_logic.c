@@ -42,6 +42,7 @@ xi_state_t xi_sft_make_context( xi_sft_context_t** context,
     ( *context )->update_current_file    = NULL;
     ( *context )->update_firmware        = NULL;
     ( *context )->update_file_handle     = 0;
+    ( *context )->checksum_context       = NULL;
 
     return state;
 
@@ -199,6 +200,8 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                         {
                             context->update_firmware = context->update_current_file;
                         }
+
+                        xi_bsp_fwu_checksum_init( &context->checksum_context );
                     }
 
                     size_t bytes_written = 0;
@@ -217,6 +220,10 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
 
                         goto err_handling;
                     }
+
+                    xi_bsp_fwu_checksum_update( context->checksum_context,
+                                                sft_message_in->file_chunk.chunk,
+                                                sft_message_in->file_chunk.length );
 
                     // if ( 0 == sft_message_in->file_chunk.offset )
                     // {
@@ -240,6 +247,10 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                 else
                 {
                     /* SFT flow: file downloaded, continue with next file in list */
+
+                    uint8_t file_checksum[32];
+
+                    xi_bsp_fwu_checksum_final( context->checksum_context, file_checksum );
 
                     xi_sft_send_file_status(
                         context, NULL,
