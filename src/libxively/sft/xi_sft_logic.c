@@ -78,8 +78,7 @@ xi_state_t xi_sft_on_connected( xi_sft_context_t* context )
     }
 
     xi_control_message_t* message_file_info = xi_control_message_create_file_info(
-        context->updateable_files, NULL /* todo_atigyi: handle revisions */,
-        context->updateable_files_count );
+        context->updateable_files, context->updateable_files_count );
 
     ( *context->fn_send_message )( context->send_message_user_data, message_file_info );
 

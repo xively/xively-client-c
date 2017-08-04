@@ -167,7 +167,7 @@ void xi_itest_sft__remove_files( const char** filenames, uint16_t files_count )
  * act ***************************************************************************
  ********************************************************************************/
 static void xi_itest_sft__act( void** fixture_void,
-                               char do_disconnect_flag,
+                               uint8_t remove_temporary_files_at_the_end,
                                const char** updateable_filenames,
                                uint16_t updateable_files_count )
 {
@@ -216,7 +216,7 @@ static void xi_itest_sft__act( void** fixture_void,
                       xi_bsp_time_getcurrenttime_seconds() + loop_counter );
         ++loop_counter;
 
-        if ( do_disconnect_flag && loop_counter == fixture->loop_id__manual_disconnect )
+        if ( loop_counter == fixture->loop_id__manual_disconnect )
         {
             xi_shutdown_connection( xi_context_handle );
         }
@@ -224,7 +224,10 @@ static void xi_itest_sft__act( void** fixture_void,
 
 err_handling:
 
-    xi_itest_sft__remove_files( updateable_filenames, updateable_files_count );
+    if ( 1 == remove_temporary_files_at_the_end )
+    {
+        xi_itest_sft__remove_files( updateable_filenames, updateable_files_count );
+    }
 }
 
 /*********************************************************************************
@@ -236,7 +239,7 @@ void xi_itest_sft__client_doesnt_start_SFT_if_no_update_file_is_set( void** fixt
      * Here the lack of expectations means no expected SFT messages arriving on broker
      * side. */
 
-    // ACT
+    /* ACT */
     xi_itest_sft__act( fixture_void, 1, NULL, 0 );
 }
 
@@ -273,7 +276,7 @@ void xi_itest_sft__basic_flow__SFT_with_happy_broker__protocol_intact(
                         control_message->common.msgtype,
                         XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 2 );
 
-    // ACT
+    /* ACT */
     xi_itest_sft__act( fixture_void, 1, ( const char* [] ){"file1", "file2"}, 2 );
 }
 
@@ -299,7 +302,7 @@ void xi_itest_sft__broker_replies_FILE_INFO_on_FILE_GET_CHUNK__client_does_not_c
     expect_string_count( xi_mock_broker_sft_logic_on_file_get_chunk,
                          control_message->file_get_chunk.name, "file1", 1 );
 
-    // ACT
+    /* ACT */
     xi_itest_sft__act( fixture_void, 1, ( const char* [] ){"file1"}, 1 );
 
 err_handling:;
@@ -355,7 +358,7 @@ void xi_itest_sft__broker_replies_FUA_on_FILE_GET_CHUNK__client_processes_2nd_FU
                         control_message->common.msgtype,
                         XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 2 );
 
-    // ACT
+    /* ACT */
     xi_itest_sft__act( fixture_void, 1, ( const char* [] ){"file1"}, 1 );
 
     xi_itest_sft__remove_files( ( const char* [] ){"file2"}, 1 );
@@ -405,7 +408,7 @@ void xi_itest_sft__manymany_updateable_files( void** fixture_void )
                             XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 2 );
     }
 
-    // ACT
+    /* ACT */
     xi_itest_sft__act( fixture_void, 1, ( const char** )file_names_ptrs,
                        XI_ITEST_SFT__FILE_NUMBER );
 }
@@ -462,7 +465,98 @@ void xi_itest_sft__firmware_bin_received__firmware_test_commit_triggered(
                         control_message->common.msgtype,
                         XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 1 );
 
-    // ACT
+    /* ACT */
     xi_itest_sft__act( fixture_void, 1,
                        ( const char* [] ){"file1", "firmware.bin", "file3"}, 3 );
+}
+
+void xi_itest_sft__check_revision_file( const char** filenames, uint16_t files_count )
+{
+    uint16_t id_file = 0;
+    for ( ; id_file < files_count; ++id_file )
+    {
+        xi_fs_resource_handle_t resource_handle = XI_FS_INVALID_RESOURCE_HANDLE;
+        char* filename_revision = xi_str_cat( filenames[id_file], ".xirev" );
+
+        xi_state_t state =
+            xi_bsp_io_fs_open( filename_revision, 0, XI_FS_OPEN_READ, &resource_handle );
+
+        XI_SAFE_FREE( filename_revision );
+
+        assert_int_equal( XI_STATE_OK, state );
+        assert_ptr_not_equal( XI_FS_INVALID_RESOURCE_HANDLE, resource_handle );
+
+        const uint8_t* buffer = NULL;
+        size_t buffer_size    = 0;
+
+        state = xi_bsp_io_fs_read( resource_handle, 0, &buffer, &buffer_size );
+
+        assert_non_null( buffer );
+        assert_int_equal( 71, buffer_size );
+        assert_int_equal( XI_STATE_OK, state );
+
+        char* expected_revision = xi_str_dup( XI_CONTROL_MESSAGE_GENERATED_REVISION );
+        /* replay mock broker's last character incrementation */
+        ++expected_revision[strlen( expected_revision ) - 1];
+
+        /* client fills up revision if empty, mock broker increments last character by
+         * one, that's the expected string */
+        assert_memory_equal( expected_revision, buffer, buffer_size );
+
+        XI_SAFE_FREE( expected_revision );
+
+        state = xi_bsp_io_fs_close( resource_handle );
+
+        assert_int_equal( XI_STATE_OK, state );
+    }
+}
+
+void xi_itest_sft__revision_non_volatile_storage__proper_value_stored(
+    void** fixture_void )
+{
+    expect_value( xi_mock_broker_sft_logic_on_message, control_message->common.msgtype,
+                  XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO );
+
+    /* 1st file */
+    expect_value_count(
+        xi_mock_broker_sft_logic_on_message, control_message->common.msgtype,
+        XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK, 7777 / XI_SFT_FILE_CHUNK_SIZE + 1 );
+
+    expect_string_count( xi_mock_broker_sft_logic_on_file_get_chunk,
+                         control_message->file_get_chunk.name, "uniquefilename.file1",
+                         7777 / XI_SFT_FILE_CHUNK_SIZE + 1 );
+
+    expect_value_count( xi_mock_broker_sft_logic_on_message,
+                        control_message->common.msgtype,
+                        XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 2 );
+
+    /* 2nd file */
+    expect_value_count( xi_mock_broker_sft_logic_on_message,
+                        control_message->common.msgtype,
+                        XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK,
+                        2 * 7777 / XI_SFT_FILE_CHUNK_SIZE + 1 );
+
+    expect_string_count(
+        xi_mock_broker_sft_logic_on_file_get_chunk, control_message->file_get_chunk.name,
+        "uniquefilename.firmware.bin", 2 * 7777 / XI_SFT_FILE_CHUNK_SIZE + 1 );
+
+    expect_value_count( xi_mock_broker_sft_logic_on_message,
+                        control_message->common.msgtype,
+                        XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 2 );
+
+    const char** files_under_update =
+        ( const char* [] ){"uniquefilename.file1", "uniquefilename.firmware.bin"};
+
+    /* delete files accidentally existing due to previous run's test case failure */
+    xi_itest_sft__remove_files( files_under_update, 2 );
+
+    /* ACT */
+    xi_itest_sft__act( fixture_void, 0, files_under_update, 2 );
+
+    /* check revision file for existing and proper content */
+    xi_itest_sft__check_revision_file( files_under_update, 2 );
+
+    /* file removal only happens here if all expectations are met, otherwise conrols
+     * exits before */
+    xi_itest_sft__remove_files( files_under_update, 2 );
 }
