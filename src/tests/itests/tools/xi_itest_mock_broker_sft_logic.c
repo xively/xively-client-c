@@ -108,8 +108,12 @@ xi_mock_broker_sft_logic_on_file_get_chunk( xi_control_message_t* control_messag
         };
 
         XI_ALLOC_AT( xi_control_message_t, control_message_reply, state );
-        XI_ALLOC_BUFFER_AT( uint8_t, file_chunk_out_artificial,
-                            control_message->file_get_chunk.length, state );
+
+        /* not filling file chunk bytes with zeros, available memory content servers as a
+         * random data */
+        file_chunk_out_artificial =
+            ( uint8_t* )xi_alloc( control_message->file_get_chunk.length );
+        XI_CHECK_MEMORY( file_chunk_out_artificial, state );
 
         control_message_reply->file_chunk = ( struct file_chunk_s ){
             .common = {.msgtype = XI_CONTROL_MESSAGE_SC__SFT_FILE_CHUNK, .msgver = 1},
