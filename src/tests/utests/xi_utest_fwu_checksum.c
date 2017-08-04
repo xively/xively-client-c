@@ -29,10 +29,10 @@ void print_hash( unsigned char( hash )[32] )
 
 #endif
 
-XI_TT_TESTGROUP_BEGIN( utest_sha256 )
+XI_TT_TESTGROUP_BEGIN( utest_fwu_checksum )
 
 XI_TT_TESTCASE_WITH_SETUP(
-    xi_utest_sha256_basic, xi_utest_setup_basic, xi_utest_teardown_basic, NULL, {
+    xi_utest_fwu_checksum_basic, xi_utest_setup_basic, xi_utest_teardown_basic, NULL, {
 
         void* sha = NULL;
 
