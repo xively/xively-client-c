@@ -159,9 +159,6 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                  0 == strcmp( context->update_current_file->name,
                               sft_message_in->file_chunk.name ) )
             {
-                const uint32_t all_downloaded_bytes =
-                    sft_message_in->file_chunk.offset + sft_message_in->file_chunk.length;
-
 #if 0
                 printf( "         === === === downloading file: %s, %d / %d, [%d%%], "
                         "status: %d\n",
@@ -172,8 +169,8 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                         sft_message_in->file_chunk.status );
 #endif
 
+                /* Processing content */
                 {
-                    /* processing content */
                     if ( 0 == sft_message_in->file_chunk.offset )
                     {
                         /* open file at first chunk */
@@ -227,7 +224,10 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                     // }
                 }
 
-                /* Secure File Transfer flow management */
+                const uint32_t all_downloaded_bytes =
+                    sft_message_in->file_chunk.offset + sft_message_in->file_chunk.length;
+
+                /* Secure File Transfer (SFT) flow management */
                 if ( all_downloaded_bytes < context->update_current_file->size_in_bytes )
                 {
                     /* SFT flow: file is not downloaded yet, continue with this file */
@@ -296,15 +296,16 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                                 XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
                         }
 
-                        /* no further files to download, finished with download process */
-                        xi_control_message_free( &context->update_message_fua );
-
-                        /* if there was firmware in the update package, then try to
-                         * execute it */
+                        /* if there was firmware in the update package, then report it to
+                         * the application */
                         if ( NULL != context->update_firmware )
                         {
-                            xi_bsp_fwu_on_firmware_package_download_finished();
+                            xi_bsp_fwu_on_firmware_package_download_finished(
+                                context->update_firmware->name );
                         }
+
+                        /* no further files to download, finished with download process */
+                        xi_control_message_free( &context->update_message_fua );
                     }
                 }
             }

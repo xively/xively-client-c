@@ -20,7 +20,13 @@ xi_state_t xi_bsp_fwu_on_new_firmware_ok();
 
 xi_state_t xi_bsp_fwu_on_new_firmware_failure();
 
-xi_state_t xi_bsp_fwu_on_firmware_package_download_finished();
+xi_state_t xi_bsp_fwu_on_firmware_package_download_finished(
+    const char* const firmware_resource_name );
+
+
+xi_state_t xi_bsp_fwu_checksum_init();
+xi_state_t xi_bsp_fwu_checksum_update();
+xi_state_t xi_bsp_fwu_checksum_final();
 
 #ifdef __cplusplus
 }

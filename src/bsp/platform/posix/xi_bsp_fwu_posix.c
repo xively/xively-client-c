@@ -19,8 +19,10 @@ xi_state_t xi_bsp_fwu_on_new_firmware_ok()
     return XI_STATE_OK;
 }
 
-xi_state_t xi_bsp_fwu_on_firmware_package_download_finished()
+xi_state_t xi_bsp_fwu_on_firmware_package_download_finished(
+    const char* const firmware_resource_name )
 {
-    printf( "--- %s, no operation\n", __FUNCTION__ );
+    printf( "--- %s, no operation, firmware name: %s\n", __FUNCTION__,
+            firmware_resource_name );
     return XI_STATE_OK;
 }

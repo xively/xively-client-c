@@ -29,8 +29,11 @@ xi_state_t xi_bsp_fwu_on_new_firmware_ok()
     return XI_STATE_OK;
 }
 
-xi_state_t xi_bsp_fwu_on_firmware_package_download_finished()
+xi_state_t xi_bsp_fwu_on_firmware_package_download_finished(
+    const char* const firmware_resource_name )
 {
+    ( void )firmware_resource_name;
+
     sl_extlib_FlcTest( FLC_TEST_RESET_MCU | FLC_TEST_RESET_MCU_WITH_APP );
 
     /* reboot the device */
