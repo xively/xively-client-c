@@ -22,6 +22,8 @@ extern void xi_itest_sft__broker_replies_FUA_on_FILE_GET_CHUNK__client_processes
 extern void xi_itest_sft__manymany_updateable_files( void** state );
 extern void
 xi_itest_sft__firmware_bin_received__firmware_test_commit_triggered( void** state );
+extern void
+xi_itest_sft__revision_non_volatile_storage__proper_value_stored( void** state );
 
 
 #ifdef XI_MOCK_TEST_PREPROCESSOR_RUN
@@ -47,6 +49,10 @@ struct CMUnitTest xi_itests_sft[] = {
                                      xi_itest_sft_teardown ),
     cmocka_unit_test_setup_teardown(
         xi_itest_sft__firmware_bin_received__firmware_test_commit_triggered,
+        xi_itest_sft_setup,
+        xi_itest_sft_teardown ),
+    cmocka_unit_test_setup_teardown(
+        xi_itest_sft__revision_non_volatile_storage__proper_value_stored,
         xi_itest_sft_setup,
         xi_itest_sft_teardown )};
 

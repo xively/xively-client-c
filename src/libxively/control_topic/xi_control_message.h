@@ -123,9 +123,11 @@ typedef union xi_control_message_u {
 
 } xi_control_message_t;
 
-xi_control_message_t* xi_control_message_create_file_info( const char** filenames,
-                                                           const char** revisions,
-                                                           uint16_t count );
+#define XI_CONTROL_MESSAGE_GENERATED_REVISION                                            \
+    "revision is not available on the device, this is a generated revision 0"
+
+xi_control_message_t*
+xi_control_message_create_file_info( const char** filenames, uint16_t count );
 
 xi_control_message_t* xi_control_message_create_file_get_chunk( const char* filename,
                                                                 const char* revision,
