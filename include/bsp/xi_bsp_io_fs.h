@@ -39,19 +39,20 @@ typedef intptr_t xi_fs_resource_handle_t;
 
 /**
  * @enum xi_fs_resource_type_t
- * @brief describes types of resources that are availible through fs API the
- * types were created in order to differenciate types based on their security
- * class
+ * @brief describes types of resources that are availible through this API. 
+ * These types were created in order to differenciate types based on their 
+ * security class.
  */
 typedef enum {
-    XI_FS_CERTIFICATE = 0,
-    XI_FS_CREDENTIALS,
-    XI_FS_CONFIG_DATA
+    XI_FS_CERTIFICATE = 0, /**< 0 **/
+    XI_FS_CREDENTIALS, /**< 1 **/
+    XI_FS_CONFIG_DATA /**< 2 **/
 } xi_fs_resource_type_t;
 
 /*
  * @name xi_fs_stat_s
- * @brief information returned via stat call
+ * @brief Information that the Xively Client needs returned 
+ * when xi_bsp_io_fs_stat() is called.
  */
 typedef struct xi_fs_stat_s
 {
@@ -60,6 +61,12 @@ typedef struct xi_fs_stat_s
 
 /**
  * @enum xi_fs_open_flags_t
+ * @brief Abstracted values that represent the various types of file operations
+ * that should be passed to the underlying system when opening a file resource
+ * via xi_bsp_io_fs_open().
+
+ * As a bitmask there could be more than one of these flags set on a given
+ * open request.
  */
 typedef enum {
     XI_FS_OPEN_READ   = 1 << 0,
@@ -114,7 +121,7 @@ xi_state_t xi_bsp_io_fs_open( const char* const resource_name,
  * to xi_bsp_io_fs_open.
  * @param [in] offset the position of the resource, in bytes, from which
  * to start read operations.
- * @param [in/out] buffer a pointer to a byte array. Data read from the
+ * @param [out] buffer a pointer to a byte array. Data read from the
  * resource should be stored in this array starting at offset zero.
  * @param [in] buffer_size the length of the buffer in bytes.
  *
