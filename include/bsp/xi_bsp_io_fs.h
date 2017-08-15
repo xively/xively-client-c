@@ -7,9 +7,26 @@
 #ifndef __XI_BSP_IO_FS_H__
 #define __XI_BSP_IO_FS_H__
 
+/**
+ * @file xi_bsp_io.fs.h
+ * @brief Xively Client's Board Support Platform (BSP) for File Access
+ *
+ * This file defines the File Management API used by the Xively C Client.
+ *
+ * The Xivley C Client faciliates non-volatile data storage of
+ * certificates and Secure File Transfer managed  through these functions.
+ * 
+ * NOTE: the use of this BSP to store certificates used during the TLSX
+ * handshake process is currently an ongoing project. 
+ * 
+ * All files are referenced by resource_name strings.  For Xively SFT
+ * storage, these resource_names are the same as the string that was used
+ * to name the file in the SFT Package Contents.
+ */
 #include <stdlib.h>
 #include <stdint.h>
 #include <xively_error.h>
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -50,6 +67,18 @@ typedef enum {
     XI_FS_OPEN_APPEND = 1 << 2,
 } xi_fs_open_flags_t;
 
+
+/**
+ * @function
+ * @brief Used by the Xively C Client to determine the existance and size of a file.__next
+ * This will be used to repor
+ *
+ * @param [in] resource_name 
+ * @param [out] resource_stat 
+ *
+ * @return xi_state_t XI_STATE_OK in case of a success and other in case of an
+ * error.
+ */
 xi_state_t
 xi_bsp_io_fs_stat( const char* const resource_name, xi_fs_stat_t* resource_stat );
 
