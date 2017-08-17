@@ -99,6 +99,11 @@ xi_state_t xi_mqtt_codec_layer_push( void* context, void* data, xi_state_t in_ou
         xi_mqtt_codec_layer_continue_task( task, msg );
     }
 
+    if ( NULL != msg )
+    {
+        xi_debug_mqtt_message_dump( msg );
+    }
+
     /*------------------------------ BEGIN COROUTINE ----------------------- */
     XI_CR_START( layer_data->push_cs );
 
@@ -276,8 +281,6 @@ xi_state_t xi_mqtt_codec_layer_pull( void* context, void* data, xi_state_t in_ou
     {
         layer_data->local_state =
             xi_mqtt_parser_execute( &layer_data->parser, layer_data->msg, data_desc );
-
-        xi_debug_format( "local_state = %d", ( int )layer_data->local_state );
 
         if ( layer_data->local_state == XI_STATE_WANT_READ )
         {

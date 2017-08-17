@@ -8,13 +8,12 @@
 #include "tinytest_macros.h"
 #include "xi_tt_testcase_management.h"
 #include "xi_utest_basic_testcase_frame.h"
+#include "xi_bsp_crypt.h"
 
 #include <stdio.h>
 #include <time.h>
 #include <stdint.h>
 #include <string.h>
-
-#include <xi_bsp_crypt.h>
 
 #ifndef XI_TT_TESTCASE_ENUMERATION__SECONDPREPROCESSORRUN
 

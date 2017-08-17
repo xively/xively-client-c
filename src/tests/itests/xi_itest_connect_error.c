@@ -79,7 +79,7 @@ xi_itest_connect_error__test_fixture_t* xi_itest_connect_error__generate_fixture
     fixture->test_full_topic_name =
         ( "xi/blue/v1/xi_itest_connect_error_account_id/d/"
           "xi_itest_connect_error_device_id/test/topic/name" );
-    fixture->control_topic_name = ( "xi/ctrl/v1/xi_itest_connect_error_device_id/clt" );
+    fixture->control_topic_name = ( "xi/ctrl/v1/xi_itest_connect_error_device_id/cln" );
 
     return fixture;
 
@@ -239,6 +239,7 @@ void xi_itest_test_valid_flow__call_connect_function_twice__second_call_returns_
         expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
         expect_value( xi_mock_layer_tls_prev_init, in_out_state, XI_STATE_OK );
         expect_value( xi_mock_layer_tls_prev_connect, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_broker_layer_connect, in_out_state, XI_STATE_OK );
 
         expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
         expect_value( xi_mock_broker_layer_connect, in_out_state, XI_STATE_OK );
@@ -331,6 +332,7 @@ void xi_itest_test_valid_flow__call_disconnect_twice_on_connected_context__secon
         expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
         expect_value( xi_mock_layer_tls_prev_init, in_out_state, XI_STATE_OK );
         expect_value( xi_mock_layer_tls_prev_connect, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_broker_layer_connect, in_out_state, XI_STATE_OK );
 
         expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
         expect_value( xi_mock_broker_layer_connect, in_out_state, XI_STATE_OK );

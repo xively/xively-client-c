@@ -145,8 +145,8 @@ end:;
  * implementations except dummy */
 #if defined( XI_FS_MEMORY ) || defined( XI_FS_POSIX )
 XI_TT_TESTCASE( utest__xi_fs_stat__invalid_resource_name__invalid_parameter_returned, {
-    xi_fs_stat_t stat = xi_fs_init_stat();
-    xi_state_t ret    = xi_fs_stat( NULL, XI_FS_CERTIFICATE, NULL, &stat );
+    xi_fs_stat_t stat = {.resource_size = 0};
+    xi_state_t ret = xi_fs_stat( NULL, XI_FS_CERTIFICATE, NULL, &stat );
 
     tt_int_op( ret, ==, XI_INVALID_PARAMETER );
 end:;
@@ -162,7 +162,7 @@ end:;
 
 XI_TT_TESTCASE(
     utest__xi_fs_stat__invalid_file_name_parameters__resource_not_availible_returned, {
-        xi_fs_stat_t stat = xi_fs_init_stat();
+        xi_fs_stat_t stat = {.resource_size = 0};
         xi_state_t ret =
             xi_fs_stat( NULL, XI_FS_CERTIFICATE,
                         "file_name_that_does_not_exist.xively_rulez!", &stat );

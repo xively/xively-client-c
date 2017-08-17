@@ -1,0 +1,6 @@
+"account_id": "PASTE_XIVELY_CREDENTIAL_HERE"
+"device_id": "PASTE_XIVELY_CREDENTIAL_HERE"
+"password": "PASTE_XIVELY_CREDENTIAL_HERE"
+"wifi_security_type": "wpa2"
+"wifi_ssid": "PASTE_WIFI_CREDENTIAL_HERE"
+"wifi_password": "PASTE_WIFI_CREDENTIAL_HERE"

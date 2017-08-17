@@ -96,7 +96,7 @@ xi_state_t xi_mqtt_logic_layer_push( void* context, void* data, xi_state_t in_ou
 
         XI_SAFE_FREE_TUPLE( written_data );
 
-        xi_mqtt_logic_task_t* task_to_be_called = 0;
+        xi_mqtt_logic_task_t* task_to_be_called = NULL;
 
         if ( 0 == msg_id )
         {
@@ -108,7 +108,7 @@ xi_state_t xi_mqtt_logic_layer_push( void* context, void* data, xi_state_t in_ou
             xi_mqtt_message_class_t msg_class =
                 xi_mqtt_class_msg_type_sending( msg_type );
 
-            xi_mqtt_logic_task_t* task_queue = 0;
+            xi_mqtt_logic_task_t* task_queue = NULL;
 
             switch ( msg_class )
             {
