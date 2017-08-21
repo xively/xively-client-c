@@ -9,16 +9,16 @@
 
 /**
  * @file xi_bsp_io.fs.h
- * @brief Xively Client's Board Support Platform (BSP) for File Access
+ * @brief Xively Client's Board Support Package (BSP) for File Access
  *
  * This file defines the File Management API used by the Xively C Client.
  *
- * The Xivley C Client facilitates non-volatile data storage of
- * certificates and Secure File Transfer managed  through these functions.
- * 
- * NOTE: the use of this BSP to store certificates used during the TLSX
- * handshake process is currently an ongoing project. 
- * 
+ * The Xivley C Client uses this BSP to facilitate non-volatile data
+ * storage of certificates and files received via Xively Secure File Transfer.
+ *
+ * NOTE: the use of this BSP to store certificates used during the TLS
+ * handshake process is currently an ongoing project.
+ *
  * All files are referenced by resource_name strings.  For Xively SFT
  * storage, these resource names are the same as the string that was used
  * to name the file in the SFT Package Contents.
@@ -39,19 +39,19 @@ typedef intptr_t xi_fs_resource_handle_t;
 
 /**
  * @enum xi_fs_resource_type_t
- * @brief describes types of resources that are availible through this API. 
- * These types were created in order to differenciate types based on their 
+ * @brief describes types of resources that are availible through this API.
+ * These types were created in order to differenciate types based on their
  * security class.
  */
 typedef enum {
     XI_FS_CERTIFICATE = 0, /**< 0 **/
-    XI_FS_CREDENTIALS, /**< 1 **/
-    XI_FS_CONFIG_DATA /**< 2 **/
+    XI_FS_CREDENTIALS,     /**< 1 **/
+    XI_FS_CONFIG_DATA      /**< 2 **/
 } xi_fs_resource_type_t;
 
 /*
  * @name xi_fs_stat_s
- * @brief Information that the Xively Client needs returned 
+ * @brief Information that the Xively Client needs returned
  * when xi_bsp_io_fs_stat() is called.
  */
 typedef struct xi_fs_stat_s
