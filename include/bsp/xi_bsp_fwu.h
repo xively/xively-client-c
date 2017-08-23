@@ -30,7 +30,9 @@ void xi_bsp_fwu_checksum_update( void* checksum_context,
                                  const uint8_t* data,
                                  uint32_t len );
 
-void xi_bsp_fwu_checksum_final( void* checksum_context, uint8_t* buffer_out );
+void xi_bsp_fwu_checksum_final( void* checksum_context,
+                                uint8_t** buffer_out,
+                                uint16_t* buffer_len_out );
 
 #ifdef __cplusplus
 }

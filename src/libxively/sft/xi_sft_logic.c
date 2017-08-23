@@ -160,21 +160,11 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                  0 == strcmp( context->update_current_file->name,
                               sft_message_in->file_chunk.name ) )
             {
-#if 0
-                printf( "         === === === downloading file: %s, %d / %d, [%d%%], "
-                        "status: %d\n",
-                        context->update_current_file->name,
-                        context->update_current_file->size_in_bytes, all_downloaded_bytes,
-                        ( all_downloaded_bytes * 100 ) /
-                            context->update_current_file->size_in_bytes,
-                        sft_message_in->file_chunk.status );
-#endif
-
                 /* Processing content */
                 {
+                    /* open file at first chunk */
                     if ( 0 == sft_message_in->file_chunk.offset )
                     {
-                        /* open file at first chunk */
                         state = xi_bsp_io_fs_open(
                             sft_message_in->file_chunk.name,
                             context->update_current_file->size_in_bytes, XI_FS_OPEN_WRITE,
@@ -234,6 +224,16 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                 const uint32_t all_downloaded_bytes =
                     sft_message_in->file_chunk.offset + sft_message_in->file_chunk.length;
 
+#if 0
+                printf( "         === === === downloading file: %s, %d / %d, [%d%%], "
+                        "status: %d\n",
+                        context->update_current_file->name,
+                        context->update_current_file->size_in_bytes, all_downloaded_bytes,
+                        ( all_downloaded_bytes * 100 ) /
+                            context->update_current_file->size_in_bytes,
+                        sft_message_in->file_chunk.status );
+#endif
+
                 /* Secure File Transfer (SFT) flow management */
                 if ( all_downloaded_bytes < context->update_current_file->size_in_bytes )
                 {
@@ -248,14 +248,41 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                 {
                     /* SFT flow: file downloaded, continue with next file in list */
 
-                    uint8_t file_checksum[32];
+                    uint8_t* locally_calculated_fingerprint     = NULL;
+                    uint16_t locally_calculated_fingerprint_len = 0;
 
-                    xi_bsp_fwu_checksum_final( context->checksum_context, file_checksum );
+                    xi_bsp_fwu_checksum_final( context->checksum_context,
+                                               &locally_calculated_fingerprint,
+                                               &locally_calculated_fingerprint_len );
 
-                    xi_sft_send_file_status(
-                        context, NULL,
-                        XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADED,
-                        XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
+                    // printf( "--- %s, checksum: %s\n", __FUNCTION__,
+                    // locally_calculated_fingerprint );
+
+                    /* integrity check based on checksum values */
+                    if ( context->update_current_file->fingerprint_len !=
+                             locally_calculated_fingerprint_len ||
+                         0 != memcmp( context->update_current_file->fingerprint,
+                                      locally_calculated_fingerprint,
+                                      locally_calculated_fingerprint_len ) )
+                    {
+                        /* checksum mismatch */
+                        xi_sft_send_file_status(
+                            context, NULL,
+                            XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADED,
+                            XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__FILE_CHECKSUM_MISMATCH );
+
+                        /* todo_atigyi: another option beyond exiting the whole update
+                         * process is to retry broken file download */
+                        // goto err_handling;
+                    }
+                    else
+                    {
+                        /* checksum OK */
+                        xi_sft_send_file_status(
+                            context, NULL,
+                            XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADED,
+                            XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
+                    }
 
                     state = xi_bsp_io_fs_close( context->update_file_handle );
                     context->update_file_handle = XI_FS_INVALID_RESOURCE_HANDLE;
