@@ -10,6 +10,7 @@
 #include <xi_debug.h>
 
 #include <xi_sft_revision.h>
+#include <xi_sft_logic_file_chunk_handlers.h>
 
 #include <xi_bsp_io_fs.h>
 #include <xi_bsp_fwu.h>
@@ -112,6 +113,7 @@ xi_sft_send_file_status( const xi_sft_context_t* context,
     ( *context->fn_send_message )( context->send_message_user_data, message_file_status );
 }
 
+
 xi_state_t
 xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_in )
 {
@@ -160,66 +162,29 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                  0 == strcmp( context->update_current_file->name,
                               sft_message_in->file_chunk.name ) )
             {
-                /* Processing content */
+                /* process file chunk */
                 {
-                    /* open file at first chunk */
-                    if ( 0 == sft_message_in->file_chunk.offset )
-                    {
-                        state = xi_bsp_io_fs_open(
-                            sft_message_in->file_chunk.name,
-                            context->update_current_file->size_in_bytes, XI_FS_OPEN_WRITE,
-                            &context->update_file_handle );
+                    const xi_control_message__sft_file_status_code_t
+                        chunk_handling_status_code =
+                            xi_sft_on_message_file_chunk_process_file_chunk(
+                                context, sft_message_in );
 
-                        // printf( " --- %s, open, filename: %s, state: %d, handle: %lu\n
-                        // ",
-                        //         __FUNCTION__, sft_message_in->file_chunk.name, state,
-                        //         context->update_file_handle );
-
-                        if ( XI_STATE_OK != state )
-                        {
-                            xi_sft_send_file_status(
-                                context, NULL,
-                                XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_PROCESSING,
-                                XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__FILE_OPEN );
-
-                            goto err_handling;
-                        }
-
-                        if ( 1 == xi_bsp_fwu_is_this_firmware(
-                                      sft_message_in->file_chunk.name ) )
-                        {
-                            context->update_firmware = context->update_current_file;
-                        }
-
-                        xi_bsp_fwu_checksum_init( &context->checksum_context );
-                    }
-
-                    size_t bytes_written = 0;
-                    /* pass bytes to FILE BSP - write bytes */
-                    state = xi_bsp_io_fs_write(
-                        context->update_file_handle, sft_message_in->file_chunk.chunk,
-                        sft_message_in->file_chunk.length,
-                        sft_message_in->file_chunk.offset, &bytes_written );
-
-                    if ( XI_STATE_OK != state )
+                    /* error handling */
+                    if ( XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS !=
+                         chunk_handling_status_code )
                     {
                         xi_sft_send_file_status(
                             context, NULL,
                             XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_PROCESSING,
-                            XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__FILE_WRITE );
+                            chunk_handling_status_code );
 
                         goto err_handling;
                     }
-
-                    xi_bsp_fwu_checksum_update( context->checksum_context,
-                                                sft_message_in->file_chunk.chunk,
-                                                sft_message_in->file_chunk.length );
-
-                    // if ( 0 == sft_message_in->file_chunk.offset )
-                    // {
-                    //     printf( " --- %s, write, state: %d\n", __FUNCTION__, state );
-                    // }
                 }
+
+                /*const xi_control_message__sft_file_status_code_t sft_control_status_code
+                   =
+                    xi_sft_on_message_file_chunk_sft_control( context, sft_message_in );*/
 
                 const uint32_t all_downloaded_bytes =
                     sft_message_in->file_chunk.offset + sft_message_in->file_chunk.length;
@@ -248,40 +213,24 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                 {
                     /* SFT flow: file downloaded, continue with next file in list */
 
-                    uint8_t* locally_calculated_fingerprint     = NULL;
-                    uint16_t locally_calculated_fingerprint_len = 0;
-
-                    xi_bsp_fwu_checksum_final( context->checksum_context,
-                                               &locally_calculated_fingerprint,
-                                               &locally_calculated_fingerprint_len );
-
-                    // printf( "--- %s, checksum: %s\n", __FUNCTION__,
-                    // locally_calculated_fingerprint );
-
-                    /* integrity check based on checksum values */
-                    if ( context->update_current_file->fingerprint_len !=
-                             locally_calculated_fingerprint_len ||
-                         0 != memcmp( context->update_current_file->fingerprint,
-                                      locally_calculated_fingerprint,
-                                      locally_calculated_fingerprint_len ) )
+                    /* checksum handling */
                     {
-                        /* checksum mismatch */
+                        const xi_control_message__sft_file_status_code_t
+                            checksum_status_code =
+                                xi_sft_on_message_file_chunk_checksum_final( context );
+
                         xi_sft_send_file_status(
                             context, NULL,
                             XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADED,
-                            XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__FILE_CHECKSUM_MISMATCH );
+                            checksum_status_code );
 
-                        /* todo_atigyi: another option beyond exiting the whole update
-                         * process is to retry broken file download */
-                        // goto err_handling;
-                    }
-                    else
-                    {
-                        /* checksum OK */
-                        xi_sft_send_file_status(
-                            context, NULL,
-                            XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADED,
-                            XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
+                        if ( XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS !=
+                             checksum_status_code )
+                        {
+                            /* todo_atigyi: another option beyond exiting the whole update
+                             * process is to retry the broken file download */
+                            // goto err_handling; */
+                        }
                     }
 
                     state = xi_bsp_io_fs_close( context->update_file_handle );
@@ -301,14 +250,24 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                     }
                     else if ( context->update_firmware != context->update_current_file )
                     {
+                        /* for all closed non-firmware files */
                         xi_sft_send_file_status(
                             context, NULL,
                             XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_FINISHED,
                             XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
+
+                        xi_sft_revision_set( context->update_current_file->name,
+                                             context->update_current_file->revision );
+                    }
+                    else
+                    {
+                        /* for closed firmware file(s) */
+                        /* todo_atigyi: find proper FW update revision storage name in
+                         * XCL-3052 */
+                        xi_sft_revision_set( "firmware.bin.update",
+                                             context->update_current_file->revision );
                     }
 
-                    xi_sft_revision_set( context->update_current_file->name,
-                                         context->update_current_file->revision );
 
                     /* jump to next file in the update package */
                     context->update_current_file =
