@@ -182,10 +182,6 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                     }
                 }
 
-                /*const xi_control_message__sft_file_status_code_t sft_control_status_code
-                   =
-                    xi_sft_on_message_file_chunk_sft_control( context, sft_message_in );*/
-
                 const uint32_t all_downloaded_bytes =
                     sft_message_in->file_chunk.offset + sft_message_in->file_chunk.length;
 
@@ -211,7 +207,8 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                 }
                 else
                 {
-                    /* SFT flow: file downloaded, continue with next file in list */
+                    /* SFT flow: file downloaded, checksum handling, continue with next
+                     * file in list */
 
                     /* checksum handling */
                     {
@@ -233,76 +230,83 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                         }
                     }
 
-                    state = xi_bsp_io_fs_close( context->update_file_handle );
-                    context->update_file_handle = XI_FS_INVALID_RESOURCE_HANDLE;
-                    // printf( " --- %s, close, state: %d\n", __FUNCTION__, state );
-
-                    if ( XI_STATE_OK != state )
+                    /* close file */
                     {
-                        xi_sft_send_file_status(
-                            context, NULL,
-                            XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_PROCESSING,
-                            XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__FILE_CLOSE );
+                        state = xi_bsp_io_fs_close( context->update_file_handle );
+                        context->update_file_handle = XI_FS_INVALID_RESOURCE_HANDLE;
+                        // printf( " --- %s, close, state: %d\n", __FUNCTION__, state );
 
-                        // what to do here?
-                        // downloaded but file close error: abort or continue?
-                        // goto err_handling;
-                    }
-                    else if ( context->update_firmware != context->update_current_file )
-                    {
-                        /* for all closed non-firmware files */
-                        xi_sft_send_file_status(
-                            context, NULL,
-                            XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_FINISHED,
-                            XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
-
-                        xi_sft_revision_set( context->update_current_file->name,
-                                             context->update_current_file->revision );
-                    }
-                    else
-                    {
-                        /* for closed firmware file(s) */
-                        /* todo_atigyi: find proper FW update revision storage name in
-                         * XCL-3052 */
-                        xi_sft_revision_set( "firmware.bin.update",
-                                             context->update_current_file->revision );
-                    }
-
-
-                    /* jump to next file in the update package */
-                    context->update_current_file =
-                        xi_control_message_file_update_available_get_next_file_desc_ext(
-                            &context->update_message_fua->file_update_available,
-                            sft_message_in->file_chunk.name );
-
-                    if ( NULL != context->update_current_file )
-                    {
-                        /* continue download with next file */
-                        xi_sft_send_file_get_chunk(
-                            context, 0, context->update_current_file->size_in_bytes );
-                    }
-                    else
-                    {
-                        /* finished with package download */
-
-                        if ( NULL != context->update_firmware )
+                        if ( XI_STATE_OK != state )
                         {
                             xi_sft_send_file_status(
-                                context, context->update_firmware,
+                                context, NULL,
                                 XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_PROCESSING,
-                                XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
-                        }
+                                XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__FILE_CLOSE );
 
-                        /* if there was firmware in the update package, then report it to
-                         * the application */
-                        if ( NULL != context->update_firmware )
+                            // what to do here?
+                            // downloaded but file close error: abort or continue?
+                            // goto err_handling;
+                        }
+                        else if ( context->update_firmware !=
+                                  context->update_current_file )
                         {
-                            xi_bsp_fwu_on_firmware_package_download_finished(
-                                context->update_firmware->name );
-                        }
+                            /* for all closed non-firmware files */
+                            xi_sft_send_file_status(
+                                context, NULL,
+                                XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_FINISHED,
+                                XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
 
-                        /* no further files to download, finished with download process */
-                        xi_control_message_free( &context->update_message_fua );
+                            xi_sft_revision_set( context->update_current_file->name,
+                                                 context->update_current_file->revision );
+                        }
+                        else
+                        {
+                            /* for closed firmware file(s) */
+                            /* todo_atigyi: find proper FW update revision storage name in
+                             * XCL-3052 */
+                            xi_sft_revision_set( "firmware.bin.update",
+                                                 context->update_current_file->revision );
+                        }
+                    }
+
+                    /* continue the update package download  */
+                    {
+                        context->update_current_file =
+                            xi_control_message_file_update_available_get_next_file_desc_ext(
+                                &context->update_message_fua->file_update_available,
+                                sft_message_in->file_chunk.name );
+
+                        if ( NULL != context->update_current_file )
+                        {
+                            /* continue download with next file */
+                            xi_sft_send_file_get_chunk(
+                                context, 0, context->update_current_file->size_in_bytes );
+                        }
+                        else
+                        {
+                            /* finished with package download */
+
+                            if ( NULL != context->update_firmware )
+                            {
+                                xi_sft_send_file_status(
+                                    context, context->update_firmware,
+                                    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_PROCESSING,
+                                    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
+                            }
+
+                            /* if there was firmware in the update package, then report it
+                             * to
+                             * the application */
+                            if ( NULL != context->update_firmware )
+                            {
+                                xi_bsp_fwu_on_firmware_package_download_finished(
+                                    context->update_firmware->name );
+                            }
+
+                            /* no further files to download, finished with download
+                             * process */
+                            xi_control_message_free( &context->update_message_fua );
+                        }
                     }
                 }
             }
