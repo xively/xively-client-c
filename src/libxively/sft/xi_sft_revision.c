@@ -79,7 +79,7 @@ xi_state_t xi_sft_revision_get( const char* const resource_name, char** revision
 
     xi_bsp_io_fs_close( resource_handle );
 
-    /* copy revision buffer into output buffer */
+    /* allocate output buffer then copy revision buffer into output buffer */
     XI_ALLOC_BUFFER_AT( char, *revision_out, buffer_size + 1, state );
 
     memcpy( *revision_out, buffer, buffer_size );
