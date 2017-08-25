@@ -17,6 +17,7 @@
 #include "xi_memory_checks.h"
 #include "xi_itest_layerchain_ct_ml_mc.h"
 #include "xi_itest_mock_broker_layerchain.h"
+#include "xi_itest_mock_broker_sft_logic.h"
 
 #include "xi_control_message.h"
 
@@ -41,6 +42,11 @@ extern xi_context_t* xi_context;
 extern xi_context_handle_t xi_context_handle;
 extern xi_context_t* xi_context_mockbroker;
 /* end of dependency */
+
+#define XI_ITEST_SFT__NUMBER_OF_FILE_CHUNKS                                              \
+    ( XI_MOCK_BROKER_SFT__FILE_CHUNK_STEP_SIZE / XI_SFT_FILE_CHUNK_SIZE +                \
+      ( ( XI_MOCK_BROKER_SFT__FILE_CHUNK_STEP_SIZE % XI_SFT_FILE_CHUNK_SIZE ) ? 1        \
+                                                                              : 0 ) )
 
 /*********************************************************************************
  * test fixture ******************************************************************
@@ -252,11 +258,11 @@ void xi_itest_sft__basic_flow__SFT_with_happy_broker__protocol_intact(
     /* 1st file */
     expect_value_count(
         xi_mock_broker_sft_logic_on_message, control_message->common.msgtype,
-        XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK, 7777 / XI_SFT_FILE_CHUNK_SIZE + 1 );
+        XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK, XI_ITEST_SFT__NUMBER_OF_FILE_CHUNKS );
 
     expect_string_count( xi_mock_broker_sft_logic_on_file_get_chunk,
                          control_message->file_get_chunk.name, "file1",
-                         7777 / XI_SFT_FILE_CHUNK_SIZE + 1 );
+                         XI_ITEST_SFT__NUMBER_OF_FILE_CHUNKS );
 
     expect_value_count( xi_mock_broker_sft_logic_on_message,
                         control_message->common.msgtype,
@@ -266,11 +272,11 @@ void xi_itest_sft__basic_flow__SFT_with_happy_broker__protocol_intact(
     expect_value_count( xi_mock_broker_sft_logic_on_message,
                         control_message->common.msgtype,
                         XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK,
-                        2 * 7777 / XI_SFT_FILE_CHUNK_SIZE + 1 );
+                        2 * XI_ITEST_SFT__NUMBER_OF_FILE_CHUNKS );
 
     expect_string_count( xi_mock_broker_sft_logic_on_file_get_chunk,
                          control_message->file_get_chunk.name, "file2",
-                         2 * 7777 / XI_SFT_FILE_CHUNK_SIZE + 1 );
+                         2 * XI_ITEST_SFT__NUMBER_OF_FILE_CHUNKS );
 
     expect_value_count( xi_mock_broker_sft_logic_on_message,
                         control_message->common.msgtype,
@@ -393,7 +399,7 @@ void xi_itest_sft__manymany_updateable_files( void** fixture_void )
 
         /* calculating expected number of FILE_GET_CHUNK messages */
         const uint32_t num_of_file_get_chunks =
-            7777 * ( id_file % 3 + 1 ) / XI_SFT_FILE_CHUNK_SIZE + 1;
+            ( id_file % 3 + 1 ) * XI_ITEST_SFT__NUMBER_OF_FILE_CHUNKS;
 
         expect_value_count(
             xi_mock_broker_sft_logic_on_message, control_message->common.msgtype,
@@ -422,11 +428,11 @@ void xi_itest_sft__firmware_bin_received__firmware_test_commit_triggered(
     /* 1st file */
     expect_value_count(
         xi_mock_broker_sft_logic_on_message, control_message->common.msgtype,
-        XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK, 7777 / XI_SFT_FILE_CHUNK_SIZE + 1 );
+        XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK, XI_ITEST_SFT__NUMBER_OF_FILE_CHUNKS );
 
     expect_string_count( xi_mock_broker_sft_logic_on_file_get_chunk,
                          control_message->file_get_chunk.name, "file1",
-                         7777 / XI_SFT_FILE_CHUNK_SIZE + 1 );
+                         XI_ITEST_SFT__NUMBER_OF_FILE_CHUNKS );
 
     expect_value_count( xi_mock_broker_sft_logic_on_message,
                         control_message->common.msgtype,
@@ -436,11 +442,11 @@ void xi_itest_sft__firmware_bin_received__firmware_test_commit_triggered(
     expect_value_count( xi_mock_broker_sft_logic_on_message,
                         control_message->common.msgtype,
                         XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK,
-                        2 * 7777 / XI_SFT_FILE_CHUNK_SIZE + 1 );
+                        2 * XI_ITEST_SFT__NUMBER_OF_FILE_CHUNKS );
 
     expect_string_count( xi_mock_broker_sft_logic_on_file_get_chunk,
                          control_message->file_get_chunk.name, "firmware.bin",
-                         2 * 7777 / XI_SFT_FILE_CHUNK_SIZE + 1 );
+                         2 * XI_ITEST_SFT__NUMBER_OF_FILE_CHUNKS );
 
     expect_value_count( xi_mock_broker_sft_logic_on_message,
                         control_message->common.msgtype,
@@ -450,11 +456,11 @@ void xi_itest_sft__firmware_bin_received__firmware_test_commit_triggered(
     expect_value_count( xi_mock_broker_sft_logic_on_message,
                         control_message->common.msgtype,
                         XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK,
-                        3 * 7777 / XI_SFT_FILE_CHUNK_SIZE + 1 );
+                        3 * XI_ITEST_SFT__NUMBER_OF_FILE_CHUNKS );
 
     expect_string_count( xi_mock_broker_sft_logic_on_file_get_chunk,
                          control_message->file_get_chunk.name, "file3",
-                         3 * 7777 / XI_SFT_FILE_CHUNK_SIZE + 1 );
+                         3 * XI_ITEST_SFT__NUMBER_OF_FILE_CHUNKS );
 
     expect_value_count( xi_mock_broker_sft_logic_on_message,
                         control_message->common.msgtype,
@@ -520,11 +526,11 @@ void xi_itest_sft__revision_non_volatile_storage__proper_value_stored(
     /* 1st file */
     expect_value_count(
         xi_mock_broker_sft_logic_on_message, control_message->common.msgtype,
-        XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK, 7777 / XI_SFT_FILE_CHUNK_SIZE + 1 );
+        XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK, XI_ITEST_SFT__NUMBER_OF_FILE_CHUNKS );
 
     expect_string_count( xi_mock_broker_sft_logic_on_file_get_chunk,
                          control_message->file_get_chunk.name, "uniquefilename.file1",
-                         7777 / XI_SFT_FILE_CHUNK_SIZE + 1 );
+                         XI_ITEST_SFT__NUMBER_OF_FILE_CHUNKS );
 
     expect_value_count( xi_mock_broker_sft_logic_on_message,
                         control_message->common.msgtype,
@@ -534,11 +540,11 @@ void xi_itest_sft__revision_non_volatile_storage__proper_value_stored(
     expect_value_count( xi_mock_broker_sft_logic_on_message,
                         control_message->common.msgtype,
                         XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK,
-                        2 * 7777 / XI_SFT_FILE_CHUNK_SIZE + 1 );
+                        2 * XI_ITEST_SFT__NUMBER_OF_FILE_CHUNKS );
 
     expect_string_count(
         xi_mock_broker_sft_logic_on_file_get_chunk, control_message->file_get_chunk.name,
-        "uniquefilename.firmware.bin", 2 * 7777 / XI_SFT_FILE_CHUNK_SIZE + 1 );
+        "uniquefilename.firmware.bin", 2 * XI_ITEST_SFT__NUMBER_OF_FILE_CHUNKS );
 
     expect_value_count( xi_mock_broker_sft_logic_on_message,
                         control_message->common.msgtype,

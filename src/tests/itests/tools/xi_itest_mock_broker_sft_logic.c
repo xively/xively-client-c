@@ -11,6 +11,65 @@
 #include <xi_cbor_codec_ct_server.h>
 #include "xi_itest_helpers.h"
 #include "xi_helpers.h"
+#include <xi_bsp_fwu.h>
+
+uint8_t* xi_mock_broker_sft_logic_get_reproducible_randomlike_bytes( uint32_t offset,
+                                                                     uint32_t length )
+{
+    xi_state_t state = XI_STATE_OK;
+
+    XI_ALLOC_BUFFER( uint8_t, reproducible_randomlike_bytes, length, state );
+
+    uint8_t* it_byte = reproducible_randomlike_bytes;
+
+    uint32_t id_byte = offset;
+    for ( ; id_byte < offset + length; ++id_byte, ++it_byte )
+    {
+        /* the simpliest "random" bytes */
+        *it_byte = id_byte;
+    }
+
+    return reproducible_randomlike_bytes;
+
+err_handling:
+
+    XI_SAFE_FREE( reproducible_randomlike_bytes );
+
+    return NULL;
+}
+
+void xi_mock_broker_sft_logic_get_fingerprint( uint32_t size_in_bytes,
+                                               uint8_t** fingerprint_out,
+                                               uint16_t* fingerprint_len_out )
+{
+    uint8_t* artificial_file_content =
+        xi_mock_broker_sft_logic_get_reproducible_randomlike_bytes( 0, size_in_bytes );
+
+    void* checksum_context = NULL;
+
+    xi_bsp_fwu_checksum_init( &checksum_context );
+
+    xi_bsp_fwu_checksum_update( checksum_context, artificial_file_content,
+                                size_in_bytes );
+
+    uint8_t* checksum = NULL;
+
+    xi_bsp_fwu_checksum_final( checksum_context, &checksum, fingerprint_len_out );
+
+    xi_state_t state = XI_STATE_OK;
+
+    XI_ALLOC_BUFFER_AT( uint8_t, *fingerprint_out, *fingerprint_len_out, state );
+    memcpy( *fingerprint_out, checksum, *fingerprint_len_out );
+
+    XI_SAFE_FREE( artificial_file_content );
+
+    return;
+
+err_handling:
+
+    XI_SAFE_FREE( artificial_file_content );
+    XI_SAFE_FREE( *fingerprint_out );
+}
 
 xi_control_message_t* xi_mock_broker_sft_logic_generate_reply_happy_FUA(
     const xi_control_message_t* control_message )
@@ -60,15 +119,12 @@ xi_control_message_t* xi_mock_broker_sft_logic_generate_reply_happy_FUA(
 
         control_message_reply->file_update_available.list[id_file].file_operation = 0;
         control_message_reply->file_update_available.list[id_file].size_in_bytes =
-            7777 * ( id_file % 3 + 1 );
+            XI_MOCK_BROKER_SFT__FILE_CHUNK_STEP_SIZE * ( id_file % 3 + 1 );
 
-        const char* fingerprint =
-            xi_str_cat( "@#$@#$@$xxx^ - test fingerprint - ",
-                        control_message_reply->file_update_available.list[id_file].name );
-        control_message_reply->file_update_available.list[id_file].fingerprint =
-            ( uint8_t* )fingerprint;
-        control_message_reply->file_update_available.list[id_file].fingerprint_len =
-            strlen( fingerprint );
+        xi_mock_broker_sft_logic_get_fingerprint(
+            control_message_reply->file_update_available.list[id_file].size_in_bytes,
+            &control_message_reply->file_update_available.list[id_file].fingerprint,
+            &control_message_reply->file_update_available.list[id_file].fingerprint_len );
     }
 
     return control_message_reply;
@@ -117,11 +173,10 @@ xi_control_message_t* xi_mock_broker_sft_logic_generate_reply_FILE_CHUNK(
 
     XI_ALLOC( xi_control_message_t, control_message_reply, state );
 
-    /* not filling file chunk bytes with zeros, available memory content servers as a
-     * random data */
     file_chunk_out_artificial =
-        ( uint8_t* )xi_alloc( control_message->file_get_chunk.length );
-    XI_CHECK_MEMORY( file_chunk_out_artificial, state );
+        xi_mock_broker_sft_logic_get_reproducible_randomlike_bytes(
+            control_message->file_get_chunk.offset,
+            control_message->file_get_chunk.length );
 
     control_message_reply->file_chunk = ( struct file_chunk_s ){
         .common = {.msgtype = XI_CONTROL_MESSAGE_SC__SFT_FILE_CHUNK, .msgver = 1},
