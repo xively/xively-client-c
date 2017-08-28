@@ -50,6 +50,6 @@ xi_state_t xi_bsp_fwu_on_firmware_package_download_finished(
     /* Request hibernate */
     PRCMHibernateEnter();
 
-    /* Control should never reach here */
+    /* Control should never reach this */
     return XI_INTERNAL_ERROR;
 }
