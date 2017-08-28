@@ -226,7 +226,7 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                         {
                             /* todo_atigyi: another option beyond exiting the whole update
                              * process is to retry the broken file download */
-                            // goto err_handling; */
+                            goto err_handling;
                         }
                     }
 

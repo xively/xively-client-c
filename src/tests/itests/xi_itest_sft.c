@@ -319,27 +319,31 @@ void xi_itest_sft__broker_replies_FUA_on_FILE_GET_CHUNK__client_processes_2nd_FU
 {
     xi_state_t state = XI_STATE_OK;
 
-    XI_ALLOC( xi_control_message_t, control_message_reply, state );
-    XI_ALLOC( xi_control_message_file_desc_ext_t, single_file_desc, state );
+    xi_control_message_t* control_message_reply = NULL;
 
-    *single_file_desc =
-        ( xi_control_message_file_desc_ext_t ){xi_str_dup( "file2" ),
-                                               xi_str_dup( "rev2" ),
-                                               11,
-                                               22,
-                                               ( uint8_t* )xi_str_dup( "fingerprint1" ),
-                                               12};
+    /* generate a test case specific mock broker reply on FILE_GET_CHUNK */
+    {
+        XI_ALLOC_AT( xi_control_message_t, control_message_reply, state );
+        XI_ALLOC( xi_control_message_file_desc_ext_t, single_file_desc, state );
 
-    control_message_reply->common.msgtype =
-        XI_CONTROL_MESSAGE_SC__SFT_FILE_UPDATE_AVAILABLE;
-    control_message_reply->common.msgver = 1;
+        *single_file_desc = ( xi_control_message_file_desc_ext_t ){
+            xi_str_dup( "file2" ), xi_str_dup( "rev2" ), 11, 22, NULL, 12};
 
-    control_message_reply->file_update_available.list_len = 1;
-    control_message_reply->file_update_available.list     = single_file_desc;
+        xi_mock_broker_sft_logic_get_fingerprint( single_file_desc->size_in_bytes,
+                                                  &single_file_desc->fingerprint,
+                                                  &single_file_desc->fingerprint_len );
 
-    /* This will cause mock broker to reply with FILE_UPDATE_AVAILABLE message on
-     * a FILE_GET_CHUNK message which is a protocol violation */
-    will_return( xi_mock_broker_sft_logic_on_file_get_chunk, control_message_reply );
+        control_message_reply->common.msgtype =
+            XI_CONTROL_MESSAGE_SC__SFT_FILE_UPDATE_AVAILABLE;
+        control_message_reply->common.msgver = 1;
+
+        control_message_reply->file_update_available.list_len = 1;
+        control_message_reply->file_update_available.list     = single_file_desc;
+
+        /* This will cause mock broker to reply with FILE_UPDATE_AVAILABLE message on
+         * a FILE_GET_CHUNK message which is a protocol violation */
+        will_return( xi_mock_broker_sft_logic_on_file_get_chunk, control_message_reply );
+    }
 
     expect_value( xi_mock_broker_sft_logic_on_message, control_message->common.msgtype,
                   XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO );
