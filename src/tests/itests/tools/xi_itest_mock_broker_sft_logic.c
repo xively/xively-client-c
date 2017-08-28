@@ -42,6 +42,15 @@ void xi_mock_broker_sft_logic_get_fingerprint( uint32_t size_in_bytes,
                                                uint8_t** fingerprint_out,
                                                uint16_t* fingerprint_len_out )
 {
+    /* try to fill up fingerprint from a test-case-set one */
+    *fingerprint_out     = mock_type( uint8_t* );
+    *fingerprint_len_out = mock_type( uint16_t );
+
+    if ( NULL != *fingerprint_out && 0 != *fingerprint_len_out )
+    {
+        return;
+    }
+
     uint8_t* artificial_file_content =
         xi_mock_broker_sft_logic_get_reproducible_randomlike_bytes( 0, size_in_bytes );
 

@@ -570,3 +570,31 @@ void xi_itest_sft__revision_non_volatile_storage__proper_value_stored(
      * exits before */
     xi_itest_sft__remove_files( files_under_update, 2 );
 }
+
+void xi_itest_sft__checksum_mismatch__update_process_exits( void** fixture_void )
+{
+    expect_value( xi_mock_broker_sft_logic_on_message, control_message->common.msgtype,
+                  XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO );
+
+    will_return( xi_mock_broker_sft_logic_get_fingerprint,
+                 xi_str_dup( "mismatching fingerprint" ) );
+    will_return( xi_mock_broker_sft_logic_get_fingerprint, 24 );
+
+    /* 1st file */
+    expect_value_count(
+        xi_mock_broker_sft_logic_on_message, control_message->common.msgtype,
+        XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK, XI_ITEST_SFT__NUMBER_OF_FILE_CHUNKS );
+
+    expect_string_count( xi_mock_broker_sft_logic_on_file_get_chunk,
+                         control_message->file_get_chunk.name, "file1",
+                         XI_ITEST_SFT__NUMBER_OF_FILE_CHUNKS );
+
+    expect_value_count( xi_mock_broker_sft_logic_on_message,
+                        control_message->common.msgtype,
+                        XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 1 );
+
+    /* package update process exits here, 2nd file is not downloaded at all */
+
+    /* ACT */
+    xi_itest_sft__act( fixture_void, 1, ( const char* [] ){"file1", "file2"}, 2 );
+}
