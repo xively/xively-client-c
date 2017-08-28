@@ -26,11 +26,6 @@ xi_sft_on_message_file_chunk_process_file_chunk( xi_sft_context_t* context,
                                    context->update_current_file->size_in_bytes,
                                    XI_FS_OPEN_WRITE, &context->update_file_handle );
 
-        // printf( " --- %s, open, filename: %s, state: %d, handle: %lu\n
-        // ",
-        //         __FUNCTION__, sft_message_in->file_chunk.name, state,
-        //         context->update_file_handle );
-
         if ( XI_STATE_OK != state )
         {
             return XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__FILE_OPEN;
@@ -72,9 +67,6 @@ xi_sft_on_message_file_chunk_checksum_final( xi_sft_context_t* context )
 
     xi_bsp_fwu_checksum_final( context->checksum_context, &locally_calculated_fingerprint,
                                &locally_calculated_fingerprint_len );
-
-    // printf( "--- %s, checksum: %s\n", __FUNCTION__,
-    // locally_calculated_fingerprint );
 
     /* integrity check based on checksum values */
     if ( context->update_current_file->fingerprint_len !=
