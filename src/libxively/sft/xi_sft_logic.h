@@ -24,6 +24,8 @@ typedef struct
     const xi_control_message_file_desc_ext_t* update_current_file;
     const xi_control_message_file_desc_ext_t* update_firmware;
     xi_fs_resource_handle_t update_file_handle;
+
+    void* checksum_context;
 } xi_sft_context_t;
 
 

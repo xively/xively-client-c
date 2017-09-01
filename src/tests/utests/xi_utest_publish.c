@@ -30,7 +30,7 @@ XI_TT_TESTCASE_WITH_SETUP( utest__xi_publish__formatted_timeseries__no_correct_v
                            xi_utest_teardown_basic,
                            NULL,
                            {
-                               xi_state_t state;
+                               xi_state_t state       = XI_STATE_OK;
                                uint32_t time_value    = 12345;
                                char* category         = NULL;
                                char* string_value     = NULL;
@@ -62,7 +62,7 @@ XI_TT_TESTCASE_WITH_SETUP( utest__xi_publish__formatted_timeseries__category_too
                            xi_utest_teardown_basic,
                            NULL,
                            {
-                               xi_state_t state;
+                               xi_state_t state    = XI_STATE_OK;
                                char* category      = NULL;
                                char* string_value  = "string_value";
                                float float_value   = 123.0f;
@@ -99,7 +99,7 @@ XI_TT_TESTCASE_WITH_SETUP( utest__xi_publish__formatted_timeseries__string_value
                            xi_utest_teardown_basic,
                            NULL,
                            {
-                               xi_state_t state;
+                               xi_state_t state    = XI_STATE_OK;
                                char* category      = NULL;
                                char* string_value  = NULL;
                                float float_value   = 123.0f;
@@ -138,7 +138,7 @@ XI_TT_TESTCASE_WITH_SETUP(
     xi_utest_teardown_basic,
     NULL,
     {
-        xi_state_t state;
+        xi_state_t state    = XI_STATE_OK;
         char* category      = NULL;
         char* string_value  = "string,value";
         float float_value   = 123.0f;
@@ -167,7 +167,7 @@ XI_TT_TESTCASE_WITH_SETUP(
     xi_utest_teardown_basic,
     NULL,
     {
-        xi_state_t state;
+        xi_state_t state    = XI_STATE_OK;
         char* category      = NULL;
         char* string_value  = "stringvalue\n";
         float float_value   = 123.0f;
@@ -196,7 +196,7 @@ XI_TT_TESTCASE_WITH_SETUP(
     xi_utest_teardown_basic,
     NULL,
     {
-        xi_state_t state;
+        xi_state_t state    = XI_STATE_OK;
         char* category      = NULL;
         char* string_value  = "stringvalue\r";
         float float_value   = 123.0f;
