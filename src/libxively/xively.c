@@ -911,8 +911,8 @@ xi_state_t xi_publish_formatted_timeseries( xi_context_handle_t xih,
     if ( NULL == in_numeric_value )
     {
         XI_ALLOC_BUFFER_AT( char, numeric_string, 1, state );
-        numeric_string[0] = '\0';
-        num_chars_time    = 0;
+        numeric_string[0]       = '\0';
+        num_chars_numeric_value = 0;
     }
     else
     {

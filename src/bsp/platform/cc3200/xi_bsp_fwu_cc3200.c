@@ -19,7 +19,7 @@ uint8_t xi_bsp_fwu_is_this_firmware( const char* const resource_name )
     return ( 0 == strcmp( "firmware.bin", resource_name ) ) ? 1 : 0;
 }
 
-xi_state_t xi_bsp_fwu_commit()
+xi_state_t xi_bsp_fwu_on_new_firmware_ok()
 {
     if ( sl_extlib_FlcIsPendingCommit() )
     {
@@ -29,15 +29,15 @@ xi_state_t xi_bsp_fwu_commit()
     return XI_STATE_OK;
 }
 
-xi_state_t xi_bsp_fwu_test()
+xi_state_t xi_bsp_fwu_on_firmware_package_download_finished(
+    const char* const firmware_resource_name )
 {
+    ( void )firmware_resource_name;
+
     sl_extlib_FlcTest( FLC_TEST_RESET_MCU | FLC_TEST_RESET_MCU_WITH_APP );
 
-    return XI_STATE_OK;
-}
+    /* reboot the device */
 
-xi_state_t xi_bsp_fwu_reboot()
-{
     /* Configure hibernate RTC wakeup */
     PRCMHibernateWakeupSourceEnable( PRCM_HIB_SLOW_CLK_CTR );
 
@@ -50,6 +50,6 @@ xi_state_t xi_bsp_fwu_reboot()
     /* Request hibernate */
     PRCMHibernateEnter();
 
-    /* Control should never reach here */
+    /* Control should never reach this */
     return XI_INTERNAL_ERROR;
 }

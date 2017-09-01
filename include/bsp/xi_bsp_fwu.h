@@ -16,11 +16,23 @@ extern "C" {
 
 uint8_t xi_bsp_fwu_is_this_firmware( const char* const resource_name );
 
-xi_state_t xi_bsp_fwu_commit();
+xi_state_t xi_bsp_fwu_on_new_firmware_ok();
 
-xi_state_t xi_bsp_fwu_test();
+xi_state_t xi_bsp_fwu_on_new_firmware_failure();
 
-xi_state_t xi_bsp_fwu_reboot();
+xi_state_t xi_bsp_fwu_on_firmware_package_download_finished(
+    const char* const firmware_resource_name );
+
+
+void xi_bsp_fwu_checksum_init( void** checksum_context );
+
+void xi_bsp_fwu_checksum_update( void* checksum_context,
+                                 const uint8_t* data,
+                                 uint32_t len );
+
+void xi_bsp_fwu_checksum_final( void* checksum_context,
+                                uint8_t** buffer_out,
+                                uint16_t* buffer_len_out );
 
 #ifdef __cplusplus
 }

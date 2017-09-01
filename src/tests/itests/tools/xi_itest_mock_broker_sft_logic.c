@@ -11,9 +11,77 @@
 #include <xi_cbor_codec_ct_server.h>
 #include "xi_itest_helpers.h"
 #include "xi_helpers.h"
+#include <xi_bsp_fwu.h>
 
-xi_control_message_t*
-xi_mock_broker_sft_logic_on_file_info( xi_control_message_t* control_message )
+uint8_t* xi_mock_broker_sft_logic_get_reproducible_randomlike_bytes( uint32_t offset,
+                                                                     uint32_t length )
+{
+    xi_state_t state = XI_STATE_OK;
+
+    XI_ALLOC_BUFFER( uint8_t, reproducible_randomlike_bytes, length, state );
+
+    uint8_t* it_byte = reproducible_randomlike_bytes;
+
+    uint32_t id_byte = offset;
+    for ( ; id_byte < offset + length; ++id_byte, ++it_byte )
+    {
+        /* the simpliest "random" bytes */
+        *it_byte = id_byte;
+    }
+
+    return reproducible_randomlike_bytes;
+
+err_handling:
+
+    XI_SAFE_FREE( reproducible_randomlike_bytes );
+
+    return NULL;
+}
+
+void xi_mock_broker_sft_logic_get_fingerprint( uint32_t size_in_bytes,
+                                               uint8_t** fingerprint_out,
+                                               uint16_t* fingerprint_len_out )
+{
+    /* try to fill up fingerprint from a test-case-set one */
+    *fingerprint_out     = mock_type( uint8_t* );
+    *fingerprint_len_out = mock_type( uint16_t );
+
+    if ( NULL != *fingerprint_out && 0 != *fingerprint_len_out )
+    {
+        return;
+    }
+
+    uint8_t* artificial_file_content =
+        xi_mock_broker_sft_logic_get_reproducible_randomlike_bytes( 0, size_in_bytes );
+
+    void* checksum_context = NULL;
+
+    xi_bsp_fwu_checksum_init( &checksum_context );
+
+    xi_bsp_fwu_checksum_update( checksum_context, artificial_file_content,
+                                size_in_bytes );
+
+    uint8_t* checksum = NULL;
+
+    xi_bsp_fwu_checksum_final( checksum_context, &checksum, fingerprint_len_out );
+
+    xi_state_t state = XI_STATE_OK;
+
+    XI_ALLOC_BUFFER_AT( uint8_t, *fingerprint_out, *fingerprint_len_out, state );
+    memcpy( *fingerprint_out, checksum, *fingerprint_len_out );
+
+    XI_SAFE_FREE( artificial_file_content );
+
+    return;
+
+err_handling:
+
+    XI_SAFE_FREE( artificial_file_content );
+    XI_SAFE_FREE( *fingerprint_out );
+}
+
+xi_control_message_t* xi_mock_broker_sft_logic_generate_reply_happy_FUA(
+    const xi_control_message_t* control_message )
 {
     if ( NULL == control_message )
     {
@@ -60,15 +128,12 @@ xi_mock_broker_sft_logic_on_file_info( xi_control_message_t* control_message )
 
         control_message_reply->file_update_available.list[id_file].file_operation = 0;
         control_message_reply->file_update_available.list[id_file].size_in_bytes =
-            7777 * ( id_file % 3 + 1 );
+            XI_MOCK_BROKER_SFT__FILE_CHUNK_STEP_SIZE * ( id_file % 3 + 1 );
 
-        const char* fingerprint =
-            xi_str_cat( "@#$@#$@$xxx^ - test fingerprint - ",
-                        control_message_reply->file_update_available.list[id_file].name );
-        control_message_reply->file_update_available.list[id_file].fingerprint =
-            ( uint8_t* )fingerprint;
-        control_message_reply->file_update_available.list[id_file].fingerprint_len =
-            strlen( fingerprint );
+        xi_mock_broker_sft_logic_get_fingerprint(
+            control_message_reply->file_update_available.list[id_file].size_in_bytes,
+            &control_message_reply->file_update_available.list[id_file].fingerprint,
+            &control_message_reply->file_update_available.list[id_file].fingerprint_len );
     }
 
     return control_message_reply;
@@ -76,6 +141,73 @@ xi_mock_broker_sft_logic_on_file_info( xi_control_message_t* control_message )
 err_handling:
 
     xi_control_message_free( &control_message_reply );
+
+    return NULL;
+}
+
+xi_control_message_t*
+xi_mock_broker_sft_logic_on_file_info( xi_control_message_t* control_message )
+{
+    if ( NULL == control_message )
+    {
+        return NULL;
+    }
+
+    /* generating a "happy" FILE_UPDATE_AVAILABLE reply containing all requested files */
+    xi_control_message_t* control_message_reply =
+        xi_mock_broker_sft_logic_generate_reply_happy_FUA( control_message );
+
+    return control_message_reply;
+}
+
+xi_control_message_t* xi_mock_broker_sft_logic_generate_reply_FILE_CHUNK(
+    xi_control_message_t* control_message )
+{
+    if ( NULL == control_message )
+    {
+        return NULL;
+    }
+
+    uint8_t* file_chunk_out_artificial = NULL;
+    xi_state_t state                   = XI_STATE_OK;
+
+    enum XI_MOCK_BROKER_SFT_FILE_CHUNK_STATUS
+    {
+        MOCK_BROKER_SFT_FILE_CHUNK__REQUEST_IS_CORRECT                       = 0,
+        MOCK_BROKER_SFT_FILE_CHUNK__END_OF_FILE_CHUNK_MIGHT_BE_SHORTER       = 1,
+        MOCK_BROKER_SFT_FILE_CHUNK__OFFSET_IS_GREATER_THAN_FILE_LENGTH       = 2,
+        MOCK_BROKER_SFT_FILE_CHUNK__REQUESTED_LENGTH_IS_GREATER_THAN_MAXIMUM = 3,
+        MOCK_BROKER_SFT_FILE_CHUNK__FILE_UNAVAILABLE                         = 4,
+    };
+
+    XI_ALLOC( xi_control_message_t, control_message_reply, state );
+
+    file_chunk_out_artificial =
+        xi_mock_broker_sft_logic_get_reproducible_randomlike_bytes(
+            control_message->file_get_chunk.offset,
+            control_message->file_get_chunk.length );
+
+    control_message_reply->file_chunk = ( struct file_chunk_s ){
+        .common = {.msgtype = XI_CONTROL_MESSAGE_SC__SFT_FILE_CHUNK, .msgver = 1},
+        .name     = control_message->file_get_chunk.name,
+        .revision = control_message->file_get_chunk.revision,
+        .offset   = control_message->file_get_chunk.offset,
+        .length   = control_message->file_get_chunk.length,
+        .status   = MOCK_BROKER_SFT_FILE_CHUNK__REQUEST_IS_CORRECT,
+        .chunk    = file_chunk_out_artificial};
+
+
+    /* prevent deallocation of name and revision since these are reused in reply msg
+     */
+    control_message->file_get_chunk.name     = NULL;
+    control_message->file_get_chunk.revision = NULL;
+
+    return control_message_reply;
+
+err_handling:
+
+    xi_control_message_free( &control_message_reply );
+    XI_SAFE_FREE( file_chunk_out_artificial );
 
     return NULL;
 }
@@ -90,51 +222,17 @@ xi_mock_broker_sft_logic_on_file_get_chunk( xi_control_message_t* control_messag
 
     check_expected( control_message->file_get_chunk.name );
 
-    uint8_t* file_chunk_out_artificial = NULL;
-
+    /* try to fill up reply message set before in the test case */
     xi_control_message_t* control_message_reply = mock_type( xi_control_message_t* );
 
+    /* in case test case didn't define reply message, then generate a happy one :) */
     if ( NULL == control_message_reply )
     {
-        xi_state_t state = XI_STATE_OK;
-
-        enum XI_MOCK_BROKER_SFT_FILE_CHUNK_STATUS
-        {
-            MOCK_BROKER_SFT_FILE_CHUNK__REQUEST_IS_CORRECT                       = 0,
-            MOCK_BROKER_SFT_FILE_CHUNK__END_OF_FILE_CHUNK_MIGHT_BE_SHORTER       = 1,
-            MOCK_BROKER_SFT_FILE_CHUNK__OFFSET_IS_GREATER_THAN_FILE_LENGTH       = 2,
-            MOCK_BROKER_SFT_FILE_CHUNK__REQUESTED_LENGTH_IS_GREATER_THAN_MAXIMUM = 3,
-            MOCK_BROKER_SFT_FILE_CHUNK__FILE_UNAVAILABLE                         = 4,
-        };
-
-        XI_ALLOC_AT( xi_control_message_t, control_message_reply, state );
-        XI_ALLOC_BUFFER_AT( uint8_t, file_chunk_out_artificial,
-                            control_message->file_get_chunk.length, state );
-
-        control_message_reply->file_chunk = ( struct file_chunk_s ){
-            .common = {.msgtype = XI_CONTROL_MESSAGE_SC__SFT_FILE_CHUNK, .msgver = 1},
-            .name     = control_message->file_get_chunk.name,
-            .revision = control_message->file_get_chunk.revision,
-            .offset   = control_message->file_get_chunk.offset,
-            .length   = control_message->file_get_chunk.length,
-            .status   = MOCK_BROKER_SFT_FILE_CHUNK__REQUEST_IS_CORRECT,
-            .chunk    = file_chunk_out_artificial};
-
-
-        /* prevent deallocation of name and revision since these are reused in reply msg
-         */
-        control_message->file_get_chunk.name     = NULL;
-        control_message->file_get_chunk.revision = NULL;
+        control_message_reply =
+            xi_mock_broker_sft_logic_generate_reply_FILE_CHUNK( control_message );
     }
 
     return control_message_reply;
-
-err_handling:
-
-    xi_control_message_free( &control_message_reply );
-    XI_SAFE_FREE( file_chunk_out_artificial );
-
-    return NULL;
 }
 
 xi_control_message_t*
