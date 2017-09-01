@@ -67,11 +67,13 @@ xi_state_t xi_sft_free_context( xi_sft_context_t** context )
 
 xi_state_t xi_sft_on_connected( xi_sft_context_t* context )
 {
-    // printf( "%s, updateable_files_count: %d\n", __FUNCTION__,
-    //         context->updateable_files_count );
-
-    /* todo_atigyi: commit after a self check, also find a place where new FW can be
+    /* todo_atigyi: commit after a self check, also find a places where new FW can be
      * denied */
+
+    xi_state_t state = XI_STATE_OK;
+
+    xi_sft_revision_firmware_ok();
+
     xi_bsp_fwu_on_new_firmware_ok();
 
     if ( NULL == context )
@@ -84,7 +86,7 @@ xi_state_t xi_sft_on_connected( xi_sft_context_t* context )
 
     ( *context->fn_send_message )( context->send_message_user_data, message_file_info );
 
-    return XI_STATE_OK;
+    return state;
 }
 
 static void
@@ -250,7 +252,7 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                         else if ( context->update_firmware !=
                                   context->update_current_file )
                         {
-                            /* for all closed non-firmware files */
+                            /* handling non-firmware files */
                             xi_sft_send_file_status(
                                 context, NULL,
                                 XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_FINISHED,
@@ -261,11 +263,10 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                         }
                         else
                         {
-                            /* for closed firmware file(s) */
-                            /* todo_atigyi: find proper FW update revision storage name in
-                             * XCL-3052 */
-                            xi_sft_revision_set( "firmware.bin.update",
-                                                 context->update_current_file->revision );
+                            /* handling firmware file(s) */
+                            xi_sft_revision_set_firmware_uptate(
+                                context->update_current_file->name,
+                                context->update_current_file->revision );
                         }
                     }
 
@@ -295,8 +296,7 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                             }
 
                             /* if there was firmware in the update package, then report it
-                             * to
-                             * the application */
+                             * to the application */
                             if ( NULL != context->update_firmware )
                             {
                                 xi_bsp_fwu_on_firmware_package_download_finished(
