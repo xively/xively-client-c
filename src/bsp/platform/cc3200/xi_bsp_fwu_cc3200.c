@@ -14,6 +14,8 @@
 #include "prcm.h"
 #include "utils.h"
 
+#include <gpio_if.h>
+
 uint8_t xi_bsp_fwu_is_this_firmware( const char* const resource_name )
 {
     return ( 0 == strcmp( "firmware.bin", resource_name ) ) ? 1 : 0;
@@ -25,6 +27,13 @@ xi_state_t xi_bsp_fwu_on_new_firmware_ok()
     {
         sl_extlib_FlcCommit( FLC_COMMITED );
     }
+
+    return XI_STATE_OK;
+}
+
+xi_state_t xi_bsp_fwu_on_firmware_package_download_failure()
+{
+    GPIO_IF_LedOn( MCU_RED_LED_GPIO );
 
     return XI_STATE_OK;
 }
