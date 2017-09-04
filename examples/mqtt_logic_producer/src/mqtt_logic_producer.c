@@ -143,6 +143,8 @@ int xi_mqtt_logic_producer_main( xi_embedded_args_t* xi_embedded_args )
         return -1;
     }
 
+    xi_set_updateable_files( xi_context, ( const char* [] ){"firmware.bin", "creds.txt"},
+                             2 );
 
     /*  Create a connection request with the credentials.
         The topic name will be used for publication requests

@@ -47,17 +47,16 @@ xi_state_t xi_bsp_fwu_on_firmware_package_download_finished(
     const char* update_fw_name = _generate_update_filename( firmware_resource_name );
     rename( firmware_resource_name, update_fw_name );
 
-#if 0
+#if 1
     // - start new firmware
     char system_command[512] = {0};
 
     sprintf( system_command, "chmod a+x %s; "
                              "./%s "
-                             "-a 4d3c7986-8d53-4cf8-903e-7fd30ff63be1 "
-                             "-u fc4ba77e-0ba0-4ef2-bb46-d30bc59546ab "
-                             "-P JMnzPt3zDH2ZY2Q/ZQRgzublMGF6VfAFv7vFxFf5tLY= "
-                             "-p xi/blue/v1/4d3c7986-8d53-4cf8-903e-7fd30ff63be1/d/"
-                             "b03e863d-2478-48cf-976e-fa2d5ddf4ec8/Temperature",
+                             "-a <add your Xively Account ID here> "
+                             "-u <add your Xively Device ID here> "
+                             "-P <add your Xively password here> "
+                             "-p <add target topic here>",
              update_fw_name, update_fw_name );
 
     printf( "[Xively C Client Firmware Update] executing command:\n%s\n",

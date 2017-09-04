@@ -28,7 +28,7 @@
 extern "C" {
 #endif
 
-#define XI_FEATURE_DEV_SFT_ON 0
+#define XI_FEATURE_DEV_SFT_ON 1
 
 #ifdef XI_CONTROL_TOPIC_ENABLED
 
