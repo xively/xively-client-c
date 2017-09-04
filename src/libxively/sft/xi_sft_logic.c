@@ -89,6 +89,13 @@ xi_state_t xi_sft_on_connected( xi_sft_context_t* context )
     return state;
 }
 
+xi_state_t xi_sft_on_connection_failed( xi_sft_context_t* context )
+{
+    XI_UNUSED( context );
+
+    return xi_bsp_fwu_on_new_firmware_failure();
+}
+
 static void
 xi_sft_send_file_get_chunk( xi_sft_context_t* context, uint32_t offset, uint32_t length )
 {

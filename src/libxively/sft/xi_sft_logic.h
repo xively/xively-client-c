@@ -39,6 +39,8 @@ xi_state_t xi_sft_free_context( xi_sft_context_t** context );
 
 xi_state_t xi_sft_on_connected( xi_sft_context_t* context );
 
+xi_state_t xi_sft_on_connection_failed( xi_sft_context_t* context );
+
 xi_state_t
 xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message );
 

@@ -181,6 +181,10 @@ xi_state_t xi_on_control_message( xi_context_handle_t in_context_handle,
             if ( params->suback.suback_status == XI_MQTT_SUBACK_FAILED )
             {
                 xi_debug_logger( "Subscription to control topic failed." );
+
+#if XI_FEATURE_DEV_SFT_ON
+                xi_sft_on_connection_failed( layer_data->sft_context );
+#endif
             }
             else
             {

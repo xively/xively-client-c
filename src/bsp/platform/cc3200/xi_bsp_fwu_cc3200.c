@@ -16,6 +16,21 @@
 
 #include <gpio_if.h>
 
+static void _reboot_device()
+{
+    /* Configure hibernate RTC wakeup */
+    PRCMHibernateWakeupSourceEnable( PRCM_HIB_SLOW_CLK_CTR );
+
+    /* Delay loop */
+    MAP_UtilsDelay( 8000000 );
+
+    /* Set wake up time */
+    PRCMHibernateIntervalSet( 330 );
+
+    /* Request hibernate */
+    PRCMHibernateEnter();
+}
+
 uint8_t xi_bsp_fwu_is_this_firmware( const char* const resource_name )
 {
     return ( 0 == strcmp( "firmware.bin", resource_name ) ) ? 1 : 0;
@@ -28,6 +43,19 @@ xi_state_t xi_bsp_fwu_on_new_firmware_ok()
         sl_extlib_FlcCommit( FLC_COMMITED );
     }
 
+    return XI_STATE_OK;
+}
+
+xi_state_t xi_bsp_fwu_on_new_firmware_failure()
+{
+    if ( sl_extlib_FlcIsPendingCommit() )
+    {
+        sl_extlib_FlcCommit( FLC_NOT_COMMITED );
+    }
+
+    _reboot_device();
+
+    /* Control should never reach this */
     return XI_STATE_OK;
 }
 
@@ -46,18 +74,7 @@ xi_state_t xi_bsp_fwu_on_firmware_package_download_finished(
     sl_extlib_FlcTest( FLC_TEST_RESET_MCU | FLC_TEST_RESET_MCU_WITH_APP );
 
     /* reboot the device */
-
-    /* Configure hibernate RTC wakeup */
-    PRCMHibernateWakeupSourceEnable( PRCM_HIB_SLOW_CLK_CTR );
-
-    /* Delay loop */
-    MAP_UtilsDelay( 8000000 );
-
-    /* Set wake up time */
-    PRCMHibernateIntervalSet( 330 );
-
-    /* Request hibernate */
-    PRCMHibernateEnter();
+    _reboot_device();
 
     /* Control should never reach this */
     return XI_INTERNAL_ERROR;
