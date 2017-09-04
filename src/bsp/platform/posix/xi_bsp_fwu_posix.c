@@ -64,10 +64,10 @@ xi_state_t xi_bsp_fwu_on_firmware_package_download_finished(
 
     printf( "[Xively C Client Firmware Update] exiting this process\n" );
 
-    system( system_command );
+    const int system_call_result = system( system_command );
 
     // - exit this process
-    exit( 0 );
+    exit( system_call_result );
 #endif
 
     /* Control should never reach this */
