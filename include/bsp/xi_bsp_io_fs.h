@@ -123,11 +123,11 @@ xi_state_t xi_bsp_io_fs_open( const char* const resource_name,
  * @param [in] offset the position of the resource, in bytes, from which
  * to start read operations.
  * @param [out] buffer an outgoing pointer to a buffer which contains the bytes
- * read from the file. The BSP is responsible for all memory management of the 
- * buffer itself. Please fill this buffer at offset zero each time this 
+ * read from the file. The BSP is responsible for all memory management of the
+ * buffer itself. Please fill this buffer at offset zero each time this
  * function is called. You may reuse the buffer for each invocation.  If
  * you've allocated a buffer for each read operation then you may free the
- * previous buffer on a subsequent xi_bsp_io_fs_read call, or when the file 
+ * previous buffer on a subsequent xi_bsp_io_fs_read call, or when the file
  * is closed.
  * @param [out] buffer_size the number of bytes read from file and stored
  * in the buffer.
