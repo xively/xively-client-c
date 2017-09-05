@@ -295,7 +295,7 @@ Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">resource_name</td><td>the name of the file to open </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>the size of file in bytes, useful when opening files for write. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>the size of file in bytes. Necessary on some flash file system implementations which reserve space when the file is opened for writing. Not used in POSIX implementations. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">open_flags</td><td>a read/write/append bitmask of operations as defined by a bitmask type xi_fs_open_flags_t. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">resource_handle_out</td><td>a pointer to an abstracted xi_fs_resource_handle_t data type. This value will be passed to future file operations such as read, write or close.</td></tr>
   </table>
@@ -349,8 +349,8 @@ Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">resource_handle</td><td>the handle created by a previous call to xi_bsp_io_fs_open. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">offset</td><td>the position of the resource, in bytes, from which to start read operations. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">buffer</td><td>a pointer to a byte array. Data read from the resource should be stored in this array starting at offset zero. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">buffer_size</td><td>the length of the buffer in bytes.</td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">buffer</td><td>an outgoing pointer to a buffer which contains the bytes read from the file. The BSP is responsible for all memory management of the buffer itself. Please fill this buffer at offset zero each time this function is called. You may reuse the buffer for each invocation. If you've allocated a buffer for each read operation then you may free the previous buffer on a subsequent xi_bsp_io_fs_read call, or when the file is closed. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">buffer_size</td><td>the number of bytes read from file and stored in the buffer.</td></tr>
   </table>
   </dd>
 </dl>
