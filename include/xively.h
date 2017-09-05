@@ -155,6 +155,23 @@ extern xi_state_t xi_delete_context( xi_context_handle_t context_handle );
 
 
 /**
+ * @brief     Used to determine the state of a xively context's connection to
+ * the Xively Service.
+ *
+ * @param [in] context handle to determine connection status of.
+ *
+ * @see xi_create_context
+ * @see xi_connect
+ * @see xi_connect_to
+ * 
+ * @retval 1 if the context is currently connected to the Xively Service
+ * @retval 0 if the context is invalid, or the connection is currently any
+ * of the other following states: Unitialized, connecting, closing or closed.
+ */
+ extern uint8_t xi_is_context_connected( xi_context_handle_t context_handle );
+
+
+/**
  * @brief     Invokes the Xively Event Processing loop.
  * @detailed  This function is meant when exectuing the Xively Client
  * as the main process and therefore it does not return until xi_events_stop

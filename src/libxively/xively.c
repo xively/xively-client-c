@@ -412,7 +412,6 @@ void xi_default_client_callback( xi_context_handle_t in_context_handle,
     XI_UNUSED( state );
 }
 
-
 xi_state_t xi_user_callback_wrapper( void* context,
                                      void* data,
                                      xi_state_t in_state,
@@ -432,6 +431,27 @@ err_handling:
     return state;
 }
 
+
+extern uint8_t xi_is_context_connected( xi_context_handle_t xih )
+{
+    if ( XI_INVALID_CONTEXT_HANDLE == xih ) 
+    {
+        return 0;
+    }
+
+    printf("getting object for handle\n" );
+    xi_context_t* xi =
+        ( xi_context_t* )xi_object_for_handle( xi_globals.context_handles_vector, xih );
+
+    printf("context: %p\n", xi );
+    
+    if( NULL == xi ||  NULL == xi->context_data.connection_data )
+    {
+        return 0;
+    }
+    
+    return xi->context_data.connection_data->connection_state == XI_CONNECTION_STATE_OPENED;
+}
 
 void xi_events_stop()
 {
