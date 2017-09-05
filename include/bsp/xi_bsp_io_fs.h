@@ -13,7 +13,7 @@
  *
  * This file defines the File Management API used by the Xively C Client.
  *
- * The Xivley C Client uses this BSP to facilitate non-volatile data
+ * The Xively C Client uses this BSP to facilitate non-volatile data
  * storage of certificates and files received via Xively Secure File Transfer.
  *
  * NOTE: the use of this BSP to store certificates used during the TLS
@@ -96,8 +96,9 @@ xi_bsp_io_fs_stat( const char* const resource_name, xi_fs_stat_t* resource_stat 
  * a handle to the file be returned via an out parameter.
  *
  * @param [in] resource_name the name of the file to open
- * @param [in] size the size of file in bytes, useful when opening
- * files for write.
+ * @param [in] size the size of file in bytes. Necessary on some
+ * flash file system implementations which reserve space when
+ * the file is opened for writing.  Not used in POSIX implementations.
  * @param [in] open_flags a read/write/append bitmask of operations as
  * defined by a bitmask type xi_fs_open_flags_t.
  * @param [out] resource_handle_out a pointer to an abstracted
@@ -121,9 +122,15 @@ xi_state_t xi_bsp_io_fs_open( const char* const resource_name,
  * to xi_bsp_io_fs_open.
  * @param [in] offset the position of the resource, in bytes, from which
  * to start read operations.
- * @param [out] buffer a pointer to a byte array. Data read from the
- * resource should be stored in this array starting at offset zero.
- * @param [in] buffer_size the length of the buffer in bytes.
+ * @param [out] buffer an outgoing pointer to a buffer which contains the bytes
+ * read from the file. The BSP is responsible for all memory management of the 
+ * buffer itself. Please fill this buffer at offset zero each time this 
+ * function is called. You may reuse the buffer for each invocation.  If
+ * you've allocated a buffer for each read operation then you may free the
+ * previous buffer on a subsequent xi_bsp_io_fs_read call, or when the file 
+ * is closed.
+ * @param [out] buffer_size the number of bytes read from file and stored
+ * in the buffer.
  *
  * @return xi_state_t XI_STATE_OK in case of a success and other in case of an
  * error.
