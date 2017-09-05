@@ -4,13 +4,13 @@
 # it is licensed under the BSD 3-Clause license.
 
 include make/mt-os/mt-os-common.mk
-#include make/mt-utils/mt-get-gnu-arm-toolchain.mk
-XI_GCC_XTENSA_TOOLCHAIN_PATH = /Users/palantir/Work/Xively/esp32/toolchain/xtensa-esp32-elf
+
+XI_GCC_XTENSA_TOOLCHAIN_PATH ?= /Users/palantir/Work/Xively/esp32/toolchain/xtensa-esp32-elf
+XI_ESP_IDF_SDK_PATH ?= $(HOME)/Work/Xively/esp32/esp-idf
+
 CC = $(XI_GCC_XTENSA_TOOLCHAIN_PATH)/bin/xtensa-esp32-elf-gcc
 AR = $(XI_GCC_XTENSA_TOOLCHAIN_PATH)/bin/xtensa-esp32-elf-ar
 XI_BUILD_PRECONDITIONS := $(CC)
-
-XI_ESP_IDF_SDK_PATH = $(HOME)/Work/Xively/esp32/esp-idf
 
 ##################
 # Libxively Config
@@ -21,10 +21,8 @@ XI_CONFIG_FLAGS += -DXI_EMBEDDED_TESTS
 ################
 # WolfSSL Config
 ################
-#ifeq (XI_TLS_BSP, "wolfssl")
 XI_CONFIG_FLAGS += -DNO_WRITEV
 XI_COMPILER_FLAGS += -DSINGLE_THREADED
-#endif
 
 #########################
 # ESP System Include Dirs

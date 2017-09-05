@@ -17,19 +17,21 @@
 
 #include "xively_if.h"
 
-#define APP_XI_ACCOUNT_ID "SET YOUR XIVELY ACCOUNT ID HERE"
-#define APP_XI_DEVICE_ID  "SET YOUR XIVELY DEVICE  ID HERE"
-#define APP_XI_DEVICE_PWD "SET YOUR XIVELY DEVICE PASSWORD HERE"
-#define APP_WIFI_SSID "SET YOUR WIFI NETWORK NAME HERE"
-#define APP_WIFI_PASS "SET YOUR WIFI NETWORK PASSWORD HERE"
+#define APP_XI_ACCOUNT_ID "[SET YOUR XIVELY ACCOUNT ID HERE]"
+#define APP_XI_DEVICE_ID  "[SET YOUR XIVELY DEVICE  ID HERE]"
+#define APP_XI_DEVICE_PWD "[SET YOUR XIVELY DEVICE PASSWORD HERE]"
+#define APP_WIFI_SSID "[SET YOUR WIFI NETWORK NAME HERE]"
+#define APP_WIFI_PASS "[SET YOUR WIFI NETWORK PASSWORD HERE]"
 
-#define XIF_STACK_SIZE 36*1024
+//#define XIF_STACK_SIZE 36*1024
+#define XIF_STACK_SIZE 48*1024
 #define WIFI_CONNECTED_FLAG BIT0
 
 static EventGroupHandle_t app_wifi_event_group;
 
 static esp_err_t app_wifi_event_handler( void* ctx, system_event_t* event )
 {
+    printf( "\nNew WiFi event: ID [%d]", event->event_id );
     switch ( event->event_id )
     {
         case SYSTEM_EVENT_STA_START:
@@ -37,14 +39,26 @@ static esp_err_t app_wifi_event_handler( void* ctx, system_event_t* event )
             break;
         case SYSTEM_EVENT_STA_GOT_IP:
             xEventGroupSetBits( app_wifi_event_group, WIFI_CONNECTED_FLAG );
+#if 1
+            xif_events_continue();
+#endif
             break;
         case SYSTEM_EVENT_STA_DISCONNECTED:
+            printf( "\n\tHandling sudden WiFi disconnection..." );
             /* This is a workaround as ESP32 WiFi libs don't currently
                auto-reassociate. */
+            /* JC TODO: This crashes the application when the AP is turned off!! */
             esp_wifi_connect();
             xEventGroupClearBits( app_wifi_event_group, WIFI_CONNECTED_FLAG );
+#if 1
+            if( xif_events_pause() < 0 )
+            {
+                printf( "\n\tError pausing Xively Interface task" );
+            }
+#endif
             break;
         default:
+            printf( "\n\tWiFi event ignored at the application layer" );
             break;
     }
     return ESP_OK;
@@ -70,6 +84,16 @@ static void app_wifi_init( void )
     ESP_ERROR_CHECK( esp_wifi_start() );
 }
 
+void TEST_task( void* param )
+{
+    unsigned int i = 0;
+    while ( 1 )
+    {
+        printf( "\nTest task loopin' [%d]", ++i );
+        vTaskDelay( 1000 / portTICK_PERIOD_MS );
+    }
+}
+
 void app_main( void )
 {
     app_wifi_init();
@@ -78,8 +102,22 @@ void app_main( void )
     xEventGroupWaitBits( app_wifi_event_group, WIFI_CONNECTED_FLAG, false, true,
                          portMAX_DELAY );
 
-    xif_set_device_info( APP_XI_ACCOUNT_ID, APP_XI_DEVICE_ID, APP_XI_DEVICE_PWD );
+    if ( xif_set_device_info( APP_XI_ACCOUNT_ID, APP_XI_DEVICE_ID, APP_XI_DEVICE_PWD )
+         < 0 )
+    {
+        while ( 1 )
+            ;
+    }
 
-    xTaskCreatePinnedToCore( &xif_rtos_task, "xif_task", XIF_STACK_SIZE, NULL, 5, NULL,
-                             1 );
+    xTaskCreatePinnedToCore( &xif_rtos_task, "xif_task", XIF_STACK_SIZE, NULL, 5,
+                             NULL, 1 );
+    //xTaskCreatePinnedToCore( &xif_rtos_task, "xif_task", XIF_STACK_SIZE, NULL, 5,
+    //                         NULL, 1 );
+
+    unsigned int i = 0;
+    while ( 1 )
+    {
+        printf( "\napp_main loopin' [%d]", ++i );
+        vTaskDelay( 1000 / portTICK_PERIOD_MS );
+    }
 }
