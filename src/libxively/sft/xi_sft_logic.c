@@ -187,7 +187,7 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                 const uint32_t all_downloaded_bytes =
                     sft_message_in->file_chunk.offset + sft_message_in->file_chunk.length;
 
-#if 0
+#if 1
                 printf( "         === === === downloading file: %s, %d / %d, [%d%%], "
                         "status: %d\n",
                         context->update_current_file->name,
