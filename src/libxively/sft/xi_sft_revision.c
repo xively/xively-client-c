@@ -26,10 +26,10 @@ xi_sft_revision_write_string_to_file( const char* const resource_name,
         return XI_INVALID_PARAMETER;
     }
 
-    xi_fs_resource_handle_t resource_handle = XI_FS_INVALID_RESOURCE_HANDLE;
+    xi_bsp_io_fs_resource_handle_t resource_handle = XI_BSP_IO_FS_INVALID_RESOURCE_HANDLE;
 
     xi_state_t state = xi_bsp_io_fs_open( resource_name, strlen( string_to_write ),
-                                          XI_FS_OPEN_WRITE, &resource_handle );
+                                          XI_BSP_IO_FS_OPEN_WRITE, &resource_handle );
 
     if ( XI_STATE_OK != state )
     {
@@ -56,10 +56,10 @@ static xi_state_t xi_sft_revision_read_string_from_file( const char* const resou
         return XI_INVALID_PARAMETER;
     }
 
-    xi_fs_resource_handle_t resource_handle = XI_FS_INVALID_RESOURCE_HANDLE;
+    xi_bsp_io_fs_resource_handle_t resource_handle = XI_BSP_IO_FS_INVALID_RESOURCE_HANDLE;
 
     xi_state_t state = xi_bsp_io_fs_open( resource_name, 0 /* not used at READ */,
-                                          XI_FS_OPEN_READ, &resource_handle );
+                                          XI_BSP_IO_FS_OPEN_READ, &resource_handle );
 
     if ( XI_STATE_OK != state )
     {

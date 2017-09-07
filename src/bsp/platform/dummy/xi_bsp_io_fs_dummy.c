@@ -8,8 +8,8 @@
 
 xi_state_t xi_bsp_io_fs_open( const char* const resource_name,
                               const size_t size,
-                              const xi_fs_open_flags_t open_flags,
-                              xi_fs_resource_handle_t* resource_handle_out )
+                              const xi_bsp_io_fs_open_flags_t open_flags,
+                              xi_bsp_io_fs_resource_handle_t* resource_handle_out )
 {
     ( void )resource_name;
     ( void )size;
@@ -19,7 +19,7 @@ xi_state_t xi_bsp_io_fs_open( const char* const resource_name,
     return XI_NOT_IMPLEMENTED;
 }
 
-xi_state_t xi_bsp_io_fs_read( const xi_fs_resource_handle_t resource_handle,
+xi_state_t xi_bsp_io_fs_read( const xi_bsp_io_fs_resource_handle_t resource_handle,
                               const size_t offset,
                               const uint8_t** buffer,
                               size_t* const buffer_size )
@@ -32,7 +32,7 @@ xi_state_t xi_bsp_io_fs_read( const xi_fs_resource_handle_t resource_handle,
     return XI_NOT_IMPLEMENTED;
 }
 
-xi_state_t xi_bsp_io_fs_write( const xi_fs_resource_handle_t resource_handle,
+xi_state_t xi_bsp_io_fs_write( const xi_bsp_io_fs_resource_handle_t resource_handle,
                                const uint8_t* const buffer,
                                const size_t buffer_size,
                                const size_t offset,
@@ -47,7 +47,7 @@ xi_state_t xi_bsp_io_fs_write( const xi_fs_resource_handle_t resource_handle,
     return XI_NOT_IMPLEMENTED;
 }
 
-xi_state_t xi_bsp_io_fs_close( const xi_fs_resource_handle_t resource_handle )
+xi_state_t xi_bsp_io_fs_close( const xi_bsp_io_fs_resource_handle_t resource_handle )
 {
     ( void )resource_handle;
 

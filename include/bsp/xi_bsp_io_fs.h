@@ -32,35 +32,35 @@
 extern "C" {
 #endif
 
-typedef intptr_t xi_fs_resource_handle_t;
+typedef intptr_t xi_bsp_io_fs_resource_handle_t;
 
-#define XI_FS_INVALID_RESOURCE_HANDLE -1
-#define xi_fs_init_resource_handle() XI_FS_INVALID_RESOURCE_HANDLE
+#define XI_BSP_IO_FS_INVALID_RESOURCE_HANDLE -1
+#define xi_bsp_io_fs_init_resource_handle() XI_BSP_IO_FS_INVALID_RESOURCE_HANDLE
 
 /**
- * @enum xi_fs_resource_type_t
+ * @enum xi_bsp_io_fs_resource_type_t
  * @brief describes types of resources that are availible through this API.
  * These types were created in order to differenciate types based on their
  * security class.
  */
-typedef enum {
-    XI_FS_CERTIFICATE = 0, /**< 0 **/
-    XI_FS_CREDENTIALS,     /**< 1 **/
-    XI_FS_CONFIG_DATA      /**< 2 **/
-} xi_fs_resource_type_t;
+typedef enum xi_bsp_io_fs_resource_type_e {
+    XI_BSP_IO_FS_CERTIFICATE = 0, /**< 0 **/
+    XI_BSP_IO_FS_CREDENTIALS,     /**< 1 **/
+    XI_BSP_IO_FS_CONFIG_DATA      /**< 2 **/
+} xi_bsp_io_fs_resource_type_t;
 
 /*
- * @name xi_fs_stat_s
+ * @name xi_bsp_io_fs_stat_s
  * @brief Information that the Xively Client needs returned
  * when xi_bsp_io_fs_stat() is called.
  */
-typedef struct xi_fs_stat_s
+typedef struct xi_bsp_io_fs_stat_s
 {
     size_t resource_size;
-} xi_fs_stat_t;
+} xi_bsp_io_fs_stat_t;
 
 /**
- * @enum xi_fs_open_flags_t
+ * @enum xi_bsp_io_fs_open_flags_t
  * @brief Abstracted values that represent the various types of file operations
  * that should be passed to the underlying system when opening a file resource
  * via xi_bsp_io_fs_open().
@@ -68,12 +68,11 @@ typedef struct xi_fs_stat_s
  * As a bitmask there could be more than one of these flags set on a given
  * open request.
  */
-typedef enum {
-    XI_FS_OPEN_READ   = 1 << 0,
-    XI_FS_OPEN_WRITE  = 1 << 1,
-    XI_FS_OPEN_APPEND = 1 << 2,
-} xi_fs_open_flags_t;
-
+typedef enum xi_bsp_io_fs_open_flags {
+    XI_BSP_IO_FS_OPEN_READ   = 1 << 0,
+    XI_BSP_IO_FS_OPEN_WRITE  = 1 << 1,
+    XI_BSP_IO_FS_OPEN_APPEND = 1 << 2,
+} xi_bsp_io_fs_open_flags_t;
 
 /**
  * @function
@@ -88,7 +87,7 @@ typedef enum {
  * error.
  */
 xi_state_t
-xi_bsp_io_fs_stat( const char* const resource_name, xi_fs_stat_t* resource_stat );
+xi_bsp_io_fs_stat( const char* const resource_name, xi_bsp_io_fs_stat_t* resource_stat );
 
 /**
  * @function
@@ -100,9 +99,9 @@ xi_bsp_io_fs_stat( const char* const resource_name, xi_fs_stat_t* resource_stat 
  * flash file system implementations which reserve space when
  * the file is opened for writing.  Not used in POSIX implementations.
  * @param [in] open_flags a read/write/append bitmask of operations as
- * defined by a bitmask type xi_fs_open_flags_t.
+ * defined by a bitmask type xi_bsp_io_fs_open_flags_t.
  * @param [out] resource_handle_out a pointer to an abstracted
- * xi_fs_resource_handle_t data type. This value will be passed to
+ * xi_bsp_io_fs_resource_handle_t data type. This value will be passed to
  * future file operations such as read, write or close.
  *
  * @return xi_state_t XI_STATE_OK in case of a success and other in case of an
@@ -110,8 +109,8 @@ xi_bsp_io_fs_stat( const char* const resource_name, xi_fs_stat_t* resource_stat 
  */
 xi_state_t xi_bsp_io_fs_open( const char* const resource_name,
                               const size_t size,
-                              const xi_fs_open_flags_t open_flags,
-                              xi_fs_resource_handle_t* resource_handle_out );
+                              const xi_bsp_io_fs_open_flags_t open_flags,
+                              xi_bsp_io_fs_resource_handle_t* resource_handle_out );
 
 /**
  * @function
@@ -135,7 +134,7 @@ xi_state_t xi_bsp_io_fs_open( const char* const resource_name,
  * @return xi_state_t XI_STATE_OK in case of a success and other in case of an
  * error.
  */
-xi_state_t xi_bsp_io_fs_read( const xi_fs_resource_handle_t resource_handle,
+xi_state_t xi_bsp_io_fs_read( const xi_bsp_io_fs_resource_handle_t resource_handle,
                               const size_t offset,
                               const uint8_t** buffer,
                               size_t* const buffer_size );
@@ -159,7 +158,7 @@ xi_state_t xi_bsp_io_fs_read( const xi_fs_resource_handle_t resource_handle,
  * @return xi_state_t XI_STATE_OK in case of a success and other in case of an
  * error.
  */
-xi_state_t xi_bsp_io_fs_write( const xi_fs_resource_handle_t resource_handle,
+xi_state_t xi_bsp_io_fs_write( const xi_bsp_io_fs_resource_handle_t resource_handle,
                                const uint8_t* const buffer,
                                const size_t buffer_size,
                                const size_t offset,
@@ -177,7 +176,7 @@ xi_state_t xi_bsp_io_fs_write( const xi_fs_resource_handle_t resource_handle,
  * @return xi_state_t XI_STATE_OK in case of a success and other in case of an
  * error.
  */
-xi_state_t xi_bsp_io_fs_close( const xi_fs_resource_handle_t resource_handle );
+xi_state_t xi_bsp_io_fs_close( const xi_bsp_io_fs_resource_handle_t resource_handle );
 
 /**
  * @function

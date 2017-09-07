@@ -22,7 +22,7 @@ xi_sft_on_message_file_chunk_process_file_chunk( xi_sft_context_t* context,
     {
         state = xi_bsp_io_fs_open( sft_message_in->file_chunk.name,
                                    context->update_current_file->size_in_bytes,
-                                   XI_FS_OPEN_WRITE, &context->update_file_handle );
+                                   XI_BSP_IO_FS_OPEN_WRITE, &context->update_file_handle );
 
         if ( XI_STATE_OK != state )
         {

@@ -488,16 +488,16 @@ void xi_itest_sft__check_revision_file( const char** filenames, uint16_t files_c
     uint16_t id_file = 0;
     for ( ; id_file < files_count; ++id_file )
     {
-        xi_fs_resource_handle_t resource_handle = XI_FS_INVALID_RESOURCE_HANDLE;
+        xi_bsp_io_fs_resource_handle_t resource_handle = XI_BSP_IO_FS_INVALID_RESOURCE_HANDLE;
         char* filename_revision = xi_str_cat( filenames[id_file], ".xirev" );
 
         xi_state_t state =
-            xi_bsp_io_fs_open( filename_revision, 0, XI_FS_OPEN_READ, &resource_handle );
+            xi_bsp_io_fs_open( filename_revision, 0, XI_BSP_IO_FS_OPEN_READ, &resource_handle );
 
         XI_SAFE_FREE( filename_revision );
 
         assert_int_equal( XI_STATE_OK, state );
-        assert_ptr_not_equal( XI_FS_INVALID_RESOURCE_HANDLE, resource_handle );
+        assert_ptr_not_equal( XI_BSP_IO_FS_INVALID_RESOURCE_HANDLE, resource_handle );
 
         const uint8_t* buffer = NULL;
         size_t buffer_size    = 0;
