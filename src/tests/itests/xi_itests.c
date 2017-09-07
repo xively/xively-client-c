@@ -28,8 +28,7 @@ struct CMGroupTest groups[] = {cmocka_test_group( xi_itests_clean_session ),
                                cmocka_test_group( xi_itests_mqttlogic_layer ),
                                cmocka_test_group( xi_itests_connect_error ),
 #ifdef XI_CONTROL_TOPIC_ENABLED
-#if 0 /* turning off tests on SFT since the feature is not ready yet, thus not part of   \
-         the control topic  */
+#ifdef XI_SECURE_FILE_TRANSFER_ENABLED
                                cmocka_test_group( xi_itests_sft ),
 #endif
 #endif

@@ -64,7 +64,10 @@ XI_TT_TESTCASE_PREDECLARATION( utest_publish );
 XI_TT_TESTCASE_PREDECLARATION( utest_fwu_checksum );
 XI_TT_TESTCASE_PREDECLARATION( utest_cbor_codec_ct_encode );
 XI_TT_TESTCASE_PREDECLARATION( utest_cbor_codec_ct_decode );
-XI_TT_TESTCASE_PREDECLARATION( utest_control_message );
+
+#ifdef XI_SECURE_FILE_TRANSFER_ENABLED
+XI_TT_TESTCASE_PREDECLARATION( utest_control_message_sft );
+#endif
 
 #ifdef XI_CONTROL_TOPIC_ENABLED
 XI_TT_TESTCASE_PREDECLARATION( utest_control_topic );
@@ -252,9 +255,11 @@ struct testgroup_t groups[] = {
 
     {"utest_rng - ", utest_rng},
     {"utest_fwu_checksum - ", utest_fwu_checksum},
+#ifdef XI_SECURE_FILE_TRANSFER_ENABLED
     {"utest_cbor_codec_ct_encode - ", utest_cbor_codec_ct_encode},
     {"utest_cbor_codec_ct_decode - ", utest_cbor_codec_ct_decode},
-    {"utest_control_message - ", utest_control_message},
+    {"utest_control_message_sft - ", utest_control_message_sft},
+#endif
 
     END_OF_GROUPS};
 

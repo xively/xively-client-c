@@ -11,6 +11,7 @@
 
 #include <xi_sft_revision.h>
 #include <xi_sft_logic_file_chunk_handlers.h>
+#include <xi_control_message_sft.h>
 
 #include <xi_bsp_io_fs.h>
 #include <xi_bsp_fwu.h>

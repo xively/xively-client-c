@@ -26,11 +26,16 @@ ifndef XI_CONTROL_TOPIC_ENABLED
     XI_UTEST_EXCLUDED += xi_utest_protobuf_engine.c xi_utest_protobuf_endianess.c xi_utest_control_topic.c
 endif
 
+ifdef XI_SECURE_FILE_TRANSFER_ENABLED
+    XI_UTEST_SOURCES += $(wildcard $(XI_TEST_DIR)/common/control_topic/*.c)
+else
+    XI_UTEST_EXCLUDED += xi_utest_cbor_codec_ct_decode.c xi_utest_cbor_codec_ct_encode.c xi_utest_control_message_sft.c
+endif
+
 XI_UTEST_EXCLUDED := $(addprefix $(XI_UTEST_SOURCE_DIR)/, $(XI_UTEST_EXCLUDED))
 
-XI_UTEST_SOURCES := $(wildcard $(XI_UTEST_SOURCE_DIR)/*.c)
+XI_UTEST_SOURCES += $(wildcard $(XI_UTEST_SOURCE_DIR)/*.c)
 XI_UTEST_SOURCES += $(wildcard $(XI_TEST_DIR)/*.c)
-XI_UTEST_SOURCES += $(wildcard $(XI_TEST_DIR)/common/control_topic/*.c)
 XI_UTEST_SOURCES := $(filter-out $(XI_UTEST_EXCLUDED), $(XI_UTEST_SOURCES))
 XI_UTEST_SOURCES := $(subst $(XI_UTEST_SUITE_SOURCE),,$(XI_UTEST_SOURCES))
 XI_UTEST_OBJS := $(filter-out $(XI_UTEST_SOURCES), $(XI_UTEST_SOURCES:.c=.o))
@@ -46,7 +51,7 @@ XI_UTEST_INCLUDE_FLAGS += -I$(TINYTEST_SRCDIR)
 XI_UTEST_INCLUDE_FLAGS += -I$(XI_TEST_DIR)
 XI_UTEST_INCLUDE_FLAGS += -I$(XI_TEST_DIR)/tools
 XI_UTEST_INCLUDE_FLAGS += $(foreach platformdep,$(XI_PLATFORM_MODULES) \
-			,-I$(XI_UTEST_SOURCE_DIR)/platform/$(XI_PLATFORM_BASE)/$(platformdep))
+            ,-I$(XI_UTEST_SOURCE_DIR)/platform/$(XI_PLATFORM_BASE)/$(platformdep))
 
 XI_UTEST_CONFIG_FLAGS = $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS)
 XI_UTEST_CONFIG_FLAGS += -DNO_FORKING
