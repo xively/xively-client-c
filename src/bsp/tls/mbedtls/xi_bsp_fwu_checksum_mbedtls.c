@@ -16,12 +16,12 @@ void xi_bsp_fwu_checksum_init( void** sha_ctx )
     *sha_ctx = xi_bsp_mem_alloc( sizeof( mbedtls_sha256_context ) );
 
     mbedtls_sha256_init( ( mbedtls_sha256_context* )*sha_ctx );
+
+    mbedtls_sha256_starts( ( mbedtls_sha256_context* )*sha_ctx, 0 );
 }
 
 void xi_bsp_fwu_checksum_update( void* sha_ctx, const uint8_t* data, uint32_t len )
 {
-    mbedtls_sha256_starts( ( mbedtls_sha256_context* )sha_ctx, 0 );
-
     mbedtls_sha256_update( ( mbedtls_sha256_context* )sha_ctx, data, len );
 }
 
