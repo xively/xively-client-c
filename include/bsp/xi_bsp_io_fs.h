@@ -54,6 +54,8 @@ typedef intptr_t xi_bsp_io_fs_resource_handle_t;
     XI_BSP_IO_FS_RESOURCE_NOT_AVAILABLE = 3,
     /** out of memory error */
     XI_BSP_IO_FS_OUT_OF_MEMORY = 4,
+    /** function not implemented on target platform */
+    XI_BSP_IO_FS_NOT_IMPLEMENTED = 5
 } xi_bsp_io_fs_state_t;
 
 /* helper function that translates the errors to the xi_bsp_io_fs_state_t values */
@@ -77,6 +79,9 @@ static inline xi_state_t xi_fs_bsp_io_fs_2_xi_state( xi_bsp_io_fs_state_t bsp_st
             break;
         case XI_BSP_IO_FS_OUT_OF_MEMORY:
             ret = XI_OUT_OF_MEMORY;
+            break;
+        case XI_BSP_IO_FS_NOT_IMPLEMENTED:
+            ret = XI_NOT_IMPLEMENTED;
             break;
         default:
             /** IF we're good engineers, then this should never happen */
