@@ -88,6 +88,7 @@ WOLFSSL_SETTINGS =        \
     -DWOLFSSL_IAR_ARM     \
     -DNDEBUG              \
     -DHAVE_CERTIFICATE_STATUS_REQUEST
+    #-DCUSTOM_RAND_GENERATE_SEED=your_random_seeding_function
     # Already defined in wolfssl/wolfssl/wolfcrypt/settings.h:
     #-DSINGLE_THREADED
     #-DNO_WRITEV

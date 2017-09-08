@@ -44,20 +44,11 @@ typedef enum
     XIF_STATE_SHUTDOWN /* Shut down the connection and client */
 } xif_machine_states_t;
 
-typedef enum /* Flags to request changes state machine actions - Ordered by priority */
-{
-    XIF_REQUEST_CONTINUE   = ( 1 << 0 ),
-    XIF_REQUEST_PAUSE      = ( 1 << 1 ),
-    XIF_REQUEST_SHUTDOWN   = ( 1 << 2 ),
-    XIF_REQUEST_ALL        = 0xff
-} xif_action_requests_t;
-
 /******************************************************************************
 *                   Xively Interface Function Declarations
 ******************************************************************************/
 static int xif_init( void );
 static int xif_build_xively_topic( char* topic_name, char* dst, uint32_t dst_len );
-static int xif_request_action( xif_action_requests_t requested_action );
 
 /* Application specific functions */
 static int xif_build_all_mqtt_topics( void );
@@ -97,9 +88,9 @@ static EventGroupHandle_t xif_requests_event_group_handle = NULL;
 ******************************************************************************/
 void __attribute__((weak)) xif_state_machine_aborted_callback( void )
 {
-    printf( "\nThe Xively IF state machine and RTOS task are about to shut" );
+    printf( "\n[XIF] The Xively IF state machine and RTOS task are about to shut" );
     printf( " down due to an unrecoverable error" );
-    printf( "\nYou should re-implement this function to handle it gracefully" );
+    printf( "\n[XIF] You should re-implement this function to handle it gracefully" );
 }
 
 int xif_set_device_info( char* xi_acc_id, char* xi_dev_id, char* xi_dev_pwd )
@@ -109,7 +100,7 @@ int xif_set_device_info( char* xi_acc_id, char* xi_dev_id, char* xi_dev_pwd )
     xif_mqtt_device_info.xi_device_pwd = xi_dev_pwd;
     if( 0 > xif_build_all_mqtt_topics() )
     {
-        printf( "\nXively IF: Unrecoverable building MQTT topic strings. Abort" );
+        printf( "\n[XIF] Unrecoverable building MQTT topic strings. Abort" );
         return -1;
     }
     return 0;
@@ -159,9 +150,45 @@ int xif_clear_request_bits( xif_action_requests_t requested_action )
 
 int xif_request_action( xif_action_requests_t requested_action )
 {
-    /* TODO: Use this function only, get rid of xif_shutdown, xif_events_pause
-     *       and xif_events_continue. Handle them all in a switch here */
-    return xif_set_request_bits( requested_action );
+    if ( 0 > xif_context_handle )
+    {
+        return -1;
+    }
+
+    switch( requested_action )
+    {
+    case XIF_REQUEST_CONTINUE:
+        if ( 0 > xif_clear_request_bits( XIF_REQUEST_PAUSE ) )
+        {
+            return -1;
+        }
+        if ( 0 > xif_set_request_bits( XIF_REQUEST_CONTINUE ) )
+        {
+            return -1;
+        }
+        break;
+    case XIF_REQUEST_PAUSE:
+        if ( 0 > xif_clear_request_bits( XIF_REQUEST_CONTINUE ) )
+        {
+            return -1;
+        }
+        if ( 0 > xif_set_request_bits( XIF_REQUEST_PAUSE ) )
+        {
+            return -1;
+        }
+        //xi_events_stop();
+        break;
+    case XIF_REQUEST_SHUTDOWN:
+        if ( 0 > xif_set_request_bits( XIF_REQUEST_SHUTDOWN ) )
+        {
+            return -1;
+        }
+        //xi_events_stop();
+        break;
+    case XIF_REQUEST_ALL:
+        return -1;
+    }
+    return 0;
 }
 
 /* Reads the thread-safe requests bitmask, gets the next highest priority request
@@ -197,36 +224,8 @@ static inline void xif_await_unpause( void )
         evt_group_bits = xEventGroupWaitBits( xif_requests_event_group_handle,
                                               XIF_REQUEST_CONTINUE | XIF_REQUEST_SHUTDOWN,
                                               false, true, portMAX_DELAY );
-    } while( evt_group_bits == 0x00 );
+    } while( 0x00 == evt_group_bits );
     /* Break when either _CONTINUE or _SHUTDOWN are requested */
-}
-
-int xif_events_pause( void )
-{
-    printf( "\nPausing XivelyInterface..." );
-    if ( 0 > xif_context_handle )
-    {
-        return -1;
-    }
-    if ( 0 > xif_clear_request_bits( XIF_REQUEST_CONTINUE ) )
-    {
-        return -1;
-    }
-    if ( 0 > xif_request_action( XIF_REQUEST_PAUSE ) )
-    {
-        return -1;
-    }
-    xi_events_stop();
-    return 0;
-}
-
-int xif_events_continue( void )
-{
-    if ( 0 > xif_context_handle )
-    {
-        return -1;
-    }
-    return xif_request_action( XIF_REQUEST_CONTINUE );
 }
 
 void xif_handle_unrecoverable_error( void )
@@ -239,7 +238,6 @@ void xif_handle_unrecoverable_error( void )
 /*-----------------------------------------------------------------------------
                            Events loop
 -----------------------------------------------------------------------------*/
-/* TODO: Handle error return codes properly */
 void xif_rtos_task( void* param )
 {
     xif_machine_states_t xif_machine_state = XIF_STATE_UNINITIALIZED;
@@ -269,13 +267,18 @@ void xif_rtos_task( void* param )
         switch( xif_pop_highest_priority_request() )
         {
         case XIF_REQUEST_CONTINUE:
-            /* Pass control to libxively indefinitely */
-            xi_events_process_blocking();
-            xif_events_continue();
+#if 0
+            //xi_events_process_blocking();
+            //printf( "\n[XIF] xively's blocking events loop was shut down" );
+#else
+            xif_request_action( XIF_REQUEST_CONTINUE );
+            xi_events_process_tick();
+            printf( "(tick)" );
+#endif
             break;
         case XIF_REQUEST_PAUSE:
-            /* Halt this task until we get a greenlight via xif_events_continue */
-            printf( "\nPausing Xively Interface..." );
+            /* Halt this task until we get a XIF_REQUEST_CONTINUE request */
+            printf( "\n[XIF] Pausing Xively Interface..." );
             xif_await_unpause();
             break;
         case XIF_REQUEST_SHUTDOWN:
@@ -409,7 +412,7 @@ int xif_init( void )
     xif_requests_event_group_handle = xEventGroupCreate();
     if( NULL == xif_requests_event_group_handle )
     {
-        printf( "\nFailed to allocate FreeRTOS heap for the requests event group" );
+        printf( "\n[XIF] Failed to allocate FreeRTOS heap for the requests event group" );
         return -1;
     }
 
@@ -417,14 +420,14 @@ int xif_init( void )
                                   xif_mqtt_device_info.xi_device_id );
     if ( XI_STATE_OK != xi_ret_state )
     {
-        printf( "\nFailed to initialize MQTT library" );
+        printf( "\n[XIF] Failed to initialize MQTT library" );
         return -1;
     }
 
     xif_context_handle = xi_create_context();
     if ( 0 > xif_context_handle )
     {
-        printf( "\nFailed to create a valid libxively context. Returned: %d",
+        printf( "\n[XIF] Failed to create a valid libxively context. Returned: %d",
                 xif_context_handle );
         return -1;
     }
@@ -438,10 +441,10 @@ int xif_init( void )
 int xif_connect( void )
 {
     xi_state_t ret_state = XI_STATE_OK;
-    printf( "\nConnecting to MQTT broker:" );
-    printf( "\n\tAccount ID: %s", xif_mqtt_device_info.xi_account_id );
-    printf( "\n\tDevice  ID: %s", xif_mqtt_device_info.xi_device_id );
-    printf( "\n\tAccount Password: (REDACTED)" );
+    printf( "\n[XIF] Connecting to MQTT broker:" );
+    printf( "\n[XIF] \tAccount ID: %s", xif_mqtt_device_info.xi_account_id );
+    printf( "\n[XIF] \tDevice  ID: %s", xif_mqtt_device_info.xi_device_id );
+    printf( "\n[XIF] \tAccount Password: (REDACTED)" );
     ret_state = xi_connect( xif_context_handle, xif_mqtt_device_info.xi_device_id,
                             xif_mqtt_device_info.xi_device_pwd, 10, 0, XI_SESSION_CLEAN,
                             &xif_on_connected );
@@ -452,7 +455,7 @@ int xif_connect( void )
     }
     else if ( XI_STATE_OK != ret_state )
     {
-        printf( "\nError in xi_connect! Retcode: %d", ret_state );
+        printf( "\n[XIF] Error in xi_connect! Retcode: %d", ret_state );
         return -1;
     }
     return 0;
@@ -461,7 +464,7 @@ int xif_connect( void )
 int xif_subscribe( void )
 {
     xi_state_t ret_state = XI_STATE_OK;
-    printf( "\nSubscribing to MQTT topics" );
+    printf( "\n[XIF] Subscribing to MQTT topics" );
     ret_state            = xi_subscribe( xif_context_handle, xif_mqtt_topics.led_topic,
                               XI_MQTT_QOS_AT_MOST_ONCE, &xif_led_topic_callback, NULL );
     if ( XI_STATE_OK != ret_state )
@@ -484,7 +487,7 @@ void xif_publish_counter( void )
 
     msg_counter++;
     sprintf( msg_counter_s, "%ld", msg_counter );
-    printf( "\nPublishing MQTT message [%s]", msg_counter_s );
+    printf( "\n[XIF] Publishing MQTT message [%s]", msg_counter_s );
 
     ret_state =
         xi_publish( xif_context_handle, xif_mqtt_topics.button_topic, msg_counter_s,
@@ -504,7 +507,7 @@ int xif_start_timed_tasks( void )
         XIF_SECONDS_BETWEEN_PUBLISHES, 1, NULL );
     if ( XI_INVALID_TIMED_TASK_HANDLE == xif_pubcounter_scheduled_task_handle )
     {
-        printf( "\nCounter publish scheduled task couldn't be registered" );
+        printf( "\n[XIF] Counter publish scheduled task couldn't be registered" );
         return -1;
     }
     return 0;
@@ -524,17 +527,19 @@ void xif_cancel_timed_tasks( void )
 #endif
 }
 
+#if 0
 int xif_shutdown( void )
 {
     xif_request_action( XIF_REQUEST_SHUTDOWN );
     xi_events_stop();
     return 0;
 }
+#endif
 
 void xif_successful_connection_callback( xi_connection_data_t* conn_data )
 {
     xif_mqtt_connection_status = XIF_MQTT_CONNECTED;
-    printf( "\nMQTT connected to %s:%d", conn_data->host, conn_data->port );
+    printf( "\n[XIF] MQTT connected to %s:%d", conn_data->host, conn_data->port );
     if ( 0 > xif_subscribe() )
     {
         xif_handle_unrecoverable_error();
@@ -562,9 +567,9 @@ void xif_successful_connection_callback( xi_connection_data_t* conn_data )
  */
 void xif_recv_mqtt_msg_callback( const xi_sub_call_params_t* const params )
 {
-    printf( "\n>> received message on topic %s", params->message.topic );
-    printf( "\n\t Message size: %d", params->message.temporary_payload_data_length );
-    printf( "\n\t Message payload: " );
+    printf( "\n[XIF] >> received message on topic %s", params->message.topic );
+    printf( "\n[XIF] \t Message size: %d", params->message.temporary_payload_data_length );
+    printf( "\n[XIF] \t Message payload: " );
     for ( size_t i = 0; i < params->message.temporary_payload_data_length; i++ )
     {
         // printf( "0x%02x ", params->message.temporary_payload_data[i] );
@@ -617,12 +622,12 @@ void xif_on_connected( xi_context_handle_t in_context_handle,
     switch ( conn_data->connection_state )
     {
         case XI_CONNECTION_STATE_OPEN_FAILED:
-            printf( "\nConnection to %s:%d has failed reason %d", conn_data->host,
+            printf( "\n[XIF] Connection to %s:%d has failed reason %d", conn_data->host,
                     conn_data->port, state );
             xif_mqtt_connection_status = XIF_MQTT_DISCONNECTED;
             if( XI_MQTT_BAD_USERNAME_OR_PASSWORD == state )
             {
-                printf( "\nBad username or password. Review your credentials" );
+                printf( "\n[XIF] Bad username or password. Review your credentials" );
                 xif_handle_unrecoverable_error();
                 return;
             }
@@ -635,17 +640,17 @@ void xif_on_connected( xi_context_handle_t in_context_handle,
             return;
 
         case XI_CONNECTION_STATE_CLOSED:
-            printf( "\nConnection closed - reason %d!", state );
+            printf( "\n[XIF] Connection closed - reason %d!", state );
             xif_mqtt_connection_status = XIF_MQTT_DISCONNECTED;
             if( XI_STATE_OK == state )
             {
-                printf( "\n\tDisconnection was requested via xi_shutdown_connection()" );
+                printf( "\n[XIF] \tDisconnection was requested via xi_shutdown_connection()" );
                 xif_request_action( XIF_REQUEST_PAUSE );
             }
             return;
 
         default:
-            printf( "\nInvalid callback parameter %d", conn_data->connection_state );
+            printf( "\n[XIF] Invalid callback parameter %d", conn_data->connection_state );
             xif_handle_unrecoverable_error();
             return;
     }
@@ -662,11 +667,11 @@ void xif_led_topic_callback( xi_context_handle_t in_context_handle,
         case XI_SUB_CALL_SUBACK:
             if ( XI_MQTT_SUBACK_FAILED == params->suback.suback_status )
             {
-                printf( "\nSubscription to LED topic [FAILED] with state [%d]", state );
+                printf( "\n[XIF] Subscription to LED topic [FAILED] with state [%d]", state );
                 xif_handle_unrecoverable_error(); /* Should I just xi_subscribe again? */
                 return;
             }
-            printf( "\nSubscription to LED topic [OK]" );
+            printf( "\n[XIF] Subscription to LED topic [OK]" );
             return;
 
         case XI_SUB_CALL_MESSAGE:

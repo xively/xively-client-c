@@ -12,6 +12,14 @@ typedef struct
 } xif_mqtt_topics_t;
 extern xif_mqtt_topics_t xif_mqtt_topics; /* Filled by xif_set_device_info */
 
+typedef enum /* Flags to request changes state machine actions - Ordered by priority */
+{
+    XIF_REQUEST_CONTINUE   = ( 1 << 0 ),
+    XIF_REQUEST_PAUSE      = ( 1 << 1 ),
+    XIF_REQUEST_SHUTDOWN   = ( 1 << 2 ),
+    XIF_REQUEST_ALL        = 0xff
+} xif_action_requests_t;
+
 /* Configure Xively credentials and topics
  */
 int xif_set_device_info( char* xi_acc_id, char* xi_dev_id, char* xi_dev_pwd );
@@ -44,29 +52,7 @@ int xif_disconnect( void );
  */
 int xif_connect( void );
 
-/* Abruptly shut down the MQTT and TLS libraries.
- * Triggers the events loop to shut down and the RTOS task to delete itself.
- * If you'd like to gracefully disconnect from the server, call xif_disconnect()
- * before calling xif_shutdown
- */
-int xif_shutdown( void );
-
-/* Abruptly pause the XIF events loop - If there's an ongoing connection, don't
- * pause the events loop unless you don't mind it timing out.
- * This function will cause the XIF events loop to block until it is unpaused
- * via xif_events_continue(), xif_disconnect() or xif_events_shutdown()
- */
-int xif_events_pause( void );
-
-/* Unpause the XIF events loop
- * After signaling XIF to continue, if the program was paused with an ongoing
- * connection, XIF will try to pick up where it left off. If the connection
- * timed out, or if XIF was disconnected to begin with, this will cause the
- * loop to re-connect
- * TODO: If the connection was shut down via xif_disconnect, this won't automatically
- *       re-connect. Should I xif_connect() if !xif_is_connected() ? Will that cover all cases?
- */
-int xif_events_continue( void );
+int xif_request_action( xif_action_requests_t requested_action );
 
 /* Query the MQTT connection status (as far as the TCP/MQTT layers are aware)
  */

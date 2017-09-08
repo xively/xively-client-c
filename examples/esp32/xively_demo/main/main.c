@@ -3,8 +3,9 @@
  * This is part of the Xively C Client codebase,
  * it is licensed under the BSD 3-Clause license.
  */
-
+#include <string.h>
 #include <errno.h>
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/event_groups.h"
@@ -16,18 +17,36 @@
 #include "esp_vfs_fat.h"
 
 #include "xively_if.h"
+#include "provisioning.h"
+#include "user_data.h"
 
-#define APP_XI_ACCOUNT_ID "[SET YOUR XIVELY ACCOUNT ID HERE]"
-#define APP_XI_DEVICE_ID  "[SET YOUR XIVELY DEVICE  ID HERE]"
-#define APP_XI_DEVICE_PWD "[SET YOUR XIVELY DEVICE PASSWORD HERE]"
-#define APP_WIFI_SSID "[SET YOUR WIFI NETWORK NAME HERE]"
-#define APP_WIFI_PASS "[SET YOUR WIFI NETWORK PASSWORD HERE]"
+#ifndef USE_HARDCODED_CREDENTIALS
+/* Default workflow uses runtime provisioning and flash storage for user data */
+#define USE_HARDCODED_CREDENTIALS 0
+#endif /* USE_HARDCODED_CREDENTIALS */
 
-//#define XIF_STACK_SIZE 36*1024
-#define XIF_STACK_SIZE 48*1024
+#ifndef FORCE_PROVISIONING_PROCESS
+/* Default workflow determines whether to kickstar provisioning based on whether
+ * or not there's valid data in flash.
+ * TODO: In the future, the user will be able to force the provisioning process
+ *       by keeping a button pressed while an LED is blinking rapidly
+ */
+#define FORCE_PROVISIONING_PROCESS 0
+#endif /* FORCE_PROVISIONING_PROCESS */
+
+#if USE_HARDCODED_CREDENTIALS
+#define USER_CONFIG_WIFI_SSID     "[SET YOUR WIFI NETWORK NAME HERE]"
+#define USER_CONFIG_WIFI_PWD      "[SET YOUR WIFI NETWORK PASSWORD HERE]"
+#define USER_CONFIG_XI_ACCOUNT_ID "[SET YOUR XIVELY ACCOUNT ID HERE]"
+#define USER_CONFIG_XI_DEVICE_ID  "[SET YOUR XIVELY DEVICE  ID HERE]"
+#define USER_CONFIG_XI_DEVICE_PWD "[SET YOUR XIVELY DEVICE PASSWORD HERE]"
+#endif /* USE_HARDCODED_CREDENTIALS */
+
+#define XIF_STACK_SIZE 36*1024
 #define WIFI_CONNECTED_FLAG BIT0
 
 static EventGroupHandle_t app_wifi_event_group;
+static user_data_t user_config;
 
 static esp_err_t app_wifi_event_handler( void* ctx, system_event_t* event )
 {
@@ -40,22 +59,23 @@ static esp_err_t app_wifi_event_handler( void* ctx, system_event_t* event )
         case SYSTEM_EVENT_STA_GOT_IP:
             xEventGroupSetBits( app_wifi_event_group, WIFI_CONNECTED_FLAG );
 #if 1
-            xif_events_continue();
+            xif_request_action( XIF_REQUEST_CONTINUE );
 #endif
             break;
+
         case SYSTEM_EVENT_STA_DISCONNECTED:
             printf( "\n\tHandling sudden WiFi disconnection..." );
             /* This is a workaround as ESP32 WiFi libs don't currently
                auto-reassociate. */
-            /* JC TODO: This crashes the application when the AP is turned off!! */
-            esp_wifi_connect();
-            xEventGroupClearBits( app_wifi_event_group, WIFI_CONNECTED_FLAG );
+            /* JC TODO: something here crashes the application when the AP is turned off!! */
 #if 1
-            if( xif_events_pause() < 0 )
+            if( xif_request_action( XIF_REQUEST_PAUSE ) < 0 )
             {
                 printf( "\n\tError pausing Xively Interface task" );
             }
 #endif
+            esp_wifi_connect();
+            xEventGroupClearBits( app_wifi_event_group, WIFI_CONNECTED_FLAG );
             break;
         default:
             printf( "\n\tWiFi event ignored at the application layer" );
@@ -64,56 +84,117 @@ static esp_err_t app_wifi_event_handler( void* ctx, system_event_t* event )
     return ESP_OK;
 }
 
-static void app_wifi_init( void )
+static int8_t app_wifi_station_init( void )
 {
+    wifi_config_t wifi_config;
+
+    printf( "\n|********************************************************|" );
+    printf( "\n|               Initializing WiFi as Station             |" );
+    printf( "\n|********************************************************|\n" );
+
+    memcpy( wifi_config.sta.ssid, user_config.wifi_client_ssid,
+            ESP_WIFI_SSID_STR_SIZE );
+    memcpy( wifi_config.sta.password, user_config.wifi_client_password,
+            ESP_WIFI_PASSWORD_STR_SIZE );
+    printf( "\n>>> SSID: " );
+    for( int i=0; i<32; i++ )
+        printf( "0x%02x.%c ", wifi_config.sta.ssid[i], wifi_config.sta.ssid[i] );
+    printf( "\n>>> PASS: " );
+    for( int i=0; i<64; i++ )
+        printf( "0x%02x.%c ", wifi_config.sta.password[i], wifi_config.sta.password[i] );
+
     tcpip_adapter_init();
     app_wifi_event_group = xEventGroupCreate();
     ESP_ERROR_CHECK( esp_event_loop_init( app_wifi_event_handler, NULL ) );
-    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-    ESP_ERROR_CHECK( esp_wifi_init( &cfg ) );
-    ESP_ERROR_CHECK( esp_wifi_set_storage( WIFI_STORAGE_RAM ) );
-    wifi_config_t wifi_config = {
-        .sta =
-            {
-                .ssid = APP_WIFI_SSID, .password = APP_WIFI_PASS,
-            },
-    };
-    printf( "\nSetting WiFi configuration SSID %s...", wifi_config.sta.ssid );
+    wifi_init_config_t wifi_init_config = WIFI_INIT_CONFIG_DEFAULT(); /* Do not move */
+    ESP_ERROR_CHECK( esp_wifi_init( &wifi_init_config ) );
+    ESP_ERROR_CHECK( esp_wifi_set_storage( WIFI_STORAGE_FLASH ) );
     ESP_ERROR_CHECK( esp_wifi_set_mode( WIFI_MODE_STA ) );
     ESP_ERROR_CHECK( esp_wifi_set_config( WIFI_IF_STA, &wifi_config ) );
     ESP_ERROR_CHECK( esp_wifi_start() );
+    return 0;
 }
 
-void TEST_task( void* param )
+int8_t app_fetch_user_config( void )
 {
-    unsigned int i = 0;
-    while ( 1 )
+    printf( "\n|********************************************************|" );
+    printf( "\n|               Fetching User Configuration              |" );
+    printf( "\n|********************************************************|" );
+
+#if USE_HARDCODED_CREDENTIALS
+    user_data_set_wifi_ssid( (&user_config), USER_CONFIG_WIFI_SSID );
+    user_data_set_wifi_password( (&user_config), USER_CONFIG_WIFI_PWD );
+    user_data_set_xi_account_id( (&user_config), USER_CONFIG_XI_ACCOUNT_ID );
+    user_data_set_xi_device_id( (&user_config), USER_CONFIG_XI_DEVICE_ID );
+    user_data_set_xi_device_password( (&user_config), USER_CONFIG_XI_DEVICE_PWD );
+    user_data_printf( &user_config );
+    return 0;
+#endif
+
+    /* Read user data from flash */
+    if ( 0 > user_data_copy_from_flash( &user_config ) )
     {
-        printf( "\nTest task loopin' [%d]", ++i );
-        vTaskDelay( 1000 / portTICK_PERIOD_MS );
+        printf( "\n[ERROR] trying to copy user data from flash. Abort" );
+        return -1;
     }
+    printf( "\nUser data retrieved from flash:" );
+    user_data_printf( &user_config );
+
+#if FORCE_PROVISIONING_PROCESS
+    memset( &user_config, 0x00, sizeof( user_config ) );
+#endif
+
+    if ( 0 > user_data_is_valid( &user_config ) )
+    {
+        if ( 0 > provisioning_gather_user_data( &user_config ) )
+        {
+            printf( "\nDevice provisioning [ERROR]. Abort" );
+            return -1;
+        }
+    }
+    return 0;
 }
 
 void app_main( void )
 {
-    app_wifi_init();
+    /* Initialize Non-Volatile Storage */
+    if ( 0 > user_data_flash_init() )
+    {
+        while ( 1 )
+            vTaskDelay( 1000 / portTICK_PERIOD_MS );
+    }
 
-    /* Wait for WiFI to show as connected */
+    /* Fetch user credentials - Go through Provisioning if necessary */
+    if ( 0 > app_fetch_user_config() )
+    {
+        while ( 1 )
+            vTaskDelay( 1000 / portTICK_PERIOD_MS );
+    }
+
+    /* Initialize the ESP32 as a WiFi station */
+    if ( 0 > app_wifi_station_init() )
+    {
+        while ( 1 )
+            vTaskDelay( 1000 / portTICK_PERIOD_MS );
+    }
+
+    /* Wait until we're connected to the WiFi network */
     xEventGroupWaitBits( app_wifi_event_group, WIFI_CONNECTED_FLAG, false, true,
                          portMAX_DELAY );
 
-    if ( xif_set_device_info( APP_XI_ACCOUNT_ID, APP_XI_DEVICE_ID, APP_XI_DEVICE_PWD )
-         < 0 )
+    /* Configure Xively interface */
+    if ( 0 > xif_set_device_info( user_config.xi_account_id, user_config.xi_device_id,
+                                  user_config.xi_device_password ) )
     {
         while ( 1 )
-            ;
+            vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
 
+    /* Start Xively task */
     xTaskCreatePinnedToCore( &xif_rtos_task, "xif_task", XIF_STACK_SIZE, NULL, 5,
                              NULL, 1 );
-    //xTaskCreatePinnedToCore( &xif_rtos_task, "xif_task", XIF_STACK_SIZE, NULL, 5,
-    //                         NULL, 1 );
 
+    /* Loop forever to show multitasking */
     unsigned int i = 0;
     while ( 1 )
     {
