@@ -39,6 +39,54 @@ xi_state_t xi_fs_memory_stat_builtin_cert( const xi_fs_resource_handle_t resourc
 xi_state_t xi_fs_memory_open_builtin_cert( const xi_fs_resource_handle_t resource_id );
 #endif
 
+xi_state_t xi_fs_bsp_io_fs_2_xi_state( xi_bsp_io_fs_state_t bsp_state_value )
+{
+    xi_state_t ret = XI_STATE_OK;
+
+    switch ( bsp_state_value )
+    {
+        case XI_BSP_IO_FS_STATE_OK:
+            ret = XI_STATE_OK;
+            break;
+        case XI_BSP_IO_FS_ERROR:
+            ret = XI_FS_ERROR;
+            break;
+        case XI_BSP_IO_FS_INVALID_PARAMETER:
+            ret = XI_INVALID_PARAMETER;
+            break;
+        case XI_BSP_IO_FS_RESOURCE_NOT_AVAILABLE:
+            ret = XI_FS_RESOURCE_NOT_AVAILABLE;
+            break;
+        case XI_BSP_IO_FS_OUT_OF_MEMORY:
+            ret = XI_OUT_OF_MEMORY;
+            break;
+        case XI_BSP_IO_FS_NOT_IMPLEMENTED:
+            ret = XI_NOT_IMPLEMENTED;
+            break;
+        case XI_BSP_IO_FS_OPEN_ERROR:
+            ret = XI_FS_OPEN_ERROR;
+            break;
+        case XI_BSP_IO_FS_REMOVE_ERROR:
+            ret = XI_FS_REMOVE_ERROR;
+            break;
+        case XI_BSP_IO_FS_WRITE_ERROR:
+            ret = XI_FS_WRITE_ERROR;
+            break;
+        case XI_BSP_IO_FS_READ_ERROR:
+            ret = XI_FS_READ_ERROR;
+            break;
+        case XI_BSP_IO_FS_CLOSE_ERROR:
+            ret = XI_FS_CLOSE_ERROR;
+            break;
+        default:
+            /** IF we're good engineers, then this should never happen */
+            ret = XI_INTERNAL_ERROR;
+            break;
+    }
+
+    return ret;
+}
+
 /*
  * @struct xi_fs_memory_database_s
  * @brief describes a single entry in a memory of fs database

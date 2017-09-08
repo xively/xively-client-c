@@ -7,6 +7,13 @@
 #include "xi_fs_header.h"
 #include "xi_macros.h"
 
+xi_state_t xi_fs_bsp_io_fs_2_xi_state( xi_bsp_io_fs_state_t bsp_state_value )
+{
+    XI_UNUSED( bsp_state_value );
+
+    return XI_INTERNAL_ERROR;
+}
+
 xi_state_t xi_fs_stat( const void* context,
                        const xi_fs_resource_type_t resource_type,
                        const char* const resource_name,
