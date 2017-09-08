@@ -57,7 +57,7 @@ typedef intptr_t xi_bsp_io_fs_resource_handle_t;
 } xi_bsp_io_fs_state_t;
 
 /* helper function that translates the errors to the xi_bsp_io_fs_state_t values */
-inline xi_state_t xi_fs_bsp_io_fs_2_xi_state( xi_bsp_io_fs_state_t bsp_state_value )
+static inline xi_state_t xi_fs_bsp_io_fs_2_xi_state( xi_bsp_io_fs_state_t bsp_state_value )
 {
     xi_state_t ret = XI_STATE_OK;
 
