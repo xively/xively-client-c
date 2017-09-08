@@ -41,11 +41,11 @@ xi_bsp_io_fs_state_t xi_bsp_io_fs_read( const xi_bsp_io_fs_resource_handle_t res
     return XI_BSP_IO_FS_NOT_IMPLEMENTED;
 }
 
-xi_bsp_io_fs_state_tate_t xi_bsp_io_fs_write( const xi_bsp_io_fs_resource_handle_t resource_handle,
-                                                   const uint8_t* const buffer,
-                                                   const size_t buffer_size,
-                                                   const size_t offset,
-                                                   size_t* const bytes_written )
+xi_bsp_io_fs_state_t xi_bsp_io_fs_write( const xi_bsp_io_fs_resource_handle_t resource_handle,
+                                         const uint8_t* const buffer,
+                                         const size_t buffer_size,
+                                         const size_t offset,
+                                         size_t* const bytes_written )
 {
     ( void )resource_handle;
     ( void )buffer;
