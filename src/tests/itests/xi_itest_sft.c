@@ -491,9 +491,10 @@ void xi_itest_sft__check_revision_file( const char** filenames, uint16_t files_c
         xi_bsp_io_fs_resource_handle_t resource_handle = XI_BSP_IO_FS_INVALID_RESOURCE_HANDLE;
         char* filename_revision = xi_str_cat( filenames[id_file], ".xirev" );
 
-        xi_state_t state =
-            xi_bsp_io_fs_open( filename_revision, 0, XI_BSP_IO_FS_OPEN_READ, &resource_handle );
-
+        xi_state_t state = xi_fs_bsp_io_fs_2_xi_state( xi_bsp_io_fs_open( filename_revision,
+                                                       0,
+                                                       XI_BSP_IO_FS_OPEN_READ,
+                                                       &resource_handle ) );
         XI_SAFE_FREE( filename_revision );
 
         assert_int_equal( XI_STATE_OK, state );
@@ -502,7 +503,10 @@ void xi_itest_sft__check_revision_file( const char** filenames, uint16_t files_c
         const uint8_t* buffer = NULL;
         size_t buffer_size    = 0;
 
-        state = xi_bsp_io_fs_read( resource_handle, 0, &buffer, &buffer_size );
+        state = xi_fs_bsp_io_fs_2_xi_state( xi_bsp_io_fs_read( resource_handle,
+                                                               0,
+                                                               &buffer,
+                                                               &buffer_size ) );
 
         assert_non_null( buffer );
         assert_int_equal( 71, buffer_size );
@@ -518,7 +522,7 @@ void xi_itest_sft__check_revision_file( const char** filenames, uint16_t files_c
 
         XI_SAFE_FREE( expected_revision );
 
-        state = xi_bsp_io_fs_close( resource_handle );
+        state = xi_fs_bsp_io_fs_2_xi_state( xi_bsp_io_fs_close( resource_handle ) );
 
         assert_int_equal( XI_STATE_OK, state );
     }

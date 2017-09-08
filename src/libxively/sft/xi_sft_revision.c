@@ -27,9 +27,10 @@ xi_sft_revision_write_string_to_file( const char* const resource_name,
     }
 
     xi_bsp_io_fs_resource_handle_t resource_handle = XI_BSP_IO_FS_INVALID_RESOURCE_HANDLE;
-
-    xi_state_t state = xi_bsp_io_fs_open( resource_name, strlen( string_to_write ),
-                                          XI_BSP_IO_FS_OPEN_WRITE, &resource_handle );
+    xi_bsp_io_fs_state_t bsp_io_fs_state =
+        xi_bsp_io_fs_open( resource_name, strlen( string_to_write ),
+                           XI_BSP_IO_FS_OPEN_WRITE, &resource_handle );
+    xi_state_t state = xi_fs_bsp_io_fs_2_xi_state( bsp_io_fs_state );
 
     if ( XI_STATE_OK != state )
     {
@@ -38,8 +39,9 @@ xi_sft_revision_write_string_to_file( const char* const resource_name,
 
     size_t bytes_written = 0;
 
-    state = xi_bsp_io_fs_write( resource_handle, ( const uint8_t* )string_to_write,
-                                strlen( string_to_write ), 0, &bytes_written );
+     bsp_io_fs_state = xi_bsp_io_fs_write( resource_handle, ( const uint8_t* )string_to_write,
+                                           strlen( string_to_write ), 0, &bytes_written );
+    state = xi_fs_bsp_io_fs_2_xi_state( bsp_io_fs_state );
 
     xi_bsp_io_fs_close( resource_handle );
 
@@ -58,8 +60,12 @@ static xi_state_t xi_sft_revision_read_string_from_file( const char* const resou
 
     xi_bsp_io_fs_resource_handle_t resource_handle = XI_BSP_IO_FS_INVALID_RESOURCE_HANDLE;
 
-    xi_state_t state = xi_bsp_io_fs_open( resource_name, 0 /* not used at READ */,
-                                          XI_BSP_IO_FS_OPEN_READ, &resource_handle );
+    xi_bsp_io_fs_state_t bsp_io_fs_state =  xi_bsp_io_fs_open( resource_name, 
+                                                               0 /* not used at READ */,
+                                                               XI_BSP_IO_FS_OPEN_READ,
+                                                               &resource_handle );
+
+    xi_state_t state = xi_fs_bsp_io_fs_2_xi_state( bsp_io_fs_state );
 
     if ( XI_STATE_OK != state )
     {
@@ -71,7 +77,8 @@ static xi_state_t xi_sft_revision_read_string_from_file( const char* const resou
 
     /* note: single read call "only" supports revision not longer than file read buffer.
      * At time of writing this it's 1024 bytes. */
-    state = xi_bsp_io_fs_read( resource_handle, 0, &buffer, &buffer_size );
+    bsp_io_fs_state = xi_bsp_io_fs_read( resource_handle, 0, &buffer, &buffer_size );
+    state = xi_fs_bsp_io_fs_2_xi_state( bsp_io_fs_state );
 
     if ( XI_STATE_OK != state )
     {

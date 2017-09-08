@@ -234,7 +234,7 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
 
                     /* close file */
                     {
-                        state = xi_bsp_io_fs_close( context->update_file_handle );
+                        state = xi_fs_bsp_io_fs_2_xi_state( xi_bsp_io_fs_close( context->update_file_handle ) );
                         context->update_file_handle = XI_BSP_IO_FS_INVALID_RESOURCE_HANDLE;
                         // printf( " --- %s, close, state: %d\n", __FUNCTION__, state );
 
