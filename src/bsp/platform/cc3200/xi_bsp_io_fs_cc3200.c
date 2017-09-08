@@ -67,24 +67,24 @@ uint8_t xi_bsp_io_fs_is_this_cc3200_firmware_filename( const char* const filenam
 }
 
 _u32 xi_bsp_io_fs_open_flags_to_sl_flags( const uint32_t size,
-                                          const xi_fs_open_flags_t open_flags )
+                                          const xi_bsp_io_fs_open_flags_t open_flags )
 {
     switch ( open_flags )
     {
-        case XI_FS_OPEN_WRITE:
+        case XI_BSP_IO_FS_OPEN_WRITE:
             return FS_MODE_OPEN_CREATE( size, FS_MODE_OPEN_WRITE );
-        case XI_FS_OPEN_APPEND:
+        case XI_BSP_IO_FS_OPEN_APPEND:
             return FS_MODE_OPEN_WRITE;
-        case XI_FS_OPEN_READ:
+        case XI_BSP_IO_FS_OPEN_READ:
         default:
             return FS_MODE_OPEN_READ;
     }
 }
 
 xi_bsp_io_fs_state_t xi_bsp_io_fs_open( const char* const resource_name,
-                              const size_t size,
-                              const xi_bsp_io_fs_open_flags_t open_flags,
-                              xi_bsp_io_fs_resource_handle_t* resource_handle_out )
+                                        const size_t size,
+                                        const xi_bsp_io_fs_open_flags_t open_flags,
+                                        xi_bsp_io_fs_resource_handle_t* resource_handle_out )
 {
     ( void )open_flags;
 
@@ -102,7 +102,7 @@ xi_bsp_io_fs_state_t xi_bsp_io_fs_open( const char* const resource_name,
         {
             firmware_file_handle_last_opened = 0;
             *resource_handle_out             = 0;
-            return XI_FS_OPEN_ERROR;
+            return XI_BSP_IO_FS_OPEN_ERROR;
         }
 
         *resource_handle_out = firmware_file_handle_last_opened;
@@ -126,16 +126,16 @@ xi_bsp_io_fs_state_t xi_bsp_io_fs_open( const char* const resource_name,
         if ( 0 != sl_FsOpen( ( _u8* )resource_name, access_mode, NULL, &file_handle ) )
         {
             *resource_handle_out = 0;
-            return XI_FS_OPEN_ERROR;
+            return XI_BSP_IO_FS_OPEN_ERROR;
         }
 
         *resource_handle_out = file_handle;
 
-        return ( access_mode == access_mode_desired ) ? XI_STATE_OK
-                                                      : XI_FS_OPEN_READ_ONLY;
+        return ( access_mode == access_mode_desired ) ? XI_BSP_IO_FS_STATE_OK
+                                                      : XI_BSP_IO_FS_OPEN_READ_ONLY;
     }
 
-    return XI_STATE_OK;
+    return XI_BSP_IO_FS_STATE_OK;
 }
 
 #define XI_BSP_IO_FS_READ_BUFFER_SIZE 1024
@@ -147,7 +147,7 @@ xi_bsp_io_fs_state_t xi_bsp_io_fs_read( const xi_bsp_io_fs_resource_handle_t res
 {
     _i32 result_file_read = 0;
 
-    static _u8 read_buffer[XI_BSP_IO_FS_READ_BUFFER_SIZE];
+    static _u8 read_buffer[ XI_BSP_IO_FS_READ_BUFFER_SIZE ];
 
     if ( resource_handle == firmware_file_handle_last_opened )
     {
@@ -162,22 +162,22 @@ xi_bsp_io_fs_state_t xi_bsp_io_fs_read( const xi_bsp_io_fs_resource_handle_t res
 
     if ( result_file_read < 0 )
     {
-        return XI_FS_READ_ERROR;
+        return XI_BSP_IO_FS_READ_ERROR;
     }
     else
     {
         *buffer      = read_buffer;
         *buffer_size = result_file_read;
 
-        return XI_STATE_OK;
+        return XI_BSP_IO_FS_STATE_OK;
     }
 }
 
 xi_bsp_io_fs_state_t xi_bsp_io_fs_write( const xi_bsp_io_fs_resource_handle_t resource_handle,
-                               const uint8_t* const buffer,
-                               const size_t buffer_size,
-                               const size_t offset,
-                               size_t* const bytes_written )
+                                         const uint8_t* const buffer,
+                                         const size_t buffer_size,
+                                         const size_t offset,
+                                         size_t* const bytes_written )
 {
     { /* led indicator of file writes */
 #ifdef XI_DEBUG__FOR_FIRMWARE_UPDATE_TESTING_PURPOSES
@@ -210,7 +210,7 @@ xi_bsp_io_fs_state_t xi_bsp_io_fs_write( const xi_bsp_io_fs_resource_handle_t re
             sl_FsWrite( resource_handle, offset, ( _u8* )buffer, buffer_size );
     }
 
-    return ( buffer_size == *bytes_written ) ? XI_STATE_OK : XI_FS_WRITE_ERROR;
+    return ( buffer_size == *bytes_written ) ? XI_BSP_IO_FS_STATE_OK : XI_BSP_IO_FS_WRITE_ERROR;
 }
 
 xi_bsp_io_fs_state_t xi_bsp_io_fs_close( const xi_bsp_io_fs_resource_handle_t resource_handle )
@@ -220,13 +220,13 @@ xi_bsp_io_fs_state_t xi_bsp_io_fs_close( const xi_bsp_io_fs_resource_handle_t re
         firmware_file_handle_last_opened = 0;
 
         return ( 0 == sl_extlib_FlcCloseFile( resource_handle, NULL, NULL, 0 ) )
-                   ? XI_STATE_OK
-                   : XI_FS_CLOSE_ERROR;
+                   ? XI_BSP_IO_FS_STATE_OK
+                   : XI_BSP_IO_FS_CLOSE_ERROR;
     }
     else
     {
-        return ( 0 == sl_FsClose( resource_handle, NULL, NULL, 0 ) ) ? XI_STATE_OK
-                                                                     : XI_FS_CLOSE_ERROR;
+        return ( 0 == sl_FsClose( resource_handle, NULL, NULL, 0 ) ) ? XI_BSP_IO_FS_STATE_OK
+                                                                     : XI_BSP_IO_FS_CLOSE_ERROR;
     }
 }
 
@@ -235,9 +235,9 @@ xi_bsp_io_fs_state_t xi_bsp_io_fs_remove( const char* const resource_name )
     /* prevent possible firmware file deletion */
     if ( 1 == xi_bsp_io_fs_is_this_cc3200_firmware_filename( resource_name ) )
     {
-        return XI_FS_REMOVE_ERROR;
+        return XI_BSP_IO_FS_REMOVE_ERROR;
     }
 
     return ( 0 == sl_FsDel( ( const _u8* )resource_name, NULL ) ) ? XI_STATE_OK
-                                                                  : XI_FS_REMOVE_ERROR;
+                                                                  : XI_BSP_IO_FS_REMOVE_ERROR;
 }

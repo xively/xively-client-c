@@ -55,10 +55,24 @@ typedef intptr_t xi_bsp_io_fs_resource_handle_t;
     /** out of memory error */
     XI_BSP_IO_FS_OUT_OF_MEMORY = 4,
     /** function not implemented on target platform */
-    XI_BSP_IO_FS_NOT_IMPLEMENTED = 5
+    XI_BSP_IO_FS_NOT_IMPLEMENTED = 5,
+    /** error opening file resource **/
+    XI_BSP_IO_FS_OPEN_ERROR = 6,
+    /** error that file open could only open read only */
+    XI_BSP_IO_FS_OPEN_READ_ONLY = 7,
+    /** error reported when file cannot be removed */
+    XI_BSP_IO_FS_REMOVE_ERROR = 8,
+    /** error when attempting to write file data */
+    XI_BSP_IO_FS_WRITE_ERROR = 9,
+    /** error reported when file cannot be read */
+    XI_BSP_IO_FS_READ_ERROR = 10,
+    /** error reported when file cannot be closed */
+    XI_BSP_IO_FS_CLOSE_ERROR = 11,
 } xi_bsp_io_fs_state_t;
 
 /* helper function that translates the errors to the xi_bsp_io_fs_state_t values */
+/* TODO: remove the need to have this inline, as the function has a substantial jump
+ * table. */
 static inline xi_state_t xi_fs_bsp_io_fs_2_xi_state( xi_bsp_io_fs_state_t bsp_state_value )
 {
     xi_state_t ret = XI_STATE_OK;
@@ -82,6 +96,21 @@ static inline xi_state_t xi_fs_bsp_io_fs_2_xi_state( xi_bsp_io_fs_state_t bsp_st
             break;
         case XI_BSP_IO_FS_NOT_IMPLEMENTED:
             ret = XI_NOT_IMPLEMENTED;
+            break;
+        case XI_BSP_IO_FS_OPEN_ERROR:
+            ret = XI_FS_OPEN_ERROR;
+            break;
+        case XI_BSP_IO_FS_REMOVE_ERROR:
+            ret = XI_FS_REMOVE_ERROR;
+            break;
+        case XI_BSP_IO_FS_WRITE_ERROR:
+            ret = XI_FS_WRITE_ERROR;
+            break;
+        case XI_BSP_IO_FS_READ_ERROR:
+            ret = XI_FS_READ_ERROR;
+            break;
+        case XI_BSP_IO_FS_CLOSE_ERROR:
+            ret = XI_FS_CLOSE_ERROR;
             break;
         default:
             /** IF we're good engineers, then this should never happen */
