@@ -42,7 +42,7 @@ static xi_bsp_io_fs_posix_file_handle_container_t*
     xi_bsp_io_fs_posix_files_container;
 
 /* translates bsp errno errors to the xi_bsp_io_fs_state_t values */
-xi_bsp_io_fs_state_t xi_bsp_io_fs_posix_errno_2_xi_state( int errno_value )
+xi_bsp_io_fs_state_t xi_bsp_io_fs_posix_errno_2_xi_bsp_io_fs_state( int errno_value )
 {
     xi_bsp_io_fs_state_t ret = XI_BSP_IO_FS_STATE_OK;
 
@@ -73,8 +73,8 @@ xi_bsp_io_fs_state_t xi_bsp_io_fs_posix_errno_2_xi_state( int errno_value )
 }
 
 /* helper function that translates posix stat to xi stat */
-static xi_bsp_io_fs_state_t xi_bsp_io_fs_posix_stat_2_xi_stat( const struct stat* const posix_stat,
-                                                               xi_bsp_io_fs_stat_t* const xi_stat )
+static xi_bsp_io_fs_state_t xi_bsp_io_fs_posix_stat_2_xi_bsp_io_fs_stat( const struct stat* const posix_stat,
+                                                                         xi_bsp_io_fs_stat_t* const xi_stat )
 {
     assert( NULL != posix_stat );
     assert( NULL != xi_stat );
@@ -120,10 +120,10 @@ xi_bsp_io_fs_stat( const char* const resource_name, xi_bsp_io_fs_stat_t* resourc
 
     /* Verification of the os function result.
      * Jump to err_handling label in case of failure. */
-    XI_BSP_IO_FS_CHECK_CND( 0 != res, xi_bsp_io_fs_posix_errno_2_xi_state( errno ), ret );
+    XI_BSP_IO_FS_CHECK_CND( 0 != res, xi_bsp_io_fs_posix_errno_2_xi_bsp_io_fs_state( errno ), ret );
 
     /* here we translate stat posix os stat structure to libxively version */
-    ret = xi_bsp_io_fs_posix_stat_2_xi_stat( &stat_struct, resource_stat );
+    ret = xi_bsp_io_fs_posix_stat_2_xi_bsp_io_fs_stat( &stat_struct, resource_stat );
 
 err_handling:
     return ret;
@@ -153,7 +153,7 @@ xi_bsp_io_fs_state_t xi_bsp_io_fs_open( const char* const resource_name,
     FILE* fp = fopen( resource_name, ( open_flags & XI_BSP_IO_FS_OPEN_READ ) ? "rb" : "wb" );
 
     /* if error on fopen check the errno value */
-    XI_BSP_IO_FS_CHECK_CND( NULL == fp, xi_bsp_io_fs_posix_errno_2_xi_state( errno ), ret );
+    XI_BSP_IO_FS_CHECK_CND( NULL == fp, xi_bsp_io_fs_posix_errno_2_xi_bsp_io_fs_state( errno ), ret );
 
     /* allocate memory for the files database element */
     new_entry = xi_bsp_mem_alloc( sizeof( xi_bsp_io_fs_posix_file_handle_container_t ) );
@@ -216,13 +216,13 @@ xi_bsp_io_fs_state_t xi_bsp_io_fs_read( const xi_bsp_io_fs_resource_handle_t res
     fop_ret = fseek( fp, offset, SEEK_SET );
 
     /* if error on fseek check errno */
-    XI_BSP_IO_FS_CHECK_CND( fop_ret != 0, xi_bsp_io_fs_posix_errno_2_xi_state( errno ), ret );
+    XI_BSP_IO_FS_CHECK_CND( fop_ret != 0, xi_bsp_io_fs_posix_errno_2_xi_bsp_io_fs_state( errno ), ret );
 
     /* use the fread to read the file chunk */
     fop_ret = fread( elem->memory_buffer, ( size_t )1, xi_bsp_io_fs_buffer_size, fp );
 
     /* if error on fread check errno */
-    XI_BSP_IO_FS_CHECK_CND( fop_ret == 0, xi_bsp_io_fs_posix_errno_2_xi_state( errno ), ret );
+    XI_BSP_IO_FS_CHECK_CND( fop_ret == 0, xi_bsp_io_fs_posix_errno_2_xi_bsp_io_fs_state( errno ), ret );
 
     /* return buffer, buffer_size */
     *buffer      = elem->memory_buffer;
@@ -264,13 +264,13 @@ xi_bsp_io_fs_state_t xi_bsp_io_fs_write( const xi_bsp_io_fs_resource_handle_t re
     const int fop_ret = fseek( fp, offset, SEEK_SET );
 
     /* if error on fseek check errno */
-    XI_BSP_IO_FS_CHECK_CND( fop_ret != 0, xi_bsp_io_fs_posix_errno_2_xi_state( errno ), ret );
+    XI_BSP_IO_FS_CHECK_CND( fop_ret != 0, xi_bsp_io_fs_posix_errno_2_xi_bsp_io_fs_state( errno ), ret );
 
     *bytes_written = fwrite( buffer, ( size_t )1, buffer_size, fp );
 
     /* if error on fwrite check errno */
     XI_BSP_IO_FS_CHECK_CND( buffer_size != *bytes_written,
-                            xi_bsp_io_fs_posix_errno_2_xi_state( ferror( fp ) ), ret );
+        xi_bsp_io_fs_posix_errno_2_xi_bsp_io_fs_state( ferror( fp ) ), ret );
 
 err_handling:
 
@@ -303,8 +303,8 @@ xi_bsp_io_fs_state_t xi_bsp_io_fs_close( const xi_bsp_io_fs_resource_handle_t re
     fop_ret = fclose( fp );
 
     /* if error on fclose check errno */
-    XI_BSP_IO_FS_CHECK_CND( 0 != fop_ret,
-                            xi_bsp_io_fs_posix_errno_2_xi_state( errno ), ret );
+    XI_BSP_IO_FS_CHECK_CND( 0 != fop_ret, 
+                            xi_bsp_io_fs_posix_errno_2_xi_bsp_io_fs_state( errno ), ret );
 
     xi_bsp_mem_free( elem->memory_buffer );
     xi_bsp_mem_free( elem );
@@ -326,7 +326,7 @@ xi_bsp_io_fs_state_t xi_bsp_io_fs_remove( const char* const resource_name )
     int ret = remove( resource_name );
 
     XI_BSP_IO_FS_CHECK_CND( 0 != ret,
-                            xi_bsp_io_fs_posix_errno_2_xi_state( errno ), ret );
+                            xi_bsp_io_fs_posix_errno_2_xi_bsp_io_fs_state( errno ), ret );
 
 err_handling:
 
