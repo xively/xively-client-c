@@ -12,7 +12,7 @@
 #include <xi_macros.h>
 
 #include <string.h>
-
+#include <xi_fs_bsp_to_xi_mapping.h>
 
 #define XI_SFT_REVISION_RESOURCENAME( resource_name )                                    \
     xi_str_cat( resource_name, ".xirev" )

@@ -10,6 +10,7 @@
 
 #include <xi_bsp_io_fs.h>
 #include <xi_bsp_fwu.h>
+#include <xi_fs_bsp_to_xi_mapping.h>
 
 xi_control_message__sft_file_status_code_t
 xi_sft_on_message_file_chunk_process_file_chunk( xi_sft_context_t* context,

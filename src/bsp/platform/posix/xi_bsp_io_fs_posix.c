@@ -14,6 +14,7 @@
 #include <errno.h>
 #include <assert.h>
 #include <memory.h>
+#include <xi_fs_bsp_to_xi_mapping.h>
 
 /* The size of the buffer to be used for reads. */
 const size_t xi_bsp_io_fs_buffer_size = 1024;

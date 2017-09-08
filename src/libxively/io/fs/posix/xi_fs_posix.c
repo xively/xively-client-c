@@ -7,57 +7,9 @@
 #include "xi_fs_header.h"
 #include "xi_macros.h"
 #include "xi_bsp_io_fs.h"
+#include "xi_fs_bsp_to_xi_mapping.h"
 
 const size_t xi_fs_buffer_size = 1024;
-
-xi_state_t xi_fs_bsp_io_fs_2_xi_state( xi_bsp_io_fs_state_t bsp_state_value )
-{
-    xi_state_t ret = XI_STATE_OK;
-
-    switch ( bsp_state_value )
-    {
-        case XI_BSP_IO_FS_STATE_OK:
-            ret = XI_STATE_OK;
-            break;
-        case XI_BSP_IO_FS_ERROR:
-            ret = XI_FS_ERROR;
-            break;
-        case XI_BSP_IO_FS_INVALID_PARAMETER:
-            ret = XI_INVALID_PARAMETER;
-            break;
-        case XI_BSP_IO_FS_RESOURCE_NOT_AVAILABLE:
-            ret = XI_FS_RESOURCE_NOT_AVAILABLE;
-            break;
-        case XI_BSP_IO_FS_OUT_OF_MEMORY:
-            ret = XI_OUT_OF_MEMORY;
-            break;
-        case XI_BSP_IO_FS_NOT_IMPLEMENTED:
-            ret = XI_NOT_IMPLEMENTED;
-            break;
-        case XI_BSP_IO_FS_OPEN_ERROR:
-            ret = XI_FS_OPEN_ERROR;
-            break;
-        case XI_BSP_IO_FS_REMOVE_ERROR:
-            ret = XI_FS_REMOVE_ERROR;
-            break;
-        case XI_BSP_IO_FS_WRITE_ERROR:
-            ret = XI_FS_WRITE_ERROR;
-            break;
-        case XI_BSP_IO_FS_READ_ERROR:
-            ret = XI_FS_READ_ERROR;
-            break;
-        case XI_BSP_IO_FS_CLOSE_ERROR:
-            ret = XI_FS_CLOSE_ERROR;
-            break;
-        default:
-            /** IF we're good engineers, then this should never happen */
-            ret = XI_INTERNAL_ERROR;
-            break;
-    }
-
-    return ret;
-}
-
 
 xi_state_t xi_fs_stat( const void* context,
                        const xi_fs_resource_type_t resource_type,

@@ -13,6 +13,7 @@
 #include "xi_globals.h"
 #include "xi_handle.h"
 #include "xi_helpers.h"
+#include "xi_fs_bsp_to_xi_mapping.h"
 
 #include "xi_memory_checks.h"
 #include "xi_itest_layerchain_ct_ml_mc.h"

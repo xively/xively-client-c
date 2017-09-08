@@ -27,7 +27,6 @@
 #include <stdint.h>
 #include <xively_error.h>
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -69,9 +68,6 @@ typedef intptr_t xi_bsp_io_fs_resource_handle_t;
     /** error reported when file cannot be closed */
     XI_BSP_IO_FS_CLOSE_ERROR = 11,
 } xi_bsp_io_fs_state_t;
-
-/* helper function that translates the errors to the xi_bsp_io_fs_state_t values */
-xi_state_t xi_fs_bsp_io_fs_2_xi_state( xi_bsp_io_fs_state_t bsp_state_value );
 
 /**
  * @enum xi_bsp_io_fs_resource_type_t
