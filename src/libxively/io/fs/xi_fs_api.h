@@ -13,6 +13,29 @@
 #include <xi_err.h>
 #include <xi_bsp_io_fs.h>
 
+#define XI_FS_INVALID_RESOURCE_HANDLE -1
+#define xi_fs_init_resource_handle() XI_FS_INVALID_RESOURCE_HANDLE
+
+typedef intptr_t xi_fs_resource_handle_t;
+
+typedef enum xi_fs_resource_type_e {
+    XI_FS_CERTIFICATE = 0, /**< 0 **/
+    XI_FS_CREDENTIALS,     /**< 1 **/
+    XI_FS_CONFIG_DATA      /**< 2 **/
+} xi_fs_resource_type_t;
+
+typedef struct xi_fs_stat_s
+{
+    size_t resource_size;
+} xi_fs_stat_t;
+
+typedef enum xi_fs_open_flags_e {
+    XI_FS_OPEN_READ   = 1 << 0,
+    XI_FS_OPEN_WRITE  = 1 << 1,
+    XI_FS_OPEN_APPEND = 1 << 2,
+} xi_fs_open_flags_t;
+
+
 /* The size of the buffer to be used for reads */
 extern const size_t xi_fs_buffer_size;
 
