@@ -10,6 +10,7 @@
 
 #include <xi_bsp_io_fs.h>
 #include <xi_bsp_fwu.h>
+#include <xi_fs_bsp_to_xi_mapping.h>
 
 xi_control_message__sft_file_status_code_t
 xi_sft_on_message_file_chunk_process_file_chunk( xi_sft_context_t* context,
@@ -20,9 +21,9 @@ xi_sft_on_message_file_chunk_process_file_chunk( xi_sft_context_t* context,
     /* at first chunk open file */
     if ( 0 == sft_message_in->file_chunk.offset )
     {
-        state = xi_bsp_io_fs_open( sft_message_in->file_chunk.name,
-                                   context->update_current_file->size_in_bytes,
-                                   XI_FS_OPEN_WRITE, &context->update_file_handle );
+        state = xi_fs_bsp_io_fs_2_xi_state( xi_bsp_io_fs_open( sft_message_in->file_chunk.name,
+                                            context->update_current_file->size_in_bytes,
+                                            XI_BSP_IO_FS_OPEN_WRITE, &context->update_file_handle ) );
 
         if ( XI_STATE_OK != state )
         {
@@ -40,10 +41,10 @@ xi_sft_on_message_file_chunk_process_file_chunk( xi_sft_context_t* context,
     /* write bytes through FILE BSP */
     size_t bytes_written = 0;
 
-    state =
+    state = xi_fs_bsp_io_fs_2_xi_state( 
         xi_bsp_io_fs_write( context->update_file_handle, sft_message_in->file_chunk.chunk,
                             sft_message_in->file_chunk.length,
-                            sft_message_in->file_chunk.offset, &bytes_written );
+                            sft_message_in->file_chunk.offset, &bytes_written ) );
 
     if ( XI_STATE_OK != state )
     {
