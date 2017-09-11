@@ -9,7 +9,9 @@
 #include "xi_control_topic_layer_data.h"
 #include "xi_handle.h"
 #include "xi_user_sub_call_wrapper.h"
+#ifdef XI_SECURE_FILE_TRANSFER_ENABLED
 #include "xi_cbor_codec_ct.h"
+#endif
 #include "xi_control_message.h"
 #endif
 #include "xi_macros.h"
