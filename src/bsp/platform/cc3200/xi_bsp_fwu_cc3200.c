@@ -56,7 +56,7 @@ xi_state_t xi_bsp_fwu_on_new_firmware_failure()
     _reboot_device();
 
     /* Control should never reach this */
-    return XI_STATE_OK;
+    return XI_INTERNAL_ERROR;
 }
 
 xi_state_t xi_bsp_fwu_on_firmware_package_download_failure()
