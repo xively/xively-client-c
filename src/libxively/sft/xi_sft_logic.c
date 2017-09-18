@@ -16,6 +16,8 @@
 #include <xi_bsp_io_fs.h>
 #include <xi_bsp_fwu.h>
 
+#include <xi_fs_bsp_to_xi_mapping.h>
+
 xi_state_t xi_sft_make_context( xi_sft_context_t** context,
                                 const char** updateable_files,
                                 uint16_t updateable_files_count,
@@ -245,8 +247,8 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
 
                     /* close file */
                     {
-                        state = xi_bsp_io_fs_close( context->update_file_handle );
-                        context->update_file_handle = XI_FS_INVALID_RESOURCE_HANDLE;
+                        state = xi_fs_bsp_io_fs_2_xi_state( xi_bsp_io_fs_close( context->update_file_handle ) );
+                        context->update_file_handle = XI_BSP_IO_FS_INVALID_RESOURCE_HANDLE;
                         // printf( " --- %s, close, state: %d\n", __FUNCTION__, state );
 
                         if ( XI_STATE_OK != state )

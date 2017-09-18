@@ -4,7 +4,10 @@
  * it is licensed under the BSD 3-Clause license.
  */
 
-#include <socket.h>
+#include <sys/socket.h>
+#include <sys/select.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
 
 /******************************************************************************
  *                                                                            *

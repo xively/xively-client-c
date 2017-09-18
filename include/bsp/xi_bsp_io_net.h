@@ -42,8 +42,10 @@
 *  - Randon Number Generator
 *  - Time
 *  - Transport Layer Security (TLS)
+*  - File System (for Secure File Transfer)
+*  - Firmware Updates (for Secure File Transfer)
 *
-* The best place to start would probably be the NET
+* The best place to start would be the NET
 * networking library.
 *
 * Implementations for Time, Rng and Memory might be highly
@@ -88,7 +90,7 @@
 * the Xively C Client BSP can be found in the Xively C Client Porting Guide located
 * in: <code>/doc/porting_guide.md</code>.
 *
-* \copyright 2003-2016, LogMeIn, Inc.  All rights reserved.
+* \copyright 2003-2017, LogMeIn, Inc.  All rights reserved.
 *
 */
 
