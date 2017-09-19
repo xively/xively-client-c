@@ -16,7 +16,7 @@ xi_state_t xi_sft_revision_get( const char* const resource_name, char** revision
 
 
 xi_state_t
-xi_sft_revision_set_firmware_uptate( const char* const resource_name_xi_firmware,
+xi_sft_revision_set_firmware_update( const char* const resource_name_xi_firmware,
                                      const char* const revision_xi_firmware );
 
 xi_state_t xi_sft_revision_firmware_ok();
