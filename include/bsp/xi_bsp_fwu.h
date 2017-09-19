@@ -14,15 +14,35 @@
 extern "C" {
 #endif
 
+/**
+ * @typedef xi_bsp_io_fwu_state_e
+ * @brief Return value of the BSP NET API functions.
+ *
+ * The implementation reports internal status to Xively Client through these values.
+ */
+ typedef enum xi_bsp_io_fwu_state_e {
+    /** operation finished successfully */
+    XI_BSP_IO_FWU_STATE_OK = 0,
+    /** operation failed on generic error */
+    XI_BSP_IO_FWU_ERROR = 1,
+    /** operation encountered and unexpected state or control path */
+    XI_BSP_IO_FWU_INTERNAL_ERROR = 2,
+    /** operation is not supported or not implemented */
+    XI_BSP_IO_FWU_NOT_IMPLEMENTED = 3,
+    /** parameter provided to BSP is invalid */
+    XI_BSP_IO_FWU_INVALID_PARAMETER = 4,
+} xi_bsp_io_fwu_state_t;
+
+
 uint8_t xi_bsp_fwu_is_this_firmware( const char* const resource_name );
 
-xi_state_t xi_bsp_fwu_on_new_firmware_ok();
+xi_bsp_io_fwu_state_t xi_bsp_fwu_on_new_firmware_ok();
 
-xi_state_t xi_bsp_fwu_on_new_firmware_failure();
+xi_bsp_io_fwu_state_t xi_bsp_fwu_on_new_firmware_failure();
 
-xi_state_t xi_bsp_fwu_on_firmware_package_download_failure();
+xi_bsp_io_fwu_state_t xi_bsp_fwu_on_firmware_package_download_failure();
 
-xi_state_t xi_bsp_fwu_on_firmware_package_download_finished(
+xi_bsp_io_fwu_state_t xi_bsp_fwu_on_firmware_package_download_finished(
     const char* const firmware_resource_name );
 
 

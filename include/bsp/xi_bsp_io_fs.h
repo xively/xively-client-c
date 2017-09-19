@@ -37,7 +37,7 @@ typedef intptr_t xi_bsp_io_fs_resource_handle_t;
 #define xi_bsp_io_fs_init_resource_handle() XI_BSP_IO_FS_INVALID_RESOURCE_HANDLE
 
 /**
- * @typedef xi_bsp_io_net_state_e
+ * @typedef xi_bsp_io_fs_state_e
  * @brief Return value of the BSP NET API functions.
  *
  * The implementation reports internal status to Xively Client through these values.

@@ -26,25 +26,25 @@ uint8_t xi_bsp_fwu_is_this_firmware( const char* const resource_name )
     return ( 0 == strcmp( "firmware.bin", resource_name ) ) ? 1 : 0;
 }
 
-xi_state_t xi_bsp_fwu_on_new_firmware_ok()
+xi_bsp_io_fwu_state_t xi_bsp_fwu_on_new_firmware_ok()
 {
     printf( "--- %s, no operation\n", __FUNCTION__ );
-    return XI_NOT_IMPLEMENTED;
+    return XI_BSP_IO_FWU_NOT_IMPLEMENTED;
 }
 
-xi_state_t xi_bsp_fwu_on_new_firmware_failure()
+xi_bsp_io_fwu_state_t xi_bsp_fwu_on_new_firmware_failure()
 {
     printf( "--- %s, \n", __FUNCTION__ );
-    return XI_NOT_IMPLEMENTED;
+    return XI_BSP_IO_FWU_NOT_IMPLEMENTED;
 }
 
-xi_state_t xi_bsp_fwu_on_firmware_package_download_failure()
+xi_bsp_io_fwu_state_t xi_bsp_fwu_on_firmware_package_download_failure()
 {
     printf( "--- %s, \n", __FUNCTION__ );
-    return XI_NOT_IMPLEMENTED;
+    return XI_BSP_IO_FWU_NOT_IMPLEMENTED;
 }
 
-xi_state_t xi_bsp_fwu_on_firmware_package_download_finished(
+xi_bsp_io_fwu_state_t xi_bsp_fwu_on_firmware_package_download_finished(
     const char* const firmware_resource_name )
 {
     printf( "--- %s, firmware name: %s\n", __FUNCTION__, firmware_resource_name );
@@ -78,5 +78,5 @@ xi_state_t xi_bsp_fwu_on_firmware_package_download_finished(
 #endif
 
     /* Control should never reach this */
-    return XI_STATE_OK;
+    return XI_BSP_IO_FWU_STATE_OK;
 }

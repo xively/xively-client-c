@@ -36,17 +36,17 @@ uint8_t xi_bsp_fwu_is_this_firmware( const char* const resource_name )
     return ( 0 == strcmp( "firmware.bin", resource_name ) ) ? 1 : 0;
 }
 
-xi_state_t xi_bsp_fwu_on_new_firmware_ok()
+xi_bsp_io_fwu_state_t xi_bsp_fwu_on_new_firmware_ok()
 {
     if ( sl_extlib_FlcIsPendingCommit() )
     {
         sl_extlib_FlcCommit( FLC_COMMITED );
     }
 
-    return XI_STATE_OK;
+    return XI_BSP_IO_FWU_STATE_OK;
 }
 
-xi_state_t xi_bsp_fwu_on_new_firmware_failure()
+xi_bsp_io_fwu_state_t xi_bsp_fwu_on_new_firmware_failure()
 {
     if ( sl_extlib_FlcIsPendingCommit() )
     {
@@ -56,17 +56,17 @@ xi_state_t xi_bsp_fwu_on_new_firmware_failure()
     _reboot_device();
 
     /* Control should never reach this */
-    return XI_INTERNAL_ERROR;
+    return XI_BSP_IO_FWU_INTERNAL_ERROR;
 }
 
-xi_state_t xi_bsp_fwu_on_firmware_package_download_failure()
+xi_bsp_io_fwu_state_t xi_bsp_fwu_on_firmware_package_download_failure()
 {
     GPIO_IF_LedOn( MCU_RED_LED_GPIO );
 
-    return XI_STATE_OK;
+    return XI_BSP_IO_FWU_STATE_OK;
 }
 
-xi_state_t xi_bsp_fwu_on_firmware_package_download_finished(
+xi_bsp_io_fwu_state_t xi_bsp_fwu_on_firmware_package_download_finished(
     const char* const firmware_resource_name )
 {
     ( void )firmware_resource_name;
@@ -77,5 +77,5 @@ xi_state_t xi_bsp_fwu_on_firmware_package_download_finished(
     _reboot_device();
 
     /* Control should never reach this */
-    return XI_INTERNAL_ERROR;
+    return XI_BSP_IO_FWU_INTERNAL_ERROR;
 }

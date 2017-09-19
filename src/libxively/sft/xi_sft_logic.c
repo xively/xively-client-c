@@ -18,6 +18,37 @@
 
 #include <xi_fs_bsp_to_xi_mapping.h>
 
+/* helper function that translates the errno errors to the xi_bsp_io_fs_state_t values */
+xi_state_t xi_fs_bsp_io_fwu_2_xi_state( xi_bsp_io_fwu_state_t bsp_state_value )
+{
+    xi_state_t ret = XI_STATE_OK;
+
+    switch ( bsp_state_value )
+    {
+        case XI_BSP_IO_FWU_STATE_OK:
+            ret = XI_STATE_OK;
+            break;
+        case XI_BSP_IO_FWU_ERROR:
+            ret = XI_FS_ERROR;
+            break;
+        case XI_BSP_IO_FWU_INTERNAL_ERROR:
+            ret = XI_INTERNAL_ERROR;
+            break;
+        case XI_BSP_IO_FWU_NOT_IMPLEMENTED:
+            ret = XI_NOT_IMPLEMENTED;
+            break;
+        case XI_BSP_IO_FWU_INVALID_PARAMETER:
+            ret = XI_INVALID_PARAMETER;
+            break;
+        default:
+            /** If we're good engineers, then this should never happen */
+            ret = XI_INTERNAL_ERROR;
+            break;
+    }
+
+    return ret;
+}
+
 xi_state_t xi_sft_make_context( xi_sft_context_t** context,
                                 const char** updateable_files,
                                 uint16_t updateable_files_count,
@@ -96,7 +127,7 @@ xi_state_t xi_sft_on_connection_failed( xi_sft_context_t* context )
 {
     XI_UNUSED( context );
 
-    return xi_bsp_fwu_on_new_firmware_failure();
+    return xi_fs_bsp_io_fwu_2_xi_state( xi_bsp_fwu_on_new_firmware_failure() );
 }
 
 static void
