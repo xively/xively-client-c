@@ -12,13 +12,13 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <xi_control_message.h>
+#include <xi_control_message_sft.h>
 
 #ifndef XI_TT_TESTCASE_ENUMERATION__SECONDPREPROCESSORRUN
 
 #endif
 
-XI_TT_TESTGROUP_BEGIN( utest_control_message )
+XI_TT_TESTGROUP_BEGIN( utest_control_message_sft )
 
 
 /*****************************************************
@@ -106,7 +106,7 @@ XI_TT_TESTCASE_WITH_SETUP(
             0, ==, strcmp( single_filename, message_file_info->file_info.list->name ) );
 
         tt_ptr_op( NULL, !=, message_file_info->file_info.list->revision );
-        tt_want_int_op( 0, ==, strcmp( XI_CONTROL_MESSAGE_GENERATED_REVISION,
+        tt_want_int_op( 0, ==, strcmp( XI_CONTROL_MESSAGE_SFT_GENERATED_REVISION,
                                        message_file_info->file_info.list->revision ) );
 
         xi_control_message_free( &message_file_info );
@@ -141,7 +141,7 @@ XI_TT_TESTCASE_WITH_SETUP(
 
             tt_ptr_op( NULL, !=, message_file_info->file_info.list[id_file].revision );
             tt_want_int_op(
-                0, ==, strcmp( XI_CONTROL_MESSAGE_GENERATED_REVISION,
+                0, ==, strcmp( XI_CONTROL_MESSAGE_SFT_GENERATED_REVISION,
                                message_file_info->file_info.list[id_file].revision ) );
         }
 

@@ -252,13 +252,22 @@ A typical CONFIG flag:
 
 ###### Xively Client Feature flags
 
-    - control_topic     - the control topic feature is in development.
-                          Currently activating this feature has no behavioral benefit.
-    - senml             - turns on SENML JSON serialization support for timeseries data. To maintain a small
-                          footprint size we recommend turning this off (by removing senml flag from CONFIG).
-    - threading         - POSIX only.  This causes pub, sub, and connection callbacks to be called on separate thread.
-                          Not having this flag set application callbacks are called on the sole main
-                          thread of the Xively C Client.
+    - control_topic        - turing on this feature makes the Client establish a control
+                             topic channel to the Xively Services. This channel is the
+                             transport layer for background Xively Service tasks like
+                             Secure File Transfer and Firmware Update. The control topic
+                             feature is in development.
+    - secure_file_transfer - turns on Secure File Transfer and Firmware Update features.
+                             This feature keeps files up-to-date set in API function
+                             'xi_set_updateable_files'. The control_topic flag has to be
+                             turned on as well.
+    - senml                - turns on SENML JSON serialization support for timeseries
+                             data. To maintain a small footprint size we recommend turning
+                             this off (by removing senml flag from CONFIG).
+    - threading            - POSIX only. This causes pub, sub, and connection callbacks
+                             to be called on separate thread. Not having this flag set
+                             application callbacks are called on the sole main thread of
+                             the Xively C Client.
 
 ###### File System flags
 

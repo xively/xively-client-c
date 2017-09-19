@@ -46,6 +46,10 @@ ifneq (,$(findstring control_topic,$(CONFIG)))
 	XI_CONFIG_FLAGS += -DXI_CONTROL_TOPIC_ENABLED
 endif
 
+ifneq (,$(findstring secure_file_transfer,$(CONFIG)))
+	XI_CONFIG_FLAGS += -DXI_SECURE_FILE_TRANSFER_ENABLED
+endif
+
 ifneq (,$(findstring expose_fs,$(CONFIG)))
 	XI_CONFIG_FLAGS += -DXI_EXPOSE_FS
 endif
@@ -202,9 +206,6 @@ XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/datastructures
 XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/mqtt/codec
 XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/mqtt/logic
 XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/control_topic
-XI_SRCDIRS += $(LIBXIVELY_SRC)/import/cn-cbor/src
-XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/cbor
-XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/sft
 
 ifneq (,$(findstring senml,$(CONFIG)))
 	XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/senml
@@ -222,6 +223,16 @@ ifneq (,$(findstring control_topic,$(CONFIG)))
 	XI_SOURCES += $(XI_PROTOFILES_C)
 endif
 
+ifneq (,$(findstring secure_file_transfer,$(CONFIG)))
+	XI_INCLUDE_FLAGS += -I$(LIBXIVELY_SRC)/import/cn-cbor/include
+
+	XI_SRCDIRS += $(LIBXIVELY_SRC)/import/cn-cbor/src
+	XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/cbor
+	XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/sft
+
+	XI_SECURE_FILE_TRANSFER_ENABLED := 1
+endif
+
 # MODULES SRCDIRS
 XI_SRCDIRS += $(foreach platformdep,$(XI_PLATFORM_MODULES_ENABLED) \
 			,$(LIBXIVELY_SOURCE_DIR)/platform/$(XI_PLATFORM_BASE)/$(platformdep))
@@ -232,7 +243,6 @@ XI_INCLUDE_FLAGS += $(foreach platformdep,$(XI_PLATFORM_MODULES) \
 XI_INCLUDE_FLAGS += $(foreach d, $(LIBXIVELY_INTERFACE_INCLUDE_DIRS), -I$d)
 
 XI_INCLUDE_FLAGS += -I$(LIBXIVELY_SOURCE_DIR)
-XI_INCLUDE_FLAGS += -I$(LIBXIVELY_SRC)/import/cn-cbor/include
 
 XI_INCLUDE_FLAGS += $(foreach d, $(XI_SRCDIRS), -I$d)
 

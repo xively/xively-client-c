@@ -161,7 +161,7 @@ xi_state_t xi_sft_revision_firmware_ok()
     char* firmware_update_data = NULL;
 
     /* reading "mailbox" expected containing currently running (this) firmware data */
-    xi_state_t state = xi_sft_revision_read_string_from_file(
+    const xi_state_t state = xi_sft_revision_read_string_from_file(
         XI_SFT_REVISION_FIRMWAREUPDATEREVISION_MAILBOX_TO_NEXT_RUN,
         &firmware_update_data );
 
@@ -170,9 +170,21 @@ xi_state_t xi_sft_revision_firmware_ok()
     char* xi_firmware_resource_name = firmware_update_data;
     char* xi_firmware_revision      = firmware_update_data;
 
-    strtok_r( xi_firmware_revision, "\n", &xi_firmware_revision );
+    while ( '\n' != *xi_firmware_revision && 0 != *xi_firmware_revision )
+    {
+        ++xi_firmware_revision;
+    }
 
-    xi_sft_revision_set( xi_firmware_resource_name, xi_firmware_revision );
+    if ( '\n' == *xi_firmware_revision )
+    {
+        /* replace newline with string terminator zero */
+        *xi_firmware_revision = 0;
+
+        /* step to next character which is the beginning of the firmware revision */
+        ++xi_firmware_revision;
+
+        xi_sft_revision_set( xi_firmware_resource_name, xi_firmware_revision );
+    }
 
     xi_bsp_io_fs_remove( XI_SFT_REVISION_FIRMWAREUPDATEREVISION_MAILBOX_TO_NEXT_RUN );
 
@@ -180,5 +192,5 @@ xi_state_t xi_sft_revision_firmware_ok()
 
 err_handling:
 
-    return XI_STATE_OK;
+    return state;
 }

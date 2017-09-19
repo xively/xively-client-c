@@ -13,6 +13,8 @@
 #include "xi_helpers.h"
 #include <xi_bsp_fwu.h>
 
+#ifdef XI_SECURE_FILE_TRANSFER_ENABLED
+
 uint8_t* xi_mock_broker_sft_logic_get_reproducible_randomlike_bytes( uint32_t offset,
                                                                      uint32_t length )
 {
@@ -318,3 +320,15 @@ xi_mock_broker_sft_logic_on_message( const xi_data_desc_t* control_message_encod
 
     return cbor_reply_message_data_desc;
 }
+
+#else
+
+xi_data_desc_t*
+xi_mock_broker_sft_logic_on_message( const xi_data_desc_t* control_message_encoded )
+{
+    XI_UNUSED( control_message_encoded );
+
+    return NULL;
+}
+
+#endif
