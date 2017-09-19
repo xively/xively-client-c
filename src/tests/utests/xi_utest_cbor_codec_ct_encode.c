@@ -15,6 +15,7 @@
 #include <string.h>
 
 #include <xi_cbor_codec_ct.h>
+#include <xi_control_message_sft.h>
 #include <xi_macros.h>
 
 

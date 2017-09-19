@@ -124,26 +124,6 @@ typedef union xi_control_message_u {
 
 } xi_control_message_t;
 
-#define XI_CONTROL_MESSAGE_GENERATED_REVISION                                            \
-    "revision is not available on the device, this is a generated revision 0"
-
-xi_control_message_t*
-xi_control_message_create_file_info( const char** filenames, uint16_t count );
-
-xi_control_message_t* xi_control_message_create_file_get_chunk( const char* filename,
-                                                                const char* revision,
-                                                                uint32_t offset,
-                                                                uint32_t length );
-
-xi_control_message_t* xi_control_message_create_file_status( const char* filename,
-                                                             const char* revision,
-                                                             uint8_t phase,
-                                                             int8_t code );
-
-const xi_control_message_file_desc_ext_t*
-xi_control_message_file_update_available_get_next_file_desc_ext(
-    const struct file_update_available_s* message_fua, const char* filename );
-
 void xi_control_message_free( xi_control_message_t** control_message );
 
 #if XI_DEBUG_OUTPUT

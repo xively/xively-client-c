@@ -20,7 +20,7 @@
 #include "xi_itest_mock_broker_layerchain.h"
 #include "xi_itest_mock_broker_sft_logic.h"
 
-#include "xi_control_message.h"
+#include "xi_control_message_sft.h"
 
 /*
  * xi_itest_layerchain_ct_ml_mc.h
@@ -513,7 +513,7 @@ void xi_itest_sft__check_revision_file( const char** filenames, uint16_t files_c
         assert_int_equal( 71, buffer_size );
         assert_int_equal( XI_STATE_OK, state );
 
-        char* expected_revision = xi_str_dup( XI_CONTROL_MESSAGE_GENERATED_REVISION );
+        char* expected_revision = xi_str_dup( XI_CONTROL_MESSAGE_SFT_GENERATED_REVISION );
         /* replay mock broker's last character incrementation */
         ++expected_revision[strlen( expected_revision ) - 1];
 

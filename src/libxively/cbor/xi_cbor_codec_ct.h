@@ -8,12 +8,14 @@
 #define __XI_CBOR_CODEC_CT_H__
 
 #include <stdint.h>
-#include <xi_control_message.h>
 
-void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
+union xi_control_message_u;
+
+void xi_cbor_codec_ct_encode( const union xi_control_message_u* control_message,
                               uint8_t** out_encoded_allocated_inside,
                               uint32_t* out_len );
 
-xi_control_message_t* xi_cbor_codec_ct_decode( const uint8_t* data, const uint32_t len );
+union xi_control_message_u*
+xi_cbor_codec_ct_decode( const uint8_t* data, const uint32_t len );
 
 #endif /* __XI_CBOR_CODEC_CT_H__ */

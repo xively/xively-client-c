@@ -18,6 +18,16 @@ xi_state_t xi_bsp_fwu_on_new_firmware_ok()
     return XI_NOT_IMPLEMENTED;
 }
 
+xi_state_t xi_bsp_fwu_on_new_firmware_failure()
+{
+    return XI_NOT_IMPLEMENTED;
+}
+
+xi_state_t xi_bsp_fwu_on_firmware_package_download_failure()
+{
+    return XI_NOT_IMPLEMENTED;
+}
+
 xi_state_t xi_bsp_fwu_on_firmware_package_download_finished(
     const char* const firmware_resource_name )
 {

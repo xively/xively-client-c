@@ -51,7 +51,7 @@ char filename[50]              = "OS?";
 char installedfilerevision[50] = "0.0";
 char filerevision[50]          = "0.0";
 unsigned char filefingerprint[32];
-unsigned char hash[32];
+unsigned char* hash;
 int idx;
 typedef unsigned char uchar;
 typedef unsigned int uint;
@@ -230,7 +230,9 @@ void on_sft_message( xi_context_handle_t in_context_handle,
                                     xi_publish( in_context_handle, xi_logtopic, buffer,
                                                 XI_MQTT_QOS_AT_MOST_ONCE,
                                                 XI_MQTT_RETAIN_FALSE, NULL, NULL );
-                                    xi_bsp_fwu_checksum_final( checksum_ctx, hash );
+                                    uint16_t hash_len = 0;
+                                    xi_bsp_fwu_checksum_final( checksum_ctx, &hash,
+                                                               &hash_len );
                                     xi_sft_debug_logger( "Calculated hash = 0x" );
                                     print_hash( hash );
                                     offset = 0;

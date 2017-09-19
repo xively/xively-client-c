@@ -11,6 +11,7 @@
 
 #include <xi_sft_revision.h>
 #include <xi_sft_logic_file_chunk_handlers.h>
+#include <xi_control_message_sft.h>
 
 #include <xi_bsp_io_fs.h>
 #include <xi_bsp_fwu.h>
@@ -89,6 +90,13 @@ xi_state_t xi_sft_on_connected( xi_sft_context_t* context )
     ( *context->fn_send_message )( context->send_message_user_data, message_file_info );
 
     return state;
+}
+
+xi_state_t xi_sft_on_connection_failed( xi_sft_context_t* context )
+{
+    XI_UNUSED( context );
+
+    return xi_bsp_fwu_on_new_firmware_failure();
 }
 
 static void
@@ -182,6 +190,8 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                             XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_PROCESSING,
                             chunk_handling_status_code );
 
+                        xi_bsp_fwu_on_firmware_package_download_failure();
+
                         goto err_handling;
                     }
                 }
@@ -228,6 +238,7 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                         if ( XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS !=
                              checksum_status_code )
                         {
+                            xi_bsp_fwu_on_firmware_package_download_failure();
                             /* todo_atigyi: another option beyond exiting the whole update
                              * process is to retry the broken file download */
                             goto err_handling;

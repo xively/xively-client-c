@@ -94,7 +94,8 @@ typedef struct file_download_ctx_s
     char file_name[MAX_STRING_LENGTH];
     char file_revision[MAX_STRING_LENGTH];
     unsigned char file_sft_fingerprint_str[65];
-    unsigned char file_local_computed_fingerprint[32];
+    unsigned char* file_local_computed_fingerprint;
+    uint16_t file_local_computed_fingerprint_len;
 
     void* checksum_context;
 
@@ -1043,7 +1044,8 @@ void verify_sha256( xi_context_handle_t in_context_handle )
 {
     /* Finalize SHA256 Digest */
     xi_bsp_fwu_checksum_final( download_ctx.checksum_context,
-                               download_ctx.file_local_computed_fingerprint );
+                               &download_ctx.file_local_computed_fingerprint,
+                               &download_ctx.file_local_computed_fingerprint_len );
     printf( "Calculated hash = 0x" );
     print_hash( download_ctx.file_local_computed_fingerprint );
 
@@ -1052,7 +1054,7 @@ void verify_sha256( xi_context_handle_t in_context_handle )
 
     /* convert binary to a string matching SFT fingprint format */
     int i;
-    for ( i = 0; i < 32; ++i )
+    for ( i = 0; i < download_ctx.file_local_computed_fingerprint_len; ++i )
     {
         buff_ptr +=
             sprintf( buff_ptr, "%02x", download_ctx.file_local_computed_fingerprint[i] );
