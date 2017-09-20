@@ -23,7 +23,7 @@
 
 #ifndef USE_HARDCODED_CREDENTIALS
 /* Default workflow uses runtime provisioning and flash storage for user data */
-#define USE_HARDCODED_CREDENTIALS 0
+#define USE_HARDCODED_CREDENTIALS 1
 #endif /* USE_HARDCODED_CREDENTIALS */
 
 #ifndef FORCE_PROVISIONING_PROCESS
@@ -44,10 +44,9 @@
 #endif /* USE_HARDCODED_CREDENTIALS */
 
 #define XIF_TASK_ESP_CORE    0 /* ESP32 core the XIF task will be pinned to */
-//#define XIF_TASK_STACK_SIZE  36*1024
-#define XIF_TASK_STACK_SIZE  2 * 1024
+#define XIF_TASK_STACK_SIZE  36 * 1024
 #define GPIO_TASK_STACK_SIZE 2 * 1024
-#define WIFI_CONNECTED_FLAG BIT0
+#define WIFI_CONNECTED_FLAG  BIT0
 
 static EventGroupHandle_t app_wifi_event_group;
 static user_data_t user_config;
@@ -62,7 +61,7 @@ static esp_err_t app_wifi_event_handler( void* ctx, system_event_t* event )
             break;
         case SYSTEM_EVENT_STA_GOT_IP:
             xEventGroupSetBits( app_wifi_event_group, WIFI_CONNECTED_FLAG );
-#if 1
+#if 0
             xif_request_action( XIF_REQUEST_CONTINUE );
 #endif
             break;
@@ -72,7 +71,7 @@ static esp_err_t app_wifi_event_handler( void* ctx, system_event_t* event )
             /* This is a workaround as ESP32 WiFi libs don't currently
                auto-reassociate. */
             /* JC TODO: something here crashes the application when the AP is turned off!! */
-#if 1
+#if 0
             if( xif_request_action( XIF_REQUEST_PAUSE ) < 0 )
             {
                 printf( "\n\tError pausing Xively Interface task" );
@@ -90,7 +89,7 @@ static esp_err_t app_wifi_event_handler( void* ctx, system_event_t* event )
 
 static int8_t app_wifi_station_init( void )
 {
-#if 1
+#if 0
     wifi_config_t wifi_config;
 
     printf( "\n|********************************************************|" );
@@ -140,11 +139,11 @@ int8_t app_fetch_user_config( void )
     printf( "\n|********************************************************|" );
 
 #if USE_HARDCODED_CREDENTIALS
-    user_data_set_wifi_ssid( (&user_config), USER_CONFIG_WIFI_SSID );
-    user_data_set_wifi_password( (&user_config), USER_CONFIG_WIFI_PWD );
-    user_data_set_xi_account_id( (&user_config), USER_CONFIG_XI_ACCOUNT_ID );
-    user_data_set_xi_device_id( (&user_config), USER_CONFIG_XI_DEVICE_ID );
-    user_data_set_xi_device_password( (&user_config), USER_CONFIG_XI_DEVICE_PWD );
+    user_data_set_wifi_ssid( ( &user_config ), USER_CONFIG_WIFI_SSID );
+    user_data_set_wifi_password( ( &user_config ), USER_CONFIG_WIFI_PWD );
+    user_data_set_xi_account_id( ( &user_config ), USER_CONFIG_XI_ACCOUNT_ID );
+    user_data_set_xi_device_id( ( &user_config ), USER_CONFIG_XI_DEVICE_ID );
+    user_data_set_xi_device_password( ( &user_config ), USER_CONFIG_XI_DEVICE_PWD );
     user_data_printf( &user_config );
     return 0;
 #endif
