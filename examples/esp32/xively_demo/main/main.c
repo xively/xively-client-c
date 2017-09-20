@@ -17,6 +17,7 @@
 #include "esp_vfs_fat.h"
 
 #include "xively_if.h"
+#include "gpio_if.h"
 #include "provisioning.h"
 #include "user_data.h"
 
@@ -42,7 +43,10 @@
 #define USER_CONFIG_XI_DEVICE_PWD "[SET YOUR XIVELY DEVICE PASSWORD HERE]"
 #endif /* USE_HARDCODED_CREDENTIALS */
 
-#define XIF_STACK_SIZE 36*1024
+#define XIF_TASK_ESP_CORE    0 /* ESP32 core the XIF task will be pinned to */
+//#define XIF_TASK_STACK_SIZE  36*1024
+#define XIF_TASK_STACK_SIZE  2 * 1024
+#define GPIO_TASK_STACK_SIZE 2 * 1024
 #define WIFI_CONNECTED_FLAG BIT0
 
 static EventGroupHandle_t app_wifi_event_group;
@@ -86,6 +90,7 @@ static esp_err_t app_wifi_event_handler( void* ctx, system_event_t* event )
 
 static int8_t app_wifi_station_init( void )
 {
+#if 1
     wifi_config_t wifi_config;
 
     printf( "\n|********************************************************|" );
@@ -96,21 +101,34 @@ static int8_t app_wifi_station_init( void )
             ESP_WIFI_SSID_STR_SIZE );
     memcpy( wifi_config.sta.password, user_config.wifi_client_password,
             ESP_WIFI_PASSWORD_STR_SIZE );
-    printf( "\n>>> SSID: " );
-    for( int i=0; i<32; i++ )
-        printf( "0x%02x.%c ", wifi_config.sta.ssid[i], wifi_config.sta.ssid[i] );
-    printf( "\n>>> PASS: " );
-    for( int i=0; i<64; i++ )
-        printf( "0x%02x.%c ", wifi_config.sta.password[i], wifi_config.sta.password[i] );
 
+    printf( "\n\t>>>>> SSID: [%s] - ", wifi_config.sta.ssid );
+    for( int i=0; i<ESP_WIFI_SSID_STR_SIZE; i++ )
+        printf( "0x%02x.%c ", wifi_config.sta.ssid[i], wifi_config.sta.ssid[i] );
+    printf( "\n\t>>>>> PASS: [%s] - ", wifi_config.sta.password );
+    for( int i=0; i<ESP_WIFI_PASSWORD_STR_SIZE; i++ )
+        printf( "0x%02x.%c ", wifi_config.sta.password[i], wifi_config.sta.password[i] );
+#else
+    wifi_config_t wifi_config =
+    {
+        .sta =
+        {
+            .ssid = USER_CONFIG_WIFI_SSID, .password = USER_CONFIG_WIFI_PWD
+        }
+    };
+#endif
+
+    /* Initialize the TCP/IP stack, app_wifi_event_group and WiFi interface */
     tcpip_adapter_init();
     app_wifi_event_group = xEventGroupCreate();
     ESP_ERROR_CHECK( esp_event_loop_init( app_wifi_event_handler, NULL ) );
-    wifi_init_config_t wifi_init_config = WIFI_INIT_CONFIG_DEFAULT(); /* Do not move */
+    wifi_init_config_t wifi_init_config = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK( esp_wifi_init( &wifi_init_config ) );
-    ESP_ERROR_CHECK( esp_wifi_set_storage( WIFI_STORAGE_FLASH ) );
+
+    ESP_ERROR_CHECK( esp_wifi_set_storage( WIFI_STORAGE_RAM ) );
+
     ESP_ERROR_CHECK( esp_wifi_set_mode( WIFI_MODE_STA ) );
-    ESP_ERROR_CHECK( esp_wifi_set_config( WIFI_IF_STA, &wifi_config ) );
+    ESP_ERROR_CHECK( esp_wifi_set_config( ESP_IF_WIFI_STA, &wifi_config ) );
     ESP_ERROR_CHECK( esp_wifi_start() );
     return 0;
 }
@@ -144,6 +162,7 @@ int8_t app_fetch_user_config( void )
     memset( &user_config, 0x00, sizeof( user_config ) );
 #endif
 
+    /* If the data retrieved from NVS is missing any fields, start provisioning */
     if ( 0 > user_data_is_valid( &user_config ) )
     {
         if ( 0 > provisioning_gather_user_data( &user_config ) )
@@ -155,8 +174,29 @@ int8_t app_fetch_user_config( void )
     return 0;
 }
 
+void app_gpio_interrupts_handler_task( void* param )
+{
+    uint32_t io_num;
+    while ( 1 )
+    {
+        printf( "\nAwaiting button interrupt" );
+        if ( xQueueReceive( io_button_queue, &io_num, portMAX_DELAY ) )
+        {
+            printf( "\nInterrupt at GPIO [%d] - Pin value [%d]", io_num,
+                    gpio_get_level( io_num ) );
+        }
+    }
+}
+
 void app_main( void )
 {
+    /* Initialize Non-Volatile Storage */
+    if ( 0 > io_init() )
+    {
+        while ( 1 )
+            vTaskDelay( 1000 / portTICK_PERIOD_MS );
+    }
+
     /* Initialize Non-Volatile Storage */
     if ( 0 > user_data_flash_init() )
     {
@@ -180,25 +220,44 @@ void app_main( void )
 
     /* Wait until we're connected to the WiFi network */
     xEventGroupWaitBits( app_wifi_event_group, WIFI_CONNECTED_FLAG, false, true,
-                         portMAX_DELAY );
+            portMAX_DELAY );
 
     /* Configure Xively interface */
     if ( 0 > xif_set_device_info( user_config.xi_account_id, user_config.xi_device_id,
-                                  user_config.xi_device_password ) )
+                user_config.xi_device_password ) )
     {
         while ( 1 )
             vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
 
     /* Start Xively task */
-    xTaskCreatePinnedToCore( &xif_rtos_task, "xif_task", XIF_STACK_SIZE, NULL, 5,
-                             NULL, 1 );
-
-    /* Loop forever to show multitasking */
-    unsigned int i = 0;
-    while ( 1 )
+    if ( pdPASS != xTaskCreatePinnedToCore( &xif_rtos_task, "xif_task",
+                                            XIF_TASK_STACK_SIZE, NULL, 5, NULL,
+                                            XIF_TASK_ESP_CORE ) )
     {
-        printf( "\napp_main loopin' [%d]", ++i );
-        vTaskDelay( 1000 / portTICK_PERIOD_MS );
+        printf( "\n[ERROR] creating Xively Interface RTOS task" );
+        while ( 1 )
+            vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
+
+#if 1
+    /* Start GPIO interrupt handler task */
+    if ( xTaskCreate( &app_gpio_interrupts_handler_task, "gpio_intr_task", 128, NULL,
+                      10, NULL ) )
+    {
+        printf( "\n[ERROR] creating GPIO interrupt handler RTOS task" );
+        printf( "\n\tInterrupts will be ignored" );
+    }
+#endif
+
+    /* Loop forever, read the interrupts queue and publish on button change */
+    //while ( 1 )
+    //{
+    //    if ( xQueueReceive( io_button_queue, &io_num, portMAX_DELAY ) )
+    //    {
+    //        printf( "\nInterrupt at GPIO [%d] - Pin value [%d]", io_num,
+    //                gpio_get_level( io_num ) );
+    //    }
+    //    vTaskDelay( 10 / portTICK_PERIOD_MS );
+    //}
 }

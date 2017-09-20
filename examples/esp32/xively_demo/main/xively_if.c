@@ -240,7 +240,6 @@ void xif_handle_unrecoverable_error( void )
 -----------------------------------------------------------------------------*/
 void xif_rtos_task( void* param )
 {
-    xif_machine_states_t xif_machine_state = XIF_STATE_UNINITIALIZED;
     int evt_loop_exit_flag = 0;
     ( void )param;
     assert( NULL != xif_mqtt_device_info.xi_account_id );
@@ -298,10 +297,12 @@ void xif_rtos_task( void* param )
              * machine will shut down)  */
             assert( 0 );
         }
+        taskYIELD();
     }
     /* /new workflow */
 
 #if 0
+    xif_machine_states_t xif_machine_state = XIF_STATE_UNINITIALIZED;
     while ( 0 == evt_loop_exit_flag )
     {
         printf( "\nXively Interface state: %d", xif_machine_state );

@@ -155,7 +155,8 @@ static inline void provisioning_print_banner( void )
     printf( "\n| NOTE: You will only need to do this once.              |" );
     printf( "\n|                                                        |" );
     printf( "\n| NOTE: Next time you want to update these, keep the     |" );
-    printf( "\n|       nucleo board's User button pressed during boot   |" );
+    printf( "\n|       ESP32's GPIO0 button pressed during the 5        |" );
+    printf( "\n|       seconds the LED is blinking rapidly during boot  |" );
     printf( "\n|                                                        |" );
     printf( "\n| WARNING: Copy-pasting long strings to your serial      |" );
     printf( "\n| -------  terminal may result in loss of characters.    |" );
@@ -167,17 +168,9 @@ static inline void provisioning_print_banner( void )
     fflush( stdout );
 }
 
-//static void clear_uart_rx_buffer( void )
-//{
-//    uint8_t newchar = '\0';
-//    while( ESP_OK == uart_rx_one_char( &newchar ) )
-//        ;
-//}
-
 static int8_t get_uart_input_string_esp32( char* dst, size_t dst_size )
 {
     esp_err_t retval = ESP_OK;
-    //clear_uart_rx_buffer();
     uint8_t input_char = '\0';
     for ( int i = 0; i < dst_size; i++ )
     {
@@ -207,7 +200,7 @@ static int8_t get_uart_input_string_esp32( char* dst, size_t dst_size )
     }
 
 ok_out:
-    for( int i=0; i<=dst_size; i++ )
+    for( int i=0; i<dst_size; i++ )
         printf( "0x%02x.%c ", dst[i], dst[i] );
     return 0;
 }
