@@ -4,6 +4,9 @@
 #include <stdint.h>
 
 #include "freertos/queue.h"
+
+#define IO_LED_PIN GPIO_NUM_17
+
 /**
  * This queue is appended a new element every time the state of the button pin
  * changes (pressed or released). The value appended is the GPIO pin number that
@@ -25,10 +28,8 @@ int8_t io_read_button( void );
 void io_interrupts_enable( void );
 void io_interrupts_disable( void );
 
-/*
-#define io_led_on( void ) BSP_LED_On( IO_NUCLEO_LED_PIN )
-#define io_led_off( void ) BSP_LED_Off( IO_NUCLEO_LED_PIN )
-#define io_led_toggle( void ) BSP_LED_Toggle( IO_NUCLEO_LED_PIN )
-*/
+#define io_led_on( void ) gpio_set_level( IO_LED_PIN, 1 )
+#define io_led_off( void ) gpio_set_level( IO_LED_PIN, 0 )
+#define io_led_set( level ) gpio_set_level( IO_LED_PIN, level )
 
 #endif /* __DEMO_IO_H__ */

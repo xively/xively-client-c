@@ -176,14 +176,20 @@ int8_t app_fetch_user_config( void )
 
 void app_gpio_interrupts_handler_task( void* param )
 {
+    const int32_t queue_recv_timeout_ms = 500;
     uint32_t io_num;
+    int32_t led_status = 0;
     while ( 1 )
     {
-        printf( "\nAwaiting button interrupt" );
-        if ( xQueueReceive( io_button_queue, &io_num, portMAX_DELAY ) )
+        /* Toggle LED */
+        io_led_set( ( led_status = !led_status ) );
+
+        /* Wait for button interrupts for up to queue_recv_timeout_ms milliseconds */
+        if ( xQueueReceive( io_button_queue, &io_num,
+                            ( queue_recv_timeout_ms / portTICK_PERIOD_MS ) ) )
         {
-            printf( "\nInterrupt at GPIO [%d] - Pin value [%d]", io_num,
-                    gpio_get_level( io_num ) );
+            printf( "\nHandling queued button interrupt - Pin value [%d]",
+                    io_read_button() );
         }
     }
 }
@@ -218,6 +224,16 @@ void app_main( void )
             vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
 
+#if 1
+    /* Start GPIO interrupt handler task */
+    if ( pdPASS != xTaskCreate( &app_gpio_interrupts_handler_task, "gpio_intr_task",
+                                GPIO_TASK_STACK_SIZE, NULL, 10, NULL ) )
+    {
+        printf( "\n[ERROR] creating GPIO interrupt handler RTOS task" );
+        printf( "\n\tInterrupts will be ignored" );
+    }
+#endif
+
     /* Wait until we're connected to the WiFi network */
     xEventGroupWaitBits( app_wifi_event_group, WIFI_CONNECTED_FLAG, false, true,
             portMAX_DELAY );
@@ -240,10 +256,10 @@ void app_main( void )
             vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
 
-#if 1
+#if 0
     /* Start GPIO interrupt handler task */
-    if ( xTaskCreate( &app_gpio_interrupts_handler_task, "gpio_intr_task", 128, NULL,
-                      10, NULL ) )
+    if ( pdPASS != xTaskCreate( &app_gpio_interrupts_handler_task, "gpio_intr_task",
+                                GPIO_TASK_STACK_SIZE, NULL, 10, NULL ) )
     {
         printf( "\n[ERROR] creating GPIO interrupt handler RTOS task" );
         printf( "\n\tInterrupts will be ignored" );

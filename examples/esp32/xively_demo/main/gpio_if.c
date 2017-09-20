@@ -22,12 +22,7 @@ void IRAM_ATTR gpio_isr_handler( void* arg )
     xQueueSendFromISR( io_button_queue, &gpio_num, NULL );
 }
 
-/**
- * @brief  Initialize the GPIO pins we'd like to use
- * @param  None
- * @retval -1 error, 0 success
- */
-int8_t io_init( void )
+inline void io_inputs_init( void )
 {
     gpio_config_t io_conf;
 
@@ -42,12 +37,41 @@ int8_t io_init( void )
 
     gpio_config( &io_conf );
 
-    //create a queue to handle gpio event from isr
-    io_button_queue = xQueueCreate(10, sizeof(uint32_t));
-
     /* install gpio isr service */
     gpio_install_isr_service( 0 ); /* 0 is used by the SDK's gpio_example_main.c */
+}
 
+inline void io_outputs_init( void )
+{
+    gpio_config_t io_conf;
+
+    /* interrupt on falling edge */
+    io_conf.intr_type = GPIO_PIN_INTR_DISABLE;
+    /* bit mask of the pins */
+    io_conf.pin_bit_mask = ( 1 << IO_LED_PIN );
+    /* set as input mode */
+    io_conf.mode = GPIO_MODE_OUTPUT;
+    /* disable pull-up mode */
+    io_conf.pull_up_en = 0;
+    /* disable pull-down mode */
+    io_conf.pull_down_en = 0;
+
+    gpio_config( &io_conf );
+}
+
+/**
+ * @brief  Initialize the GPIO pins we'd like to use
+ * @param  None
+ * @retval -1 error, 0 success
+ */
+int8_t io_init( void )
+{
+    io_inputs_init();
+    io_outputs_init();
+    /* create a queue to handle gpio event from isr */
+    io_button_queue = xQueueCreate( 10, sizeof( uint32_t ) );
+
+    /* Enable the button interrupt */
     io_interrupts_enable();
 
     return 0;
