@@ -13,25 +13,25 @@ uint8_t xi_bsp_fwu_is_this_firmware( const char* const resource_name )
     return 0;
 }
 
-xi_bsp_io_fwu_state_t xi_bsp_fwu_on_new_firmware_ok()
+void xi_bsp_fwu_on_new_firmware_ok()
 {
-    return XI_BSP_IO_FWU_NOT_IMPLEMENTED;
+    return;
 }
 
-xi_bsp_io_fwu_state_t xi_bsp_fwu_on_new_firmware_failure()
+void xi_bsp_fwu_on_new_firmware_failure()
 {
-    return XI_BSP_IO_FWU_NOT_IMPLEMENTED;
+    return;
 }
 
-xi_bsp_io_fwu_state_t xi_bsp_fwu_on_firmware_package_download_failure()
+void xi_bsp_fwu_on_firmware_package_download_failure()
 {
-    return XI_BSP_IO_FWU_NOT_IMPLEMENTED;
+    return;
 }
 
-xi_bsp_io_fwu_state_t xi_bsp_fwu_on_firmware_package_download_finished(
+void xi_bsp_fwu_on_firmware_package_download_finished(
     const char* const firmware_resource_name )
 {
     ( void )firmware_resource_name;
 
-    return XI_BSP_IO_FWU_NOT_IMPLEMENTED;
+    return;
 }
