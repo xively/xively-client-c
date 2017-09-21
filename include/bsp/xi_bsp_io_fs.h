@@ -42,7 +42,7 @@ typedef intptr_t xi_bsp_io_fs_resource_handle_t;
  *
  * The implementation reports internal status to Xively Client through these values.
  */
- typedef enum xi_bsp_io_fs_state_e {
+typedef enum xi_bsp_io_fs_state_e {
     /** operation finished successfully */
     XI_BSP_IO_FS_STATE_OK = 0,
     /** operation failed on generic error */
@@ -139,10 +139,11 @@ xi_bsp_io_fs_stat( const char* const resource_name, xi_bsp_io_fs_stat_t* resourc
  * @return xi_bsp_io_fs_state_t XI_STATE_OK in case of a success and other in case of an
  * error.
  */
- xi_bsp_io_fs_state_t xi_bsp_io_fs_open( const char* const resource_name,
-                                         const size_t size,
-                                         const xi_bsp_io_fs_open_flags_t open_flags,
-                                         xi_bsp_io_fs_resource_handle_t* resource_handle_out );
+xi_bsp_io_fs_state_t
+xi_bsp_io_fs_open( const char* const resource_name,
+                   const size_t size,
+                   const xi_bsp_io_fs_open_flags_t open_flags,
+                   xi_bsp_io_fs_resource_handle_t* resource_handle_out );
 
 /**
  * @function
@@ -166,10 +167,11 @@ xi_bsp_io_fs_stat( const char* const resource_name, xi_bsp_io_fs_stat_t* resourc
  * @return xi_bsp_io_fs_state_t XI_STATE_OK in case of a success and other in case of an
  * error.
  */
- xi_bsp_io_fs_state_t xi_bsp_io_fs_read( const xi_bsp_io_fs_resource_handle_t resource_handle,
-                                         const size_t offset,
-                                         const uint8_t** buffer,
-                                         size_t* const buffer_size );
+xi_bsp_io_fs_state_t
+xi_bsp_io_fs_read( const xi_bsp_io_fs_resource_handle_t resource_handle,
+                   const size_t offset,
+                   const uint8_t** buffer,
+                   size_t* const buffer_size );
 
 /**
  * @function
@@ -190,11 +192,12 @@ xi_bsp_io_fs_stat( const char* const resource_name, xi_bsp_io_fs_stat_t* resourc
  * @return xi_bsp_io_fs_state_t XI_STATE_OK in case of a success and other in case of an
  * error.
  */
- xi_bsp_io_fs_state_t xi_bsp_io_fs_write( const xi_bsp_io_fs_resource_handle_t resource_handle,
-                                          const uint8_t* const buffer,
-                                          const size_t buffer_size,
-                                          const size_t offset,
-                                          size_t* const bytes_written );
+xi_bsp_io_fs_state_t
+xi_bsp_io_fs_write( const xi_bsp_io_fs_resource_handle_t resource_handle,
+                    const uint8_t* const buffer,
+                    const size_t buffer_size,
+                    const size_t offset,
+                    size_t* const bytes_written );
 
 /**
  * @function
@@ -208,7 +211,8 @@ xi_bsp_io_fs_stat( const char* const resource_name, xi_bsp_io_fs_stat_t* resourc
  * @return xi_bsp_io_fs_state_t XI_STATE_OK in case of a success and other in case of an
  * error.
  */
- xi_bsp_io_fs_state_t xi_bsp_io_fs_close( const xi_bsp_io_fs_resource_handle_t resource_handle );
+xi_bsp_io_fs_state_t
+xi_bsp_io_fs_close( const xi_bsp_io_fs_resource_handle_t resource_handle );
 
 /**
  * @function
@@ -220,7 +224,7 @@ xi_bsp_io_fs_stat( const char* const resource_name, xi_bsp_io_fs_stat_t* resourc
  * @return xi_bsp_io_fs_state_t XI_STATE_OK in case of a success and other in case of an
  * error.
  */
- xi_bsp_io_fs_state_t xi_bsp_io_fs_remove( const char* const resource_name );
+xi_bsp_io_fs_state_t xi_bsp_io_fs_remove( const char* const resource_name );
 
 #ifdef __cplusplus
 }
