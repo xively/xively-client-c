@@ -23,7 +23,7 @@
 
 #ifndef USE_HARDCODED_CREDENTIALS
 /* Default workflow uses runtime provisioning and flash storage for user data */
-#define USE_HARDCODED_CREDENTIALS 1
+#define USE_HARDCODED_CREDENTIALS 0
 #endif /* USE_HARDCODED_CREDENTIALS */
 
 #ifndef FORCE_PROVISIONING_PROCESS
@@ -47,6 +47,8 @@
 #define XIF_TASK_STACK_SIZE  36 * 1024
 #define GPIO_TASK_STACK_SIZE 2 * 1024
 #define WIFI_CONNECTED_FLAG  BIT0
+
+#define IO_BUTTON_WAIT_TIME_MS 500
 
 static EventGroupHandle_t app_wifi_event_group;
 static user_data_t user_config;
@@ -89,25 +91,7 @@ static esp_err_t app_wifi_event_handler( void* ctx, system_event_t* event )
 
 static int8_t app_wifi_station_init( void )
 {
-#if 0
-    wifi_config_t wifi_config;
-
-    printf( "\n|********************************************************|" );
-    printf( "\n|               Initializing WiFi as Station             |" );
-    printf( "\n|********************************************************|\n" );
-
-    memcpy( wifi_config.sta.ssid, user_config.wifi_client_ssid,
-            ESP_WIFI_SSID_STR_SIZE );
-    memcpy( wifi_config.sta.password, user_config.wifi_client_password,
-            ESP_WIFI_PASSWORD_STR_SIZE );
-
-    printf( "\n\t>>>>> SSID: [%s] - ", wifi_config.sta.ssid );
-    for( int i=0; i<ESP_WIFI_SSID_STR_SIZE; i++ )
-        printf( "0x%02x.%c ", wifi_config.sta.ssid[i], wifi_config.sta.ssid[i] );
-    printf( "\n\t>>>>> PASS: [%s] - ", wifi_config.sta.password );
-    for( int i=0; i<ESP_WIFI_PASSWORD_STR_SIZE; i++ )
-        printf( "0x%02x.%c ", wifi_config.sta.password[i], wifi_config.sta.password[i] );
-#else
+#if USE_HARDCODED_CREDENTIALS
     wifi_config_t wifi_config =
     {
         .sta =
@@ -115,6 +99,40 @@ static int8_t app_wifi_station_init( void )
             .ssid = USER_CONFIG_WIFI_SSID, .password = USER_CONFIG_WIFI_PWD
         }
     };
+#else
+    wifi_config_t wifi_config =
+    {
+        .sta =
+        {
+            .ssid = "", .password = ""
+        }
+    };
+
+    printf( "\n|********************************************************|" );
+    printf( "\n|               Initializing WiFi as Station             |" );
+    printf( "\n|********************************************************|\n" );
+
+    memset( wifi_config.sta.ssid, 0x00, ESP_WIFI_SSID_STR_SIZE );
+    memset( wifi_config.sta.password, 0x00, ESP_WIFI_PASSWORD_STR_SIZE );
+
+#if 1
+    memcpy( wifi_config.sta.ssid, user_config.wifi_client_ssid,
+            ESP_WIFI_SSID_STR_SIZE );
+    memcpy( wifi_config.sta.password, user_config.wifi_client_password,
+            ESP_WIFI_PASSWORD_STR_SIZE );
+#else
+    memcpy( wifi_config.sta.ssid, USER_CONFIG_WIFI_SSID,
+            ESP_WIFI_SSID_STR_SIZE );
+    memcpy( wifi_config.sta.password, USER_CONFIG_WIFI_PWD,
+            ESP_WIFI_PASSWORD_STR_SIZE );
+#endif
+
+    printf( "\n\t>>>>> SSID: [%s] - ", wifi_config.sta.ssid );
+    for( int i=0; i<ESP_WIFI_SSID_STR_SIZE; i++ )
+        printf( "0x%02x.%c ", wifi_config.sta.ssid[i], wifi_config.sta.ssid[i] );
+    printf( "\n\t>>>>> PASS: [%s] - ", wifi_config.sta.password );
+    for( int i=0; i<ESP_WIFI_PASSWORD_STR_SIZE; i++ )
+        printf( "0x%02x.%c ", wifi_config.sta.password[i], wifi_config.sta.password[i] );
 #endif
 
     /* Initialize the TCP/IP stack, app_wifi_event_group and WiFi interface */
@@ -161,6 +179,20 @@ int8_t app_fetch_user_config( void )
     memset( &user_config, 0x00, sizeof( user_config ) );
 #endif
 
+    /* Wait for a button press for 100*50 ms while flashing the LED. If the button is
+     * pressed, clear the contents of user_config to force the provisioning process */
+    for ( int i = 100; i > 0; i-- )
+    {
+        io_led_set( i % 2 ); /* Toggle LED */
+        if ( -1 != io_await_gpio_interrupt( 50 ) )
+        {
+            printf( "\nButton pressed - Initializing provisioning process" );
+            memset( &user_config, 0x00, sizeof( user_config ) );
+            break;
+        }
+    }
+    io_led_off();
+
     /* If the data retrieved from NVS is missing any fields, start provisioning */
     if ( 0 > user_data_is_valid( &user_config ) )
     {
@@ -175,20 +207,16 @@ int8_t app_fetch_user_config( void )
 
 void app_gpio_interrupts_handler_task( void* param )
 {
-    const int32_t queue_recv_timeout_ms = 500;
-    uint32_t io_num;
-    int32_t led_status = 0;
+    int32_t led_status     = 0;
+    int button_input_level = -1;
     while ( 1 )
     {
-        /* Toggle LED */
-        io_led_set( ( led_status = !led_status ) );
-
-        /* Wait for button interrupts for up to queue_recv_timeout_ms milliseconds */
-        if ( xQueueReceive( io_button_queue, &io_num,
-                            ( queue_recv_timeout_ms / portTICK_PERIOD_MS ) ) )
+        io_led_set( ( led_status = !led_status ) ); /* Toggle LED */
+        if ( -1 !=
+             ( button_input_level = io_await_gpio_interrupt( IO_BUTTON_WAIT_TIME_MS ) ) )
         {
-            printf( "\nHandling queued button interrupt - Pin value [%d]",
-                    io_read_button() );
+            printf( "\nButton state change popped from interrupt queue - Pin value [%d]",
+                    button_input_level );
         }
     }
 }
@@ -223,23 +251,13 @@ void app_main( void )
             vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
 
-#if 1
-    /* Start GPIO interrupt handler task */
-    if ( pdPASS != xTaskCreate( &app_gpio_interrupts_handler_task, "gpio_intr_task",
-                                GPIO_TASK_STACK_SIZE, NULL, 10, NULL ) )
-    {
-        printf( "\n[ERROR] creating GPIO interrupt handler RTOS task" );
-        printf( "\n\tInterrupts will be ignored" );
-    }
-#endif
-
     /* Wait until we're connected to the WiFi network */
     xEventGroupWaitBits( app_wifi_event_group, WIFI_CONNECTED_FLAG, false, true,
             portMAX_DELAY );
 
     /* Configure Xively interface */
     if ( 0 > xif_set_device_info( user_config.xi_account_id, user_config.xi_device_id,
-                user_config.xi_device_password ) )
+                                  user_config.xi_device_password ) )
     {
         while ( 1 )
             vTaskDelay( 1000 / portTICK_PERIOD_MS );
@@ -255,7 +273,6 @@ void app_main( void )
             vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
 
-#if 0
     /* Start GPIO interrupt handler task */
     if ( pdPASS != xTaskCreate( &app_gpio_interrupts_handler_task, "gpio_intr_task",
                                 GPIO_TASK_STACK_SIZE, NULL, 10, NULL ) )
@@ -263,7 +280,6 @@ void app_main( void )
         printf( "\n[ERROR] creating GPIO interrupt handler RTOS task" );
         printf( "\n\tInterrupts will be ignored" );
     }
-#endif
 
     /* Loop forever, read the interrupts queue and publish on button change */
     //while ( 1 )

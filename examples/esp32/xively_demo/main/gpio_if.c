@@ -14,7 +14,16 @@
 #define IO_BUTTON_INTERRUPT_EDGE GPIO_PIN_INTR_NEGEDGE /* pull-up enabled in io_init */
 //#define IO_BUTTON_INTERRUPT_EDGE GPIO_PIN_INTR_ANYEDGE
 
-xQueueHandle io_button_queue = NULL;
+/**
+ * This queue is appended a new element every time the state of the button pin
+ * changes (pressed or released). The value appended is the GPIO pin number that
+ * caused the interrupt (IO_BUTTON_PIN).
+ * One of the RTOS tasks will have to periodically (or permanently) check this
+ * queue for new interrupts, and act accordingly.
+ * You can implement other queues to handle other interrupts from an RTOS task
+ * Queue is NULL until initialized by io_init()
+ */
+static xQueueHandle io_button_queue = NULL;
 
 void IRAM_ATTR gpio_isr_handler( void* arg )
 {
@@ -78,6 +87,23 @@ int8_t io_init( void )
 }
 
 /**
+ * @retval -1 Error
+ * @retval [0, 1]: Button status changed. retval is the GPIO input level
+ */
+int8_t io_await_gpio_interrupt( uint32_t timeout_ms )
+{
+    uint32_t queue_value_io_num;
+
+    /* Wait for button interrupts for up to queue_recv_timeout_ms milliseconds */
+    if ( xQueueReceive( io_button_queue, &queue_value_io_num,
+                        ( timeout_ms / portTICK_PERIOD_MS ) ) )
+    {
+        return gpio_get_level( queue_value_io_num );
+    }
+    return -1;
+}
+
+/**
  * @brief Add the button GPIO pin to the list of ISR handlers 
  */
 void io_interrupts_enable( void )
@@ -93,55 +119,4 @@ void io_interrupts_disable( void )
 {
     /* hook isr handler for specific gpio pin */
     gpio_isr_handler_remove( IO_BUTTON_PIN );
-}
-
-/**
- * @brief  Read the status of the Nucleo board's button. The pin is normally
- *         pulled up to 1, and and becomes 0 when pressed.
- *         This function negates the electrical value of the pin, and returns a
- *         1 for pressed and a 0 for not pressed.
- *         Call it after io_nucleoboard_init()
- * @param  None
- * @retval 0 Button NOT pressed, 0 success
- * @retval 1 Button pressed
- */
-int8_t io_read_button( void )
-{
-    int8_t pressed = 0;
-    ( gpio_get_level( IO_BUTTON_PIN ) == 1 ) ? ( pressed = 0 ) : ( pressed = 1 );
-    return pressed;
-}
-
-/**
- * @brief  The user must implement their own HAL_GPIO_EXTI_Callback(uint16_t)
- *         interrupt handler and call this function from there. It will identify
- *         whether the interrupt came from the Nucleo board's button, and
- *         whether it was a real button press or a bounce.
- *         All interrupts within a 300ms window after the first one will be
- *         considered bounces
- * @param  GPIO_Pin the pin connected to EXTI line
- * @retval -1 if the interrupt was not caused by the Nucleo's button
- * @retval  0 if the interrupt was caused by a button bounce and should be ignored
- * @retval  1 if the interrupt was a legitimate button press
- */
-int8_t io_interrupt_debouncer( uint32_t gpio_pin )
-{
-    static uint32_t button_press_systime = 0;
-    uint32_t current_systime = 0;
-
-    if ( IO_BUTTON_PIN != gpio_pin )
-    {
-        return -1;
-    }
-
-    current_systime = portTICK_RATE_MS * ( int32_t )xTaskGetTickCountFromISR();
-    if( (current_systime - button_press_systime) < IO_BUTTON_DEBOUNCE_TIME )
-    {
-        return 0;
-    }
-    else
-    {
-        button_press_systime = current_systime;
-        return 1;
-    }
 }
