@@ -188,9 +188,10 @@ void app_gpio_interrupts_handler_task( void* param )
         if ( -1 !=
              ( button_input_level = io_await_gpio_interrupt( IO_BUTTON_WAIT_TIME_MS ) ) )
         {
-            printf( "\nButton state change popped from interrupt queue - Pin value [%d]",
-                    button_input_level );
+            printf( "\nButton press detected. Pin level [%d]", button_input_level );
+            xif_publish_button_pressed();
         }
+        taskYIELD();
     }
 }
 
@@ -248,7 +249,7 @@ void app_main( void )
 
     /* Start GPIO interrupt handler task */
     if ( pdPASS != xTaskCreate( &app_gpio_interrupts_handler_task, "gpio_intr_task",
-                                GPIO_TASK_STACK_SIZE, NULL, 10, NULL ) )
+                                GPIO_TASK_STACK_SIZE, NULL, 5, NULL ) )
     {
         printf( "\n[ERROR] creating GPIO interrupt handler RTOS task" );
         printf( "\n\tInterrupts will be ignored" );

@@ -475,6 +475,17 @@ int xif_subscribe( void )
     return 0;
 }
 
+void xif_publish_button_pressed( void )
+{
+    if( !xif_is_connected() )
+    {
+        return;
+    }
+    printf( "\n[XIF] Publishing button pressed MQTT message" );
+    xi_publish( xif_context_handle, xif_mqtt_topics.button_topic, "Button pressed!",
+                XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
+}
+
 void xif_publish_counter( void )
 {
     static unsigned long msg_counter = 0;

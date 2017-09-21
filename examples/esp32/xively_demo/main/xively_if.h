@@ -52,6 +52,8 @@ int xif_disconnect( void );
  */
 int xif_connect( void );
 
+void xif_publish_button_pressed( void );
+
 int xif_request_action( xif_action_requests_t requested_action );
 
 /* Query the MQTT connection status (as far as the TCP/MQTT layers are aware)
