@@ -352,10 +352,10 @@ void user_data_printf( user_data_t* user_data )
 #endif
 
     printf( "\r\n\t* WiFi SSID: [%.64s]", user_data->wifi_client_ssid );
-    printf( "\r\n\t* WiFi Pwd: [%.64s]", user_data->wifi_client_password );
-    //printf( "\r\n\t* WiFi Pwd: ( REDACTED )" );
+    //printf( "\r\n\t* WiFi Pwd: [%.64s]", user_data->wifi_client_password );
+    printf( "\r\n\t* WiFi Pwd: ( REDACTED )" );
     printf( "\r\n\t* Xi Acc ID: [%.64s]", user_data->xi_account_id );
     printf( "\r\n\t* Xi Dev ID: [%.64s]", user_data->xi_device_id );
-    printf( "\r\n\t* Xi Dev Pwd: [%.64s]", user_data->xi_device_password );
-    //printf( "\r\n\t* Xi Dev Pwd: ( REDACTED )" );
+    //printf( "\r\n\t* Xi Dev Pwd: [%.64s]", user_data->xi_device_password );
+    printf( "\r\n\t* Xi Dev Pwd: ( REDACTED )" );
 }

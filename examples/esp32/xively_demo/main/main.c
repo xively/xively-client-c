@@ -126,6 +126,7 @@ static int8_t app_wifi_station_init( void )
 
 int8_t app_fetch_user_config( void )
 {
+    int provisioning_bootmode_selected = 0;
     printf( "\n|********************************************************|" );
     printf( "\n|               Fetching User Configuration              |" );
     printf( "\n|********************************************************|" );
@@ -157,14 +158,14 @@ int8_t app_fetch_user_config( void )
         if ( -1 != io_await_gpio_interrupt( 50 ) )
         {
             printf( "\nButton pressed - Initializing provisioning process" );
-            memset( &user_config, 0x00, sizeof( user_config ) );
+            provisioning_bootmode_selected = 1;
             break;
         }
     }
     io_led_off();
 
     /* If the data retrieved from NVS is missing any fields, start provisioning */
-    if ( 0 > user_data_is_valid( &user_config ) )
+    if ( provisioning_bootmode_selected || ( 0 > user_data_is_valid( &user_config ) ) )
     {
         io_led_on();
         if ( 0 > provisioning_gather_user_data( &user_config ) )
@@ -225,24 +226,10 @@ void app_main( void )
             vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
 
-    /* Wait until we're connected to the WiFi network */
-    xEventGroupWaitBits( app_wifi_event_group, WIFI_CONNECTED_FLAG, false, true,
-            portMAX_DELAY );
-
     /* Configure Xively interface */
     if ( 0 > xif_set_device_info( user_config.xi_account_id, user_config.xi_device_id,
                                   user_config.xi_device_password ) )
     {
-        while ( 1 )
-            vTaskDelay( 1000 / portTICK_PERIOD_MS );
-    }
-
-    /* Start Xively task */
-    if ( pdPASS != xTaskCreatePinnedToCore( &xif_rtos_task, "xif_task",
-                                            XIF_TASK_STACK_SIZE, NULL, 5, NULL,
-                                            XIF_TASK_ESP_CORE ) )
-    {
-        printf( "\n[ERROR] creating Xively Interface RTOS task" );
         while ( 1 )
             vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
@@ -253,6 +240,20 @@ void app_main( void )
     {
         printf( "\n[ERROR] creating GPIO interrupt handler RTOS task" );
         printf( "\n\tInterrupts will be ignored" );
+    }
+
+    /* Wait until we're connected to the WiFi network */
+    xEventGroupWaitBits( app_wifi_event_group, WIFI_CONNECTED_FLAG, false, true,
+            portMAX_DELAY );
+
+    /* Start Xively task */
+    if ( pdPASS != xTaskCreatePinnedToCore( &xif_rtos_task, "xif_task",
+                                            XIF_TASK_STACK_SIZE, NULL, 5, NULL,
+                                            XIF_TASK_ESP_CORE ) )
+    {
+        printf( "\n[ERROR] creating Xively Interface RTOS task" );
+        while ( 1 )
+            vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
 
     /* Loop forever, read the interrupts queue and publish on button change */
