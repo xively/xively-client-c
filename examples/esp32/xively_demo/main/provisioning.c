@@ -66,7 +66,7 @@ int8_t provisioning_gather_user_data( user_data_t* dst )
  */
 static int8_t provisioning_get_ap_credentials( user_data_t* udata )
 {
-    char single_char_input[20] = "0";
+    char yn_input_string[8] = "";
     int max_ssid_size = 0;
     int max_pwd_size = 0;
 
@@ -84,8 +84,8 @@ static int8_t provisioning_get_ap_credentials( user_data_t* udata )
 
     printf( "\n>> Would you like to update your WiFi credentials? [y/N]: " );
     fflush( stdout );
-    get_uart_input_string_esp32( single_char_input, 2 );
-    switch ( single_char_input[0] )
+    get_uart_input_string_esp32( yn_input_string, 8 );
+    switch ( yn_input_string[0] )
     {
         case 'y':
         case 'Y':
@@ -114,7 +114,7 @@ static int8_t provisioning_get_ap_credentials( user_data_t* udata )
  */
 static int8_t provisioning_get_xively_credentials( user_data_t* udata )
 {
-    char single_char_input[2] = "0";
+    char yn_input_string[8] = "";
 
     printf( "\n|********************************************************|" );
     printf( "\n|              Gathering Xively Credentials              |" );
@@ -122,8 +122,8 @@ static int8_t provisioning_get_xively_credentials( user_data_t* udata )
 
     printf( "\n>> Would you like to update your MQTT credentials? [y/N]: " );
     fflush( stdout );
-    get_uart_input_string_esp32( single_char_input, 2 );
-    switch ( single_char_input[0] )
+    get_uart_input_string_esp32( yn_input_string, 8 );
+    switch ( yn_input_string[0] )
     {
         case 'y':
         case 'Y':
@@ -175,29 +175,30 @@ static int8_t get_uart_input_string_esp32( char* dst, size_t dst_size )
     for ( int i = 0; i < dst_size; i++ )
     {
         /* Poll until we get a character */
-        /* TODO: We can easily implement a timeout for UART inputs in this loop */
-        do
-        {
-            retval = uart_rx_one_char( &input_char );
-            DELAY_RTOS_TICKS( 1 );
-        } while ( ESP_OK != retval );
+        input_char = uart_rx_one_char_block();
 
         printf( "%c", input_char );
         fflush( stdout );
 
         switch( input_char )
         {
-            case '\0':
-                break;
-            case '\r':
-            case '\n':
-                dst[i] = '\0';
-                goto ok_out;
             default:
                 dst[i] = ( char )input_char;
                 break;
+            case '\0':
+                break;
+            case '\r':
+                dst[i] = '\0';
+                break;
+            case '\n':
+                dst[i] = '\0';
+                goto ok_out;
         }
     }
+
+    printf( "\n[ERROR] string overflow avoided. Input aborted" );
+    dst[dst_size - 1] = '\0';
+    return -1;
 
 ok_out:
     for( int i=0; i<dst_size; i++ )
