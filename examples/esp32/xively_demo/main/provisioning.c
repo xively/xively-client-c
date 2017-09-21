@@ -201,7 +201,5 @@ static int8_t get_uart_input_string_esp32( char* dst, size_t dst_size )
     return -1;
 
 ok_out:
-    for( int i=0; i<dst_size; i++ )
-        printf( "0x%02x.%c ", dst[i], dst[i] );
     return 0;
 }

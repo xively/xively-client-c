@@ -26,15 +26,6 @@
 #define USE_HARDCODED_CREDENTIALS 0
 #endif /* USE_HARDCODED_CREDENTIALS */
 
-#ifndef FORCE_PROVISIONING_PROCESS
-/* Default workflow determines whether to kickstar provisioning based on whether
- * or not there's valid data in flash.
- * TODO: In the future, the user will be able to force the provisioning process
- *       by keeping a button pressed while an LED is blinking rapidly
- */
-#define FORCE_PROVISIONING_PROCESS 0
-#endif /* FORCE_PROVISIONING_PROCESS */
-
 #if USE_HARDCODED_CREDENTIALS
 #define USER_CONFIG_WIFI_SSID     "[SET YOUR WIFI NETWORK NAME HERE]"
 #define USER_CONFIG_WIFI_PWD      "[SET YOUR WIFI NETWORK PASSWORD HERE]"
@@ -91,6 +82,10 @@ static esp_err_t app_wifi_event_handler( void* ctx, system_event_t* event )
 
 static int8_t app_wifi_station_init( void )
 {
+    printf( "\n|********************************************************|" );
+    printf( "\n|               Initializing WiFi as Station             |" );
+    printf( "\n|********************************************************|\n" );
+
 #if USE_HARDCODED_CREDENTIALS
     wifi_config_t wifi_config =
     {
@@ -108,31 +103,10 @@ static int8_t app_wifi_station_init( void )
         }
     };
 
-    printf( "\n|********************************************************|" );
-    printf( "\n|               Initializing WiFi as Station             |" );
-    printf( "\n|********************************************************|\n" );
-
-    memset( wifi_config.sta.ssid, 0x00, ESP_WIFI_SSID_STR_SIZE );
-    memset( wifi_config.sta.password, 0x00, ESP_WIFI_PASSWORD_STR_SIZE );
-
-#if 1
-    memcpy( wifi_config.sta.ssid, user_config.wifi_client_ssid,
-            ESP_WIFI_SSID_STR_SIZE );
-    memcpy( wifi_config.sta.password, user_config.wifi_client_password,
-            ESP_WIFI_PASSWORD_STR_SIZE );
-#else
-    memcpy( wifi_config.sta.ssid, USER_CONFIG_WIFI_SSID,
-            ESP_WIFI_SSID_STR_SIZE );
-    memcpy( wifi_config.sta.password, USER_CONFIG_WIFI_PWD,
-            ESP_WIFI_PASSWORD_STR_SIZE );
-#endif
-
-    printf( "\n\t>>>>> SSID: [%s] - ", wifi_config.sta.ssid );
-    for( int i=0; i<ESP_WIFI_SSID_STR_SIZE; i++ )
-        printf( "0x%02x.%c ", wifi_config.sta.ssid[i], wifi_config.sta.ssid[i] );
-    printf( "\n\t>>>>> PASS: [%s] - ", wifi_config.sta.password );
-    for( int i=0; i<ESP_WIFI_PASSWORD_STR_SIZE; i++ )
-        printf( "0x%02x.%c ", wifi_config.sta.password[i], wifi_config.sta.password[i] );
+    strncpy( ( char* )wifi_config.sta.ssid, user_config.wifi_client_ssid,
+             ESP_WIFI_SSID_STR_SIZE );
+    strncpy( ( char* )wifi_config.sta.password, user_config.wifi_client_password,
+             ESP_WIFI_PASSWORD_STR_SIZE );
 #endif
 
     /* Initialize the TCP/IP stack, app_wifi_event_group and WiFi interface */
@@ -175,13 +149,9 @@ int8_t app_fetch_user_config( void )
     printf( "\nUser data retrieved from flash:" );
     user_data_printf( &user_config );
 
-#if FORCE_PROVISIONING_PROCESS
-    memset( &user_config, 0x00, sizeof( user_config ) );
-#endif
-
-    /* Wait for a button press for 100*50 ms while flashing the LED. If the button is
+    /* Wait for a button press for 80*50 ms while flashing the LED. If the button is
      * pressed, clear the contents of user_config to force the provisioning process */
-    for ( int i = 100; i > 0; i-- )
+    for ( int i = 80; i > 0; i-- )
     {
         io_led_set( i % 2 ); /* Toggle LED */
         if ( -1 != io_await_gpio_interrupt( 50 ) )
@@ -196,12 +166,15 @@ int8_t app_fetch_user_config( void )
     /* If the data retrieved from NVS is missing any fields, start provisioning */
     if ( 0 > user_data_is_valid( &user_config ) )
     {
+        io_led_on();
         if ( 0 > provisioning_gather_user_data( &user_config ) )
         {
             printf( "\nDevice provisioning [ERROR]. Abort" );
+            io_led_off();
             return -1;
         }
     }
+    io_led_off();
     return 0;
 }
 

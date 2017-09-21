@@ -341,13 +341,13 @@ void user_data_printf( user_data_t* user_data )
 #if 0
     /* This debug message dumps the given *user_data memory block. Very useful
     to find possible errors when modifying the user_data_t datastructure */
-    for ( uint32_t i = 0; i < sizeof( user_data_t ) / sizeof( int32_t ); i++ )
+    for ( uint32_t i = 0; i < sizeof( user_data_t ) / sizeof( int8_t ); i++ )
     {
-        if ( 0 == i % 4 )
+        if ( 0 == i % 12 )
         {
             printf( "\r\n\t\t" );
         }
-        printf( "%08lx ", *( ( int32_t* )user_data + i ) );
+        printf( "%02x ", *( ( int8_t* )user_data + i ) );
     }
 #endif
 
