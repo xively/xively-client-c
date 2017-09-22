@@ -89,6 +89,8 @@
 #define XIVELY_DEVICE_SECRET "PASTE_YOUR_XIVELY_DEVICE_SECRET"
 #define XIVELY_ACCOUNT_ID "PASTE_YOUR_XIVELY_ACCOUNT_ID"
 
+#define ENABLE_XIVELY_FIRMWARE_UPDATE_AND_SECURE_FILE_TRANSFER 1
+
 // Application specific status/error codes
 typedef enum {
     // Choosing -0x7D0 to avoid overlap w/ host-driver's error codes
@@ -442,7 +444,7 @@ void ConnectToXively()
     /* Disable the interrupt for now */
     Button_IF_DisableInterrupt( SW2 | SW3 );
 
-    xi_state_t ret_state = xi_initialize( "account_id", "xi_username" );
+    xi_state_t ret_state = xi_initialize( XIVELY_ACCOUNT_ID, XIVELY_DEVICE_ID );
 
     if ( XI_STATE_OK != ret_state )
     {
@@ -458,6 +460,14 @@ void ConnectToXively()
                            -gXivelyContextHandle );
         return;
     }
+
+#if ENABLE_XIVELY_FIRMWARE_UPDATE_AND_SECURE_FILE_TRANSFER
+    /* Pass list of files to be updated by the Xively Services. */
+    const char** files_to_keep_updated =
+        ( const char* [] ){"firmware.bin", "credentials.cfg"};
+
+    xi_set_updateable_files( gXivelyContextHandle, files_to_keep_updated, 2 );
+#endif
 
     xi_state_t connect_result =
         xi_connect( gXivelyContextHandle, XIVELY_DEVICE_ID, XIVELY_DEVICE_SECRET, 10, 0,
