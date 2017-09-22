@@ -5,7 +5,6 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/event_groups.h"
 #include "freertos/task.h"
-#include "xively.h"
 
 #include "xively_if.h"
 
@@ -66,7 +65,6 @@ static void xif_led_topic_callback( xi_context_handle_t in_context_handle,
                                     const xi_sub_call_params_t* const params,
                                     xi_state_t state,
                                     void* user_data );
-static void xif_recv_mqtt_msg_callback( const xi_sub_call_params_t* const params );
 
 /******************************************************************************
 *                           Xively Interface Variables
@@ -138,7 +136,6 @@ int xif_set_request_bits( xif_action_requests_t requested_action )
 int xif_clear_request_bits( xif_action_requests_t requested_action )
 {
     BaseType_t result;
-    EventBits_t evt_group_bits = 0x00;
     result =
         xEventGroupClearBitsFromISR( xif_requests_event_group_handle, requested_action );
     if ( pdPASS != result )
@@ -286,7 +283,6 @@ void xif_rtos_task( void* param )
             if( xif_context_handle >= 0 )
             {
                 xi_delete_context( xif_context_handle );
-                return 1;
             }
             xi_shutdown();
             evt_loop_exit_flag = 1;
@@ -475,14 +471,18 @@ int xif_subscribe( void )
     return 0;
 }
 
-void xif_publish_button_pressed( void )
+void xif_publish_button_state( int input_level )
 {
+    char msg_payload[2] = "";
     if( !xif_is_connected() )
     {
         return;
     }
+
+    ( input_level == 1 ) ? ( strcpy( msg_payload, "1" ) )
+                         : ( strcpy( msg_payload, "0" ) );
     printf( "\n[XIF] Publishing button pressed MQTT message" );
-    xi_publish( xif_context_handle, xif_mqtt_topics.button_topic, "Button pressed!",
+    xi_publish( xif_context_handle, xif_mqtt_topics.button_topic, msg_payload,
                 XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
 
@@ -577,11 +577,13 @@ void xif_successful_connection_callback( xi_connection_data_t* conn_data )
  *     } message;
  * } xi_sub_call_params_t;
  */
-void xif_recv_mqtt_msg_callback( const xi_sub_call_params_t* const params )
+void __attribute__( ( weak ) )
+xif_recv_mqtt_msg_callback( const xi_sub_call_params_t* const params )
 {
-    printf( "\n[XIF] >> received message on topic %s", params->message.topic );
-    printf( "\n[XIF] \t Message size: %d", params->message.temporary_payload_data_length );
-    printf( "\n[XIF] \t Message payload: " );
+    printf( "\n[XIF] New MQTT message received!" );
+    printf( "\n[XIF]\tTopic: %s", params->message.topic );
+    printf( "\n[XIF]\tMessage size: %d", params->message.temporary_payload_data_length );
+    printf( "\n[XIF]\tMessage payload: " );
     for ( size_t i = 0; i < params->message.temporary_payload_data_length; i++ )
     {
         // printf( "0x%02x ", params->message.temporary_payload_data[i] );

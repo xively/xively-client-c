@@ -3,6 +3,9 @@
  * This is part of the Xively C Client codebase,
  * it is licensed under the BSD 3-Clause license.
  */
+
+#include "xively.h"
+
 #define XIF_MQTT_TOPIC_MAX_LEN 256
 
 typedef struct
@@ -52,9 +55,12 @@ int xif_disconnect( void );
  */
 int xif_connect( void );
 
-void xif_publish_button_pressed( void );
+void xif_publish_button_state( int input_level );
 
 int xif_request_action( xif_action_requests_t requested_action );
+
+/* Sample implementation declared WEAK in xively_if.c so you can overwrite it */
+extern void xif_recv_mqtt_msg_callback( const xi_sub_call_params_t* const params );
 
 /* Query the MQTT connection status (as far as the TCP/MQTT layers are aware)
  */

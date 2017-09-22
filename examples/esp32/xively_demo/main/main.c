@@ -46,11 +46,13 @@ static user_data_t user_config;
 
 static esp_err_t app_wifi_event_handler( void* ctx, system_event_t* event )
 {
-    printf( "\nNew WiFi event: ID [%d]", event->event_id );
+    //printf( "\nNew WiFi event: ID [%d]", event->event_id );
     switch ( event->event_id )
     {
         case SYSTEM_EVENT_STA_START:
             esp_wifi_connect();
+            break;
+        case SYSTEM_EVENT_STA_CONNECTED:
             break;
         case SYSTEM_EVENT_STA_GOT_IP:
             xEventGroupSetBits( app_wifi_event_group, WIFI_CONNECTED_FLAG );
@@ -60,7 +62,7 @@ static esp_err_t app_wifi_event_handler( void* ctx, system_event_t* event )
             break;
 
         case SYSTEM_EVENT_STA_DISCONNECTED:
-            printf( "\n\tHandling sudden WiFi disconnection..." );
+            //printf( "\n\tHandling sudden WiFi disconnection..." );
             /* This is a workaround as ESP32 WiFi libs don't currently
                auto-reassociate. */
             /* JC TODO: something here crashes the application when the AP is turned off!! */
@@ -74,7 +76,7 @@ static esp_err_t app_wifi_event_handler( void* ctx, system_event_t* event )
             xEventGroupClearBits( app_wifi_event_group, WIFI_CONNECTED_FLAG );
             break;
         default:
-            printf( "\n\tWiFi event ignored at the application layer" );
+            //printf( "\n\tWiFi event ignored at the application layer" );
             break;
     }
     return ESP_OK;
@@ -110,8 +112,13 @@ static int8_t app_wifi_station_init( void )
 #endif
 
     /* Initialize the TCP/IP stack, app_wifi_event_group and WiFi interface */
-    tcpip_adapter_init();
     app_wifi_event_group = xEventGroupCreate();
+    if( NULL == app_wifi_event_group )
+    {
+        printf( "\nFailed to allocate FreeRTOS heap for wifi event group" );
+        return -1;
+    }
+    tcpip_adapter_init();
     ESP_ERROR_CHECK( esp_event_loop_init( app_wifi_event_handler, NULL ) );
     wifi_init_config_t wifi_init_config = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK( esp_wifi_init( &wifi_init_config ) );
@@ -154,13 +161,13 @@ int8_t app_fetch_user_config( void )
      * pressed, clear the contents of user_config to force the provisioning process */
     for ( int i = 80; i > 0; i-- )
     {
-        io_led_set( i % 2 ); /* Toggle LED */
         if ( -1 != io_await_gpio_interrupt( 50 ) )
         {
             printf( "\nButton pressed - Initializing provisioning process" );
             provisioning_bootmode_selected = 1;
             break;
         }
+        io_led_set( i % 2 ); /* Toggle LED */
     }
     io_led_off();
 
@@ -181,18 +188,38 @@ int8_t app_fetch_user_config( void )
 
 void app_gpio_interrupts_handler_task( void* param )
 {
-    int32_t led_status     = 0;
     int button_input_level = -1;
     while ( 1 )
     {
-        io_led_set( ( led_status = !led_status ) ); /* Toggle LED */
         if ( -1 !=
              ( button_input_level = io_await_gpio_interrupt( IO_BUTTON_WAIT_TIME_MS ) ) )
         {
             printf( "\nButton press detected. Pin level [%d]", button_input_level );
-            xif_publish_button_pressed();
+            xif_publish_button_state( button_input_level );
         }
         taskYIELD();
+    }
+}
+
+void xif_recv_mqtt_msg_callback( const xi_sub_call_params_t* const params )
+{
+    printf( "\nNew MQTT message received!" );
+    printf( "\n\tTopic: %s", params->message.topic );
+    printf( "\n\tMessage size: %d", params->message.temporary_payload_data_length );
+    printf( "\n\tMessage payload: " );
+    for ( size_t i = 0; i < params->message.temporary_payload_data_length; i++ )
+    {
+        // printf( "0x%02x ", params->message.temporary_payload_data[i] );
+        printf( "%c", ( char )params->message.temporary_payload_data[i] );
+    }
+    if( 0 == strcmp( params->message.topic, xif_mqtt_topics.led_topic ) )
+    {
+        if ( 0 == params->message.temporary_payload_data_length )
+            io_led_off();
+        else if ( '0' == params->message.temporary_payload_data[0] )
+            io_led_off();
+        else
+            io_led_on();
     }
 }
 
