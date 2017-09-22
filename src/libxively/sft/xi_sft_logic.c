@@ -96,7 +96,9 @@ xi_state_t xi_sft_on_connection_failed( xi_sft_context_t* context )
 {
     XI_UNUSED( context );
 
-    return xi_bsp_fwu_on_new_firmware_failure();
+    xi_bsp_fwu_on_new_firmware_failure();
+    
+    return XI_STATE_OK;
 }
 
 static void
