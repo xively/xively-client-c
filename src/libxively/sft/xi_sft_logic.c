@@ -277,7 +277,7 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                         else
                         {
                             /* handling firmware file(s) */
-                            xi_sft_revision_set_firmware_uptate(
+                            xi_sft_revision_set_firmware_update(
                                 context->update_current_file->name,
                                 context->update_current_file->revision );
                         }
