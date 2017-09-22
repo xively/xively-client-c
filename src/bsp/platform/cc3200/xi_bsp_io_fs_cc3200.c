@@ -238,6 +238,6 @@ xi_bsp_io_fs_state_t xi_bsp_io_fs_remove( const char* const resource_name )
         return XI_BSP_IO_FS_REMOVE_ERROR;
     }
 
-    return ( 0 == sl_FsDel( ( const _u8* )resource_name, NULL ) ) ? XI_STATE_OK
+    return ( 0 == sl_FsDel( ( const _u8* )resource_name, NULL ) ) ? XI_BSP_IO_FS_STATE_OK
                                                                   : XI_BSP_IO_FS_REMOVE_ERROR;
 }
