@@ -54,13 +54,12 @@ void xi_bsp_fwu_on_new_firmware_failure()
     _reboot_device();
 }
 
-void xi_bsp_fwu_on_firmware_package_download_failure()
+void xi_bsp_fwu_on_package_download_failure()
 {
     GPIO_IF_LedOn( MCU_RED_LED_GPIO );
 }
 
-void xi_bsp_fwu_on_firmware_package_download_finished(
-    const char* const firmware_resource_name )
+void xi_bsp_fwu_on_package_download_finished( const char* const firmware_resource_name )
 {
     ( void )firmware_resource_name;
 

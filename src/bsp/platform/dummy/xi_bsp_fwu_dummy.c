@@ -23,13 +23,12 @@ void xi_bsp_fwu_on_new_firmware_failure()
     return;
 }
 
-void xi_bsp_fwu_on_firmware_package_download_failure()
+void xi_bsp_fwu_on_package_download_failure()
 {
     return;
 }
 
-void xi_bsp_fwu_on_firmware_package_download_finished(
-    const char* const firmware_resource_name )
+void xi_bsp_fwu_on_package_download_finished( const char* const firmware_resource_name )
 {
     ( void )firmware_resource_name;
 
