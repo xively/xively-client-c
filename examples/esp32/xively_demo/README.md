@@ -7,10 +7,28 @@ Pre-requisites
 WiFi and Xively Credentials Configuration
 =========================================
 
-[This step is provisional until we have runtime provisioning via serial or web interface]
+## Provisioning your device over UART [Default]
 
-Open the `$(XIVELY_CLIENT_C_PATH)/examples/esp32/xively_demo/main/main.c` file
-with your favourite editor, and set your credentials in these macros:
+First of all, you need to connect to your device's serial port after flashing it.
+These are the settings it uses:
+
+- 115200 bps
+- 8-N-1 bits
+
+If you've never connected your device to Xively before, it will ask you to set
+new WiFi and MQTT credentials. Simply follow the instructions in the serial port.
+
+If you'd like to change the credentials at any point, you can reboot the device
+and press the GPIO0 button at any point while the LED is flashing rapidly. This
+will kickstart the provisioning process (ask for your credentials again), and
+over-write the stored credentials.
+
+## Using hardcoded credentials [Alternative]
+
+In some cases, you may want to disable the usage of credentials in NVS, in favour
+of credentials hardcoded into the application. You can do so by enabling the
+`USE_HARDCODED_CREDENTIALS` macro in `main.c`. You'll also have to set your
+credentials in these lines:
 
 ```
 #define APP_XI_ACCOUNT_ID "[SET YOUR XIVELY ACCOUNT ID HERE]"

@@ -23,23 +23,22 @@
 
 #ifndef USE_HARDCODED_CREDENTIALS
 /* Default workflow uses runtime provisioning and flash storage for user data */
-#define USE_HARDCODED_CREDENTIALS 0
+  #define USE_HARDCODED_CREDENTIALS 0
 #endif /* USE_HARDCODED_CREDENTIALS */
 
 #if USE_HARDCODED_CREDENTIALS
-#define USER_CONFIG_WIFI_SSID     "[SET YOUR WIFI NETWORK NAME HERE]"
-#define USER_CONFIG_WIFI_PWD      "[SET YOUR WIFI NETWORK PASSWORD HERE]"
-#define USER_CONFIG_XI_ACCOUNT_ID "[SET YOUR XIVELY ACCOUNT ID HERE]"
-#define USER_CONFIG_XI_DEVICE_ID  "[SET YOUR XIVELY DEVICE  ID HERE]"
-#define USER_CONFIG_XI_DEVICE_PWD "[SET YOUR XIVELY DEVICE PASSWORD HERE]"
+  #define USER_CONFIG_WIFI_SSID     "[SET YOUR WIFI NETWORK NAME HERE]"
+  #define USER_CONFIG_WIFI_PWD      "[SET YOUR WIFI NETWORK PASSWORD HERE]"
+  #define USER_CONFIG_XI_ACCOUNT_ID "[SET YOUR XIVELY ACCOUNT ID HERE]"
+  #define USER_CONFIG_XI_DEVICE_ID  "[SET YOUR XIVELY DEVICE  ID HERE]"
+  #define USER_CONFIG_XI_DEVICE_PWD "[SET YOUR XIVELY DEVICE PASSWORD HERE]"
 #endif /* USE_HARDCODED_CREDENTIALS */
 
 #define XIF_TASK_ESP_CORE    0 /* ESP32 core the XIF task will be pinned to */
 #define XIF_TASK_STACK_SIZE  36 * 1024
 #define GPIO_TASK_STACK_SIZE 2 * 1024
-#define WIFI_CONNECTED_FLAG  BIT0
 
-#define IO_BUTTON_WAIT_TIME_MS 500
+#define WIFI_CONNECTED_FLAG  BIT0
 
 static EventGroupHandle_t app_wifi_event_group;
 static user_data_t user_config;
@@ -188,14 +187,17 @@ int8_t app_fetch_user_config( void )
 
 void app_gpio_interrupts_handler_task( void* param )
 {
+    const uint32_t IO_BUTTON_WAIT_TIME_MS = 500;
     int button_input_level = -1;
+    int virtual_switch = 0; /* Switches between 1 and 0 on each button press */
     while ( 1 )
     {
         if ( -1 !=
              ( button_input_level = io_await_gpio_interrupt( IO_BUTTON_WAIT_TIME_MS ) ) )
         {
-            printf( "\nButton press detected. Pin level [%d]", button_input_level );
-            xif_publish_button_state( button_input_level );
+            virtual_switch = !virtual_switch;
+            printf( "\nButton pressed! Virtual switch [%d]", virtual_switch );
+            xif_publish_button_state( virtual_switch );
         }
         taskYIELD();
     }
@@ -263,7 +265,7 @@ void app_main( void )
 
     /* Start GPIO interrupt handler task */
     if ( pdPASS != xTaskCreate( &app_gpio_interrupts_handler_task, "gpio_intr_task",
-                                GPIO_TASK_STACK_SIZE, NULL, 5, NULL ) )
+                                GPIO_TASK_STACK_SIZE, NULL, 3, NULL ) )
     {
         printf( "\n[ERROR] creating GPIO interrupt handler RTOS task" );
         printf( "\n\tInterrupts will be ignored" );
@@ -283,14 +285,9 @@ void app_main( void )
             vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
 
-    /* Loop forever, read the interrupts queue and publish on button change */
+    /* Loop forever */
     //while ( 1 )
     //{
-    //    if ( xQueueReceive( io_button_queue, &io_num, portMAX_DELAY ) )
-    //    {
-    //        printf( "\nInterrupt at GPIO [%d] - Pin value [%d]", io_num,
-    //                gpio_get_level( io_num ) );
-    //    }
     //    vTaskDelay( 10 / portTICK_PERIOD_MS );
     //}
 }

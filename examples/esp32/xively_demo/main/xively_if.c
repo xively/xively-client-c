@@ -13,10 +13,8 @@
 ******************************************************************************/
 #define DELAY_MS( t ) vTaskDelay( t / portTICK_PERIOD_MS )
 
-#define XIF_BUTTON_TOPIC_NAME "button"
-#define XIF_LED_TOPIC_NAME "led"
-
-#define XIF_SECONDS_BETWEEN_PUBLISHES 10
+#define XIF_BUTTON_TOPIC_NAME "Button"
+#define XIF_LED_TOPIC_NAME "LED"
 
 /******************************************************************************
 *                     Xively Interface Structs and Enums
@@ -52,7 +50,6 @@ static int xif_build_xively_topic( char* topic_name, char* dst, uint32_t dst_len
 /* Application specific functions */
 static int xif_build_all_mqtt_topics( void );
 static int xif_subscribe( void );
-static void xif_publish_counter( void );
 static int xif_start_timed_tasks( void );
 static void xif_cancel_timed_tasks( void );
 
@@ -76,10 +73,16 @@ xif_mqtt_topics_t xif_mqtt_topics;
 
 /* libxively Handles */
 static xi_context_handle_t xif_context_handle = -1;
-static xi_timed_task_handle_t xif_pubcounter_scheduled_task_handle = -1;
 
 /* FreeRTOS Handles */
 static EventGroupHandle_t xif_requests_event_group_handle = NULL;
+
+#define PUB_INCREASING_COUNTER 0 /* Set 1 to get periodic messages to Button */
+#if PUB_INCREASING_COUNTER
+  #define COUNTER_PUBLISH_PERIOD 10
+  static void xif_publish_counter( void );
+  static xi_timed_task_handle_t xif_pubcounter_scheduled_task_handle = -1;
+#endif /* PUB_INCREASING_COUNTER */
 
 /******************************************************************************
 *                           Xively Interface Implementation
@@ -263,14 +266,9 @@ void xif_rtos_task( void* param )
         switch( xif_pop_highest_priority_request() )
         {
         case XIF_REQUEST_CONTINUE:
-#if 0
-            //xi_events_process_blocking();
-            //printf( "\n[XIF] xively's blocking events loop was shut down" );
-#else
             xif_request_action( XIF_REQUEST_CONTINUE );
             xi_events_process_tick();
-            printf( "(tick)" );
-#endif
+            //printf( "." );
             break;
         case XIF_REQUEST_PAUSE:
             /* Halt this task until we get a XIF_REQUEST_CONTINUE request */
@@ -297,74 +295,6 @@ void xif_rtos_task( void* param )
     }
     /* /new workflow */
 
-#if 0
-    xif_machine_states_t xif_machine_state = XIF_STATE_UNINITIALIZED;
-    while ( 0 == evt_loop_exit_flag )
-    {
-        printf( "\nXively Interface state: %d", xif_machine_state );
-
-        switch ( xif_machine_state )
-        {
-        case XIF_STATE_UNINITIALIZED:
-            if ( 0 > xif_init() )
-            {
-                xif_handle_unrecoverable_error();
-                //xif_machine_state = XIF_STATE_SHUTDOWN;
-                break;
-            }
-            if ( 0 > xif_connect() )
-            {
-                xif_handle_unrecoverable_error();
-                //xif_machine_state = XIF_STATE_SHUTDOWN;
-                break;
-            }
-            xif_machine_state = XIF_STATE_LIBRARY_LOOP;
-            break;
-
-        case XIF_STATE_HANDLE_ACTION_REQUESTS:
-            switch( xif_pop_highest_priority_request() )
-            {
-                case XIF_REQUEST_CONTINUE:
-                    xif_machine_state = XIF_STATE_LIBRARY_LOOP;
-                    break;
-                case XIF_REQUEST_PAUSE:
-#if 0
-                    if( xif_is_connected() )
-                    {
-                        xif_disconnect();
-                        break;
-                    }
-#endif
-                    xif_machine_state = XIF_STATE_PAUSED;
-                    break;
-                case XIF_REQUEST_SHUTDOWN:
-                    xif_machine_state = XIF_STATE_SHUTDOWN;
-                    break;
-            }
-            xif_machine_state = XIF_STATE_LIBRARY_LOOP;
-            break;
-
-        case XIF_STATE_LIBRARY_LOOP:
-            //xi_events_process_tick();
-            xi_events_process_blocking();
-            xif_machine_state = XIF_STATE_HANDLE_ACTION_REQUESTS;
-            break;
-
-        case XIF_STATE_PAUSED:
-            printf( "\nPausing Xively Interface..." );
-            xif_await_unpause();
-            xif_machine_state = XIF_STATE_HANDLE_ACTION_REQUESTS;
-            break;
-
-
-        case XIF_STATE_SHUTDOWN:
-            xif_shutdown();
-            xif_machine_state = XIF_STATE_UNINITIALIZED;
-            evt_loop_exit_flag = 1;
-            break;
-        }
-    }
-#endif
     vTaskDelete( NULL );
     return NULL;
 }
@@ -471,7 +401,7 @@ int xif_subscribe( void )
     return 0;
 }
 
-void xif_publish_button_state( int input_level )
+void xif_publish_button_state( int button_state )
 {
     char msg_payload[2] = "";
     if( !xif_is_connected() )
@@ -479,8 +409,10 @@ void xif_publish_button_state( int input_level )
         return;
     }
 
-    ( input_level == 1 ) ? ( strcpy( msg_payload, "1" ) )
-                         : ( strcpy( msg_payload, "0" ) );
+    /* GPIO0 is pulled-up, so the input level is 0 when pressed. If your backend
+    expects 1 to mean "button pressed", you can negate the button input here */
+    ( button_state == 1 ) ? ( strcpy( msg_payload, "1" ) )
+                          : ( strcpy( msg_payload, "0" ) );
     printf( "\n[XIF] Publishing button pressed MQTT message" );
     xi_publish( xif_context_handle, xif_mqtt_topics.button_topic, msg_payload,
                 XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
@@ -512,41 +444,28 @@ void xif_publish_counter( void )
 
 int xif_start_timed_tasks( void )
 {
+#if PUB_INCREASING_COUNTER
     /* Schedule the xif_publish_counter function to publish an increasing counter
-     * every $XIF_SECONDS_BETWEEN_PUBLISHES seconds */
+     * every $COUNTER_PUBLISH_PERIOD seconds */
     xif_pubcounter_scheduled_task_handle = xi_schedule_timed_task(
         xif_context_handle, ( xi_user_task_callback_t* )xif_publish_counter,
-        XIF_SECONDS_BETWEEN_PUBLISHES, 1, NULL );
+        COUNTER_PUBLISH_PERIOD, 1, NULL );
     if ( XI_INVALID_TIMED_TASK_HANDLE == xif_pubcounter_scheduled_task_handle )
     {
         printf( "\n[XIF] Counter publish scheduled task couldn't be registered" );
         return -1;
     }
+#endif /* PUB_INCREASING_COUNTER */
     return 0;
 }
 
 void xif_cancel_timed_tasks( void )
 {
-#if 1
     xif_cancel_timed_tasks();
+#if PUB_INCREASING_COUNTER
     xif_pubcounter_scheduled_task_handle = XI_INVALID_TIMED_TASK_HANDLE;
-#else
-    if( XI_INVALID_TIMED_TASK_HANDLE != xif_pubcounter_scheduled_task_handle )
-    {
-        xi_cancel_timed_task( xif_pubcounter_scheduled_task_handle );
-        xif_pubcounter_scheduled_task_handle = XI_INVALID_TIMED_TASK_HANDLE;
-    }
 #endif
 }
-
-#if 0
-int xif_shutdown( void )
-{
-    xif_request_action( XIF_REQUEST_SHUTDOWN );
-    xi_events_stop();
-    return 0;
-}
-#endif
 
 void xif_successful_connection_callback( xi_connection_data_t* conn_data )
 {

@@ -3,6 +3,8 @@
  * This is part of the Xively C Client codebase,
  * it is licensed under the BSD 3-Clause license.
  */
+#ifndef __XIVELY_IF_H__
+#define __XIVELY_IF_H__
 
 #include "xively.h"
 
@@ -71,3 +73,5 @@ int xif_is_connected( void );
  * unrecoverable errors, but you may want to handle that differently
  */
 extern void xif_state_machine_aborted_callback( void );
+
+#endif /* __XIVELY_IF_H__ */
