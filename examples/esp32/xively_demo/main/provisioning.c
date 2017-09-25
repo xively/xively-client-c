@@ -170,7 +170,6 @@ static inline void provisioning_print_banner( void )
 
 static int8_t get_uart_input_string_esp32( char* dst, size_t dst_size )
 {
-    esp_err_t retval = ESP_OK;
     uint8_t input_char = '\0';
     for ( int i = 0; i < dst_size; i++ )
     {
