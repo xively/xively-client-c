@@ -53,9 +53,9 @@ Porting the Xively C Client to new platforms is accelerated by the Board Support
 
 ## Board Support Package (BSP)
 
-The Board Support Package (BSP) is the well-defined set of functions that the Xively Client invokes to interact with a platform's specific networking, [TLS](https://en.wikipedia.org/wiki/Transport_Layer_Security), memory, random number generator, file/firmware storage, and time implementations.
+The Board Support Package (BSP) is the well-defined set of functions that the Xively Client invokes to interact with a platform's specific networking, file IO, [TLS](https://en.wikipedia.org/wiki/Transport_Layer_Security), memory management, random number generator, time and firmware management SDKs.
 
-We've organized the sources of the Xivey Client so that your BSP implementation is in just a few files that reside in the directory (`src/bsp`).  You should focus your attention here when porting the Xively Client to your device SDK, safely ignoring the MQTT codec or the non-blocking / asynchronous engine that resides in the rest of the main library source.
+We've organized the sources of the Xivey Client so that your BSP implementation resides in a few files of the directory `src/bsp`.  You should focus your attention here when porting the Xively Client to your device SDK, safely ignoring the MQTT codec or the non-blocking / asynchronous engine that resides in the rest of the main library source.
 
 All of the BSP **function declarations** can be found under the `include/bsp`
 directory. Doxygen documentation for these functions can be found in the `doc/doxygen/bsp/html/index.html`.
@@ -65,8 +65,8 @@ BSP Functions are broken down by logical subsystems as follows:
 ### BSP Modules
 
 #### Optional
-- BSP FWU: Firmware Update Inegration for Secure File Transfer (SFT) (`include/bsp/xi_bsp_fwu.h`)
-- BSP IO FS: File System Integration for SFT (`include/bsp/xi_bsp_io_fs.h`)
+- BSP FWU: Firmware Update Inegration (`include/bsp/xi_bsp_fwu.h`)
+- BSP IO FS: File System Integration for Secure File Transfer (SFT) (`include/bsp/xi_bsp_io_fs.h`)
 
 #### Required
 - BSP IO NET: Networking Stack Integration (`include/bsp/xi_bsp_io_net.h`)
@@ -80,7 +80,7 @@ BSP Functions are broken down by logical subsystems as follows:
 
 Reference **function implementations** are separated into two directories: `src/bsp/platform` and `src/bsp/tls`.
 
-The *platform* directory contains SFT, networking, memory, random number generator and time implementations.  The *tls* directory contains reference implementations for *wolfSSL* and *mbedTLS* libraries which supply secure TLS v1.2 connections over TCP/IP.
+The *platform* directory contains reference BSP implementations for networking, file IO, memory management, random number generator, time and firmware management. The *tls* directory contains reference implementations for *wolfSSL* and *mbedTLS* libraries which supply secure TLS v1.2 connections over TCP/IP.
 
 #### BSP Platforms
 
@@ -264,7 +264,7 @@ A typical CONFIG flag:
                              Secure File Transfer and Firmware Update.
                              
     - secure_file_transfer - enables the Secure File Transfer and Firmware Update features.
-                             SFT keeps files certain file up-to-date by defining a file
+                             SFT keeps certain files up-to-date by defining a file
                              set in the API function 'xi_set_updateable_files'. 
                              The control_topic flag must be turned on as well.
                              
@@ -330,7 +330,7 @@ For CI configurations please look at the file [.travis.yml](../../.travis.yml).
 
 Application binaries and source can be found under the directory `examples/`. 
 
-These examples use the Xively C Client Library for connecting to Xively Servers, subscribing to topics, and sending and receiving data.  They can be built on POSIX by running `make` in the `examples/` directory.
+These examples use the Xively C Client Library for connecting to Xively Servers, subscribing to topics, publishing data, and receiving data.  They can be built on POSIX by running `make` in the `examples/` directory.
 
 The examples are command line applications that link against the Xively C Client library. They require a Xively-specific account-id, username, password and optional topic name to subscribe or publish on.
 
@@ -349,11 +349,11 @@ The ideal goal to cross-compile the Xively C Client on OSX or Linux/Unix to your
 
 Our goal is construct the following command to build the Xively Client for the NP2000:
 
-        make PRESET=np2000
+  	make PRESET=np2000
 
 To mop up generated files type
 
-        make PRESET=np2000 clean
+    make PRESET=np2000 clean
 
 To make this possible, the following steps have to be taken.
 
@@ -410,12 +410,12 @@ To make this possible, the following steps have to be taken.
 - [x] provide BSP implementations for all modules.
 
 	- Create the following source files:
-	 -	`src/bsp/np2000/xi_bsp_fwu_np2000.c`
-	 - `src/bsp/np2000/xi_bsp_io_fs_np2000.c`
-	 - `src/bsp/np2000/xi_bsp_io_net_np2000.c`
-   	 - `src/bsp/np2000/xi_bsp_mem_np2000.c`
-   	 - `src/bsp/np2000/xi_bsp_rng_np2000.c`
-   	 - `src/bsp/np2000/xi_bsp_time_np2000.c`
+		- `src/bsp/np2000/xi_bsp_fwu_np2000.c`
+		- `src/bsp/np2000/xi_bsp_io_fs_np2000.c`
+		- `src/bsp/np2000/xi_bsp_io_net_np2000.c`
+		- `src/bsp/np2000/xi_bsp_mem_np2000.c`
+		- `src/bsp/np2000/xi_bsp_rng_np2000.c`
+		- `src/bsp/np2000/xi_bsp_time_np2000.c`
  	- in these sourcefiles, define the functions declared in these corresponding Xively C Client BSP headers:
  		- **firmware update notifications** (`include/bsp/xi_bsp_fwu.h`)
  		- **file storage** (`include/bsp/xi_bsp_io_fs.h`)
@@ -458,7 +458,7 @@ While we cannot completely predict how this process would work for every IDE and
 - import all of the source files in one of the subdirectories of `src/bsp/platform`.
   The Xively C Client BSPs contain all of the missing hooks which tie the platform independent
   code to a particular device. Complete implementations should include a source file for each
-  of the BSP subsystems (sft, networking, memory, time, etc).
+  of the BSP subsystems (networking, file IO, memory, time, firmware, etc).
 	- NOTE: The Xively C Client contains reference BSP implementations for POSIX, TI CC3200, and some ST32F4 Nucleo platforms. We also have partial implementations for specific networking APIs.
     Modules from these 'incomplete' BSP implementations could be used as substitutes. For instance, on devices that mirror POSIX completely except for networking, like Simplelink, the networking module from `src/bsp/platform/posix` could be ovewritten with the one from `src/bsp/platform/simplelink_incomplete`.
 - import one of the BSP TLS implementations in `src/bsp/tls`.  Currently we provide two different TLS BSP implementations: WolfSSL or mbedTLS.
