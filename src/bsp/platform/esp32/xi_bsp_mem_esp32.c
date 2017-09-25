@@ -31,8 +31,8 @@ void* xi_bsp_mem_realloc( void* ptr, size_t byte_count )
     void* new_ptr;
     vTaskSuspendAll();
     new_ptr = realloc( ptr, byte_count );
-	xTaskResumeAll();
-	return new_ptr;
+    xTaskResumeAll();
+    return new_ptr;
 }
 
 void xi_bsp_mem_free( void* ptr )
