@@ -1,5 +1,13 @@
+/* Copyright (c) 2003-2017, LogMeIn, Inc. All rights reserved.
+ *
+ * This is part of the Xively C Client codebase,
+ * it is licensed under the BSD 3-Clause license.
+ */
 #ifndef __USER_DATA_H__
 #define __USER_DATA_H__
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define USER_DATA_STR_SIZE 64
 
@@ -36,4 +44,7 @@ void user_data_printf( user_data_t* user_data );
 #define user_data_set_xi_device_password( data_ptr, pwd )             \
     strncpy( data_ptr->xi_device_password, pwd, USER_DATA_STR_SIZE )
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* __USER_DATA_H__ */
