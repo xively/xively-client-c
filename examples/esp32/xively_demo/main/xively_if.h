@@ -36,8 +36,8 @@ typedef enum
 int8_t xif_set_device_info( char* xi_acc_id, char* xi_dev_id, char* xi_dev_pwd );
 
 /* Xively Interface event loop - It handles the MQTT library's events loop and
- * coordinates the actions requested/kickstarted from other RTOS tasks. Loops
- * forever until it's paused with xif_disconnect or aborted with xif_shutdown
+ * coordinates the actions requested from other RTOS tasks. Loops forever until
+ * it's paused with a _PAUSE request or aborted with _SHUTDOWN
  */
 void xif_rtos_task( void* param );
 

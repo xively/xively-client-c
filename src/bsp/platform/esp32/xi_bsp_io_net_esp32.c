@@ -4,12 +4,11 @@
  * it is licensed under the BSD 3-Clause license.
  */
 
-#include <xi_bsp_io_net.h>
+#include <string.h>
 
-//#include <sys/select.h>
 #include <lwip/netdb.h>
 
-#include <string.h>
+#include <xi_bsp_io_net.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -84,8 +83,6 @@ xi_bsp_io_net_state_t xi_bsp_io_net_connection_check( xi_bsp_socket_t xi_socket,
     int valopt    = 0;
     socklen_t lon = sizeof( int );
 
-    // printf( "getsockopt\n" );
-
     int result =
         getsockopt( xi_socket, SOL_SOCKET, SO_ERROR, ( void* )( &valopt ), &lon );
 
@@ -120,7 +117,6 @@ xi_bsp_io_net_state_t xi_bsp_io_net_write( xi_bsp_socket_t xi_socket,
     if ( getsockopt( xi_socket, SOL_SOCKET, SO_ERROR, ( void* )( &errval ), &lon ) < 0 )
     {
         errval = errno;
-        errno  = 0;
         return XI_BSP_IO_NET_STATE_ERROR;
     }
 
@@ -134,7 +130,6 @@ xi_bsp_io_net_state_t xi_bsp_io_net_write( xi_bsp_socket_t xi_socket,
     if ( 0 > *out_written_count )
     {
         errval = errno;
-        errno  = 0;
 
         if ( EAGAIN == errval )
         {
@@ -166,7 +161,6 @@ xi_bsp_io_net_state_t xi_bsp_io_net_read( xi_bsp_socket_t xi_socket,
     if ( 0 > *out_read_count )
     {
         errval = errno;
-        errno  = 0;
 
         if ( EAGAIN == errval )
         {
