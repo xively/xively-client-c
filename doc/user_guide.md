@@ -33,7 +33,7 @@ Through the use of [coroutines](http://en.wikipedia.org/wiki/Coroutine) this MQT
 * The library can send and receive simultaneously on a single socket.
 * Communication requirements of your application will not interfere with the usability of your device.
 
-### Secure File Transfer (SFT)
+### Secure File Transfer (SFT) and Firwmare Updates (FWU)
 
 The Xively C Client comes pre-built with functionality to communicate with the [Xively SFT Service](https://developer.xively.com/v1.0/docs/how-to-securely-transfer-files-to-my-devices).  
 
@@ -60,9 +60,7 @@ The Xively Client was written with the understanding that the IoT Field might ch
 
 ### Xively Client Footprint
 
-Currently the optimized client storage footprint requirements are about 30kb for embedded devices with optimized toolchains, not including TLS functionality.  This footprint includes a TLS certificate for validating the Xively server during TLS, 3 backup certificates for use if the main certificate becomes compromised, an event dispatcher and scheduler, the connection backoff system, and both Platform networking, time, random number generator and memory implementations.  This footprint does not include a TLS implementation, but if one exists on the platform already, then the size requirements are negligible.
-
-The Secure File Transfer
+Currently the optimized client storage footprint requirements are about 30kb for embedded devices with optimized toolchains, not including TLS functionality.  This footprint includes a TLS certificate for validating the Xively server during TLS, 3 backup certificates for use if the main certificate becomes compromised, an event dispatcher and scheduler, the connection backoff system, and the library's platform networking, time, random number generator and memory implementations.  This footprint does not include a TLS implementation, but if one exists on the platform already, then the size requirements are negligible.
 
 # Platform Security Requirements
 
@@ -155,7 +153,7 @@ With this communication toolbox embedded devices can be used to listen and publi
 Currently the Xively Service supports a maximum message size of 128kb.
 
 
-### Secure File Transfer (SFT)
+### Secure File Transfer (SFT) and Firwmare Updates (FWU)
 
 The [Xively SFT Service](https://developer.xively.com/v1.0/docs/how-to-securely-transfer-files-to-my-devices) is designed to deploy files and firmware to fleets of devices in the field. The Xively C Client has an optional SFT module (enabled by default) to coordinate with Xively SFT Service to retreive and store these files on your device. 
 
@@ -165,9 +163,9 @@ In Xively SFT, the client drives the whole process, determining when to download
 
 We have chosen some suggested configurations for a default behavior, but the code can be easily customized for the best-fit of your platform and product. 
 
-The code for the file storage and firwmare update functionality is handled through the File IO and Firmware Update Board Support Package implementations. For more information please see the [Xively C Client Porting Guide](https://github.com/xively/xively-client-c/blob/master/doc/porting_guide.md) and the functions declared in `include/bsp/xi_bsp_io_fs.h` and `include/bsp/xi_bsp_fwu.h`.  
+The code for the file storage and firwmare update functionality is handled through the File IO and Firmware Update Board Support Package (BSP) implementations. For more information please see the [Xively C Client Porting Guide](https://github.com/xively/xively-client-c/blob/master/doc/porting_guide.md) and the functions declared in `include/bsp/xi_bsp_io_fs.h` and `include/bsp/xi_bsp_fwu.h`.  
 
-Additionally we have a few reference implementations for POSIX and the TI CC3200 in the `src/bsp/platform/posix/` and the `src/bsp/platform/cc3200` directories, and a [SFT Tutorial on the Xively Developer Center](https://developer.xively.com/v1.0/docs/ti-cc3200-sft-example).
+Additionally we have a few reference implementations for POSIX and the TI CC3200 in the `src/bsp/platform/posix/` and the `src/bsp/platform/cc3200/` directories, and a [SFT Tutorial on the Xively Developer Center](https://developer.xively.com/v1.0/docs/ti-cc3200-sft-example).
 
 ### TLS Support
 
