@@ -117,7 +117,7 @@ void xi_bsp_fwu_checksum_update( void* checksum_context,
 
 /**
  * @function
- * @brief Finishes and returns the checksum calculated with the context.
+ * @brief Finishes and returns the checksum value calculated with the context.
  *
  * Note: this function is also responsible to free up the context. Please note that
  *       the outgoing checksum array's memory isn't handled by the client at all. This
