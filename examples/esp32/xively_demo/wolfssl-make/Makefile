@@ -134,7 +134,7 @@ $(WOLFSSL_OUTPUT_OBJ_DIR)%.o: $(WOLFSSL_BASE_DIR)%.c
 
 $(WOLFSSL_OUTPUT_LIB): $(WOLFSSL_OUTPUT_OBJ)
 	@mkdir -p $(dir $@)
-	@echo "  [AR] $<"
+	@echo "  [AR] Static library: $@"
 	@$(AR) -rs -c $@ $^
 
 ###############################################################################
