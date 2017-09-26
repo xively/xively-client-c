@@ -13,9 +13,10 @@
  *
  * This file defines the Firmware Update (FWU) API used by the Xively C Client.
  *
- * The Xively C Client calls these functions during the Firmware Update (FWU) process.
- * Some of the functions are event notifications reflecting the status of the
- * FWU process, some are device specific action requests and checksum generators.
+ * The Xively C Client calls these functions during the Secure File Transfer (SFT) and
+ * Firmware Update (FWU) processes. Some of the functions are event notifications
+ * reflecting the status of the update process, some are device specific action requests
+ * others are checksum generators.
  */
 
 #include <xively_error.h>
@@ -27,28 +28,32 @@ extern "C" {
 
 /**
  * @function
- * @brief Decides whether a resource is firmware based on it's name.
+ * @brief Decides whether a resource is firmware.
  *
  * In Xively's Firmware Update service the application has to be aware of how
  * a firmware resource is named. If the Xively C Client encounters a resource
  * which is considered as firmware it will activate the FWU process on it.
  *
  * @param [in] resource_name name of the resource the decision has to be based on
- * @return 1 if the resource should be treated as a firmware, 0 otherwise
+ * @return 1 if the resource is firmware, 0 otherwise
  */
 uint8_t xi_bsp_fwu_is_this_firmware( const char* const resource_name );
 
 /**
  * @function
  * @brief This is an event notification function called when the Xively C Client
- *        believes the firmware update did succeed.
+ *        considers the new firmare functional.
+ *
+ * Called by the updated/new firmware.
  */
 void xi_bsp_fwu_on_new_firmware_ok();
 
 /**
  * @function
  * @brief This is an event notification function called when the Xively C Client
- *        believes the firmware update failed.
+ *        considers the new firmware misfunctional.
+ *
+ * Called by the updated/new firmware.
  */
 void xi_bsp_fwu_on_new_firmware_failure();
 
@@ -56,6 +61,8 @@ void xi_bsp_fwu_on_new_firmware_failure();
  * @function
  * @brief This is an event notification function called when the Xively C Client
  *        detects an error during the download of an update package.
+ *
+ * Called by the firmware under update.
  */
 void xi_bsp_fwu_on_package_download_failure();
 
@@ -67,6 +74,11 @@ void xi_bsp_fwu_on_package_download_failure();
  * @param [in] firmware_resource_name the name of the firmware binary found in the
  *                                    update package. NULL if there was no firmware
  *                                    binary in the package.
+ *
+ * Called by the firmware under update.
+ * In this implementation devices usually mark new firmware for test and reboot.
+ * Posix implementation may start a new process with the new firmware executable
+ * and exit this process.
  */
 void xi_bsp_fwu_on_package_download_finished( const char* const firmware_resource_name );
 
