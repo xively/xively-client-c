@@ -1,7 +1,12 @@
+# Copyright (c) 2003-2017, LogMeIn, Inc. All rights reserved.
+#
+# This is part of the Xively C Client codebase,
+# it is licensed under the BSD 3-Clause license.
+
 GCC_XTENSA_TOOLCHAIN_PATH ?= /Users/palantir/Work/Xively/esp32/toolchain/xtensa-esp32-elf
 
 #$(IDF_PATH) This is exported in the shell as a requirement of the IDF SDK
-ESP_SDK_DIR := $(IDF_PATH)
+ESP_SDK_DIR ?= $(IDF_PATH)
 XI_BASE_DIR ?= $(realpath ../../../..)
 
 CC := $(GCC_XTENSA_TOOLCHAIN_PATH)/bin/xtensa-esp32-elf-gcc

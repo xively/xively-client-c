@@ -5,8 +5,9 @@
 
 include make/mt-os/mt-os-common.mk
 
-XI_GCC_XTENSA_TOOLCHAIN_PATH ?= /Users/palantir/Work/Xively/esp32/toolchain/xtensa-esp32-elf
-XI_ESP_IDF_SDK_PATH ?= $(HOME)/Work/Xively/esp32/esp-idf
+#$(IDF_PATH) This is exported in the shell as a requirement of the IDF SDK
+XI_ESP_IDF_SDK_PATH          ?= $(IDF_PATH)
+XI_GCC_XTENSA_TOOLCHAIN_PATH ?= $(HOME)/Work/Xively/esp32/toolchain/xtensa-esp32-elf
 
 CC = $(XI_GCC_XTENSA_TOOLCHAIN_PATH)/bin/xtensa-esp32-elf-gcc
 AR = $(XI_GCC_XTENSA_TOOLCHAIN_PATH)/bin/xtensa-esp32-elf-ar
@@ -73,7 +74,7 @@ XI_ARFLAGS += -rs -c $(XI)
 #ifdef XI_TRAVIS_BUILD
 #### TOOLCHAIN AUTODOWNLOAD SECTION --- BEGIN
 #
-#	XI_BUILD_PRECONDITIONS += ESP32
+#	XI_BUILD_PRECONDITIONS += ESP32_SDK
 #.PHONY : ESP32_SDK
 #ESP32_SDK:
 #	git clone -b esp32 git@github.com:xively/xively-client-artifactory.git $(HOME)/Downloads/xively-client-artifactory
