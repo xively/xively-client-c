@@ -309,12 +309,6 @@ int8_t user_data_is_valid( user_data_t* user_data )
     {
         return -1;
     }
-    /* //A wifi network without a password will have an empty string
-    if( strlen(user_data->wifi_client_password) <= 0 )
-    {
-        return -1;
-    }
-    */
     if( strlen(user_data->xi_account_id) <= 0 )
     {
         return -1;

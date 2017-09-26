@@ -49,18 +49,18 @@ typedef enum
 /******************************************************************************
 *                   Xively Interface Function Declarations
 ******************************************************************************/
-static int xif_init( void );
-static int xif_build_xively_topic( char* topic_name, char* dst, uint32_t dst_len );
+static int8_t xif_init( void );
+static int8_t xif_build_xively_topic( char* topic_name, char* dst, uint32_t dst_len );
 
 /* Application specific functions */
-static int xif_build_all_mqtt_topics( void );
-static int xif_subscribe( void );
-static int xif_start_timed_tasks( void );
+static int8_t xif_build_all_mqtt_topics( void );
+static int8_t xif_subscribe( void );
+static int8_t xif_start_timed_tasks( void );
 static void xif_cancel_timed_tasks( void );
 
 /* Callbacks */
-static void
-xif_on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t state );
+static void xif_on_connected( xi_context_handle_t in_context_handle,
+                              void* data, xi_state_t state );
 static void xif_successful_connection_callback( xi_connection_data_t* conn_data );
 static void xif_led_topic_callback( xi_context_handle_t in_context_handle,
                                     xi_sub_call_type_t call_type,
@@ -82,16 +82,18 @@ static xi_context_handle_t xif_context_handle = -1;
 /* FreeRTOS Handles */
 static EventGroupHandle_t xif_requests_event_group_handle = NULL;
 
-#define PUB_INCREASING_COUNTER 0 /* Set 1 to get periodic messages to Button */
+/* PUB_INCREASING_COUNTER can be set to create a scheduled task that will publish an
+ * increasing counter to the /Button topic every $COUNTER_PUBLISH_PERIOD seconds */
+#define PUB_INCREASING_COUNTER 0
 #if PUB_INCREASING_COUNTER
-  #define COUNTER_PUBLISH_PERIOD 10
-  static void xif_publish_counter( void );
-  static xi_timed_task_handle_t xif_pubcounter_scheduled_task_handle = -1;
-#endif /* PUB_INCREASING_COUNTER */
+#define COUNTER_PUBLISH_PERIOD 10
+static void xif_publish_counter( void );
+static xi_timed_task_handle_t xif_pubcounter_scheduled_task_handle = -1;
+#endif
 
-/******************************************************************************
-*                           Xively Interface Implementation
-******************************************************************************/
+/*-----------------------------------------------------------------------------
+                            Xively Interface Implementation
+-----------------------------------------------------------------------------*/
 void __attribute__((weak)) xif_state_machine_aborted_callback( void )
 {
     printf( "\n[XIF] The Xively IF state machine and RTOS task are about to shut" );
@@ -99,7 +101,7 @@ void __attribute__((weak)) xif_state_machine_aborted_callback( void )
     printf( "\n[XIF] You should re-implement this function to handle it gracefully" );
 }
 
-int xif_set_device_info( char* xi_acc_id, char* xi_dev_id, char* xi_dev_pwd )
+int8_t xif_set_device_info( char* xi_acc_id, char* xi_dev_id, char* xi_dev_pwd )
 {
     xif_mqtt_device_info.xi_account_id = xi_acc_id;
     xif_mqtt_device_info.xi_device_id  = xi_dev_id;
@@ -115,7 +117,7 @@ int xif_set_device_info( char* xi_acc_id, char* xi_dev_id, char* xi_dev_pwd )
 /*-----------------------------------------------------------------------------
                            FreeRTOS-specific implementation
 -----------------------------------------------------------------------------*/
-int xif_set_request_bits( xif_action_requests_t requested_action )
+int8_t xif_set_request_bits( xif_action_requests_t requested_action )
 {
     BaseType_t higher_priority_task_woken, evt_group_set_result;
 
@@ -141,7 +143,7 @@ int xif_set_request_bits( xif_action_requests_t requested_action )
     return 0;
 }
 
-int xif_clear_request_bits( xif_action_requests_t requested_action )
+int8_t xif_clear_request_bits( xif_action_requests_t requested_action )
 {
     BaseType_t result;
     result =
@@ -153,7 +155,7 @@ int xif_clear_request_bits( xif_action_requests_t requested_action )
     return 0;
 }
 
-int xif_request_action( xif_action_requests_t requested_action )
+int8_t xif_request_action( xif_action_requests_t requested_action )
 {
     if ( 0 > xif_context_handle )
     {
@@ -181,14 +183,12 @@ int xif_request_action( xif_action_requests_t requested_action )
         {
             return -1;
         }
-        //xi_events_stop();
         break;
     case XIF_REQUEST_SHUTDOWN:
         if ( 0 > xif_set_request_bits( XIF_REQUEST_SHUTDOWN ) )
         {
             return -1;
         }
-        //xi_events_stop();
         break;
     case XIF_REQUEST_ALL:
         return -1;
@@ -237,7 +237,6 @@ void xif_handle_unrecoverable_error( void )
 {
     xif_state_machine_aborted_callback();
     xif_request_action( XIF_REQUEST_SHUTDOWN );
-    xi_events_stop();
 }
 
 /*-----------------------------------------------------------------------------
@@ -251,7 +250,6 @@ void xif_rtos_task( void* param )
     assert( NULL != xif_mqtt_device_info.xi_device_id );
     assert( NULL != xif_mqtt_device_info.xi_device_pwd );
 
-    /* new workflow */
     if ( 0 > xif_init() )
     {
         xif_handle_unrecoverable_error();
@@ -273,7 +271,6 @@ void xif_rtos_task( void* param )
         case XIF_REQUEST_CONTINUE:
             xif_request_action( XIF_REQUEST_CONTINUE );
             xi_events_process_tick();
-            //printf( "." );
             break;
         case XIF_REQUEST_PAUSE:
             /* Halt this task until we get a XIF_REQUEST_CONTINUE request */
@@ -298,13 +295,12 @@ void xif_rtos_task( void* param )
         }
         taskYIELD();
     }
-    /* /new workflow */
 
     vTaskDelete( NULL );
     return NULL;
 }
 
-int xif_build_all_mqtt_topics( void )
+int8_t xif_build_all_mqtt_topics( void )
 {
     if ( 0 > xif_build_xively_topic( XIF_BUTTON_TOPIC_NAME, xif_mqtt_topics.button_topic,
                                      XIF_MQTT_TOPIC_MAX_LEN ) )
@@ -319,7 +315,7 @@ int xif_build_all_mqtt_topics( void )
     return 0;
 }
 
-int xif_build_xively_topic( char* topic_name, char* dst, uint32_t dst_len )
+int8_t xif_build_xively_topic( char* topic_name, char* dst, uint32_t dst_len )
 {
     int retval = 0;
 
@@ -337,7 +333,7 @@ int xif_build_xively_topic( char* topic_name, char* dst, uint32_t dst_len )
     return 0;
 }
 
-int xif_init( void )
+int8_t xif_init( void )
 {
     xi_state_t xi_ret_state = XI_STATE_OK;
 
@@ -370,7 +366,7 @@ int xif_init( void )
  *           0: 0 xi_connect OK
  *           1: xi_connect failed because the connection was already initialized
  */
-int xif_connect( void )
+int8_t xif_connect( void )
 {
     xi_state_t ret_state = XI_STATE_OK;
     printf( "\n[XIF] Connecting to MQTT broker:" );
@@ -393,7 +389,7 @@ int xif_connect( void )
     return 0;
 }
 
-int xif_subscribe( void )
+int8_t xif_subscribe( void )
 {
     xi_state_t ret_state = XI_STATE_OK;
     printf( "\n[XIF] Subscribing to MQTT topics" );
@@ -447,7 +443,7 @@ void xif_publish_counter( void )
     }
 }
 
-int xif_start_timed_tasks( void )
+int8_t xif_start_timed_tasks( void )
 {
 #if PUB_INCREASING_COUNTER
     /* Schedule the xif_publish_counter function to publish an increasing counter
@@ -518,7 +514,7 @@ xif_recv_mqtt_msg_callback( const xi_sub_call_params_t* const params )
  *            callback
  *         1: MQTT was not connected - Interface shutdown initiated
  */
-int xif_disconnect( void )
+int8_t xif_disconnect( void )
 {
     if ( xif_context_handle > 0 )
     {
@@ -531,7 +527,7 @@ int xif_disconnect( void )
     return 1;
 }
 
-int xif_is_connected( void )
+int8_t xif_is_connected( void )
 {
     return ( XIF_MQTT_CONNECTED == xif_mqtt_connection_status );
 }
