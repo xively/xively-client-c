@@ -9,7 +9,7 @@
 
 /**
  * @file xi_bsp_fwu.h
- * @brief Xively Client's Board Support Platform (BSP) for Firmware Update
+ * @brief Xively Client's Board Support Package (BSP) for Firmware Updates
  *
  * This file defines the Firmware Update (FWU) API used by the Xively C Client.
  *
@@ -28,7 +28,7 @@ extern "C" {
 
 /**
  * @function
- * @brief Decides whether a resource is firmware.
+ * @brief Determines whether a resource is firmware.
  *
  * In Xively's Firmware Update service the application has to be aware of how
  * a firmware resource is named. If the Xively C Client encounters a resource
@@ -53,6 +53,13 @@ void xi_bsp_fwu_on_new_firmware_ok();
  * @brief This is an event notification function called when the Xively C Client
  *        considers the new firmware misfunctional.
  *
+ * This function is called when the client explicitly detects an error.
+ * Currently this function is only called when the client is unable to connect to Xively
+ * Service through Control Topic. Since this would disable further update capability.
+ * It's up to the application what to do in such situation. For reference please
+ * check the TI CC3200 implementation in `xi_bsp_fwu_cc3200.c` file. This
+ * implementation reboots itself which results in a rollback to previous firmware.
+ *
  * Called by the updated/new firmware.
  */
 void xi_bsp_fwu_on_new_firmware_failure();
@@ -60,7 +67,7 @@ void xi_bsp_fwu_on_new_firmware_failure();
 /**
  * @function
  * @brief This is an event notification function called when the Xively C Client
- *        detects an error during the download of an update package.
+ *        detects an error during the download of resources.
  *
  * Called by the firmware under update.
  */
@@ -69,25 +76,27 @@ void xi_bsp_fwu_on_package_download_failure();
 /**
  * @function
  * @brief This is an event notification function called when the Xively C Client
- *        successfully downloaded an update package.
+ *        has successfully downloaded all of the resources of an update package.
  *
  * @param [in] firmware_resource_name the name of the firmware binary found in the
  *                                    update package. NULL if there was no firmware
  *                                    binary in the package.
  *
  * Called by the firmware under update.
- * In this implementation devices usually mark new firmware for test and reboot.
- * Posix implementation may start a new process with the new firmware executable
- * and exit this process.
+ *
+ * Implement your platform's reaction to a full update being installed. In some
+ * implementations, devices may mark new firmware for test and reboot. In our POSIX
+ * reference implementation, we start the new client in a new process and kill this
+ * process, for instance.
  */
 void xi_bsp_fwu_on_package_download_finished( const char* const firmware_resource_name );
 
 
 /**
  * @function
- * @brief Initializes checksum calculation for update package files.
+ * @brief Initializes the checksum calculation for update package files.
  *
- * @param [out] checksum_context the context which will be passed with subsequent
+ * @param [out] checksum_context the context which will be passed to subsequent
  *                               checksum function calls. The implementation should
  *                               store the context pointer on *checksum_context.
  */
@@ -100,7 +109,7 @@ void xi_bsp_fwu_checksum_init( void** checksum_context );
  *
  * @param [in] checksum_context the context created by the checksum_init function
  * @param [in] data the checksum should be calculated on this data
- * @param [in] len number of bytes pointed by the data parameter
+ * @param [in] len number of bytes pointed to the data parameter
  */
 void xi_bsp_fwu_checksum_update( void* checksum_context,
                                  const uint8_t* data,
@@ -108,16 +117,16 @@ void xi_bsp_fwu_checksum_update( void* checksum_context,
 
 /**
  * @function
- * @brief Finishes and returns checksum calculated with the context.
+ * @brief Finishes and returns the checksum calculated with the context.
  *
- * Memory: this function is also responsible to free up the context. Please not that
- *         the outgoing checksum array's memory isn't handled by the client at all. This
- *         means the implementation should solve the memory management, please check
- *         example implementations, they use a static byte array (32 bytes for SHA256).
+ * Note: this function is also responsible to free up the context. Please note that
+ *       the outgoing checksum array's memory isn't handled by the client at all. This
+ *       means the implementation should solve the memory management, please check
+ *       example implementations, they use a static byte array (32 bytes for SHA256).
  *
- * @param [in] checksum_context the context created by the checksum_init function
- * @param [in] buffer_out outgoing pointer on an array containing the checksum itself.
- * @param [in] buffer_len_out the number of bytes of the outgoing buffer
+ * @param [in]  checksum_context the context created by the checksum_init function
+ * @param [out] buffer_out outgoing pointer on an array containing the checksum itself.
+ * @param [out] buffer_len_out the number of bytes of the outgoing buffer
  */
 void xi_bsp_fwu_checksum_final( void* checksum_context,
                                 uint8_t** buffer_out,
