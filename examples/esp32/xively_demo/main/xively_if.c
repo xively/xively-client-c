@@ -155,7 +155,7 @@ int8_t xif_clear_request_bits( xif_action_requests_t requested_action )
     return 0;
 }
 
-int8_t xif_request_action( xif_action_requests_t requested_action )
+int8_t xif_request_machine_state( xif_action_requests_t requested_action )
 {
     if ( 0 > xif_context_handle )
     {
@@ -236,7 +236,7 @@ static inline void xif_await_unpause( void )
 void xif_handle_unrecoverable_error( void )
 {
     xif_state_machine_aborted_callback();
-    xif_request_action( XIF_REQUEST_SHUTDOWN );
+    xif_request_machine_state( XIF_REQUEST_SHUTDOWN );
 }
 
 /*-----------------------------------------------------------------------------
@@ -269,7 +269,7 @@ void xif_rtos_task( void* param )
         switch( xif_pop_highest_priority_request() )
         {
         case XIF_REQUEST_CONTINUE:
-            xif_request_action( XIF_REQUEST_CONTINUE );
+            xif_request_machine_state( XIF_REQUEST_CONTINUE );
             xi_events_process_tick();
             break;
         case XIF_REQUEST_PAUSE:
@@ -577,8 +577,8 @@ void xif_on_connected( xi_context_handle_t in_context_handle,
             xif_mqtt_connection_status = XIF_MQTT_DISCONNECTED;
             if( XI_STATE_OK == state )
             {
-                printf( "\n[XIF] \tDisconnection was requested via xi_shutdown_connection()" );
-                xif_request_action( XIF_REQUEST_PAUSE );
+                printf( "\n[XIF]\tDisconnection requested via xi_shutdown_connection()" );
+                xif_request_machine_state( XIF_REQUEST_PAUSE );
             }
             return;
 

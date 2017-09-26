@@ -56,7 +56,7 @@ static esp_err_t app_wifi_event_handler( void* ctx, system_event_t* event )
         case SYSTEM_EVENT_STA_GOT_IP:
             xEventGroupSetBits( app_wifi_event_group, WIFI_CONNECTED_FLAG );
 #if 0
-            xif_request_action( XIF_REQUEST_CONTINUE );
+            xif_request_machine_state( XIF_REQUEST_CONTINUE );
 #endif
             break;
 
@@ -66,7 +66,7 @@ static esp_err_t app_wifi_event_handler( void* ctx, system_event_t* event )
                auto-reassociate. */
             /* JC TODO: something here crashes the application when the AP is turned off!! */
 #if 0
-            if( xif_request_action( XIF_REQUEST_PAUSE ) < 0 )
+            if( xif_request_machine_state( XIF_REQUEST_PAUSE ) < 0 )
             {
                 printf( "\n\tError pausing Xively Interface task" );
             }

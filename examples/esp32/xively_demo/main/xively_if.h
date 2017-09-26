@@ -71,7 +71,7 @@ void xif_publish_button_state( int input_level );
  * @retval -1: Error
  * @retval  0: OK
  */
-int8_t xif_request_action( xif_action_requests_t requested_action );
+int8_t xif_request_machine_state( xif_action_requests_t requested_action );
 
 /* Sample implementation declared WEAK in xively_if.c so you can overwrite it */
 extern void xif_recv_mqtt_msg_callback( const xi_sub_call_params_t* const params );
