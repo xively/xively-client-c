@@ -33,7 +33,7 @@ Through the use of [coroutines](http://en.wikipedia.org/wiki/Coroutine) this MQT
 * The library can send and receive simultaneously on a single socket.
 * Communication requirements of your application will not interfere with the usability of your device.
 
-### Secure File Transfer (SFT) and Firwmare Updates (FWU)
+### Secure File Transfer (SFT) and Firmware Updates (FWU)
 
 The Xively C Client comes pre-built with functionality to communicate with the [Xively SFT Service](https://developer.xively.com/v1.0/docs/how-to-securely-transfer-files-to-my-devices).  
 
@@ -153,17 +153,17 @@ With this communication toolbox embedded devices can be used to listen and publi
 Currently the Xively Service supports a maximum message size of 128kb.
 
 
-### Secure File Transfer (SFT) and Firwmare Updates (FWU)
+### Secure File Transfer (SFT) and Firmware Updates (FWU)
 
 The [Xively SFT Service](https://developer.xively.com/v1.0/docs/how-to-securely-transfer-files-to-my-devices) is designed to deploy files and firmware to fleets of devices in the field. The Xively C Client has an optional SFT module (enabled by default) to coordinate with Xively SFT Service to retreive and store these files on your device. 
 
 The Xively C Client uses the device's existing MQTT connection for SFT functionality, so there's no need to build a separate connection to another service.  And since the Xively C Client is non-blocking and asynchronous, the files are downloaded in the background without needing to change any application flow or interrupt device usability.  
 
-In Xively SFT, the client drives the whole process, determining when to download files, how large of a chunk to fetch at a time, and when to reboot to test new firwmare.  Download status and errors are automatically sent by the Xively C Client so that you can track the software deployment progress across your whole fleet via the Xively SFT Service interface.
+In Xively SFT, the client drives the whole process, determining when to download files, how large of a chunk to fetch at a time, and when to reboot to test new firmware.  Download status and errors are automatically sent by the Xively C Client so that you can track the software deployment progress across your whole fleet via the Xively SFT Service interface.
 
 We have chosen some suggested configurations for a default behavior, but the code can be easily customized for the best-fit of your platform and product. 
 
-The code for the file storage and firwmare update functionality is handled through the File IO and Firmware Update Board Support Package (BSP) implementations. For more information please see the [Xively C Client Porting Guide](https://github.com/xively/xively-client-c/blob/master/doc/porting_guide.md) and the functions declared in `include/bsp/xi_bsp_io_fs.h` and `include/bsp/xi_bsp_fwu.h`.  
+The code for the file storage and firmware update functionality is handled through the File IO and Firmware Update Board Support Package (BSP) implementations. For more information please see the [Xively C Client Porting Guide](https://github.com/xively/xively-client-c/blob/master/doc/porting_guide.md) and the functions declared in `include/bsp/xi_bsp_io_fs.h` and `include/bsp/xi_bsp_fwu.h`.  
 
 Additionally we have a few reference implementations for POSIX and the TI CC3200 in the `src/bsp/platform/posix/` and the `src/bsp/platform/cc3200/` directories, and a [SFT Tutorial on the Xively Developer Center](https://developer.xively.com/v1.0/docs/ti-cc3200-sft-example).
 
