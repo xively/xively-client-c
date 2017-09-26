@@ -227,9 +227,10 @@ void xif_recv_mqtt_msg_callback( const xi_sub_call_params_t* const params )
 
 void app_main( void )
 {
-    /* Initialize Non-Volatile Storage */
+    /* Initialize GPIO and Button Interrupts */
     if ( 0 > io_init() )
     {
+        printf( "\n[ERROR] Initializing GPIO interface. Boot halted" );
         while ( 1 )
             vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
@@ -237,6 +238,7 @@ void app_main( void )
     /* Initialize Non-Volatile Storage */
     if ( 0 > user_data_flash_init() )
     {
+        printf( "\n[ERROR] initializing user data storage interface. Boot halted" );
         while ( 1 )
             vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
@@ -244,6 +246,7 @@ void app_main( void )
     /* Fetch user credentials - Go through Provisioning if necessary */
     if ( 0 > app_fetch_user_config() )
     {
+        printf( "\n[ERROR] fetching user configuration. Boot halted" );
         while ( 1 )
             vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
@@ -251,6 +254,7 @@ void app_main( void )
     /* Initialize the ESP32 as a WiFi station */
     if ( 0 > app_wifi_station_init() )
     {
+        printf( "\n[ERROR] initializing WiFi station mode. Boot halted" );
         while ( 1 )
             vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
@@ -259,6 +263,7 @@ void app_main( void )
     if ( 0 > xif_set_device_info( user_config.xi_account_id, user_config.xi_device_id,
                                   user_config.xi_device_password ) )
     {
+        printf( "\n[ERROR] configuring Xively interface. Boot halted" );
         while ( 1 )
             vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
@@ -284,10 +289,4 @@ void app_main( void )
         while ( 1 )
             vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
-
-    /* Loop forever */
-    //while ( 1 )
-    //{
-    //    vTaskDelay( 10 / portTICK_PERIOD_MS );
-    //}
 }

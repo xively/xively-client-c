@@ -17,15 +17,14 @@
 
 #define IO_BUTTON_PIN GPIO_NUM_0
 #define IO_BUTTON_INTERRUPT_EDGE GPIO_PIN_INTR_NEGEDGE /* pull-up enabled in io_init */
-//#define IO_BUTTON_INTERRUPT_EDGE GPIO_PIN_INTR_ANYEDGE
 
 /**
  * This queue is appended a new element every time the state of the button pin
  * changes (pressed or released). The value appended is the GPIO pin number that
  * caused the interrupt (IO_BUTTON_PIN).
- * One of the RTOS tasks will have to periodically (or permanently) check this
+ * One of the RTOS tasks will have to periodically (or continuously) check this
  * queue for new interrupts, and act accordingly.
- * You can implement other queues to handle other interrupts from an RTOS task
+ * You can implement other queues to handle other interrupts from an RTOS task.
  * Queue is NULL until initialized by io_init()
  */
 static xQueueHandle io_button_queue = NULL;
@@ -85,8 +84,17 @@ int8_t io_init( void )
     /* create a queue to handle gpio event from isr */
     io_button_queue = xQueueCreate( 10, sizeof( uint32_t ) );
 
+    if ( NULL == io_button_queue )
+    {
+        printf( "\n[ERROR] Failed to create FreeRTOS queue for button interrupts" );
+        return -1;
+    }
+
     /* Enable the button interrupt */
-    io_interrupts_enable();
+    if ( 0 > io_interrupts_enable() )
+    {
+        return -1;
+    }
 
     return 0;
 }
@@ -111,17 +119,31 @@ int8_t io_await_gpio_interrupt( uint32_t timeout_ms )
 /**
  * @brief Add the button GPIO pin to the list of ISR handlers 
  */
-void io_interrupts_enable( void )
+int8_t io_interrupts_enable( void )
 {
+    esp_err_t r = ESP_OK;
+    r = gpio_isr_handler_add( IO_BUTTON_PIN, gpio_isr_handler, ( void* )IO_BUTTON_PIN );
     /* hook isr handler for specific gpio pin */
-    gpio_isr_handler_add( IO_BUTTON_PIN, gpio_isr_handler, ( void* )IO_BUTTON_PIN );
+    if ( ESP_OK != r )
+    {
+        printf( "\n[ERROR] adding GPIO ISR handler: [%d]. Interrupts NOT enabled", r );
+        return -1;
+    }
+    return 0;
 }
 
 /**
  * @brief Remove the button GPIO pin to the list of ISR handlers 
  */
-void io_interrupts_disable( void )
+int8_t io_interrupts_disable( void )
 {
+    esp_err_t retval = ESP_OK;
+    retval = gpio_isr_handler_remove( IO_BUTTON_PIN );
     /* hook isr handler for specific gpio pin */
-    gpio_isr_handler_remove( IO_BUTTON_PIN );
+    if ( ESP_OK != retval )
+    {
+        printf( "\n[ERROR] removing GPIO ISR handler: [%d]", retval );
+        return -1;
+    }
+    return 0;
 }

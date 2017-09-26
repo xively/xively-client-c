@@ -19,8 +19,8 @@ extern "C" {
 int8_t io_init( void );
 
 int8_t io_await_gpio_interrupt( uint32_t timeout_ms );
-void io_interrupts_enable( void );
-void io_interrupts_disable( void );
+int8_t io_interrupts_enable( void );
+int8_t io_interrupts_disable( void );
 
 #define io_led_on( void ) gpio_set_level( IO_LED_PIN, 1 )
 #define io_led_off( void ) gpio_set_level( IO_LED_PIN, 0 )

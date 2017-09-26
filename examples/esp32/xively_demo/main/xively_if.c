@@ -510,7 +510,6 @@ xif_recv_mqtt_msg_callback( const xi_sub_call_params_t* const params )
     printf( "\n[XIF]\tMessage payload: " );
     for ( size_t i = 0; i < params->message.temporary_payload_data_length; i++ )
     {
-        // printf( "0x%02x ", params->message.temporary_payload_data[i] );
         printf( "%c", ( char )params->message.temporary_payload_data[i] );
     }
 }
