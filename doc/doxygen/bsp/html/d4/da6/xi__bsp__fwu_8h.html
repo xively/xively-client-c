@@ -72,7 +72,7 @@ Functions</h2></td></tr>
 <tr class="separator:a3a67319609154d3bf18fba2c1616cae4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Xively Client's Board Support Platform (BSP) for Firmware Update. </p>
+<div class="textblock"><p>Xively Client's Board Support Package (BSP) for Firmware Updates. </p>
 <p>This file defines the Firmware Update (FWU) API used by the Xively C Client.</p>
 <p>The Xively C Client calls these functions during the Secure File Transfer (SFT) and Firmware Update (FWU) processes. Some of the functions are event notifications reflecting the status of the update process, some are device specific action requests others are checksum generators. </p>
 
@@ -111,13 +111,13 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p></p>
-<p>Finishes and returns checksum calculated with the context.</p>
-<p>Memory: this function is also responsible to free up the context. Please not that the outgoing checksum array's memory isn't handled by the client at all. This means the implementation should solve the memory management, please check example implementations, they use a static byte array (32 bytes for SHA256).</p>
+<p>Finishes and returns the checksum calculated with the context.</p>
+<p>Note: this function is also responsible to free up the context. Please note that the outgoing checksum array's memory isn't handled by the client at all. This means the implementation should solve the memory management, please check example implementations, they use a static byte array (32 bytes for SHA256).</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">checksum_context</td><td>the context created by the checksum_init function </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">buffer_out</td><td>outgoing pointer on an array containing the checksum itself. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">buffer_len_out</td><td>the number of bytes of the outgoing buffer </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">buffer_out</td><td>outgoing pointer on an array containing the checksum itself. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">buffer_len_out</td><td>the number of bytes of the outgoing buffer </td></tr>
   </table>
   </dd>
 </dl>
@@ -141,10 +141,10 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p></p>
-<p>Initializes checksum calculation for update package files.</p>
+<p>Initializes the checksum calculation for update package files.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[out]</td><td class="paramname">checksum_context</td><td>the context which will be passed with subsequent checksum function calls. The implementation should store the context pointer on *checksum_context. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">checksum_context</td><td>the context which will be passed to subsequent checksum function calls. The implementation should store the context pointer on *checksum_context. </td></tr>
   </table>
   </dd>
 </dl>
@@ -189,7 +189,7 @@ Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">checksum_context</td><td>the context created by the checksum_init function </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">data</td><td>the checksum should be calculated on this data </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">len</td><td>number of bytes pointed by the data parameter </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">len</td><td>number of bytes pointed to the data parameter </td></tr>
   </table>
   </dd>
 </dl>
@@ -213,7 +213,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p></p>
-<p>Decides whether a resource is firmware.</p>
+<p>Determines whether a resource is firmware.</p>
 <p>In Xively's Firmware Update service the application has to be aware of how a firmware resource is named. If the Xively C Client encounters a resource which is considered as firmware it will activate the FWU process on it.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -242,6 +242,7 @@ Functions</h2></td></tr>
 
 <p></p>
 <p>This is an event notification function called when the Xively C Client considers the new firmware misfunctional.</p>
+<p>This function is called when the client explicitly detects an error. Currently this function is only called when the client is unable to connect to Xively Service through Control Topic. Since this would disable further update capability. It's up to the application what to do in such situation. For reference please check the TI CC3200 implementation in <code>xi_bsp_fwu_cc3200.c</code> file. This implementation reboots itself which results in a rollback to previous firmware.</p>
 <p>Called by the updated/new firmware. </p>
 
 </div>
@@ -283,7 +284,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p></p>
-<p>This is an event notification function called when the Xively C Client detects an error during the download of an update package.</p>
+<p>This is an event notification function called when the Xively C Client detects an error during the download of resources.</p>
 <p>Called by the firmware under update. </p>
 
 </div>
@@ -305,14 +306,15 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p></p>
-<p>This is an event notification function called when the Xively C Client successfully downloaded an update package.</p>
+<p>This is an event notification function called when the Xively C Client has successfully downloaded all of the resources of an update package.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">firmware_resource_name</td><td>the name of the firmware binary found in the update package. NULL if there was no firmware binary in the package.</td></tr>
   </table>
   </dd>
 </dl>
-<p>Called by the firmware under update. In this implementation devices usually mark new firmware for test and reboot. Posix implementation may start a new process with the new firmware executable and exit this process. </p>
+<p>Called by the firmware under update.</p>
+<p>Implement your platform's reaction to a full update being installed. In some implementations, devices may mark new firmware for test and reboot. In our POSIX reference implementation, we start the new client in a new process and kill this process, for instance. </p>
 
 </div>
 </div>
