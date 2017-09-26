@@ -1,3 +1,13 @@
+ESP32 Demo - Technical Documentation
+====================================
+______
+
+##### Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+
+This is part of the Xively C Client library, it is licensed under the BSD 3-Clause license.
+
+For more information please read our License.md file located in the base directory of the [Xively C Client repository](https://github.com/xively/xively-client-c).
+
 Pre-requisites
 ==============
 
@@ -16,7 +26,8 @@ These are the settings it uses:
 - 8-N-1 bits
 
 If you've never connected your device to Xively before, it will ask you to set
-new WiFi and MQTT credentials. Simply follow the instructions in the serial port.
+new WiFi and MQTT credentials. Simply follow the instructions presented to you
+over the serial terminal session.
 
 If you'd like to change the credentials at any point, you can reboot the device
 and press the GPIO0 button at any point while the LED is flashing rapidly. This
@@ -25,10 +36,10 @@ over-write the stored credentials.
 
 ## Using hardcoded credentials [Alternative]
 
-In some cases, you may want to disable the usage of credentials in NVS, in favour
-of credentials hardcoded into the application. You can do so by enabling the
-`USE_HARDCODED_CREDENTIALS` macro in `main.c`. You'll also have to set your
-credentials in these lines:
+In some cases, you may want to disable the usage of credentials in Non Volatile
+Storage (NVS), in favour of credentials hardcoded into the application. You can
+do so by enabling the `USE_HARDCODED_CREDENTIALS` macro in `main.c`. You'll also
+have to set your credentials in these lines:
 
 ```
 #define APP_XI_ACCOUNT_ID "[SET YOUR XIVELY ACCOUNT ID HERE]"
@@ -40,6 +51,12 @@ credentials in these lines:
 
 Build instructions
 ==================
+
+Remember to update these in each of the following commands:
+
+- `$(XIVELY_CLIENT_C_PATH)`: Path to this repository's root folder.
+- `$(XTENSA_ESP32_ELF_PATH)`: Path to the `xtensa-esp32-elf` directory with the
+ESP32 toolchain
 
 1. Download and build the WolfSSL library:
     ```
