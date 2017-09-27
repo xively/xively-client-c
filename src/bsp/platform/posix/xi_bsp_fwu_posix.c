@@ -36,13 +36,12 @@ void xi_bsp_fwu_on_new_firmware_failure()
     printf( "--- %s, \n", __FUNCTION__ );
 }
 
-void xi_bsp_fwu_on_firmware_package_download_failure()
+void xi_bsp_fwu_on_package_download_failure()
 {
     printf( "--- %s, \n", __FUNCTION__ );
 }
 
-void xi_bsp_fwu_on_firmware_package_download_finished(
-        const char* const firmware_resource_name )
+void xi_bsp_fwu_on_package_download_finished( const char* const firmware_resource_name )
 {
     printf( "--- %s, firmware name: %s\n", __FUNCTION__, firmware_resource_name );
 
