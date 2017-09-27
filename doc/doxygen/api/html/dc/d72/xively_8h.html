@@ -1389,6 +1389,25 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Files set by this function will be kept updated by the Xively C Client. </p>
+<p>This API function is used to tell Xively C Client the update file manifest. Client will collect revisions to these files and send these to Xively SFT service. This move initializes the update process. The file list may or may not contain firmware binary. If it does then the firmware update process will be triggered after whole package got downloaded. A firmware differs in name from other update files. Plese visit BSP FWU's <code>xi_bsp_fwu_is_this_firmware</code> function to check the exact firmware file name since this function is responsible for differentiation.</p>
+<p>example call:</p>
+<p><code>xi_set_updateable_files( xih, ( const char* [] ){"file.cfg", "firmware.bin"}, 2 );</code></p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">xih</td><td>a context handle created by invoking xi_create_context </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">filenames</td><td>a list of file names representing the files which have to be kept updated </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">count</td><td>number of file names contained in the file names list</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">XI_STATE_OK</td><td>if file list set properly, an error value otherwise. </td></tr>
+  </table>
+  </dd>
+</dl>
+
 </div>
 </div>
 <a id="a3721ab575ec54b9f21326ead85238fb7"></a>
