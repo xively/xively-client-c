@@ -63,10 +63,6 @@ FREERTOS_INCDIRS =                               \
 
 #Build settings
 WOLFSSL_SETTINGS =        \
-    -DSTM32F417IGHx       \
-    -DSTM32F4             \
-    -DSTM32               \
-    -DSTM3241G_EVAL       \
     -DSIZEOF_LONG_LONG=8  \
     -DSMALL_SESSION_CACHE \
     -DHAVE_OCSP           \

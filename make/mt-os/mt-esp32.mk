@@ -71,6 +71,17 @@ XI_COMPILER_FLAGS += -Wno-old-style-declaration
 
 XI_ARFLAGS += -rs -c $(XI)
 
+ifeq ($(XI_BSP_TLS),wolfssl)
+WOLFSSL_STATIC_LIB   = $(LIBXIVELY)/bin/esp32/libwolfssl.a
+WOLFSSL_MAKEFILE_DIR = $(LIBXIVELY)/examples/esp32/xively_demo/wolfssl-make
+
+XI_BUILD_PRECONDITIONS += WOLFSSL_STATIC_LIB
+WOLFSSL_STATIC_LIB:
+	@mkdir -p $(dir $(WOLFSSL_STATIC_LIB))
+	@cd $(WOLFSSL_MAKEFILE_DIR) && \
+     make GCC_XTENSA_TOOLCHAIN_PATH=$(realpath $(XI_GCC_XTENSA_TOOLCHAIN_PATH))
+endif
+
 #ifdef XI_TRAVIS_BUILD
 #### TOOLCHAIN AUTODOWNLOAD SECTION --- BEGIN
 #
