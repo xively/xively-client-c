@@ -7,8 +7,8 @@
 #include <xi_bsp_mem.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "FreeRTOS.h"
-#include "FreeRTOS/task.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 // Forward declarations of external funcitons from FreeRTOS portable.h
 void* pvPortMalloc( size_t );
