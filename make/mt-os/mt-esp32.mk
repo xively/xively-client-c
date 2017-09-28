@@ -71,6 +71,7 @@ XI_COMPILER_FLAGS += -Wno-old-style-declaration
 
 XI_ARFLAGS += -rs -c $(XI)
 
+# This is a custom step in the ESP32's PRESET to build wolfssl from libxively's make
 ifeq ($(XI_BSP_TLS),wolfssl)
 WOLFSSL_STATIC_LIB   = $(LIBXIVELY)/bin/esp32/libwolfssl.a
 WOLFSSL_MAKEFILE_DIR = $(LIBXIVELY)/examples/esp32/xively_demo/wolfssl-make

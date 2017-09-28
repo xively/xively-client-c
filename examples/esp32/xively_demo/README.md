@@ -1,6 +1,5 @@
 ESP32 Demo - Technical Documentation
 ====================================
-______
 
 ##### Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
 
@@ -8,16 +7,67 @@ This is part of the Xively C Client library, it is licensed under the BSD 3-Clau
 
 For more information please read our License.md file located in the base directory of the [Xively C Client repository](https://github.com/xively/xively-client-c).
 
-Pre-requisites
-==============
+Demo Tutorial
+=============
 
-1. Set up xtensa-esp32 GCC toolchain: https://esp-idf.readthedocs.io/en/latest/get-started/index.html#setup-toolchain
-2. Set up the ESP-IDF SDK: https://esp-idf.readthedocs.io/en/latest/get-started/index.html#get-esp-idf
+A detailed tutorial on how to build, flash and run this demo can be found in our
+Developer Centre: https://developer.xively.com/docs/esp32
 
-WiFi and Xively Credentials Configuration
-=========================================
+This README contains technical details on the codebase so you can understand it
+and re-use it more easily.
 
-## Provisioning your device over UART [Default]
+Application Architecture
+========================
+
+## File Structure
+
+```
+                            +-------------------------+
+                            |          main.c         |
+                            +-------------------------+
+                            | Device Initialization   |
+                            | RTOS tasks coordination |
+                            | App-relevant callbacks  |
+                            +---+-----+-----+-----^---+
+                                |     |     |     |
+          +---------------------+     |     |     +----------------------+
+          |                           |     |                            |
+          |                   +-------+     +------+                     |
+          |                   |                    |                     |
++---------v--------+ +--------v---------+ +--------v---------+ +---------v--------+
+|   gpio_if.[ch]   | |  user_data.[ch]  | | provisioning.[ch]| |  xively_if.[ch]  |
++------------------+ +------------------+ +------------------+ +------------------+
+|Button interrupts | |Credentials struct| |Gather credentials| |libxively task    |
+|LED control       | |NVS read/write    | | at runtime       | |Task-safe control |
++---------^--------+ +--------^---------+ +--------^---------+ +---------^--------+
+          |                   |                    |                     |
+          |                   | SPI                | UART                | MQTT+TLS
+          |                   |                    |                     |
+   XXXXXX\v/XXXXX       XXXXX\v/XXXXXX    .........v..........   XXXXXXX\v/XXXXXX
+  XX            XX     XX            XX   .                  .  XXXX          XXXX
+ XX    ESP32's   XX   XX   ESP32's    XX  .    O             . XXX    Xively    XXX
+XX      GPIO      XX XX  Non-Volatile  XX .   -|-  User      . XXXXX  Broker  XXXXX
+ XX              XX   XX   Storage    XX  .   / \            . XXX              XXX
+  XX            XX     XX            XX   .                  .  XXXX          XXXX
+   XXXXXXXXXXXXXX       XXXXXXXXXXXXXX    .........^..........   XXXXXXX/^\XXXXXX
+                                                   |                     |
+
+                                                   |                     |
+                                                   +-   -   -   -   -   -+
+                                                   (HTTP+TLS || MQTT+TLS)
+```
+
+## MQTT setup
+
+Used channels:
+
+- `/Button`: Every time you press the button, an int will switch between 1 and 0,
+and it will be published by the device to this channel
+- `/LED`: Sending the messages `1` or `0` to the device's LED topic will turn
+the LED on or off
+
+Provisioning your device over UART
+==================================
 
 First of all, you need to connect to your device's serial port after flashing it.
 These are the settings it uses:
@@ -49,34 +99,19 @@ have to set your credentials in these lines:
 #define APP_WIFI_PASS "[SET YOUR WIFI NETWORK PASSWORD HERE]"
 ```
 
-Build instructions
-==================
+Testing the Demo Without Buttons or LEDs
+========================================
 
-Remember to update these in each of the following commands:
+If you'd like to test MQTT communication on your ESP32, but you can't easily
+connect external peripherals, you can still force the device to publish data
+from the source code.
 
-- `$(XIVELY_CLIENT_C_PATH)`: Path to this repository's root folder.
-- `$(XTENSA_ESP32_ELF_PATH)`: Path to the `xtensa-esp32-elf` directory with the
-ESP32 toolchain
+You only need to set the `PUB_INCREASING_COUNTER` macro in `xively_if.c` to 1
+and re-build your application. This will enable a scheduled task that publishes
+an increasing counter to the `/Button` topic every 10 seconds. Whenever you
+publish a message to the `/LED` topic, you'll be able to see it in the UART
+logs, so you can see data coming in and out without any buttons or LEDs connected.
 
-1. Download and build the WolfSSL library:
-    ```
-    cd $(XIVELY_CLIENT_C_PATH)/examples/esp32/xively_demo/wolfssl-make/
-    make GCC_XTENSA_TOOLCHAIN_PATH=$(XTENSA_ESP32_ELF_PATH)
-    ```
-2. Build the MQTT library:
-    ```
-    cd $(XIVELY_CLIENT_C_PATH)
-    make PRESET=ESP32 XI_GCC_XTENSA_TOOLCHAIN_PATH=$(XTENSA_ESP32_ELF_PATH)
-    ```
-3. Build the ESP32 example:
-    ```
-    cd $(XIVELY_CLIENT_C_PATH)/examples/esp32/xively_demo/
-    make
-    # In the build configuration GUI, configure the path to your device's serial
-    # port as explained in this tutorial:
-    # https://esp-idf.readthedocs.io/en/latest/get-started/index.html#configure
-    ```
-4. Flash the device:
-    ```
-    make flash
-    ```
+If you ever need to reprovision the device, consider using a jumper cable to
+trigger the GPIO0 interrupt (GPIO0 to GND), or use the Hardcoded Credentials
+method explained below.
