@@ -16,7 +16,7 @@
 #include "esp_err.h"
 #include "esp_vfs_fat.h"
 
-#include "xively_if.h"
+#include "xively_task.h"
 #include "gpio_if.h"
 #include "provisioning.h"
 #include "user_data.h"
