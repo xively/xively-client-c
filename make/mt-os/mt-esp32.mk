@@ -28,6 +28,8 @@ XI_COMPILER_FLAGS += -DSINGLE_THREADED
 # ESP System Include Dirs
 #########################
 XI_COMPILER_FLAGS += -I$(XI_ESP_IDF_SDK_PATH)/components/driver/include
+XI_COMPILER_FLAGS += -I$(XI_ESP_IDF_SDK_PATH)/components/heap/include
+XI_COMPILER_FLAGS += -I$(XI_ESP_IDF_SDK_PATH)/components/soc/include
 XI_COMPILER_FLAGS += -I$(XI_ESP_IDF_SDK_PATH)/components/soc/esp32/include
 XI_COMPILER_FLAGS += -I$(XI_ESP_IDF_SDK_PATH)/components/esp32/include
 
