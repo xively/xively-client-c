@@ -34,8 +34,8 @@
   #define USER_CONFIG_XI_DEVICE_PWD "[SET YOUR XIVELY DEVICE PASSWORD HERE]"
 #endif /* USE_HARDCODED_CREDENTIALS */
 
-#define XIF_TASK_ESP_CORE    0 /* ESP32 core the XIF task will be pinned to */
-#define XIF_TASK_STACK_SIZE  36 * 1024
+#define XT_TASK_ESP_CORE    0 /* ESP32 core the XT task will be pinned to */
+#define XT_TASK_STACK_SIZE  36 * 1024
 #define GPIO_TASK_STACK_SIZE 2 * 1024
 
 #define WIFI_CONNECTED_FLAG  BIT0
@@ -56,7 +56,7 @@ static esp_err_t app_wifi_event_handler( void* ctx, system_event_t* event )
         case SYSTEM_EVENT_STA_GOT_IP:
             xEventGroupSetBits( app_wifi_event_group, WIFI_CONNECTED_FLAG );
 #if 0
-            xif_request_machine_state( XIF_REQUEST_CONTINUE );
+            xt_request_machine_state( XT_REQUEST_CONTINUE );
 #endif
             break;
 
@@ -66,7 +66,7 @@ static esp_err_t app_wifi_event_handler( void* ctx, system_event_t* event )
                auto-reassociate. */
             /* JC TODO: something here crashes the application when the AP is turned off!! */
 #if 0
-            if( xif_request_machine_state( XIF_REQUEST_PAUSE ) < 0 )
+            if( xt_request_machine_state( XT_REQUEST_PAUSE ) < 0 )
             {
                 printf( "\n\tError pausing Xively Interface task" );
             }
@@ -197,13 +197,13 @@ void app_gpio_interrupts_handler_task( void* param )
         {
             virtual_switch = !virtual_switch;
             printf( "\nButton pressed! Virtual switch [%d]", virtual_switch );
-            xif_publish_button_state( virtual_switch );
+            xt_publish_button_state( virtual_switch );
         }
         taskYIELD();
     }
 }
 
-void xif_recv_mqtt_msg_callback( const xi_sub_call_params_t* const params )
+void xt_recv_mqtt_msg_callback( const xi_sub_call_params_t* const params )
 {
     printf( "\nNew MQTT message received!" );
     printf( "\n\tTopic: %s", params->message.topic );
@@ -213,7 +213,7 @@ void xif_recv_mqtt_msg_callback( const xi_sub_call_params_t* const params )
     {
         printf( "%c", ( char )params->message.temporary_payload_data[i] );
     }
-    if( 0 == strcmp( params->message.topic, xif_mqtt_topics.led_topic ) )
+    if( 0 == strcmp( params->message.topic, xt_mqtt_topics.led_topic ) )
     {
         if ( 0 == params->message.temporary_payload_data_length )
             io_led_off();
@@ -259,7 +259,7 @@ void app_main( void )
     }
 
     /* Configure Xively interface */
-    if ( 0 > xif_set_device_info( user_config.xi_account_id, user_config.xi_device_id,
+    if ( 0 > xt_set_device_info( user_config.xi_account_id, user_config.xi_device_id,
                                   user_config.xi_device_password ) )
     {
         printf( "\n[ERROR] configuring Xively interface. Boot halted" );
@@ -280,9 +280,9 @@ void app_main( void )
             portMAX_DELAY );
 
     /* Start Xively task */
-    if ( pdPASS != xTaskCreatePinnedToCore( &xif_rtos_task, "xif_task",
-                                            XIF_TASK_STACK_SIZE, NULL, 5, NULL,
-                                            XIF_TASK_ESP_CORE ) )
+    if ( pdPASS != xTaskCreatePinnedToCore( &xt_rtos_task, "xively_task",
+                                            XT_TASK_STACK_SIZE, NULL, 5, NULL,
+                                            XT_TASK_ESP_CORE ) )
     {
         printf( "\n[ERROR] creating Xively Interface RTOS task" );
         while ( 1 )
