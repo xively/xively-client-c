@@ -77,7 +77,9 @@ void xi_debug_data_logger_impl( const char* msg, const xi_data_desc_t* data_desc
 #include <assert.h>
 #else /* XI_DEBUG_ASSERT */
 /* The actual header is missing in some toolchains, so we wrap it here. */
+#ifndef assert
 #define assert( e ) ( ( void )0 )
+#endif /* assert */
 #endif /* XI_DEBUG_ASSERT */
 
 #ifdef __cplusplus
