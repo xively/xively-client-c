@@ -5,13 +5,12 @@
 
 include make/mt-os/mt-os-common.mk
 
-#$(IDF_PATH) This is exported in the shell as a requirement of the IDF SDK
-XI_ESP_IDF_SDK_PATH          ?= $(IDF_PATH)
-XI_GCC_XTENSA_TOOLCHAIN_PATH ?= $(HOME)/Work/Xively/esp32/toolchain/xtensa-esp32-elf
+#$(IDF_PATH) This is exported in the shell as as IDF requirement
+XI_ESP_IDF_SDK_PATH ?= $(IDF_PATH)
 
-CC = $(XI_GCC_XTENSA_TOOLCHAIN_PATH)/bin/xtensa-esp32-elf-gcc
-AR = $(XI_GCC_XTENSA_TOOLCHAIN_PATH)/bin/xtensa-esp32-elf-ar
-XI_BUILD_PRECONDITIONS := $(CC)
+# The path to CC and AR must be in the environment $PATH as an IDF requirement
+CC = xtensa-esp32-elf-gcc
+AR = xtensa-esp32-elf-ar
 
 ##################
 # Libxively Config
