@@ -107,7 +107,7 @@ void xi_bsp_fwu_on_package_download_finished( const char* const firmware_resourc
 
 #if 0
     {
-        /* - save the new firmware progname to identify new firmware first run
+        /* - save the new firmware executable name to identify new firmware first run
          *   in function xi_bsp_fwu_on_new_firmware_ok */
 
         xi_bsp_io_fs_resource_handle_t resource_handle =
