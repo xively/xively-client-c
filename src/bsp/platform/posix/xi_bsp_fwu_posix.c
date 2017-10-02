@@ -13,13 +13,13 @@
 #include <stdlib.h>
 #include <sys/param.h>
 
-#if XI_GNU_C
+#ifdef __USE_GNU
 
-extern char* program_invocation_name;
+extern char* program_invocation_short_name;
 
 const char* getprogname()
 {
-    return program_invocation_name;
+    return program_invocation_short_name;
 }
 
 #else
@@ -106,6 +106,7 @@ void xi_bsp_fwu_on_package_download_finished( const char* const firmware_resourc
     const char* update_fw_name = _generate_update_filename( firmware_resource_name );
     rename( firmware_resource_name, update_fw_name );
 
+#if 0
     {
         /* - save this/old firmware progname to identify rollback or new firmware ok cases
          *   in function xi_bsp_fwu_on_new_firmware_ok */
@@ -122,7 +123,6 @@ void xi_bsp_fwu_on_package_download_finished( const char* const firmware_resourc
         xi_bsp_io_fs_close( resource_handle );
     }
 
-#if 1
     /* - start new firmware */
     char system_command[512] = {0};
 
