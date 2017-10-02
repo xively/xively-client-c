@@ -13,7 +13,11 @@
 #include <stdlib.h>
 #include <sys/param.h>
 
-#ifdef __USE_GNU
+#ifdef __APPLE__
+
+/* FreeBSD has getprogname() function in stdlib.h */
+
+#else
 
 extern char* program_invocation_short_name;
 
@@ -21,10 +25,6 @@ const char* getprogname()
 {
     return program_invocation_short_name;
 }
-
-#else
-
-/* FreeBSD has getprogname() function in stdlib.h */
 
 #endif
 
