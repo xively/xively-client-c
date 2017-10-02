@@ -64,10 +64,9 @@ xi_bsp_fwu_state_t xi_bsp_fwu_on_new_firmware_ok()
 
     xi_bsp_io_fs_stat_t stat = {0};
 
+    /* check file existance which means first run of new firmware */
     xi_bsp_io_fs_state_t stat_result =
         xi_bsp_io_fs_stat( firmware_test_flag_filename, &stat );
-
-    printf( "stat_result: %d\n", stat_result );
 
     if ( XI_BSP_IO_FS_STATE_OK == stat_result )
     {
@@ -108,7 +107,7 @@ void xi_bsp_fwu_on_package_download_finished( const char* const firmware_resourc
 
 #if 0
     {
-        /* - save this/old firmware progname to identify rollback or new firmware ok cases
+        /* - save the new firmware progname to identify new firmware first run
          *   in function xi_bsp_fwu_on_new_firmware_ok */
 
         xi_bsp_io_fs_resource_handle_t resource_handle =
@@ -128,11 +127,11 @@ void xi_bsp_fwu_on_package_download_finished( const char* const firmware_resourc
 
     sprintf( system_command, "chmod a+x %s; "
                              "./%s "
-                             "-a 4d3c7986-8d53-4cf8-903e-7fd30ff63be1 "
-                             "-u fc4ba77e-0ba0-4ef2-bb46-d30bc59546ab "
-                             "-P JMnzPt3zDH2ZY2Q/ZQRgzublMGF6VfAFv7vFxFf5tLY= "
-                             "-p xi/blue/v1/4d3c7986-8d53-4cf8-903e-7fd30ff63be1/d/"
-                             "b03e863d-2478-48cf-976e-fa2d5ddf4ec8/Temperature",
+                             "-a <Xively Account ID> "
+                             "-u <Xively Device ID> "
+                             "-P <Xively Device Password> "
+                             "-p xi/blue/v1/<Xively Account ID>/d/"
+                             "<Xively Device ID>/Temperature",
              update_fw_name, update_fw_name );
 
     printf( "[Xively C Client Firmware Update] executing command:\n%s\n",
