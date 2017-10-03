@@ -3,8 +3,8 @@
  * This is part of the Xively C Client codebase,
  * it is licensed under the BSD 3-Clause license.
  */
-#ifndef __XIVELY_IF_H__
-#define __XIVELY_IF_H__
+#ifndef __XIVELY_TASK_H__
+#define __XIVELY_TASK_H__
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -35,7 +35,7 @@ typedef enum
  */
 int8_t xt_set_device_info( char* xi_acc_id, char* xi_dev_id, char* xi_dev_pwd );
 
-/* Xively Interface event loop - It handles the MQTT library's events loop and
+/* Xively Task event loop - It handles the MQTT library's events loop and
  * coordinates the actions requested from other RTOS tasks. Loops forever until
  * it's paused with a _PAUSE request or aborted with _SHUTDOWN
  */
@@ -50,7 +50,7 @@ int8_t xt_disconnect( void );
 /*
  * xt_connect() is called internally from xt_rtos_task before entering the
  * events loop, so this function doesn't need to be called when starting the
- * Xively Interface
+ * Xively Task
  *
  * It will also be called internally if the library detects a disconnection.
  *
@@ -65,7 +65,7 @@ int8_t xt_connect( void );
 
 void xt_publish_button_state( int input_level );
 
-/* Request an action from the Xively Interface's state machine.
+/* Request an action from the Xively Task's state machine.
  * xt_action_requests_t is ordered by priority (highest value, highes priority)
  *
  * @retval -1: Error
@@ -73,20 +73,22 @@ void xt_publish_button_state( int input_level );
  */
 int8_t xt_request_machine_state( xt_action_requests_t requested_action );
 
-/* Sample implementation declared WEAK in xively_if.c so you can overwrite it */
+/* Sample implementation declared WEAK in xively_task.c so you can overwrite it */
 extern void xt_recv_mqtt_msg_callback( const xi_sub_call_params_t* const params );
 
 /* Query the MQTT connection status (as far as the TCP/MQTT layers are aware)
  */
 int8_t xt_is_connected( void );
 
-/* This callback is __weak__ in xively_if.c so you can overwrite it with your own.
- * For this demo, we permanently shut down the Xively Interface when we get
+/* This callback is __weak__ in xively_task.c so you can overwrite it with your own.
+ * For this demo, we permanently shut down the Xively Task when we get
  * unrecoverable errors, but you may want to handle that differently
  */
 extern void xt_state_machine_aborted_callback( void );
 
+void xt_handle_unrecoverable_error( void );
+
 #ifdef __cplusplus
 }
 #endif
-#endif /* __XIVELY_IF_H__ */
+#endif /* __XIVELY_TASK_H__ */

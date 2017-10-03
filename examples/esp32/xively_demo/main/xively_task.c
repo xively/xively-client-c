@@ -14,15 +14,17 @@
 #include "xively_task.h"
 
 /******************************************************************************
- *                          Xively Interface Macros
+ *                          Xively Task Macros
  ******************************************************************************/
 #define DELAY_MS( t ) vTaskDelay( t / portTICK_PERIOD_MS )
 
 #define XT_BUTTON_TOPIC_NAME "Button"
 #define XT_LED_TOPIC_NAME "LED"
 
+#define XT_CONNECT_TIMEOUT_S   5
+#define XT_KEEPALIVE_TIMEOUT_S 10
 /******************************************************************************
- *                     Xively Interface Structs and Enums
+ *                     Xively Task Structs and Enums
  ******************************************************************************/
 typedef struct
 {
@@ -31,22 +33,22 @@ typedef struct
     char* xi_device_pwd;
 } xt_device_info_t;
 
-typedef enum { XT_MQTT_DISCONNECTED = 0, XT_MQTT_CONNECTED } xt_mqtt_connection_states_t;
-
 typedef enum {
-    XT_STATE_UNINITIALIZED = 0, /* Initialize the client -- First state in the machine */
-    XT_STATE_LIBRARY_LOOP,      /* Client is connected but idle */
-    XT_STATE_HANDLE_ACTION_REQUESTS, /* Check requests to the event loop */
-    XT_STATE_PAUSED,  /* Client is disconnected and awaiting an external request to
-                         continue */
-    XT_STATE_SHUTDOWN /* Shut down the connection and client */
-} xt_machine_states_t;
+    XT_MQTT_DISCONNECTED = 0,
+    XT_MQTT_CONNECTED
+} xt_mqtt_connection_states_t;
 
 /******************************************************************************
- *                   Xively Interface Function Declarations
+ *                   Xively Task Function Declarations
  ******************************************************************************/
 static int8_t xt_init( void );
 static int8_t xt_build_xively_topic( char* topic_name, char* dst, uint32_t dst_len );
+
+/* RTOS specific functions */
+static int8_t xt_clear_request_bits( xt_action_requests_t requested_action );
+static int8_t xt_set_request_bits( xt_action_requests_t requested_action );
+static inline void xt_await_unpause( void );
+static xt_action_requests_t xt_pop_highest_priority_request( void );
 
 /* Application specific functions */
 static int8_t xt_build_all_mqtt_topics( void );
@@ -66,7 +68,7 @@ static void xt_led_topic_callback( xi_context_handle_t in_context_handle,
                                    void* user_data );
 
 /******************************************************************************
- *                           Xively Interface Variables
+ *                           Xively Task Variables
  ******************************************************************************/
 /* MQTT */
 static xt_mqtt_connection_states_t xt_mqtt_connection_status = XT_MQTT_DISCONNECTED;
@@ -89,7 +91,7 @@ static xi_timed_task_handle_t xt_pubcounter_scheduled_task_handle = -1;
 #endif
 
 /*-----------------------------------------------------------------------------
-                            Xively Interface Implementation
+                            Xively Task Implementation
 -----------------------------------------------------------------------------*/
 void __attribute__( ( weak ) ) xt_state_machine_aborted_callback( void )
 {
@@ -109,125 +111,6 @@ int8_t xt_set_device_info( char* xi_acc_id, char* xi_dev_id, char* xi_dev_pwd )
         return -1;
     }
     return 0;
-}
-
-/*-----------------------------------------------------------------------------
-                           FreeRTOS-specific implementation
------------------------------------------------------------------------------*/
-int8_t xt_set_request_bits( xt_action_requests_t requested_action )
-{
-    BaseType_t higher_priority_task_woken, evt_group_set_result;
-
-    /* xHigherPriorityTaskWoken must be initialised to pdFALSE. */
-    higher_priority_task_woken = pdFALSE;
-
-    evt_group_set_result = xEventGroupSetBitsFromISR(
-        xt_requests_event_group_handle, requested_action, &higher_priority_task_woken );
-
-    /* Was the message posted successfully? */
-    if ( evt_group_set_result == pdFAIL )
-    {
-        return -1;
-    }
-    else if ( higher_priority_task_woken == pdTRUE )
-    {
-        /* If xHigherPriorityTaskWoken is now set to pdTRUE then a context
-        switch should be requested.  The macro used is port specific and will
-        be either portYIELD_FROM_ISR() or portEND_SWITCHING_ISR() - refer to
-        the documentation page for the port being used. */
-        portYIELD_FROM_ISR();
-    }
-    return 0;
-}
-
-int8_t xt_clear_request_bits( xt_action_requests_t requested_action )
-{
-    BaseType_t result;
-    result =
-        xEventGroupClearBitsFromISR( xt_requests_event_group_handle, requested_action );
-    if ( pdPASS != result )
-    {
-        return -1;
-    }
-    return 0;
-}
-
-int8_t xt_request_machine_state( xt_action_requests_t requested_action )
-{
-    if ( 0 > xt_context_handle )
-    {
-        return -1;
-    }
-
-    switch ( requested_action )
-    {
-        case XT_REQUEST_CONTINUE:
-            if ( 0 > xt_clear_request_bits( XT_REQUEST_PAUSE ) )
-            {
-                return -1;
-            }
-            if ( 0 > xt_set_request_bits( XT_REQUEST_CONTINUE ) )
-            {
-                return -1;
-            }
-            break;
-        case XT_REQUEST_PAUSE:
-            if ( 0 > xt_clear_request_bits( XT_REQUEST_CONTINUE ) )
-            {
-                return -1;
-            }
-            if ( 0 > xt_set_request_bits( XT_REQUEST_PAUSE ) )
-            {
-                return -1;
-            }
-            break;
-        case XT_REQUEST_SHUTDOWN:
-            if ( 0 > xt_set_request_bits( XT_REQUEST_SHUTDOWN ) )
-            {
-                return -1;
-            }
-            break;
-        case XT_REQUEST_ALL:
-            return -1;
-    }
-    return 0;
-}
-
-/* Reads the thread-safe requests bitmask, gets the next highest priority request
- * (the highest bit in the bitmask), clears that bit and returns its corresponding
- * xt_action_requests_t enum value.
- * The XT_REQUEST_CONTINUE flag is ignored, and it will be returned whenever
- * the rest of the flags are 0
- */
-xt_action_requests_t xt_pop_highest_priority_request( void )
-{
-    EventBits_t external_request_bitmask = 0x00;
-    external_request_bitmask = xEventGroupGetBits( xt_requests_event_group_handle );
-
-    if ( XT_REQUEST_SHUTDOWN & external_request_bitmask )
-    {
-        xEventGroupClearBits( xt_requests_event_group_handle, XT_REQUEST_SHUTDOWN );
-        return XT_REQUEST_SHUTDOWN;
-    }
-    else if ( XT_REQUEST_PAUSE & external_request_bitmask )
-    {
-        xEventGroupClearBits( xt_requests_event_group_handle, XT_REQUEST_PAUSE );
-        return XT_REQUEST_PAUSE;
-    }
-
-    return XT_REQUEST_CONTINUE;
-}
-
-static inline void xt_await_unpause( void )
-{
-    EventBits_t evt_group_bits = 0x00;
-    do
-    {
-        evt_group_bits = xEventGroupWaitBits( xt_requests_event_group_handle,
-                                              XT_REQUEST_CONTINUE | XT_REQUEST_SHUTDOWN,
-                                              false, true, portMAX_DELAY );
-    } while ( 0x00 == evt_group_bits );
-    /* Break when either _CONTINUE or _SHUTDOWN are requested */
 }
 
 void xt_handle_unrecoverable_error( void )
@@ -255,10 +138,10 @@ void xt_rtos_task( void* param )
     {
         xt_handle_unrecoverable_error();
     }
-    else if ( 0 > xt_connect() )
-    {
-        xt_handle_unrecoverable_error();
-    }
+    //else if ( 0 > xt_connect() )
+    //{
+    //    xt_handle_unrecoverable_error();
+    //}
 
     /* Events loop */
     while ( 0 == evt_loop_exit_flag )
@@ -271,7 +154,7 @@ void xt_rtos_task( void* param )
                 break;
             case XT_REQUEST_PAUSE:
                 /* Halt this task until we get a XT_REQUEST_CONTINUE request */
-                printf( "\n[XT] Pausing Xively Interface..." );
+                printf( "\n[XT] Pausing Xively Task..." );
                 xt_await_unpause();
                 break;
             case XT_REQUEST_SHUTDOWN:
@@ -371,8 +254,8 @@ int8_t xt_connect( void )
     printf( "\n[XT] \tDevice  ID: %s", xt_mqtt_device_info.xi_device_id );
     printf( "\n[XT] \tAccount Password: (REDACTED)" );
     ret_state = xi_connect( xt_context_handle, xt_mqtt_device_info.xi_device_id,
-                            xt_mqtt_device_info.xi_device_pwd, 10, 0, XI_SESSION_CLEAN,
-                            &xt_on_connected );
+                            xt_mqtt_device_info.xi_device_pwd, XT_CONNECT_TIMEOUT_S,
+                            XT_KEEPALIVE_TIMEOUT_S, XI_SESSION_CLEAN, &xt_on_connected );
 
     if ( XI_ALREADY_INITIALIZED == ret_state )
     {
@@ -506,9 +389,9 @@ xt_recv_mqtt_msg_callback( const xi_sub_call_params_t* const params )
     }
 }
 
-/* @retval 0: Disconnect message sent - Interface will be paused from on_connected
+/* @retval 0: Disconnect message sent - Task will be paused from on_connected
  *            callback
- *         1: MQTT was not connected - Interface shutdown initiated
+ *         1: MQTT was not connected - Task shutdown initiated
  */
 int8_t xt_disconnect( void )
 {
@@ -611,4 +494,123 @@ void xt_led_topic_callback( xi_context_handle_t in_context_handle,
         default:
             return;
     }
+}
+
+/*-----------------------------------------------------------------------------
+                           FreeRTOS-specific implementation
+-----------------------------------------------------------------------------*/
+int8_t xt_set_request_bits( xt_action_requests_t requested_action )
+{
+    BaseType_t higher_priority_task_woken, evt_group_set_result;
+
+    /* xHigherPriorityTaskWoken must be initialised to pdFALSE. */
+    higher_priority_task_woken = pdFALSE;
+
+    evt_group_set_result = xEventGroupSetBitsFromISR(
+        xt_requests_event_group_handle, requested_action, &higher_priority_task_woken );
+
+    /* Was the message posted successfully? */
+    if ( evt_group_set_result == pdFAIL )
+    {
+        return -1;
+    }
+    else if ( higher_priority_task_woken == pdTRUE )
+    {
+        /* If xHigherPriorityTaskWoken is now set to pdTRUE then a context
+        switch should be requested.  The macro used is port specific and will
+        be either portYIELD_FROM_ISR() or portEND_SWITCHING_ISR() - refer to
+        the documentation page for the port being used. */
+        portYIELD_FROM_ISR();
+    }
+    return 0;
+}
+
+int8_t xt_clear_request_bits( xt_action_requests_t requested_action )
+{
+    BaseType_t result;
+    result =
+        xEventGroupClearBitsFromISR( xt_requests_event_group_handle, requested_action );
+    if ( pdPASS != result )
+    {
+        return -1;
+    }
+    return 0;
+}
+
+int8_t xt_request_machine_state( xt_action_requests_t requested_action )
+{
+    if ( 0 > xt_context_handle )
+    {
+        return -1;
+    }
+
+    switch ( requested_action )
+    {
+        case XT_REQUEST_CONTINUE:
+            if ( 0 > xt_clear_request_bits( XT_REQUEST_PAUSE ) )
+            {
+                return -1;
+            }
+            if ( 0 > xt_set_request_bits( XT_REQUEST_CONTINUE ) )
+            {
+                return -1;
+            }
+            break;
+        case XT_REQUEST_PAUSE:
+            if ( 0 > xt_clear_request_bits( XT_REQUEST_CONTINUE ) )
+            {
+                return -1;
+            }
+            if ( 0 > xt_set_request_bits( XT_REQUEST_PAUSE ) )
+            {
+                return -1;
+            }
+            break;
+        case XT_REQUEST_SHUTDOWN:
+            if ( 0 > xt_set_request_bits( XT_REQUEST_SHUTDOWN ) )
+            {
+                return -1;
+            }
+            break;
+        case XT_REQUEST_ALL:
+            return -1;
+    }
+    return 0;
+}
+
+/* Reads the thread-safe requests bitmask, gets the next highest priority request
+ * (the highest bit in the bitmask), clears that bit and returns its corresponding
+ * xt_action_requests_t enum value.
+ * The XT_REQUEST_CONTINUE flag is ignored, and it will be returned whenever
+ * the rest of the flags are 0
+ */
+xt_action_requests_t xt_pop_highest_priority_request( void )
+{
+    EventBits_t external_request_bitmask = 0x00;
+    external_request_bitmask = xEventGroupGetBits( xt_requests_event_group_handle );
+
+    if ( XT_REQUEST_SHUTDOWN & external_request_bitmask )
+    {
+        xEventGroupClearBits( xt_requests_event_group_handle, XT_REQUEST_SHUTDOWN );
+        return XT_REQUEST_SHUTDOWN;
+    }
+    else if ( XT_REQUEST_PAUSE & external_request_bitmask )
+    {
+        xEventGroupClearBits( xt_requests_event_group_handle, XT_REQUEST_PAUSE );
+        return XT_REQUEST_PAUSE;
+    }
+
+    return XT_REQUEST_CONTINUE;
+}
+
+inline void xt_await_unpause( void )
+{
+    const TickType_t wait_timeout = portMAX_DELAY;
+    EventBits_t evt_group_bits = 0x00;
+    do /* Wait (forever) until either _CONTINUE or _SHUTDOWN are requested */
+    {
+        evt_group_bits = xEventGroupWaitBits( xt_requests_event_group_handle,
+                                              XT_REQUEST_CONTINUE | XT_REQUEST_SHUTDOWN,
+                                              false, true, wait_timeout );
+    } while ( 0x00 == evt_group_bits );
 }
