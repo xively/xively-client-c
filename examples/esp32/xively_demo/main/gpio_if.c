@@ -32,7 +32,10 @@ static xQueueHandle io_button_queue = NULL;
 void IRAM_ATTR gpio_isr_handler( void* arg )
 {
     uint32_t gpio_num = ( uint32_t )arg;
-    xQueueSendFromISR( io_button_queue, &gpio_num, NULL );
+    if( NULL != io_button_queue )
+    {
+        xQueueSendFromISR( io_button_queue, &gpio_num, NULL );
+    }
 }
 
 inline void io_inputs_init( void )

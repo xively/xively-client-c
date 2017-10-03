@@ -41,7 +41,6 @@ typedef enum {
 /******************************************************************************
  *                   Xively Task Function Declarations
  ******************************************************************************/
-static int8_t xt_init( void );
 static int8_t xt_build_xively_topic( char* topic_name, char* dst, uint32_t dst_len );
 
 /* RTOS specific functions */
@@ -68,7 +67,7 @@ static void xt_led_topic_callback( xi_context_handle_t in_context_handle,
                                    void* user_data );
 
 /******************************************************************************
- *                           Xively Task Variables
+ *                                Static Variables
  ******************************************************************************/
 /* MQTT */
 static xt_mqtt_connection_states_t xt_mqtt_connection_status = XT_MQTT_DISCONNECTED;
@@ -98,23 +97,15 @@ void __attribute__( ( weak ) ) xt_state_machine_aborted_callback( void )
     printf( "\n[XT] The Xively IF state machine and RTOS task are about to shut" );
     printf( " down due to an unrecoverable error" );
     printf( "\n[XT] You should re-implement this function to handle it gracefully" );
-}
-
-int8_t xt_set_device_info( char* xi_acc_id, char* xi_dev_id, char* xi_dev_pwd )
-{
-    xt_mqtt_device_info.xi_account_id = xi_acc_id;
-    xt_mqtt_device_info.xi_device_id  = xi_dev_id;
-    xt_mqtt_device_info.xi_device_pwd = xi_dev_pwd;
-    if ( 0 > xt_build_all_mqtt_topics() )
-    {
-        printf( "\n[XT] Unrecoverable building MQTT topic strings. Abort" );
-        return -1;
-    }
-    return 0;
+    printf( "\n[XT] You should re-implement this function to handle it gracefully" );
 }
 
 void xt_handle_unrecoverable_error( void )
 {
+    if ( !xt_ready_for_requests() )
+    {
+        return; /* Already shut down */
+    }
     xt_state_machine_aborted_callback();
     xt_request_machine_state( XT_REQUEST_SHUTDOWN );
 }
@@ -130,18 +121,22 @@ void xt_rtos_task( void* param )
     assert( NULL != xt_mqtt_device_info.xi_device_id );
     assert( NULL != xt_mqtt_device_info.xi_device_pwd );
 
-    if ( 0 > xt_init() )
+    if ( XI_STATE_OK != xi_initialize( xt_mqtt_device_info.xi_account_id,
+                                       xt_mqtt_device_info.xi_device_id ) )
     {
+        printf( "\n[XT] Failed to initialize MQTT library" );
+        xt_handle_unrecoverable_error();
+    }
+    else if ( 0 > ( xt_context_handle = xi_create_context() ) )
+    {
+        printf( "\n[XT] Failed to create xi context. Retval: %d", xt_context_handle );
         xt_handle_unrecoverable_error();
     }
     else if ( 0 > xt_clear_request_bits( XT_REQUEST_ALL ) )
     {
+        printf( "\n[XT] Failed to clear request bits during initialization" );
         xt_handle_unrecoverable_error();
     }
-    //else if ( 0 > xt_connect() )
-    //{
-    //    xt_handle_unrecoverable_error();
-    //}
 
     /* Events loop */
     while ( 0 == evt_loop_exit_flag )
@@ -152,14 +147,29 @@ void xt_rtos_task( void* param )
                 xt_request_machine_state( XT_REQUEST_CONTINUE );
                 xi_events_process_tick();
                 break;
+            case XT_REQUEST_CONNECT:
+                printf( "\n[XT] MQTT Connection requested" );
+                xt_request_machine_state( XT_REQUEST_CONTINUE );
+                if ( 0 > xt_connect() )
+                {
+                    xt_handle_unrecoverable_error();
+                }
+                break;
+            case XT_REQUEST_DISCONNECT:
+                printf( "\n[XT] MQTT Disconnection requested" );
+                xt_request_machine_state( XT_REQUEST_CONTINUE );
+                xt_disconnect();
+                break;
             case XT_REQUEST_PAUSE:
                 /* Halt this task until we get a XT_REQUEST_CONTINUE request */
                 printf( "\n[XT] Pausing Xively Task..." );
                 xt_await_unpause();
+                xt_request_machine_state( XT_REQUEST_CONTINUE );
                 break;
             case XT_REQUEST_SHUTDOWN:
                 /* Free all the memory allocated by xt or libxively, shut down the
                  * events loop, and delete the RTOS task */
+                printf( "\n[XT] Shutting down Xively Task..." );
                 if ( xt_context_handle >= 0 )
                 {
                     xi_delete_context( xt_context_handle );
@@ -176,6 +186,12 @@ void xt_rtos_task( void* param )
         taskYIELD();
     }
 
+    xt_context_handle = -1;
+    vEventGroupDelete( xt_requests_event_group_handle );
+    xt_requests_event_group_handle = NULL;
+    memset( &xt_mqtt_topics, 0x00, sizeof( xt_mqtt_topics_t ) );
+    memset( &xt_mqtt_device_info, 0x00, sizeof( xt_device_info_t ) );
+    printf( "\n[XT] Xively Task has been shut down" );
     vTaskDelete( NULL );
     return NULL;
 }
@@ -199,12 +215,14 @@ int8_t xt_build_xively_topic( char* topic_name, char* dst, uint32_t dst_len )
 {
     int retval = 0;
 
+    printf("\n[xt_build_xively_topic][topic_name: %s]", topic_name);
     assert( NULL != topic_name );
     assert( NULL != dst );
 
     retval = snprintf( dst, dst_len, "xi/blue/v1/%.64s/d/%.64s/%.64s",
                        xt_mqtt_device_info.xi_account_id,
                        xt_mqtt_device_info.xi_device_id, topic_name );
+    printf("\n[xt_build_xively_topic][topic: %s]", dst);
 
     if ( ( retval >= dst_len ) || ( retval < 0 ) )
     {
@@ -213,9 +231,14 @@ int8_t xt_build_xively_topic( char* topic_name, char* dst, uint32_t dst_len )
     return 0;
 }
 
-int8_t xt_init( void )
+int8_t xt_init( char* xi_acc_id, char* xi_dev_id, char* xi_dev_pwd )
 {
-    xi_state_t xi_ret_state = XI_STATE_OK;
+    printf( "\n[XT] Initializing Xively Task variables" );
+
+    printf("\nsetting device variables");
+    xt_mqtt_device_info.xi_account_id = xi_acc_id;
+    xt_mqtt_device_info.xi_device_id  = xi_dev_id;
+    xt_mqtt_device_info.xi_device_pwd = xi_dev_pwd;
 
     xt_requests_event_group_handle = xEventGroupCreate();
     if ( NULL == xt_requests_event_group_handle )
@@ -224,19 +247,9 @@ int8_t xt_init( void )
         return -1;
     }
 
-    xi_ret_state = xi_initialize( xt_mqtt_device_info.xi_account_id,
-                                  xt_mqtt_device_info.xi_device_id );
-    if ( XI_STATE_OK != xi_ret_state )
+    if ( 0 > xt_build_all_mqtt_topics() )
     {
-        printf( "\n[XT] Failed to initialize MQTT library" );
-        return -1;
-    }
-
-    xt_context_handle = xi_create_context();
-    if ( 0 > xt_context_handle )
-    {
-        printf( "\n[XT] Failed to create a valid libxively context. Returned: %d",
-                xt_context_handle );
+        printf( "\n[XT] Unrecoverable building MQTT topic strings. Abort" );
         return -1;
     }
     return 0;
@@ -290,8 +303,6 @@ void xt_publish_button_state( int button_state )
         return;
     }
 
-    /* GPIO0 is pulled-up, so the input level is 0 when pressed. If your backend
-    expects 1 to mean "button pressed", you can negate the button input here */
     ( button_state == 1 ) ? ( strcpy( msg_payload, "1" ) )
                           : ( strcpy( msg_payload, "0" ) );
     printf( "\n[XT] Publishing button pressed MQTT message" );
@@ -501,6 +512,11 @@ void xt_led_topic_callback( xi_context_handle_t in_context_handle,
 -----------------------------------------------------------------------------*/
 int8_t xt_set_request_bits( xt_action_requests_t requested_action )
 {
+    if ( !xt_ready_for_requests() )
+    {
+        printf( "\n[XT] Error: Xively Task not ready for requests. Ignored" );
+        return -1;
+    }
     BaseType_t higher_priority_task_woken, evt_group_set_result;
 
     /* xHigherPriorityTaskWoken must be initialised to pdFALSE. */
@@ -527,6 +543,11 @@ int8_t xt_set_request_bits( xt_action_requests_t requested_action )
 
 int8_t xt_clear_request_bits( xt_action_requests_t requested_action )
 {
+    if ( !xt_ready_for_requests() )
+    {
+        printf( "\n[XT] Error: Can't clear request bits. Ignored" );
+        return -1;
+    }
     BaseType_t result;
     result =
         xEventGroupClearBitsFromISR( xt_requests_event_group_handle, requested_action );
@@ -539,19 +560,19 @@ int8_t xt_clear_request_bits( xt_action_requests_t requested_action )
 
 int8_t xt_request_machine_state( xt_action_requests_t requested_action )
 {
-    if ( 0 > xt_context_handle )
+    if ( !xt_ready_for_requests() )
     {
+        printf( "\n[XT] Error: Xively Task not ready for requests. Ignored" );
         return -1;
     }
 
     switch ( requested_action )
     {
+        case XT_REQUEST_CONNECT:
         case XT_REQUEST_CONTINUE:
-            if ( 0 > xt_clear_request_bits( XT_REQUEST_PAUSE ) )
-            {
-                return -1;
-            }
-            if ( 0 > xt_set_request_bits( XT_REQUEST_CONTINUE ) )
+        case XT_REQUEST_DISCONNECT:
+        case XT_REQUEST_SHUTDOWN:
+            if ( 0 > xt_set_request_bits( requested_action ) )
             {
                 return -1;
             }
@@ -561,13 +582,7 @@ int8_t xt_request_machine_state( xt_action_requests_t requested_action )
             {
                 return -1;
             }
-            if ( 0 > xt_set_request_bits( XT_REQUEST_PAUSE ) )
-            {
-                return -1;
-            }
-            break;
-        case XT_REQUEST_SHUTDOWN:
-            if ( 0 > xt_set_request_bits( XT_REQUEST_SHUTDOWN ) )
+            if ( 0 > xt_set_request_bits( requested_action ) )
             {
                 return -1;
             }
@@ -599,6 +614,16 @@ xt_action_requests_t xt_pop_highest_priority_request( void )
         xEventGroupClearBits( xt_requests_event_group_handle, XT_REQUEST_PAUSE );
         return XT_REQUEST_PAUSE;
     }
+    else if ( XT_REQUEST_DISCONNECT & external_request_bitmask )
+    {
+        xEventGroupClearBits( xt_requests_event_group_handle, XT_REQUEST_DISCONNECT );
+        return XT_REQUEST_DISCONNECT;
+    }
+    else if ( XT_REQUEST_CONNECT & external_request_bitmask )
+    {
+        xEventGroupClearBits( xt_requests_event_group_handle, XT_REQUEST_CONNECT );
+        return XT_REQUEST_CONNECT;
+    }
 
     return XT_REQUEST_CONTINUE;
 }
@@ -613,4 +638,13 @@ inline void xt_await_unpause( void )
                                               XT_REQUEST_CONTINUE | XT_REQUEST_SHUTDOWN,
                                               false, true, wait_timeout );
     } while ( 0x00 == evt_group_bits );
+}
+
+int8_t xt_ready_for_requests( void )
+{
+    if ( NULL == xt_requests_event_group_handle )
+    {
+        return 0;
+    }
+    return 1;
 }

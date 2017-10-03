@@ -38,11 +38,11 @@
 #define WIFI_CONNECTED_FLAG  BIT0
 
 static EventGroupHandle_t app_wifi_event_group;
-static user_data_t user_config;
+user_data_t user_config;
 
 static esp_err_t app_wifi_event_handler( void* ctx, system_event_t* event );
-static int8_t app_wifi_station_init( void );
-static int8_t app_fetch_user_config( void );
+static int8_t app_wifi_station_init( user_data_t* credentials );
+static int8_t app_fetch_user_config( user_data_t* dst );
 static void app_gpio_interrupts_handler_task( void* param );
 
 void app_main( void )
@@ -64,29 +64,51 @@ void app_main( void )
     }
 
     /* Fetch user credentials - Go through Provisioning if necessary */
-    if ( 0 > app_fetch_user_config() )
+    if ( 0 > app_fetch_user_config( &user_config ) )
     {
         printf( "\n[ERROR] fetching user configuration. Boot halted" );
         while ( 1 )
             vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
 
+    printf( "\nxt_init...");/*TODO: REMOVE*/
+    /* Configure Xively Settings */
+    if ( 0 > xt_init( user_config.xi_account_id, user_config.xi_device_id,
+                      user_config.xi_device_password ) )
+    {
+        printf( "\n[ERROR] configuring Xively Task. Boot halted" );
+        while ( 1 )
+            vTaskDelay( 1000 / portTICK_PERIOD_MS );
+    }
+
+    printf( "\ncreating xively task...");/*TODO: REMOVE*/
+    /* Start Xively task */
+    if ( pdPASS != xTaskCreatePinnedToCore( &xt_rtos_task, "xively_task",
+                                            XT_TASK_STACK_SIZE, NULL, 5, NULL,
+                                            XT_TASK_ESP_CORE ) )
+    {
+        printf( "\n[ERROR] creating Xively Task" );
+        while ( 1 )
+            vTaskDelay( 1000 / portTICK_PERIOD_MS );
+    } /* Will connect from the wifi callback */
+
+    /* Wait until the libxively context is created, so we can connect on STA_GOT_IP */
+    while( 0 == xt_ready_for_requests() )
+    {
+        vTaskDelay( 100 / portTICK_PERIOD_MS );
+    }
+
     /* Initialize the ESP32 as a WiFi station */
-    if ( 0 > app_wifi_station_init() )
+    if ( 0 > app_wifi_station_init( &user_config ) )
     {
         printf( "\n[ERROR] initializing WiFi station mode. Boot halted" );
         while ( 1 )
             vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
 
-    /* Configure Xively interface */
-    if ( 0 > xt_set_device_info( user_config.xi_account_id, user_config.xi_device_id,
-                                  user_config.xi_device_password ) )
-    {
-        printf( "\n[ERROR] configuring Xively interface. Boot halted" );
-        while ( 1 )
-            vTaskDelay( 1000 / portTICK_PERIOD_MS );
-    }
+    /* Wait until we're connected to the WiFi network */
+    xEventGroupWaitBits( app_wifi_event_group, WIFI_CONNECTED_FLAG, false, true,
+            portMAX_DELAY );
 
     /* Start GPIO interrupt handler task */
     if ( pdPASS != xTaskCreate( &app_gpio_interrupts_handler_task, "gpio_intr_task",
@@ -95,20 +117,6 @@ void app_main( void )
         printf( "\n[ERROR] creating GPIO interrupt handler RTOS task" );
         printf( "\n\tInterrupts will be ignored" );
     }
-
-    /* Wait until we're connected to the WiFi network */
-    xEventGroupWaitBits( app_wifi_event_group, WIFI_CONNECTED_FLAG, false, true,
-            portMAX_DELAY );
-
-    /* Start Xively task */
-    if ( pdPASS != xTaskCreatePinnedToCore( &xt_rtos_task, "xively_task",
-                                            XT_TASK_STACK_SIZE, NULL, 5, NULL,
-                                            XT_TASK_ESP_CORE ) )
-    {
-        printf( "\n[ERROR] creating Xively Interface RTOS task" );
-        while ( 1 )
-            vTaskDelay( 1000 / portTICK_PERIOD_MS );
-    }
 }
 
 /******************************************************************************
@@ -116,7 +124,6 @@ void app_main( void )
  ******************************************************************************/
 esp_err_t app_wifi_event_handler( void* ctx, system_event_t* event )
 {
-    //printf( "\nNew WiFi event: ID [%d]", event->event_id );
     switch ( event->event_id )
     {
         case SYSTEM_EVENT_STA_START:
@@ -126,33 +133,33 @@ esp_err_t app_wifi_event_handler( void* ctx, system_event_t* event )
             break;
         case SYSTEM_EVENT_STA_GOT_IP:
             xEventGroupSetBits( app_wifi_event_group, WIFI_CONNECTED_FLAG );
-#if 0
-            xt_request_machine_state( XT_REQUEST_CONTINUE );
-#endif
+            if( xt_request_machine_state( XT_REQUEST_CONNECT ) < 0 )
+            {
+                printf( "\n\tError requesting MQTT connect from xively task" );
+                xt_handle_unrecoverable_error();
+            }
             break;
 
         case SYSTEM_EVENT_STA_DISCONNECTED:
-            //printf( "\n\tHandling sudden WiFi disconnection..." );
-            /* This is a workaround as ESP32 WiFi libs don't currently
-               auto-reassociate. */
-            /* JC TODO: something here crashes the application when the AP is turned off!! */
-#if 0
-            if( xt_request_machine_state( XT_REQUEST_PAUSE ) < 0 )
+            if ( xt_ready_for_requests() )
             {
-                printf( "\n\tError pausing Xively Interface task" );
+                if ( xt_request_machine_state( XT_REQUEST_DISCONNECT ) < 0 )
+                {
+                    printf( "\n\tError requesting MQTT disconnect from xively task" );
+                    xt_handle_unrecoverable_error();
+                }
             }
-#endif
             ESP_ERROR_CHECK( esp_wifi_connect() );
             xEventGroupClearBits( app_wifi_event_group, WIFI_CONNECTED_FLAG );
             break;
         default:
-            //printf( "\n\tWiFi event ignored at the application layer" );
+            printf( "\n\tWiFi event [%d] callback ignored", event->event_id );
             break;
     }
     return ESP_OK;
 }
 
-int8_t app_wifi_station_init( void )
+int8_t app_wifi_station_init( user_data_t* credentials )
 {
     printf( "\n|********************************************************|" );
     printf( "\n|               Initializing WiFi as Station             |" );
@@ -167,17 +174,11 @@ int8_t app_wifi_station_init( void )
         }
     };
 #else
-    wifi_config_t wifi_config =
-    {
-        .sta =
-        {
-            .ssid = "", .password = ""
-        }
-    };
+    wifi_config_t wifi_config = {.sta = {.ssid = "", .password = ""}};
 
-    strncpy( ( char* )wifi_config.sta.ssid, user_config.wifi_client_ssid,
+    strncpy( ( char* )wifi_config.sta.ssid, credentials->wifi_client_ssid,
              ESP_WIFI_SSID_STR_SIZE );
-    strncpy( ( char* )wifi_config.sta.password, user_config.wifi_client_password,
+    strncpy( ( char* )wifi_config.sta.password, credentials->wifi_client_password,
              ESP_WIFI_PASSWORD_STR_SIZE );
 #endif
 
@@ -192,9 +193,7 @@ int8_t app_wifi_station_init( void )
     ESP_ERROR_CHECK( esp_event_loop_init( app_wifi_event_handler, NULL ) );
     wifi_init_config_t wifi_init_config = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK( esp_wifi_init( &wifi_init_config ) );
-
     ESP_ERROR_CHECK( esp_wifi_set_storage( WIFI_STORAGE_RAM ) );
-
     ESP_ERROR_CHECK( esp_wifi_set_mode( WIFI_MODE_STA ) );
     ESP_ERROR_CHECK( esp_wifi_set_config( ESP_IF_WIFI_STA, &wifi_config ) );
     ESP_ERROR_CHECK( esp_wifi_start() );
@@ -204,7 +203,7 @@ int8_t app_wifi_station_init( void )
 /******************************************************************************
  *                   Kickstart Provisioning if Necessary
  ******************************************************************************/
-int8_t app_fetch_user_config( void )
+int8_t app_fetch_user_config( user_data_t* dst )
 {
     int provisioning_bootmode_selected = 0;
     printf( "\n|********************************************************|" );
@@ -212,29 +211,29 @@ int8_t app_fetch_user_config( void )
     printf( "\n|********************************************************|" );
 
 #if USE_HARDCODED_CREDENTIALS
-    user_data_set_wifi_ssid( ( &user_config ), USER_CONFIG_WIFI_SSID );
-    user_data_set_wifi_password( ( &user_config ), USER_CONFIG_WIFI_PWD );
-    user_data_set_xi_account_id( ( &user_config ), USER_CONFIG_XI_ACCOUNT_ID );
-    user_data_set_xi_device_id( ( &user_config ), USER_CONFIG_XI_DEVICE_ID );
-    user_data_set_xi_device_password( ( &user_config ), USER_CONFIG_XI_DEVICE_PWD );
-    user_data_printf( &user_config );
+    user_data_set_wifi_ssid( ( dst ), USER_CONFIG_WIFI_SSID );
+    user_data_set_wifi_password( ( dst ), USER_CONFIG_WIFI_PWD );
+    user_data_set_xi_account_id( ( dst ), USER_CONFIG_XI_ACCOUNT_ID );
+    user_data_set_xi_device_id( ( dst ), USER_CONFIG_XI_DEVICE_ID );
+    user_data_set_xi_device_password( ( dst ), USER_CONFIG_XI_DEVICE_PWD );
+    user_data_printf( dst );
     return 0;
 #endif
 
     /* Read user data from flash */
-    if ( 0 > user_data_copy_from_flash( &user_config ) )
+    if ( 0 > user_data_copy_from_flash( dst ) )
     {
         printf( "\n[ERROR] trying to copy user data from flash. Abort" );
         return -1;
     }
     printf( "\nUser data retrieved from flash:" );
-    user_data_printf( &user_config );
+    user_data_printf( dst );
 
     /* Wait for a button press for 80*50 ms while flashing the LED. If the button is
      * pressed, clear the contents of user_config to force the provisioning process */
-    for ( int i = 80; i > 0; i-- )
+    for ( int i = 40; i > 0; i-- )
     {
-        if ( -1 != io_await_gpio_interrupt( 50 ) )
+        if ( -1 != io_await_gpio_interrupt( 100 ) )
         {
             printf( "\nButton pressed - Initializing provisioning process" );
             provisioning_bootmode_selected = 1;
@@ -245,10 +244,10 @@ int8_t app_fetch_user_config( void )
     io_led_off();
 
     /* If the data retrieved from NVS is missing any fields, start provisioning */
-    if ( provisioning_bootmode_selected || ( 0 > user_data_is_valid( &user_config ) ) )
+    if ( provisioning_bootmode_selected || ( 0 > user_data_is_valid( dst ) ) )
     {
         io_led_on();
-        if ( 0 > provisioning_gather_user_data( &user_config ) )
+        if ( 0 > provisioning_gather_user_data( dst ) )
         {
             printf( "\nDevice provisioning [ERROR]. Abort" );
             io_led_off();

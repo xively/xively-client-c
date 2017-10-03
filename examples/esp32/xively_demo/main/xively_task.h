@@ -20,20 +20,27 @@ typedef struct
     char led_topic[XT_MQTT_TOPIC_MAX_LEN];
 } xt_mqtt_topics_t;
 
-extern xt_mqtt_topics_t xt_mqtt_topics; /* Filled by xt_set_device_info */
+extern xt_mqtt_topics_t xt_mqtt_topics; /* Filled by xt_init */
 
 /* Actions that can be requested of the XT state machine - Ordered by priority */
+/* Priorities are enforced from xt_pop_highest_priority_request() */
 typedef enum
 {
     XT_REQUEST_CONTINUE = ( 1 << 0 ), /* Keep ticking libxively */
-    XT_REQUEST_PAUSE    = ( 1 << 1 ), /* Stop ticking, wait for _CONTINUE */
-    XT_REQUEST_SHUTDOWN = ( 1 << 2 ), /* Stop ticking, shutdown libxi and RTOS task */
+    XT_REQUEST_CONNECT     = ( 1 << 1 ),
+    XT_REQUEST_DISCONNECT  = ( 1 << 2 ),
+    XT_REQUEST_PAUSE    = ( 1 << 3 ), /* Stop ticking, wait for _CONTINUE */
+    XT_REQUEST_SHUTDOWN = ( 1 << 4 ), /* Stop ticking, shutdown libxi and RTOS task */
     XT_REQUEST_ALL      = 0xff
 } xt_action_requests_t;
 
-/* Configure Xively credentials and topics
+int8_t xt_ready_for_requests( void );
+
+/* Configure Xively credentials and topics, initialize XT-related RTOS event
+ * groups, initialize libxively and create a context handle
+ * xt_init must be called EVERY TIME you start a xively task
  */
-int8_t xt_set_device_info( char* xi_acc_id, char* xi_dev_id, char* xi_dev_pwd );
+int8_t xt_init( char* xi_acc_id, char* xi_dev_id, char* xi_dev_pwd );
 
 /* Xively Task event loop - It handles the MQTT library's events loop and
  * coordinates the actions requested from other RTOS tasks. Loops forever until
