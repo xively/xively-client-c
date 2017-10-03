@@ -1,3 +1,39 @@
+# Xively Client version 1.3.0
+#### Okt 03 2017
+
+## Features
+
+### Secure File Transfer (SFT) and Firmware Updates (FWU)
+
+- New Feature: highly portable Secure File Transfer (SFT) and Firmware Updates (FWU)
+  features out of the box. The Xivley C Client controls the main update flow. Only
+  satellite functionalities has to be ported through Board Support Package (BSP)
+  modules: file handling, bootloader management and restart. Example implementations
+  for CC3200 and POSIX.
+- Activating Secure File Transfer (SFT) and Firmware Updates (FWU) features in the
+  CC3200 xively_demo example.
+
+- External SFT implementation: Added a precompiled Xively Firmware Updates (FWU)
+  Demo for CC3200. Please see our CC3200 Secure File Transfer (SFT) Tutorial in
+  the Xively Development Center to remote update your CC3200's firmware over MQTT!
+
+- ESP32 Port, first version complete. Known issue: port may crash after losing signal
+  with Endpoint.
+
+- STM32F4 Tier 1 tutorial support: now the repository contains precompiled STM32F4
+  wifi + ethernet application binaries to support the simpliest tutorial connecting
+  a device to Xively.
+
+- CC3220SF Library and Build environment update: use CC3220 SDK v1.4 and
+  XDCTOOLS v3.50.02.20.
+
+- wolfSSL version update: default builds now work with 3.10.2-stable
+
+## Documentation
+
+- Porting Guide and User Guide are updated with Secure File Transfer (SFT) and
+  Firmware Updates (FWU) feature description.
+
 
 # Xively Client version 1.2.6
 #### Jun 30 2017
@@ -18,7 +54,7 @@
 - Added TI CC3220SF demo application sources and build process for tutorials on Xively Developer Center.
 
 ### STM32F4 Nucleo
-- Updated STM32F4 examples to build against latest ST SDKs. 
+- Updated STM32F4 examples to build against latest ST SDKs.
 - New build configurations to support both sensor boards (IKS01A1 and IKS01A1) out of the box.
 - The github repository is extended with a prebuilt binary for STM32F401RE + WiFi IDW01M1 + MEMS IKS01A1. Tier 1 tutorial (how to use the precompiled binary) is also provided.
 - STM32F4 ethernet example now supports runtime provisioning over serial and flash storage of Xively credentials.
