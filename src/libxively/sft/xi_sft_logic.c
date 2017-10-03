@@ -75,9 +75,13 @@ xi_state_t xi_sft_on_connected( xi_sft_context_t* context )
 
     xi_state_t state = XI_STATE_OK;
 
-    xi_sft_revision_firmware_ok();
-
-    xi_bsp_fwu_on_new_firmware_ok();
+    /* emit a Firmware OK notification towards the BSP module, and depending
+     * on the return value, whether this is the first run of the new firmware
+     * update the firmware revision */
+    if ( XI_BSP_FWU_ACTUAL_COMMIT_HAPPENED == xi_bsp_fwu_on_new_firmware_ok() )
+    {
+        xi_sft_revision_firmware_ok();
+    }
 
     if ( NULL == context )
     {

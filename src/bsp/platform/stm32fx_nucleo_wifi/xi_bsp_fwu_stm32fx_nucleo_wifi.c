@@ -14,9 +14,9 @@ uint8_t xi_bsp_fwu_is_this_firmware( const char* const resource_name )
     return ( 0 == strcmp( "firmware.bin", resource_name ) ) ? 1 : 0;
 }
 
-void xi_bsp_fwu_on_new_firmware_ok()
+xi_bsp_fwu_state_t xi_bsp_fwu_on_new_firmware_ok()
 {
-    return;
+    return XI_BSP_FWU_STATE_OK;
 }
 
 void xi_bsp_fwu_on_firmware_package_download_failure()

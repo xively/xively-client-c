@@ -26,6 +26,11 @@
 extern "C" {
 #endif
 
+typedef enum xi_bsp_fwu_state_e {
+    XI_BSP_FWU_STATE_OK               = 0,
+    XI_BSP_FWU_ACTUAL_COMMIT_HAPPENED = 1,
+} xi_bsp_fwu_state_t;
+
 /**
  * @function
  * @brief Determines whether a resource is firmware.
@@ -45,8 +50,12 @@ uint8_t xi_bsp_fwu_is_this_firmware( const char* const resource_name );
  *        considers the new firmare functional.
  *
  * Called by the updated/new firmware.
+ *
+ * @return XI_BSP_FWU_ACTUAL_COMMIT_HAPPENED if the function actually committed the
+ *         firmware. This means the new firmware runs first time.
+ *         XI_BSP_FWU_STATE_OK otherwise.
  */
-void xi_bsp_fwu_on_new_firmware_ok();
+xi_bsp_fwu_state_t xi_bsp_fwu_on_new_firmware_ok();
 
 /**
  * @function
