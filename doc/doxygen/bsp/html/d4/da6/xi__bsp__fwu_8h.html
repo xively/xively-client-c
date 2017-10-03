@@ -42,6 +42,8 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#typedef-members">Typedefs</a> &#124;
+<a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">xi_bsp_fwu.h File Reference</div>  </div>
@@ -52,12 +54,24 @@ $(function() {
 </div>
 <p><a href="../../d4/da6/xi__bsp__fwu_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
+Typedefs</h2></td></tr>
+<tr class="memitem:a93ea58ba2ec8d8e03f12262e6db35ca5"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="../../d4/da6/xi__bsp__fwu_8h.html#a2ff1e0c924236cd356009cfb29f7631c">xi_bsp_fwu_state_e</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d4/da6/xi__bsp__fwu_8h.html#a93ea58ba2ec8d8e03f12262e6db35ca5">xi_bsp_fwu_state_t</a></td></tr>
+<tr class="separator:a93ea58ba2ec8d8e03f12262e6db35ca5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr class="memitem:a2ff1e0c924236cd356009cfb29f7631c"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d4/da6/xi__bsp__fwu_8h.html#a2ff1e0c924236cd356009cfb29f7631c">xi_bsp_fwu_state_e</a> { <a class="el" href="../../d4/da6/xi__bsp__fwu_8h.html#a2ff1e0c924236cd356009cfb29f7631ca2f89d165d26555b9b7d087fbf5c1cece">XI_BSP_FWU_STATE_OK</a> = 0, 
+<a class="el" href="../../d4/da6/xi__bsp__fwu_8h.html#a2ff1e0c924236cd356009cfb29f7631cad6c685d94569b1b1c52bdfe98c4ccffd">XI_BSP_FWU_ACTUAL_COMMIT_HAPPENED</a> = 1
+ }</td></tr>
+<tr class="separator:a2ff1e0c924236cd356009cfb29f7631c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:a003c4f17106084a496d2b3a8c2c9bbd8"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d4/da6/xi__bsp__fwu_8h.html#a003c4f17106084a496d2b3a8c2c9bbd8">xi_bsp_fwu_is_this_firmware</a> (const char *const resource_name)</td></tr>
 <tr class="separator:a003c4f17106084a496d2b3a8c2c9bbd8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a544ee7f4d1124864eb64a3acf648168a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d4/da6/xi__bsp__fwu_8h.html#a544ee7f4d1124864eb64a3acf648168a">xi_bsp_fwu_on_new_firmware_ok</a> ()</td></tr>
-<tr class="separator:a544ee7f4d1124864eb64a3acf648168a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aee555ebdcb36ffaeccb5cb8cc62bbc0a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d4/da6/xi__bsp__fwu_8h.html#a93ea58ba2ec8d8e03f12262e6db35ca5">xi_bsp_fwu_state_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d4/da6/xi__bsp__fwu_8h.html#aee555ebdcb36ffaeccb5cb8cc62bbc0a">xi_bsp_fwu_on_new_firmware_ok</a> ()</td></tr>
+<tr class="separator:aee555ebdcb36ffaeccb5cb8cc62bbc0a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9c0da94a8d43610d5d1ce58a669d6729"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d4/da6/xi__bsp__fwu_8h.html#a9c0da94a8d43610d5d1ce58a669d6729">xi_bsp_fwu_on_new_firmware_failure</a> ()</td></tr>
 <tr class="separator:a9c0da94a8d43610d5d1ce58a669d6729"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a68d2dfdb6e2050d25a8966ae4c3fa765"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d4/da6/xi__bsp__fwu_8h.html#a68d2dfdb6e2050d25a8966ae4c3fa765">xi_bsp_fwu_on_package_download_failure</a> ()</td></tr>
@@ -77,7 +91,43 @@ Functions</h2></td></tr>
 <p>The Xively C Client calls these functions during the Secure File Transfer (SFT) and Firmware Update (FWU) processes. Some of the functions are event notifications reflecting the status of the update process, some are device specific action requests others are checksum generators. </p>
 
 <p class="definition">Definition in file <a class="el" href="../../d4/da6/xi__bsp__fwu_8h_source.html">xi_bsp_fwu.h</a>.</p>
-</div><h2 class="groupheader">Function Documentation</h2>
+</div><h2 class="groupheader">Typedef Documentation</h2>
+<a id="a93ea58ba2ec8d8e03f12262e6db35ca5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a93ea58ba2ec8d8e03f12262e6db35ca5">&#9670;&nbsp;</a></span>xi_bsp_fwu_state_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef enum <a class="el" href="../../d4/da6/xi__bsp__fwu_8h.html#a2ff1e0c924236cd356009cfb29f7631c">xi_bsp_fwu_state_e</a>  <a class="el" href="../../d4/da6/xi__bsp__fwu_8h.html#a93ea58ba2ec8d8e03f12262e6db35ca5">xi_bsp_fwu_state_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Enumeration Type Documentation</h2>
+<a id="a2ff1e0c924236cd356009cfb29f7631c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2ff1e0c924236cd356009cfb29f7631c">&#9670;&nbsp;</a></span>xi_bsp_fwu_state_e</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="../../d4/da6/xi__bsp__fwu_8h.html#a2ff1e0c924236cd356009cfb29f7631c">xi_bsp_fwu_state_e</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a2ff1e0c924236cd356009cfb29f7631ca2f89d165d26555b9b7d087fbf5c1cece"></a>XI_BSP_FWU_STATE_OK&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a2ff1e0c924236cd356009cfb29f7631cad6c685d94569b1b1c52bdfe98c4ccffd"></a>XI_BSP_FWU_ACTUAL_COMMIT_HAPPENED&#160;</td><td class="fielddoc"></td></tr>
+</table>
+
+<p class="definition">Definition at line <a class="el" href="../../d4/da6/xi__bsp__fwu_8h_source.html#l00029">29</a> of file <a class="el" href="../../d4/da6/xi__bsp__fwu_8h_source.html">xi_bsp_fwu.h</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Function Documentation</h2>
 <a id="a3a67319609154d3bf18fba2c1616cae4"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a3a67319609154d3bf18fba2c1616cae4">&#9670;&nbsp;</a></span>xi_bsp_fwu_checksum_final()</h2>
 
@@ -247,14 +297,14 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a544ee7f4d1124864eb64a3acf648168a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a544ee7f4d1124864eb64a3acf648168a">&#9670;&nbsp;</a></span>xi_bsp_fwu_on_new_firmware_ok()</h2>
+<a id="aee555ebdcb36ffaeccb5cb8cc62bbc0a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aee555ebdcb36ffaeccb5cb8cc62bbc0a">&#9670;&nbsp;</a></span>xi_bsp_fwu_on_new_firmware_ok()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void xi_bsp_fwu_on_new_firmware_ok </td>
+          <td class="memname"><a class="el" href="../../d4/da6/xi__bsp__fwu_8h.html#a93ea58ba2ec8d8e03f12262e6db35ca5">xi_bsp_fwu_state_t</a> xi_bsp_fwu_on_new_firmware_ok </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -264,7 +314,8 @@ Functions</h2></td></tr>
 
 <p></p>
 <p>This is an event notification function called when the Xively C Client considers the new firmare functional.</p>
-<p>Called by the updated/new firmware. </p>
+<p>Called by the updated/new firmware.</p>
+<dl class="section return"><dt>Returns</dt><dd>XI_BSP_FWU_ACTUAL_COMMIT_HAPPENED if the function actually committed the firmware. This means the new firmware runs first time. XI_BSP_FWU_STATE_OK otherwise. </dd></dl>
 
 </div>
 </div>
