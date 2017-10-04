@@ -38,13 +38,18 @@
 #define WIFI_CONNECTED_FLAG  BIT0
 
 static EventGroupHandle_t app_wifi_event_group;
-user_data_t user_config;
+static user_data_t user_config;
 
 static esp_err_t app_wifi_event_handler( void* ctx, system_event_t* event );
 static int8_t app_wifi_station_init( user_data_t* credentials );
 static int8_t app_fetch_user_config( user_data_t* dst );
 static void app_gpio_interrupts_handler_task( void* param );
 
+/**
+ * Initialize GPIO and NVS, fetch WiFi and Xively credentials from flash or
+ * through the provisioning process, start RTOS tasks for Xively, GPIO handling
+ * and WiFi stack handling
+ */
 void app_main( void )
 {
     /* Initialize GPIO and Button Interrupts */
@@ -71,7 +76,6 @@ void app_main( void )
             vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
 
-    printf( "\nxt_init...");/*TODO: REMOVE*/
     /* Configure Xively Settings */
     if ( 0 > xt_init( user_config.xi_account_id, user_config.xi_device_id,
                       user_config.xi_device_password ) )
@@ -81,7 +85,6 @@ void app_main( void )
             vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
 
-    printf( "\ncreating xively task...");/*TODO: REMOVE*/
     /* Start Xively task */
     if ( pdPASS != xTaskCreatePinnedToCore( &xt_rtos_task, "xively_task",
                                             XT_TASK_STACK_SIZE, NULL, 5, NULL,
@@ -141,7 +144,7 @@ esp_err_t app_wifi_event_handler( void* ctx, system_event_t* event )
             break;
 
         case SYSTEM_EVENT_STA_DISCONNECTED:
-            if ( xt_ready_for_requests() )
+            if ( xt_ready_for_requests() && xt_is_connected() )
             {
                 if ( xt_request_machine_state( XT_REQUEST_DISCONNECT ) < 0 )
                 {
@@ -264,12 +267,10 @@ int8_t app_fetch_user_config( user_data_t* dst )
 void app_gpio_interrupts_handler_task( void* param )
 {
     const uint32_t IO_BUTTON_WAIT_TIME_MS = 500;
-    int button_input_level = -1;
     int virtual_switch = 0; /* Switches between 1 and 0 on each button press */
     while ( 1 )
     {
-        if ( -1 !=
-             ( button_input_level = io_await_gpio_interrupt( IO_BUTTON_WAIT_TIME_MS ) ) )
+        if ( -1 != io_await_gpio_interrupt( IO_BUTTON_WAIT_TIME_MS ) )
         {
             virtual_switch = !virtual_switch;
             printf( "\nButton pressed! Virtual switch [%d]", virtual_switch );

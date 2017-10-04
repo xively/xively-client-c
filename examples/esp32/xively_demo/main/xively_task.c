@@ -41,6 +41,8 @@ typedef enum {
 /******************************************************************************
  *                   Xively Task Function Declarations
  ******************************************************************************/
+int8_t xt_connect( void );
+int8_t xt_disconnect( void );
 static int8_t xt_build_xively_topic( char* topic_name, char* dst, uint32_t dst_len );
 
 /* RTOS specific functions */
@@ -50,7 +52,6 @@ static inline void xt_await_unpause( void );
 static xt_action_requests_t xt_pop_highest_priority_request( void );
 
 /* Application specific functions */
-static int8_t xt_build_all_mqtt_topics( void );
 static int8_t xt_subscribe( void );
 static int8_t xt_start_timed_tasks( void );
 static void xt_cancel_timed_tasks( void );
@@ -89,9 +90,9 @@ static void xt_publish_counter( void );
 static xi_timed_task_handle_t xt_pubcounter_scheduled_task_handle = -1;
 #endif
 
-/*-----------------------------------------------------------------------------
-                            Xively Task Implementation
------------------------------------------------------------------------------*/
+/******************************************************************************
+ *                          Xively Task Implementation
+ *****************************************************************************/
 void __attribute__( ( weak ) ) xt_state_machine_aborted_callback( void )
 {
     printf( "\n[XT] The Xively IF state machine and RTOS task are about to shut" );
@@ -110,9 +111,9 @@ void xt_handle_unrecoverable_error( void )
     xt_request_machine_state( XT_REQUEST_SHUTDOWN );
 }
 
-/*-----------------------------------------------------------------------------
-                           Events loop
------------------------------------------------------------------------------*/
+/******************************************************************************
+ *                               Events loop
+ *****************************************************************************/
 void xt_rtos_task( void* param )
 {
     int evt_loop_exit_flag = 0;
@@ -147,6 +148,11 @@ void xt_rtos_task( void* param )
                 xt_request_machine_state( XT_REQUEST_CONTINUE );
                 xi_events_process_tick();
                 break;
+            case XT_REQUEST_DISCONNECT:
+                printf( "\n[XT] MQTT Disconnection requested" );
+                xt_request_machine_state( XT_REQUEST_CONTINUE );
+                xt_disconnect();
+                break;
             case XT_REQUEST_CONNECT:
                 printf( "\n[XT] MQTT Connection requested" );
                 xt_request_machine_state( XT_REQUEST_CONTINUE );
@@ -154,11 +160,6 @@ void xt_rtos_task( void* param )
                 {
                     xt_handle_unrecoverable_error();
                 }
-                break;
-            case XT_REQUEST_DISCONNECT:
-                printf( "\n[XT] MQTT Disconnection requested" );
-                xt_request_machine_state( XT_REQUEST_CONTINUE );
-                xt_disconnect();
                 break;
             case XT_REQUEST_PAUSE:
                 /* Halt this task until we get a XT_REQUEST_CONTINUE request */
@@ -194,21 +195,6 @@ void xt_rtos_task( void* param )
     printf( "\n[XT] Xively Task has been shut down" );
     vTaskDelete( NULL );
     return NULL;
-}
-
-int8_t xt_build_all_mqtt_topics( void )
-{
-    if ( 0 > xt_build_xively_topic( XT_BUTTON_TOPIC_NAME, xt_mqtt_topics.button_topic,
-                                    XT_MQTT_TOPIC_MAX_LEN ) )
-    {
-        return -1;
-    }
-    if ( 0 > xt_build_xively_topic( XT_LED_TOPIC_NAME, xt_mqtt_topics.led_topic,
-                                    XT_MQTT_TOPIC_MAX_LEN ) )
-    {
-        return -1;
-    }
-    return 0;
 }
 
 int8_t xt_build_xively_topic( char* topic_name, char* dst, uint32_t dst_len )
@@ -247,7 +233,14 @@ int8_t xt_init( char* xi_acc_id, char* xi_dev_id, char* xi_dev_pwd )
         return -1;
     }
 
-    if ( 0 > xt_build_all_mqtt_topics() )
+    if ( 0 > xt_build_xively_topic( XT_BUTTON_TOPIC_NAME, xt_mqtt_topics.button_topic,
+                                    XT_MQTT_TOPIC_MAX_LEN ) )
+    {
+        printf( "\n[XT] Unrecoverable building MQTT topic strings. Abort" );
+        return -1;
+    }
+    if ( 0 > xt_build_xively_topic( XT_LED_TOPIC_NAME, xt_mqtt_topics.led_topic,
+                                    XT_MQTT_TOPIC_MAX_LEN ) )
     {
         printf( "\n[XT] Unrecoverable building MQTT topic strings. Abort" );
         return -1;
@@ -310,6 +303,7 @@ void xt_publish_button_state( int button_state )
                 XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
 
+#if PUB_INCREASING_COUNTER
 void xt_publish_counter( void )
 {
     static unsigned long msg_counter = 0;
@@ -332,6 +326,7 @@ void xt_publish_counter( void )
         xt_handle_unrecoverable_error();
     }
 }
+#endif /* PUB_INCREASING_COUNTER */
 
 int8_t xt_start_timed_tasks( void )
 {
@@ -371,7 +366,7 @@ void xt_successful_connection_callback( xi_connection_data_t* conn_data )
     xt_start_timed_tasks();
 }
 
-/* @param params:
+/*
  * Full declaration of xi_sub_call_params_t is available in xively_types.h. This
  * function will always be called with the 'message' struct of the union:
  * typedef union xi_sub_call_params_u {
@@ -400,9 +395,12 @@ xt_recv_mqtt_msg_callback( const xi_sub_call_params_t* const params )
     }
 }
 
-/* @retval 0: Disconnect message sent - Task will be paused from on_connected
- *            callback
- *         1: MQTT was not connected - Task shutdown initiated
+/*
+ * Cancel timed tasks and call xi_shutdown_connection() to disconnect from the
+ * broker
+ *
+ * @retval 0: Disconnect message sent - Task will be paused from on_connected callback
+ * @retval 1: MQTT was not connected - Task shutdown initiated
  */
 int8_t xt_disconnect( void )
 {
@@ -424,8 +422,10 @@ int8_t xt_is_connected( void )
 
 /******************************************************************************
  *                           xively-client-c callbacks
- ******************************************************************************/
-/* @brief Connection callback.  See xively.h for full signature information
+ *****************************************************************************/
+/**
+ * @brief Called by libxively whenever there is a change in the MQTT connection
+ * status. See xively.h for full signature information
  *
  * @param in_context_handle the xively connection context as was returned from
  * xi_create_context. This denotes which connection is calling this callback and
@@ -479,6 +479,20 @@ void xt_on_connected( xi_context_handle_t in_context_handle,
     }
 }
 
+/**
+ * @brief Called by libxively whenever there is an update on the LED topic.
+ * Handle Subscription ACKs and pass incoming messages to the logic layer with
+ * the xt_recv_mqtt_msg_callback function
+ *
+ * @param in_context_handle the xively connection context as was returned from
+ * xi_create_context. This denotes which connection is calling this callback and
+ * could be used to differentiate connections if you have more than one ongoing.)
+ * This value must be used for all Xively C Client operations.
+ * @param data an abstract data pointer that is parsed differently depending on the
+ * connection state.  See the source below for example usage.
+ * @param state status / error code from xi_error.h that might be applicable
+ * to the connection state change.
+ */
 void xt_led_topic_callback( xi_context_handle_t in_context_handle,
                             xi_sub_call_type_t call_type,
                             const xi_sub_call_params_t* const params,
@@ -507,9 +521,9 @@ void xt_led_topic_callback( xi_context_handle_t in_context_handle,
     }
 }
 
-/*-----------------------------------------------------------------------------
-                           FreeRTOS-specific implementation
------------------------------------------------------------------------------*/
+/******************************************************************************
+ *                         FreeRTOS-specific implementation
+ *****************************************************************************/
 int8_t xt_set_request_bits( xt_action_requests_t requested_action )
 {
     if ( !xt_ready_for_requests() )
@@ -593,9 +607,11 @@ int8_t xt_request_machine_state( xt_action_requests_t requested_action )
     return 0;
 }
 
-/* Reads the thread-safe requests bitmask, gets the next highest priority request
+/**
+ * Reads the thread-safe requests bitmask, gets the next highest priority request
  * (the highest bit in the bitmask), clears that bit and returns its corresponding
  * xt_action_requests_t enum value.
+ *
  * The XT_REQUEST_CONTINUE flag is ignored, and it will be returned whenever
  * the rest of the flags are 0
  */

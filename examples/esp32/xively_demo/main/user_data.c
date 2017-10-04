@@ -27,12 +27,6 @@
 static int8_t
 user_data_read_esp32_nvs_str( nvs_handle nvs_hdl, char* nvs_key, char* dst );
 
-/**
- * @brief  Initialize the ESP32's NVS system
- * @param   None
- * @retval 0 Success
- * @retval <0 Error: Something is probably misconfigured in the source code
- */
 int8_t user_data_flash_init( void )
 {
     int retval = 0;
@@ -297,12 +291,6 @@ err_out:
     return -1;
 }
 
-/**
- * Returns -1 if any of the required credentials is not present in *user_data
- * @retval  0 if all required strings are present: wifi_ssid, xi_acc_id,
- *            xi_device_id, xi_device_pwd
- *         -1 if any of the strings is empty. The device needs to be (re)provisioned
- */
 int8_t user_data_is_valid( user_data_t* user_data )
 {
     if( strlen(user_data->wifi_client_ssid) <= 0 )
