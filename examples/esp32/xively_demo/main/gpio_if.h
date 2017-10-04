@@ -39,6 +39,8 @@ int8_t io_init( void );
  * expires. If an interrupt happened before the function was called, it will return
  * 1 immediately
  *
+ * @param timeout_ms is the wait timeout in milliseconds
+ *
  * @retval -1 Timeout
  * @retval  1 Interrupt detected
  */
