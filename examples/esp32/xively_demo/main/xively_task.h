@@ -13,8 +13,10 @@
 extern "C" {
 #endif
 /*! \file
- * @brief    Interface between the top level application logic and libxively for
+ * @brief Interface between the top level application logic and libxively for
  * an RTOS-based environment.
+ *
+ * \mainpage Sample Implementation of a Dedicated RTOS Task for libxively
  *
  * @detailed Xively Task is a state machine that will run on its own RTOS task,
  * and a task-safe API to communicate with it, request the task to pause/shutdown
@@ -38,19 +40,22 @@ extern "C" {
 
 #define XT_MQTT_TOPIC_MAX_LEN 256
 
+/**
+ * @see xt_mqtt_topics
+ */
 typedef struct {
     char button_topic[XT_MQTT_TOPIC_MAX_LEN];
     char led_topic[XT_MQTT_TOPIC_MAX_LEN];
 } xt_mqtt_topics_t;
 
 /**
- * This struct contains the full topic paths, including Account ID and Device ID.
+ * @brief This struct contains the full topic paths, including Account ID and Device ID.
  * It is filled by xt_init
  */
 extern xt_mqtt_topics_t xt_mqtt_topics;
 
 /**
- * Actions that can be requested of the XT state machine - Ordered by priority
+ * @brief Actions that can be requested of the XT state machine - Ordered by priority
  * Priorities are enforced from xt_pop_highest_priority_request()
  */
 typedef enum {
