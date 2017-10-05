@@ -75,7 +75,7 @@ static xt_mqtt_connection_states_t xt_mqtt_connection_status = XT_MQTT_DISCONNEC
 static xt_device_info_t xt_mqtt_device_info;
 xt_mqtt_topics_t xt_mqtt_topics;
 
-/* libxively Handles */
+/* Xively Client Handles */
 static xi_context_handle_t xt_context_handle = -1;
 
 /* FreeRTOS Handles */
@@ -168,8 +168,8 @@ void xt_rtos_task( void* param )
                 xt_request_machine_state( XT_REQUEST_CONTINUE );
                 break;
             case XT_REQUEST_SHUTDOWN:
-                /* Free all the memory allocated by xt or libxively, shut down the
-                 * events loop, and delete the RTOS task */
+                /* Free all the memory allocated by xt or the Xively Client, shut
+                 * down the events loop, and delete the RTOS task */
                 printf( "\n[XT] Shutting down Xively Task..." );
                 if ( xt_context_handle >= 0 )
                 {
@@ -424,8 +424,8 @@ int8_t xt_is_connected( void )
  *                           xively-client-c callbacks
  *****************************************************************************/
 /**
- * @brief Called by libxively whenever there is a change in the MQTT connection
- * status. See xively.h for full signature information
+ * @brief Called by the Xively Client whenever there is a change in the MQTT
+ * connection status. See xively.h for full signature information
  *
  * @param in_context_handle the xively connection context as was returned from
  * xi_create_context. This denotes which connection is calling this callback and
@@ -480,9 +480,9 @@ void xt_on_connected( xi_context_handle_t in_context_handle,
 }
 
 /**
- * @brief Called by libxively whenever there is an update on the LED topic.
- * Handle Subscription ACKs and pass incoming messages to the logic layer with
- * the xt_recv_mqtt_msg_callback function
+ * @brief Called by the Xively Client whenever there is an update on the LED
+ * topic. Handle Subscription ACKs and pass incoming messages to the logic layer
+ * with the xt_recv_mqtt_msg_callback function
  *
  * @param in_context_handle the xively connection context as was returned from
  * xi_create_context. This denotes which connection is calling this callback and

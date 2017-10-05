@@ -95,7 +95,7 @@ void app_main( void )
             vTaskDelay( 1000 / portTICK_PERIOD_MS );
     } /* Will connect from the wifi callback */
 
-    /* Wait until the libxively context is created, so we can connect on STA_GOT_IP */
+    /* Wait until the Xively Client context is created, so we can connect on STA_GOT_IP */
     while( 0 == xt_ready_for_requests() )
     {
         vTaskDelay( 100 / portTICK_PERIOD_MS );
