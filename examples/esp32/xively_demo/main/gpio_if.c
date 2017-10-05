@@ -15,7 +15,6 @@
 
 #define IO_BUTTON_DEBOUNCE_TIME 300
 
-#define IO_BUTTON_PIN GPIO_NUM_0
 #define IO_BUTTON_INTERRUPT_EDGE GPIO_PIN_INTR_NEGEDGE /* pull-up enabled in io_init */
 
 /**
@@ -32,7 +31,10 @@ static xQueueHandle io_button_queue = NULL;
 void IRAM_ATTR gpio_isr_handler( void* arg )
 {
     uint32_t gpio_num = ( uint32_t )arg;
-    xQueueSendFromISR( io_button_queue, &gpio_num, NULL );
+    if( NULL != io_button_queue )
+    {
+        xQueueSendFromISR( io_button_queue, &gpio_num, NULL );
+    }
 }
 
 inline void io_inputs_init( void )
@@ -72,11 +74,6 @@ inline void io_outputs_init( void )
     gpio_config( &io_conf );
 }
 
-/**
- * @brief  Initialize the GPIO pins we'd like to use
- * @param  None
- * @retval -1 error, 0 success
- */
 int8_t io_init( void )
 {
     io_inputs_init();
@@ -99,10 +96,6 @@ int8_t io_init( void )
     return 0;
 }
 
-/**
- * @retval -1 Error
- * @retval [0, 1]: Button status changed. retval is the GPIO input level
- */
 int8_t io_await_gpio_interrupt( uint32_t timeout_ms )
 {
     uint32_t queue_value_io_num;
@@ -111,14 +104,11 @@ int8_t io_await_gpio_interrupt( uint32_t timeout_ms )
     if ( xQueueReceive( io_button_queue, &queue_value_io_num,
                         ( timeout_ms / portTICK_PERIOD_MS ) ) )
     {
-        return gpio_get_level( queue_value_io_num );
+        return 1;
     }
     return -1;
 }
 
-/**
- * @brief Add the button GPIO pin to the list of ISR handlers 
- */
 int8_t io_interrupts_enable( void )
 {
     esp_err_t r = ESP_OK;
@@ -132,9 +122,6 @@ int8_t io_interrupts_enable( void )
     return 0;
 }
 
-/**
- * @brief Remove the button GPIO pin to the list of ISR handlers 
- */
 int8_t io_interrupts_disable( void )
 {
     esp_err_t retval = ESP_OK;
