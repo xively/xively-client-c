@@ -17,8 +17,7 @@
   Demo for CC3200. Please see our CC3200 Secure File Transfer (SFT) Tutorial in
   the Xively Development Center to remote update your CC3200's firmware over MQTT!
 
-- ESP32 Port, first version complete. Known issue: port may crash after losing signal
-  with Endpoint.
+- ESP32 port and example first version
 
 - STM32F4 Tier 1 tutorial support: now the repository contains precompiled STM32F4
   wifi + ethernet application binaries to support the simpliest tutorial connecting
