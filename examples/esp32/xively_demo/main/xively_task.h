@@ -87,7 +87,7 @@ int8_t xt_ready_for_requests( void );
  * space, but the Xively Client does copy some strings to make sure they're always
  * accessible when required.
  * The argument pointers will be stored, and the referenced strings cannot be
- * free()d
+ * released
  *
  * @param [in] *xi_acc_id Pointer to the Xively account ID string
  * @param [in] *xi_acc_id Pointer to the Xively device ID string
