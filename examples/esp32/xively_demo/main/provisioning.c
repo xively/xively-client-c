@@ -14,7 +14,8 @@
 #include "esp_system.h"
 #include "rom/uart.h"
 
-/* The ESP32 doesn't have scanf hooked to the UART at the moment, so we'll have
+/**
+ * The ESP32 doesn't have scanf hooked to the UART at the moment, so we'll have
  * to poll the UART Rx until we get the characters we need. In order to do that
  * without blocking the entire RTOS scheduler, we use vTaskDelay - That way
  * FreeRTOS can continue ticking while we wait
@@ -36,7 +37,7 @@ int8_t provisioning_gather_user_data( user_data_t* dst )
         case 1:
             printf( "\n>> Saving user data to flash" );
             if ( 0 > user_data_save_to_flash( dst ) )
-                return -1;
+                return -2;
             break;
         case 0:
             break;
@@ -51,7 +52,7 @@ int8_t provisioning_gather_user_data( user_data_t* dst )
         case 1:
             printf( "\n>> Saving user data to flash" );
             if ( 0 > user_data_save_to_flash( dst ) )
-                return -1;
+                return -2;
             break;
         case 0:
             break;
@@ -64,7 +65,9 @@ int8_t provisioning_gather_user_data( user_data_t* dst )
 
 /**
  * @brief  Gather WiFi credentials from the end user via UART
- * @param  udata: pointer to the user_data_t structure to be updated
+ *
+ * @param [out] Credentials will be copied into this datastructure
+ *
  * @retval <0: Error
  * @retval 0: User decided not to update these credentials
  * @retval 1: Credentials updated OK
@@ -112,7 +115,9 @@ static int8_t provisioning_get_ap_credentials( user_data_t* udata )
 
 /**
  * @brief  Gather MQTT credentials from the end user via UART
- * @param  udata: pointer to the user_data_t structure to be updated
+ *
+ * @param [out] Credentials will be copied into this datastructure
+ *
  * @retval <0: Error
  * @retval 0: User decided not to update these credentials
  * @retval 1: Credentials updated OK
@@ -173,6 +178,17 @@ static inline void provisioning_print_banner( void )
     fflush( stdout );
 }
 
+/**
+ * @brief    Get a string from UART. Stop at '\n', strip out '\r' and '\n'
+ * @detailed The IDF SDK hasn't ported scanf() for UART input yet, so we do it
+ * manually.
+ *
+ * @param [out] Credentials will be copied into this datastructure
+ *
+ * @retval <0: Error
+ * @retval 0: User decided not to update these credentials
+ * @retval 1: Credentials updated OK
+ */
 static int8_t get_uart_input_string_esp32( char* dst, size_t dst_size )
 {
     uint8_t input_char = '\0';
