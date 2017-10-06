@@ -1,5 +1,5 @@
 # Xively Client version 1.3.0
-#### Oct 05 2017
+#### Oct 06 2017
 
 ## Features
 
