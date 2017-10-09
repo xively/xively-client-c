@@ -82,7 +82,6 @@ WOLFSSL_SETTINGS =        \
     -DNO_SHA512           \
     -DNO_STDIO_FILESYSTEM \
     -DNO_WOLFSSL_DIR      \
-    -DNO_WOLFSSL_SERVER   \
     -DNO_DH               \
     -DWOLFSSL_STATIC_RSA  \
     -DWOLFSSL_IAR_ARM     \
