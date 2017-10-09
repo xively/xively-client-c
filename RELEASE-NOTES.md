@@ -1,3 +1,11 @@
+# Xively Client version 1.3.1
+#### Oct 09 2017
+
+## Bugfix
+
+- Fix WolfSSL build for the ESP32 platform.
+
+
 # Xively Client version 1.3.0
 #### Oct 06 2017
 
