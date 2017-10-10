@@ -431,7 +431,6 @@ err_handling:
     return state;
 }
 
-
 extern uint8_t xi_is_context_connected( xi_context_handle_t xih )
 {
     if ( XI_INVALID_CONTEXT_HANDLE == xih ) 
