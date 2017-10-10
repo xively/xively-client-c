@@ -439,11 +439,8 @@ extern uint8_t xi_is_context_connected( xi_context_handle_t xih )
         return 0;
     }
 
-    printf("getting object for handle\n" );
     xi_context_t* xi =
         ( xi_context_t* )xi_object_for_handle( xi_globals.context_handles_vector, xih );
-
-    printf("context: %p\n", xi );
     
     if( NULL == xi ||  NULL == xi->context_data.connection_data )
     {

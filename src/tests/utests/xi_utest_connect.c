@@ -254,6 +254,40 @@ XI_TT_TESTCASE_WITH_SETUP( test_connect_lastwill_to__valid_host,
                            end:;
                            } )
 
+XI_TT_TESTCASE_WITH_SETUP( test_INVALID_is_context_connected_context,
+                           xi_utest_setup_basic,
+                           xi_utest_teardown_basic,
+                           NULL,
+                           {
+                                uint8_t is_connected = 0;
+                        
+                                /* Call xi_is_context_connected before creating a context */
+                                xi_context_handle_t xi_invalid_context = -1;
+                        
+                                is_connected = xi_is_context_connected( xi_invalid_context );
+                        
+                                tt_assert( 0 == is_connected );
+                            end:;
+                            } )
+                        
+XI_TT_TESTCASE_WITH_SETUP( test_VALID_is_context_connected_context,
+                            xi_utest_setup_basic,
+                            xi_utest_teardown_basic,
+                            NULL, 
+                            {
+                                uint8_t is_connected = 0;
+                        
+                                /* Call xi_is_context_connected after creating a context */
+                                xi_context_handle_t xi_context = xi_create_context();
+                                tt_assert( XI_INVALID_CONTEXT_HANDLE < xi_context );
+ 
+                                is_connected = xi_is_context_connected( xi_context );
+                        
+                                tt_assert( 0 == is_connected );
+                                xi_delete_context( xi_context );
+                            end:;
+                            } )
+     
 XI_TT_TESTGROUP_END
 
 #ifndef XI_TT_TESTCASE_ENUMERATION__SECONDPREPROCESSORRUN
