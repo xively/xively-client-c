@@ -136,15 +136,12 @@ int xi_mqtt_logic_producer_main( xi_embedded_args_t* xi_embedded_args )
         to numerous topics.  If you would like to use more than one
         connection then please use xi_create_context to create more
         contexts. */
-    printf( "on_connection_state_changed pre create status: %d\n", xi_is_context_connected( xi_context ) );
     xi_context = xi_create_context();
     if ( XI_INVALID_CONTEXT_HANDLE >= xi_context )
     {
         printf( " xi failed to create context, error: %d\n", -xi_context );
         return -1;
     }
-    printf( "on_connection_state_changed post create status: %d\n", xi_is_context_connected( xi_context ) );
-
 
     /*  Create a connection request with the credentials.
         The topic name will be used for publication requests
@@ -158,9 +155,6 @@ int xi_mqtt_logic_producer_main( xi_embedded_args_t* xi_embedded_args )
 
     xi_connect( xi_context, xi_username, xi_password, connection_timeout,
                 keepalive_timeout, XI_SESSION_CLEAN, &on_connection_state_changed );
-
-    printf( "on_connection_state_changed post connect request status: %d\n", xi_is_context_connected( xi_context ) );
-
 
     /* The Xively Client was designed for single threaded devices. As such
         it does not have its own event loop thread. Instead you must regularly call
@@ -218,7 +212,6 @@ void on_connection_state_changed( xi_context_handle_t in_context_handle,
                                   void* data,
                                   xi_state_t state )
 {
-    printf( "on_connection_state_changed connection status: %d\n", xi_is_context_connected( in_context_handle ) );
     xi_connection_data_t* conn_data = ( xi_connection_data_t* )data;
 
     switch ( conn_data->connection_state )
@@ -314,8 +307,7 @@ void delayed_publish( xi_context_handle_t context_handle,
     XI_UNUSED( user_data );
 
     printf( "publishing msg\n" );
-    printf( "publish connection status: %d\n", xi_is_context_connected( context_handle ) );
-
+    
     /* sending the connect request */
     xi_publish( context_handle, xi_publishtopic, "Hello From Xively!", xi_example_qos,
                 XI_MQTT_RETAIN_FALSE, NULL, NULL );

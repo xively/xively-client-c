@@ -441,13 +441,15 @@ extern uint8_t xi_is_context_connected( xi_context_handle_t xih )
 
     xi_context_t* xi =
         ( xi_context_t* )xi_object_for_handle( xi_globals.context_handles_vector, xih );
+
     
     if( NULL == xi ||  NULL == xi->context_data.connection_data )
     {
         return 0;
     }
     
-    return xi->context_data.connection_data->connection_state == XI_CONNECTION_STATE_OPENED;
+    return xi->context_data.connection_data->connection_state == XI_CONNECTION_STATE_OPENED 
+            && xi->context_data.shutdown_state == XI_SHUTDOWN_UNINITIALISED;
 }
 
 void xi_events_stop()
