@@ -19,6 +19,9 @@ extern void
 xi_itest_test_valid_flow__call_connect_function_twice__second_call_returns_error(
     void** state );
 extern void
+xi_itest_test_valid_flow__call_is_context_connected_on_connecting_context__call_returns_false(
+    void** state );    
+extern void
 xi_itest_test_valid_flow__call_is_context_connected_on_connected_context__call_returns_true(
     void** state );
 extern void
@@ -46,6 +49,18 @@ struct CMUnitTest xi_itests_connect_error[] = {
         xi_itest_connect_error_setup,
         xi_itest_connect_error_teardown ),
     cmocka_unit_test_setup_teardown(
+        xi_itest_test_valid_flow__call_disconnect_twice_on_connected_context__second_call_should_return_error,
+        xi_itest_connect_error_setup,
+        xi_itest_connect_error_teardown ),
+    cmocka_unit_test_setup_teardown(
+        xi_itest_test_valid_flow__call_connect_function_then_disconnect_without_making_a_connection__shutdown_should_unregister_connect,
+        xi_itest_connect_error_setup,
+        xi_itest_connect_error_teardown ),
+    cmocka_unit_test_setup_teardown(
+        xi_itest_test_valid_flow__call_is_context_connected_on_connecting_context__call_returns_false,
+        xi_itest_connect_error_setup,
+        xi_itest_connect_error_teardown ),
+    cmocka_unit_test_setup_teardown(
         xi_itest_test_valid_flow__call_is_context_connected_on_connected_context__call_returns_true,
         xi_itest_connect_error_setup,
         xi_itest_connect_error_teardown ),
@@ -55,14 +70,6 @@ struct CMUnitTest xi_itests_connect_error[] = {
         xi_itest_connect_error_teardown ),
     cmocka_unit_test_setup_teardown(
         xi_itest_test_valid_flow__call_is_context_connected_on_disconnected_context__call_returns_false,
-        xi_itest_connect_error_setup,
-        xi_itest_connect_error_teardown ),
-    cmocka_unit_test_setup_teardown(
-        xi_itest_test_valid_flow__call_disconnect_twice_on_connected_context__second_call_should_return_error,
-        xi_itest_connect_error_setup,
-        xi_itest_connect_error_teardown ),
-    cmocka_unit_test_setup_teardown(
-        xi_itest_test_valid_flow__call_connect_function_then_disconnect_without_making_a_connection__shutdown_should_unregister_connect,
         xi_itest_connect_error_setup,
         xi_itest_connect_error_teardown ),
 };
