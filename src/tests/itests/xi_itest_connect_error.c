@@ -314,6 +314,301 @@ void xi_itest_test_valid_flow__call_connect_function_twice__second_call_returns_
     }
 }
 
+void xi_itest_test_valid_flow__call_is_context_connected_on_connected_context__call_returns_true(
+    void** fixture_void )
+{
+    uint8_t evtd_loop_count_between_connect_calls = 0;
+    for ( ; evtd_loop_count_between_connect_calls < 10;
+          ++evtd_loop_count_between_connect_calls )
+    {
+        const xi_itest_connect_error__test_fixture_t* const fixture =
+            ( xi_itest_connect_error__test_fixture_t* )*fixture_void;
+
+        XI_UNUSED( fixture );
+
+        xi_debug_format( "Number of evtd calls: %d",
+                         evtd_loop_count_between_connect_calls );
+
+        /* one call for mock broker layer chain init*/
+        expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_layer_tls_prev_init, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_layer_tls_prev_connect, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_broker_layer_connect, in_out_state, XI_STATE_OK );
+
+        expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_broker_layer_connect, in_out_state, XI_STATE_OK );
+
+        /* no problem during CONNECT*/
+        expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
+        expect_value( xi_mock_layer_tls_prev_push, in_out_state, XI_STATE_OK );
+
+        /* CONNECT message arrives at mock broker*/
+        expect_value( xi_mock_broker_layer_pull, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_broker_layer_pull, recvd_msg_type, XI_MQTT_TYPE_CONNECT );
+
+        /* CONNACK sent*/
+        expect_value( xi_mock_broker_secondary_layer_push, in_out_state, XI_STATE_OK );
+        will_return( xi_mock_broker_secondary_layer_push, CONTROL_CONTINUE );
+        expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
+
+
+#ifdef XI_CONTROL_TOPIC_ENABLED
+        /* second message (probably SUBSCRIBE on a control topic)*/
+        expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
+        expect_value( xi_mock_layer_tls_prev_push, in_out_state, XI_STATE_OK );
+
+        /* SUBSCRIBE message arrives at mock broker*/
+        expect_value( xi_mock_broker_layer_pull, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_broker_layer_pull, recvd_msg_type, XI_MQTT_TYPE_SUBSCRIBE );
+
+        expect_string( xi_mock_broker_layer_pull, subscribe_topic_name,
+                       fixture->control_topic_name );
+
+        /* SUBACK sent*/
+        expect_value( xi_mock_broker_secondary_layer_push, in_out_state, XI_STATE_OK );
+        will_return( xi_mock_broker_secondary_layer_push, CONTROL_CONTINUE );
+        expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
+#endif
+
+        /* DISCONNECT MESSAGE */
+        expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_layer_tls_prev_push, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
+        expect_value( xi_mock_broker_layer_pull, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_broker_layer_pull, recvd_msg_type,
+                      XI_MQTT_TYPE_DISCONNECT );
+
+        /* SHUTDOWN */
+        expect_value( xi_mock_broker_layer_close, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_broker_layer_close, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_layer_tls_prev_close, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_layer_tls_prev_close_externally, in_out_state,
+                      XI_STATE_OK );
+
+        xi_itest_connect_error__trigger_connect( fixture_void, 1 );
+        xi_itest_connect_error__trigger_event_dispatcher(
+            fixture_void, evtd_loop_count_between_connect_calls );
+
+        xi_itest_connect_error__trigger_event_dispatcher( fixture_void, 6 );
+        
+        /* TEST IT */
+        int is_connected_result = xi_is_context_connected( xi_context_handle );
+               
+        expect_value( xi_itest_connect_error__trigger_shutdown, local_state,
+                      XI_STATE_OK );
+
+        xi_itest_connect_error__trigger_shutdown( fixture_void );
+
+        xi_itest_connect_error__trigger_event_dispatcher( fixture_void, 10 );
+
+        /* artificially reset test case*/
+        xi_itest_connect_error_teardown( fixture_void );
+        xi_itest_connect_error_setup( fixture_void );
+
+        /* Evaluate result */
+        assert_int_equal( is_connected_result, 1 );
+    }
+}
+
+void xi_itest_test_valid_flow__call_is_context_connected_on_disconnecting_context__call_returns_false(
+    void** fixture_void )
+{
+    uint8_t evtd_loop_count_between_connect_calls = 0;
+    for ( ; evtd_loop_count_between_connect_calls < 10;
+          ++evtd_loop_count_between_connect_calls )
+    {
+        const xi_itest_connect_error__test_fixture_t* const fixture =
+            ( xi_itest_connect_error__test_fixture_t* )*fixture_void;
+
+        XI_UNUSED( fixture );
+
+        xi_debug_format( "Number of evtd calls: %d",
+                         evtd_loop_count_between_connect_calls );
+
+        /* one call for mock broker layer chain init*/
+        expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_layer_tls_prev_init, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_layer_tls_prev_connect, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_broker_layer_connect, in_out_state, XI_STATE_OK );
+
+        expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_broker_layer_connect, in_out_state, XI_STATE_OK );
+
+        /* no problem during CONNECT*/
+        expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
+        expect_value( xi_mock_layer_tls_prev_push, in_out_state, XI_STATE_OK );
+
+        /* CONNECT message arrives at mock broker*/
+        expect_value( xi_mock_broker_layer_pull, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_broker_layer_pull, recvd_msg_type, XI_MQTT_TYPE_CONNECT );
+
+        /* CONNACK sent*/
+        expect_value( xi_mock_broker_secondary_layer_push, in_out_state, XI_STATE_OK );
+        will_return( xi_mock_broker_secondary_layer_push, CONTROL_CONTINUE );
+        expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
+
+
+#ifdef XI_CONTROL_TOPIC_ENABLED
+        /* second message (probably SUBSCRIBE on a control topic)*/
+        expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
+        expect_value( xi_mock_layer_tls_prev_push, in_out_state, XI_STATE_OK );
+
+        /* SUBSCRIBE message arrives at mock broker*/
+        expect_value( xi_mock_broker_layer_pull, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_broker_layer_pull, recvd_msg_type, XI_MQTT_TYPE_SUBSCRIBE );
+
+        expect_string( xi_mock_broker_layer_pull, subscribe_topic_name,
+                       fixture->control_topic_name );
+
+        /* SUBACK sent*/
+        expect_value( xi_mock_broker_secondary_layer_push, in_out_state, XI_STATE_OK );
+        will_return( xi_mock_broker_secondary_layer_push, CONTROL_CONTINUE );
+        expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
+#endif
+
+        /* DISCONNECT MESSAGE */
+        expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_layer_tls_prev_push, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
+        expect_value( xi_mock_broker_layer_pull, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_broker_layer_pull, recvd_msg_type,
+                      XI_MQTT_TYPE_DISCONNECT );
+
+        /* SHUTDOWN */
+        expect_value( xi_mock_broker_layer_close, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_broker_layer_close, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_layer_tls_prev_close, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_layer_tls_prev_close_externally, in_out_state,
+                      XI_STATE_OK );
+
+        xi_itest_connect_error__trigger_connect( fixture_void, 1 );
+        xi_itest_connect_error__trigger_event_dispatcher(
+            fixture_void, evtd_loop_count_between_connect_calls );
+
+        xi_itest_connect_error__trigger_event_dispatcher( fixture_void, 6 );
+                
+        expect_value( xi_itest_connect_error__trigger_shutdown, local_state,
+                      XI_STATE_OK );
+
+        xi_itest_connect_error__trigger_shutdown( fixture_void );
+
+        /* TEST IT */
+        int is_connected_result = xi_is_context_connected( xi_context_handle );  
+
+        xi_itest_connect_error__trigger_event_dispatcher( fixture_void, 10 );
+
+        /* artificially reset test case*/
+        xi_itest_connect_error_teardown( fixture_void );
+        xi_itest_connect_error_setup( fixture_void );
+
+        /* Evaluate result */
+        assert_int_equal( is_connected_result, 0 );
+    }
+}
+
+void xi_itest_test_valid_flow__call_is_context_connected_on_disconnected_context__call_returns_false(
+    void** fixture_void )
+{
+    uint8_t evtd_loop_count_between_connect_calls = 0;
+    for ( ; evtd_loop_count_between_connect_calls < 10;
+          ++evtd_loop_count_between_connect_calls )
+    {
+        const xi_itest_connect_error__test_fixture_t* const fixture =
+            ( xi_itest_connect_error__test_fixture_t* )*fixture_void;
+
+        XI_UNUSED( fixture );
+
+        xi_debug_format( "Number of evtd calls: %d",
+                         evtd_loop_count_between_connect_calls );
+
+        /* one call for mock broker layer chain init*/
+        expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_layer_tls_prev_init, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_layer_tls_prev_connect, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_broker_layer_connect, in_out_state, XI_STATE_OK );
+
+        expect_value( xi_mock_broker_layer_init, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_broker_layer_connect, in_out_state, XI_STATE_OK );
+
+        /* no problem during CONNECT*/
+        expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
+        expect_value( xi_mock_layer_tls_prev_push, in_out_state, XI_STATE_OK );
+
+        /* CONNECT message arrives at mock broker*/
+        expect_value( xi_mock_broker_layer_pull, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_broker_layer_pull, recvd_msg_type, XI_MQTT_TYPE_CONNECT );
+
+        /* CONNACK sent*/
+        expect_value( xi_mock_broker_secondary_layer_push, in_out_state, XI_STATE_OK );
+        will_return( xi_mock_broker_secondary_layer_push, CONTROL_CONTINUE );
+        expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
+
+
+#ifdef XI_CONTROL_TOPIC_ENABLED
+        /* second message (probably SUBSCRIBE on a control topic)*/
+        expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
+        expect_value( xi_mock_layer_tls_prev_push, in_out_state, XI_STATE_OK );
+
+        /* SUBSCRIBE message arrives at mock broker*/
+        expect_value( xi_mock_broker_layer_pull, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_broker_layer_pull, recvd_msg_type, XI_MQTT_TYPE_SUBSCRIBE );
+
+        expect_string( xi_mock_broker_layer_pull, subscribe_topic_name,
+                       fixture->control_topic_name );
+
+        /* SUBACK sent*/
+        expect_value( xi_mock_broker_secondary_layer_push, in_out_state, XI_STATE_OK );
+        will_return( xi_mock_broker_secondary_layer_push, CONTROL_CONTINUE );
+        expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
+#endif
+
+        /* DISCONNECT MESSAGE */
+        expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_layer_tls_prev_push, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_broker_layer_push, in_out_state, XI_STATE_WRITTEN );
+        expect_value( xi_mock_broker_layer_pull, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_broker_layer_pull, recvd_msg_type,
+                      XI_MQTT_TYPE_DISCONNECT );
+
+        /* SHUTDOWN */
+        expect_value( xi_mock_broker_layer_close, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_broker_layer_close, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_layer_tls_prev_close, in_out_state, XI_STATE_OK );
+        expect_value( xi_mock_layer_tls_prev_close_externally, in_out_state,
+                      XI_STATE_OK );
+
+        xi_itest_connect_error__trigger_connect( fixture_void, 1 );
+        xi_itest_connect_error__trigger_event_dispatcher(
+            fixture_void, evtd_loop_count_between_connect_calls );
+
+        xi_itest_connect_error__trigger_event_dispatcher( fixture_void, 6 );
+                
+        expect_value( xi_itest_connect_error__trigger_shutdown, local_state,
+                      XI_STATE_OK );
+
+        xi_itest_connect_error__trigger_shutdown( fixture_void );
+
+        xi_itest_connect_error__trigger_event_dispatcher( fixture_void, 10 );
+
+         /* TEST IT */
+         int is_connected_result = xi_is_context_connected( xi_context_handle );  
+
+        /* artificially reset test case*/
+        xi_itest_connect_error_teardown( fixture_void );
+        xi_itest_connect_error_setup( fixture_void );
+
+        /* Evaluate result */
+        assert_int_equal( is_connected_result, 0 );
+    }
+}
+
+
 void xi_itest_test_valid_flow__call_disconnect_twice_on_connected_context__second_call_should_return_error(
     void** fixture_void )
 {
