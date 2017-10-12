@@ -156,7 +156,7 @@ extern xi_state_t xi_delete_context( xi_context_handle_t context_handle );
 
 /**
  * @brief     Used to determine the state of a xively context's connection to
- * the Xively Service.
+ * the remote service.
  *
  * @param [in] context handle to determine connection status of.
  *
@@ -164,7 +164,7 @@ extern xi_state_t xi_delete_context( xi_context_handle_t context_handle );
  * @see xi_connect
  * @see xi_connect_to
  * 
- * @retval 1 if the context is currently connected to the Xively Service
+ * @retval 1 if the context is currently connected
  * @retval 0 if the context is invalid, or the connection is currently any
  * of the other following states: Unitialized, connecting, closing or closed.
  */

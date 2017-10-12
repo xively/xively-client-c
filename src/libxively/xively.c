@@ -447,8 +447,8 @@ extern uint8_t xi_is_context_connected( xi_context_handle_t xih )
         return 0;
     }
     
-    return xi->context_data.connection_data->connection_state == XI_CONNECTION_STATE_OPENED 
-            && xi->context_data.shutdown_state == XI_SHUTDOWN_UNINITIALISED;
+    return XI_CONNECTION_STATE_OPENED  == xi->context_data.connection_data->connection_state
+            && XI_SHUTDOWN_UNINITIALISED == xi->context_data.shutdown_state;
 }
 
 void xi_events_stop()
