@@ -9,7 +9,9 @@
 #include "xi_control_topic_layer_data.h"
 #include "xi_handle.h"
 #include "xi_user_sub_call_wrapper.h"
+#ifdef XI_SECURE_FILE_TRANSFER_ENABLED
 #include "xi_cbor_codec_ct.h"
+#endif
 #include "xi_control_message.h"
 #endif
 #include "xi_macros.h"
@@ -28,11 +30,9 @@
 extern "C" {
 #endif
 
-#define XI_FEATURE_DEV_SFT_ON 1
-
 #ifdef XI_CONTROL_TOPIC_ENABLED
 
-#if XI_FEATURE_DEV_SFT_ON
+#ifdef XI_SECURE_FILE_TRANSFER_ENABLED
 /**
  * @brief xi_control_topic_publish_on_topic
  *
@@ -80,7 +80,7 @@ xi_control_topic_subscribe( void* context, char* subscribe_control_topic_name );
 static xi_state_t
 xi_control_topic_connection_state_changed( void* context, xi_state_t state );
 
-#if XI_FEATURE_DEV_SFT_ON
+#ifdef XI_SECURE_FILE_TRANSFER_ENABLED
 static xi_state_t
 xi_control_topic_publish_on_topic( void* context, xi_control_message_t* control_message )
 {
@@ -181,13 +181,17 @@ xi_state_t xi_on_control_message( xi_context_handle_t in_context_handle,
             if ( params->suback.suback_status == XI_MQTT_SUBACK_FAILED )
             {
                 xi_debug_logger( "Subscription to control topic failed." );
+
+#ifdef XI_SECURE_FILE_TRANSFER_ENABLED
+                xi_sft_on_connection_failed( layer_data->sft_context );
+#endif
             }
             else
             {
                 xi_debug_format( "Subscription to control topic successfull with QoS %d",
                                  params->suback.suback_status );
 
-#if XI_FEATURE_DEV_SFT_ON
+#ifdef XI_SECURE_FILE_TRANSFER_ENABLED
                 xi_sft_on_connected( layer_data->sft_context );
 #endif
             }
@@ -198,7 +202,7 @@ xi_state_t xi_on_control_message( xi_context_handle_t in_context_handle,
             xi_debug_format( "received data on control topic length: %zu ",
                              params->message.temporary_payload_data_length );
 
-#if XI_FEATURE_DEV_SFT_ON
+#ifdef XI_SECURE_FILE_TRANSFER_ENABLED
             /* CBOR decoding */
             xi_control_message_t* control_message =
                 xi_cbor_codec_ct_decode( params->message.temporary_payload_data,
@@ -313,7 +317,7 @@ xi_control_topic_layer_init( void* context, void* data, xi_state_t in_out_state 
         layer_data =
             ( xi_control_topic_layer_data_t* )XI_THIS_LAYER( context )->user_data;
 
-#if XI_FEATURE_DEV_SFT_ON
+#ifdef XI_SECURE_FILE_TRANSFER_ENABLED
         xi_sft_make_context( &layer_data->sft_context,
                              ( const char** )XI_CONTEXT_DATA( context )->updateable_files,
                              XI_CONTEXT_DATA( context )->updateable_files_count,
@@ -431,7 +435,7 @@ xi_state_t xi_control_topic_layer_close_externally( void* context,
         /* release memory required for topic names */
         XI_SAFE_FREE( layer_data->publish_topic_name );
 
-#if XI_FEATURE_DEV_SFT_ON
+#ifdef XI_SECURE_FILE_TRANSFER_ENABLED
         xi_sft_free_context( &layer_data->sft_context );
 #endif
 

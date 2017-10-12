@@ -45,10 +45,15 @@ XI_ITESTS_SOURCES += $(wildcard $(XI_ITESTS_SOURCE_DIR)/tools/dummy/*.c)
 
 # ADD INTEGRATION TEST TOOLS AND COMMON FILES
 XI_ITESTS_SOURCES += $(wildcard $(XI_TEST_DIR)/*.c)
-XI_ITESTS_SOURCES += $(wildcard $(XI_TEST_DIR)/common/control_topic/*.c)
 
 # ADD dummy io layer
 XI_ITESTS_SOURCES += $(wildcard $(LIBXIVELY)/src/libxively/io/dummy/*.c)
+
+ifdef XI_SECURE_FILE_TRANSFER_ENABLED
+    XI_ITESTS_SOURCES += $(wildcard $(XI_TEST_DIR)/common/control_topic/*.c)
+else
+    XI_ITESTS_SOURCES := $(filter-out $(XI_ITESTS_SOURCE_DIR)/xi_itest_sft.c, $(XI_ITESTS_SOURCES))
+endif
 
 # removing TLS layer related tests in case TLS is turned off from compilation
 ifeq (,$(findstring tls_bsp,$(CONFIG)))

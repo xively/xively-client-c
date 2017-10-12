@@ -75,8 +75,8 @@ Functions</h2></td></tr>
 <tr class="separator:a41afff7397b2037748fb8066547e6f5a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af64c0e82bb5ea33a5eca5567540b0c83"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d72/xively_8h.html#af64c0e82bb5ea33a5eca5567540b0c83">xi_events_stop</a> ()</td></tr>
 <tr class="separator:af64c0e82bb5ea33a5eca5567540b0c83"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5577b7d864767eadf2b9b3c56953874c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../dd/d4c/xively__error_8h.html#af522c63f06c7a49e54dd49017f31c378">xi_state_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d72/xively_8h.html#a5577b7d864767eadf2b9b3c56953874c">xi_set_updateable_files</a> (<a class="el" href="../../d3/d9b/xively__types_8h.html#ac9e563f19e5250af5abcb38f839308ec">xi_context_handle_t</a> xih, const char *filenames[], uint16_t count)</td></tr>
-<tr class="separator:a5577b7d864767eadf2b9b3c56953874c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4b8defdb0190c097e09b48934ec61466"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../dd/d4c/xively__error_8h.html#af522c63f06c7a49e54dd49017f31c378">xi_state_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d72/xively_8h.html#a4b8defdb0190c097e09b48934ec61466">xi_set_updateable_files</a> (<a class="el" href="../../d3/d9b/xively__types_8h.html#ac9e563f19e5250af5abcb38f839308ec">xi_context_handle_t</a> xih, const char **filenames, uint16_t count)</td></tr>
+<tr class="separator:a4b8defdb0190c097e09b48934ec61466"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4c09b3c283c8d94c50253dde6fdb1b5c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../dd/d4c/xively__error_8h.html#af522c63f06c7a49e54dd49017f31c378">xi_state_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d72/xively_8h.html#a4c09b3c283c8d94c50253dde6fdb1b5c">xi_connect</a> (<a class="el" href="../../d3/d9b/xively__types_8h.html#ac9e563f19e5250af5abcb38f839308ec">xi_context_handle_t</a> xih, const char *username, const char *password, uint16_t connection_timeout, uint16_t keepalive_timeout, <a class="el" href="../../d3/d2c/xively__connection__data_8h.html#a135d6b1753321f4c542d80e042034bdd">xi_session_type_t</a> session_type, <a class="el" href="../../d3/d9b/xively__types_8h.html#a09059339fab592e3191c7cb49c6f1183">xi_user_callback_t</a> *client_callback)</td></tr>
 <tr class="separator:a4c09b3c283c8d94c50253dde6fdb1b5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a91c1c6347c58f52540bd2db71b1571bf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../dd/d4c/xively__error_8h.html#af522c63f06c7a49e54dd49017f31c378">xi_state_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d72/xively_8h.html#a91c1c6347c58f52540bd2db71b1571bf">xi_connect_to</a> (<a class="el" href="../../d3/d9b/xively__types_8h.html#ac9e563f19e5250af5abcb38f839308ec">xi_context_handle_t</a> xih, const char *host, uint16_t port, const char *username, const char *password, uint16_t connection_timeout, uint16_t keepalive_timeout, <a class="el" href="../../d3/d2c/xively__connection__data_8h.html#a135d6b1753321f4c542d80e042034bdd">xi_session_type_t</a> session_type, <a class="el" href="../../d3/d9b/xively__types_8h.html#a09059339fab592e3191c7cb49c6f1183">xi_user_callback_t</a> *client_callback)</td></tr>
@@ -1357,8 +1357,8 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a id="a5577b7d864767eadf2b9b3c56953874c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5577b7d864767eadf2b9b3c56953874c">&#9670;&nbsp;</a></span>xi_set_updateable_files()</h2>
+<a id="a4b8defdb0190c097e09b48934ec61466"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4b8defdb0190c097e09b48934ec61466">&#9670;&nbsp;</a></span>xi_set_updateable_files()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1372,8 +1372,8 @@ Variables</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const char *&#160;</td>
-          <td class="paramname"><em>filenames</em>[], </td>
+          <td class="paramtype">const char **&#160;</td>
+          <td class="paramname"><em>filenames</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -1388,6 +1388,25 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Files set by this function will be kept updated by the Xively C Client. </p>
+<p>This API function is used to tell Xively C Client the update file manifest. Client will collect revisions to these files and send these to Xively SFT service. This move initializes the update process. The file list may or may not contain firmware binary. If it does then the firmware update process will be triggered after whole package got downloaded. A firmware differs in name from other update files. Plese visit BSP FWU's <code>xi_bsp_fwu_is_this_firmware</code> function to check the exact firmware file name since this function is responsible for differentiation.</p>
+<p>example call:</p>
+<p><code>xi_set_updateable_files( xih, ( const char* [] ){"file.cfg", "firmware.bin"}, 2 );</code></p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">xih</td><td>a context handle created by invoking xi_create_context </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">filenames</td><td>a list of file names representing the files which have to be kept updated </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">count</td><td>number of file names contained in the file names list</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">XI_STATE_OK</td><td>if file list set properly, an error value otherwise. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

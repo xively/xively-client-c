@@ -7,7 +7,11 @@
 #ifndef __XI_CONTROL_TOPIC_LAYER_LAYER_DATA_H__
 #define __XI_CONTROL_TOPIC_LAYER_LAYER_DATA_H__
 
+#ifdef XI_SECURE_FILE_TRANSFER_ENABLED
 #include <xi_sft_logic.h>
+#else
+#define xi_sft_context_t void
+#endif
 
 #ifdef __cplusplus
 extern "C" {

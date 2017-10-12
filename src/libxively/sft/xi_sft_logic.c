@@ -11,9 +11,12 @@
 
 #include <xi_sft_revision.h>
 #include <xi_sft_logic_file_chunk_handlers.h>
+#include <xi_control_message_sft.h>
 
 #include <xi_bsp_io_fs.h>
 #include <xi_bsp_fwu.h>
+
+#include <xi_fs_bsp_to_xi_mapping.h>
 
 xi_state_t xi_sft_make_context( xi_sft_context_t** context,
                                 const char** updateable_files,
@@ -72,9 +75,13 @@ xi_state_t xi_sft_on_connected( xi_sft_context_t* context )
 
     xi_state_t state = XI_STATE_OK;
 
-    xi_sft_revision_firmware_ok();
-
-    xi_bsp_fwu_on_new_firmware_ok();
+    /* emit a Firmware OK notification towards the BSP module, and depending
+     * on the return value, whether this is the first run of the new firmware
+     * update the firmware revision */
+    if ( XI_BSP_FWU_ACTUAL_COMMIT_HAPPENED == xi_bsp_fwu_on_new_firmware_ok() )
+    {
+        xi_sft_revision_firmware_ok();
+    }
 
     if ( NULL == context )
     {
@@ -87,6 +94,15 @@ xi_state_t xi_sft_on_connected( xi_sft_context_t* context )
     ( *context->fn_send_message )( context->send_message_user_data, message_file_info );
 
     return state;
+}
+
+xi_state_t xi_sft_on_connection_failed( xi_sft_context_t* context )
+{
+    XI_UNUSED( context );
+
+    xi_bsp_fwu_on_new_firmware_failure();
+
+    return XI_STATE_OK;
 }
 
 static void
@@ -180,6 +196,8 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                             XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_PROCESSING,
                             chunk_handling_status_code );
 
+                        xi_bsp_fwu_on_package_download_failure();
+
                         goto err_handling;
                     }
                 }
@@ -226,6 +244,7 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                         if ( XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS !=
                              checksum_status_code )
                         {
+                            xi_bsp_fwu_on_package_download_failure();
                             /* todo_atigyi: another option beyond exiting the whole update
                              * process is to retry the broken file download */
                             goto err_handling;
@@ -234,8 +253,10 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
 
                     /* close file */
                     {
-                        state = xi_bsp_io_fs_close( context->update_file_handle );
-                        context->update_file_handle = XI_FS_INVALID_RESOURCE_HANDLE;
+                        state = xi_fs_bsp_io_fs_2_xi_state(
+                            xi_bsp_io_fs_close( context->update_file_handle ) );
+                        context->update_file_handle =
+                            XI_BSP_IO_FS_INVALID_RESOURCE_HANDLE;
                         // printf( " --- %s, close, state: %d\n", __FUNCTION__, state );
 
                         if ( XI_STATE_OK != state )
@@ -264,7 +285,7 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                         else
                         {
                             /* handling firmware file(s) */
-                            xi_sft_revision_set_firmware_uptate(
+                            xi_sft_revision_set_firmware_update(
                                 context->update_current_file->name,
                                 context->update_current_file->revision );
                         }
@@ -295,13 +316,12 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                                     XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
                             }
 
-                            /* if there was firmware in the update package, then report it
-                             * to the application */
-                            if ( NULL != context->update_firmware )
-                            {
-                                xi_bsp_fwu_on_firmware_package_download_finished(
-                                    context->update_firmware->name );
-                            }
+                            /* report the finish of package download to the application,
+                               add firmware name if available */
+                            xi_bsp_fwu_on_package_download_finished(
+                                ( NULL != context->update_firmware )
+                                    ? context->update_firmware->name
+                                    : NULL );
 
                             /* no further files to download, finished with download
                              * process */

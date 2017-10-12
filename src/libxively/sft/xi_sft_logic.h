@@ -23,7 +23,7 @@ typedef struct
     xi_control_message_t* update_message_fua;
     const xi_control_message_file_desc_ext_t* update_current_file;
     const xi_control_message_file_desc_ext_t* update_firmware;
-    xi_fs_resource_handle_t update_file_handle;
+    xi_bsp_io_fs_resource_handle_t update_file_handle;
 
     void* checksum_context;
 } xi_sft_context_t;
@@ -38,6 +38,8 @@ xi_state_t xi_sft_make_context( xi_sft_context_t** context,
 xi_state_t xi_sft_free_context( xi_sft_context_t** context );
 
 xi_state_t xi_sft_on_connected( xi_sft_context_t* context );
+
+xi_state_t xi_sft_on_connection_failed( xi_sft_context_t* context );
 
 xi_state_t
 xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message );

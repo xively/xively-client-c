@@ -209,6 +209,28 @@ extern xi_state_t xi_events_process_tick();
  */
 extern void xi_events_stop();
 
+/**
+ * @brief Files set by this function will be kept updated by the Xively C Client.
+ *
+ * This API function is used to tell Xively C Client the update file manifest. Client
+ * will collect revisions to these files and send these to Xively SFT service.
+ * This move initializes the update process. The file list may or may not contain
+ * firmware binary. If it does then the firmware update process will be triggered
+ * after whole package got downloaded. A firmware differs in name from other update
+ * files. Plese visit BSP FWU's `xi_bsp_fwu_is_this_firmware` function to check the
+ * exact firmware file name since this function is responsible for differentiation.
+ *
+ * example call:
+ *
+ * `xi_set_updateable_files( xih, ( const char* [] ){"file.cfg", "firmware.bin"}, 2 );`
+ *
+ * @param [in] xih a context handle created by invoking xi_create_context
+ * @param [in] filenames a list of file names representing the files which have to
+ *                       be kept updated
+ * @param [in] count number of file names contained in the file names list
+ *
+ * @retval XI_STATE_OK if file list set properly, an error value otherwise.
+ */
 extern xi_state_t xi_set_updateable_files( xi_context_handle_t xih,
                                            const char** filenames,
                                            uint16_t count );

@@ -10,6 +10,7 @@
 #include <cbor.h>
 #include <cn-cbor/cn-cbor.h>
 
+#include <xi_control_message.h>
 #include <xively_error.h>
 #include <xi_macros.h>
 

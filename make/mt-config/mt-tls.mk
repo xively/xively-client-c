@@ -9,6 +9,8 @@ XI_TLS_LIB_CONFIG_FNAME ?= make/mt-config/mt-tls-$(XI_BSP_TLS).mk
 include $(XI_TLS_LIB_CONFIG_FNAME)
 
 XI_INCLUDE_FLAGS += -I$(XI_TLS_LIB_INC_DIR)
+
+ifndef XI_DONT_BUILD_TLS_LIB
 XI_LIB_FLAGS += $(foreach d, $(XI_TLS_LIB_NAME), -l$d)
 XI_LIB_FLAGS += -L$(XI_TLS_LIB_BIN_DIR)
 
@@ -33,3 +35,4 @@ $(TLS_LIB_PATH):
 	$(info and check make help_tls for more information.)
 	$(info )
 	$(TLS_LIB_PREPARE_CMD)
+endif

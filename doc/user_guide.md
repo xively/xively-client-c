@@ -6,24 +6,24 @@
 
 This document describes the intended use of the Xivley C Client by C applications attempting to connect to the Xively Service, as well as detailing the API and some of the security and communication features of the client.
 
-This document does not provide a full source code example. However, the `examples/` directory of the [Xively C Client github repository](https://github.com/xively/xively-client-c/tree/master) includes many examples for POSIX platforms, ST and TI reference boards. 
+This document does not provide a full source code example. However, the `examples/` directory of the [Xively C Client github repository](https://github.com/xively/xively-client-c/tree/master) includes many examples for POSIX platforms, ST, TI, and ESP32 reference boards. 
 
 ## Intended Audience
 
-This document is meant for general readership, though the Sections "Client Library Deliverables" and "Intended Flow of Client Application Usage" assume that you have some C experience and have familiarity with the build system setup for your target platform.
+This document is meant for general readership, though the Section "Intended Flow of Client Application Usage" assume that you have some C experience and have familiarity with the build system setup for your target platform.
 
 # Xively Client Introduction
 
-The Xively Client Agent is a C library that provides MQTT connectivity over TLS as a baseline, but it includes much more on top of the standard MQTT Client:
+The Xively Client is a C library which provides MQTT connectivity over TLS.  Compared to other MQTT cilents, it brings these other features to the IoT table:
 
 ### Flexibility
 
 The client can scale capabilities to meet the needs of the platform
 
-* It can operate on a single thread and our implementation runs in non-blocking mode by default.
+* It can operate on a single thread and also runs in non-blocking mode by default.
 * The client does not use any CPU power when waiting for operations. Power consumption can be minimized as required.
 * A thread-safe event queue and an optional thread-pool for callbacks allows the client to support robust applications and platforms beyond the standard embedded platforms.
-* The Transport Layer Security (TLS) Board Support Package (BSP) can be used to leverage TLS features that are already on some embedded platforms, or via software libraries like [WolfSSL](https://www.wolfssl.com) or [mbedTLS](https://tls.mbed.org/).  Please see the Platform Security Requirements for more information about TLS.
+* The Transport Layer Security (TLS) Board Support Package (BSP) can be used to leverage TLS features built into embedded platforms, or leverage software libraries like [WolfSSL](https://www.wolfssl.com) or [mbedTLS](https://tls.mbed.org/).  Please see the Platform Security Requirements for more information about TLS.
 
 ### Asynchronous Pub/Sub
 
@@ -32,6 +32,16 @@ Through the use of [coroutines](http://en.wikipedia.org/wiki/Coroutine) this MQT
 * The library scales from high power enterprise operating systems to RTOS and NO-OS devices.
 * The library can send and receive simultaneously on a single socket.
 * Communication requirements of your application will not interfere with the usability of your device.
+
+### Secure File Transfer (SFT) and Firmware Updates (FWU)
+
+The Xively C Client comes pre-built with functionality to communicate with the [Xively SFT Service](https://developer.xively.com/v1.0/docs/how-to-securely-transfer-files-to-my-devices).  
+
+* Devices can be easily updated in the field with new firmware and support files.
+* Data is downloaded in the background, no need to create a second connection to a new service.
+* Download and update status is reported by the Xively C Client to the SFT service automatically, helping you to monitor the progress of a software deployment across your fleet of devices.
+
+For more information SFT, please see the **Xively Client Standard Features** section below.
 
 ### Distributed Denial of Service Prevention
 
@@ -50,7 +60,7 @@ The Xively Client was written with the understanding that the IoT Field might ch
 
 ### Xively Client Footprint
 
-Currently the client storage footprint requirements are about 30kb for embedded devices with optimized toolchains, not including TLS functionality.  This footprint includes a TLS certificate for validating the Xively server during TLS, 3 backup certificates for use if the main certificate becomes compromised, an event dispatcher and scheduler, the connection backoff system, and both Platform networking, time, random number generator and memory implementations.  This footprint does not include a TLS implementation, but if one exists on the platform already, then the size requirements are negligible.
+Currently the optimized client storage footprint requirements are about 30kb for embedded devices with optimized toolchains, not including TLS functionality.  This footprint includes a TLS certificate for validating the Xively server during TLS, 3 backup certificates for use if the main certificate becomes compromised, an event dispatcher and scheduler, the connection backoff system, and the library's platform networking, time, random number generator and memory implementations.  This footprint does not include a TLS implementation, but if one exists on the platform already, then the size requirements are negligible.
 
 # Platform Security Requirements
 
@@ -141,6 +151,21 @@ With this communication toolbox embedded devices can be used to listen and publi
 **Message Size Limitations**
 
 Currently the Xively Service supports a maximum message size of 128kb.
+
+
+### Secure File Transfer (SFT) and Firmware Updates (FWU)
+
+The [Xively SFT Service](https://developer.xively.com/v1.0/docs/how-to-securely-transfer-files-to-my-devices) is designed to deploy files and firmware to fleets of devices in the field. The Xively C Client has an optional SFT module (enabled by default) to coordinate with Xively SFT Service to retreive and store these files on your device. 
+
+The Xively C Client uses the device's existing MQTT connection for SFT functionality, so there's no need to build a separate connection to another service.  And since the Xively C Client is non-blocking and asynchronous, the files are downloaded in the background without needing to change any application flow or interrupt device usability.  
+
+In Xively SFT, the client drives the whole process, determining when to download files, how large of a chunk to fetch at a time, and when to reboot to test new firmware.  Download status and errors are automatically sent by the Xively C Client so that you can track the software deployment progress across your whole fleet via the Xively SFT Service interface.
+
+We have chosen some suggested configurations for a default behavior, but the code can be easily customized for the best-fit of your platform and product. 
+
+The code for the file storage and firmware update functionality is handled through the File IO and Firmware Update Board Support Package (BSP) implementations. For more information please see the [Xively C Client Porting Guide](https://github.com/xively/xively-client-c/blob/master/doc/porting_guide.md) and the functions declared in `include/bsp/xi_bsp_io_fs.h` and `include/bsp/xi_bsp_fwu.h`.  
+
+Additionally we have a few reference implementations for POSIX and the TI CC3200 in the `src/bsp/platform/posix/` and the `src/bsp/platform/cc3200/` directories, and a [SFT Tutorial on the Xively Developer Center](https://developer.xively.com/v1.0/docs/ti-cc3200-sft-example).
 
 ### TLS Support
 

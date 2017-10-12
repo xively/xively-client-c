@@ -8,95 +8,92 @@
 #define __XI_BSP_IO_NET_H__
 
 
-/*! \file
-* @brief The main API for compiling your Application against the
-* the xively library.
-*
-* \mainpage Xively Client Board Support Package (BSP)
-*
-* # Welcome
-* This doxygen catalogs the Board Support Package (BSP), an abstracted
-* framework for hosting all of the platform-specific code used by the
-* Xively C Client.
-*
-* Porting engineers should focus most of their work to a custom
-* implementation of these collection of files. The rest of the
-* Xively client sources, such as the event system, mqtt serializer, and
-* callback system, use platform generic C code that should not needs
-* any tailoring to specific devcies.
-*
-* # Out of the Box
-* The Xively C Client includes a POSIX implementation of the BSP
-* which it uses by default on MacOSX, and Linux desktops and devcies.
-* For non POSIX platforms your will need to customize the reference
-* implementation, or begin one from scratch using this documentation
-* as a guide.  More information on the porting process can be found
-* in the Xively C Porting Guide which resides in the main /doc directory
-* of this project.
-*
-* # Browsing the Sources
-* The BSP is segmented into several distinct files, each focused
-* around a particular platform library requirement:
-*  - Networking
-*  - Memory Allocators / Dealloactors
-*  - Randon Number Generator
-*  - Time
-*  - Transport Layer Security (TLS)
-*
-* The best place to start would probably be the NET
-* networking library.
-*
-* Implementations for Time, Rng and Memory might be highly
-* portable and might not need any customization at all.
-*
-* # TLS BSPs
-* The Xively C Client also ships with support for two TLS implementations
-* out of the box.
-*
-* ## &nbsp;WolfSSL <small>(https://www.wolfssl.com)</small>
-* The default make target will download a tagged WolfSSL release from
-* their repository, and build it to link against. Additionally the
-* Xively Client Sources will be configured to build the WolfSSL TLS BSP
-* that resides in: <code>/src/bsp/wolfssl</code>.
-*
-* This should get you up and running quickly but their sources must be
-* licensed for distribution.
-*
-* ## &nbsp;mbedTLS <small>(https://tls.mbed.org)</small>
-* An alternative build envirionment and source configuration exists for mbedTLS.
-* Please see our User Guide and Porting Guide for more information.  Both of
-* these documents reside in the base <code>/doc</code> directory.
-*
-* ## &nbsp;Other Implementations
-* If your platform has a TLS implementation built in, then you
-* can couple it to the Xively C Client in the TLS BSP.  Othewrise
-* the Xively C Client ships with a reference implementation
-* for WolfSSL and/or mbedTLS, both of which must be licensed
-* separately.
-*
-* # Further Reading
-* ### Xively C Client
-* Information on how to use the Xively C Library from the
-* applications perspective can be found in:
-* <ul><li>
-* <a href="../../api/html/index.html">The Xively Cilent doxygen</a></li>
-* <li>The Xively Client User Guide in: <code>/doc/user_guide.md</code></li>
-* </ul>
-*
-* ### Porting Process
-* Documentation on the porting process and more information about
-* the Xively C Client BSP can be found in the Xively C Client Porting Guide located
-* in: <code>/doc/porting_guide.md</code>.
-*
-* \copyright 2003-2016, LogMeIn, Inc.  All rights reserved.
-*
-*/
+/**
+ * \mainpage Xively Client Board Support Package (BSP)
+ *
+ * # Welcome
+ * This doxygen catalogs the Board Support Package (BSP), an abstracted
+ * framework for hosting all of the platform-specific code used by the
+ * Xively C Client.
+ *
+ * Porting engineers should focus most of their work to a custom
+ * implementation of these collection of files. The rest of the
+ * Xively client sources, such as the event system, mqtt serializer, and
+ * callback system, use platform generic C code that should not needs
+ * any tailoring to specific devcies.
+ *
+ * # Out of the Box
+ * The Xively C Client includes a POSIX implementation of the BSP
+ * which it uses by default on MacOSX, and Linux desktops and devcies.
+ * For non POSIX platforms your will need to customize the reference
+ * implementation, or begin one from scratch using this documentation
+ * as a guide.  More information on the porting process can be found
+ * in the Xively C Porting Guide which resides in the main /doc directory
+ * of this project.
+ *
+ * # Browsing the Sources
+ * The BSP is segmented into several distinct files, each focused
+ * around a particular platform library requirement:
+ *  - Networking
+ *  - Memory Allocators / Dealloactors
+ *  - Randon Number Generator
+ *  - Time
+ *  - Transport Layer Security (TLS)
+ *  - File System (for Secure File Transfer)
+ *  - Firmware Updates (for Secure File Transfer)
+ *
+ * The best place to start would be the NET
+ * networking library.
+ *
+ * Implementations for Time, Rng and Memory might be highly
+ * portable and might not need any customization at all.
+ *
+ * # TLS BSPs
+ * The Xively C Client also ships with support for two TLS implementations
+ * out of the box.
+ *
+ * ## &nbsp;WolfSSL <small>(https://www.wolfssl.com)</small>
+ * The default make target will download a tagged WolfSSL release from
+ * their repository, and build it to link against. Additionally the
+ * Xively Client Sources will be configured to build the WolfSSL TLS BSP
+ * that resides in: <code>/src/bsp/wolfssl</code>.
+ *
+ * This should get you up and running quickly but their sources must be
+ * licensed for distribution.
+ *
+ * ## &nbsp;mbedTLS <small>(https://tls.mbed.org)</small>
+ * An alternative build envirionment and source configuration exists for mbedTLS.
+ * Please see our User Guide and Porting Guide for more information.  Both of
+ * these documents reside in the base <code>/doc</code> directory.
+ *
+ * ## &nbsp;Other Implementations
+ * If your platform has a TLS implementation built in, then you
+ * can couple it to the Xively C Client in the TLS BSP.  Othewrise
+ * the Xively C Client ships with a reference implementation
+ * for WolfSSL and/or mbedTLS, both of which must be licensed
+ * separately.
+ *
+ * # Further Reading
+ * ### Xively C Client
+ * Information on how to use the Xively C Library from the
+ * applications perspective can be found in:
+ * <ul><li>
+ * <a href="../../api/html/index.html">The Xively Cilent doxygen</a></li>
+ * <li>The Xively Client User Guide in: <code>/doc/user_guide.md</code></li>
+ * </ul>
+ *
+ * ### Porting Process
+ * Documentation on the porting process and more information about
+ * the Xively C Client BSP can be found in the Xively C Client Porting Guide located
+ * in: <code>/doc/porting_guide.md</code>.
+ *
+ * \copyright 2003-2017, LogMeIn, Inc.  All rights reserved.
+ *
+ */
 
 /**
  * @file xi_bsp_io_net.h
  * @brief Xively Client's Board Support Platform (BSP) for Asynchronous Networking
- *
- * \mainpage Xively C Client Board Support Platform (BSP)
  *
  * This file defines the API of an asynchronous platform specific networking
  * implementation. These are all the functions one should implement on a platform to

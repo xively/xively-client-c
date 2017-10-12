@@ -14,15 +14,19 @@ uint8_t xi_bsp_fwu_is_this_firmware( const char* const resource_name )
     return ( 0 == strcmp( "firmware.bin", resource_name ) ) ? 1 : 0;
 }
 
-xi_state_t xi_bsp_fwu_on_new_firmware_ok()
+xi_bsp_fwu_state_t xi_bsp_fwu_on_new_firmware_ok()
 {
-    return XI_NOT_IMPLEMENTED;
+    return XI_BSP_FWU_STATE_OK;
 }
 
-xi_state_t xi_bsp_fwu_on_firmware_package_download_finished(
-    const char* const firmware_resource_name )
+void xi_bsp_fwu_on_firmware_package_download_failure()
+{
+    return;
+}
+
+void xi_bsp_fwu_on_package_download_finished( const char* const firmware_resource_name )
 {
     ( void )firmware_resource_name;
 
-    return XI_NOT_IMPLEMENTED;
+    return;
 }

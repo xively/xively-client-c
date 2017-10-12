@@ -12,7 +12,7 @@
 #include <xi_macros.h>
 
 #include <string.h>
-
+#include <xi_fs_bsp_to_xi_mapping.h>
 
 #define XI_SFT_REVISION_RESOURCENAME( resource_name )                                    \
     xi_str_cat( resource_name, ".xirev" )
@@ -26,20 +26,21 @@ xi_sft_revision_write_string_to_file( const char* const resource_name,
         return XI_INVALID_PARAMETER;
     }
 
-    xi_fs_resource_handle_t resource_handle = XI_FS_INVALID_RESOURCE_HANDLE;
+    xi_bsp_io_fs_resource_handle_t resource_handle = XI_BSP_IO_FS_INVALID_RESOURCE_HANDLE;
+    xi_bsp_io_fs_state_t bsp_io_fs_state =
+        xi_bsp_io_fs_open( resource_name, strlen( string_to_write ),
+                           XI_BSP_IO_FS_OPEN_WRITE, &resource_handle );
+    xi_state_t state = xi_fs_bsp_io_fs_2_xi_state( bsp_io_fs_state );
 
-    xi_state_t state = xi_bsp_io_fs_open( resource_name, strlen( string_to_write ),
-                                          XI_FS_OPEN_WRITE, &resource_handle );
-
-    if ( XI_STATE_OK != state )
-    {
-        goto err_handling;
-    }
+    XI_CHECK_STATE( state );
 
     size_t bytes_written = 0;
 
-    state = xi_bsp_io_fs_write( resource_handle, ( const uint8_t* )string_to_write,
-                                strlen( string_to_write ), 0, &bytes_written );
+    bsp_io_fs_state =
+        xi_bsp_io_fs_write( resource_handle, ( const uint8_t* )string_to_write,
+                            strlen( string_to_write ), 0, &bytes_written );
+
+    state = xi_fs_bsp_io_fs_2_xi_state( bsp_io_fs_state );
 
     xi_bsp_io_fs_close( resource_handle );
 
@@ -56,27 +57,25 @@ static xi_state_t xi_sft_revision_read_string_from_file( const char* const resou
         return XI_INVALID_PARAMETER;
     }
 
-    xi_fs_resource_handle_t resource_handle = XI_FS_INVALID_RESOURCE_HANDLE;
+    xi_bsp_io_fs_resource_handle_t resource_handle = XI_BSP_IO_FS_INVALID_RESOURCE_HANDLE;
 
-    xi_state_t state = xi_bsp_io_fs_open( resource_name, 0 /* not used at READ */,
-                                          XI_FS_OPEN_READ, &resource_handle );
+    xi_bsp_io_fs_state_t bsp_io_fs_state =
+        xi_bsp_io_fs_open( resource_name, 0 /* not used at READ */,
+                           XI_BSP_IO_FS_OPEN_READ, &resource_handle );
 
-    if ( XI_STATE_OK != state )
-    {
-        goto err_handling;
-    }
+    xi_state_t state = xi_fs_bsp_io_fs_2_xi_state( bsp_io_fs_state );
+
+    XI_CHECK_STATE( state );
 
     const uint8_t* buffer = NULL;
     size_t buffer_size    = 0;
 
     /* note: single read call "only" supports revision not longer than file read buffer.
      * At time of writing this it's 1024 bytes. */
-    state = xi_bsp_io_fs_read( resource_handle, 0, &buffer, &buffer_size );
+    bsp_io_fs_state = xi_bsp_io_fs_read( resource_handle, 0, &buffer, &buffer_size );
+    state           = xi_fs_bsp_io_fs_2_xi_state( bsp_io_fs_state );
 
-    if ( XI_STATE_OK != state )
-    {
-        goto err_handling;
-    }
+    XI_CHECK_STATE( state );
 
     xi_bsp_io_fs_close( resource_handle );
 
@@ -119,7 +118,7 @@ xi_state_t xi_sft_revision_get( const char* const resource_name, char** revision
     "firmware_update_revision.mailbox"
 
 xi_state_t
-xi_sft_revision_set_firmware_uptate( const char* const xi_firmware_resource_name,
+xi_sft_revision_set_firmware_update( const char* const xi_firmware_resource_name,
                                      const char* const xi_firmware_revision )
 {
     if ( NULL == xi_firmware_resource_name || NULL == xi_firmware_revision )
@@ -154,7 +153,7 @@ xi_state_t xi_sft_revision_firmware_ok()
     char* firmware_update_data = NULL;
 
     /* reading "mailbox" expected containing currently running (this) firmware data */
-    xi_state_t state = xi_sft_revision_read_string_from_file(
+    const xi_state_t state = xi_sft_revision_read_string_from_file(
         XI_SFT_REVISION_FIRMWAREUPDATEREVISION_MAILBOX_TO_NEXT_RUN,
         &firmware_update_data );
 
@@ -163,9 +162,21 @@ xi_state_t xi_sft_revision_firmware_ok()
     char* xi_firmware_resource_name = firmware_update_data;
     char* xi_firmware_revision      = firmware_update_data;
 
-    strtok_r( xi_firmware_revision, "\n", &xi_firmware_revision );
+    while ( '\n' != *xi_firmware_revision && 0 != *xi_firmware_revision )
+    {
+        ++xi_firmware_revision;
+    }
 
-    xi_sft_revision_set( xi_firmware_resource_name, xi_firmware_revision );
+    if ( '\n' == *xi_firmware_revision )
+    {
+        /* replace newline with string terminator zero */
+        *xi_firmware_revision = 0;
+
+        /* step to next character which is the beginning of the firmware revision */
+        ++xi_firmware_revision;
+
+        xi_sft_revision_set( xi_firmware_resource_name, xi_firmware_revision );
+    }
 
     xi_bsp_io_fs_remove( XI_SFT_REVISION_FIRMWAREUPDATEREVISION_MAILBOX_TO_NEXT_RUN );
 
@@ -173,5 +184,5 @@ xi_state_t xi_sft_revision_firmware_ok()
 
 err_handling:
 
-    return XI_STATE_OK;
+    return state;
 }

@@ -1,3 +1,57 @@
+# Xively Client version 1.3.1
+#### Oct 10 2017
+
+## Bugfix
+
+- Fix WolfSSL build for the ESP32 platform.
+
+
+# Xively Client version 1.3.0
+#### Oct 06 2017
+
+## Features
+
+### Secure File Transfer (SFT) and Firmware Updates (FWU)
+
+- The Xively C Client now provides Secure File Transfer (SFT) and Firmware
+  Update (FWU) functionality over MQTT out of the box. These features are coupled to a
+  device's Firmware and File Storage SDKs through two highly-portable Board Support Packages
+  (BSPs). The Xivley C Client controls the main update flow, protocol, and chunking of files,
+  with only the satellite functionalities of non-volatile storage, bootloader management and
+  restart functionalities required for porting.Example implementations for CC3200 and POSIX.
+
+- Secure File Transfer (SFT) and Firmware Updates (FWU) features have been added to the
+  CC3200 xively_demo example.
+
+- Changes to our External SFT Implementation Demo: Previously the Xively C Client
+  added TI CC3200 SFT and FWU functionalities at the application level (not in our Xively C
+  Client Library BSPs).  We will keep the sources for this client-external SFT implementation
+  to serve as a quick reference of how a Xively SFT client could be implemented in other
+  languages. Please see our CC3200 Secure File Transfer (SFT) Tutorial in
+  the Xively Development Center to remote update your CC3200's firmware over MQTT today!
+
+### Ports
+
+- ESP32 Port (New!): A BSP, makefile system, and an example application have been written for
+  the ESP32. Please see the Xively Developer Center for a tutorial.
+
+- STM32F4 Tier 1 tutorial support: now the repository contains precompiled STM32F4
+  wifi + ethernet application binaries to support the simpliest tutorial of connecting
+  these devices to Xively.
+
+### Misc
+
+- CC3220SF Library and Build environment update: tested use of CC3220 SDK v1.4 and
+  XDCTOOLS v3.50.02.20, which will be part of our CI builds.
+
+- wolfSSL version update: default builds now work against version 3.10.2-stable
+
+## Documentation
+
+- Porting Guide and User Guide are updated with Secure File Transfer (SFT) and
+  Firmware Updates (FWU) feature description.
+
+
 
 # Xively Client version 1.2.6
 #### Jun 30 2017
@@ -18,7 +72,7 @@
 - Added TI CC3220SF demo application sources and build process for tutorials on Xively Developer Center.
 
 ### STM32F4 Nucleo
-- Updated STM32F4 examples to build against latest ST SDKs. 
+- Updated STM32F4 examples to build against latest ST SDKs.
 - New build configurations to support both sensor boards (IKS01A1 and IKS01A1) out of the box.
 - The github repository is extended with a prebuilt binary for STM32F401RE + WiFi IDW01M1 + MEMS IKS01A1. Tier 1 tutorial (how to use the precompiled binary) is also provided.
 - STM32F4 ethernet example now supports runtime provisioning over serial and flash storage of Xively credentials.

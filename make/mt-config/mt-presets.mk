@@ -6,28 +6,31 @@
 include make/mt-config/mt-target-platform.mk
 
 # CONFIG for POSIX presets
-CONFIG_POSIX_MAX                =posix_fs-posix_platform-tls_bsp-senml-control_topic-memory_limiter
-CONFIG_POSIX_MAX_THREADING      =posix_fs-posix_platform-tls_bsp-senml-control_topic-threading-memory_limiter
-CONFIG_POSIX_MID                =posix_fs-posix_platform-tls_bsp-senml-control_topic
-CONFIG_POSIX_MID_UNSECURE       =posix_fs-posix_platform-senml-control_topic
+CONFIG_POSIX_MAX                =posix_fs-posix_platform-tls_bsp-senml-control_topic-memory_limiter-secure_file_transfer
+CONFIG_POSIX_MAX_THREADING      =posix_fs-posix_platform-tls_bsp-senml-control_topic-threading-memory_limiter-secure_file_transfer
+CONFIG_POSIX_MID                =posix_fs-posix_platform-tls_bsp-senml-control_topic-secure_file_transfer
+CONFIG_POSIX_MID_UNSECURE       =posix_fs-posix_platform-senml-control_topic-secure_file_transfer
 CONFIG_POSIX_MIN                =posix_fs-posix_platform-tls_bsp
 CONFIG_POSIX_MIN_UNSECURE       =posix_fs-posix_platform
 
 # CONFIG for ARM
-CONFIG_DUMMY_MAX                =memory_fs-memory_limiter-control_topic-senml
+CONFIG_DUMMY_MAX                =memory_fs-memory_limiter-control_topic-senml-secure_file_transfer
 CONFIG_DUMMY_MIN                =memory_fs
 
 # CONFIG for CC3200
-CONFIG_CC3200                   =memory_fs-control_topic-tls_bsp
-CONFIG_CC3200_TLS_SOCKET        =memory_fs-control_topic-tls_socket
+CONFIG_CC3200                   =memory_fs-control_topic-tls_bsp-secure_file_transfer
+CONFIG_CC3200_TLS_SOCKET        =memory_fs-control_topic-tls_socket-secure_file_transfer
 
 # CONFIG for CC3220
 CONFIG_CC3220SF                 =bsp_cc3220sf-memory_fs-tls_bsp
 CONFIG_CC3220SF_TLS_SOCKET      =bsp_cc3220sf-memory_fs-tls_socket
 
 # CONFIG for STM32
-CONFIG_STM32FX                  =memory_fs-control_topic-tls_bsp
-CONFIG_STM32FX_NUCLEO_WIFI      =memory_fs-control_topic-tls_socket
+CONFIG_STM32FX                  =memory_fs-control_topic-tls_bsp-secure_file_transfer
+CONFIG_STM32FX_NUCLEO_WIFI      =memory_fs-control_topic-tls_socket-secure_file_transfer
+
+# xtensa configs
+CONFIG_ESP32 =memory_fs-tls_bsp
 
 # TARGET presets
 TARGET_STATIC_DEV               =-static-debug
@@ -130,6 +133,16 @@ else ifeq ($(PRESET), STM32FX_NUCLEO_WIFI)
     TARGET = $(TARGET_STATIC_REL)
     XI_BSP_PLATFORM = stm32fx_nucleo_wifi
     XI_TARGET_PLATFORM = stm32fx_nucleo_wifi
+
+# -------------------------------------------------------
+# Espressif ESP32
+else ifeq ($(PRESET), ESP32)
+    CONFIG = $(CONFIG_ESP32)
+    TARGET = $(TARGET_STATIC_REL)
+    XI_BSP_PLATFORM = esp32
+    XI_BSP_TLS ?= wolfssl
+    XI_TARGET_PLATFORM = esp32
+    XI_DONT_BUILD_TLS_LIB = 1
 
 # -------------------------------------------------------
 # Fuzz Tests
