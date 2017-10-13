@@ -32,6 +32,10 @@ XI_COMPILER_FLAGS += -I$(XI_ESP_IDF_SDK_PATH)/components/heap/include
 XI_COMPILER_FLAGS += -I$(XI_ESP_IDF_SDK_PATH)/components/soc/include
 XI_COMPILER_FLAGS += -I$(XI_ESP_IDF_SDK_PATH)/components/soc/esp32/include
 XI_COMPILER_FLAGS += -I$(XI_ESP_IDF_SDK_PATH)/components/esp32/include
+XI_COMPILER_FLAGS += -I$(XI_ESP_IDF_SDK_PATH)/components/app_update/include
+XI_COMPILER_FLAGS += -I$(XI_ESP_IDF_SDK_PATH)/components/spi_flash/include
+XI_COMPILER_FLAGS += -I$(XI_ESP_IDF_SDK_PATH)/components/nvs_flash/include
+XI_COMPILER_FLAGS += -I$(XI_ESP_IDF_SDK_PATH)/components/tcpip_adapter/include
 
 ###################
 # LWIP Include Dirs

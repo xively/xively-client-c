@@ -52,6 +52,7 @@ static inline void xt_await_unpause( void );
 static xt_action_requests_t xt_pop_highest_priority_request( void );
 
 /* Application specific functions */
+static int8_t xt_configure_fw_updates( void );
 static int8_t xt_subscribe( void );
 static int8_t xt_start_timed_tasks( void );
 static void xt_cancel_timed_tasks( void );
@@ -132,6 +133,10 @@ void xt_rtos_task( void* param )
     {
         printf( "\n[XT] Failed to create xi context. Retval: %d", xt_context_handle );
         xt_handle_unrecoverable_error();
+    }
+    else if ( 0 > xt_configure_fw_updates() )
+    {
+        printf( "\n[XT] Failed to configure OTA firmware updates" );
     }
     else if ( 0 > xt_clear_request_bits( XT_REQUEST_ALL ) )
     {
@@ -270,6 +275,20 @@ int8_t xt_connect( void )
     else if ( XI_STATE_OK != ret_state )
     {
         printf( "\n[XT] Error in xi_connect! Retcode: %d", ret_state );
+        return -1;
+    }
+    return 0;
+}
+
+static int8_t xt_configure_fw_updates( void )
+{
+    const char** files_to_keep_updated = ( const char* [] ){"firmware.bin"};
+    const xi_state_t retv =
+        xi_set_updateable_files( xt_context_handle, files_to_keep_updated, 1 );
+
+    if ( XI_STATE_OK != retv )
+    {
+        printf( "\n[XT] Error [%d] configuring FW updates", retv );
         return -1;
     }
     return 0;
