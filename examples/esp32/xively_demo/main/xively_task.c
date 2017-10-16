@@ -143,6 +143,11 @@ void xt_rtos_task( void* param )
         printf( "\n[XT] Failed to clear request bits during initialization" );
         xt_handle_unrecoverable_error();
     }
+    else if ( 0 > xt_request_machine_state( XT_REQUEST_CONNECT ) )
+    {
+        printf( "\n[XT] Failed to request first MQTT connection" );
+        xt_handle_unrecoverable_error();
+    }
 
     /* Events loop */
     while ( 0 == evt_loop_exit_flag )
@@ -282,10 +287,12 @@ int8_t xt_connect( void )
 
 static int8_t xt_configure_fw_updates( void )
 {
-    const char** files_to_keep_updated = ( const char* [] ){"firmware.bin"};
-    const xi_state_t retv =
-        xi_set_updateable_files( xt_context_handle, files_to_keep_updated, 1 );
+    const char** updateable_files = ( const char* [] ){"firmware.bin"};
+    xi_state_t retv = XI_STATE_OK;
 
+    printf( "\n[XT] Registering updateable files list" );
+
+    retv = xi_set_updateable_files( xt_context_handle, updateable_files, 1 );
     if ( XI_STATE_OK != retv )
     {
         printf( "\n[XT] Error [%d] configuring FW updates", retv );

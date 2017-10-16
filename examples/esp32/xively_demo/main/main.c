@@ -76,6 +76,18 @@ void app_main( void )
             vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
 
+    /* Initialize the ESP32 as a WiFi station */
+    if ( 0 > app_wifi_station_init( &user_config ) )
+    {
+        printf( "\n[ERROR] initializing WiFi station mode. Boot halted" );
+        while ( 1 )
+            vTaskDelay( 1000 / portTICK_PERIOD_MS );
+    }
+
+    /* Wait until we're connected to the WiFi network */
+    xEventGroupWaitBits( app_wifi_event_group, WIFI_CONNECTED_FLAG, false, true,
+            portMAX_DELAY );
+
     /* Configure Xively Settings */
     if ( 0 > xt_init( user_config.xi_account_id, user_config.xi_device_id,
                       user_config.xi_device_password ) )
@@ -93,25 +105,7 @@ void app_main( void )
         printf( "\n[ERROR] creating Xively Task" );
         while ( 1 )
             vTaskDelay( 1000 / portTICK_PERIOD_MS );
-    } /* Will connect from the wifi callback */
-
-    /* Wait until the Xively Client context is created, so we can connect on STA_GOT_IP */
-    while( 0 == xt_ready_for_requests() )
-    {
-        vTaskDelay( 100 / portTICK_PERIOD_MS );
     }
-
-    /* Initialize the ESP32 as a WiFi station */
-    if ( 0 > app_wifi_station_init( &user_config ) )
-    {
-        printf( "\n[ERROR] initializing WiFi station mode. Boot halted" );
-        while ( 1 )
-            vTaskDelay( 1000 / portTICK_PERIOD_MS );
-    }
-
-    /* Wait until we're connected to the WiFi network */
-    xEventGroupWaitBits( app_wifi_event_group, WIFI_CONNECTED_FLAG, false, true,
-            portMAX_DELAY );
 
     /* Start GPIO interrupt handler task */
     if ( pdPASS != xTaskCreate( &app_gpio_interrupts_handler_task, "gpio_intr_task",
@@ -136,10 +130,15 @@ esp_err_t app_wifi_event_handler( void* ctx, system_event_t* event )
             break;
         case SYSTEM_EVENT_STA_GOT_IP:
             xEventGroupSetBits( app_wifi_event_group, WIFI_CONNECTED_FLAG );
-            if( xt_request_machine_state( XT_REQUEST_CONNECT ) < 0 )
+            /* XT will be ready for requests AFTER the first GOT_IP event */
+            /* The first connection will be requested from xt_rtos_task */
+            if ( xt_ready_for_requests() )
             {
-                printf( "\n\tError requesting MQTT connect from xively task" );
-                xt_handle_unrecoverable_error();
+                if( xt_request_machine_state( XT_REQUEST_CONNECT ) < 0 )
+                {
+                    printf( "\n\tError requesting MQTT connect from xively task" );
+                    xt_handle_unrecoverable_error();
+                }
             }
             break;
 
