@@ -55,6 +55,8 @@ extern "C" {
 #define Board_LED_OFF                CC3220SF_LAUNCHXL_LED_OFF
 #define Board_I2C_TMP                CC3220SF_LAUNCHXL_I2C0
 #define Board_LED0                   CC3220SF_LAUNCHXL_LED_D7
+#define Board_LED1                   CC3220SF_LAUNCHXL_LED_D6
+#define Board_LED2                   CC3220SF_LAUNCHXL_LED_D5
 #define Board_TMP006_ADDR            (0x41)
 #define Board_SL_STOP_TIMEOUT        (200)
 #define Board_UART0                  CC3220SF_LAUNCHXL_UART0

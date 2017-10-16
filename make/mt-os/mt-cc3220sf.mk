@@ -76,6 +76,7 @@ XI_COMPILER_FLAGS += -me
 XI_COMPILER_FLAGS += --define=css
 XI_COMPILER_FLAGS += --define=cc3200
 XI_COMPILER_FLAGS += --define=WOLFSSL_NOOS_XIVELY
+XI_COMPILER_FLAGS += --define=SL_OTA_ARCHIVE_STANDALONE
 XI_COMPILER_FLAGS += --display_error_number
 XI_COMPILER_FLAGS += --diag_warning=225
 XI_COMPILER_FLAGS += --diag_wrap=off
@@ -100,6 +101,7 @@ endif
 XI_COMPILER_FLAGS += -DCC32XX_COMPAT=1
 XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/source/ti/devices/cc32xx/driverlib
 XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/source
+XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/source/ti/net/ota/source
 XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/source/ti/drivers
 XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/source/ti/drivers/net/wifi
 XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/source/ti/drivers/net/wifi/bsd

@@ -28,8 +28,12 @@
 	</natures>
 	<variableList>
 		<variable>
+			<name>ORIGINAL_PROJECT_ROOT</name>
+			<value>file:/C:/Users/rhunter/Friedrich/WiFi/Xively/xively-client-c-master/examples/cc3220sf/xively_demo</value>
+		</variable>
+		<variable>
 			<name>XIVELY_LIBRARY_C_ROOT</name>
-			<value>$%7BPARENT-3-PROJECT_LOC%7D</value>
+			<value>$%7BPARENT-3-ORIGINAL_PROJECT_ROOT%7D</value>
 		</variable>
 	</variableList>
 </projectDescription>
