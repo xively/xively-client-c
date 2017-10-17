@@ -10,20 +10,27 @@
 #include <string.h>
 #include <stdio.h>
 
-//#include "esp_system.h"
 #include "esp_ota_ops.h"
 #include "nvs.h"
 #include "nvs_flash.h"
 
-//static esp_partition_t* fw_partition_handle = NULL;
-//static esp_ota_handle_t ota_handle;
+void __attribute__( ( weak ) )
+xi_esp32_ota_chunk_recv( size_t offset, size_t chunk_size );
 
-xi_bsp_io_fs_state_t xi_bsp_io_fs_open( const char* const resource_name,
-                                        const size_t size,
-                                        const xi_bsp_io_fs_open_flags_t open_flags,
-                                        xi_bsp_io_fs_resource_handle_t* resource_handle_out )
+xi_bsp_io_fs_state_t
+xi_bsp_io_fs_open( const char* const resource_name,
+                   const size_t size,
+                   const xi_bsp_io_fs_open_flags_t open_flags,
+                   xi_bsp_io_fs_resource_handle_t* resource_handle_out )
 {
     ( void )open_flags;
+
+    if ( 1 != xi_bsp_fwu_is_this_firmware( resource_name ) )
+    {
+        xi_bsp_debug_format( "File [%s] not supported. Use firmware.bin", resource_name );
+        return XI_BSP_IO_FS_OPEN_ERROR;
+    }
+
     const esp_partition_t* next_partition = esp_ota_get_next_update_partition( NULL );
 
     if ( NULL == next_partition )
@@ -32,18 +39,9 @@ xi_bsp_io_fs_state_t xi_bsp_io_fs_open( const char* const resource_name,
         return XI_BSP_IO_FS_OPEN_ERROR;
     }
 
-    if ( 1 != xi_bsp_fwu_is_this_firmware( resource_name ) )
-    {
-        xi_bsp_debug_logger( "Only firmware file updates supported in ESP32's FS BSP" );
-        return XI_BSP_IO_FS_OPEN_ERROR;
-    }
-
     const esp_err_t retv =
-        esp_ota_begin( next_partition, size,
-                       ( esp_ota_handle_t* )
-                           resource_handle_out ); // &ota_handle); JC TODO: Figure out
-                                                  // whether I can use resource_handle_out
-                                                  // or if I need the ESP's custom type.
+        esp_ota_begin( next_partition, size, ( esp_ota_handle_t* )resource_handle_out );
+
 
     if ( ESP_OK != retv )
     {
@@ -54,16 +52,14 @@ xi_bsp_io_fs_state_t xi_bsp_io_fs_open( const char* const resource_name,
     return XI_BSP_IO_FS_STATE_OK;
 }
 
-xi_bsp_io_fs_state_t xi_bsp_io_fs_write( const xi_bsp_io_fs_resource_handle_t resource_handle,
-                                         const uint8_t* const buffer,
-                                         const size_t buffer_size,
-                                         const size_t offset,
-                                         size_t* const bytes_written )
+xi_bsp_io_fs_state_t
+xi_bsp_io_fs_write( const xi_bsp_io_fs_resource_handle_t resource_handle,
+                    const uint8_t* const buffer,
+                    const size_t buffer_size,
+                    const size_t offset,
+                    size_t* const bytes_written )
 {
     ( void )offset;
-    { /* led indicator of file writes */
-        /* TODO: Blink LED - Use extern functions? */
-    }
     xi_bsp_debug_format( "Writing OTA file chunk.\n\tOffset: %d\n\tBuffer_size: %d",
                          offset, buffer_size );
 
@@ -79,10 +75,13 @@ xi_bsp_io_fs_state_t xi_bsp_io_fs_write( const xi_bsp_io_fs_resource_handle_t re
     return XI_BSP_IO_FS_STATE_OK;
 }
 
-xi_bsp_io_fs_state_t xi_bsp_io_fs_close( const xi_bsp_io_fs_resource_handle_t resource_handle )
+xi_bsp_io_fs_state_t
+xi_bsp_io_fs_close( const xi_bsp_io_fs_resource_handle_t resource_handle )
 {
     const esp_partition_t* next_partition = esp_ota_get_next_update_partition( NULL );
-    esp_err_t retv = ESP_OK;
+    esp_err_t retv                        = ESP_OK;
+
+    xi_bsp_debug_format( "Finished FW download to partition [%p]", next_partition );
 
     retv = esp_ota_end( resource_handle );
     if ( ESP_OK != retv )
@@ -101,10 +100,11 @@ xi_bsp_io_fs_state_t xi_bsp_io_fs_close( const xi_bsp_io_fs_resource_handle_t re
     return XI_BSP_IO_FS_STATE_OK;
 }
 
-xi_bsp_io_fs_state_t xi_bsp_io_fs_read( const xi_bsp_io_fs_resource_handle_t resource_handle,
-                              const size_t offset,
-                              const uint8_t** buffer,
-                              size_t* const buffer_size )
+xi_bsp_io_fs_state_t
+xi_bsp_io_fs_read( const xi_bsp_io_fs_resource_handle_t resource_handle,
+                   const size_t offset,
+                   const uint8_t** buffer,
+                   size_t* const buffer_size )
 {
     ( void )resource_handle;
     ( void )offset;

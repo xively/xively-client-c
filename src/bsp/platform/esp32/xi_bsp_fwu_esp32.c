@@ -27,22 +27,18 @@ uint8_t xi_bsp_fwu_is_this_firmware( const char* const resource_name )
 
 xi_bsp_fwu_state_t xi_bsp_fwu_on_new_firmware_ok()
 {
-#if 1 /* JC TODO: Commit the new firmware image */
-    if ( 1 )
-    {
-        return XI_BSP_FWU_ACTUAL_COMMIT_HAPPENED;
-    }
-
+    /* ESP32 doesn't have a commit/rollback mechanism in place for freshly
+       installed images yet */
+    xi_bsp_debug_logger( "New firmware image OK. No commit action implemented" );
     return XI_BSP_FWU_STATE_OK;
-#endif
 }
 
 void xi_bsp_fwu_on_new_firmware_failure()
 {
     /* Updated image couldn't be validated / Roll back to previous image */
-    xi_bsp_debug_logger( "Error validating new firmware. Rolling back to old FW" );
-    /* JC TODO: Find the alternate OTA image or roll back to factory default? */
-    _reboot_device();
+    /* ESP32 doesn't have a commit/rollback mechanism in place for freshly
+       installed images yet */
+    xi_bsp_debug_logger( "Error validating new image. No rollback action implemented" );
 }
 
 void xi_bsp_fwu_on_package_download_failure()
@@ -53,6 +49,7 @@ void xi_bsp_fwu_on_package_download_failure()
 void xi_bsp_fwu_on_package_download_finished( const char* const firmware_resource_name )
 {
     ( void )firmware_resource_name;
+    xi_bsp_debug_logger( "Firmware package download finished. Rebooting" );
 
     //esp_ota_end( esp_ota_handle );
 
