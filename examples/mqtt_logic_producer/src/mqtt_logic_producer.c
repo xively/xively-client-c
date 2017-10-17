@@ -143,7 +143,6 @@ int xi_mqtt_logic_producer_main( xi_embedded_args_t* xi_embedded_args )
         return -1;
     }
 
-
     /*  Create a connection request with the credentials.
         The topic name will be used for publication requests
         only after the connecton has been established.
@@ -156,7 +155,6 @@ int xi_mqtt_logic_producer_main( xi_embedded_args_t* xi_embedded_args )
 
     xi_connect( xi_context, xi_username, xi_password, connection_timeout,
                 keepalive_timeout, XI_SESSION_CLEAN, &on_connection_state_changed );
-
 
     /* The Xively Client was designed for single threaded devices. As such
         it does not have its own event loop thread. Instead you must regularly call
@@ -309,7 +307,7 @@ void delayed_publish( xi_context_handle_t context_handle,
     XI_UNUSED( user_data );
 
     printf( "publishing msg\n" );
-
+    
     /* sending the connect request */
     xi_publish( context_handle, xi_publishtopic, "Hello From Xively!", xi_example_qos,
                 XI_MQTT_RETAIN_FALSE, NULL, NULL );
