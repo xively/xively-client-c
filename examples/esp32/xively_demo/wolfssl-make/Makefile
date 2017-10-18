@@ -116,19 +116,19 @@ WOLFSSL_OUTPUT_OBJ := $(patsubst $(WOLFSSL_BASE_DIR)%.c,$(WOLFSSL_OUTPUT_OBJ_DIR
 # default/lib: build the wolfssl library
 #
 ###############################################################################
-lib: $(WOLFSSL_BASE_DIR) $(WOLFSSL_OUTPUT_LIB)
+esp32_libwolfssl: $(WOLFSSL_BASE_DIR) $(WOLFSSL_OUTPUT_LIB)
 
 $(WOLFSSL_BASE_DIR):
 	cd $(XI_BASE_DIR)/src/import/tls/ && ./download_and_compile_wolfssl.sh
 
 $(WOLFSSL_OUTPUT_OBJ_DIR)%.o: $(WOLFSSL_BASE_DIR)%.c
 	@mkdir -p $(dir $@)
-	@echo "  [CC] $<"
+	$(info [$(CC)] $@)
 	@$(CC) $(CC_FLAGS) -c $< -o $@
 
 $(WOLFSSL_OUTPUT_LIB): $(WOLFSSL_OUTPUT_OBJ)
 	@mkdir -p $(dir $@)
-	@echo "  [AR] Static library: $@"
+	$(info [$(AR)] $@)
 	@$(AR) -rs -c $@ $^
 
 ###############################################################################
@@ -145,6 +145,6 @@ clean:
 # all: clean and re-build the library
 #
 ###############################################################################
-all: clean lib
+all: clean esp32_libwolfssl
 
 .PHONY: all lib clean
