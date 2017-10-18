@@ -136,12 +136,6 @@ $(XI_OBJDIR)/%.o : $(LIBXIVELY)/src/%.c $(XI_BUILD_PRECONDITIONS)
 	$(MD) $(CC) $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) -c $< $(XI_COMPILER_OUTPUT)
 	$(XI_POST_COMPILE_ACTION)
 
-$(XI_OBJDIR)/bsp/platform/$(BSP_FOUND)/%.o : $(XI_BSP_DIR)/platform/$(BSP_FOUND)/%.c $(XI_BUILD_PRECONDITIONS)
-	@-mkdir -p $(dir $@)
-	$(info [$(CC)] $@)
-	$(MD) $(CC) $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) -c $< $(XI_COMPILER_OUTPUT)
-	$(XI_POST_COMPILE_ACTION)
-
 # gather all of the binary directories
 XI_RESOURCE_FILES := $(LIBXIVELY)/res/trusted_RootCA_certs/xi_RootCA_list.pem
 
