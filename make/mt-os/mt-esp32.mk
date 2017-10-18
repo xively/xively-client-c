@@ -4,13 +4,67 @@
 # it is licensed under the BSD 3-Clause license.
 
 include make/mt-os/mt-os-common.mk
-
-#$(IDF_PATH) This is exported in the shell as as IDF requirement
-XI_ESP_IDF_SDK_PATH ?= $(IDF_PATH)
+include make/mt-config/mt-tls-wolfssl-esp32.mk
 
 # The path to CC and AR must be in the environment $PATH as an IDF requirement
 CC = xtensa-esp32-elf-gcc
 AR = xtensa-esp32-elf-ar
+
+################################
+# auto-provide ESP32 SDK #######
+################################
+ifdef IDF_PATH
+ifeq (,$(wildcard $(IDF_PATH)))
+    $(info SDK NOT available)
+
+    XI_ESP_IDF_SDK_PATH ?= $(HOME)/Downloads/esp32/esp-idf
+
+$(XI_ESP_IDF_SDK_PATH):
+	@-mkdir -p $@
+	git clone --recursive -b release/v2.1 https://github.com/espressif/esp-idf.git $(XI_ESP_IDF_SDK_PATH)
+
+XI_BUILD_PRECONDITIONS += $(XI_ESP_IDF_SDK_PATH)
+
+endif
+endif
+
+#$(IDF_PATH) This is exported in the shell as as IDF requirement
+XI_ESP_IDF_SDK_PATH ?= $(IDF_PATH)
+
+################################
+# auto-provide ESP32 toolchain #
+################################
+XI_ESP32_AVAILABILITY_CHECK_CC := $(shell which $(CC) 2> /dev/null)
+
+ifndef XI_ESP32_AVAILABILITY_CHECK_CC
+    $(info CC NOT available)
+
+    CC := $(HOME)/Downloads/esp32/xtensa-esp32-elf/bin/$(CC)
+    AR := $(HOME)/Downloads/esp32/xtensa-esp32-elf/bin/$(AR)
+
+ifeq ($(XI_HOST_PLATFORM),Darwin)
+    # osx cross-compilation toolchain downloads
+
+    XI_ESP32_TOOLCHAIN_DOWNLOAD_FILE = ~/Downloads/esp32/xtensa-esp32-elf-osx-1.22.0-73-ge28a011-5.2.0.tar.gz
+
+    XI_ESP32_TOOLCHAIN_URL := https://dl.espressif.com/dl/xtensa-esp32-elf-osx-1.22.0-73-ge28a011-5.2.0.tar.gz
+
+endif
+
+XI_BUILD_PRECONDITIONS += $(CC)
+
+$(XI_ESP32_TOOLCHAIN_DOWNLOAD_FILE):
+	@echo XI ESP32 BUILD: downloading xtensa esp32 toolchain to file $@
+	@-mkdir -p $(dir $@)
+	@curl -L -o $@ $(XI_ESP32_TOOLCHAIN_URL)
+
+$(CC): $(XI_ESP32_TOOLCHAIN_DOWNLOAD_FILE)
+	@echo XI ESP32 BUILD: extracting xtensa esp32 toolchain to have compiler $(CC)
+	@tar -xf $< -C ~/Downloads/esp32
+	touch $@
+
+# XI_ESP32_AVAILABILITY_CHECK_CC
+endif
 
 ##################
 # Libxively Config
@@ -72,17 +126,6 @@ XI_COMPILER_FLAGS += -Wno-old-style-declaration
 
 XI_ARFLAGS += -rs -c $(XI)
 
-# This is a custom step in the ESP32's PRESET to build wolfssl from libxively's make
-ifeq ($(XI_BSP_TLS),wolfssl)
-WOLFSSL_STATIC_LIB   = $(LIBXIVELY)/bin/esp32/libwolfssl.a
-WOLFSSL_MAKEFILE_DIR = $(LIBXIVELY)/examples/esp32/xively_demo/wolfssl-make
-
-XI_BUILD_PRECONDITIONS += WOLFSSL_STATIC_LIB
-WOLFSSL_STATIC_LIB:
-	@mkdir -p $(dir $(WOLFSSL_STATIC_LIB))
-	@cd $(WOLFSSL_MAKEFILE_DIR) && \
-     make GCC_XTENSA_TOOLCHAIN_PATH=$(realpath $(XI_GCC_XTENSA_TOOLCHAIN_PATH))
-endif
 
 #ifdef XI_TRAVIS_BUILD
 #### TOOLCHAIN AUTODOWNLOAD SECTION --- BEGIN

@@ -3,19 +3,10 @@
 # This is part of the Xively C Client codebase,
 # it is licensed under the BSD 3-Clause license.
 
-#$(IDF_PATH) This is exported in the shell as a requirement of the IDF SDK
-ESP_SDK_DIR ?= $(IDF_PATH)
-XI_BASE_DIR ?= $(realpath ../../../..)
+WOLFSSL_BASE_DIR := $(LIBXIVELY)/src/import/tls/wolfssl
 
-# The path to CC and AR must be in the environment $PATH as an IDF requirement
-CC = xtensa-esp32-elf-gcc
-AR = xtensa-esp32-elf-ar
-
-WOLFSSL_BASE_DIR := $(XI_BASE_DIR)/src/import/tls/wolfssl
-
-WOLFSSL_OUTPUT_OBJ_DIR := $(XI_BASE_DIR)/obj/esp32/wolfssl
-WOLFSSL_OUTPUT_LIB_DIR := $(XI_BASE_DIR)/bin/esp32
-WOLFSSL_OUTPUT_LIB     := $(WOLFSSL_OUTPUT_LIB_DIR)/libwolfssl.a
+WOLFSSL_OUTPUT_OBJ_DIR := $(XI_OBJDIR)/wolfssl
+WOLFSSL_OUTPUT_LIB     := $(XI_BINDIR)/libwolfssl.a
 
 ###############################################################################
 # GCC flags
@@ -52,13 +43,13 @@ WOLFSSL_INCDIRS = \
     -I${WOLFSSL_BASE_DIR}
 
 LWIP_INCDIRS =                                    \
-    -I$(ESP_SDK_DIR)/components/lwip/system       \
-    -I$(ESP_SDK_DIR)/components/lwip/include/lwip \
-    -I$(ESP_SDK_DIR)/components/lwip/include/lwip/port
+    -I$(XI_ESP_IDF_SDK_PATH)/components/lwip/system       \
+    -I$(XI_ESP_IDF_SDK_PATH)/components/lwip/include/lwip \
+    -I$(XI_ESP_IDF_SDK_PATH)/components/lwip/include/lwip/port
 
 FREERTOS_INCDIRS =                               \
-    -I$(ESP_SDK_DIR)/components/freertos/include \
-    -I$(ESP_SDK_DIR)/components/freertos/include/freertos
+    -I$(XI_ESP_IDF_SDK_PATH)/components/freertos/include \
+    -I$(XI_ESP_IDF_SDK_PATH)/components/freertos/include/freertos
 
 #Build settings
 WOLFSSL_SETTINGS =        \
@@ -111,40 +102,18 @@ CC_FLAGS =                      \
 
 WOLFSSL_OUTPUT_OBJ := $(patsubst $(WOLFSSL_BASE_DIR)%.c,$(WOLFSSL_OUTPUT_OBJ_DIR)%.o,$(WOLFSSL_SOURCES))
 
-###############################################################################
-#
-# default/lib: build the wolfssl library
-#
-###############################################################################
-esp32_libwolfssl: $(WOLFSSL_BASE_DIR) $(WOLFSSL_OUTPUT_LIB)
 
 $(WOLFSSL_BASE_DIR):
-	cd $(XI_BASE_DIR)/src/import/tls/ && ./download_and_compile_wolfssl.sh
+	cd $(LIBXIVELY)/src/import/tls/ && ./download_and_compile_wolfssl.sh
 
 $(WOLFSSL_OUTPUT_OBJ_DIR)%.o: $(WOLFSSL_BASE_DIR)%.c
 	@mkdir -p $(dir $@)
 	$(info [$(CC)] $@)
 	@$(CC) $(CC_FLAGS) -c $< -o $@
 
-$(WOLFSSL_OUTPUT_LIB): $(WOLFSSL_OUTPUT_OBJ)
+$(WOLFSSL_OUTPUT_LIB): $(WOLFSSL_BASE_DIR) $(WOLFSSL_OUTPUT_OBJ)
 	@mkdir -p $(dir $@)
 	$(info [$(AR)] $@)
-	@$(AR) -rs -c $@ $^
+	@$(AR) -rs -c $@ $(WOLFSSL_OUTPUT_OBJ)
 
-###############################################################################
-#
-# clean: rm -rf the output object directory and the static library file
-#
-###############################################################################
-clean:
-	rm -rf $(WOLFSSL_OUTPUT_OBJ_DIR)
-	rm -f $(WOLFSSL_OUTPUT_LIB)
-
-###############################################################################
-#
-# all: clean and re-build the library
-#
-###############################################################################
-all: clean esp32_libwolfssl
-
-.PHONY: all lib clean
+XI_BUILD_PRECONDITIONS += $(WOLFSSL_OUTPUT_LIB)
