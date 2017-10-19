@@ -50,9 +50,9 @@ ifeq ($(XI_HOST_PLATFORM),Darwin)
 
 else ifeq ($(XI_HOST_PLATFORM),Linux)
 
-    XI_ESP32_TOOLCHAIN_DOWNLOAD_FILE := ~/Downloads/esp32/xtensa-esp32-elf-linux32-1.22.0-73-ge28a011-5.2.0.tar.gz
+    XI_ESP32_TOOLCHAIN_DOWNLOAD_FILE := ~/Downloads/esp32/xtensa-esp32-elf-linux64-1.22.0-73-ge28a011-5.2.0.tar.gz
 
-    XI_ESP32_TOOLCHAIN_URL := https://dl.espressif.com/dl/xtensa-esp32-elf-linux32-1.22.0-73-ge28a011-5.2.0.tar.gz
+    XI_ESP32_TOOLCHAIN_URL := https://dl.espressif.com/dl/xtensa-esp32-elf-linux64-1.22.0-73-ge28a011-5.2.0.tar.gz
 
 endif
 
