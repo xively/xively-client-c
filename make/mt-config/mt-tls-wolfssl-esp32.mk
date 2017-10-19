@@ -111,7 +111,7 @@ $(WOLFSSL_OUTPUT_OBJ_DIR)%.o: $(WOLFSSL_BASE_DIR)%.c
 	$(info [$(CC)] $@)
 	@$(CC) $(CC_FLAGS) -c $< -o $@
 
-$(WOLFSSL_OUTPUT_LIB): $(WOLFSSL_BASE_DIR) $(WOLFSSL_OUTPUT_OBJ)
+$(WOLFSSL_OUTPUT_LIB): $(WOLFSSL_BASE_DIR) $(WOLFSSL_OUTPUT_OBJ) $(XI_BUILD_PRECONDITIONS)
 	@mkdir -p $(dir $@)
 	$(info [$(AR)] $@)
 	@$(AR) -rs -c $@ $(WOLFSSL_OUTPUT_OBJ)

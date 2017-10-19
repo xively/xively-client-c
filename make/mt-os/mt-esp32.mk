@@ -4,7 +4,6 @@
 # it is licensed under the BSD 3-Clause license.
 
 include make/mt-os/mt-os-common.mk
-include make/mt-config/mt-tls-wolfssl-esp32.mk
 
 # The path to CC and AR must be in the environment $PATH as an IDF requirement
 CC = xtensa-esp32-elf-gcc
@@ -13,11 +12,10 @@ AR = xtensa-esp32-elf-ar
 ################################
 # auto-provide ESP32 SDK #######
 ################################
-ifdef IDF_PATH
 ifeq (,$(wildcard $(IDF_PATH)))
     $(info SDK NOT available, downloading ESP32 SDK...)
 
-    XI_ESP_IDF_SDK_PATH ?= $(HOME)/Downloads/esp32/esp-idf
+    XI_ESP_IDF_SDK_PATH := $(HOME)/Downloads/esp32/esp-idf
 
 $(XI_ESP_IDF_SDK_PATH):
 	@-mkdir -p $@
@@ -25,11 +23,12 @@ $(XI_ESP_IDF_SDK_PATH):
 
 XI_BUILD_PRECONDITIONS += $(XI_ESP_IDF_SDK_PATH)
 
-endif
-endif
+else
 
 #$(IDF_PATH) This is exported in the shell as as IDF requirement
 XI_ESP_IDF_SDK_PATH ?= $(IDF_PATH)
+
+endif
 
 ################################
 # auto-provide ESP32 toolchain #
@@ -37,7 +36,7 @@ XI_ESP_IDF_SDK_PATH ?= $(IDF_PATH)
 XI_ESP32_AVAILABILITY_CHECK_CC := $(shell which $(CC) 2> /dev/null)
 
 ifndef XI_ESP32_AVAILABILITY_CHECK_CC
-    $(info CC NOT available, downloading of ESP32 toolchain...)
+    $(info CC NOT available, downloading ESP32 toolchain...)
 
     CC := $(HOME)/Downloads/esp32/xtensa-esp32-elf/bin/$(CC)
     AR := $(HOME)/Downloads/esp32/xtensa-esp32-elf/bin/$(AR)
@@ -71,6 +70,8 @@ $(CC): $(XI_ESP32_TOOLCHAIN_DOWNLOAD_FILE)
 
 # XI_ESP32_AVAILABILITY_CHECK_CC
 endif
+
+include make/mt-config/mt-tls-wolfssl-esp32.mk
 
 ##################
 # Libxively Config
