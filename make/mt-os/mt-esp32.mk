@@ -15,7 +15,7 @@ AR = xtensa-esp32-elf-ar
 ################################
 ifdef IDF_PATH
 ifeq (,$(wildcard $(IDF_PATH)))
-    $(info SDK NOT available)
+    $(info SDK NOT available, downloading ESP32 SDK...)
 
     XI_ESP_IDF_SDK_PATH ?= $(HOME)/Downloads/esp32/esp-idf
 
@@ -37,7 +37,7 @@ XI_ESP_IDF_SDK_PATH ?= $(IDF_PATH)
 XI_ESP32_AVAILABILITY_CHECK_CC := $(shell which $(CC) 2> /dev/null)
 
 ifndef XI_ESP32_AVAILABILITY_CHECK_CC
-    $(info CC NOT available)
+    $(info CC NOT available, downloading of ESP32 toolchain...)
 
     CC := $(HOME)/Downloads/esp32/xtensa-esp32-elf/bin/$(CC)
     AR := $(HOME)/Downloads/esp32/xtensa-esp32-elf/bin/$(AR)
@@ -45,9 +45,15 @@ ifndef XI_ESP32_AVAILABILITY_CHECK_CC
 ifeq ($(XI_HOST_PLATFORM),Darwin)
     # osx cross-compilation toolchain downloads
 
-    XI_ESP32_TOOLCHAIN_DOWNLOAD_FILE = ~/Downloads/esp32/xtensa-esp32-elf-osx-1.22.0-73-ge28a011-5.2.0.tar.gz
+    XI_ESP32_TOOLCHAIN_DOWNLOAD_FILE := ~/Downloads/esp32/xtensa-esp32-elf-osx-1.22.0-73-ge28a011-5.2.0.tar.gz
 
     XI_ESP32_TOOLCHAIN_URL := https://dl.espressif.com/dl/xtensa-esp32-elf-osx-1.22.0-73-ge28a011-5.2.0.tar.gz
+
+else ifeq ($(XI_HOST_PLATFORM),Linux)
+
+    XI_ESP32_TOOLCHAIN_DOWNLOAD_FILE := ~/Downloads/esp32/xtensa-esp32-elf-linux32-1.22.0-73-ge28a011-5.2.0.tar.gz
+
+    XI_ESP32_TOOLCHAIN_URL := https://dl.espressif.com/dl/xtensa-esp32-elf-linux32-1.22.0-73-ge28a011-5.2.0.tar.gz
 
 endif
 
