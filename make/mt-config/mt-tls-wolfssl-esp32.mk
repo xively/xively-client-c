@@ -103,15 +103,12 @@ CC_FLAGS =                      \
 WOLFSSL_OUTPUT_OBJ := $(patsubst $(WOLFSSL_BASE_DIR)%.c,$(WOLFSSL_OUTPUT_OBJ_DIR)%.o,$(WOLFSSL_SOURCES))
 
 
-$(WOLFSSL_BASE_DIR):
-	cd $(LIBXIVELY)/src/import/tls/ && ./download_and_compile_wolfssl.sh
-
 $(WOLFSSL_OUTPUT_OBJ_DIR)%.o: $(WOLFSSL_BASE_DIR)%.c
 	@mkdir -p $(dir $@)
 	$(info [$(CC)] $@)
 	@$(CC) $(CC_FLAGS) -c $< -o $@
 
-$(WOLFSSL_OUTPUT_LIB): $(WOLFSSL_BASE_DIR) $(WOLFSSL_OUTPUT_OBJ) $(XI_BUILD_PRECONDITIONS)
+$(WOLFSSL_OUTPUT_LIB): $(TLS_LIB_PATH) $(WOLFSSL_OUTPUT_OBJ) $(XI_BUILD_PRECONDITIONS)
 	@mkdir -p $(dir $@)
 	$(info [$(AR)] $@)
 	@$(AR) -rs -c $@ $(WOLFSSL_OUTPUT_OBJ)
