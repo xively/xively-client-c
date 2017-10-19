@@ -9,13 +9,15 @@ include make/mt-os/mt-os-common.mk
 CC = xtensa-esp32-elf-gcc
 AR = xtensa-esp32-elf-ar
 
+XI_ESP32_PREREQUISITE_DOWNLOAD_PATH := $(HOME)/Downloads/esp32
+
 ################################
 # auto-provide ESP32 SDK #######
 ################################
 ifeq (,$(wildcard $(IDF_PATH)))
-    $(info SDK NOT available, downloading ESP32 SDK...)
+    $(info ESP32 SDK is NOT available, using auto-downloaded ESP32 SDK from $(XI_ESP32_PREREQUISITE_DOWNLOAD_PATH))
 
-    XI_ESP_IDF_SDK_PATH := $(HOME)/Downloads/esp32/esp-idf
+    XI_ESP_IDF_SDK_PATH := $(XI_ESP32_PREREQUISITE_DOWNLOAD_PATH)/esp-idf
 
 $(XI_ESP_IDF_SDK_PATH):
 	@-mkdir -p $@
@@ -36,10 +38,10 @@ endif
 XI_ESP32_AVAILABILITY_CHECK_CC := $(shell which $(CC) 2> /dev/null)
 
 ifndef XI_ESP32_AVAILABILITY_CHECK_CC
-    $(info CC NOT available, downloading ESP32 toolchain...)
+    $(info ESP32 compiler is NOT available, using auto-downloaded ESP32 toolchain from $(XI_ESP32_PREREQUISITE_DOWNLOAD_PATH))
 
-    CC := $(HOME)/Downloads/esp32/xtensa-esp32-elf/bin/$(CC)
-    AR := $(HOME)/Downloads/esp32/xtensa-esp32-elf/bin/$(AR)
+    CC := $(XI_ESP32_PREREQUISITE_DOWNLOAD_PATH)/xtensa-esp32-elf/bin/$(CC)
+    AR := $(XI_ESP32_PREREQUISITE_DOWNLOAD_PATH)/xtensa-esp32-elf/bin/$(AR)
 
 ifeq ($(XI_HOST_PLATFORM),Darwin)
     # osx cross-compilation toolchain downloads
