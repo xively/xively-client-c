@@ -49,14 +49,12 @@ clang_compiler: add_clang_to_path
 
 #### =========================================================
 
-# XI_LIBFUZZER_URL := https://chromium.googlesource.com/chromium/llvm-project/llvm/lib/Fuzzer
 XI_LIBFUZZER_URL := https://llvm.org/svn/llvm-project/compiler-rt/trunk/lib/fuzzer
 XI_LIBFUZZER_DOWNLOAD_DIR := $(XI_CLANG_TOOLS_DIR)/downloaded_libfuzzer
 XI_LIBFUZZER := $(XI_LIBFUZZER_DOWNLOAD_DIR)/libFuzzer.a
 
 $(XI_LIBFUZZER_DOWNLOAD_DIR):
 	@-mkdir -p $(XI_LIBFUZZER_DOWNLOAD_DIR)
-	# git clone $(XI_LIBFUZZER_URL) $(XI_LIBFUZZER_DOWNLOAD_DIR)
 	svn checkout $(XI_LIBFUZZER_URL) $(XI_LIBFUZZER_DOWNLOAD_DIR)
 
 $(XI_LIBFUZZER): $(XI_CLANG_COMPILER) $(XI_LIBFUZZER_DOWNLOAD_DIR)
