@@ -25,6 +25,15 @@ $(XI_ESP_IDF_SDK_PATH):
 
 XI_BUILD_PRECONDITIONS += $(XI_ESP_IDF_SDK_PATH)
 
+XI_ESP32_POST_BUILD_ACTION_SDK := XI_ESP32_POST_BUILD_ACTION_SDK
+XI_ESP32_POST_BUILD_ACTION_SDK:
+	$(info NOTE: The environment variable IDF_PATH was not found in your system,)
+	$(info .     so we`ve downloaded the SDK for you. You can find it in directory)
+	$(info .     $(XI_ESP_IDF_SDK_PATH). You`ll need to export it to your environment)
+	$(info .     using this command before compiling your application:)
+	$(info .         'export IDF_PATH=$(XI_ESP_IDF_SDK_PATH)')
+	$(info .)
+
 else
 
 #$(IDF_PATH) This is exported in the shell as as IDF requirement
@@ -40,19 +49,21 @@ XI_ESP32_AVAILABILITY_CHECK_CC := $(shell which $(CC) 2> /dev/null)
 ifndef XI_ESP32_AVAILABILITY_CHECK_CC
     $(info ESP32 compiler is NOT available, using auto-downloaded ESP32 toolchain from $(XI_ESP32_PREREQUISITE_DOWNLOAD_PATH))
 
-    CC := $(XI_ESP32_PREREQUISITE_DOWNLOAD_PATH)/xtensa-esp32-elf/bin/$(CC)
-    AR := $(XI_ESP32_PREREQUISITE_DOWNLOAD_PATH)/xtensa-esp32-elf/bin/$(AR)
+    XI_ESP32_TOOLCHAIN_BIN := $(XI_ESP32_PREREQUISITE_DOWNLOAD_PATH)/xtensa-esp32-elf/bin
+
+    CC := $(XI_ESP32_TOOLCHAIN_BIN)/$(CC)
+    AR := $(XI_ESP32_TOOLCHAIN_BIN)/$(AR)
 
 ifeq ($(XI_HOST_PLATFORM),Darwin)
     # osx cross-compilation toolchain downloads
 
-    XI_ESP32_TOOLCHAIN_DOWNLOAD_FILE := ~/Downloads/esp32/xtensa-esp32-elf-osx-1.22.0-73-ge28a011-5.2.0.tar.gz
+    XI_ESP32_TOOLCHAIN_DOWNLOAD_FILE := $(HOME)/Downloads/esp32/xtensa-esp32-elf-osx-1.22.0-73-ge28a011-5.2.0.tar.gz
 
     XI_ESP32_TOOLCHAIN_URL := https://dl.espressif.com/dl/xtensa-esp32-elf-osx-1.22.0-73-ge28a011-5.2.0.tar.gz
 
 else ifeq ($(XI_HOST_PLATFORM),Linux)
 
-    XI_ESP32_TOOLCHAIN_DOWNLOAD_FILE := ~/Downloads/esp32/xtensa-esp32-elf-linux64-1.22.0-73-ge28a011-5.2.0.tar.gz
+    XI_ESP32_TOOLCHAIN_DOWNLOAD_FILE := $(HOME)/Downloads/esp32/xtensa-esp32-elf-linux64-1.22.0-73-ge28a011-5.2.0.tar.gz
 
     XI_ESP32_TOOLCHAIN_URL := https://dl.espressif.com/dl/xtensa-esp32-elf-linux64-1.22.0-73-ge28a011-5.2.0.tar.gz
 
@@ -67,8 +78,17 @@ $(XI_ESP32_TOOLCHAIN_DOWNLOAD_FILE):
 
 $(CC): $(XI_ESP32_TOOLCHAIN_DOWNLOAD_FILE)
 	@echo XI ESP32 BUILD: extracting xtensa esp32 toolchain to have compiler $(CC)
-	@tar -xf $< -C ~/Downloads/esp32
+	@tar -xf $< -C $(HOME)/Downloads/esp32
 	touch $@
+
+XI_ESP32_POST_BUILD_ACTION_TOOLCHAIN := XI_ESP32_POST_BUILD_ACTION_TOOLCHAIN
+XI_ESP32_POST_BUILD_ACTION_TOOLCHAIN:
+	$(info NOTE: The ESP32 compiler `$(notdir $(CC))` was not found in your system PATH,)
+	$(info .     so we`ve downloaded the toolchain for you. You can find it in directory)
+	$(info .     $(XI_ESP32_TOOLCHAIN_BIN). You`ll need to add this directory to you PATH)
+	$(info .     variable using this command before compiling your application:)
+	$(info .         `export PATH=$$PATH:$(CC)`)
+	$(info .)
 
 # XI_ESP32_AVAILABILITY_CHECK_CC
 endif
@@ -148,5 +168,9 @@ XI_ARFLAGS += -rs -c $(XI)
 #endif
 
 #endif
+
+XI_POST_BUILD_ACTION := XI_ESP32_POST_BUILD_ACTION
+
+$(XI_POST_BUILD_ACTION): $(XI_ESP32_POST_BUILD_ACTION_SDK) $(XI_ESP32_POST_BUILD_ACTION_TOOLCHAIN)
 
 XI_POST_COMPILE_ACTION =

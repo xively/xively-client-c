@@ -73,7 +73,7 @@ build_output: help_disclaimer preset_output
 	$(info .    COMPILER:        [$(CC)] )
 	$(info )
 
-all: build_output $(XI)
+all: build_output $(XI) $(XI_POST_BUILD_ACTION)
 
 tests: $(XI) $(XI_TESTS_TARGETS)
 
