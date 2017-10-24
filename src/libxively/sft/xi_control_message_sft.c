@@ -15,6 +15,10 @@
 xi_control_message_t*
 xi_control_message_create_file_info( const char** filenames, uint16_t count )
 {
+    printf("xi_control_message_create_file_info\n");
+    printf("filenames: %p\n", filenames );
+    printf("count: %d\n", count);
+
     if ( NULL == filenames || NULL == *filenames || 0 == count )
     {
         return NULL;
@@ -36,6 +40,8 @@ xi_control_message_create_file_info( const char** filenames, uint16_t count )
     for ( ; id_file < count; ++id_file )
     {
         sft_message->file_info.list[id_file].name = xi_str_dup( *filenames );
+
+        printf("calling get revision for filename: %s\n", *filenames );
 
         char* revision = NULL;
         state          = xi_sft_revision_get( *filenames, &revision );
@@ -99,6 +105,7 @@ xi_control_message_t* xi_control_message_create_file_status( const char* filenam
                                                              uint8_t phase,
                                                              int8_t code )
 {
+    printf("creating file status message.  Filename: %s, revision: %s\n", filename, revision );
     if ( NULL == filename || NULL == revision )
     {
         return NULL;

@@ -156,6 +156,8 @@ int xi_mqtt_logic_producer_main( xi_embedded_args_t* xi_embedded_args )
     xi_connect( xi_context, xi_username, xi_password, connection_timeout,
                 keepalive_timeout, XI_SESSION_CLEAN, &on_connection_state_changed );
 
+    printf("Set updatable files result: %d\n", xi_set_updateable_files( xi_context, ( const char* [] ){"file.cfg", "file2.cfg" }, 2 ) );
+
     /* The Xively Client was designed for single threaded devices. As such
         it does not have its own event loop thread. Instead you must regularly call
         the function xi_events_process_blocking() to process connection requeusts, and to
@@ -220,6 +222,8 @@ void on_connection_state_changed( xi_context_handle_t in_context_handle,
            established and the Xively Client is ready to send/recv messages */
         case XI_CONNECTION_STATE_OPENED:
             printf( "connected!\n" );
+            /*  */
+            
             /* You can pass any custom data to your callbacks if you want. */
             void* user_data = NULL;
             delayed_publish( in_context_handle, XI_INVALID_TIMED_TASK_HANDLE, user_data );

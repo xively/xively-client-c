@@ -8,6 +8,8 @@
 #include <stddef.h>
 #include <xi_macros.h>
 #include <xi_debug.h>
+#include <xi_vector.h>
+#include <xi_helpers.h>
 
 #include <xi_sft_revision.h>
 #include <xi_sft_logic_file_chunk_handlers.h>
@@ -131,6 +133,55 @@ xi_sft_send_file_status( const xi_sft_context_t* context,
     ( *context->fn_send_message )( context->send_message_user_data, message_file_status );
 }
 
+xi_state_t
+xi_sft_build_remaining_file_list( const xi_sft_context_t* context, 
+                                  char *** remaining_file_list,
+                                  uint16_t* remaining_file_list_len )
+{
+    ( void ) remaining_file_list;
+    ( void ) remaining_file_list_len;
+
+    xi_state_t state = XI_STATE_OK;
+    
+    xi_vector_t* index_map_vector = xi_vector_create();
+
+    //&context->update_message_fua->file_update_available.list[0];
+
+    uint16_t index = 0; 
+    *remaining_file_list_len = 0;
+    printf("\nlist len: %d\n", context->update_message_fua->file_update_available.list_len );
+
+    for( ; index < context->update_message_fua->file_update_available.list_len;
+         ++index ) 
+    {
+        if( 0 == 
+            context->update_message_fua->file_update_available.list[index].completed )
+        {
+            *remaining_file_list_len = *remaining_file_list_len + 1;
+            printf("pushing index: %d  new length: %d\n", index, *remaining_file_list_len );
+            xi_vector_push( index_map_vector,
+                            XI_VEC_CONST_VALUE_PARAM( XI_VEC_VALUE_UI32( index ) ) );
+                            
+        }
+    }
+
+    *remaining_file_list = xi_alloc( sizeof( char* ) * ( *remaining_file_list_len ) );
+    if( NULL == *remaining_file_list )
+    {
+        return XI_OUT_OF_MEMORY;
+    }
+
+    index = 0;
+    for( ; index < *remaining_file_list_len; ++index )
+    {
+        uint16_t resource_index = (uint16_t) xi_vector_get( index_map_vector, index );
+        //uint16_t resource_index = (uint16_t) index_map_vector->array[index].selector_t
+        printf( "index: %d  resource_index: %d\n", index, resource_index );
+        (*remaining_file_list)[index] = xi_str_dup( context->update_message_fua->file_update_available.list[ resource_index ].name );;
+    }
+
+    return state;
+}
 
 xi_state_t
 xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_in )
@@ -162,11 +213,33 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
             if ( 0 < context->update_message_fua->file_update_available.list_len &&
                  NULL != context->update_message_fua->file_update_available.list )
             {
-                context->update_current_file =
-                    &context->update_message_fua->file_update_available.list[0];
 
+#if 1   
+                printf("selecting first file by default\n");
+                context->update_current_file =
+                    &context->update_message_fua->file_update_available.list[1];
+
+#else
+                char** remaining_file_list = NULL;
+                uint16_t remaining_file_list_len = 0;
+
+                xi_sft_build_remaining_file_list( context, 
+                                                  &remaining_file_list, 
+                                                  &remaining_file_list_len );
+
+                uint16_t bsp_selected_index = 0;
+                xi_bsp_io_fs_get_index_next_resource_to_process( remaining_file_list,
+                                                                 remaining_file_list_len,
+                                                                 &bsp_selected_index );
+
+                printf("selected index: %d\n", bsp_selected_index );
+
+                context->update_current_file =
+                    &context->update_message_fua->file_update_available.list[bsp_selected_index];
+#endif                              
                 xi_sft_send_file_get_chunk( context, 0,
                                             context->update_current_file->size_in_bytes );
+
             }
         }
         break;
@@ -244,6 +317,7 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                         if ( XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS !=
                              checksum_status_code )
                         {
+                            printf("checksum problem!\n");
                             xi_bsp_fwu_on_package_download_failure();
                             /* todo_atigyi: another option beyond exiting the whole update
                              * process is to retry the broken file download */
