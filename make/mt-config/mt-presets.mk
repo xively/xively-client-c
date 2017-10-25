@@ -140,7 +140,6 @@ else ifeq ($(PRESET), ESP32)
     CONFIG = $(CONFIG_ESP32)
     TARGET = $(TARGET_STATIC_REL)
     XI_BSP_PLATFORM = esp32
-    XI_BSP_TLS ?= wolfssl
     XI_TARGET_PLATFORM = esp32
 
 # -------------------------------------------------------

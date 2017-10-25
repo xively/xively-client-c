@@ -15,7 +15,8 @@ XI_ESP32_PREREQUISITE_DOWNLOAD_PATH := $(HOME)/Downloads/esp32
 # auto-provide ESP32 SDK #######
 ################################
 ifeq (,$(wildcard $(IDF_PATH)))
-    $(info ESP32 SDK is NOT available, using auto-downloaded ESP32 SDK from $(XI_ESP32_PREREQUISITE_DOWNLOAD_PATH))
+    $(info NOTE: ESP32 SDK was NOT found, using auto-downloaded ESP32 SDK from)
+    $(info .     $(XI_ESP32_PREREQUISITE_DOWNLOAD_PATH))
 
     XI_ESP_IDF_SDK_PATH := $(XI_ESP32_PREREQUISITE_DOWNLOAD_PATH)/esp-idf
 
@@ -47,7 +48,8 @@ endif
 XI_ESP32_AVAILABILITY_CHECK_CC := $(shell which $(CC) 2> /dev/null)
 
 ifndef XI_ESP32_AVAILABILITY_CHECK_CC
-    $(info ESP32 compiler is NOT available, using auto-downloaded ESP32 toolchain from $(XI_ESP32_PREREQUISITE_DOWNLOAD_PATH))
+    $(info NOTE: ESP32 compiler was NOT found, using auto-downloaded ESP32 toolchain from)
+    $(info .     $(XI_ESP32_PREREQUISITE_DOWNLOAD_PATH))
 
     XI_ESP32_TOOLCHAIN_BIN := $(XI_ESP32_PREREQUISITE_DOWNLOAD_PATH)/xtensa-esp32-elf/bin
 
@@ -87,25 +89,23 @@ XI_ESP32_POST_BUILD_ACTION_TOOLCHAIN:
 	$(info .     so we`ve downloaded the toolchain for you. You can find it in directory)
 	$(info .     $(XI_ESP32_TOOLCHAIN_BIN). You`ll need to add this directory to you PATH)
 	$(info .     variable using this command before compiling your application:)
-	$(info .         `export PATH=$$PATH:$(CC)`)
+	$(info .         `export PATH=$$PATH:$(XI_ESP32_TOOLCHAIN_BIN)`)
 	$(info .)
 
 # XI_ESP32_AVAILABILITY_CHECK_CC
 endif
 
-include make/mt-config/mt-tls-wolfssl-esp32.mk
+# Hint for custom TLS library build: for wolfSSL the XI_BSP_TLS is equal to 'wolfssl'.
+# You can find the corresponding file in directory make/mt-config. To build custom TLS
+# library as part of the libxively build create your own config file there, e.g.:
+# mt-tls-mbedtls-esp32.mk. Or delete the line below to turn off TLS lib cross compilation.
+include make/mt-config/mt-tls-$(XI_BSP_TLS)-esp32.mk
 
 ##################
 # Libxively Config
 ##################
 XI_CONFIG_FLAGS += -DXI_CROSS_TARGET
 XI_CONFIG_FLAGS += -DXI_EMBEDDED_TESTS
-
-################
-# WolfSSL Config
-################
-XI_CONFIG_FLAGS += -DNO_WRITEV
-XI_COMPILER_FLAGS += -DSINGLE_THREADED
 
 #########################
 # ESP System Include Dirs
