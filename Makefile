@@ -73,7 +73,7 @@ build_output: help_disclaimer preset_output
 	$(info .    COMPILER:        [$(CC)] )
 	$(info )
 
-all: build_output $(XI)
+all: build_output $(XI) $(XI_POST_BUILD_ACTION)
 
 tests: $(XI) $(XI_TESTS_TARGETS)
 
@@ -131,12 +131,6 @@ $(XI_OBJDIR)/tests/tools/xi_libxively_driver/%.o : $(LIBXIVELY)/src/tests/tools/
 -include $(XI_OBJS:.o=.d)
 
 $(XI_OBJDIR)/%.o : $(LIBXIVELY)/src/%.c $(XI_BUILD_PRECONDITIONS)
-	@-mkdir -p $(dir $@)
-	$(info [$(CC)] $@)
-	$(MD) $(CC) $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) -c $< $(XI_COMPILER_OUTPUT)
-	$(XI_POST_COMPILE_ACTION)
-
-$(XI_OBJDIR)/bsp/platform/$(BSP_FOUND)/%.o : $(XI_BSP_DIR)/platform/$(BSP_FOUND)/%.c $(XI_BUILD_PRECONDITIONS)
 	@-mkdir -p $(dir $@)
 	$(info [$(CC)] $@)
 	$(MD) $(CC) $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) -c $< $(XI_COMPILER_OUTPUT)
