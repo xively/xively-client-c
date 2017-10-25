@@ -14,8 +14,10 @@
 #include "nvs.h"
 #include "nvs_flash.h"
 
-void __attribute__( ( weak ) )
-xi_esp32_ota_chunk_recv( size_t offset, size_t chunk_size );
+/* These functions are implemented in the application layer to report status */
+extern void esp32_xibsp_notify_update_started( const char* filename, size_t file_size );
+extern void esp32_xibsp_notify_chunk_written( size_t chunk_size, size_t offset );
+extern void esp32_xibsp_notify_update_applied();
 
 xi_bsp_io_fs_state_t
 xi_bsp_io_fs_open( const char* const resource_name,
@@ -49,6 +51,7 @@ xi_bsp_io_fs_open( const char* const resource_name,
         return XI_BSP_IO_FS_OPEN_ERROR;
     }
 
+    esp32_xibsp_notify_update_started( resource_name, size );
     return XI_BSP_IO_FS_STATE_OK;
 }
 
@@ -60,8 +63,6 @@ xi_bsp_io_fs_write( const xi_bsp_io_fs_resource_handle_t resource_handle,
                     size_t* const bytes_written )
 {
     ( void )offset;
-    xi_bsp_debug_format( "Writing OTA file chunk.\n\tOffset: %d\n\tBuffer_size: %d",
-                         offset, buffer_size );
 
     const esp_err_t retv = esp_ota_write( resource_handle, buffer, buffer_size );
 
@@ -72,6 +73,7 @@ xi_bsp_io_fs_write( const xi_bsp_io_fs_resource_handle_t resource_handle,
     }
 
     *bytes_written = buffer_size;
+    esp32_xibsp_notify_chunk_written( buffer_size, offset );
     return XI_BSP_IO_FS_STATE_OK;
 }
 
@@ -97,6 +99,7 @@ xi_bsp_io_fs_close( const xi_bsp_io_fs_resource_handle_t resource_handle )
         return XI_BSP_IO_FS_WRITE_ERROR;
     }
 
+    esp32_xibsp_notify_update_applied();
     return XI_BSP_IO_FS_STATE_OK;
 }
 

@@ -15,11 +15,6 @@
 #include "nvs.h"
 #include "nvs_flash.h"
 
-static void _reboot_device()
-{
-    esp_restart();
-}
-
 uint8_t xi_bsp_fwu_is_this_firmware( const char* const resource_name )
 {
     return ( 0 == strcmp( "firmware.bin", resource_name ) ) ? 1 : 0;
@@ -51,8 +46,6 @@ void xi_bsp_fwu_on_package_download_finished( const char* const firmware_resourc
     ( void )firmware_resource_name;
     xi_bsp_debug_logger( "Firmware package download finished. Rebooting" );
 
-    //esp_ota_end( esp_ota_handle );
-
     /* reboot the device */
-    _reboot_device();
+    esp_restart();
 }
