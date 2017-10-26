@@ -60,6 +60,10 @@ xi_state_t xi_sft_free_context( xi_sft_context_t** context )
 {
     if ( NULL != context && NULL != *context )
     {
+        xi_sft_on_message_file_chunk_checksum_final( *context );
+
+        xi_bsp_io_fs_close( ( *context )->update_file_handle );
+
         xi_control_message_free( &( *context )->update_message_fua );
 
         XI_SAFE_FREE( *context );
@@ -88,10 +92,14 @@ xi_state_t xi_sft_on_connected( xi_sft_context_t* context )
         return XI_INVALID_PARAMETER;
     }
 
-    xi_control_message_t* message_file_info = xi_control_message_create_file_info(
-        context->updateable_files, context->updateable_files_count );
+    if ( NULL != context->fn_send_message )
+    {
+        xi_control_message_t* message_file_info = xi_control_message_create_file_info(
+            context->updateable_files, context->updateable_files_count );
 
-    ( *context->fn_send_message )( context->send_message_user_data, message_file_info );
+        ( *context->fn_send_message )( context->send_message_user_data,
+                                       message_file_info );
+    }
 
     return state;
 }

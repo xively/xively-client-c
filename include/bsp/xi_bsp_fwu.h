@@ -137,7 +137,7 @@ void xi_bsp_fwu_checksum_update( void* checksum_context,
  * @param [out] buffer_out outgoing pointer on an array containing the checksum itself.
  * @param [out] buffer_len_out the number of bytes of the outgoing buffer
  */
-void xi_bsp_fwu_checksum_final( void* checksum_context,
+void xi_bsp_fwu_checksum_final( void** checksum_context,
                                 uint8_t** buffer_out,
                                 uint16_t* buffer_len_out );
 

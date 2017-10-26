@@ -65,7 +65,7 @@ void xi_mock_broker_sft_logic_get_fingerprint( uint32_t size_in_bytes,
 
     uint8_t* checksum = NULL;
 
-    xi_bsp_fwu_checksum_final( checksum_context, &checksum, fingerprint_len_out );
+    xi_bsp_fwu_checksum_final( &checksum_context, &checksum, fingerprint_len_out );
 
     xi_state_t state = XI_STATE_OK;
 
