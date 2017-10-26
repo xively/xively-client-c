@@ -13,8 +13,7 @@
 
 #include "gpio_if.h"
 
-#define IO_BUTTON_DEBOUNCE_TIME 300
-
+#define IO_BUTTON_DEBOUNCE_TIME 250
 #define IO_BUTTON_INTERRUPT_EDGE GPIO_PIN_INTR_NEGEDGE /* pull-up enabled in io_init */
 
 /**
@@ -28,12 +27,36 @@
  */
 static xQueueHandle io_button_queue = NULL;
 
+/**
+ * @brief  Identify whether the interrupt was a real button press or a bounce.
+ *         All interrupts within a IO_BUTTON_DEBOUNCE_TIME window after the
+ *         first one will be considered bounces
+ * @retval  0 if the interrupt was caused by a button bounce and should be ignored
+ * @retval  1 if the interrupt was a legitimate button press
+ */
+static inline int8_t gpio_button_isr_debouncer( void )
+{
+    static uint32_t button_press_systick = 0;
+    uint32_t current_systick = 0;
+
+    current_systick = xTaskGetTickCountFromISR();
+    if( (current_systick - button_press_systick) < IO_BUTTON_DEBOUNCE_TIME )
+    {
+        return 0;
+    }
+    button_press_systick = current_systick;
+    return 1;
+}
+
 void IRAM_ATTR gpio_isr_handler( void* arg )
 {
     uint32_t gpio_num = ( uint32_t )arg;
     if( NULL != io_button_queue )
     {
-        xQueueSendFromISR( io_button_queue, &gpio_num, NULL );
+        if ( gpio_button_exti_debouncer() )
+        {
+            xQueueSendFromISR( io_button_queue, &gpio_num, NULL );
+        }
     }
 }
 
