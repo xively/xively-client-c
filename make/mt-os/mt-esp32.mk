@@ -5,24 +5,107 @@
 
 include make/mt-os/mt-os-common.mk
 
-#$(IDF_PATH) This is exported in the shell as as IDF requirement
-XI_ESP_IDF_SDK_PATH ?= $(IDF_PATH)
-
 # The path to CC and AR must be in the environment $PATH as an IDF requirement
 CC = xtensa-esp32-elf-gcc
 AR = xtensa-esp32-elf-ar
+
+XI_ESP32_PREREQUISITE_DOWNLOAD_PATH := $(HOME)/Downloads/esp32
+
+################################
+# auto-provide ESP32 SDK #######
+################################
+ifeq (,$(wildcard $(IDF_PATH)))
+    $(info NOTE: ESP32 SDK was NOT found, using auto-downloaded ESP32 SDK from)
+    $(info .     $(XI_ESP32_PREREQUISITE_DOWNLOAD_PATH))
+
+    XI_ESP_IDF_SDK_PATH := $(XI_ESP32_PREREQUISITE_DOWNLOAD_PATH)/esp-idf
+
+$(XI_ESP_IDF_SDK_PATH):
+	@-mkdir -p $@
+	git clone --recursive -b release/v2.1 https://github.com/espressif/esp-idf.git $(XI_ESP_IDF_SDK_PATH)
+
+XI_BUILD_PRECONDITIONS += $(XI_ESP_IDF_SDK_PATH)
+
+XI_ESP32_POST_BUILD_ACTION_SDK := XI_ESP32_POST_BUILD_ACTION_SDK
+XI_ESP32_POST_BUILD_ACTION_SDK:
+	$(info NOTE: The environment variable IDF_PATH was not found in your system,)
+	$(info .     so we`ve downloaded the SDK for you. You can find it in directory)
+	$(info .     $(XI_ESP_IDF_SDK_PATH). You`ll need to export it to your environment)
+	$(info .     using this command before compiling your application:)
+	$(info .         'export IDF_PATH=$(XI_ESP_IDF_SDK_PATH)')
+	$(info .)
+
+else
+
+#$(IDF_PATH) This is exported in the shell as as IDF requirement
+XI_ESP_IDF_SDK_PATH ?= $(IDF_PATH)
+
+endif
+
+################################
+# auto-provide ESP32 toolchain #
+################################
+XI_ESP32_AVAILABILITY_CHECK_CC := $(shell which $(CC) 2> /dev/null)
+
+ifndef XI_ESP32_AVAILABILITY_CHECK_CC
+    $(info NOTE: ESP32 compiler was NOT found, using auto-downloaded ESP32 toolchain from)
+    $(info .     $(XI_ESP32_PREREQUISITE_DOWNLOAD_PATH))
+
+    XI_ESP32_TOOLCHAIN_BIN := $(XI_ESP32_PREREQUISITE_DOWNLOAD_PATH)/xtensa-esp32-elf/bin
+
+    CC := $(XI_ESP32_TOOLCHAIN_BIN)/$(CC)
+    AR := $(XI_ESP32_TOOLCHAIN_BIN)/$(AR)
+
+ifeq ($(XI_HOST_PLATFORM),Darwin)
+    # osx cross-compilation toolchain downloads
+
+    XI_ESP32_TOOLCHAIN_DOWNLOAD_FILE := $(HOME)/Downloads/esp32/xtensa-esp32-elf-osx-1.22.0-73-ge28a011-5.2.0.tar.gz
+
+    XI_ESP32_TOOLCHAIN_URL := https://dl.espressif.com/dl/xtensa-esp32-elf-osx-1.22.0-73-ge28a011-5.2.0.tar.gz
+
+else ifeq ($(XI_HOST_PLATFORM),Linux)
+
+    XI_ESP32_TOOLCHAIN_DOWNLOAD_FILE := $(HOME)/Downloads/esp32/xtensa-esp32-elf-linux64-1.22.0-73-ge28a011-5.2.0.tar.gz
+
+    XI_ESP32_TOOLCHAIN_URL := https://dl.espressif.com/dl/xtensa-esp32-elf-linux64-1.22.0-73-ge28a011-5.2.0.tar.gz
+
+endif
+
+XI_BUILD_PRECONDITIONS += $(CC)
+
+$(XI_ESP32_TOOLCHAIN_DOWNLOAD_FILE):
+	@echo XI ESP32 BUILD: downloading xtensa esp32 toolchain to file $@
+	@-mkdir -p $(dir $@)
+	@curl -L -o $@ $(XI_ESP32_TOOLCHAIN_URL)
+
+$(CC): $(XI_ESP32_TOOLCHAIN_DOWNLOAD_FILE)
+	@echo XI ESP32 BUILD: extracting xtensa esp32 toolchain to have compiler $(CC)
+	@tar -xf $< -C $(HOME)/Downloads/esp32
+	touch $@
+
+XI_ESP32_POST_BUILD_ACTION_TOOLCHAIN := XI_ESP32_POST_BUILD_ACTION_TOOLCHAIN
+XI_ESP32_POST_BUILD_ACTION_TOOLCHAIN:
+	$(info NOTE: The ESP32 compiler `$(notdir $(CC))` was not found in your system PATH,)
+	$(info .     so we`ve downloaded the toolchain for you. You can find it in directory)
+	$(info .     $(XI_ESP32_TOOLCHAIN_BIN). You`ll need to add this directory to you PATH)
+	$(info .     variable using this command before compiling your application:)
+	$(info .         `export PATH=$$PATH:$(XI_ESP32_TOOLCHAIN_BIN)`)
+	$(info .)
+
+# XI_ESP32_AVAILABILITY_CHECK_CC
+endif
+
+# Hint for custom TLS library build: for wolfSSL the XI_BSP_TLS is equal to 'wolfssl'.
+# You can find the corresponding file in directory make/mt-config. To build custom TLS
+# library as part of the libxively build create your own config file there, e.g.:
+# mt-tls-mbedtls-esp32.mk. Or delete the line below to turn off TLS lib cross compilation.
+include make/mt-config/mt-tls-$(XI_BSP_TLS)-esp32.mk
 
 ##################
 # Libxively Config
 ##################
 XI_CONFIG_FLAGS += -DXI_CROSS_TARGET
 XI_CONFIG_FLAGS += -DXI_EMBEDDED_TESTS
-
-################
-# WolfSSL Config
-################
-XI_CONFIG_FLAGS += -DNO_WRITEV
-XI_COMPILER_FLAGS += -DSINGLE_THREADED
 
 #########################
 # ESP System Include Dirs
@@ -76,17 +159,6 @@ XI_COMPILER_FLAGS += -Wno-old-style-declaration
 
 XI_ARFLAGS += -rs -c $(XI)
 
-# This is a custom step in the ESP32's PRESET to build wolfssl from libxively's make
-ifeq ($(XI_BSP_TLS),wolfssl)
-WOLFSSL_STATIC_LIB   = $(LIBXIVELY)/bin/esp32/libwolfssl.a
-WOLFSSL_MAKEFILE_DIR = $(LIBXIVELY)/examples/esp32/xively_demo/wolfssl-make
-
-XI_BUILD_PRECONDITIONS += WOLFSSL_STATIC_LIB
-WOLFSSL_STATIC_LIB:
-	@mkdir -p $(dir $(WOLFSSL_STATIC_LIB))
-	@cd $(WOLFSSL_MAKEFILE_DIR) && \
-     make GCC_XTENSA_TOOLCHAIN_PATH=$(realpath $(XI_GCC_XTENSA_TOOLCHAIN_PATH))
-endif
 
 #ifdef XI_TRAVIS_BUILD
 #### TOOLCHAIN AUTODOWNLOAD SECTION --- BEGIN
@@ -100,5 +172,9 @@ endif
 #endif
 
 #endif
+
+XI_POST_BUILD_ACTION := XI_ESP32_POST_BUILD_ACTION
+
+$(XI_POST_BUILD_ACTION): $(XI_ESP32_POST_BUILD_ACTION_SDK) $(XI_ESP32_POST_BUILD_ACTION_TOOLCHAIN)
 
 XI_POST_COMPILE_ACTION =
