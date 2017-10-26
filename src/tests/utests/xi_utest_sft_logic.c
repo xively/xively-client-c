@@ -14,6 +14,8 @@
 
 #include <xi_sft_logic.h>
 #include <xi_macros.h>
+#include <xi_control_message_sft.h>
+#include <xi_control_message_sft_generators.h>
 
 #ifndef XI_TT_TESTCASE_ENUMERATION__SECONDPREPROCESSORRUN
 
@@ -112,6 +114,28 @@ XI_TT_TESTCASE_WITH_SETUP(
 
     err_handling:
 
+        xi_sft_free_context( &sft_context );
+    } )
+
+XI_TT_TESTCASE_WITH_SETUP(
+    xi_utest__minimal_config__call_on_message_with_FILE_CHUNK__no_crash,
+    xi_utest_setup_basic,
+    xi_utest_teardown_basic,
+    NULL,
+    {
+        xi_sft_context_t* sft_context = NULL;
+
+        xi_sft_make_context( &sft_context, NULL, 0, NULL, NULL );
+
+        xi_control_message_t* message_FILE_GET_CHUNK =
+            xi_control_message_create_file_get_chunk( "filename", "revision", 11, 22 );
+
+        xi_control_message_t* message_FILE_CHUNK =
+            xi_control_message_sft_generate_reply_FILE_CHUNK( message_FILE_GET_CHUNK );
+
+        xi_sft_on_message( sft_context, message_FILE_CHUNK );
+
+        xi_control_message_free( &message_FILE_GET_CHUNK );
         xi_sft_free_context( &sft_context );
     } )
 
