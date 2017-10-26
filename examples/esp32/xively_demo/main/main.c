@@ -40,6 +40,9 @@
 static EventGroupHandle_t app_wifi_event_group;
 static user_data_t user_config;
 
+static size_t ota_download_file_size = 0;
+static int ota_download_progress = 0;
+
 static esp_err_t app_wifi_event_handler( void* ctx, system_event_t* event );
 static int8_t app_wifi_station_init( user_data_t* credentials );
 static int8_t app_fetch_user_config( user_data_t* dst );
@@ -301,4 +304,46 @@ void xt_recv_mqtt_msg_callback( const xi_sub_call_params_t* const params )
         else
             io_led_on();
     }
+}
+
+/******************************************************************************
+ *        OTA Firmware Update notifications from the Xively Client's BSP
+ *
+ * Note:
+ * These functions are declared as extern in the ESP32's BSP:
+ *     xively-client-c/src/bsp/platform/esp32/xi_bsp_io_fs_esp32.c
+ * It's a custom solution to showcase how the application can be made aware of the
+ * download status. Useful to act on peripherals, display download progress, etc.
+ *
+ * If you decide to remove these functions for your app, you'll also have to
+ * remove their calls and declarations in xi_bsp_io_fs_esp32.c
+ ******************************************************************************/
+void esp32_xibsp_notify_update_started( const char* filename, size_t file_size )
+{
+    printf( "\nDownload of file [%s] started. Size: [%d]", filename, file_size );
+    ota_download_file_size = file_size;
+}
+
+void esp32_xibsp_notify_chunk_written( size_t chunk_size, size_t offset )
+{
+    if ( ota_download_file_size <= 0 )
+    {
+        return;
+    }
+    ota_download_progress = ( ( chunk_size + offset ) * 100 ) / ota_download_file_size;
+    printf( "\n[%d%%] Firmware chunk of size [%d] written at offset [%d]",
+            ota_download_progress, chunk_size, offset );
+
+    { /* FW update light show */
+        for ( int i = 4; i > 0; i-- )
+        {
+            io_led_set( i % 2 );
+            vTaskDelay( 50 / portTICK_PERIOD_MS );
+        }
+    }
+}
+
+void esp32_xibsp_notify_update_applied()
+{
+    printf( "\nFirmware update successfully completed - Proceeding with reboot" );
 }
