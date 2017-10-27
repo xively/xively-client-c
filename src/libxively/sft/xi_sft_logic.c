@@ -201,6 +201,26 @@ xi_sft_safe_clear_remaining_resources_info( xi_sft_remaining_resources_info_t* r
 xi_state_t
 xi_sft_select_next_resource_to_download( xi_sft_context_t* context )
 {
+#ifndef XI_SFT_BSP_CHOOSE_DOWNLOAD_ORDER
+    printf("original\n");
+    context->update_current_file = NULL;
+
+    for( uint16_t i = 0; 
+        i < context->update_message_fua->file_update_available.list_len; ++i )
+    {
+        xi_control_message_file_desc_ext_t* sft_file = 
+            &(context->update_message_fua->file_update_available.list[ i ]);
+        if( 0 == sft_file->processed )
+        {
+            sft_file->processed = 1;
+            context->update_current_file = sft_file;
+            break;    
+        }
+    }
+
+    return XI_STATE_OK;
+
+#else
     xi_state_t state = XI_STATE_OK;
 
     /* clear out current downloading file. */
@@ -240,6 +260,7 @@ err_handling:
 
     xi_sft_safe_clear_remaining_resources_info( &remaining_resources );
     return state;
+#endif
 }
 
 xi_state_t
