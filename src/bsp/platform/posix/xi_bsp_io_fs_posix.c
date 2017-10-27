@@ -104,36 +104,28 @@ xi_bsp_io_fs_posix_file_list_cnd( xi_bsp_io_fs_posix_file_handle_container_t* li
     return ( list_element->posix_fp == fp ) ? 1 : 0;
 }
 
-
 xi_bsp_io_fs_state_t
 xi_bsp_io_fs_get_index_next_resource_to_process( char* const* resource_names,
                                                  uint16_t list_len,
                                                  uint16_t* out_index )
-{
-    ( void )( resource_names );
-    ( void ) ( list_len );
-    ( void ) ( out_index );
-
-    printf("xi_bsp_io_fs_get_index_next_resource_to_process selecting from: \n");
-    for( int i = 0; i < list_len; ++ i )
+{    
+    if( NULL == out_index )
     {
-        printf("%d: %s\n", i, resource_names[ i ] );
+        return XI_BSP_IO_FS_INVALID_PARAMETER;
     }
 
-    *out_index = 0;
-    printf("selecting: \"%s\"\n", resource_names[ *out_index ] );
+    ( void )( resource_names );
+    ( void ) ( list_len );
 
-    
+    /* by default just go in default order. */
+    *out_index = 0;
 
     return XI_BSP_IO_FS_STATE_OK;
 }
 
 xi_bsp_io_fs_state_t
 xi_bsp_io_fs_stat( const char* const resource_name, xi_bsp_io_fs_stat_t* resource_stat )
-{
-    printf("xi_bsp_io_fs_stat\n");
-    printf("resource name: %s\n", resource_name);
-    
+{    
     if ( NULL == resource_stat || NULL == resource_name )
     {
         return XI_BSP_IO_FS_INVALID_PARAMETER;
@@ -162,10 +154,6 @@ xi_bsp_io_fs_state_t xi_bsp_io_fs_open( const char* const resource_name,
                                         const xi_bsp_io_fs_open_flags_t open_flags,
                                         xi_bsp_io_fs_resource_handle_t* resource_handle_out )
 {
-    printf("xi_bsp_io_fs_open\n");
-    printf("resource_name: %s\n", resource_name);
-    printf("open flags: %d\n", open_flags);
-
     ( void )size;
 
     if ( NULL == resource_name || NULL == resource_handle_out )
@@ -221,8 +209,6 @@ xi_bsp_io_fs_state_t xi_bsp_io_fs_read( const xi_bsp_io_fs_resource_handle_t res
                                         const uint8_t** buffer,
                                         size_t* const buffer_size )
 {
-    printf("xi_bsp_io_fs_read\n");
-
     if ( NULL == buffer || NULL != *buffer || NULL == buffer_size ||
          XI_BSP_IO_FS_INVALID_RESOURCE_HANDLE == resource_handle )
     {
@@ -279,8 +265,6 @@ xi_bsp_io_fs_state_t xi_bsp_io_fs_write( const xi_bsp_io_fs_resource_handle_t re
                                          const size_t offset,
                                          size_t* const bytes_written )
 {
-    printf("xi_bsp_io_fs_write\n");
-    
     if ( NULL == buffer || 0 == buffer_size ||
          XI_BSP_IO_FS_INVALID_RESOURCE_HANDLE == resource_handle )
     {
@@ -315,8 +299,6 @@ err_handling:
 
 xi_bsp_io_fs_state_t xi_bsp_io_fs_close( const xi_bsp_io_fs_resource_handle_t resource_handle )
 {
-    printf("xi_bsp_io_fs_close\n");
-
     if ( XI_BSP_IO_FS_INVALID_RESOURCE_HANDLE == resource_handle )
     {
         return XI_BSP_IO_FS_INVALID_PARAMETER;
@@ -361,8 +343,6 @@ err_handling:
 
 xi_bsp_io_fs_state_t xi_bsp_io_fs_remove( const char* const resource_name )
 {
-    printf("xi_bsp_io_fs_remove\n");
-
     int ret = remove( resource_name );
 
     XI_BSP_IO_FS_CHECK_CND( 0 != ret,

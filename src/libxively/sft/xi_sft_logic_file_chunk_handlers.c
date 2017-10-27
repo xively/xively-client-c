@@ -36,7 +36,6 @@ xi_sft_on_message_file_chunk_process_file_chunk( xi_sft_context_t* context,
             context->update_firmware = context->update_current_file;
         }
 
-        printf("invoking checksum_init\n" );
         xi_bsp_fwu_checksum_init( &context->checksum_context );
     }
 
@@ -69,19 +68,6 @@ xi_sft_on_message_file_chunk_checksum_final( xi_sft_context_t* context )
     xi_bsp_fwu_checksum_final( context->checksum_context, &locally_calculated_fingerprint,
                                &locally_calculated_fingerprint_len );
     
-    printf( "localchecksum: \t" );
-    for(int i = 0; i < locally_calculated_fingerprint_len; ++i )
-    {
-        printf("%x2", locally_calculated_fingerprint[i]);
-    }
-
-    printf("\nservicechecksum: \t");
-    for(int i = 0; i < locally_calculated_fingerprint_len; ++i )
-    {
-        printf("%x2", context->update_current_file->fingerprint[i]);
-    }
-
-
     /* integrity check based on checksum values */
     if ( context->update_current_file->fingerprint_len !=
              locally_calculated_fingerprint_len ||
