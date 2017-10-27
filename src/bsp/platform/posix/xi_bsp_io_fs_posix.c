@@ -105,7 +105,7 @@ xi_bsp_io_fs_posix_file_list_cnd( xi_bsp_io_fs_posix_file_handle_container_t* li
 }
 
 xi_bsp_io_fs_state_t
-xi_bsp_io_fs_get_index_next_resource_to_process( char* const* resource_names,
+xi_bsp_io_fs_get_index_next_resource_to_process( const char* const* resource_names,
                                                  uint16_t list_len,
                                                  uint16_t* out_index )
 {    
