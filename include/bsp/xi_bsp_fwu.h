@@ -84,6 +84,21 @@ void xi_bsp_fwu_on_package_download_failure();
 
 /**
  * @function
+ * @brief Used by the Xively C Client to determine which resource to download
+ * next.
+ *
+ * @param [in] resource_names an array of resource name strings to choose from.
+ * @param [in] list_len the number of elements in the resource_names array.
+ *
+ * @return uint16_t the index in resource_names with the name of the 
+ * resource to download next.
+ */
+uint16_t
+xi_bsp_io_fwu_get_next_resource_to_download( const char* const* resource_names,
+                                             uint16_t list_len );
+
+/**
+ * @function
  * @brief This is an event notification function called when the Xively C Client
  *        has successfully downloaded all of the resources of an update package.
  *

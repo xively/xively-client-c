@@ -55,7 +55,7 @@ typedef struct xi_control_message_file_desc_ext_s
     uint8_t* fingerprint;
     uint16_t fingerprint_len;
 
-    uint8_t processed;
+    uint8_t is_processed;
 } xi_control_message_file_desc_ext_t;
 
 

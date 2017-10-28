@@ -67,8 +67,6 @@ typedef enum xi_bsp_io_fs_state_e {
     XI_BSP_IO_FS_READ_ERROR = 10,
     /** error reported when file cannot be closed */
     XI_BSP_IO_FS_CLOSE_ERROR = 11,
-    /** please send this file to the end of the file update list **/
-    XI_BSP_IO_FS_OPEN_REORDER_FILE = 12
 } xi_bsp_io_fs_state_t;
 
 /**
@@ -108,24 +106,6 @@ typedef enum xi_bsp_io_fs_open_flags {
     XI_BSP_IO_FS_OPEN_APPEND = 1 << 2,
 } xi_bsp_io_fs_open_flags_t;
 
-/**
- * @function
- * @brief Used by the Xively C Client to determine which resource to download
- * next.
- *
- * @param [in] resource_names an array of resource name strings to choose from.
- * @param [in] list_len the number of elements in the resource_names array.
- * @param [out] out_index a pointer to an uint16_t integer to be filled-in by
- * this function.  The value represents the index of the resource to download
- * next.
- *
- * @return xi_bsp_io_fs_state_t XI_STATE_OK in case of a success and other in
- * case of an error.
- */
-xi_bsp_io_fs_state_t
-xi_bsp_io_fs_get_index_next_resource_to_process( const char* const* resource_names,
-                                                 uint16_t list_len,
-                                                 uint16_t* out_index );
 
 /**
  * @function

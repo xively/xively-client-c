@@ -105,25 +105,6 @@ xi_bsp_io_fs_posix_file_list_cnd( xi_bsp_io_fs_posix_file_handle_container_t* li
 }
 
 xi_bsp_io_fs_state_t
-xi_bsp_io_fs_get_index_next_resource_to_process( const char* const* resource_names,
-                                                 uint16_t list_len,
-                                                 uint16_t* out_index )
-{    
-    if( NULL == out_index )
-    {
-        return XI_BSP_IO_FS_INVALID_PARAMETER;
-    }
-
-    ( void )( resource_names );
-    ( void ) ( list_len );
-
-    /* by default just go in default order. */
-    *out_index = 0;
-
-    return XI_BSP_IO_FS_STATE_OK;
-}
-
-xi_bsp_io_fs_state_t
 xi_bsp_io_fs_stat( const char* const resource_name, xi_bsp_io_fs_stat_t* resource_stat )
 {    
     if ( NULL == resource_stat || NULL == resource_name )

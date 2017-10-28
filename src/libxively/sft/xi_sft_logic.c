@@ -158,7 +158,7 @@ xi_sft_build_remaining_resources_info( const xi_sft_context_t* context,
     for( uint16_t i = 0; 
         i < context->update_message_fua->file_update_available.list_len; ++i )
     {
-        if( 0 == context->update_message_fua->file_update_available.list[ i ].processed )
+        if( 0 == context->update_message_fua->file_update_available.list[ i ].is_processed )
         {
             xi_vector_push( remaining_resources->bsp_to_sft_index_map_vector,
                             XI_VEC_CONST_VALUE_PARAM( XI_VEC_VALUE_UI32( i ) ) );
@@ -202,7 +202,6 @@ xi_state_t
 xi_sft_select_next_resource_to_download( xi_sft_context_t* context )
 {
 #ifndef XI_SFT_BSP_CHOOSE_DOWNLOAD_ORDER
-    printf("original\n");
     context->update_current_file = NULL;
 
     for( uint16_t i = 0; 
@@ -210,9 +209,9 @@ xi_sft_select_next_resource_to_download( xi_sft_context_t* context )
     {
         xi_control_message_file_desc_ext_t* sft_file = 
             &(context->update_message_fua->file_update_available.list[ i ]);
-        if( 0 == sft_file->processed )
+        if( 0 == sft_file->is_processed )
         {
-            sft_file->processed = 1;
+            sft_file->is_processed = 1;
             context->update_current_file = sft_file;
             break;    
         }
@@ -234,11 +233,10 @@ xi_sft_select_next_resource_to_download( xi_sft_context_t* context )
         goto err_handling;
     }
 
-    uint16_t bsp_selected_index = 0;
     const uint16_t num_remaining_resources = remaining_resources.bsp_to_sft_index_map_vector->elem_no;
-    xi_bsp_io_fs_get_index_next_resource_to_process( remaining_resources.resource_names,
-                                                     num_remaining_resources,
-                                                     &bsp_selected_index );
+    uint16_t bsp_selected_index = 
+        xi_bsp_io_fwu_get_index_next_resource_to_process( remaining_resources.resource_names,
+                                                          num_remaining_resources );
 
     if( bsp_selected_index >=  num_remaining_resources )
     {
@@ -251,7 +249,7 @@ xi_sft_select_next_resource_to_download( xi_sft_context_t* context )
     xi_control_message_file_desc_ext_t* sft_file = 
         &(context->update_message_fua->file_update_available.list[ bsp_to_sft_mapped_index ]);
         
-    sft_file->processed = 1;
+    sft_file->is_processed = 1;
     context->update_current_file = sft_file;
 
     printf("mapped index: %d\n", bsp_to_sft_mapped_index );
@@ -433,7 +431,6 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                         }
                         else
                         {
-                            printf("DONE!\n");
                             /* finished with package download */
 
                             if ( NULL != context->update_firmware )
