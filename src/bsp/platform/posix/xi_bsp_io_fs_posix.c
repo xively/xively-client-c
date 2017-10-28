@@ -106,7 +106,7 @@ xi_bsp_io_fs_posix_file_list_cnd( xi_bsp_io_fs_posix_file_handle_container_t* li
 
 xi_bsp_io_fs_state_t
 xi_bsp_io_fs_stat( const char* const resource_name, xi_bsp_io_fs_stat_t* resource_stat )
-{    
+{
     if ( NULL == resource_stat || NULL == resource_name )
     {
         return XI_BSP_IO_FS_INVALID_PARAMETER;
