@@ -7,7 +7,6 @@
 #include "xi_sft_logic_file_chunk_handlers.h"
 #include <xi_sft_logic.h>
 #include <string.h>
-#include <stdio.h>
 
 #include <xi_bsp_io_fs.h>
 #include <xi_bsp_fwu.h>
