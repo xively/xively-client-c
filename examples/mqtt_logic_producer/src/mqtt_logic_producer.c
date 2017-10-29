@@ -219,7 +219,6 @@ void on_connection_state_changed( xi_context_handle_t in_context_handle,
            established and the Xively Client is ready to send/recv messages */
         case XI_CONNECTION_STATE_OPENED:
             printf( "connected!\n" );
-
             /* You can pass any custom data to your callbacks if you want. */
             void* user_data = NULL;
             delayed_publish( in_context_handle, XI_INVALID_TIMED_TASK_HANDLE, user_data );
