@@ -94,10 +94,10 @@ void xi_bsp_fwu_on_package_download_failure()
 
 uint16_t
 xi_bsp_io_fwu_get_index_next_resource_to_process( const char* const* resource_names,
-                                                 uint16_t list_len )
-{    
+                                                  uint16_t list_len )
+{
     ( void )( resource_names );
-    ( void ) ( list_len );
+    ( void )( list_len );
 
     /* just go in default order. */
     return 0;

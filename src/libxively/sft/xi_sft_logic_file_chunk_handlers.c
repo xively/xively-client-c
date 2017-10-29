@@ -22,9 +22,9 @@ xi_sft_on_message_file_chunk_process_file_chunk( xi_sft_context_t* context,
     /* at first chunk open file */
     if ( 0 == sft_message_in->file_chunk.offset )
     {
-        state = xi_fs_bsp_io_fs_2_xi_state( xi_bsp_io_fs_open( sft_message_in->file_chunk.name,
-                                            context->update_current_file->size_in_bytes,
-                                            XI_BSP_IO_FS_OPEN_WRITE, &context->update_file_handle ) );
+        state = xi_fs_bsp_io_fs_2_xi_state( xi_bsp_io_fs_open(
+            sft_message_in->file_chunk.name, context->update_current_file->size_in_bytes,
+            XI_BSP_IO_FS_OPEN_WRITE, &context->update_file_handle ) );
 
         if ( XI_STATE_OK != state )
         {
@@ -42,7 +42,7 @@ xi_sft_on_message_file_chunk_process_file_chunk( xi_sft_context_t* context,
     /* write bytes through FILE BSP */
     size_t bytes_written = 0;
 
-    state = xi_fs_bsp_io_fs_2_xi_state( 
+    state = xi_fs_bsp_io_fs_2_xi_state(
         xi_bsp_io_fs_write( context->update_file_handle, sft_message_in->file_chunk.chunk,
                             sft_message_in->file_chunk.length,
                             sft_message_in->file_chunk.offset, &bytes_written ) );

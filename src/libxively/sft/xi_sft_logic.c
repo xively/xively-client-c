@@ -20,11 +20,11 @@
 
 #include <xi_fs_bsp_to_xi_mapping.h>
 
-typedef struct xi_sft_remaining_resources_info_s 
+typedef struct xi_sft_remaining_resources_info_s
 {
     const char** resource_names;
     xi_vector_t* bsp_to_sft_index_map_vector;
-    
+
 } xi_sft_remaining_resources_info_t;
 
 xi_state_t xi_sft_make_context( xi_sft_context_t** context,
@@ -140,25 +140,26 @@ xi_sft_send_file_status( const xi_sft_context_t* context,
     ( *context->fn_send_message )( context->send_message_user_data, message_file_status );
 }
 
-xi_state_t
-xi_sft_build_remaining_resources_info( const xi_sft_context_t* context,
-                                       xi_sft_remaining_resources_info_t* remaining_resources )
+xi_state_t xi_sft_build_remaining_resources_info(
+    const xi_sft_context_t* context,
+    xi_sft_remaining_resources_info_t* remaining_resources )
 {
-    if( NULL == context || NULL == remaining_resources )
+    if ( NULL == context || NULL == remaining_resources )
     {
         return XI_INVALID_PARAMETER;
     }
 
     remaining_resources->bsp_to_sft_index_map_vector = xi_vector_create();
-    if( NULL == remaining_resources->bsp_to_sft_index_map_vector )
+    if ( NULL == remaining_resources->bsp_to_sft_index_map_vector )
     {
         return XI_OUT_OF_MEMORY;
-    }    
-        
-    for( uint16_t i = 0; 
-        i < context->update_message_fua->file_update_available.list_len; ++i )
+    }
+
+    for ( uint16_t i = 0; i < context->update_message_fua->file_update_available.list_len;
+          ++i )
     {
-        if( 0 == context->update_message_fua->file_update_available.list[ i ].is_processed )
+        if ( 0 ==
+             context->update_message_fua->file_update_available.list[i].is_processed )
         {
             xi_vector_push( remaining_resources->bsp_to_sft_index_map_vector,
                             XI_VEC_CONST_VALUE_PARAM( XI_VEC_VALUE_UI32( i ) ) );
@@ -167,30 +168,30 @@ xi_sft_build_remaining_resources_info( const xi_sft_context_t* context,
 
     uint16_t num_elements = remaining_resources->bsp_to_sft_index_map_vector->elem_no;
     remaining_resources->resource_names = xi_alloc( sizeof( char* ) * num_elements );
-    if( NULL == remaining_resources->resource_names )
+    if ( NULL == remaining_resources->resource_names )
     {
         xi_vector_destroy( remaining_resources->bsp_to_sft_index_map_vector );
         return XI_OUT_OF_MEMORY;
     }
 
-    for( uint16_t i = 0; i < num_elements; ++i )
+    for ( uint16_t i = 0; i < num_elements; ++i )
     {
-        uint16_t resource_index = 
-            (uint16_t) xi_vector_get( remaining_resources->bsp_to_sft_index_map_vector, i );
-        remaining_resources->resource_names[ i ] = 
-            context->update_message_fua->file_update_available.list[ resource_index ].name;
+        uint16_t resource_index = ( uint16_t )xi_vector_get(
+            remaining_resources->bsp_to_sft_index_map_vector, i );
+        remaining_resources->resource_names[i] =
+            context->update_message_fua->file_update_available.list[resource_index].name;
     }
 
     return XI_STATE_OK;
 }
 
-void
-xi_sft_safe_clear_remaining_resources_info( xi_sft_remaining_resources_info_t* remaining_resources )
+void xi_sft_safe_clear_remaining_resources_info(
+    xi_sft_remaining_resources_info_t* remaining_resources )
 {
-    if( NULL != remaining_resources )
+    if ( NULL != remaining_resources )
     {
         XI_SAFE_FREE( remaining_resources->resource_names );
-        if( NULL != remaining_resources->bsp_to_sft_index_map_vector )
+        if ( NULL != remaining_resources->bsp_to_sft_index_map_vector )
         {
             xi_vector_destroy( remaining_resources->bsp_to_sft_index_map_vector );
             remaining_resources->bsp_to_sft_index_map_vector = NULL;
@@ -198,22 +199,21 @@ xi_sft_safe_clear_remaining_resources_info( xi_sft_remaining_resources_info_t* r
     }
 }
 
-xi_state_t
-xi_sft_select_next_resource_to_download( xi_sft_context_t* context )
+xi_state_t xi_sft_select_next_resource_to_download( xi_sft_context_t* context )
 {
 #ifndef XI_SFT_BSP_CHOOSE_DOWNLOAD_ORDER
     context->update_current_file = NULL;
 
-    for( uint16_t i = 0; 
-        i < context->update_message_fua->file_update_available.list_len; ++i )
+    for ( uint16_t i = 0; i < context->update_message_fua->file_update_available.list_len;
+          ++i )
     {
-        xi_control_message_file_desc_ext_t* sft_file = 
-            &(context->update_message_fua->file_update_available.list[ i ]);
-        if( 0 == sft_file->is_processed )
+        xi_control_message_file_desc_ext_t* sft_file =
+            &( context->update_message_fua->file_update_available.list[i] );
+        if ( 0 == sft_file->is_processed )
         {
-            sft_file->is_processed = 1;
+            sft_file->is_processed       = 1;
             context->update_current_file = sft_file;
-            break;    
+            break;
         }
     }
 
@@ -227,32 +227,33 @@ xi_sft_select_next_resource_to_download( xi_sft_context_t* context )
     xi_sft_remaining_resources_info_t remaining_resources;
     memset( &remaining_resources, 0, sizeof( xi_sft_remaining_resources_info_t ) );
     state = xi_sft_build_remaining_resources_info( context, &remaining_resources );
-    
-    if( XI_STATE_OK != state )
+
+    if ( XI_STATE_OK != state )
     {
         goto err_handling;
     }
 
-    const uint16_t num_remaining_resources = remaining_resources.bsp_to_sft_index_map_vector->elem_no;
-    uint16_t bsp_selected_index = 
-        xi_bsp_io_fwu_get_index_next_resource_to_process( remaining_resources.resource_names,
-                                                          num_remaining_resources );
+    const uint16_t num_remaining_resources =
+        remaining_resources.bsp_to_sft_index_map_vector->elem_no;
+    uint16_t bsp_selected_index = xi_bsp_io_fwu_get_index_next_resource_to_process(
+        remaining_resources.resource_names, num_remaining_resources );
 
-    if( bsp_selected_index >=  num_remaining_resources )
+    if ( bsp_selected_index >= num_remaining_resources )
     {
         state = XI_INTERNAL_ERROR;
         goto err_handling;
     }
 
-    uint16_t bsp_to_sft_mapped_index = 
-        (uint16_t) xi_vector_get( remaining_resources.bsp_to_sft_index_map_vector, bsp_selected_index );
-    xi_control_message_file_desc_ext_t* sft_file = 
-        &(context->update_message_fua->file_update_available.list[ bsp_to_sft_mapped_index ]);
-        
-    sft_file->is_processed = 1;
+    uint16_t bsp_to_sft_mapped_index = ( uint16_t )xi_vector_get(
+        remaining_resources.bsp_to_sft_index_map_vector, bsp_selected_index );
+    xi_control_message_file_desc_ext_t* sft_file =
+        &( context->update_message_fua->file_update_available
+               .list[bsp_to_sft_mapped_index] );
+
+    sft_file->is_processed       = 1;
     context->update_current_file = sft_file;
 
-    printf("mapped index: %d\n", bsp_to_sft_mapped_index );
+    printf( "mapped index: %d\n", bsp_to_sft_mapped_index );
 
 err_handling:
 
