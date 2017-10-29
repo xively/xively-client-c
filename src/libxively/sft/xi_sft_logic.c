@@ -294,7 +294,6 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                 xi_sft_select_next_resource_to_download( context );
                 xi_sft_send_file_get_chunk( context, 0,
                                             context->update_current_file->size_in_bytes );
-
             }
         }
         break;

@@ -106,7 +106,6 @@ typedef enum xi_bsp_io_fs_open_flags {
     XI_BSP_IO_FS_OPEN_APPEND = 1 << 2,
 } xi_bsp_io_fs_open_flags_t;
 
-
 /**
  * @function
  * @brief Used by the Xively C Client to determine the existance and size of a
