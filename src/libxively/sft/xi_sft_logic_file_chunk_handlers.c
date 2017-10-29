@@ -67,7 +67,7 @@ xi_sft_on_message_file_chunk_checksum_final( xi_sft_context_t* context )
 
     xi_bsp_fwu_checksum_final( context->checksum_context, &locally_calculated_fingerprint,
                                &locally_calculated_fingerprint_len );
-    
+
     /* integrity check based on checksum values */
     if ( context->update_current_file->fingerprint_len !=
              locally_calculated_fingerprint_len ||
