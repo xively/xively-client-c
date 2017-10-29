@@ -85,7 +85,9 @@ void xi_bsp_fwu_on_package_download_failure();
 /**
  * @function
  * @brief Used by the Xively C Client to determine which resource to download
- * next.
+ * next. This function is invoked ONLY when XI_SFT_BSP_CHOOSE_DOWNLOAD_ORDER
+ * is defined as a preprocessor definition when compiling the Xively C
+ * Client library.
  *
  * @param [in] resource_names an array of resource name strings to choose from.
  * @param [in] list_len the number of elements in the resource_names array.
