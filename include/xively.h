@@ -163,12 +163,12 @@ extern xi_state_t xi_delete_context( xi_context_handle_t context_handle );
  * @see xi_create_context
  * @see xi_connect
  * @see xi_connect_to
- * 
+ *
  * @retval 1 if the context is currently connected
  * @retval 0 if the context is invalid, or the connection is currently any
  * of the other following states: Unitialized, connecting, closing or closed.
  */
- extern uint8_t xi_is_context_connected( xi_context_handle_t context_handle );
+extern uint8_t xi_is_context_connected( xi_context_handle_t context_handle );
 
 
 /**
@@ -250,7 +250,8 @@ extern void xi_events_stop();
  */
 extern xi_state_t xi_set_updateable_files( xi_context_handle_t xih,
                                            const char** filenames,
-                                           uint16_t count );
+                                           uint16_t count,
+                                           xi_sft_url_handler_callback_t* url_handler );
 
 /**
  * @brief     Opens a connection to the xively service using the provided context,

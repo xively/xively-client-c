@@ -466,7 +466,7 @@ void ConnectToXively()
     const char** files_to_keep_updated =
         ( const char* [] ){"firmware.bin", "credentials.cfg"};
 
-    xi_set_updateable_files( gXivelyContextHandle, files_to_keep_updated, 2 );
+    xi_set_updateable_files( gXivelyContextHandle, files_to_keep_updated, 2, NULL );
 #endif
 
     xi_state_t connect_result =

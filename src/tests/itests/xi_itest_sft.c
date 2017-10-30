@@ -208,7 +208,7 @@ static void xi_itest_sft__act( void** fixture_void,
     xi_evtd_step( xi_globals.evtd_instance, xi_bsp_time_getcurrenttime_seconds() );
 
     xi_set_updateable_files( xi_context_handle, updateable_filenames,
-                             updateable_files_count );
+                             updateable_files_count, NULL );
 
     const uint16_t connection_timeout = fixture->max_loop_count;
     const uint16_t keepalive_timeout  = fixture->max_loop_count;

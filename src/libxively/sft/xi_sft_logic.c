@@ -22,6 +22,7 @@ xi_state_t xi_sft_make_context( xi_sft_context_t** context,
                                 const char** updateable_files,
                                 uint16_t updateable_files_count,
                                 fn_send_control_message fn_send_message,
+                                xi_sft_url_handler_callback_t* sft_url_handler_callback,
                                 void* user_data )
 {
     if ( NULL == context )
@@ -38,15 +39,16 @@ xi_state_t xi_sft_make_context( xi_sft_context_t** context,
 
     XI_ALLOC_AT( xi_sft_context_t, *context, state );
 
-    ( *context )->fn_send_message        = fn_send_message;
-    ( *context )->send_message_user_data = user_data;
-    ( *context )->updateable_files       = updateable_files;
-    ( *context )->updateable_files_count = updateable_files_count;
-    ( *context )->update_message_fua     = NULL;
-    ( *context )->update_current_file    = NULL;
-    ( *context )->update_firmware        = NULL;
-    ( *context )->update_file_handle     = 0;
-    ( *context )->checksum_context       = NULL;
+    ( *context )->fn_send_message          = fn_send_message;
+    ( *context )->send_message_user_data   = user_data;
+    ( *context )->updateable_files         = updateable_files;
+    ( *context )->updateable_files_count   = updateable_files_count;
+    ( *context )->update_message_fua       = NULL;
+    ( *context )->update_current_file      = NULL;
+    ( *context )->update_firmware          = NULL;
+    ( *context )->update_file_handle       = 0;
+    ( *context )->sft_url_handler_callback = sft_url_handler_callback;
+    ( *context )->checksum_context         = NULL;
 
     return state;
 
@@ -86,7 +88,8 @@ xi_state_t xi_sft_on_connected( xi_sft_context_t* context )
     }
 
     xi_control_message_t* message_file_info = xi_control_message_create_file_info(
-        context->updateable_files, context->updateable_files_count, 0 );
+        context->updateable_files, context->updateable_files_count,
+        ( NULL == context->sft_url_handler_callback ) ? 0 : 1 );
 
     ( *context->fn_send_message )( context->send_message_user_data, message_file_info );
 

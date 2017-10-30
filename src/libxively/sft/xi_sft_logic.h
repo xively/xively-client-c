@@ -10,6 +10,7 @@
 #include <xively_error.h>
 #include <xi_control_message.h>
 #include <xi_bsp_io_fs.h>
+#include <xively_types.h>
 
 typedef xi_state_t ( *fn_send_control_message )( void*, xi_control_message_t* );
 
@@ -24,6 +25,7 @@ typedef struct
     const xi_control_message_file_desc_ext_t* update_current_file;
     const xi_control_message_file_desc_ext_t* update_firmware;
     xi_bsp_io_fs_resource_handle_t update_file_handle;
+    xi_sft_url_handler_callback_t* sft_url_handler_callback;
 
     void* checksum_context;
 } xi_sft_context_t;
@@ -33,6 +35,7 @@ xi_state_t xi_sft_make_context( xi_sft_context_t** context,
                                 const char** updateable_files,
                                 uint16_t updateable_files_count,
                                 fn_send_control_message fn_send_message,
+                                xi_sft_url_handler_callback_t* sft_url_handler_callback,
                                 void* user_data );
 
 xi_state_t xi_sft_free_context( xi_sft_context_t** context );

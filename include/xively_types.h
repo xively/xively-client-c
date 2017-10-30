@@ -148,6 +148,9 @@ typedef void( xi_user_subscription_callback_t )( xi_context_handle_t in_context_
                                                  xi_state_t state,
                                                  void* user_data );
 
+
+typedef xi_state_t( xi_sft_url_handler_callback_t )( const char* url );
+
 #ifdef __cplusplus
 }
 #endif
