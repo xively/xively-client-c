@@ -10,7 +10,9 @@
 #include <xi_control_message.h>
 
 xi_control_message_t*
-xi_control_message_create_file_info( const char** filenames, uint16_t count );
+xi_control_message_create_file_info( const char** filenames,
+                                     uint16_t count,
+                                     uint8_t flag_accept_download_link );
 
 xi_control_message_t* xi_control_message_create_file_get_chunk( const char* filename,
                                                                 const char* revision,

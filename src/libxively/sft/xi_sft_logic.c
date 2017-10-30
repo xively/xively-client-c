@@ -70,9 +70,6 @@ xi_state_t xi_sft_free_context( xi_sft_context_t** context )
 
 xi_state_t xi_sft_on_connected( xi_sft_context_t* context )
 {
-    /* todo_atigyi: commit after a self check, also find a places where new FW can be
-     * denied */
-
     xi_state_t state = XI_STATE_OK;
 
     /* emit a Firmware OK notification towards the BSP module, and depending
@@ -89,7 +86,7 @@ xi_state_t xi_sft_on_connected( xi_sft_context_t* context )
     }
 
     xi_control_message_t* message_file_info = xi_control_message_create_file_info(
-        context->updateable_files, context->updateable_files_count );
+        context->updateable_files, context->updateable_files_count, 0 );
 
     ( *context->fn_send_message )( context->send_message_user_data, message_file_info );
 

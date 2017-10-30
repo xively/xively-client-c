@@ -31,7 +31,7 @@ XI_TT_TESTCASE_WITH_SETUP( xi_utest__FILE_INFO__invalid_input__null_output_expec
                            NULL,
                            {
                                xi_control_message_t* message_file_info =
-                                   xi_control_message_create_file_info( NULL, 0 );
+                                   xi_control_message_create_file_info( NULL, 0, 0 );
 
                                tt_want_ptr_op( NULL, ==, message_file_info );
                            } )
@@ -45,7 +45,7 @@ XI_TT_TESTCASE_WITH_SETUP(
         const char* single_filename = "filename";
 
         xi_control_message_t* message_file_info =
-            xi_control_message_create_file_info( &single_filename, 0 );
+            xi_control_message_create_file_info( &single_filename, 0, 0 );
 
         tt_want_ptr_op( NULL, ==, message_file_info );
     } )
@@ -59,12 +59,13 @@ XI_TT_TESTCASE_WITH_SETUP(
         const char* single_filename = "filename";
 
         xi_control_message_t* message_file_info =
-            xi_control_message_create_file_info( &single_filename, 1 );
+            xi_control_message_create_file_info( &single_filename, 1, 0 );
 
         tt_ptr_op( NULL, !=, message_file_info );
         tt_want_int_op( XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO, ==,
                         message_file_info->common.msgtype );
         tt_want_int_op( 1, ==, message_file_info->common.msgver );
+        tt_want_int_op( 0, ==, message_file_info->file_info.flag_accept_download_link );
 
 
         tt_want_int_op( 1, ==, message_file_info->file_info.list_len );
@@ -82,6 +83,25 @@ XI_TT_TESTCASE_WITH_SETUP(
     } )
 
 XI_TT_TESTCASE_WITH_SETUP(
+    xi_utest__FILE_INFO__single_filename_download_link_enabled__valid_output_message_expected,
+    xi_utest_setup_basic,
+    xi_utest_teardown_basic,
+    NULL,
+    {
+        const char* single_filename = "filename";
+
+        xi_control_message_t* message_file_info =
+            xi_control_message_create_file_info( &single_filename, 1, 1 );
+
+        tt_ptr_op( NULL, !=, message_file_info );
+        tt_want_int_op( 1, ==, message_file_info->file_info.flag_accept_download_link );
+
+        xi_control_message_free( &message_file_info );
+
+    end:;
+    } )
+
+XI_TT_TESTCASE_WITH_SETUP(
     xi_utest__FILE_INFO__single_filename_and_revision_provided__valid_output_message_expected,
     xi_utest_setup_basic,
     xi_utest_teardown_basic,
@@ -90,7 +110,7 @@ XI_TT_TESTCASE_WITH_SETUP(
         const char* single_filename = "filename";
 
         xi_control_message_t* message_file_info =
-            xi_control_message_create_file_info( &single_filename, 1 );
+            xi_control_message_create_file_info( &single_filename, 1, 0 );
 
         tt_ptr_op( NULL, !=, message_file_info );
         tt_want_int_op( XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO, ==,
@@ -124,7 +144,7 @@ XI_TT_TESTCASE_WITH_SETUP(
         const uint16_t file_count = sizeof( filenames ) / sizeof( char* );
 
         xi_control_message_t* message_file_info =
-            xi_control_message_create_file_info( filenames, file_count );
+            xi_control_message_create_file_info( filenames, file_count, 0 );
 
         tt_ptr_op( NULL, !=, message_file_info );
 

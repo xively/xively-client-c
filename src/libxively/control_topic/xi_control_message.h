@@ -72,6 +72,7 @@ typedef union xi_control_message_u {
         uint16_t list_len;
         xi_control_message_file_desc_t* list;
 
+        uint8_t flag_accept_download_link;
     } file_info;
 
     struct file_update_available_s
