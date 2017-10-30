@@ -165,8 +165,19 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                 context->update_current_file =
                     &context->update_message_fua->file_update_available.list[0];
 
-                xi_sft_send_file_get_chunk( context, 0,
-                                            context->update_current_file->size_in_bytes );
+                if ( NULL != context->update_current_file->download_link &&
+                     NULL != context->sft_url_handler_callback )
+                {
+                    /* using an application provided callback to download the file */
+                    ( *context->sft_url_handler_callback )(
+                        context->update_current_file->download_link );
+                }
+                else
+                {
+                    /* starting the internal MQTT file download process */
+                    xi_sft_send_file_get_chunk(
+                        context, 0, context->update_current_file->size_in_bytes );
+                }
             }
         }
         break;
