@@ -47,6 +47,9 @@ void xi_control_message_free( xi_control_message_t** control_message )
                 XI_SAFE_FREE( ( *control_message )
                                   ->file_update_available.list[id_file]
                                   .fingerprint );
+                XI_SAFE_FREE( ( *control_message )
+                                  ->file_update_available.list[id_file]
+                                  .download_link );
             }
 
             XI_SAFE_FREE( ( *control_message )->file_update_available.list );

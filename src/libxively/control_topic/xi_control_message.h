@@ -54,6 +54,10 @@ typedef struct xi_control_message_file_desc_ext_s
 
     uint8_t* fingerprint;
     uint16_t fingerprint_len;
+
+    char* download_link;
+    uint8_t flag_mqtt_download_also_supported;
+
 } xi_control_message_file_desc_ext_t;
 
 

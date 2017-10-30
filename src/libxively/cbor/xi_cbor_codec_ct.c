@@ -405,6 +405,18 @@ xi_control_message_t* xi_cbor_codec_ct_decode( const uint8_t* data, const uint32
                                  .fingerprint,
                             &control_message_out->file_update_available.list[id_file]
                                  .fingerprint_len );
+
+                        xi_cbor_codec_ct_decode_getvalue(
+                            file, XI_CBOR_CODEC_CT_STRING_FILE_DOWNLOADLINK,
+                            &control_message_out->file_update_available.list[id_file]
+                                 .download_link,
+                            NULL );
+
+                        xi_cbor_codec_ct_decode_getvalue(
+                            file, XI_CBOR_CODEC_CT_STRING_FILE_MQTT_DL_SUPPORTED,
+                            &control_message_out->file_update_available.list[id_file]
+                                 .flag_mqtt_download_also_supported,
+                            NULL );
                     }
                 }
             }

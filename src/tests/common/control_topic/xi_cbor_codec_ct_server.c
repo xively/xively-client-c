@@ -112,6 +112,33 @@ void xi_cbor_codec_ct_server_encode( const xi_control_message_t* control_message
                             &err ),
                         &err );
 
+                    if ( NULL !=
+                         control_message->file_update_available.list[id_file]
+                             .download_link )
+                    {
+                        cn_cbor_map_put(
+                            file, cn_cbor_string_create(
+                                      XI_CBOR_CODEC_CT_STRING_FILE_DOWNLOADLINK
+                                          CBOR_CONTEXT_PARAM,
+                                      &err ),
+                            cn_cbor_string_create(
+                                control_message->file_update_available.list[id_file]
+                                    .download_link CBOR_CONTEXT_PARAM,
+                                &err ),
+                            &err );
+
+                        cn_cbor_map_put(
+                            file, cn_cbor_string_create(
+                                      XI_CBOR_CODEC_CT_STRING_FILE_MQTT_DL_SUPPORTED
+                                          CBOR_CONTEXT_PARAM,
+                                      &err ),
+                            cn_cbor_int_create(
+                                control_message->file_update_available.list[id_file]
+                                    .flag_mqtt_download_also_supported CBOR_CONTEXT_PARAM,
+                                &err ),
+                            &err );
+                    }
+
                     cn_cbor_array_append( files, file, &err );
                 }
 

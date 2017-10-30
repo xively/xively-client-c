@@ -330,7 +330,7 @@ void xi_itest_sft__broker_replies_FUA_on_FILE_GET_CHUNK__client_processes_2nd_FU
         XI_ALLOC( xi_control_message_file_desc_ext_t, single_file_desc, state );
 
         *single_file_desc = ( xi_control_message_file_desc_ext_t ){
-            xi_str_dup( "file2" ), xi_str_dup( "rev2" ), 11, 22, NULL, 12};
+            xi_str_dup( "file2" ), xi_str_dup( "rev2" ), 11, 22, NULL, 12, NULL, 0};
 
         xi_mock_broker_sft_logic_get_fingerprint( single_file_desc->size_in_bytes,
                                                   &single_file_desc->fingerprint,
@@ -489,13 +489,12 @@ void xi_itest_sft__check_revision_file( const char** filenames, uint16_t files_c
     uint16_t id_file = 0;
     for ( ; id_file < files_count; ++id_file )
     {
-        xi_bsp_io_fs_resource_handle_t resource_handle = XI_BSP_IO_FS_INVALID_RESOURCE_HANDLE;
+        xi_bsp_io_fs_resource_handle_t resource_handle =
+            XI_BSP_IO_FS_INVALID_RESOURCE_HANDLE;
         char* filename_revision = xi_str_cat( filenames[id_file], ".xirev" );
 
-        xi_state_t state = xi_fs_bsp_io_fs_2_xi_state( xi_bsp_io_fs_open( filename_revision,
-                                                       0,
-                                                       XI_BSP_IO_FS_OPEN_READ,
-                                                       &resource_handle ) );
+        xi_state_t state = xi_fs_bsp_io_fs_2_xi_state( xi_bsp_io_fs_open(
+            filename_revision, 0, XI_BSP_IO_FS_OPEN_READ, &resource_handle ) );
         XI_SAFE_FREE( filename_revision );
 
         assert_int_equal( XI_STATE_OK, state );
@@ -504,10 +503,8 @@ void xi_itest_sft__check_revision_file( const char** filenames, uint16_t files_c
         const uint8_t* buffer = NULL;
         size_t buffer_size    = 0;
 
-        state = xi_fs_bsp_io_fs_2_xi_state( xi_bsp_io_fs_read( resource_handle,
-                                                               0,
-                                                               &buffer,
-                                                               &buffer_size ) );
+        state = xi_fs_bsp_io_fs_2_xi_state(
+            xi_bsp_io_fs_read( resource_handle, 0, &buffer, &buffer_size ) );
 
         assert_non_null( buffer );
         assert_int_equal( 71, buffer_size );
