@@ -167,6 +167,22 @@ void xi_cbor_codec_ct_encode( const xi_control_message_t* control_message,
                     cb_map, cn_cbor_string_create(
                                 XI_CBOR_CODEC_CT_STRING_LIST CBOR_CONTEXT_PARAM, &err ),
                     files, &err );
+
+                cn_cbor* cn_cbor_bool = CN_CALLOC_CONTEXT();
+                if ( NULL != cn_cbor_bool )
+                {
+                    cn_cbor_bool->type =
+                        ( 0 != control_message->file_info.flag_accept_download_link )
+                            ? CN_CBOR_TRUE
+                            : CN_CBOR_FALSE;
+
+                    cn_cbor_map_put(
+                        cb_map,
+                        cn_cbor_string_create(
+                            XI_CBOR_CODEC_CT_STRING_FILE_DOWNLOADLINK CBOR_CONTEXT_PARAM,
+                            &err ),
+                        cn_cbor_bool, &err );
+                }
             }
             break;
 
@@ -255,7 +271,11 @@ xi_state_t xi_cbor_codec_ct_decode_getvalue( cn_cbor* source,
         switch ( source_value->type )
         {
             case CN_CBOR_FALSE:
+                *( ( uint32_t* )out_destination ) = 0;
+                break;
             case CN_CBOR_TRUE:
+                *( ( uint32_t* )out_destination ) = 1;
+                break;
             case CN_CBOR_NULL:
             case CN_CBOR_UNDEF:
             case CN_CBOR_UINT:
