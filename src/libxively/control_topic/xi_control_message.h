@@ -20,11 +20,12 @@ typedef enum xi_control_message_type_e {
 } xi_control_message_type_t;
 
 typedef enum xi_control_message__sft_file_status_phase_e {
-    /* 0-2 - Reserved, set by Xively Broker itself, ignored when received from clients
-       (Unreported, Reported, Downloading) */
-    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADED = 3,
-    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_PROCESSING = 4,
-    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_FINISHED   = 5
+    /* 0-1 - Reserved, set by Xively Broker itself, ignored when received from clients
+       (Unreported, Reported) */
+    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADING = 2, /* not reported for MQTT */
+    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADED  = 3,
+    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_PROCESSING  = 4,
+    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_FINISHED    = 5
 } xi_control_message__sft_file_status_phase_t;
 
 typedef enum xi_control_message__sft_file_status_code_e {

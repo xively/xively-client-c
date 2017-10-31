@@ -171,6 +171,11 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                     /* using an application provided callback to download the file */
                     ( *context->sft_url_handler_callback )(
                         context->update_current_file->download_link );
+
+                    xi_sft_send_file_status(
+                        context, NULL,
+                        XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADING,
+                        XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
                 }
                 else
                 {
