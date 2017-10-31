@@ -149,7 +149,15 @@ typedef void( xi_user_subscription_callback_t )( xi_context_handle_t in_context_
                                                  void* user_data );
 
 
-typedef xi_state_t( xi_sft_url_handler_callback_t )( const char* url );
+typedef void( xi_sft_on_file_downloaded_callback_t )(
+    void* library_data,
+    const char* filename,
+    uint8_t flag_download_finished_successfully );
+
+typedef uint8_t( xi_sft_url_handler_callback_t )(
+    const char* url,
+    xi_sft_on_file_downloaded_callback_t* fn_on_file_downloaded,
+    void* library_data );
 
 #ifdef __cplusplus
 }

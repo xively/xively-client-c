@@ -439,12 +439,12 @@ void xi_itest_sft__firmware_bin_received__firmware_test_commit_triggered(
                         XI_ITEST_SFT__NUMBER_OF_FILE_CHUNKS( 1 ) );
 
     expect_string_count( xi_mock_broker_sft_logic_on_file_get_chunk,
-                         control_message->file_get_chunk.name, "firmware.bin",
+                         control_message->file_get_chunk.name, "file1",
                          XI_ITEST_SFT__NUMBER_OF_FILE_CHUNKS( 1 ) );
 
     expect_value_count( xi_mock_broker_sft_logic_on_message,
                         control_message->common.msgtype,
-                        XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 1 );
+                        XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 2 );
 
     /* 2nd file */
     expect_value_count( xi_mock_broker_sft_logic_on_message,
@@ -453,12 +453,12 @@ void xi_itest_sft__firmware_bin_received__firmware_test_commit_triggered(
                         XI_ITEST_SFT__NUMBER_OF_FILE_CHUNKS( 2 ) );
 
     expect_string_count( xi_mock_broker_sft_logic_on_file_get_chunk,
-                         control_message->file_get_chunk.name, "file2",
+                         control_message->file_get_chunk.name, "firmware.bin",
                          XI_ITEST_SFT__NUMBER_OF_FILE_CHUNKS( 2 ) );
 
     expect_value_count( xi_mock_broker_sft_logic_on_message,
                         control_message->common.msgtype,
-                        XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 2 );
+                        XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 1 );
 
     /* 3rd file */
     expect_value_count( xi_mock_broker_sft_logic_on_message,
@@ -481,7 +481,7 @@ void xi_itest_sft__firmware_bin_received__firmware_test_commit_triggered(
 
     /* ACT */
     xi_itest_sft__act( fixture_void, 1,
-                       ( const char* [] ){"firmware.bin", "file2", "file3"}, 3 );
+                       ( const char* [] ){"file1", "firmware.bin", "file3"}, 3 );
 }
 
 void xi_itest_sft__check_revision_file( const char** filenames, uint16_t files_count )
