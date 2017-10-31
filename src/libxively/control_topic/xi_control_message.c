@@ -106,15 +106,18 @@ void xi_debug_control_message_dump( const xi_control_message_t* control_message,
         {
             printf( "+++ SFT FILE_INFO, list_len %d\n",
                     control_message->file_info.list_len );
-            printf( "+++ #  [name], [revision]\n" );
+            printf( "++++ #  [name], [revision]\n" );
 
             uint16_t id_file = 0;
             for ( ; id_file < control_message->file_info.list_len; ++id_file )
             {
-                printf( "+++ #%d [%s], [%s]\n", id_file + 1,
+                printf( "++++ #%d [%s], [%s]\n", id_file + 1,
                         control_message->file_info.list[id_file].name,
                         control_message->file_info.list[id_file].revision );
             }
+
+            printf( "+++ flag_accept_download_link: %x\n",
+                    control_message->file_info.flag_accept_download_link );
         }
         break;
 
@@ -123,7 +126,7 @@ void xi_debug_control_message_dump( const xi_control_message_t* control_message,
             printf( "+++ SFT FILE_UPDATE_AVAILABLE, list_len %d\n",
                     control_message->file_update_available.list_len );
             printf( "+++ #  [name], [revision], [file operation], [size in bytes], "
-                    "[fingerprint]\n" );
+                    "[fingerprint], [link], [MQTT download supported]\n" );
 
             uint16_t id_file = 0;
             for ( ; id_file < control_message->file_update_available.list_len; ++id_file )
@@ -144,8 +147,14 @@ void xi_debug_control_message_dump( const xi_control_message_t* control_message,
                                       .fingerprint[id_byte] );
                 }
 
-                printf( "]:[%d]\n", control_message->file_update_available.list[id_file]
-                                        .fingerprint_len );
+                printf( "]:[%d]", control_message->file_update_available.list[id_file]
+                                      .fingerprint_len );
+
+                printf(
+                    ", [%s], [%x]\n",
+                    control_message->file_update_available.list[id_file].download_link,
+                    control_message->file_update_available.list[id_file]
+                        .flag_mqtt_download_also_supported );
             }
         }
         break;

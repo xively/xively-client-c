@@ -239,7 +239,9 @@ extern void xi_events_stop();
  *
  * example call:
  *
- * `xi_set_updateable_files( xih, ( const char* [] ){"file.cfg", "firmware.bin"}, 2 );`
+ * `xi_set_updateable_files( xih,
+ *                           ( const char* [] ){"file.cfg", "firmware.bin"}, 2,
+ *                           NULL );`
  *
  * @param [in] xih a context handle created by invoking xi_create_context
  * @param [in] filenames a list of file names representing the files which have to

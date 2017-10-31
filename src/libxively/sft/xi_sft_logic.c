@@ -220,6 +220,7 @@ static void _xi_sft_on_file_downloaded_application_callback(
     const char* filename,
     uint8_t flag_download_finished_successfully )
 {
+    printf( "--- %s\n", __FUNCTION__ );
     XI_UNUSED( filename );
     XI_UNUSED( flag_download_finished_successfully );
 
@@ -236,8 +237,6 @@ static void _xi_sft_on_file_downloaded_application_callback(
     {
         /* todo_atigyi: error handling */
     }
-
-    printf( "--- %s\n", __FUNCTION__ );
 }
 
 xi_state_t

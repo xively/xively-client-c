@@ -50,6 +50,7 @@ XI_EXAMPLES_ALL += mqtt_logic_consumer
 XI_EXAMPLES_ALL += senml_serializer
 XI_EXAMPLES_ALL += mqtt_last_will
 XI_EXAMPLES_ALL += mqtt_logic_example_two_contexts
+XI_EXAMPLES_ALL += firmware_update
 
 all: $(XI_EXAMPLES_ALL)
 
