@@ -260,7 +260,7 @@ struct testgroup_t groups[] = {
     {"utest_cbor_codec_ct_encode - ", utest_cbor_codec_ct_encode},
     {"utest_cbor_codec_ct_decode - ", utest_cbor_codec_ct_decode},
     {"utest_control_message_sft - ", utest_control_message_sft},
-    {"utest_sft_logic - ", utest_sft_logic },
+    {"utest_sft_logic - ", utest_sft_logic},
 #endif
 
     END_OF_GROUPS};

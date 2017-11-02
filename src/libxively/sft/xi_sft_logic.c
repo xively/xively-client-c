@@ -137,12 +137,12 @@ xi_sft_send_file_status( const xi_sft_context_t* context,
 
 xi_state_t _xi_sft_select_next_resource_to_download( xi_sft_context_t* context )
 {
-    if( NULL == context )
+    if ( NULL == context )
     {
         return XI_INVALID_PARAMETER;
     }
 
-    if( NULL == context->updateable_files_download_order )
+    if ( NULL == context->updateable_files_download_order )
     {
         return XI_INTERNAL_ERROR;
     }
@@ -179,7 +179,7 @@ xi_state_t xi_sft_order_resource_downloads( xi_sft_context_t* context )
 
     context->updateable_files_download_order =
         xi_alloc( sizeof( int32_t ) * num_incoming_resources );
-        
+
     char** resource_names = xi_alloc( num_incoming_resources * sizeof( char* ) );
 
     if ( NULL == context->updateable_files_download_order || NULL == resource_names )
@@ -202,8 +202,8 @@ xi_state_t xi_sft_order_resource_downloads( xi_sft_context_t* context )
     }
 
     xi_bsp_fwu_order_resource_downloads( ( const char* const* )resource_names,
-                                           num_incoming_resources,
-                                           context->updateable_files_download_order );
+                                         num_incoming_resources,
+                                         context->updateable_files_download_order );
 
     XI_SAFE_FREE( resource_names );
 
@@ -256,7 +256,7 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
             {
                 XI_SAFE_FREE( context->updateable_files_download_order );
                 state = xi_sft_order_resource_downloads( context );
-                XI_CHECK_STATE( state );    
+                XI_CHECK_STATE( state );
 
                 state = _xi_sft_select_next_resource_to_download( context );
                 XI_CHECK_STATE( state );
