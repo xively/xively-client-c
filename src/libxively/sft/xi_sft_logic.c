@@ -62,6 +62,10 @@ xi_state_t xi_sft_free_context( xi_sft_context_t** context )
 {
     if ( NULL != context && NULL != *context )
     {
+        xi_sft_on_message_file_chunk_checksum_final( *context );
+
+        xi_bsp_io_fs_close( ( *context )->update_file_handle );
+
         xi_control_message_free( &( *context )->update_message_fua );
 
         XI_SAFE_FREE( *context );
@@ -87,11 +91,15 @@ xi_state_t xi_sft_on_connected( xi_sft_context_t* context )
         return XI_INVALID_PARAMETER;
     }
 
-    xi_control_message_t* message_file_info = xi_control_message_create_file_info(
-        context->updateable_files, context->updateable_files_count,
-        ( NULL == context->sft_url_handler_callback ) ? 0 : 1 );
+    if ( NULL != context->fn_send_message )
+    {
+        xi_control_message_t* message_file_info = xi_control_message_create_file_info(
+            context->updateable_files, context->updateable_files_count,
+            ( NULL == context->sft_url_handler_callback ) ? 0 : 1 );
 
-    ( *context->fn_send_message )( context->send_message_user_data, message_file_info );
+        ( *context->fn_send_message )( context->send_message_user_data,
+                                       message_file_info );
+    }
 
     return state;
 }
@@ -108,13 +116,17 @@ xi_state_t xi_sft_on_connection_failed( xi_sft_context_t* context )
 static void
 _xi_sft_send_file_get_chunk( xi_sft_context_t* context, uint32_t offset, uint32_t length )
 {
-    xi_control_message_t* message_file_get_chunk =
-        xi_control_message_create_file_get_chunk(
-            context->update_current_file->name, context->update_current_file->revision,
-            offset, XI_MIN( XI_SFT_FILE_CHUNK_SIZE, length ) );
+    if ( NULL != context->fn_send_message )
+    {
+        xi_control_message_t* message_file_get_chunk =
+            xi_control_message_create_file_get_chunk(
+                context->update_current_file->name,
+                context->update_current_file->revision, offset,
+                XI_MIN( XI_SFT_FILE_CHUNK_SIZE, length ) );
 
-    ( *context->fn_send_message )( context->send_message_user_data,
-                                   message_file_get_chunk );
+        ( *context->fn_send_message )( context->send_message_user_data,
+                                       message_file_get_chunk );
+    }
 }
 
 static void
@@ -123,12 +135,17 @@ _xi_sft_send_file_status( const xi_sft_context_t* context,
                           xi_control_message__sft_file_status_phase_t phase,
                           xi_control_message__sft_file_status_code_t code )
 {
-    xi_control_message_t* message_file_status = xi_control_message_create_file_status(
-        file_desc_ext ? file_desc_ext->name : context->update_current_file->name,
-        file_desc_ext ? file_desc_ext->revision : context->update_current_file->revision,
-        phase, code );
+    if ( NULL != context->fn_send_message )
+    {
+        xi_control_message_t* message_file_status = xi_control_message_create_file_status(
+            file_desc_ext ? file_desc_ext->name : context->update_current_file->name,
+            file_desc_ext ? file_desc_ext->revision
+                          : context->update_current_file->revision,
+            phase, code );
 
-    ( *context->fn_send_message )( context->send_message_user_data, message_file_status );
+        ( *context->fn_send_message )( context->send_message_user_data,
+                                       message_file_status );
+    }
 }
 
 static void _xi_sft_on_file_downloaded_application_callback(

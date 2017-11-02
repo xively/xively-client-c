@@ -56,10 +56,17 @@ xi_sft_on_message_file_chunk_process_file_chunk( xi_sft_context_t* context,
 xi_control_message__sft_file_status_code_t
 xi_sft_on_message_file_chunk_checksum_final( xi_sft_context_t* context )
 {
+    if ( NULL == context || NULL == context->update_current_file ||
+         NULL == context->checksum_context )
+    {
+        return XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__FILE_CHECKSUM_MISMATCH;
+    }
+
     uint8_t* locally_calculated_fingerprint     = NULL;
     uint16_t locally_calculated_fingerprint_len = 0;
 
-    xi_bsp_fwu_checksum_final( context->checksum_context, &locally_calculated_fingerprint,
+    xi_bsp_fwu_checksum_final( &context->checksum_context,
+                               &locally_calculated_fingerprint,
                                &locally_calculated_fingerprint_len );
 
     /* integrity check based on checksum values */

@@ -23,14 +23,15 @@ void xi_bsp_fwu_checksum_update( void* sha_ctx, const uint8_t* data, uint32_t le
     wc_Sha256Update( ( Sha256* )sha_ctx, data, len );
 }
 
-void xi_bsp_fwu_checksum_final( void* sha_ctx,
+void xi_bsp_fwu_checksum_final( void** sha_ctx,
                                 uint8_t** buffer_out,
                                 uint16_t* buffer_len_out )
 {
-    wc_Sha256Final( ( Sha256* )sha_ctx, checksum_wolfssl_sha256 );
+    wc_Sha256Final( ( Sha256* )*sha_ctx, checksum_wolfssl_sha256 );
 
     *buffer_out     = checksum_wolfssl_sha256;
     *buffer_len_out = sizeof( checksum_wolfssl_sha256 );
 
-    xi_bsp_mem_free( sha_ctx );
+    xi_bsp_mem_free( *sha_ctx );
+    *sha_ctx = NULL;
 }
