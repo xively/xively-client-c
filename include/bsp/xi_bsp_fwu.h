@@ -92,13 +92,13 @@ void xi_bsp_fwu_on_package_download_failure();
  * @param [in] resource_names an array of resource name strings that have
  * new revisions in the SFT download package.
  * @param [in] list_len the number of elements in the resource_names array.
- * @param [out] download_order an integer array to be filled out by the
+ * @param [in/out] download_order an integer array to be filled out by the
  * BSP implementation.  The values in this array must be indicies of the
- * esource_names array, ordered in the sequence that the files should be 
- * downloaded. Values must be between zero and list_len - 1.
- * 
- * @return uint16_t the index in resource_names with the name of the
- * resource to download next.
+ * resource_names array, ordered in the sequence that the resources should be
+ * downloaded. Values must be between 0 and list_len - 1.  When this function
+ * is invoked, this array is prepopulated with a default download order -- 
+ * this function may return immediately without altering the array to use
+ * these defaults.
  */
 void xi_bsp_io_fwu_order_resource_downloads( const char* const* resource_names,
                                              uint16_t list_len,
