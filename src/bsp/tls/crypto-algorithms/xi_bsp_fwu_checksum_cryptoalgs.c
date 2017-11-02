@@ -32,6 +32,6 @@ void xi_bsp_fwu_checksum_final( void** sha_ctx,
     *buffer_out     = checksum_cryptoalgs_sha256;
     *buffer_len_out = sizeof( checksum_cryptoalgs_sha256 );
 
-    xi_bsp_mem_free( &sha_ctx );
+    xi_bsp_mem_free( *sha_ctx );
     *sha_ctx = NULL;
 }
