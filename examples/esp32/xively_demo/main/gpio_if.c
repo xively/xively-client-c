@@ -53,7 +53,7 @@ void IRAM_ATTR gpio_isr_handler( void* arg )
     uint32_t gpio_num = ( uint32_t )arg;
     if( NULL != io_button_queue )
     {
-        if ( gpio_button_exti_debouncer() )
+        if ( gpio_button_isr_debouncer() )
         {
             xQueueSendFromISR( io_button_queue, &gpio_num, NULL );
         }

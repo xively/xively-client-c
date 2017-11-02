@@ -119,6 +119,10 @@ XI_COMPILER_FLAGS += -I$(XI_ESP_IDF_SDK_PATH)/components/app_update/include
 XI_COMPILER_FLAGS += -I$(XI_ESP_IDF_SDK_PATH)/components/spi_flash/include
 XI_COMPILER_FLAGS += -I$(XI_ESP_IDF_SDK_PATH)/components/nvs_flash/include
 XI_COMPILER_FLAGS += -I$(XI_ESP_IDF_SDK_PATH)/components/tcpip_adapter/include
+XI_COMPILER_FLAGS += -I$(XI_ESP_IDF_SDK_PATH)/components/wear_levelling/include
+XI_COMPILER_FLAGS += -I$(XI_ESP_IDF_SDK_PATH)/components/vfs/include
+XI_COMPILER_FLAGS += -I$(XI_ESP_IDF_SDK_PATH)/components/fatfs/src
+XI_COMPILER_FLAGS += -I$(XI_ESP_IDF_SDK_PATH)/components/log/include
 
 ###################
 # LWIP Include Dirs
