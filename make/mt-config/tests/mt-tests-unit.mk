@@ -29,7 +29,7 @@ endif
 ifdef XI_SECURE_FILE_TRANSFER_ENABLED
     XI_UTEST_SOURCES += $(wildcard $(XI_TEST_DIR)/common/control_topic/*.c)
 else
-    XI_UTEST_EXCLUDED += xi_utest_cbor_codec_ct_decode.c xi_utest_cbor_codec_ct_encode.c xi_utest_control_message_sft.c
+    XI_UTEST_EXCLUDED += xi_utest_cbor_codec_ct_decode.c xi_utest_cbor_codec_ct_encode.c xi_utest_control_message_sft.c xi_utest_sft_logic.c
 endif
 
 XI_UTEST_EXCLUDED := $(addprefix $(XI_UTEST_SOURCE_DIR)/, $(XI_UTEST_EXCLUDED))

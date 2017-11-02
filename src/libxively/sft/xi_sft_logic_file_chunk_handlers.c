@@ -21,9 +21,9 @@ xi_sft_on_message_file_chunk_process_file_chunk( xi_sft_context_t* context,
     /* at first chunk open file */
     if ( 0 == sft_message_in->file_chunk.offset )
     {
-        state = xi_fs_bsp_io_fs_2_xi_state( xi_bsp_io_fs_open( sft_message_in->file_chunk.name,
-                                            context->update_current_file->size_in_bytes,
-                                            XI_BSP_IO_FS_OPEN_WRITE, &context->update_file_handle ) );
+        state = xi_fs_bsp_io_fs_2_xi_state( xi_bsp_io_fs_open(
+            sft_message_in->file_chunk.name, context->update_current_file->size_in_bytes,
+            XI_BSP_IO_FS_OPEN_WRITE, &context->update_file_handle ) );
 
         if ( XI_STATE_OK != state )
         {
@@ -41,7 +41,7 @@ xi_sft_on_message_file_chunk_process_file_chunk( xi_sft_context_t* context,
     /* write bytes through FILE BSP */
     size_t bytes_written = 0;
 
-    state = xi_fs_bsp_io_fs_2_xi_state( 
+    state = xi_fs_bsp_io_fs_2_xi_state(
         xi_bsp_io_fs_write( context->update_file_handle, sft_message_in->file_chunk.chunk,
                             sft_message_in->file_chunk.length,
                             sft_message_in->file_chunk.offset, &bytes_written ) );
@@ -61,10 +61,17 @@ xi_sft_on_message_file_chunk_process_file_chunk( xi_sft_context_t* context,
 xi_control_message__sft_file_status_code_t
 xi_sft_on_message_file_chunk_checksum_final( xi_sft_context_t* context )
 {
+    if ( NULL == context || NULL == context->update_current_file ||
+         NULL == context->checksum_context )
+    {
+        return XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__FILE_CHECKSUM_MISMATCH;
+    }
+
     uint8_t* locally_calculated_fingerprint     = NULL;
     uint16_t locally_calculated_fingerprint_len = 0;
 
-    xi_bsp_fwu_checksum_final( context->checksum_context, &locally_calculated_fingerprint,
+    xi_bsp_fwu_checksum_final( &context->checksum_context,
+                               &locally_calculated_fingerprint,
                                &locally_calculated_fingerprint_len );
 
     /* integrity check based on checksum values */
