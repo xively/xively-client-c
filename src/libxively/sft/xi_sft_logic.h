@@ -27,7 +27,7 @@ typedef struct
     xi_bsp_io_fs_resource_handle_t update_file_handle;
 
     void* checksum_context;
-    
+
 } xi_sft_context_t;
 
 

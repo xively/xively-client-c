@@ -60,9 +60,9 @@ xi_state_t xi_sft_make_context( xi_sft_context_t** context,
     return state;
 
 err_handling:
-    if( NULL != *context )
+    if ( NULL != *context )
     {
-        XI_SAFE_FREE( ( *context )->updateable_files_download_order ); 
+        XI_SAFE_FREE( ( *context )->updateable_files_download_order );
     }
 
     XI_SAFE_FREE( *context );
@@ -146,79 +146,80 @@ xi_sft_send_file_status( const xi_sft_context_t* context,
 
 xi_state_t xi_sft_select_next_resource_to_download( xi_sft_context_t* context )
 {
-    int32_t selected_index = -1;
+    int32_t selected_index       = -1;
     context->update_current_file = NULL;
-    uint16_t i = 0;
-    for ( ; i < context->update_message_fua->file_update_available.list_len;
-         ++i )
+    uint16_t i                   = 0;
+    for ( ; i < context->update_message_fua->file_update_available.list_len; ++i )
     {
-        if( 0 <= context->updateable_files_download_order[ i ] )
+        if ( 0 <= context->updateable_files_download_order[i] )
         {
-            selected_index = context->updateable_files_download_order[ i ];
-            context->updateable_files_download_order[ i ] = -1;
+            selected_index = context->updateable_files_download_order[i];
+            context->updateable_files_download_order[i] = -1;
             break;
         }
     }
 
-    if( selected_index >= context->update_message_fua->file_update_available.list_len )
+    if ( selected_index >= context->update_message_fua->file_update_available.list_len )
     {
         return XI_ELEMENT_NOT_FOUND;
     }
 
-    if( -1 != selected_index )
+    if ( -1 != selected_index )
     {
         printf( "Selected index: %d\n", selected_index );
-        context->update_current_file = &( context->update_message_fua->file_update_available.list[ selected_index ] );
+        context->update_current_file =
+            &( context->update_message_fua->file_update_available.list[selected_index] );
     }
 
     return XI_STATE_OK;
 }
 
-xi_state_t 
-xi_sft_order_resource_downloads( xi_sft_context_t* context )
+xi_state_t xi_sft_order_resource_downloads( xi_sft_context_t* context )
 {
     xi_state_t state = XI_STATE_OK;
-    uint16_t i = 0;  /* forward declaration to suppress toolchain warnings */
-    
+    uint16_t i       = 0; /* forward declaration to suppress toolchain warnings */
+
     const uint16_t num_incoming_resources =
         context->update_message_fua->file_update_available.list_len;
 
-    context->updateable_files_download_order = xi_alloc( sizeof( int32_t ) * num_incoming_resources );
+    context->updateable_files_download_order =
+        xi_alloc( sizeof( int32_t ) * num_incoming_resources );
     char** resource_names = xi_alloc( num_incoming_resources * sizeof( char* ) );
-    
-    if( NULL == context->updateable_files_download_order || 
-        NULL == resource_names )
+
+    if ( NULL == context->updateable_files_download_order || NULL == resource_names )
     {
         state = XI_OUT_OF_MEMORY;
         goto err_handling;
     }
-    
+
     memset( context->updateable_files_download_order, 0,
             sizeof( char* ) * num_incoming_resources );
-    memset( resource_names, 0, num_incoming_resources * sizeof( char* ) );    
-    
-    
-    for( i = 0; i < num_incoming_resources; ++i )
+    memset( resource_names, 0, num_incoming_resources * sizeof( char* ) );
+
+
+    for ( i = 0; i < num_incoming_resources; ++i )
     {
-        context->updateable_files_download_order[ i ] = i;
-        resource_names[ i ] = context->update_message_fua->file_update_available.list[i].name;
-        printf( "i: %d: %s\n", i, resource_names[ i ] );
+        context->updateable_files_download_order[i] = i;
+        resource_names[i] =
+            context->update_message_fua->file_update_available.list[i].name;
+        printf( "i: %d: %s\n", i, resource_names[i] );
     }
 
-    xi_bsp_io_fwu_order_resource_downloads( (const char* const* )resource_names,
+    xi_bsp_io_fwu_order_resource_downloads( ( const char* const* )resource_names,
                                             num_incoming_resources,
                                             context->updateable_files_download_order );
 
     XI_SAFE_FREE( resource_names );
 
     /* Check for index out of bounds */
-    for( i = 0; i < num_incoming_resources; ++i )
+    for ( i = 0; i < num_incoming_resources; ++i )
     {
-        XI_CHECK_CND( ( 0 > context->updateable_files_download_order[i] ||
-                       num_incoming_resources <= context->updateable_files_download_order[i] ),
-                       XI_ELEMENT_NOT_FOUND, state );
-    } 
-    
+        XI_CHECK_CND(
+            ( 0 > context->updateable_files_download_order[i] ||
+              num_incoming_resources <= context->updateable_files_download_order[i] ),
+            XI_ELEMENT_NOT_FOUND, state );
+    }
+
     return state;
 
 err_handling:
@@ -452,7 +453,7 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
 err_handling:
 
     xi_control_message_free( &sft_message_in );
-    if( XI_STATE_OK != state )
+    if ( XI_STATE_OK != state )
     {
         xi_debug_format( "WARNING: SFT encountered invalid state: %d", state );
     }
