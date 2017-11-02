@@ -92,15 +92,15 @@ void xi_bsp_fwu_on_package_download_failure()
     printf( "--- %s, \n", __FUNCTION__ );
 }
 
-uint16_t
-xi_bsp_io_fwu_get_index_next_resource_to_process( const char* const* resource_names,
-                                                  uint16_t list_len )
+void xi_bsp_io_fwu_order_resource_downloads( const char* const* resource_names,
+                                             uint16_t list_len,
+                                             int32_t* download_order )
 {
     ( void )( resource_names );
     ( void )( list_len );
+    ( void )( download_order );
 
-    /* just go in default order. */
-    return 0;
+    /* just go in default order. */    
 }
 
 void xi_bsp_fwu_on_package_download_finished( const char* const firmware_resource_name )

@@ -60,6 +60,10 @@ xi_state_t xi_sft_make_context( xi_sft_context_t** context,
     return state;
 
 err_handling:
+    if( NULL != *context )
+    {
+        XI_SAFE_FREE( ( *context )->updateable_files_download_order ); 
+    }
 
     XI_SAFE_FREE( *context );
     return state;
@@ -140,126 +144,87 @@ xi_sft_send_file_status( const xi_sft_context_t* context,
     ( *context->fn_send_message )( context->send_message_user_data, message_file_status );
 }
 
-xi_state_t xi_sft_build_remaining_resources_info(
-    const xi_sft_context_t* context,
-    xi_sft_remaining_resources_info_t* remaining_resources )
-{
-    if ( NULL == context || NULL == remaining_resources )
-    {
-        return XI_INVALID_PARAMETER;
-    }
-
-    remaining_resources->bsp_to_sft_index_map_vector = xi_vector_create();
-    if ( NULL == remaining_resources->bsp_to_sft_index_map_vector )
-    {
-        return XI_OUT_OF_MEMORY;
-    }
-
-    for ( uint16_t i = 0; i < context->update_message_fua->file_update_available.list_len;
-          ++i )
-    {
-        if ( 0 ==
-             context->update_message_fua->file_update_available.list[i].is_processed )
-        {
-            xi_vector_push( remaining_resources->bsp_to_sft_index_map_vector,
-                            XI_VEC_CONST_VALUE_PARAM( XI_VEC_VALUE_UI32( i ) ) );
-        }
-    }
-
-    uint16_t num_elements = remaining_resources->bsp_to_sft_index_map_vector->elem_no;
-    remaining_resources->resource_names = xi_alloc( sizeof( char* ) * num_elements );
-    if ( NULL == remaining_resources->resource_names )
-    {
-        xi_vector_destroy( remaining_resources->bsp_to_sft_index_map_vector );
-        return XI_OUT_OF_MEMORY;
-    }
-
-    for ( uint16_t i = 0; i < num_elements; ++i )
-    {
-        uint16_t resource_index = ( uint16_t )xi_vector_get(
-            remaining_resources->bsp_to_sft_index_map_vector, i );
-        remaining_resources->resource_names[i] =
-            context->update_message_fua->file_update_available.list[resource_index].name;
-    }
-
-    return XI_STATE_OK;
-}
-
-void xi_sft_safe_clear_remaining_resources_info(
-    xi_sft_remaining_resources_info_t* remaining_resources )
-{
-    if ( NULL != remaining_resources )
-    {
-        XI_SAFE_FREE( remaining_resources->resource_names );
-        if ( NULL != remaining_resources->bsp_to_sft_index_map_vector )
-        {
-            xi_vector_destroy( remaining_resources->bsp_to_sft_index_map_vector );
-            remaining_resources->bsp_to_sft_index_map_vector = NULL;
-        }
-    }
-}
-
 xi_state_t xi_sft_select_next_resource_to_download( xi_sft_context_t* context )
 {
-#ifndef XI_SFT_BSP_CHOOSE_DOWNLOAD_ORDER
+    int32_t selected_index = -1;
     context->update_current_file = NULL;
-
-    for ( uint16_t i = 0; i < context->update_message_fua->file_update_available.list_len;
-          ++i )
+    uint16_t i = 0;
+    for ( ; i < context->update_message_fua->file_update_available.list_len;
+         ++i )
     {
-        xi_control_message_file_desc_ext_t* sft_file =
-            &( context->update_message_fua->file_update_available.list[i] );
-        if ( 0 == sft_file->is_processed )
+        if( 0 <= context->updateable_files_download_order[ i ] )
         {
-            sft_file->is_processed       = 1;
-            context->update_current_file = sft_file;
+            selected_index = context->updateable_files_download_order[ i ];
+            context->updateable_files_download_order[ i ] = -1;
             break;
         }
     }
 
+    if( selected_index >= context->update_message_fua->file_update_available.list_len )
+    {
+        return XI_ELEMENT_NOT_FOUND;
+    }
+
+    if( -1 != selected_index )
+    {
+        printf( "Selected index: %d\n", selected_index );
+        context->update_current_file = &( context->update_message_fua->file_update_available.list[ selected_index ] );
+    }
+
     return XI_STATE_OK;
+}
 
-#else
+xi_state_t 
+xi_sft_order_resource_downloads( xi_sft_context_t* context )
+{
     xi_state_t state = XI_STATE_OK;
+    uint16_t i = 0;  /* forward declaration to suppress toolchain warnings */
+    
+    const uint16_t num_incoming_resources =
+        context->update_message_fua->file_update_available.list_len;
 
-    /* clear out current downloading file. */
-    context->update_current_file = NULL;
-    xi_sft_remaining_resources_info_t remaining_resources;
-    memset( &remaining_resources, 0, sizeof( xi_sft_remaining_resources_info_t ) );
-    state = xi_sft_build_remaining_resources_info( context, &remaining_resources );
-
-    if ( XI_STATE_OK != state )
+    context->updateable_files_download_order = xi_alloc( sizeof( int32_t ) * num_incoming_resources );
+    char** resource_names = xi_alloc( num_incoming_resources * sizeof( char* ) );
+    
+    if( NULL == context->updateable_files_download_order || 
+        NULL == resource_names )
     {
+        state = XI_OUT_OF_MEMORY;
         goto err_handling;
     }
-
-    const uint16_t num_remaining_resources =
-        remaining_resources.bsp_to_sft_index_map_vector->elem_no;
-    uint16_t bsp_selected_index = xi_bsp_io_fwu_get_index_next_resource_to_process(
-        remaining_resources.resource_names, num_remaining_resources );
-
-    if ( bsp_selected_index >= num_remaining_resources )
+    
+    memset( context->updateable_files_download_order, 0,
+            sizeof( char* ) * num_incoming_resources );
+    memset( resource_names, 0, num_incoming_resources * sizeof( char* ) );    
+    
+    
+    for( i = 0; i < num_incoming_resources; ++i )
     {
-        state = XI_INTERNAL_ERROR;
-        goto err_handling;
+        context->updateable_files_download_order[ i ] = i;
+        resource_names[ i ] = context->update_message_fua->file_update_available.list[i].name;
+        printf( "i: %d: %s\n", i, resource_names[ i ] );
     }
 
-    uint16_t bsp_to_sft_mapped_index = ( uint16_t )xi_vector_get(
-        remaining_resources.bsp_to_sft_index_map_vector, bsp_selected_index );
-    xi_control_message_file_desc_ext_t* sft_file =
-        &( context->update_message_fua->file_update_available
-               .list[bsp_to_sft_mapped_index] );
+    xi_bsp_io_fwu_order_resource_downloads( (const char* const* )resource_names,
+                                            num_incoming_resources,
+                                            context->updateable_files_download_order );
 
-    sft_file->is_processed       = 1;
-    context->update_current_file = sft_file;
+    XI_SAFE_FREE( resource_names );
 
-    printf( "mapped index: %d\n", bsp_to_sft_mapped_index );
+    /* Check for index out of bounds */
+    for( i = 0; i < num_incoming_resources; ++i )
+    {
+        XI_CHECK_CND( ( 0 > context->updateable_files_download_order[i] ||
+                       num_incoming_resources <= context->updateable_files_download_order[i] ),
+                       XI_ELEMENT_NOT_FOUND, state );
+    } 
+    
+    return state;
 
 err_handling:
-
-    xi_sft_safe_clear_remaining_resources_info( &remaining_resources );
+    XI_SAFE_FREE( context->updateable_files_download_order );
+    XI_SAFE_FREE( resource_names );
     return state;
-#endif
 }
 
 xi_state_t
@@ -292,7 +257,10 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
             if ( 0 < context->update_message_fua->file_update_available.list_len &&
                  NULL != context->update_message_fua->file_update_available.list )
             {
+                state = xi_sft_order_resource_downloads( context );
+                XI_CHECK_STATE( state );
                 xi_sft_select_next_resource_to_download( context );
+
                 xi_sft_send_file_get_chunk( context, 0,
                                             context->update_current_file->size_in_bytes );
             }
@@ -484,6 +452,10 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
 err_handling:
 
     xi_control_message_free( &sft_message_in );
+    if( XI_STATE_OK != state )
+    {
+        xi_debug_format( "WARNING: SFT encountered invalid state: %d", state );
+    }
 
     return state;
 }

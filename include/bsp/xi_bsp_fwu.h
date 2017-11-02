@@ -84,19 +84,25 @@ void xi_bsp_fwu_on_package_download_failure();
 
 /**
  * @function
- * @brief Used by the Xively C Client to determine which resource to download
- * next. This function is invoked ONLY when XI_SFT_BSP_CHOOSE_DOWNLOAD_ORDER
- * is defined as a preprocessor definition when compiling the Xively C
- * Client library.
+ * @brief Invoked at the start of a SFT download process, when SFT reports
+ * to the client that there are new resources to download.  This function
+ * lets the client application select the order in which resources will be 
+ * downloadd.
  *
- * @param [in] resource_names an array of resource name strings to choose from.
+ * @param [in] resource_names an array of resource name strings that have
+ * new revisions in the SFT download package.
  * @param [in] list_len the number of elements in the resource_names array.
- *
+ * @param [out] download_order an integer array to be filled out by the
+ * BSP implementation.  The values in this array must be indicies of the
+ * esource_names array, ordered in the sequence that the files should be 
+ * downloaded. Values must be between zero and list_len - 1.
+ * 
  * @return uint16_t the index in resource_names with the name of the
  * resource to download next.
  */
-uint16_t xi_bsp_io_fwu_get_next_resource_to_download( const char* const* resource_names,
-                                                      uint16_t list_len );
+void xi_bsp_io_fwu_order_resource_downloads( const char* const* resource_names,
+                                             uint16_t list_len,
+                                             int32_t* download_order );
 
 /**
  * @function
