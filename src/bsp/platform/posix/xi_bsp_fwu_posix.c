@@ -92,9 +92,9 @@ void xi_bsp_fwu_on_package_download_failure()
     printf( "--- %s, \n", __FUNCTION__ );
 }
 
-void xi_bsp_io_fwu_order_resource_downloads( const char* const* resource_names,
-                                             uint16_t list_len,
-                                             int32_t* download_order )
+void xi_bsp_fwu_order_resource_downloads( const char* const* resource_names,
+                                          uint16_t list_len,
+                                          int32_t* download_order )
 {
     ( void )( resource_names );
     ( void )( list_len );

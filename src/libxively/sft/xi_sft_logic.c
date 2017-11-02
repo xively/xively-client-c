@@ -8,8 +8,6 @@
 #include <stddef.h>
 #include <xi_macros.h>
 #include <xi_debug.h>
-#include <xi_vector.h>
-#include <xi_helpers.h>
 
 #include <xi_sft_revision.h>
 #include <xi_sft_logic_file_chunk_handlers.h>
@@ -19,13 +17,6 @@
 #include <xi_bsp_fwu.h>
 
 #include <xi_fs_bsp_to_xi_mapping.h>
-
-typedef struct xi_sft_remaining_resources_info_s
-{
-    const char** resource_names;
-    xi_vector_t* bsp_to_sft_index_map_vector;
-
-} xi_sft_remaining_resources_info_t;
 
 xi_state_t xi_sft_make_context( xi_sft_context_t** context,
                                 const char** updateable_files,
@@ -74,7 +65,7 @@ xi_state_t xi_sft_free_context( xi_sft_context_t** context )
     if ( NULL != context && NULL != *context )
     {
         xi_control_message_free( &( *context )->update_message_fua );
-
+        XI_SAFE_FREE( ( *context )->updateable_files_download_order );
         XI_SAFE_FREE( *context );
     }
 
@@ -144,8 +135,18 @@ xi_sft_send_file_status( const xi_sft_context_t* context,
     ( *context->fn_send_message )( context->send_message_user_data, message_file_status );
 }
 
-xi_state_t xi_sft_select_next_resource_to_download( xi_sft_context_t* context )
+xi_state_t _xi_sft_select_next_resource_to_download( xi_sft_context_t* context )
 {
+    if( NULL == context )
+    {
+        return XI_INVALID_PARAMETER;
+    }
+
+    if( NULL == context->updateable_files_download_order )
+    {
+        return XI_INTERNAL_ERROR;
+    }
+
     int32_t selected_index       = -1;
     context->update_current_file = NULL;
     uint16_t i                   = 0;
@@ -159,14 +160,8 @@ xi_state_t xi_sft_select_next_resource_to_download( xi_sft_context_t* context )
         }
     }
 
-    if ( selected_index >= context->update_message_fua->file_update_available.list_len )
-    {
-        return XI_ELEMENT_NOT_FOUND;
-    }
-
     if ( -1 != selected_index )
     {
-        printf( "Selected index: %d\n", selected_index );
         context->update_current_file =
             &( context->update_message_fua->file_update_available.list[selected_index] );
     }
@@ -184,6 +179,7 @@ xi_state_t xi_sft_order_resource_downloads( xi_sft_context_t* context )
 
     context->updateable_files_download_order =
         xi_alloc( sizeof( int32_t ) * num_incoming_resources );
+        
     char** resource_names = xi_alloc( num_incoming_resources * sizeof( char* ) );
 
     if ( NULL == context->updateable_files_download_order || NULL == resource_names )
@@ -193,7 +189,8 @@ xi_state_t xi_sft_order_resource_downloads( xi_sft_context_t* context )
     }
 
     memset( context->updateable_files_download_order, 0,
-            sizeof( char* ) * num_incoming_resources );
+            sizeof( int32_t ) * num_incoming_resources );
+
     memset( resource_names, 0, num_incoming_resources * sizeof( char* ) );
 
 
@@ -202,12 +199,11 @@ xi_state_t xi_sft_order_resource_downloads( xi_sft_context_t* context )
         context->updateable_files_download_order[i] = i;
         resource_names[i] =
             context->update_message_fua->file_update_available.list[i].name;
-        printf( "i: %d: %s\n", i, resource_names[i] );
     }
 
-    xi_bsp_io_fwu_order_resource_downloads( ( const char* const* )resource_names,
-                                            num_incoming_resources,
-                                            context->updateable_files_download_order );
+    xi_bsp_fwu_order_resource_downloads( ( const char* const* )resource_names,
+                                           num_incoming_resources,
+                                           context->updateable_files_download_order );
 
     XI_SAFE_FREE( resource_names );
 
@@ -258,9 +254,12 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
             if ( 0 < context->update_message_fua->file_update_available.list_len &&
                  NULL != context->update_message_fua->file_update_available.list )
             {
+                XI_SAFE_FREE( context->updateable_files_download_order );
                 state = xi_sft_order_resource_downloads( context );
+                XI_CHECK_STATE( state );    
+
+                state = _xi_sft_select_next_resource_to_download( context );
                 XI_CHECK_STATE( state );
-                xi_sft_select_next_resource_to_download( context );
 
                 xi_sft_send_file_get_chunk( context, 0,
                                             context->update_current_file->size_in_bytes );
@@ -390,7 +389,8 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
 
                     /* continue the update package download  */
                     {
-                        xi_sft_select_next_resource_to_download( context );
+                        state = _xi_sft_select_next_resource_to_download( context );
+                        XI_CHECK_STATE( state );
 
                         if ( NULL != context->update_current_file )
                         {

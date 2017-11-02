@@ -87,7 +87,7 @@ void xi_bsp_fwu_on_package_download_failure();
  * @brief Invoked at the start of a SFT download process, when SFT reports
  * to the client that there are new resources to download.  This function
  * lets the client application select the order in which resources will be
- * downloadd.
+ * downloaded.
  *
  * @param [in] resource_names an array of resource name strings that have
  * new revisions in the SFT download package.
@@ -100,9 +100,9 @@ void xi_bsp_fwu_on_package_download_failure();
  * this function may return immediately without altering the array to use
  * these defaults.
  */
-void xi_bsp_io_fwu_order_resource_downloads( const char* const* resource_names,
-                                             uint16_t list_len,
-                                             int32_t* download_order );
+void xi_bsp_fwu_order_resource_downloads( const char* const* resource_names,
+                                          uint16_t list_len,
+                                          int32_t* download_order );
 
 /**
  * @function
