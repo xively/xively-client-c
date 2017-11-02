@@ -1043,7 +1043,7 @@ void xi_parse_file_chunk( xi_context_handle_t in_context_handle,
 void verify_sha256( xi_context_handle_t in_context_handle )
 {
     /* Finalize SHA256 Digest */
-    xi_bsp_fwu_checksum_final( download_ctx.checksum_context,
+    xi_bsp_fwu_checksum_final( &download_ctx.checksum_context,
                                &download_ctx.file_local_computed_fingerprint,
                                &download_ctx.file_local_computed_fingerprint_len );
     printf( "Calculated hash = 0x" );
