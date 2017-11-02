@@ -45,7 +45,7 @@ XI_TT_TESTCASE_WITH_SETUP(
         uint8_t* checksum     = NULL;
         uint16_t checksum_len = 0;
 
-        xi_bsp_fwu_checksum_final( sha, &checksum, &checksum_len );
+        xi_bsp_fwu_checksum_final( &sha, &checksum, &checksum_len );
 
         tt_int_op( 32, ==, checksum_len );
 
