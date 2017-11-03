@@ -56,6 +56,7 @@ xi_bsp_io_fs_state_t xi_bsp_io_fs_posix_errno_2_xi_bsp_io_fs_state( int errno_va
 {
     xi_bsp_io_fs_state_t ret = XI_BSP_IO_FS_STATE_OK;
 
+    printf( "\n****errno: %d", errno_value );
     switch ( errno_value )
     {
         case EBADF:
@@ -69,6 +70,8 @@ xi_bsp_io_fs_state_t xi_bsp_io_fs_posix_errno_2_xi_bsp_io_fs_state( int errno_va
         case EOVERFLOW:
             ret = XI_BSP_IO_FS_ERROR;
             break;
+        case EINVAL:
+            printf( "\n** Errno: EINVAL -- Invalid argument" );
         case ENAMETOOLONG:
             ret = XI_BSP_IO_FS_INVALID_PARAMETER;
             break;
@@ -140,8 +143,8 @@ err_handling:
 }
 #endif
 
-#define ESP32_FATFS_PARTITION "xi_fs"
-#define ESP32_FS_BASE_PATH "/data"
+#define ESP32_FS_BASE_PATH "/spiflash"
+#define ESP32_FATFS_PARTITION "storage"
 #define ESP32_FS_MAX_FILES 4
 
 //#define ESP32_NVS_MAX_KEY_LEN 16 /* Including NULL terminator */
@@ -151,7 +154,7 @@ err_handling:
 
 static esp_ota_handle_t open_firmware_bin_handle = 0;
 /* ESP32 wear levelling library instance */
-static wl_handle_t flash_wl_handle = WL_INVALID_HANDLE;
+wl_handle_t flash_wl_handle = WL_INVALID_HANDLE;
 
 /* These functions are implemented in the application layer to report status */
 extern void esp32_xibsp_notify_update_started( const char* filename, size_t file_size );
@@ -216,8 +219,12 @@ xi_bsp_io_fs_open( const char* const resource_name,
         {
             if ( 0 > xi_esp32_flash_init() )
             {
-                printf( "\n >>FS ERROR<< \n" );
+                printf( "\n >>FLASH_INIT FS ERROR<< \n" );
                 return XI_BSP_IO_FS_OPEN_ERROR;
+            }
+            else
+            {
+                printf( "\n $$FLASH_INIT OK$$ \n" );
             }
         }
 
@@ -229,42 +236,50 @@ xi_bsp_io_fs_open( const char* const resource_name,
         /* append not supported */
         if ( XI_BSP_IO_FS_OPEN_APPEND == ( open_flags & XI_BSP_IO_FS_OPEN_APPEND ) )
         {
-            printf( "\n >>FS ERROR<< \n" );
+            printf( "\n >>OPEN_APPEND FS ERROR<< \n" );
             return XI_BSP_IO_FS_INVALID_PARAMETER;
         }
 
+        printf("\n[O 1]");
         xi_bsp_io_fs_posix_file_handle_container_t* new_entry = NULL;
         xi_bsp_io_fs_state_t ret                              = XI_BSP_IO_FS_STATE_OK;
 
+        printf( "\n>>Opening filepath [%s] in mode [%s]", filepath, ( open_flags & XI_BSP_IO_FS_OPEN_READ ) ? "rb" : "wb" );
         FILE* fp =
             fopen( filepath, ( open_flags & XI_BSP_IO_FS_OPEN_READ ) ? "rb" : "wb" );
 
+        printf("\n[O 2]");
         /* if error on fopen check the errno value */
         XI_BSP_IO_FS_CHECK_CND(
             NULL == fp, xi_bsp_io_fs_posix_errno_2_xi_bsp_io_fs_state( errno ), ret );
 
+        printf("\n[O 3]");
         /* allocate memory for the files database element */
         new_entry =
             xi_bsp_mem_alloc( sizeof( xi_bsp_io_fs_posix_file_handle_container_t ) );
         memset( new_entry, 0, sizeof( xi_bsp_io_fs_posix_file_handle_container_t ) );
 
+        printf("\n[O 4]");
         /* store the posix file pointer */
         new_entry->posix_fp = fp;
 
+        printf("\n[O 5]");
         /* add the entry to the database */
         XI_LIST_PUSH_BACK( xi_bsp_io_fs_posix_file_handle_container_t,
                            xi_bsp_io_fs_posix_files_container, new_entry );
 
+        printf("\n[O 6]");
         /* make sure that the size is as expected. */
         assert( sizeof( fp ) == sizeof( xi_bsp_io_fs_resource_handle_t ) );
 
+        printf("\n[O 7]");
         /* return fp as a resource handle */
         *resource_handle_out = ( xi_bsp_io_fs_resource_handle_t )fp;
 
         return ret;
 
     err_handling:
-        printf( "\n >>FS ERROR<< \n" );
+        printf( "\n >>OPEN_ERRHANDLING FS ERROR. Ret: [%d]<< \n", ret );
         if ( NULL != fp )
         {
             fclose( fp );
@@ -313,7 +328,7 @@ xi_bsp_io_fs_write( const xi_bsp_io_fs_resource_handle_t resource_handle,
         if ( NULL == buffer || 0 == buffer_size ||
              XI_BSP_IO_FS_INVALID_RESOURCE_HANDLE == resource_handle )
         {
-            printf( "\n >>FS ERROR<< \n" );
+            printf( "\n >>WRITE FS ERROR<< \n" );
             return XI_BSP_IO_FS_INVALID_PARAMETER;
         }
 
@@ -342,7 +357,7 @@ xi_bsp_io_fs_write( const xi_bsp_io_fs_resource_handle_t resource_handle,
             xi_bsp_io_fs_posix_errno_2_xi_bsp_io_fs_state( ferror( fp ) ), ret );
 
     err_handling:
-        printf( "\n >>FS ERROR<< \n" );
+        printf( "\n >>WRITE_H FS ERROR<< \n" );
 
         return ret;
 #else
@@ -367,7 +382,7 @@ xi_bsp_io_fs_read( const xi_bsp_io_fs_resource_handle_t resource_handle,
     if ( NULL == buffer || NULL != *buffer || NULL == buffer_size ||
          XI_BSP_IO_FS_INVALID_RESOURCE_HANDLE == resource_handle )
     {
-        printf( "\n >>FS ERROR<< \n" );
+        printf( "\n >>READ FS ERROR<< \n" );
         return XI_BSP_IO_FS_INVALID_PARAMETER;
     }
 
@@ -420,7 +435,7 @@ xi_bsp_io_fs_read( const xi_bsp_io_fs_resource_handle_t resource_handle,
 
     err_handling:
 
-        printf( "\n >>FS ERROR<< \n" );
+        printf( "\n >>READ_H FS ERROR<< \n" );
         *buffer      = NULL;
         *buffer_size = 0;
         xi_bsp_mem_free( elem->memory_buffer );
@@ -508,7 +523,7 @@ xi_bsp_io_fs_close( const xi_bsp_io_fs_resource_handle_t resource_handle )
 
     err_handling:
 
-        printf( "\n >>FS ERROR<< \n" );
+        printf( "\n >>CLOSE FS ERROR<< \n" );
         if ( NULL != elem )
         {
             xi_bsp_mem_free( elem->memory_buffer );
@@ -533,7 +548,6 @@ xi_bsp_io_fs_state_t xi_bsp_io_fs_remove( const char* const resource_name )
     }
     else
     {
-#if 1
         char filepath[64] = "";
         snprintf( filepath, 64, "%s/%s", ESP32_FS_BASE_PATH, resource_name );
         int ret = remove( filepath );
@@ -543,28 +557,8 @@ xi_bsp_io_fs_state_t xi_bsp_io_fs_remove( const char* const resource_name )
 
     err_handling:
 
-        printf( "\n >>FS ERROR<< \n" );
+        printf( "\n >>RM FS ERROR<< \n" );
         return ret;
-#else
-        nvs_handle hdl;
-        esp_err_t retval =
-            nvs_open( ESP32_FATFS_PARTITION, NVS_READWRITE, ( nvs_handle* )&hdl );
-        if ( ESP_OK != retval )
-        {
-            xi_bsp_debug_format( "Error [%d] removing NVS entry [%s]", retval,
-                                 resource_name );
-            return XI_BSP_IO_FS_REMOVE_ERROR;
-        }
-
-        retval = nvs_erase_key( hdl, resource_name );
-        nvs_close( hdl );
-        if ( ESP_OK != retval )
-        {
-            xi_bsp_debug_format( "Error [%d] removing NVS entry [%s]", retval,
-                                 resource_name );
-            return XI_BSP_IO_FS_REMOVE_ERROR;
-        }
-#endif
     }
     return XI_BSP_IO_FS_STATE_OK;
 }
