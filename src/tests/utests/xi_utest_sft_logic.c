@@ -426,7 +426,9 @@ XI_TT_TESTCASE_WITH_SETUP(
                 .list     = large_file_list}};
 
         int32_t download_order[128];
-        for ( uint16_t i = 0; i < 128; ++i )
+        uint16_t i = 0;
+
+        for ( ; i < 128; ++i )
         {
             download_order[i] = i;
         }
@@ -460,7 +462,9 @@ XI_TT_TESTCASE_WITH_SETUP(
                 .list     = large_file_list}};
 
         int32_t download_order[128];
-        for ( uint16_t i = 0; i < 127; ++i )
+        uint16_t i = 0;
+
+        for ( ; i < 127; ++i )
         {
             download_order[i] = -1;
         }
@@ -494,10 +498,13 @@ XI_TT_TESTCASE_WITH_SETUP(
                 .list     = large_file_list}};
 
         int32_t download_order[128];
-        for ( uint16_t i = 0; i < 127; ++i )
+        uint16_t i = 0;
+
+        for ( ; i < 127; ++i )
         {
             download_order[i] = -1;
         }
+
         download_order[127] = 0;
 
         xi_sft_context_t sft_context;
@@ -509,7 +516,6 @@ XI_TT_TESTCASE_WITH_SETUP(
         tt_want_int_op( XI_STATE_OK, ==, state );
         tt_want_ptr_op( sft_context.update_current_file, ==, &large_file_list[0] );
     } )
-
 
 XI_TT_TESTGROUP_END
 
