@@ -154,6 +154,7 @@ typedef void( xi_sft_on_file_downloaded_callback_t )(
 
 typedef uint8_t( xi_sft_url_handler_callback_t )(
     const char* url,
+    const char* filename,
     xi_sft_on_file_downloaded_callback_t* fn_on_file_downloaded,
     void* function_data );
 

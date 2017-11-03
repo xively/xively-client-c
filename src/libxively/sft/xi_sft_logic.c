@@ -162,6 +162,7 @@ static void _xi_sft_download_current_file( xi_sft_context_t* context )
         /* using an application provided callback to download the file */
         ( *context->sft_url_handler_callback )(
             context->update_current_file->download_link,
+            context->update_current_file->name,
             xi_sft_on_file_downloaded_application_callback, context );
 
         _xi_sft_send_file_status( context, NULL,
@@ -218,12 +219,13 @@ void xi_sft_continue_package_download( xi_sft_context_t* context )
                 XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
         }
 
+        printf( "[ LIBXIVELY    ] - %s, package download finished\n", __FUNCTION__ );
+
         /* report the finish of package download to the application,
            add firmware name if available */
         xi_bsp_fwu_on_package_download_finished( ( NULL != context->update_firmware )
                                                      ? context->update_firmware->name
                                                      : NULL );
-        printf( "[ LIBXIVELY    ] - %s, package download finished\n", __FUNCTION__ );
 
         /* no further files to download, finished with download
          * process */

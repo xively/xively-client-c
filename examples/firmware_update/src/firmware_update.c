@@ -8,19 +8,116 @@
 #include <xively.h>
 
 #include <stdio.h>
+#include <pthread.h>
+
+static xi_context_handle_t xi_context;
 
 void on_connection_state_changed( xi_context_handle_t in_context_handle,
                                   void* data,
                                   xi_state_t state );
 
-uint8_t url_handler_callback( const char* url,
-                              xi_sft_on_file_downloaded_callback_t* fn_on_file_downloaded,
-                              void* data )
+typedef struct download_thread_context_s
 {
-    printf( "[ APPLICATION ] - %s, %s, fnptr: %p\n", __FUNCTION__, url,
+    pthread_t thread;
+
+    const char* url;
+    const char* filename;
+
+    xi_sft_on_file_downloaded_callback_t* fn_on_file_downloaded;
+    void* function_data;
+
+    uint8_t file_downloaded;
+
+} download_thread_context_t;
+
+
+void* download_thread_run( void* ctx )
+{
+    download_thread_context_t* download_context = ( download_thread_context_t* )ctx;
+
+    if ( NULL == download_context )
+    {
+        return NULL;
+    }
+
+    char system_command[512] = {0};
+
+    sprintf( system_command, "curl -L -o %s %s", download_context->filename,
+             download_context->url );
+
+    printf( "[Xively C Client Firmware Update] executing command:\n%s\n",
+            system_command );
+
+    const int system_command_result = system( system_command );
+
+    download_context->file_downloaded = 1;
+
+    printf( "[Xively C Client Firmware Update] command returned: %d\n",
+            system_command_result );
+
+    return NULL;
+}
+
+void poll_download_finished( const xi_context_handle_t context_handle,
+                             const xi_timed_task_handle_t timed_task_handle,
+                             void* user_data )
+{
+    ( void )context_handle;
+
+    download_thread_context_t* download_context = ( download_thread_context_t* )user_data;
+
+    if ( download_context->file_downloaded )
+    {
+        printf( "+++ file downloaded\n" );
+
+        xi_cancel_timed_task( timed_task_handle );
+
+        ( *download_context->fn_on_file_downloaded )( download_context->function_data,
+                                                      download_context->filename, 1 );
+    }
+    else
+    {
+        printf( "--- file not downloaded yet\n" );
+    }
+}
+
+static download_thread_context_t download_thread_context;
+
+uint8_t url_handler_callback( const char* url,
+                              const char* filename,
+                              xi_sft_on_file_downloaded_callback_t* fn_on_file_downloaded,
+                              void* function_data )
+{
+    printf( "[ APPLICATION ] - %s, %s, %s, fnptr: %p\n", __FUNCTION__, url, filename,
             fn_on_file_downloaded );
 
-    ( *fn_on_file_downloaded )( data, "firmware.bin", 1 );
+    /* existence of function parameters is assured at least until fn_on_file_downloaded
+     * gets called */
+    download_thread_context.url                   = url;
+    download_thread_context.filename              = filename;
+    download_thread_context.fn_on_file_downloaded = fn_on_file_downloaded;
+    download_thread_context.function_data         = function_data;
+    download_thread_context.file_downloaded       = 0;
+
+    const int ret_pthread_create =
+        pthread_create( &download_thread_context.thread, NULL, download_thread_run,
+                        &download_thread_context );
+
+    if ( ret_pthread_create != 0 )
+    {
+        printf( "creation of pthread instance failed with error: %d",
+                ret_pthread_create );
+
+        return 0;
+    }
+
+    const xi_time_t seconds_from_now = 1;
+    const xi_time_t repeats_forever  = 1;
+
+    xi_schedule_timed_task( xi_context, poll_download_finished, seconds_from_now,
+                            repeats_forever, &download_thread_context );
+
+    //( *fn_on_file_downloaded )( function_data, filename, 0 );
 
     return 1;
 }
@@ -90,7 +187,7 @@ int main( int argc, char* argv[] )
         to numerous topics.  If you would like to use more than one
         connection then please use xi_create_context to create more
         contexts. */
-    xi_context_handle_t xi_context = xi_create_context();
+    xi_context = xi_create_context();
     if ( XI_INVALID_CONTEXT_HANDLE >= xi_context )
     {
         printf( " xi failed to create context, error: %d\n", -xi_context );
@@ -121,7 +218,13 @@ int main( int argc, char* argv[] )
         closing the connection, using xi_shutdown_connection(). And from
         the on_connection_state_changed() handler by calling xi_events_stop();
     */
-    xi_events_process_blocking();
+    // xi_events_process_blocking();
+
+    while ( XI_STATE_OK == xi_events_process_tick() )
+    {
+        printf( "." );
+        fflush( stdout );
+    }
 
     /*  Cleanup the default context, releasing its memory */
     xi_delete_context( xi_context );
