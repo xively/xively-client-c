@@ -17,6 +17,7 @@
 #include <xi_bsp_fwu.h>
 
 #include <xi_fs_bsp_to_xi_mapping.h>
+#include <xi_sft_logic_application_callback.h>
 
 xi_state_t xi_sft_make_context( xi_sft_context_t** context,
                                 const char** updateable_files,
@@ -148,9 +149,6 @@ _xi_sft_send_file_status( const xi_sft_context_t* context,
     }
 }
 
-static void _xi_sft_on_file_downloaded_application_callback(
-    void* context, const char* filename, uint8_t flag_download_finished_successfully );
-
 static void _xi_sft_download_current_file( xi_sft_context_t* context )
 {
     if ( 1 == xi_bsp_fwu_is_this_firmware( context->update_current_file->name ) )
@@ -164,7 +162,7 @@ static void _xi_sft_download_current_file( xi_sft_context_t* context )
         /* using an application provided callback to download the file */
         ( *context->sft_url_handler_callback )(
             context->update_current_file->download_link,
-            _xi_sft_on_file_downloaded_application_callback, context );
+            xi_sft_on_file_downloaded_application_callback, context );
 
         _xi_sft_send_file_status( context, NULL,
                                   XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADING,
@@ -178,7 +176,7 @@ static void _xi_sft_download_current_file( xi_sft_context_t* context )
     }
 }
 
-static void _xi_sft_current_file_revision_handling( xi_sft_context_t* context )
+void xi_sft_current_file_revision_handling( xi_sft_context_t* context )
 {
     if ( context->update_firmware != context->update_current_file )
     {
@@ -198,7 +196,7 @@ static void _xi_sft_current_file_revision_handling( xi_sft_context_t* context )
     }
 }
 
-static void _xi_sft_continue_package_download( xi_sft_context_t* context )
+void xi_sft_continue_package_download( xi_sft_context_t* context )
 {
     context->update_current_file =
         xi_control_message_file_update_available_get_next_file_desc_ext(
@@ -225,34 +223,11 @@ static void _xi_sft_continue_package_download( xi_sft_context_t* context )
         xi_bsp_fwu_on_package_download_finished( ( NULL != context->update_firmware )
                                                      ? context->update_firmware->name
                                                      : NULL );
+        printf( "[ LIBXIVELY    ] - %s, package download finished\n", __FUNCTION__ );
 
         /* no further files to download, finished with download
          * process */
         xi_control_message_free( &context->update_message_fua );
-    }
-}
-
-static void _xi_sft_on_file_downloaded_application_callback(
-    void* context_void,
-    const char* filename,
-    uint8_t flag_download_finished_successfully )
-{
-    printf( "--- %s\n", __FUNCTION__ );
-    XI_UNUSED( filename );
-    XI_UNUSED( flag_download_finished_successfully );
-
-    xi_sft_context_t* context = ( xi_sft_context_t* )context_void;
-
-    if ( NULL != context->update_current_file &&
-         NULL != context->update_current_file->name && NULL != filename &&
-         0 == strcmp( context->update_current_file->name, filename ) )
-    {
-        _xi_sft_current_file_revision_handling( context );
-        _xi_sft_continue_package_download( context );
-    }
-    else
-    {
-        /* todo_atigyi: error handling */
     }
 }
 
@@ -328,7 +303,7 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                 const uint32_t all_downloaded_bytes =
                     sft_message_in->file_chunk.offset + sft_message_in->file_chunk.length;
 
-#if 0
+#if 1
                 printf( "         === === === downloading file: %s, %d / %d, [%d%%], "
                         "status: %d\n",
                         context->update_current_file->name,
@@ -395,11 +370,11 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                         }
                         else
                         {
-                            _xi_sft_current_file_revision_handling( context );
+                            xi_sft_current_file_revision_handling( context );
                         }
                     }
 
-                    _xi_sft_continue_package_download( context );
+                    xi_sft_continue_package_download( context );
                 }
             }
             else

@@ -15,10 +15,12 @@ void on_connection_state_changed( xi_context_handle_t in_context_handle,
 
 uint8_t url_handler_callback( const char* url,
                               xi_sft_on_file_downloaded_callback_t* fn_on_file_downloaded,
-                              void* library_data )
+                              void* data )
 {
-    printf( "--- --- %s, %s, fnptr: %p, library_data: %p\n", __FUNCTION__, url,
-            fn_on_file_downloaded, library_data );
+    printf( "[ APPLICATION ] - %s, %s, fnptr: %p\n", __FUNCTION__, url,
+            fn_on_file_downloaded );
+
+    ( *fn_on_file_downloaded )( data, "firmware.bin", 1 );
 
     return 1;
 }
@@ -106,7 +108,7 @@ int main( int argc, char* argv[] )
     const uint16_t keepalive_timeout  = 20;
 
     xi_set_updateable_files( xi_context, ( const char* [] ){"file.cfg", "firmware.bin"},
-                             2, NULL );
+                             2, url_handler_callback );
 
     xi_connect( xi_context, xi_username, xi_password, connection_timeout,
                 keepalive_timeout, XI_SESSION_CLEAN, &on_connection_state_changed );
