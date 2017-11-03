@@ -56,5 +56,5 @@ void xi_sft_on_file_downloaded_application_callback(
         xi_globals.evtd_instance,
         xi_make_handle( &_xi_sft_on_file_downloaded_task, ( void* )sft_context_void,
                         ( void* )filename, XI_STATE_OK,
-                        ( void* )( int64_t )flag_download_finished_successfully ) );
+                        ( void* )( intptr_t )flag_download_finished_successfully ) );
 }
