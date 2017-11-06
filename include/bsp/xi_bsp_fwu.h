@@ -98,7 +98,11 @@ void xi_bsp_fwu_on_package_download_failure();
  * downloaded. Values must be between 0 and list_len - 1.  When this function
  * is invoked, this array is prepopulated with a default download order --
  * this function may return immediately without altering the array to use
- * these defaults.
+ * these defaults. For example: a list of four files would have the default
+ * order of [0, 1, 2, 3].  The implementation of this function might alter
+ * the order and return an array of [2, 3, 1, 0]. This would cause the SFT
+ * system to order the downloads by the 3rd, 4th, 2nd and 1st of the resource
+ * names, respectively.
  */
 void xi_bsp_fwu_order_resource_downloads( const char* const* resource_names,
                                           uint16_t list_len,
