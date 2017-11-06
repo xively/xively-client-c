@@ -30,6 +30,7 @@ typedef enum xi_control_message__sft_file_status_phase_e {
 
 typedef enum xi_control_message__sft_file_status_code_e {
     XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__ADD_MORE_ERRORS_HERE   = -100,
+    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__URL_DOWNLOAD_FAILED    = -6,
     XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__FILE_CHECKSUM_MISMATCH = -5,
     XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__FILE_CLOSE             = -4,
     XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__FILE_WRITE             = -3,

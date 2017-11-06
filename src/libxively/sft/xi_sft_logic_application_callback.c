@@ -8,10 +8,11 @@
 
 #include <xi_sft_logic.h>
 #include <stdio.h>
-#include <xi_macros.h>
 #include <xi_sft_logic.h>
 #include <xi_globals.h>
 #include <xi_handle.h>
+
+#include <xi_sft_logic_internal_methods.h>
 
 xi_state_t
 _xi_sft_on_file_downloaded_task( void* sft_context_void,
@@ -20,26 +21,27 @@ _xi_sft_on_file_downloaded_task( void* sft_context_void,
                                  void* flag_download_finished_successfully_void )
 {
     XI_UNUSED( state );
-    XI_UNUSED( flag_download_finished_successfully_void );
 
     xi_sft_context_t* context = ( xi_sft_context_t* )sft_context_void;
     const char* filename      = ( const char* )filename_void;
+    uint8_t flag_download_finished_successfully =
+        ( uint8_t )flag_download_finished_successfully_void;
 
-    XI_UNUSED( context );
-    XI_UNUSED( filename );
-#if 1
-    if ( NULL != context->update_current_file &&
+    _xi_sft_send_file_status(
+        context, NULL, XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADED,
+        ( 0 != flag_download_finished_successfully )
+            ? XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS
+            : XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__URL_DOWNLOAD_FAILED );
+
+    if ( 0 != flag_download_finished_successfully &&
+         NULL != context->update_current_file &&
          NULL != context->update_current_file->name && NULL != filename &&
          0 == strcmp( context->update_current_file->name, filename ) )
     {
-        xi_sft_current_file_revision_handling( context );
-        xi_sft_continue_package_download( context );
+        _xi_sft_current_file_revision_handling( context );
+        _xi_sft_continue_package_download( context );
     }
-    else
-    {
-        /* todo_atigyi: error handling */
-    }
-#endif
+
     return XI_STATE_OK;
 }
 

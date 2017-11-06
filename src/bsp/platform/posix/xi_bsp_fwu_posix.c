@@ -73,13 +73,13 @@ xi_bsp_fwu_state_t xi_bsp_fwu_on_new_firmware_ok()
         /* actual firmware update happened */
         xi_bsp_io_fs_remove( firmware_test_flag_filename );
 
-        printf( "=-- actual firmware update happened\n" );
+        printf( "--- actual firmware update happened\n" );
 
         return XI_BSP_FWU_ACTUAL_COMMIT_HAPPENED;
     }
     else
     {
-        printf( "=-- firmware update didn't happen\n" );
+        printf( "--- firmware update didn't happen\n" );
         /* no update happened */
         return XI_BSP_FWU_STATE_OK;
     }

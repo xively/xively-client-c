@@ -47,8 +47,4 @@ xi_state_t xi_sft_on_connection_failed( xi_sft_context_t* context );
 xi_state_t
 xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message );
 
-
-void xi_sft_current_file_revision_handling( xi_sft_context_t* context );
-void xi_sft_continue_package_download( xi_sft_context_t* context );
-
 #endif /* __XI_SFT_LOGIC_H__ */
