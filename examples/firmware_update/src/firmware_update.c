@@ -26,7 +26,7 @@ typedef struct download_thread_context_s
     xi_sft_on_file_downloaded_callback_t* fn_on_file_downloaded;
     void* function_data;
 
-    uint8_t file_downloaded;
+    uint8_t file_downloaded_flag;
 
 } download_thread_context_t;
 
@@ -41,7 +41,6 @@ void* download_thread_run( void* ctx )
     }
 
     char system_command[512] = {0};
-
     sprintf( system_command, "curl -L -o %s %s", download_context->filename,
              download_context->url );
 
@@ -50,10 +49,10 @@ void* download_thread_run( void* ctx )
 
     const int system_command_result = system( system_command );
 
-    download_context->file_downloaded = 1;
-
     printf( "[Xively C Client Firmware Update] command returned: %d\n",
             system_command_result );
+
+    download_context->file_downloaded_flag = 1;
 
     return NULL;
 }
@@ -66,12 +65,13 @@ void poll_download_finished( const xi_context_handle_t context_handle,
 
     download_thread_context_t* download_context = ( download_thread_context_t* )user_data;
 
-    if ( download_context->file_downloaded )
+    if ( download_context->file_downloaded_flag )
     {
         printf( "+++ file downloaded\n" );
 
         xi_cancel_timed_task( timed_task_handle );
 
+        /* report the successful file download to the Client */
         ( *download_context->fn_on_file_downloaded )( download_context->function_data,
                                                       download_context->filename, 1 );
     }
@@ -97,7 +97,7 @@ uint8_t url_handler_callback( const char* url,
     download_thread_context.filename              = filename;
     download_thread_context.fn_on_file_downloaded = fn_on_file_downloaded;
     download_thread_context.function_data         = function_data;
-    download_thread_context.file_downloaded       = 0;
+    download_thread_context.file_downloaded_flag  = 0;
 
     const int ret_pthread_create =
         pthread_create( &download_thread_context.thread, NULL, download_thread_run,
@@ -108,17 +108,18 @@ uint8_t url_handler_callback( const char* url,
         printf( "creation of pthread instance failed with error: %d",
                 ret_pthread_create );
 
+        /* return a fallback to Client internal MQTT download */
         return 0;
     }
 
+    /* create a polling task which checks if file download finished in every 1 second */
     const xi_time_t seconds_from_now = 1;
     const xi_time_t repeats_forever  = 1;
 
     xi_schedule_timed_task( xi_context, poll_download_finished, seconds_from_now,
                             repeats_forever, &download_thread_context );
 
-    //( *fn_on_file_downloaded )( function_data, filename, 0 );
-
+    /* return successful start of HTTP download, no MQTT fallback will take place */
     return 1;
 }
 
@@ -218,13 +219,7 @@ int main( int argc, char* argv[] )
         closing the connection, using xi_shutdown_connection(). And from
         the on_connection_state_changed() handler by calling xi_events_stop();
     */
-    // xi_events_process_blocking();
-
-    while ( XI_STATE_OK == xi_events_process_tick() )
-    {
-        printf( "." );
-        fflush( stdout );
-    }
+    xi_events_process_blocking();
 
     /*  Cleanup the default context, releasing its memory */
     xi_delete_context( xi_context );
