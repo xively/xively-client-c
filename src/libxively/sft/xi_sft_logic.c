@@ -194,22 +194,11 @@ xi_state_t xi_sft_order_resource_downloads( xi_sft_context_t* context )
     const uint16_t num_incoming_resources =
         context->update_message_fua->file_update_available.list_len;
 
-    context->updateable_files_download_order =
-        xi_alloc( sizeof( int32_t ) * num_incoming_resources );
+    XI_ALLOC_BUFFER( char*, resource_names, sizeof( char* ) * num_incoming_resources,
+                     state );
 
-    char** resource_names = xi_alloc( num_incoming_resources * sizeof( char* ) );
-
-    if ( NULL == context->updateable_files_download_order || NULL == resource_names )
-    {
-        state = XI_OUT_OF_MEMORY;
-        goto err_handling;
-    }
-
-    memset( context->updateable_files_download_order, 0,
-            sizeof( int32_t ) * num_incoming_resources );
-
-    memset( resource_names, 0, num_incoming_resources * sizeof( char* ) );
-
+    XI_ALLOC_BUFFER_AT( int32_t, context->updateable_files_download_order,
+                        sizeof( int32_t ) * num_incoming_resources, state );
 
     for ( i = 0; i < num_incoming_resources; ++i )
     {
