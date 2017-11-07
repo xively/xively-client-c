@@ -162,8 +162,7 @@ int xi_mqtt_logic_producer_main( xi_embedded_args_t* xi_embedded_args )
         regularly check the sockets for incoming data.
         This implemetnation has the loop operate endlessly. The loop will stop after
         closing the connection, using xi_shutdown_connection(). And from
-        the on_connection_state_changed() handler by calling xi_events_stop();
-    */
+        the on_connection_state_changed() handler by calling xi_events_stop(); */
     xi_events_process_blocking();
 
     /*  Cleanup the default context, releasing its memory */
@@ -307,7 +306,7 @@ void delayed_publish( xi_context_handle_t context_handle,
     XI_UNUSED( user_data );
 
     printf( "publishing msg\n" );
-    
+
     /* sending the connect request */
     xi_publish( context_handle, xi_publishtopic, "Hello From Xively!", xi_example_qos,
                 XI_MQTT_RETAIN_FALSE, NULL, NULL );

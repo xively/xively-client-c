@@ -163,12 +163,12 @@ extern xi_state_t xi_delete_context( xi_context_handle_t context_handle );
  * @see xi_create_context
  * @see xi_connect
  * @see xi_connect_to
- * 
+ *
  * @retval 1 if the context is currently connected
  * @retval 0 if the context is invalid, or the connection is currently any
  * of the other following states: Unitialized, connecting, closing or closed.
  */
- extern uint8_t xi_is_context_connected( xi_context_handle_t context_handle );
+extern uint8_t xi_is_context_connected( xi_context_handle_t context_handle );
 
 
 /**

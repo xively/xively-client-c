@@ -84,6 +84,32 @@ void xi_bsp_fwu_on_package_download_failure();
 
 /**
  * @function
+ * @brief Invoked at the start of a SFT download process, when SFT reports
+ * to the client that there are new resources to download.  This function
+ * lets the client application select the order in which resources will be
+ * downloaded.
+ *
+ * @param [in] resource_names an array of resource name strings that have
+ * new revisions in the SFT download package.
+ * @param [in] list_len the number of elements in the resource_names array.
+ * @param [in/out] download_order an integer array to be filled out by the
+ * BSP implementation.  The values in this array must be indicies of the
+ * resource_names array, ordered in the sequence that the resources should be
+ * downloaded. Values must be between 0 and list_len - 1.  When this function
+ * is invoked, this array is prepopulated with a default download order --
+ * this function may return immediately without altering the array to use
+ * these defaults. For example: a list of four files would have the default
+ * order of [0, 1, 2, 3].  The implementation of this function might alter
+ * the order and return an array of [2, 3, 1, 0]. This would cause the SFT
+ * system to order the downloads by the 3rd, 4th, 2nd and 1st of the resource
+ * names, respectively.
+ */
+void xi_bsp_fwu_order_resource_downloads( const char* const* resource_names,
+                                          uint16_t list_len,
+                                          int32_t* download_order );
+
+/**
+ * @function
  * @brief This is an event notification function called when the Xively C Client
  *        has successfully downloaded all of the resources of an update package.
  *
