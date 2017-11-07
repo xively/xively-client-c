@@ -25,7 +25,7 @@ _xi_sft_on_file_downloaded_task( void* sft_context_void,
     xi_sft_context_t* context = ( xi_sft_context_t* )sft_context_void;
     const char* filename      = ( const char* )filename_void;
     uint8_t flag_download_finished_successfully =
-        ( uint8_t )flag_download_finished_successfully_void;
+        ( intptr_t )flag_download_finished_successfully_void;
 
     _xi_sft_send_file_status(
         context, NULL, XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADED,
