@@ -79,7 +79,8 @@ void _xi_sft_download_current_file( xi_sft_context_t* context )
                                   XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADING,
                                   XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
     }
-    else if ( 0 != context->update_current_file->flag_mqtt_download_also_supported )
+    else if ( NULL == context->update_current_file->download_link ||
+              0 != context->update_current_file->flag_mqtt_download_also_supported )
     {
         /* starting the internal MQTT file download process */
         _xi_sft_send_file_get_chunk( context, 0,
