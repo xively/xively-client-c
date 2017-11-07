@@ -104,11 +104,13 @@ void xi_bsp_fwu_on_package_download_finished( const char* const firmware_resourc
         return;
     }
 
+    ( void )_generate_update_filename;
+
+#if 0
     /* - rename file to firmware_resource_name ## _DATETIMESTAMP */
     const char* update_fw_name = _generate_update_filename( firmware_resource_name );
     rename( firmware_resource_name, update_fw_name );
 
-#if 0
     {
         /* - save the new firmware executable name to identify new firmware first run
          *   in function xi_bsp_fwu_on_new_firmware_ok */

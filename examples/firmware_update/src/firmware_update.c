@@ -24,7 +24,7 @@ typedef struct download_thread_context_s
     const char* filename;
 
     xi_sft_on_file_downloaded_callback_t* fn_on_file_downloaded;
-    void* function_data;
+    void* callback_data;
 
     uint8_t file_downloaded_flag;
 
@@ -72,7 +72,7 @@ void poll_if_download_finished( const xi_context_handle_t context_handle,
         xi_cancel_timed_task( timed_task_handle );
 
         /* report the successful file download to the Client */
-        ( *download_context->fn_on_file_downloaded )( download_context->function_data,
+        ( *download_context->fn_on_file_downloaded )( download_context->callback_data,
                                                       download_context->filename, 1 );
     }
     else
@@ -86,7 +86,7 @@ static download_thread_context_t download_thread_context;
 uint8_t url_handler_callback( const char* url,
                               const char* filename,
                               xi_sft_on_file_downloaded_callback_t* fn_on_file_downloaded,
-                              void* function_data )
+                              void* callback_data )
 {
     printf( "[ APPLICATION ] - %s, %s, %s, fnptr: %p\n", __FUNCTION__, url, filename,
             fn_on_file_downloaded );
@@ -96,7 +96,7 @@ uint8_t url_handler_callback( const char* url,
     download_thread_context.url                   = url;
     download_thread_context.filename              = filename;
     download_thread_context.fn_on_file_downloaded = fn_on_file_downloaded;
-    download_thread_context.function_data         = function_data;
+    download_thread_context.callback_data         = callback_data;
     download_thread_context.file_downloaded_flag  = 0;
 
     const int ret_pthread_create =

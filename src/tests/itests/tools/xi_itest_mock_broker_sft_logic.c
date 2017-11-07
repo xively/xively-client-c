@@ -96,9 +96,9 @@ xi_control_message_t* xi_mock_broker_sft_logic_generate_reply_happy_FUA(
         /* altering last character, just to return different revision */
         if ( NULL != control_message->file_info.list[id_file].revision )
         {
-            control_message->file_info.list[id_file]
-                .revision[strlen( control_message->file_info.list[id_file].revision ) -
-                          1]++;
+            ++control_message->file_info.list[id_file]
+                  .revision[strlen( control_message->file_info.list[id_file].revision ) -
+                            1];
         }
 
         control_message_reply->file_update_available.list[id_file].revision =
@@ -114,6 +114,13 @@ xi_control_message_t* xi_mock_broker_sft_logic_generate_reply_happy_FUA(
             control_message_reply->file_update_available.list[id_file].size_in_bytes,
             &control_message_reply->file_update_available.list[id_file].fingerprint,
             &control_message_reply->file_update_available.list[id_file].fingerprint_len );
+
+        control_message_reply->file_update_available.list[id_file].download_link =
+            control_message->file_info.flag_accept_download_link
+                ? xi_str_cat(
+                      "url for custom download of file: ",
+                      control_message_reply->file_update_available.list[id_file].name )
+                : NULL;
     }
 
     return control_message_reply;
@@ -166,7 +173,13 @@ xi_mock_broker_sft_logic_on_file_get_chunk( xi_control_message_t* control_messag
 xi_control_message_t*
 xi_mock_broker_sft_logic_on_file_status( xi_control_message_t* control_message )
 {
-    XI_UNUSED( control_message );
+    if ( NULL == control_message )
+    {
+        return NULL;
+    }
+
+    check_expected( control_message->file_status.phase );
+    check_expected( control_message->file_status.code );
 
     return NULL;
 }

@@ -94,7 +94,7 @@ void xi_debug_control_message_dump( const xi_control_message_t* control_message,
     if ( NULL == control_message )
     {
         printf( "+++ control message pointer is NULL\n" );
-        return;
+        goto err_handling;
     }
 
     printf( "+++ msgtype: %d, msgver: %d\n", control_message->common.msgtype,
@@ -187,6 +187,8 @@ void xi_debug_control_message_dump( const xi_control_message_t* control_message,
             break;
         case XI_CONTROL_MESSAGE_COUNT:;
     }
+
+err_handling:
 
     printf( "+++++++++++++++++++++++++++++++++++++++++++++++++++ [%s]\n", custom_label );
 }
