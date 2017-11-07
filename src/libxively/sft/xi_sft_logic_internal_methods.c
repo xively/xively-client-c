@@ -56,20 +56,30 @@ void _xi_sft_download_current_file( xi_sft_context_t* context )
         context->update_firmware = context->update_current_file;
     }
 
+    uint8_t download_started_by_callback = 0;
+
+    /* decide how to download the file, if external function and URL are available,
+       then try to download with these */
     if ( NULL != context->update_current_file->download_link &&
          NULL != context->sft_url_handler_callback )
     {
-        /* using an application provided callback to download the file */
-        ( *context->sft_url_handler_callback )(
+        /* trying to use an application provided callback to download the file */
+        download_started_by_callback = ( *context->sft_url_handler_callback )(
             context->update_current_file->download_link,
             context->update_current_file->name,
             xi_sft_on_file_downloaded_application_callback, context );
+    }
 
+
+    if ( 0 != download_started_by_callback )
+    {
+        /* report DOWNLOADING phase to SFT service, since non-MQTT downloads aren't
+           detected by SFT service */
         _xi_sft_send_file_status( context, NULL,
                                   XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADING,
                                   XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
     }
-    else
+    else if ( 0 != context->update_current_file->flag_mqtt_download_also_supported )
     {
         /* starting the internal MQTT file download process */
         _xi_sft_send_file_get_chunk( context, 0,

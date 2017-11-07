@@ -57,9 +57,9 @@ void* download_thread_run( void* ctx )
     return NULL;
 }
 
-void poll_download_finished( const xi_context_handle_t context_handle,
-                             const xi_timed_task_handle_t timed_task_handle,
-                             void* user_data )
+void poll_if_download_finished( const xi_context_handle_t context_handle,
+                                const xi_timed_task_handle_t timed_task_handle,
+                                void* user_data )
 {
     ( void )context_handle;
 
@@ -116,7 +116,7 @@ uint8_t url_handler_callback( const char* url,
     const xi_time_t seconds_from_now = 1;
     const xi_time_t repeats_forever  = 1;
 
-    xi_schedule_timed_task( xi_context, poll_download_finished, seconds_from_now,
+    xi_schedule_timed_task( xi_context, poll_if_download_finished, seconds_from_now,
                             repeats_forever, &download_thread_context );
 
     /* return successful start of HTTP download, no MQTT fallback will take place */
