@@ -470,6 +470,10 @@ void xt_on_connected( xi_context_handle_t in_context_handle,
 
     switch ( conn_data->connection_state )
     {
+        case XI_CONNECTION_STATE_OPENED:
+            xt_successful_connection_callback( conn_data );
+            return;
+
         case XI_CONNECTION_STATE_OPEN_FAILED:
             printf( "\n[XT] Connection to %s:%d has failed reason %d", conn_data->host,
                     conn_data->port, state );
@@ -478,14 +482,13 @@ void xt_on_connected( xi_context_handle_t in_context_handle,
             {
                 printf( "\n[XT] Bad username or password. Review your credentials" );
                 xt_handle_unrecoverable_error();
-                return;
             }
-            /* Re-attempt to connect until we succeed */
-            xt_connect();
-            return;
-
-        case XI_CONNECTION_STATE_OPENED:
-            xt_successful_connection_callback( conn_data );
+            else
+            {
+                /* Re-attempt to connect until we succeed */
+                printf( "\n[XT]\tAttempting to reconnect..." );
+                xt_request_machine_state( XT_REQUEST_CONNECT );
+            }
             return;
 
         case XI_CONNECTION_STATE_CLOSED:
@@ -493,8 +496,13 @@ void xt_on_connected( xi_context_handle_t in_context_handle,
             xt_mqtt_connection_status = XT_MQTT_DISCONNECTED;
             if ( XI_STATE_OK == state )
             {
-                printf( "\n[XT]\tDisconnection requested via xi_shutdown_connection()" );
+                printf( "\n[XT]\tRequested via xi_shutdown_connection(). Pausing task" );
                 xt_request_machine_state( XT_REQUEST_PAUSE );
+            }
+            else
+            {
+                printf( "\n[XT]\tAttempting to reconnect..." );
+                xt_request_machine_state( XT_REQUEST_CONNECT );
             }
             return;
 
