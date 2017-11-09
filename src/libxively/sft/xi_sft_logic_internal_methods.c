@@ -10,6 +10,7 @@
 #include <xi_macros.h>
 #include <xi_bsp_fwu.h>
 #include <xi_sft_logic_application_callback.h>
+#include <xi_debug.h>
 
 #include <stdio.h>
 
@@ -110,10 +111,8 @@ void _xi_sft_current_file_revision_handling( xi_sft_context_t* context )
 
 void _xi_sft_continue_package_download( xi_sft_context_t* context )
 {
-    context->update_current_file =
-        xi_control_message_file_update_available_get_next_file_desc_ext(
-            &context->update_message_fua->file_update_available,
-            context->update_current_file->name );
+    xi_state_t state = _xi_sft_select_next_resource_to_download( context );
+    XI_CHECK_STATE( state );
 
     if ( NULL != context->update_current_file )
     {
@@ -141,5 +140,11 @@ void _xi_sft_continue_package_download( xi_sft_context_t* context )
         /* no further files to download, finished with download
          * process */
         xi_control_message_free( &context->update_message_fua );
+    }
+
+err_handling:
+    if ( XI_STATE_OK != state )
+    {
+        xi_debug_format( "WARNING: SFT encountered invalid state: %d", state );
     }
 }

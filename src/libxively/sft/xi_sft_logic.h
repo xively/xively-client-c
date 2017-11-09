@@ -20,6 +20,7 @@ typedef struct
     void* send_message_user_data;
     const char** updateable_files;
     uint16_t updateable_files_count;
+    int32_t* updateable_files_download_order;
 
     xi_control_message_t* update_message_fua;
     const xi_control_message_file_desc_ext_t* update_current_file;
@@ -28,6 +29,7 @@ typedef struct
     xi_sft_url_handler_callback_t* sft_url_handler_callback;
 
     void* checksum_context;
+
 } xi_sft_context_t;
 
 
@@ -43,6 +45,8 @@ xi_state_t xi_sft_free_context( xi_sft_context_t** context );
 xi_state_t xi_sft_on_connected( xi_sft_context_t* context );
 
 xi_state_t xi_sft_on_connection_failed( xi_sft_context_t* context );
+
+xi_state_t _xi_sft_select_next_resource_to_download( xi_sft_context_t* context );
 
 xi_state_t
 xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message );
