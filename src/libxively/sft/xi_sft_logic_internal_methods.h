@@ -18,9 +18,11 @@ void _xi_sft_send_file_status( const xi_sft_context_t* context,
 void _xi_sft_send_file_get_chunk( xi_sft_context_t* context,
                                   uint32_t offset,
                                   uint32_t length );
-void _xi_sft_download_current_file( xi_sft_context_t* context );
 
 void _xi_sft_current_file_revision_handling( xi_sft_context_t* context );
+
 void _xi_sft_continue_package_download( xi_sft_context_t* context );
+
+xi_state_t _xi_sft_select_next_resource_to_download( xi_sft_context_t* context );
 
 #endif /* __XI_SFT_LOGIC_INTERNAL_METHODS_H__ */

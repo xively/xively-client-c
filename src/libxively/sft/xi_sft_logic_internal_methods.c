@@ -50,8 +50,13 @@ void _xi_sft_send_file_get_chunk( xi_sft_context_t* context,
     }
 }
 
-void _xi_sft_download_current_file( xi_sft_context_t* context )
+static void _xi_sft_download_current_file( xi_sft_context_t* context )
 {
+    if ( NULL == context->update_current_file )
+    {
+        return;
+    }
+
     if ( 1 == xi_bsp_fwu_is_this_firmware( context->update_current_file->name ) )
     {
         context->update_firmware = context->update_current_file;
@@ -111,7 +116,7 @@ void _xi_sft_current_file_revision_handling( xi_sft_context_t* context )
 
 void _xi_sft_continue_package_download( xi_sft_context_t* context )
 {
-    xi_state_t state = _xi_sft_select_next_resource_to_download( context );
+    const xi_state_t state = _xi_sft_select_next_resource_to_download( context );
     XI_CHECK_STATE( state );
 
     if ( NULL != context->update_current_file )
@@ -147,4 +152,38 @@ err_handling:
     {
         xi_debug_format( "WARNING: SFT encountered invalid state: %d", state );
     }
+}
+
+xi_state_t _xi_sft_select_next_resource_to_download( xi_sft_context_t* context )
+{
+    if ( NULL == context )
+    {
+        return XI_INVALID_PARAMETER;
+    }
+
+    if ( NULL == context->updateable_files_download_order )
+    {
+        return XI_INTERNAL_ERROR;
+    }
+
+    int32_t selected_index       = -1;
+    context->update_current_file = NULL;
+    uint16_t i                   = 0;
+    for ( ; i < context->update_message_fua->file_update_available.list_len; ++i )
+    {
+        if ( 0 <= context->updateable_files_download_order[i] )
+        {
+            selected_index = context->updateable_files_download_order[i];
+            context->updateable_files_download_order[i] = -1;
+            break;
+        }
+    }
+
+    if ( -1 != selected_index )
+    {
+        context->update_current_file =
+            &( context->update_message_fua->file_update_available.list[selected_index] );
+    }
+
+    return XI_STATE_OK;
 }
