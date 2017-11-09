@@ -74,6 +74,13 @@ static void _xi_sft_download_current_file( xi_sft_context_t* context )
             context->update_current_file->download_link,
             context->update_current_file->name,
             xi_sft_on_file_downloaded_application_callback, context );
+
+        if ( 0 == download_started_by_callback )
+        {
+            _xi_sft_send_file_status(
+                context, NULL, XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADING,
+                XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__URLDL_REJECTED );
+        }
     }
 
 

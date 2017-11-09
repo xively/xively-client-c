@@ -32,7 +32,12 @@ xi_itest_sft__custom_URL_download__single_file_firmware( void** fixture_void );
 extern void
 xi_itest_sft__custom_URL_download__two_files_oneURL_oneMQTT( void** fixture_void );
 extern void
-xi_itest_sft__custom_URL_download__three_files_oneFAILS_HTTP_fallback_one_deniesHTTP_fallback_oneHTTP(
+xi_itest_sft__custom_URL_download__three_files_URLFAIL_fallback_URLREJECTED_fallback_URLSUCCEEDS(
+    void** fixture_void );
+extern void
+xi_itest_sft__custom_URL_download__two_files__URLREJECTED__no_fallback_available(
+    void** fixture_void );
+extern void xi_itest_sft__custom_URL_download__two_files__URLFAILS__no_fallback_available(
     void** fixture_void );
 
 
@@ -81,7 +86,15 @@ struct CMUnitTest xi_itests_sft[] = {
         xi_itest_sft_setup,
         xi_itest_sft_teardown ),
     cmocka_unit_test_setup_teardown(
-        xi_itest_sft__custom_URL_download__three_files_oneFAILS_HTTP_fallback_one_deniesHTTP_fallback_oneHTTP,
+        xi_itest_sft__custom_URL_download__three_files_URLFAIL_fallback_URLREJECTED_fallback_URLSUCCEEDS,
+        xi_itest_sft_setup,
+        xi_itest_sft_teardown ),
+    cmocka_unit_test_setup_teardown(
+        xi_itest_sft__custom_URL_download__two_files__URLREJECTED__no_fallback_available,
+        xi_itest_sft_setup,
+        xi_itest_sft_teardown ),
+    cmocka_unit_test_setup_teardown(
+        xi_itest_sft__custom_URL_download__two_files__URLFAILS__no_fallback_available,
         xi_itest_sft_setup,
         xi_itest_sft_teardown )};
 

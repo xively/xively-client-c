@@ -123,7 +123,7 @@ xi_control_message_t* xi_mock_broker_sft_logic_generate_reply_happy_FUA(
                 : NULL;
 
         control_message_reply->file_update_available.list[id_file]
-            .flag_mqtt_download_also_supported = 1;
+            .flag_mqtt_download_also_supported = mock_type( uint8_t );
     }
 
     return control_message_reply;

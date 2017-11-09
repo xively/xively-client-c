@@ -55,8 +55,11 @@ _xi_sft_on_file_downloaded_task( void* sft_context_void,
             XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__URLDL_FAILED );
 
         /* fallback to MQTT: starting the internal MQTT file download process */
-        _xi_sft_send_file_get_chunk( context, 0,
-                                     context->update_current_file->size_in_bytes );
+        if ( 0 != context->update_current_file->flag_mqtt_download_also_supported )
+        {
+            _xi_sft_send_file_get_chunk( context, 0,
+                                         context->update_current_file->size_in_bytes );
+        }
     }
 
     return XI_STATE_OK;
