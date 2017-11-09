@@ -25,12 +25,14 @@ xi_itest_sft__firmware_bin_received__firmware_test_commit_triggered( void** stat
 extern void
 xi_itest_sft__revision_non_volatile_storage__proper_value_stored( void** state );
 extern void xi_itest_sft__checksum_mismatch__update_process_exits( void** state );
+
 extern void xi_itest_sft__custom_URL_download__single_file( void** fixture_void );
 extern void
 xi_itest_sft__custom_URL_download__single_file_firmware( void** fixture_void );
 extern void
 xi_itest_sft__custom_URL_download__two_files_oneURL_oneMQTT( void** fixture_void );
-extern void xi_itest_sft__custom_URL_download__two_files_oneFAILS_MQTT_fallback_oneMQTT(
+extern void
+xi_itest_sft__custom_URL_download__three_files_oneFAILS_HTTP_fallback_one_deniesHTTP_fallback_oneHTTP(
     void** fixture_void );
 
 
@@ -79,7 +81,7 @@ struct CMUnitTest xi_itests_sft[] = {
         xi_itest_sft_setup,
         xi_itest_sft_teardown ),
     cmocka_unit_test_setup_teardown(
-        xi_itest_sft__custom_URL_download__two_files_oneFAILS_MQTT_fallback_oneMQTT,
+        xi_itest_sft__custom_URL_download__three_files_oneFAILS_HTTP_fallback_one_deniesHTTP_fallback_oneHTTP,
         xi_itest_sft_setup,
         xi_itest_sft_teardown )};
 
