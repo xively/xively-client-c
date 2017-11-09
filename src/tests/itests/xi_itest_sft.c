@@ -674,20 +674,33 @@ void xi_itest_sft__checksum_mismatch__update_process_exits( void** fixture_void 
  * custom external URL download tests *************
  **************************************************/
 
-static uint8_t
-_url_handler_callback( const char* url,
-                       const char* filename,
-                       xi_sft_on_file_downloaded_callback_t* fn_on_file_downloaded,
-                       void* callback_data )
+typedef enum _xi_itest_sft__url_handler_callback_behaviour_e {
+    URL_HANDLER__DOWNLOAD_GETS_DENIED = 0,
+    URL_HANDLER__DOWNLOAD_FAILS       = 1,
+    URL_HANDLER__DOWNLOAD_SUCCEEDS    = 2
+} _xi_itest_sft__url_handler_callback_behaviour_t;
+
+static uint8_t _xi_itest_sft__url_handler_callback(
+    const char* url,
+    const char* filename,
+    xi_sft_on_file_downloaded_callback_t* fn_on_file_downloaded,
+    void* callback_data )
 {
     XI_UNUSED( url );
 
-    ( *fn_on_file_downloaded )( callback_data, filename, 1 );
+    uint8_t return_value = mock_type( uint8_t );
 
-    return 1;
+    if ( URL_HANDLER__DOWNLOAD_GETS_DENIED != return_value )
+    {
+        ( *fn_on_file_downloaded )( callback_data, filename,
+                                    ( URL_HANDLER__DOWNLOAD_FAILS == return_value ) ? 0
+                                                                                    : 1 );
+    }
+
+    return ( URL_HANDLER__DOWNLOAD_GETS_DENIED == return_value ) ? 0 : 1;
 }
 
-void xi_itest_sft__custom_URL_download__single_file_basic( void** fixture_void )
+void xi_itest_sft__custom_URL_download__single_file( void** fixture_void )
 {
     expect_value( xi_mock_broker_sft_logic_on_message, control_message->common.msgtype,
                   XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO );
@@ -705,7 +718,169 @@ void xi_itest_sft__custom_URL_download__single_file_basic( void** fixture_void )
     expect_file_status_phase_and_code( XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_FINISHED,
                                        XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
 
+    will_return( _xi_itest_sft__url_handler_callback, URL_HANDLER__DOWNLOAD_SUCCEEDS );
+
     /* ACT */
-    xi_itest_sft__act( fixture_void, 0, ( const char* [] ){"custom_url.dl"}, 1,
-                       _url_handler_callback );
+    xi_itest_sft__act( fixture_void, 1, ( const char* [] ){"custom_url.dl"}, 1,
+                       _xi_itest_sft__url_handler_callback );
+}
+
+void xi_itest_sft__custom_URL_download__single_file_firmware( void** fixture_void )
+{
+    expect_value( xi_mock_broker_sft_logic_on_message, control_message->common.msgtype,
+                  XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO );
+
+    expect_value_count( xi_mock_broker_sft_logic_on_message,
+                        control_message->common.msgtype,
+                        XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 3 );
+
+    expect_file_status_phase_and_code(
+        XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADING,
+        XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
+    expect_file_status_phase_and_code(
+        XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADED,
+        XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
+    expect_file_status_phase_and_code(
+        XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_PROCESSING,
+        XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
+
+    will_return( _xi_itest_sft__url_handler_callback, URL_HANDLER__DOWNLOAD_SUCCEEDS );
+
+    /* ACT */
+    xi_itest_sft__act( fixture_void, 1, ( const char* [] ){"firmware.bin"}, 1,
+                       _xi_itest_sft__url_handler_callback );
+}
+
+void xi_itest_sft__custom_URL_download__two_files_oneURL_oneMQTT( void** fixture_void )
+{
+    expect_value( xi_mock_broker_sft_logic_on_message, control_message->common.msgtype,
+                  XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO );
+
+    /* 1nd file: HTTP download */
+    expect_value_count( xi_mock_broker_sft_logic_on_message,
+                        control_message->common.msgtype,
+                        XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 3 );
+
+    expect_file_status_phase_and_code(
+        XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADING,
+        XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
+    expect_file_status_phase_and_code(
+        XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADED,
+        XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
+    expect_file_status_phase_and_code( XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_FINISHED,
+                                       XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
+
+    /* 2nd file: fallback to MQTT download */
+    expect_value_count( xi_mock_broker_sft_logic_on_message,
+                        control_message->common.msgtype,
+                        XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK,
+                        XI_ITEST_SFT__NUMBER_OF_FILE_CHUNKS( 2 ) );
+
+    expect_string_count( xi_mock_broker_sft_logic_on_file_get_chunk,
+                         control_message->file_get_chunk.name, "custom_url.dl.2",
+                         XI_ITEST_SFT__NUMBER_OF_FILE_CHUNKS( 2 ) );
+
+    expect_value_count( xi_mock_broker_sft_logic_on_message,
+                        control_message->common.msgtype,
+                        XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 2 );
+
+    expect_file_status_phase_and_code(
+        XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADED,
+        XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
+    expect_file_status_phase_and_code( XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_FINISHED,
+                                       XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
+
+    will_return( _xi_itest_sft__url_handler_callback, URL_HANDLER__DOWNLOAD_SUCCEEDS );
+    will_return( _xi_itest_sft__url_handler_callback, URL_HANDLER__DOWNLOAD_GETS_DENIED );
+
+    /* ACT */
+    xi_itest_sft__act( fixture_void, 1,
+                       ( const char* [] ){"custom_url.dl.1", "custom_url.dl.2"}, 2,
+                       _xi_itest_sft__url_handler_callback );
+}
+
+void xi_itest_sft__custom_URL_download__three_files_oneFAILS_HTTP_fallback_one_deniesHTTP_fallback_oneHTTP(
+    void** fixture_void )
+{
+    expect_value( xi_mock_broker_sft_logic_on_message, control_message->common.msgtype,
+                  XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO );
+
+    /* 1st file: HTTP download */
+    expect_value_count( xi_mock_broker_sft_logic_on_message,
+                        control_message->common.msgtype,
+                        XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 2 );
+
+    /* 1st file HTTP download starts, but fails */
+    expect_file_status_phase_and_code(
+        XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADING,
+        XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
+    expect_file_status_phase_and_code(
+        XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADED,
+        XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__URLDL_FAILED );
+
+    /* 1st file fallback to MQTT download */
+    expect_value_count( xi_mock_broker_sft_logic_on_message,
+                        control_message->common.msgtype,
+                        XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK,
+                        XI_ITEST_SFT__NUMBER_OF_FILE_CHUNKS( 1 ) );
+
+    expect_string_count( xi_mock_broker_sft_logic_on_file_get_chunk,
+                         control_message->file_get_chunk.name, "custom_url.dl.fails",
+                         XI_ITEST_SFT__NUMBER_OF_FILE_CHUNKS( 1 ) );
+
+    expect_value_count( xi_mock_broker_sft_logic_on_message,
+                        control_message->common.msgtype,
+                        XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 2 );
+
+    expect_file_status_phase_and_code(
+        XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADED,
+        XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
+    expect_file_status_phase_and_code( XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_FINISHED,
+                                       XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
+
+
+    /* 2nd file: fallback to MQTT download */
+    expect_value_count( xi_mock_broker_sft_logic_on_message,
+                        control_message->common.msgtype,
+                        XI_CONTROL_MESSAGE_CS__SFT_FILE_GET_CHUNK,
+                        XI_ITEST_SFT__NUMBER_OF_FILE_CHUNKS( 2 ) );
+
+    expect_string_count( xi_mock_broker_sft_logic_on_file_get_chunk,
+                         control_message->file_get_chunk.name, "custom_url.dl.denied",
+                         XI_ITEST_SFT__NUMBER_OF_FILE_CHUNKS( 2 ) );
+
+    expect_value_count( xi_mock_broker_sft_logic_on_message,
+                        control_message->common.msgtype,
+                        XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 2 );
+
+    expect_file_status_phase_and_code(
+        XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADED,
+        XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
+    expect_file_status_phase_and_code( XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_FINISHED,
+                                       XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
+
+
+    /* 3rd file: successul HTTP download */
+    expect_value_count( xi_mock_broker_sft_logic_on_message,
+                        control_message->common.msgtype,
+                        XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 3 );
+
+    expect_file_status_phase_and_code(
+        XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADING,
+        XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
+    expect_file_status_phase_and_code(
+        XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADED,
+        XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
+    expect_file_status_phase_and_code( XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_FINISHED,
+                                       XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
+
+    will_return( _xi_itest_sft__url_handler_callback, URL_HANDLER__DOWNLOAD_FAILS );
+    will_return( _xi_itest_sft__url_handler_callback, URL_HANDLER__DOWNLOAD_GETS_DENIED );
+    will_return( _xi_itest_sft__url_handler_callback, URL_HANDLER__DOWNLOAD_SUCCEEDS );
+
+    /* ACT */
+    xi_itest_sft__act( fixture_void, 1,
+                       ( const char* [] ){"custom_url.dl.fails", "custom_url.dl.denied",
+                                          "custom_url.dl.succeeds"},
+                       3, _xi_itest_sft__url_handler_callback );
 }

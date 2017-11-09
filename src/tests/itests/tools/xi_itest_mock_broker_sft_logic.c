@@ -121,6 +121,9 @@ xi_control_message_t* xi_mock_broker_sft_logic_generate_reply_happy_FUA(
                       "url for custom download of file: ",
                       control_message_reply->file_update_available.list[id_file].name )
                 : NULL;
+
+        control_message_reply->file_update_available.list[id_file]
+            .flag_mqtt_download_also_supported = 1;
     }
 
     return control_message_reply;

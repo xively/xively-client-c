@@ -24,22 +24,39 @@ _xi_sft_on_file_downloaded_task( void* sft_context_void,
 
     xi_sft_context_t* context = ( xi_sft_context_t* )sft_context_void;
     const char* filename      = ( const char* )filename_void;
-    uint8_t flag_download_finished_successfully =
+    const uint8_t flag_download_finished_successfully =
         ( intptr_t )flag_download_finished_successfully_void;
 
-    _xi_sft_send_file_status(
-        context, NULL, XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADED,
-        ( 0 != flag_download_finished_successfully )
-            ? XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS
-            : XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__URL_DOWNLOAD_FAILED );
 
-    if ( 0 != flag_download_finished_successfully &&
-         NULL != context->update_current_file &&
-         NULL != context->update_current_file->name && NULL != filename &&
-         0 == strcmp( context->update_current_file->name, filename ) )
+    if ( 0 != flag_download_finished_successfully )
     {
-        _xi_sft_current_file_revision_handling( context );
-        _xi_sft_continue_package_download( context );
+        if ( NULL != context->update_current_file &&
+             NULL != context->update_current_file->name && NULL != filename &&
+             0 == strcmp( context->update_current_file->name, filename ) )
+        {
+            _xi_sft_send_file_status(
+                context, NULL, XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADED,
+                XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
+
+            _xi_sft_current_file_revision_handling( context );
+            _xi_sft_continue_package_download( context );
+        }
+        else
+        {
+            _xi_sft_send_file_status(
+                context, NULL, XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADED,
+                XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__URLDL_UNEXPECTED_FILE_NAME );
+        }
+    }
+    else
+    {
+        _xi_sft_send_file_status(
+            context, NULL, XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADED,
+            XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__URLDL_FAILED );
+
+        /* fallback to MQTT: starting the internal MQTT file download process */
+        _xi_sft_send_file_get_chunk( context, 0,
+                                     context->update_current_file->size_in_bytes );
     }
 
     return XI_STATE_OK;

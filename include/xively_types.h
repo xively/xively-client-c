@@ -150,7 +150,9 @@ typedef void( xi_user_subscription_callback_t )( xi_context_handle_t in_context_
 
 
 typedef void( xi_sft_on_file_downloaded_callback_t )(
-    void* data, const char* filename, uint8_t flag_download_finished_successfully );
+    void* callback_data,
+    const char* filename,
+    uint8_t flag_download_finished_successfully );
 
 typedef uint8_t( xi_sft_url_handler_callback_t )(
     const char* url,
