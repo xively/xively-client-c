@@ -12,11 +12,11 @@
 #include <xi_bsp_io_fs.h>
 #include <xively_types.h>
 
-typedef xi_state_t ( *fn_send_control_message )( void*, xi_control_message_t* );
+typedef xi_state_t ( *fn_send_control_message_t )( void*, xi_control_message_t* );
 
 typedef struct
 {
-    fn_send_control_message fn_send_message;
+    fn_send_control_message_t fn_send_message;
     void* send_message_user_data;
     const char** updateable_files;
     uint16_t updateable_files_count;
@@ -36,7 +36,7 @@ typedef struct
 xi_state_t xi_sft_make_context( xi_sft_context_t** context,
                                 const char** updateable_files,
                                 uint16_t updateable_files_count,
-                                fn_send_control_message fn_send_message,
+                                fn_send_control_message_t fn_send_message,
                                 xi_sft_url_handler_callback_t* sft_url_handler_callback,
                                 void* user_data );
 

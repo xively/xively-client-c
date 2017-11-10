@@ -19,7 +19,7 @@ void _xi_sft_send_file_status( const xi_sft_context_t* context,
                                xi_control_message__sft_file_status_phase_t phase,
                                xi_control_message__sft_file_status_code_t code )
 {
-    if ( NULL != context->fn_send_message &&
+    if ( NULL != context && NULL != context->fn_send_message &&
          ( NULL != file_desc_ext || NULL != context->update_current_file ) )
     {
         xi_control_message_t* message_file_status = xi_control_message_create_file_status(
@@ -37,7 +37,8 @@ void _xi_sft_send_file_get_chunk( xi_sft_context_t* context,
                                   uint32_t offset,
                                   uint32_t length )
 {
-    if ( NULL != context->fn_send_message )
+    if ( NULL != context && NULL != context->fn_send_message &&
+         NULL != context->update_current_file )
     {
         xi_control_message_t* message_file_get_chunk =
             xi_control_message_create_file_get_chunk(
@@ -52,7 +53,7 @@ void _xi_sft_send_file_get_chunk( xi_sft_context_t* context,
 
 static void _xi_sft_download_current_file( xi_sft_context_t* context )
 {
-    if ( NULL == context->update_current_file )
+    if ( NULL == context || NULL == context->update_current_file )
     {
         return;
     }
@@ -103,6 +104,11 @@ static void _xi_sft_download_current_file( xi_sft_context_t* context )
 
 void _xi_sft_current_file_revision_handling( xi_sft_context_t* context )
 {
+    if ( NULL == context || NULL == context->update_current_file )
+    {
+        return;
+    }
+
     if ( context->update_firmware != context->update_current_file )
     {
         /* handling non-firmware files */
@@ -123,6 +129,11 @@ void _xi_sft_current_file_revision_handling( xi_sft_context_t* context )
 
 void _xi_sft_continue_package_download( xi_sft_context_t* context )
 {
+    if ( NULL == context )
+    {
+        return;
+    }
+
     const xi_state_t state = _xi_sft_select_next_resource_to_download( context );
     XI_CHECK_STATE( state );
 
@@ -173,6 +184,13 @@ xi_state_t _xi_sft_select_next_resource_to_download( xi_sft_context_t* context )
         return XI_INTERNAL_ERROR;
     }
 
+    if ( NULL == context->update_message_fua ||
+         ( 0 != context->update_message_fua->file_update_available.list_len &&
+           NULL == context->update_message_fua->file_update_available.list ) )
+    {
+        return XI_STATE_OK;
+    }
+
     int32_t selected_index       = -1;
     context->update_current_file = NULL;
     uint16_t i                   = 0;
@@ -189,7 +207,7 @@ xi_state_t _xi_sft_select_next_resource_to_download( xi_sft_context_t* context )
     if ( -1 != selected_index )
     {
         context->update_current_file =
-            &( context->update_message_fua->file_update_available.list[selected_index] );
+            context->update_message_fua->file_update_available.list + selected_index;
     }
 
     return XI_STATE_OK;

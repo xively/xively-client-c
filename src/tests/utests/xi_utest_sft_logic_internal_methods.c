@@ -19,16 +19,105 @@
 
 XI_TT_TESTGROUP_BEGIN( utest_sft_logic_internal_methods )
 
+/*********************************************
+ * _xi_sft_send_file_status ******************
+ *********************************************/
+XI_TT_TESTCASE_WITH_SETUP( xi_utest__send_file_status__null_parameters__no_crash,
+                           xi_utest_setup_basic,
+                           xi_utest_teardown_basic,
+                           NULL,
+                           { _xi_sft_send_file_status( NULL, NULL, 0, 0 ); } )
+
+XI_TT_TESTCASE_WITH_SETUP( xi_utest__send_file_status__context_with_null_fields__no_crash,
+                           xi_utest_setup_basic,
+                           xi_utest_teardown_basic,
+                           NULL,
+                           {
+                               xi_sft_context_t sft_context = {
+                                   .fn_send_message = ( fn_send_control_message_t )1};
+
+                               _xi_sft_send_file_status( &sft_context, NULL, 0, 0 );
+                           } )
+
+/*********************************************
+ * _xi_sft_send_file_get_chunk ***************
+ *********************************************/
+XI_TT_TESTCASE_WITH_SETUP( xi_utest__send_file_get_chunk__null_parameters__no_crash,
+                           xi_utest_setup_basic,
+                           xi_utest_teardown_basic,
+                           NULL,
+                           { _xi_sft_send_file_get_chunk( NULL, 0, 0 ); } )
+
+XI_TT_TESTCASE_WITH_SETUP(
+    xi_utest__send_file_get_chunk__context_with_null_fields__no_crash,
+    xi_utest_setup_basic,
+    xi_utest_teardown_basic,
+    NULL,
+    {
+        xi_sft_context_t sft_context = {.fn_send_message = ( fn_send_control_message_t )1,
+                                        .update_current_file = NULL};
+
+        _xi_sft_send_file_get_chunk( &sft_context, 0, 0 );
+    } )
+
+
+/*********************************************
+ * _xi_sft_select_next_resource_to_download **
+ *********************************************/
 XI_TT_TESTCASE_WITH_SETUP( xi_utest__select_next_resource_to_download__null_context,
                            xi_utest_setup_basic,
                            xi_utest_teardown_basic,
                            NULL,
                            {
-                               xi_state_t state =
+                               const xi_state_t state =
                                    _xi_sft_select_next_resource_to_download( NULL );
 
                                tt_want_int_op( XI_INVALID_PARAMETER, ==, state );
                            } )
+
+XI_TT_TESTCASE_WITH_SETUP(
+    xi_utest__select_next_resource_to_download__context_with_FWU_NULL,
+    xi_utest_setup_basic,
+    xi_utest_teardown_basic,
+    NULL,
+    {
+        int32_t download_order[] = {0, 1, 2};
+        xi_sft_context_t sft_context;
+        sft_context.updateable_files_download_order = download_order;
+        sft_context.update_current_file             = NULL;
+        sft_context.update_message_fua              = NULL;
+
+        const xi_state_t state = _xi_sft_select_next_resource_to_download( &sft_context );
+
+        tt_want_int_op( XI_STATE_OK, ==, state );
+        tt_want_ptr_op( NULL, ==, sft_context.update_current_file );
+    } )
+
+XI_TT_TESTCASE_WITH_SETUP(
+    xi_utest__select_next_resource_to_download__context_with_FWU_list_NULL,
+    xi_utest_setup_basic,
+    xi_utest_teardown_basic,
+    NULL,
+    {
+        xi_control_message_t file_update_available = {
+            .file_update_available = {
+                .common = {.msgtype = XI_CONTROL_MESSAGE_SC__SFT_FILE_UPDATE_AVAILABLE,
+                           .msgver  = 1},
+                .list_len = 3,
+                .list     = NULL}};
+
+        int32_t download_order[] = {0, 1, 2};
+        xi_sft_context_t sft_context;
+        sft_context.updateable_files_download_order = download_order;
+        sft_context.update_current_file             = NULL;
+        sft_context.update_message_fua              = &file_update_available;
+
+        xi_state_t state = _xi_sft_select_next_resource_to_download( &sft_context );
+        state            = _xi_sft_select_next_resource_to_download( &sft_context );
+
+        tt_want_int_op( XI_STATE_OK, ==, state );
+        tt_want_ptr_op( NULL, ==, sft_context.update_current_file );
+    } )
 
 XI_TT_TESTCASE_WITH_SETUP(
     xi_utest__select_next_resource_to_download__picks_first_element,
