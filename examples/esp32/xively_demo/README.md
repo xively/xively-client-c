@@ -22,39 +22,39 @@ Application Architecture
 ## File Structure
 
 ```
-                            +-------------------------+
-                            |          main.c         |
-                            +-------------------------+
-                            | Device Initialization   |
-                            | RTOS tasks coordination |
-                            | App-relevant callbacks  |
-                            +---+-----+-----+-----^---+
-                                |     |     |     |
-          +---------------------+     |     |     +----------------------+
-          |                           |     |                            |
-          |                   +-------+     +------+                     |
-          |                   |                    |                     |
-+---------v--------+ +--------v---------+ +--------v---------+ +---------v--------+
-|   gpio_if.[ch]   | |  user_data.[ch]  | | provisioning.[ch]| |  xively_if.[ch]  |
-+------------------+ +------------------+ +------------------+ +------------------+
-|Button interrupts | |Credentials struct| |Gather credentials| |libxively task    |
-|LED control       | |NVS read/write    | | at runtime       | |Task-safe control |
-+---------^--------+ +--------^---------+ +--------^---------+ +---------^--------+
-          |                   |                    |                     |
-          |                   | SPI                | UART                | MQTT+TLS
-          |                   |                    |                     |
-   XXXXXX\v/XXXXX       XXXXX\v/XXXXXX    .........v..........   XXXXXXX\v/XXXXXX
-  XX            XX     XX            XX   .                  .  XXXX          XXXX
- XX    ESP32's   XX   XX   ESP32's    XX  .    O             . XXX    Xively    XXX
-XX      GPIO      XX XX  Non-Volatile  XX .   -|-  User      . XXXXX  Broker  XXXXX
- XX              XX   XX   Storage    XX  .   / \            . XXX              XXX
-  XX            XX     XX            XX   .                  .  XXXX          XXXX
-   XXXXXXXXXXXXXX       XXXXXXXXXXXXXX    .........^..........   XXXXXXX/^\XXXXXX
-                                                   |                     |
+                           +-------------------------+
+                           |          main.c         |
+                           +-------------------------+
+                           | Device Initialization   |
+                           | RTOS tasks coordination |
+                           | App-relevant callbacks  |
+                           +---+-----+------+-----^--+
+                               |     |      |     |
+         +---------------------+     |      |     +-----------------------+
+         |                           |      |                             |
+         |                     +-----+      +---------+                   |
+         |                     |                      |                   |
++--------v---------+ +---------v--------+   +---------v--------+ +--------v---------+ 
+| provisioning.[ch]| |  xively_if.[ch]  <---|   gpio_if.[ch]   | |  user_data.[ch]  | 
++------------------+ +------------------+   +------------------+ +------------------+ 
+|Gather credentials| |libxively task    |   |Button interrupts | |Credentials struct| 
+| at runtime       | |Task-safe control |   |LED control       | |NVS read/write    | 
++--------^---------+ +---------^--------+   +---------^--------+ +--------^---------+ 
+         |                     |                      |                   |           
+         | UART                | MQTT+TLS             |                   | SPI       
+         |                     |                      |                   |           
+.........v..........   XXXXXXX\v/XXXXXX        XXXXXX\v/XXXXX       XXXXX\v/XXXXXX    
+.                  .  XXXX          XXXX      XX            XX     XX            XX   
+.    O             . XXX    Xively    XXX    XX    ESP32's   XX   XX   ESP32's    XX  
+.   -|-  User      . XXXXX  Broker  XXXXX   XX      GPIO      XX XX  Non-Volatile  XX 
+.   / \            . XXX              XXX    XX              XX   XX   Storage    XX  
+.                  .  XXXX          XXXX      XX            XX     XX            XX   
+.........^..........   XXXXXXX/^\XXXXXX        XXXXXXXXXXXXXX       XXXXXXXXXXXXXX    
+         |                     |                                                   
 
-                                                   |                     |
-                                                   +-   -   -   -   -   -+
-                                                   (HTTP+TLS || MQTT+TLS)
+         |                     |
+         +-   -   -   -   -   -+
+         (HTTP+TLS || MQTT+TLS)
 ```
 
 ## MQTT setup
