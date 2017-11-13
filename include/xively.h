@@ -230,23 +230,40 @@ extern void xi_events_stop();
  * @brief Files set by this function will be kept updated by the Xively C Client.
  *
  * This API function is used to tell Xively C Client the update file manifest. Client
- * will collect revisions to these files and send these to Xively SFT service.
- * This move initializes the update process. The file list may or may not contain
- * firmware binary. If it does then the firmware update process will be triggered
- * after whole package got downloaded. A firmware differs in name from other update
- * files. Plese visit BSP FWU's `xi_bsp_fwu_is_this_firmware` function to check the
- * exact firmware file name since this function is responsible for differentiation.
+ * will collect revisions to these files and send to Xively Secure File Transfer (SFT)
+ * service immediately right after a successful MQTT connection. This function must
+ * be called prior to `xi_connect`. This move initializes the update process.
  *
- * example call:
+ * The file list may or may not contain firmware binary. If it does then the firmware
+ * update process will be triggered after whole package got downloaded.
+ * A firmware differs in name from other update files. Plese visit BSP FWU's
+ * `xi_bsp_fwu_is_this_firmware` function to check the exact firmware file
+ * name since this function is responsible for differentiation.
  *
- * `xi_set_updateable_files( xih,
- *                           ( const char* [] ){"file.cfg", "firmware.bin"}, 2,
- *                           NULL );`
+ * Large files (*8MB+ on 13.11.2017*) are not supported through the Xively Secure
+ * File Transfer MQTT service. To download these files pass a function pointer
+ * as function attribute: `url_handler`. This function gets called for each
+ * individual file in the SFT update package. This function should start the
+ * download on a separate thread and return immediately without blocking.
+ * Read more details in `xively_types.h`.
+ *
+ * *example call:*
+ *
+ * ```
+ * xi_set_updateable_files( xih,
+ *                          ( const char* [] ){"file.cfg", "firmware.bin"}, 2,
+ *                          url_handler_callback );
+ * ```
  *
  * @param [in] xih a context handle created by invoking xi_create_context
  * @param [in] filenames a list of file names representing the files which have to
  *                       be kept updated
  * @param [in] count number of file names contained in the file names list
+ * @param [in] url_handler function pointer, this is the application entry point for
+ *             HTTP file download. This function is called with each filename and URL
+ *             within an update package. Leave it NULL if HTTP download is not necessary
+ *             for your update package, if Xively SFT service provides all the update
+ *             files through MQTT.
  *
  * @retval XI_STATE_OK if file list set properly, an error value otherwise.
  */
