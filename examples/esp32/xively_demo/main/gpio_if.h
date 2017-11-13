@@ -44,7 +44,7 @@ int8_t io_init( void );
  * @retval -1 Timeout
  * @retval  1 Interrupt detected
  */
-int8_t io_await_gpio_interrupt( uint32_t timeout_ms );
+int8_t io_pop_gpio_interrupt( void );
 
 /**
  * @brief Add the button GPIO pin to the list of ISR handlers 

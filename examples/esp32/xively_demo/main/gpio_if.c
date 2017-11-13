@@ -13,7 +13,7 @@
 
 #include "gpio_if.h"
 
-#define IO_BUTTON_DEBOUNCE_TIME 250
+#define IO_BUTTON_DEBOUNCE_TIME 150
 #define IO_BUTTON_INTERRUPT_EDGE GPIO_PIN_INTR_NEGEDGE /* pull-up enabled in io_init */
 
 /**
@@ -34,13 +34,13 @@ static xQueueHandle io_button_queue = NULL;
  * @retval  0 if the interrupt was caused by a button bounce and should be ignored
  * @retval  1 if the interrupt was a legitimate button press
  */
-static inline int8_t gpio_button_isr_debouncer( void )
+static inline IRAM_ATTR int8_t gpio_button_isr_debouncer( void )
 {
     static uint32_t button_press_systick = 0;
-    uint32_t current_systick = 0;
+    const uint32_t current_systick = xTaskGetTickCountFromISR();
 
-    current_systick = xTaskGetTickCountFromISR();
-    if( (current_systick - button_press_systick) < IO_BUTTON_DEBOUNCE_TIME )
+    if ( ( current_systick - button_press_systick ) * portTICK_PERIOD_MS <
+         IO_BUTTON_DEBOUNCE_TIME )
     {
         return 0;
     }
@@ -50,10 +50,11 @@ static inline int8_t gpio_button_isr_debouncer( void )
 
 void IRAM_ATTR gpio_isr_handler( void* arg )
 {
-    uint32_t gpio_num = ( uint32_t )arg;
+    const uint32_t gpio_num = ( uint32_t )arg;
+
     if( NULL != io_button_queue )
     {
-        if ( gpio_button_isr_debouncer() )
+        if( gpio_button_isr_debouncer() )
         {
             xQueueSendFromISR( io_button_queue, &gpio_num, NULL );
         }
@@ -119,15 +120,15 @@ int8_t io_init( void )
     return 0;
 }
 
-int8_t io_await_gpio_interrupt( uint32_t timeout_ms )
+int8_t io_pop_gpio_interrupt( void )
 {
     uint32_t queue_value_io_num;
 
     /* Wait for button interrupts for up to queue_recv_timeout_ms milliseconds */
-    if ( xQueueReceive( io_button_queue, &queue_value_io_num,
-                        ( timeout_ms / portTICK_PERIOD_MS ) ) )
+    if ( xQueueReceive( io_button_queue, &queue_value_io_num, 0 ) )
     {
-        return 1;
+        printf( "\n[GPIO] Interrupt popped from the queue" );
+        return 0;
     }
     return -1;
 }

@@ -33,7 +33,7 @@
 
 #define XT_TASK_ESP_CORE    0 /* ESP32 core the XT task will be pinned to */
 #define XT_TASK_STACK_SIZE  36 * 1024
-#define GPIO_TASK_STACK_SIZE 2 * 1024
+#define APP_MAIN_LOGIC_STACK_SIZE 2 * 1024
 
 #define WIFI_CONNECTED_FLAG  BIT0
 
@@ -46,7 +46,7 @@ static int ota_download_progress = 0;
 static esp_err_t app_wifi_event_handler( void* ctx, system_event_t* event );
 static int8_t app_wifi_station_init( user_data_t* credentials );
 static int8_t app_fetch_user_config( user_data_t* dst );
-static void app_gpio_interrupts_handler_task( void* param );
+static void app_main_logic_task( void* param );
 
 /**
  * Initialize GPIO and NVS, fetch WiFi and Xively credentials from flash or
@@ -102,7 +102,7 @@ void app_main( void )
 
     /* Start Xively task */
     if ( pdPASS != xTaskCreatePinnedToCore( &xt_rtos_task, "xively_task",
-                                            XT_TASK_STACK_SIZE, NULL, 5, NULL,
+                                            XT_TASK_STACK_SIZE, NULL, 4, NULL,
                                             XT_TASK_ESP_CORE ) )
     {
         printf( "\n[ERROR] creating Xively Task" );
@@ -111,8 +111,8 @@ void app_main( void )
     }
 
     /* Start GPIO interrupt handler task */
-    if ( pdPASS != xTaskCreate( &app_gpio_interrupts_handler_task, "gpio_intr_task",
-                                GPIO_TASK_STACK_SIZE, NULL, 3, NULL ) )
+    if ( pdPASS != xTaskCreate( &app_main_logic_task, "app_main_logic",
+                                APP_MAIN_LOGIC_STACK_SIZE, NULL, 1, NULL ) )
     {
         printf( "\n[ERROR] creating GPIO interrupt handler RTOS task" );
         printf( "\n\tInterrupts will be ignored" );
@@ -234,17 +234,18 @@ int8_t app_fetch_user_config( user_data_t* dst )
     printf( "\nUser data retrieved from flash:" );
     user_data_printf( dst );
 
-    /* Wait for a button press for 80*50 ms while flashing the LED. If the button is
+    /* Wait for a button press for a few seconds while flashing the LED. If the button is
      * pressed, clear the contents of user_config to force the provisioning process */
     for ( int i = 40; i > 0; i-- )
     {
-        if ( -1 != io_await_gpio_interrupt( 100 ) )
+        if ( -1 != io_pop_gpio_interrupt() )
         {
             printf( "\nButton pressed - Initializing provisioning process" );
             provisioning_bootmode_selected = 1;
             break;
         }
         io_led_set( i % 2 ); /* Toggle LED */
+        vTaskDelay( 50 / portTICK_PERIOD_MS );
     }
     io_led_off();
 
@@ -264,21 +265,19 @@ int8_t app_fetch_user_config( user_data_t* dst )
 }
 
 /******************************************************************************
- *                   GPIO Interrupts Handling Task
+ *                   Post-Initialization main task
  ******************************************************************************/
-void app_gpio_interrupts_handler_task( void* param )
+/* Simple Proof of Concept, simple logic. This task may be used for more resource
+ * expensive operations. Remember to communicate with the Xively Client in a Task-safe
+ * manner, and adjust this task's stack size (APP_MAIN_LOGIC_STACK_SIZE) to fit your needs
+ */
+void app_main_logic_task( void* param )
 {
-    const uint32_t IO_BUTTON_WAIT_TIME_MS = 500;
-    int virtual_switch = 0; /* Switches between 1 and 0 on each button press */
     while ( 1 )
     {
-        if ( -1 != io_await_gpio_interrupt( IO_BUTTON_WAIT_TIME_MS ) )
-        {
-            virtual_switch = !virtual_switch;
-            printf( "\nButton pressed! Virtual switch [%d]", virtual_switch );
-            xt_publish_button_state( virtual_switch );
-        }
-        taskYIELD();
+        printf( "\n((Factory Default Running))" );
+        // printf( "\n[[New FW Running]]" );
+        vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
 }
 
@@ -345,5 +344,6 @@ void esp32_xibsp_notify_chunk_written( size_t chunk_size, size_t offset )
 
 void esp32_xibsp_notify_update_applied()
 {
-    printf( "\nFirmware update successfully completed - Proceeding with reboot" );
+    printf( "\nFirmware package download complete - Proceeding with reboot" );
+    /* xi_bsp_fwu_on_package_download_finished called from the fwu BSP */
 }
