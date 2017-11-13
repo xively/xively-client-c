@@ -120,6 +120,7 @@ int8_t io_init( void )
     return 0;
 }
 
+/* Returns 0 if there's an interrupt in the queue, -1 if the queue is empty */
 int8_t io_pop_gpio_interrupt( void )
 {
     uint32_t queue_value_io_num;
@@ -127,7 +128,6 @@ int8_t io_pop_gpio_interrupt( void )
     /* Wait for button interrupts for up to queue_recv_timeout_ms milliseconds */
     if ( xQueueReceive( io_button_queue, &queue_value_io_num, 0 ) )
     {
-        printf( "\n[GPIO] Interrupt popped from the queue" );
         return 0;
     }
     return -1;

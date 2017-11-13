@@ -35,14 +35,10 @@ int8_t io_init( void );
 
 /**
  * @brief When an interrupt occurs, the pin number is pushed into a task-safe queue.
- * This function will wait until a new item is available in the queue, or the timeout
- * expires. If an interrupt happened before the function was called, it will return
- * 1 immediately
+ * This function returns 0 if there was an interrupt in the queue, -1 if it's empty.
  *
- * @param timeout_ms is the wait timeout in milliseconds
- *
- * @retval -1 Timeout
- * @retval  1 Interrupt detected
+ * @retval -1 Queue is empty
+ * @retval  0 Interrupt detected
  */
 int8_t io_pop_gpio_interrupt( void );
 

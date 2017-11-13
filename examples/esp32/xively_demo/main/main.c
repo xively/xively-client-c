@@ -110,7 +110,8 @@ void app_main( void )
             vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
 
-    /* Start GPIO interrupt handler task */
+    /* Start a new task for the post-initialization logic. In this demo, it
+    simply rints a string over and over again */
     if ( pdPASS != xTaskCreate( &app_main_logic_task, "app_main_logic",
                                 APP_MAIN_LOGIC_STACK_SIZE, NULL, 1, NULL ) )
     {
