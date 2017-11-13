@@ -70,10 +70,6 @@ void xi_sft_on_file_downloaded_application_callback(
     const char* filename,
     uint8_t flag_download_finished_successfully )
 {
-    printf( "[ LIBXIVELY   ] - %s, sft_context_void: %p, filename: %s, success: %x\n",
-            __FUNCTION__, sft_context_void, filename,
-            flag_download_finished_successfully );
-
     xi_evtd_execute(
         xi_globals.evtd_instance,
         xi_make_handle( &_xi_sft_on_file_downloaded_task, ( void* )sft_context_void,

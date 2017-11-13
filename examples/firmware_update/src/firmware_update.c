@@ -9,6 +9,10 @@
 
 #include <stdio.h>
 #include <pthread.h>
+#include <string.h>
+
+#include <xi_bsp_io_fs.h>
+#include <xi_bsp_fwu.h>
 
 static xi_context_handle_t xi_context;
 
@@ -23,13 +27,18 @@ typedef struct download_thread_context_s
     const char* url;
     const char* filename;
 
+    uint8_t* checksum;
+    uint16_t checksum_len;
+
     xi_sft_on_file_downloaded_callback_t* fn_on_file_downloaded;
     void* callback_data;
 
-    uint8_t file_downloaded_flag;
+    uint8_t file_downloaded_POLL_flag;
+    uint8_t file_downloaded_successfully_flag;
 
 } download_thread_context_t;
 
+static uint8_t _local_checksum_validation( download_thread_context_t* download_context );
 
 void* download_thread_run( void* ctx )
 {
@@ -50,7 +59,10 @@ void* download_thread_run( void* ctx )
 
     printf( "[ APPLICATION ] command returned: %d\n", system_command_result );
 
-    download_context->file_downloaded_flag = 1;
+    download_context->file_downloaded_successfully_flag =
+        _local_checksum_validation( ctx );
+
+    download_context->file_downloaded_POLL_flag = 1;
 
     return NULL;
 }
@@ -63,15 +75,16 @@ void poll_if_download_finished( const xi_context_handle_t context_handle,
 
     download_thread_context_t* download_context = ( download_thread_context_t* )user_data;
 
-    if ( download_context->file_downloaded_flag )
+    if ( download_context->file_downloaded_POLL_flag )
     {
         printf( "[ APPLICATION ] file downloaded\n" );
 
         xi_cancel_timed_task( timed_task_handle );
 
         /* report the successful file download to the Client */
-        ( *download_context->fn_on_file_downloaded )( download_context->callback_data,
-                                                      download_context->filename, 1 );
+        ( *download_context->fn_on_file_downloaded )(
+            download_context->callback_data, download_context->filename,
+            download_context->file_downloaded_successfully_flag );
     }
     else
     {
@@ -83,20 +96,25 @@ static download_thread_context_t download_thread_context;
 
 uint8_t url_handler_callback( const char* url,
                               const char* filename,
+                              uint8_t* checksum,
+                              uint16_t checksum_len,
                               uint8_t flag_mqtt_download_available,
                               xi_sft_on_file_downloaded_callback_t* fn_on_file_downloaded,
                               void* callback_data )
 {
-    printf( "[ APPLICATION ] - %s, %s, %s, %d fnptr: %p\n", __FUNCTION__, url, filename,
+    printf( "[ APPLICATION ] - %s, %s, %s, checksum: [%s]:%d, %d fnptr: %p\n",
+            __FUNCTION__, url, filename, checksum, checksum_len,
             flag_mqtt_download_available, fn_on_file_downloaded );
 
     /* existence of function parameters is assured at least until fn_on_file_downloaded
      * gets called */
-    download_thread_context.url                   = url;
-    download_thread_context.filename              = filename;
-    download_thread_context.fn_on_file_downloaded = fn_on_file_downloaded;
-    download_thread_context.callback_data         = callback_data;
-    download_thread_context.file_downloaded_flag  = 0;
+    download_thread_context.url                       = url;
+    download_thread_context.filename                  = filename;
+    download_thread_context.checksum                  = checksum;
+    download_thread_context.checksum_len              = checksum_len;
+    download_thread_context.fn_on_file_downloaded     = fn_on_file_downloaded;
+    download_thread_context.callback_data             = callback_data;
+    download_thread_context.file_downloaded_POLL_flag = 0;
 
     const int ret_pthread_create =
         pthread_create( &download_thread_context.thread, NULL, download_thread_run,
@@ -294,4 +312,56 @@ void on_connection_state_changed( xi_context_handle_t in_context_handle,
             printf( "wrong value\n" );
             break;
     }
+}
+
+uint8_t _local_checksum_validation( download_thread_context_t* download_context )
+{
+    if ( NULL == download_context )
+    {
+        return 0;
+    }
+
+    xi_bsp_io_fs_resource_handle_t resource_handle = XI_BSP_IO_FS_OPEN_READ;
+    xi_bsp_io_fs_open( download_context->filename, 0 /* not used */,
+                       XI_BSP_IO_FS_OPEN_READ, &resource_handle );
+
+    void* checksum_context = NULL;
+    xi_bsp_fwu_checksum_init( &checksum_context );
+
+    size_t read_offset         = 0;
+    const uint8_t* read_buffer = NULL;
+    size_t read_buffer_size    = 0;
+
+    while ( XI_BSP_IO_FS_STATE_OK == xi_bsp_io_fs_read( resource_handle, read_offset,
+                                                        &read_buffer,
+                                                        &read_buffer_size ) )
+    {
+        /* printf( "[ APPLICATION ] read_offset: %lu, read_buffer_size: %lu\n",
+           read_offset,
+                read_buffer_size ); */
+
+        xi_bsp_fwu_checksum_update( checksum_context, read_buffer, read_buffer_size );
+        read_offset += read_buffer_size;
+
+        read_buffer = NULL;
+    }
+
+    uint8_t* local_checksum_buffer     = NULL;
+    uint16_t local_checksum_buffer_len = 0;
+    xi_bsp_fwu_checksum_final( &checksum_context, &local_checksum_buffer,
+                               &local_checksum_buffer_len );
+
+    xi_bsp_io_fs_close( resource_handle );
+
+    printf( "[ APPLICATION ] checksum lengths: local: %d, remote: %d\n",
+            local_checksum_buffer_len, download_context->checksum_len );
+
+    const int checksum_memcmp_result = memcmp(
+        local_checksum_buffer, download_context->checksum, local_checksum_buffer_len );
+
+    printf( "[ APPLICATION ] checksums %s.\n",
+            ( 0 == checksum_memcmp_result ) ? "MATCH" : "MISMATCH" );
+
+
+    return ( 0 == checksum_memcmp_result ) ? 1 : 0;
 }

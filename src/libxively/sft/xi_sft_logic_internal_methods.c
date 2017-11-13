@@ -73,7 +73,8 @@ static void _xi_sft_download_current_file( xi_sft_context_t* context )
         /* trying to use an application provided callback to download the file */
         download_started_by_callback = ( *context->sft_url_handler_callback )(
             context->update_current_file->download_link,
-            context->update_current_file->name,
+            context->update_current_file->name, context->update_current_file->fingerprint,
+            context->update_current_file->fingerprint_len,
             context->update_current_file->flag_mqtt_download_also_supported,
             xi_sft_on_file_downloaded_application_callback, context );
 
@@ -152,8 +153,6 @@ void _xi_sft_continue_package_download( xi_sft_context_t* context )
                 XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_PROCESSING,
                 XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
         }
-
-        printf( "[ LIBXIVELY    ] - %s, package download finished\n", __FUNCTION__ );
 
         /* report the finish of package download to the application,
            add firmware name if available */

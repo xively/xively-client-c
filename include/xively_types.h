@@ -222,6 +222,8 @@ typedef void( xi_sft_on_file_downloaded_callback_t )(
 typedef uint8_t( xi_sft_url_handler_callback_t )(
     const char* url,
     const char* filename,
+    uint8_t* checksum,
+    uint16_t checksum_len,
     uint8_t flag_mqtt_download_available,
     xi_sft_on_file_downloaded_callback_t* fn_on_file_downloaded_callback,
     void* callback_data );
