@@ -44,13 +44,11 @@ void* download_thread_run( void* ctx )
     sprintf( system_command, "curl -L -o %s %s", download_context->filename,
              download_context->url );
 
-    printf( "[Xively C Client Firmware Update] executing command:\n%s\n",
-            system_command );
+    printf( "[ APPLICATION ] executing command:\n%s\n", system_command );
 
     const int system_command_result = system( system_command );
 
-    printf( "[Xively C Client Firmware Update] command returned: %d\n",
-            system_command_result );
+    printf( "[ APPLICATION ] command returned: %d\n", system_command_result );
 
     download_context->file_downloaded_flag = 1;
 
@@ -67,7 +65,7 @@ void poll_if_download_finished( const xi_context_handle_t context_handle,
 
     if ( download_context->file_downloaded_flag )
     {
-        printf( "+++ file downloaded\n" );
+        printf( "[ APPLICATION ] file downloaded\n" );
 
         xi_cancel_timed_task( timed_task_handle );
 
@@ -77,7 +75,7 @@ void poll_if_download_finished( const xi_context_handle_t context_handle,
     }
     else
     {
-        printf( "--- file not downloaded yet\n" );
+        printf( "[ APPLICATION ] file not downloaded yet\n" );
     }
 }
 
@@ -85,11 +83,12 @@ static download_thread_context_t download_thread_context;
 
 uint8_t url_handler_callback( const char* url,
                               const char* filename,
+                              uint8_t flag_mqtt_download_available,
                               xi_sft_on_file_downloaded_callback_t* fn_on_file_downloaded,
                               void* callback_data )
 {
-    printf( "[ APPLICATION ] - %s, %s, %s, fnptr: %p\n", __FUNCTION__, url, filename,
-            fn_on_file_downloaded );
+    printf( "[ APPLICATION ] - %s, %s, %s, %d fnptr: %p\n", __FUNCTION__, url, filename,
+            flag_mqtt_download_available, fn_on_file_downloaded );
 
     /* existence of function parameters is assured at least until fn_on_file_downloaded
      * gets called */
@@ -125,8 +124,6 @@ uint8_t url_handler_callback( const char* url,
 
 int main( int argc, char* argv[] )
 {
-    printf( "--- helloka from %s\n", __FUNCTION__ );
-
     char options[]       = "ha:u:P:p:m:";
     int missingparameter = 0;
     int retval           = 0;

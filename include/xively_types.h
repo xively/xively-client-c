@@ -209,6 +209,8 @@ typedef void( xi_sft_on_file_downloaded_callback_t )(
  device's non-volatile storage
  * @param [in] fn_on_file_downloaded_callback pointer to a Xively C Client callback. The
  application has to call this function at the end of the download.
+ * @param [in] flag_mqtt_download_available a flag indicating the MQTT download is
+ available through the Xively SFT service (1 - if available, 0 - if not)
  * @param [in] callback_data a pointer required to be passed back to the
  `fn_on_file_downloaded_callback`. The application shouldn't do anything with this data
  pointer, just pass back to the callback.
@@ -220,6 +222,7 @@ typedef void( xi_sft_on_file_downloaded_callback_t )(
 typedef uint8_t( xi_sft_url_handler_callback_t )(
     const char* url,
     const char* filename,
+    uint8_t flag_mqtt_download_available,
     xi_sft_on_file_downloaded_callback_t* fn_on_file_downloaded_callback,
     void* callback_data );
 

@@ -74,6 +74,7 @@ static void _xi_sft_download_current_file( xi_sft_context_t* context )
         download_started_by_callback = ( *context->sft_url_handler_callback )(
             context->update_current_file->download_link,
             context->update_current_file->name,
+            context->update_current_file->flag_mqtt_download_also_supported,
             xi_sft_on_file_downloaded_application_callback, context );
 
         if ( 0 == download_started_by_callback )

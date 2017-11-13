@@ -683,10 +683,12 @@ typedef enum _xi_itest_sft__url_handler_callback_behaviour_e {
 static uint8_t _xi_itest_sft__url_handler_callback(
     const char* url,
     const char* filename,
+    uint8_t flag_mqtt_download_available,
     xi_sft_on_file_downloaded_callback_t* fn_on_file_downloaded,
     void* callback_data )
 {
     XI_UNUSED( url );
+    XI_UNUSED( flag_mqtt_download_available );
 
     uint8_t return_value = mock_type( uint8_t );
 
