@@ -255,10 +255,7 @@ xi_bsp_io_fs_close( const xi_bsp_io_fs_resource_handle_t resource_handle )
 
     if ( ( esp_ota_handle_t )resource_handle == open_firmware_bin_handle )
     {
-        const esp_partition_t* next_partition = esp_ota_get_next_update_partition( NULL );
-        esp_err_t retv                        = ESP_OK;
-
-        xi_bsp_debug_format( "Finished FW download to partition [%p]", next_partition );
+        esp_err_t retv = ESP_OK;
 
         retv = esp_ota_end( resource_handle );
         if ( ESP_OK != retv )
