@@ -39,6 +39,8 @@ xi_itest_sft__custom_URL_download__two_files__URLREJECTED__no_fallback_available
     void** fixture_void );
 extern void xi_itest_sft__custom_URL_download__two_files__URLFAILS__no_fallback_available(
     void** fixture_void );
+extern void
+xi_itest_sft__custom_URL_download_checksum_validation__single_file( void** fixture_void );
 
 
 #ifdef XI_MOCK_TEST_PREPROCESSOR_RUN
@@ -95,6 +97,10 @@ struct CMUnitTest xi_itests_sft[] = {
         xi_itest_sft_teardown ),
     cmocka_unit_test_setup_teardown(
         xi_itest_sft__custom_URL_download__two_files__URLFAILS__no_fallback_available,
+        xi_itest_sft_setup,
+        xi_itest_sft_teardown ),
+    cmocka_unit_test_setup_teardown(
+        xi_itest_sft__custom_URL_download_checksum_validation__single_file,
         xi_itest_sft_setup,
         xi_itest_sft_teardown )};
 

@@ -19,6 +19,9 @@
 #include "xi_itest_layerchain_ct_ml_mc.h"
 #include "xi_itest_mock_broker_layerchain.h"
 #include "xi_itest_mock_broker_sft_logic.h"
+#include "xi_control_message_sft_generators.h"
+
+#include "xi_bsp_fwu.h"
 
 #include "xi_control_message_sft.h"
 
@@ -965,4 +968,78 @@ void xi_itest_sft__custom_URL_download__two_files__URLFAILS__no_fallback_availab
     xi_itest_sft__act( fixture_void, 1, ( const char* [] ){"custom_url.dl.fails",
                                                            "package.download.stops.here"},
                        2, _xi_itest_sft__url_handler_callback );
+}
+
+/***************************************************************
+ * testing checksum passed the URL handler callback ************
+ ***************************************************************/
+
+static uint8_t _xi_itest_sft__url_handler_callback_for_checksum_validation(
+    const char* url,
+    const char* filename,
+    uint8_t* checksum,
+    uint16_t checksum_len,
+    uint8_t flag_mqtt_download_available,
+    xi_sft_on_file_downloaded_callback_t* fn_on_file_downloaded,
+    void* callback_data )
+{
+    XI_UNUSED( url );
+    XI_UNUSED( filename );
+    XI_UNUSED( flag_mqtt_download_available );
+    XI_UNUSED( fn_on_file_downloaded );
+    XI_UNUSED( callback_data );
+
+    assert_ptr_not_equal( NULL, checksum );
+    assert_int_not_equal( 0, checksum_len );
+
+    /* doing nothing else "just" validating that the checksums are equal: the one checksum
+     * received as this function's argument and the checksum sent by the broker (if the
+     * client sent some different byte array) */
+    {
+        /* this is the same byte chunk what broker send as the content of the first file
+         * in the update package */
+        uint8_t* randomlike_bytes =
+            xi_control_message_sft_get_reproducible_randomlike_bytes(
+                0, XI_MOCK_BROKER_SFT__FILE_CHUNK_STEP_SIZE );
+
+        void* local_checksum_context = NULL;
+        xi_bsp_fwu_checksum_init( &local_checksum_context );
+
+        xi_bsp_fwu_checksum_update( local_checksum_context, randomlike_bytes,
+                                    XI_MOCK_BROKER_SFT__FILE_CHUNK_STEP_SIZE );
+
+        uint8_t* local_checksum_buffer     = NULL;
+        uint16_t local_checksum_buffer_len = 0;
+        xi_bsp_fwu_checksum_final( &local_checksum_context, &local_checksum_buffer,
+                                   &local_checksum_buffer_len );
+
+        /* check if the URL handler callback receives the same checksum which is generated
+         * based on the content of the first file in the update package */
+        assert_int_equal( checksum_len, local_checksum_buffer_len );
+        assert_memory_equal( checksum, local_checksum_buffer, checksum_len );
+
+        XI_SAFE_FREE( randomlike_bytes );
+    }
+
+    return 1;
+}
+
+void xi_itest_sft__custom_URL_download_checksum_validation__single_file(
+    void** fixture_void )
+{
+    expect_value( xi_mock_broker_sft_logic_on_message, control_message->common.msgtype,
+                  XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO );
+
+    expect_value_count( xi_mock_broker_sft_logic_on_message,
+                        control_message->common.msgtype,
+                        XI_CONTROL_MESSAGE_CS__SFT_FILE_STATUS, 1 );
+
+    expect_file_status_phase_and_code(
+        XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADING,
+        XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
+
+    /* ACT */
+    xi_itest_sft__act( fixture_void, 1,
+                       ( const char* [] ){"custom_url_checksum_validation.dl"}, 1,
+                       _xi_itest_sft__url_handler_callback_for_checksum_validation );
 }
