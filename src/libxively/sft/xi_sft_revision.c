@@ -77,12 +77,12 @@ static xi_state_t xi_sft_revision_read_string_from_file( const char* const resou
 
     XI_CHECK_STATE( state );
 
-    xi_bsp_io_fs_close( resource_handle );
-
     /* allocate output buffer then copy revision buffer into output buffer */
     XI_ALLOC_BUFFER_AT( char, *string_read_out, buffer_size + 1, state );
 
     memcpy( *string_read_out, buffer, buffer_size );
+
+    xi_bsp_io_fs_close( resource_handle );
 
 err_handling:
 
