@@ -27,8 +27,6 @@
 
 #define XI_ESP32_MAX_FILENAME_LEN 64
 #define ESP32_FS_BASE_PATH "/spiflash"
-#define ESP32_FATFS_PARTITION "storage"
-#define ESP32_FS_MAX_OPEN_FILES 5
 
 /* These functions are implemented in the application layer to report status */
 extern void esp32_xibsp_notify_update_started( const char* filename, size_t file_size );
@@ -63,25 +61,6 @@ static xi_bsp_io_fs_posix_file_handle_container_t*
 const size_t xi_bsp_io_fs_buffer_size = 1024;
 /* ESP32 Over The Air FW updates API handle */
 static esp_ota_handle_t open_firmware_bin_handle = 0;
-/* ESP32 wear levelling library instance */
-static wl_handle_t flash_wl_handle = WL_INVALID_HANDLE;
-
-/* TODO: The filesystem should be initialized from the app layer, and fopen should log and
- * return an error out if it hasn't */
-static inline int8_t xi_esp32_flash_init( void )
-{
-    const esp_vfs_fat_mount_config_t mount_config = {.max_files = ESP32_FS_MAX_OPEN_FILES,
-                                                     .format_if_mount_failed = true};
-
-    const esp_err_t retval = esp_vfs_fat_spiflash_mount(
-        ESP32_FS_BASE_PATH, ESP32_FATFS_PARTITION, &mount_config, &flash_wl_handle );
-    if ( retval != ESP_OK )
-    {
-        xi_bsp_debug_format( "Failed to mount FATFS [0x%x]", retval );
-        return -1;
-    }
-    return 0;
-}
 
 /* translates bsp errno errors to the xi_bsp_io_fs_state_t values */
 xi_bsp_io_fs_state_t xi_bsp_io_fs_posix_errno_2_xi_bsp_io_fs_state( int errno_value )
@@ -222,15 +201,6 @@ xi_bsp_io_fs_open( const char* const resource_name,
             return XI_BSP_IO_FS_INVALID_PARAMETER;
         }
 
-        /* Initialize flash filesystem if necessary */
-        if ( WL_INVALID_HANDLE == flash_wl_handle )
-        {
-            if ( 0 > xi_esp32_flash_init() )
-            {
-                return XI_BSP_IO_FS_OPEN_ERROR;
-            }
-        }
-
         /* Create path to the mounted partition and fopen the file */
         if ( XI_ESP32_MAX_FILENAME_LEN <
              ( strlen( resource_name ) + strlen( ESP32_FS_BASE_PATH ) ) )
@@ -251,8 +221,6 @@ xi_bsp_io_fs_open( const char* const resource_name,
         /* if error on fopen check the errno value */
         XI_BSP_IO_FS_CHECK_CND(
             NULL == fp, xi_bsp_io_fs_posix_errno_2_xi_bsp_io_fs_state( errno ), ret );
-
-        printf( "\n\tFile ID: %d", fp ); /* TODO: Deleteme */
 
         /* allocate memory for the files database element */
         new_entry =
@@ -314,7 +282,6 @@ xi_bsp_io_fs_write( const xi_bsp_io_fs_resource_handle_t resource_handle,
     }
     else
     {
-        printf( "\n>>>>>> Write file [%d]\n", resource_handle ); /* TODO: Deleteme */
         if ( NULL == buffer || 0 == buffer_size ||
              XI_BSP_IO_FS_INVALID_RESOURCE_HANDLE == resource_handle )
         {
@@ -356,7 +323,6 @@ xi_bsp_io_fs_read( const xi_bsp_io_fs_resource_handle_t resource_handle,
                    const uint8_t** buffer,
                    size_t* const buffer_size )
 {
-    printf( "\n>>>>>> Read file [%d]\n", resource_handle ); /* TODO: Deleteme */
     xi_bsp_io_fs_posix_file_handle_container_t* elem = NULL;
     xi_bsp_io_fs_state_t ret = XI_BSP_IO_FS_STATE_OK;
     FILE* fp                 = ( FILE* )resource_handle;
@@ -421,7 +387,6 @@ err_handling:
 xi_bsp_io_fs_state_t
 xi_bsp_io_fs_close( const xi_bsp_io_fs_resource_handle_t resource_handle )
 {
-    printf( "\n>>>>>> Close file [%d]\n", resource_handle ); /* TODO: Deleteme */
     xi_bsp_io_fs_posix_file_handle_container_t* elem = NULL;
     xi_bsp_io_fs_state_t ret = XI_BSP_IO_FS_STATE_OK;
     FILE* fp                 = ( FILE* )resource_handle;
@@ -485,7 +450,6 @@ err_handling:
 
 xi_bsp_io_fs_state_t xi_bsp_io_fs_remove( const char* const resource_name )
 {
-    printf( "\n>>>>>> Remove [%s]\n", resource_name ); /* TODO: Deleteme */
     int ret = -1;
     if ( !xi_bsp_fwu_is_this_firmware( resource_name ) )
     {

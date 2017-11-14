@@ -31,11 +31,21 @@
   #define USER_CONFIG_XI_DEVICE_PWD "[SET YOUR XIVELY DEVICE PASSWORD HERE]"
 #endif
 
-#define XT_TASK_ESP_CORE    0 /* ESP32 core the XT task will be pinned to */
-#define XT_TASK_STACK_SIZE  36 * 1024
-#define APP_MAIN_LOGIC_STACK_SIZE 2 * 1024
+#define XT_TASK_ESP_CORE 0 /* ESP32 core the XT task will be pinned to */
+#define XT_TASK_STACK_SIZE ( 1024 * 36 )
+#define APP_MAIN_LOGIC_STACK_SIZE ( 1024 * 2 )
 
-#define WIFI_CONNECTED_FLAG  BIT0
+#define WIFI_CONNECTED_FLAG BIT0
+
+/**
+ * The flash filesystem partition is only required for the Xively Client's Secure
+ * File Transfer logic in this demo. That implementation is in xi_bsp_io_fs_esp32.c.
+ * It is initialized and made accessible from this file, in case you'd like to
+ * store your own project's files in the same FS partition.
+ */
+#define ESP32_FS_BASE_PATH "/spiflash" /* [!] Keep in sync with xi_bsp_io_fs_esp32.c */
+#define ESP32_FATFS_PARTITION "storage"
+#define ESP32_FATFS_MAX_OPEN_FILES 5
 
 static EventGroupHandle_t app_wifi_event_group;
 static user_data_t user_config;
@@ -44,6 +54,7 @@ static size_t ota_download_file_size = 0;
 static int ota_download_progress = 0;
 
 static esp_err_t app_wifi_event_handler( void* ctx, system_event_t* event );
+static int8_t app_init_filesystem( void );
 static int8_t app_wifi_station_init( user_data_t* credentials );
 static int8_t app_fetch_user_config( user_data_t* dst );
 static void app_main_logic_task( void* param );
@@ -59,6 +70,14 @@ void app_main( void )
     if ( 0 > io_init() )
     {
         printf( "\n[ERROR] Initializing GPIO interface. Boot halted" );
+        while ( 1 )
+            vTaskDelay( 1000 / portTICK_PERIOD_MS );
+    }
+
+    /* Initialize flash filesystem - Used by xi_bsp_io_fs_esp32.c */
+    if ( 0 > app_init_filesystem() )
+    {
+        printf( "\n[ERROR] Initializing flash filesystem. Boot halted" );
         while ( 1 )
             vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
@@ -119,6 +138,30 @@ void app_main( void )
         printf( "\n\tInterrupts will be ignored" );
     }
 }
+
+/******************************************************************************
+ *                   Filesystem Initialization and Mounting
+ ******************************************************************************/
+int8_t app_init_filesystem( void )
+{
+    /* flash_wl_handle isn't global because this demo doesn't unmount the FS anyway */
+    wl_handle_t flash_wl_handle = WL_INVALID_HANDLE;
+    const esp_vfs_fat_mount_config_t mount_config = {
+        .max_files = ESP32_FATFS_MAX_OPEN_FILES, .format_if_mount_failed = true};
+
+    /* This function is a convenience function provided by ESP-IDF to initialize
+       the flash partition, mount it, erase it and re-mount if necessary, etc.
+       You probably want a more robust implementation for a production environment */
+    const esp_err_t retval = esp_vfs_fat_spiflash_mount(
+        ESP32_FS_BASE_PATH, ESP32_FATFS_PARTITION, &mount_config, &flash_wl_handle );
+    if ( retval != ESP_OK )
+    {
+        printf( "Failed to mount FATFS [0x%x]", retval );
+        return -1;
+    }
+    return 0;
+}
+
 
 /******************************************************************************
  *                              WiFi API & Callbacks
