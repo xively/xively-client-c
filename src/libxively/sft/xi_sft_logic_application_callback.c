@@ -30,6 +30,7 @@ _xi_sft_on_file_downloaded_task( void* sft_context_void,
 
     if ( 0 != flag_download_finished_successfully )
     {
+        /* URL download finished successfully: report status, continue package download */
         if ( NULL != context->update_current_file &&
              NULL != context->update_current_file->name && NULL != filename &&
              0 == strcmp( context->update_current_file->name, filename ) )
@@ -50,13 +51,14 @@ _xi_sft_on_file_downloaded_task( void* sft_context_void,
     }
     else
     {
+        /* URL download failed: report status, try to fallback to MQTT download */
         _xi_sft_send_file_status(
             context, NULL, XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADED,
             XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__URLDL_FAILED );
 
-        /* fallback to MQTT: starting the internal MQTT file download process */
         if ( 0 != context->update_current_file->flag_mqtt_download_also_supported )
         {
+            /* fallback to MQTT: starting the internal MQTT file download process */
             _xi_sft_send_file_get_chunk( context, 0,
                                          context->update_current_file->size_in_bytes );
         }
@@ -70,6 +72,11 @@ void xi_sft_on_file_downloaded_application_callback(
     const char* filename,
     uint8_t flag_download_finished_successfully )
 {
+    /* Putting task at the end of the event dispatcher's task queue, to let this
+       stack roll up and start this `application callback task` with a short stack.
+       All this because this callback might be called right back from the
+       application's `url_handler_callback` which would make contradictive functions
+       on eachother on the stack if this detach wasn't done.*/
     xi_evtd_execute(
         xi_globals.evtd_instance,
         xi_make_handle( &_xi_sft_on_file_downloaded_task, ( void* )sft_context_void,

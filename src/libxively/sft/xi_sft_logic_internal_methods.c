@@ -89,8 +89,8 @@ static void _xi_sft_download_current_file( xi_sft_context_t* context )
 
     if ( 0 != download_started_by_callback )
     {
-        /* report DOWNLOADING phase to SFT service, since non-MQTT downloads aren't
-           detected by SFT service */
+        /* external URL download started successfully: report the DOWNLOADING phase
+           to SFT service, since non-MQTT downloads aren't detected by SFT service */
         _xi_sft_send_file_status( context, NULL,
                                   XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADING,
                                   XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
@@ -98,7 +98,8 @@ static void _xi_sft_download_current_file( xi_sft_context_t* context )
     else if ( NULL == context->update_current_file->download_link ||
               0 != context->update_current_file->flag_mqtt_download_also_supported )
     {
-        /* starting the internal MQTT file download process */
+        /* external URL download failed to start: fallback on the internal MQTT file
+         * download */
         _xi_sft_send_file_get_chunk( context, 0,
                                      context->update_current_file->size_in_bytes );
     }
