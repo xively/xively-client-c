@@ -40,6 +40,11 @@ typedef struct download_thread_context_s
 
 static uint8_t _local_checksum_validation( download_thread_context_t* download_context );
 
+/*
+ * Thread main function doing the actual HTTP file download. The `curl` command is
+ * used to download the file. After download the checksum validation is also done,
+ * storing the result in the `download_context`.
+ */
 void* download_thread_run( void* ctx )
 {
     download_thread_context_t* download_context = ( download_thread_context_t* )ctx;
@@ -49,6 +54,8 @@ void* download_thread_run( void* ctx )
         return NULL;
     }
 
+    /* execute a curl command in the console to download the content of the URL
+       under the proper fileanme */
     char system_command[512] = {0};
     sprintf( system_command, "curl -L -o %s %s", download_context->filename,
              download_context->url );
@@ -59,14 +66,28 @@ void* download_thread_run( void* ctx )
 
     printf( "[ APPLICATION ] command returned: %d\n", system_command_result );
 
+    /* local checksum validation, this result will be reported back to Xively C Client
+       as the download result */
     download_context->file_downloaded_successfully_flag =
         _local_checksum_validation( ctx );
 
+    /* notify the polling task about the download finish */
     download_context->file_downloaded_POLL_flag = 1;
 
     return NULL;
 }
 
+/*
+ * This function polls the status of the download. Able to do this with the
+ * `download_context` struct received in the `user_data` argument.
+ *
+ * If file download has not yet finished, then does nothing since it is scheduled as a
+ * `repeat forever` task.
+ *
+ * If file download has finished the task is canceled and the file download result is
+ * reported back to the Xively C Client by calling the function pointer received at
+ * the URL download request function: `url_handler_callback`.
+ */
 void poll_if_download_finished( const xi_context_handle_t context_handle,
                                 const xi_timed_task_handle_t timed_task_handle,
                                 void* user_data )
@@ -75,13 +96,14 @@ void poll_if_download_finished( const xi_context_handle_t context_handle,
 
     download_thread_context_t* download_context = ( download_thread_context_t* )user_data;
 
+    /* test the inter-thread :) communication byte if download finished */
     if ( download_context->file_downloaded_POLL_flag )
     {
         printf( "[ APPLICATION ] file downloaded\n" );
 
         xi_cancel_timed_task( timed_task_handle );
 
-        /* report the successful file download to the Client */
+        /* report the file download result to the Xively C Client */
         ( *download_context->fn_on_file_downloaded )(
             download_context->callback_data, download_context->filename,
             download_context->file_downloaded_successfully_flag );
@@ -94,6 +116,20 @@ void poll_if_download_finished( const xi_context_handle_t context_handle,
 
 static download_thread_context_t download_thread_context;
 
+/*
+ * This function - if set through `xi_set_updateable_files` - gets called
+ * with each file in an update package. For details and doxygen docs please
+ * visit the function's type declaration in `xively_types.h`.
+ *
+ * This functions spawns a POSIX thread which starts the download. Does this to avoid
+ * blocking this function. A task is also scheduled to poll the download status on the
+ * Xively C Client's main thread. Then the function returns 1 indicating a successful
+ * download start.
+ *
+ * There stands return 0 - indicating a failed download start - in case of any error.
+ * If 0 is returned and the `flag_mqtt_download_available` is `1` the Xively C Client
+ * will fallback to MQTT file download.
+ */
 uint8_t url_handler_callback( const char* url,
                               const char* filename,
                               uint8_t* checksum,
@@ -106,8 +142,8 @@ uint8_t url_handler_callback( const char* url,
             __FUNCTION__, url, filename, checksum, checksum_len,
             flag_mqtt_download_available, fn_on_file_downloaded );
 
-    /* existence of function parameters is assured at least until fn_on_file_downloaded
-     * gets called */
+    /* existence of function parameters is assured by the Xively C Client at least
+     * until fn_on_file_downloaded gets called back */
     download_thread_context.url                       = url;
     download_thread_context.filename                  = filename;
     download_thread_context.checksum                  = checksum;
@@ -116,6 +152,7 @@ uint8_t url_handler_callback( const char* url,
     download_thread_context.callback_data             = callback_data;
     download_thread_context.file_downloaded_POLL_flag = 0;
 
+    /* spawn and run the file downloader thread */
     const int ret_pthread_create =
         pthread_create( &download_thread_context.thread, NULL, download_thread_run,
                         &download_thread_context );
@@ -125,14 +162,14 @@ uint8_t url_handler_callback( const char* url,
         printf( "creation of pthread instance failed with error: %d",
                 ret_pthread_create );
 
-        /* return a fallback to Client internal MQTT download */
+        /* return a fallback request to Client's internal MQTT download.
+           Fallback will happen if `flag_mqtt_download_available` is 1 */
         return 0;
     }
 
-    /* create a polling task which checks if file download finished in every 1 second */
+    /* create a polling task which checks in every second if file download finished */
     const xi_time_t seconds_from_now = 1;
     const xi_time_t repeats_forever  = 1;
-
     xi_schedule_timed_task( xi_context, poll_if_download_finished, seconds_from_now,
                             repeats_forever, &download_thread_context );
 
@@ -210,6 +247,16 @@ int main( int argc, char* argv[] )
         return -1;
     }
 
+    /* Setting the update package file list. This list must be set before `xi_connect`
+       is called. These files and their revisions will be reported to SFT service and
+       kept up-to-date.
+       This example fills in the customer URL handler function parameter which will
+       result in the function to be called with each file in the update package sent
+       down by the SFT service. Please see the function `url_handler_callback`
+       documentation and implementation above. */
+    xi_set_updateable_files( xi_context, ( const char* [] ){"file.cfg", "firmware.bin"},
+                             2, url_handler_callback );
+
     /*  Create a connection request with the credentials.
         The topic name will be used for publication requests
         only after the connecton has been established.
@@ -219,9 +266,6 @@ int main( int argc, char* argv[] )
         and unsuccesfull connections as well as disconnections. */
     const uint16_t connection_timeout = 10;
     const uint16_t keepalive_timeout  = 20;
-
-    xi_set_updateable_files( xi_context, ( const char* [] ){"file.cfg", "firmware.bin"},
-                             2, url_handler_callback );
 
     xi_connect( xi_context, xi_username, xi_password, connection_timeout,
                 keepalive_timeout, XI_SESSION_CLEAN, &on_connection_state_changed );
@@ -314,6 +358,12 @@ void on_connection_state_changed( xi_context_handle_t in_context_handle,
     }
 }
 
+/*
+ * Calculates and validates the checksum. Reads up the just downloaded file from disc,
+ * generates the checksum implemented in the BSP FWU module (SHA256 by default) and
+ * compares this locally computed checksum against the received one. Writes out
+ * message to stdout and returns accordingly.
+ */
 uint8_t _local_checksum_validation( download_thread_context_t* download_context )
 {
     if ( NULL == download_context )

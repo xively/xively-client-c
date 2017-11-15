@@ -207,17 +207,24 @@ typedef void( xi_sft_on_file_downloaded_callback_t )(
  * @param [in] url the file can be downloaded from this URL
  * @param [in] filename the the downloaded file must be saved with this filename onto the
  device's non-volatile storage
+ * @param [in] checksum the checksum of the file set in CPM. The application
+ *                      is responsible to validate the checksum. To do this one may use
+ *                      the functions in `xi_bsp_fwu.h:xi_bsp_fwu_checksum_*`.
+ * @param [in] checksum_len the number of bytes the checksum consists of
+ * @param [in] flag_mqtt_download_available 1 - if internal MQTT download fallback is
+ *                                              available and will happen if this
+ *                                              function fails the download
+ *                                          0 - if MQTT download isn't available at all
  * @param [in] fn_on_file_downloaded_callback pointer to a Xively C Client callback. The
- application has to call this function at the end of the download.
- * @param [in] flag_mqtt_download_available a flag indicating the MQTT download is
- available through the Xively SFT service (1 - if available, 0 - if not)
+ application has to call this function after download finishes.
  * @param [in] callback_data a pointer required to be passed back to the
  `fn_on_file_downloaded_callback`. The application shouldn't do anything with this data
  pointer, just pass back to the callback.
  *
  * @retval 1 - if HTTP download is started by the application
- * @retval 0 - if HTTP download is rejectedby the application. In this case Xively C
- Client will try to fall back to MQTT download through the SFT service.
+ * @retval 0 - if HTTP download is rejectedby the application. If
+ *             `flag_mqtt_download_available` is `1` the Xively C Client will
+ *             fall back to MQTT download through the SFT service.
  */
 typedef uint8_t( xi_sft_url_handler_callback_t )(
     const char* url,
