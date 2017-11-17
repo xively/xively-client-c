@@ -171,7 +171,7 @@ XI_TT_TESTCASE_WITH_SETUP(
 
         xi_cbor_codec_ct_encode( &file_info_three_files, &encoded, &encoded_len );
 
-        xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 1 );
+        // xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 1 );
 
         /*
          * To decode this use tinycbor (https://github.com/01org/tinycbor) cbordump

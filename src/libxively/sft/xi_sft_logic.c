@@ -290,9 +290,7 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                                 XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_PROCESSING,
                                 XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__FILE_CLOSE );
 
-                            // what to do here?
-                            // downloaded but file close error: abort or continue?
-                            // goto err_handling;
+                            goto err_handling;
                         }
                         else
                         {
