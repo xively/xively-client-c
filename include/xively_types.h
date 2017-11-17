@@ -159,14 +159,17 @@ typedef void( xi_user_subscription_callback_t )( xi_context_handle_t in_context_
  * Xively C Client. The application receives this function pointer during a request for
  * HTTP download, in the application callback (`xi_sft_url_handler_callback_t` see below).
  *
- * @param [in] callback_data the data pointer received as attribute `callback_data` before
- * in the call of HTTP downloader function `xi_sft_url_handler_callback_t`. The
- * application should not do anything with this pointer *just* pass it here back.
- * @param [in] filename the name of the file got downloaded and stored on the non-volatile
- * storage of the device
- * @param flag_download_finished_successfully the result of the HTTP download: 1 - if
- * file download finished successfully, 0 - if file download failed. In latter case the
- * Xively C Client will try to fallback to MQTT file download.
+ * @param [in] callback_data the data pointer received as argument `callback_data`
+ *                           previously in the call of HTTP downloader function
+ *                           `xi_sft_url_handler_callback_t`. The application should not
+ *                           do anything with this pointer *just* pass it back.
+ * @param [in] filename the name of the file that was downloaded and stored on the
+ *                      non-volatile storage of the device
+ * @param flag_download_finished_successfully the result of the HTTP download:
+ *                                            1 - if file download finished successfully,
+ *                                            0 - if file download failed. In latter case
+ *                                                the Xively C Client will try to
+ *                                                fallback to MQTT file download.
  */
 typedef void( xi_sft_on_file_downloaded_callback_t )(
     void* callback_data,
@@ -177,36 +180,35 @@ typedef void( xi_sft_on_file_downloaded_callback_t )(
  * @name  xi_sft_url_handler_callback_t
  * @brief application entry point type for HTTP download of update package files
  *
- * The application has to define and pass the Xively C Client such typed function if
- Secure File Update (SFT) package contains files which are too large and thus not provided
- by the Xively Secure File Transfer (SFT) MQTT service. This function is called with each
- and every file in the update package (*even for MQTT provided ones!*) and responsible to
- download the file and then report the result back to Xively C Client.
- The function may reject the HTTP download, in such case the Xively C Client
- tries to fallback to MQTT download. This is independently true for each and every file in
- the update package. The HTTP or MQTT file download way is indifferent from the update
- process point of view.
- Please see the POSIX example for SFT with HTTP download in
- `examples/firmware_update/src/firmware_update.c`
-
+ * The application must define and pass a pointer to a function with this signature only
+ * if Secure File Update (SFT) package contains files too large to download over MQTT.
+ * This function is called with each and every file in the update package (*even for MQTT
+ * provided ones!*) and responsible to start a file download and then report the result
+ * back to Xively C Client.
+ * The function may reject the HTTP download, in such case the Xively C Client
+ * tries to fallback to MQTT download. This is independently true for each and every
+ * file in the update package. The HTTP or MQTT file download way is indifferent
+ * from the update process point of view.
+ * Please see the POSIX example for SFT with HTTP download in
+ * `examples/firmware_update/src/firmware_update.c`
+ *
  * This function should return immediately and NOT block. The download process should
- take place on a separate thread spawned by the application. But the callback
- (`fn_on_file_downloaded_callback`) to the
- Xively C Client should be called on the Client's thread and NOT on the download thread.
- A task might be scheduled to poll download status with API function:
- `xi_schedule_timed_task`.
-
- * Or on low resource devices *advanced developers* can
- solve the download on the Xively C Client's thread downloading
- the file in chunks with non-blocking socket
- and with the help of Xively C Client's scheduled task through the
- `xi_schedule_timed_task`
- API function. In this case the download task should comply to the cooperative
- multitasking principle: return in a very short period of time.
-
+ * take place on a separate thread spawned by the application. But the callback
+ * (`fn_on_file_downloaded_callback`) to the Xively C Client should be called on the
+ * Client's thread and NOT on the download thread.
+ * A task might be scheduled to poll download status with API function:
+ * `xi_schedule_timed_task`.
+ *
+ * Or on low resource devices *advanced developers* can solve the download
+ * on the Xively C Client's thread downloading the file in chunks with non-blocking
+ * socket and with the help of Xively C Client's scheduled task through the
+ * `xi_schedule_timed_task` *API function. In this case the download task should
+ * comply to the cooperative multitasking principle: return in a very short
+ * period of time.
+ *
  * @param [in] url the file can be downloaded from this URL
  * @param [in] filename the the downloaded file must be saved with this filename onto the
- device's non-volatile storage
+ *                      device's non-volatile storage
  * @param [in] checksum the checksum of the file set in CPM. The application
  *                      is responsible to validate the checksum. To do this one may use
  *                      the functions in `xi_bsp_fwu.h:xi_bsp_fwu_checksum_*`.
@@ -216,10 +218,12 @@ typedef void( xi_sft_on_file_downloaded_callback_t )(
  *                                              function fails the download
  *                                          0 - if MQTT download isn't available at all
  * @param [in] fn_on_file_downloaded_callback pointer to a Xively C Client callback. The
- application has to call this function after download finishes.
+ *                                            application has to call this function after
+ *                                            download finishes.
  * @param [in] callback_data a pointer required to be passed back to the
- `fn_on_file_downloaded_callback`. The application shouldn't do anything with this data
- pointer, just pass back to the callback.
+ *                           `fn_on_file_downloaded_callback`. The application
+ *                           shouldn't do anything with this data pointer, just pass
+ *                           back to the callback.
  *
  * @retval 1 - if HTTP download is started by the application
  * @retval 0 - if HTTP download is rejectedby the application. If

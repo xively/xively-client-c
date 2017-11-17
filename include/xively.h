@@ -229,10 +229,13 @@ extern void xi_events_stop();
 /**
  * @brief Files set by this function will be kept updated by the Xively C Client.
  *
- * This API function is used to tell Xively C Client the update file manifest. Client
- * will collect revisions to these files and send to Xively Secure File Transfer (SFT)
- * service immediately right after a successful MQTT connection. This function must
- * be called prior to `xi_connect`. This move initializes the update process.
+ * This API function is used to tell Xively C Client the update file manifest.
+ * The Xively file IO BSP will collect revision for these files and send them
+ * to the Xively Secure File Transfer (SFT) service immediately after a successful
+ * MQTT connection. File revision is stored as a "twin" file of the original, with
+ * `.xirev` extension. This "twin" file is maintained by the internal SFT logic. This
+ * function must be called prior to `xi_connect`. This move initializes the update
+ * process.
  *
  * The file list may or may not contain firmware binary. If it does then the firmware
  * update process will be triggered after whole package got downloaded.
@@ -242,10 +245,11 @@ extern void xi_events_stop();
  *
  * Large files (*8MB+ on 13.11.2017*) are not supported through the Xively Secure
  * File Transfer MQTT service. To download these files pass a function pointer
- * as function attribute: `url_handler`. This function gets called for each
+ * as function parameter: `url_handler`. This function gets called for each
  * individual file in the SFT update package. This function should start the
- * download on a separate thread and return immediately without blocking.
- * Read more details in `xively_types.h`.
+ * download on a separate thread and return immediately without blocking. The
+ * `url_handler` function may reject file download causing a fallback to MQTT file
+ * download if available. Read more details in `xively_types.h`.
  *
  * *example call:*
  *
