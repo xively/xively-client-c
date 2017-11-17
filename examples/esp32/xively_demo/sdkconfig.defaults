@@ -1,6 +1,3 @@
-#Local serial port
-CONFIG_ESPTOOLPY_PORT="/dev/tty.SLAB_USBtoUART"
-
 # Module info
 CONFIG_ESPTOOLPY_FLASHSIZE_4MB=y
 

@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * -----
- * 1 line (1869) added by Xively to fix a build warning
+ * 1 line added by Xively to fix a build warning
  */
 
 /*! \file

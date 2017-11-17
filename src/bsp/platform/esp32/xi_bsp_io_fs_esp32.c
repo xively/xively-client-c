@@ -19,8 +19,10 @@
 #include "esp_vfs_fat.h"
 #include "esp_ota_ops.h"
 
-#define XI_ESP32_MAX_FILENAME_LEN 64
+#define XI_ESP32_MAX_FILENAME_LEN 128
 #define ESP32_FS_BASE_PATH "/spiflash"
+
+#define XI_BSP_IO_FS_READ_BUFFER_SIZE 1024
 
 #define XI_BSP_IO_FS_CHECK_CND( cnd, e, s )                                              \
     if ( ( cnd ) )                                                                       \
@@ -33,9 +35,6 @@
 /* These functions are implemented in the application layer to report status */
 extern void esp32_xibsp_notify_update_started( const char* filename, size_t file_size );
 extern void esp32_xibsp_notify_chunk_written( size_t chunk_size, size_t offset );
-
-/* The size of the buffer to be used for reads. */
-const size_t xi_bsp_io_fs_buffer_size = 1024;
 /* ESP32 Over The Air FW updates API handle */
 static esp_ota_handle_t open_firmware_bin_handle = 0;
 
@@ -79,7 +78,7 @@ xi_bsp_io_fs_open( const char* const resource_name,
                    const xi_bsp_io_fs_open_flags_t open_flags,
                    xi_bsp_io_fs_resource_handle_t* resource_handle_out )
 {
-    char filepath[XI_ESP32_MAX_FILENAME_LEN] = "";
+    char filepath[XI_ESP32_MAX_FILENAME_LEN] = {0};
     xi_bsp_io_fs_state_t ret                 = XI_BSP_IO_FS_STATE_OK;
     esp_err_t esp_retv                       = ESP_OK;
     FILE* fp                                 = NULL;
@@ -140,7 +139,6 @@ xi_bsp_io_fs_write( const xi_bsp_io_fs_resource_handle_t resource_handle,
                     const size_t offset,
                     size_t* const bytes_written )
 {
-    ( void )offset;
     xi_bsp_io_fs_state_t ret = XI_BSP_IO_FS_STATE_OK;
     esp_err_t retv           = ESP_OK;
 
@@ -209,12 +207,7 @@ xi_bsp_io_fs_read( const xi_bsp_io_fs_resource_handle_t resource_handle,
     }
     else
     {
-        /* make an allocation for memory block */
-        if ( NULL == *buffer )
-        {
-            *buffer = ( uint8_t* )xi_bsp_mem_alloc( xi_bsp_io_fs_buffer_size );
-            memset( ( uint8_t* )*buffer, 0, ( size_t )xi_bsp_io_fs_buffer_size );
-        }
+        static uint8_t read_buffer[XI_BSP_IO_FS_READ_BUFFER_SIZE] = {0};
 
         /* let's set an offset */
         fop_ret = fseek( fp, offset, SEEK_SET );
@@ -224,13 +217,13 @@ xi_bsp_io_fs_read( const xi_bsp_io_fs_resource_handle_t resource_handle,
             fop_ret != 0, xi_bsp_io_fs_posix_errno_2_xi_bsp_io_fs_state( errno ), ret );
 
         /* use the fread to read the file chunk */
-        fop_ret = fread( ( uint8_t* )*buffer, ( size_t )1,
-                         ( size_t )xi_bsp_io_fs_buffer_size, fp );
+        fop_ret = fread( read_buffer, ( size_t )1, XI_BSP_IO_FS_READ_BUFFER_SIZE, fp );
 
         /* if error on fread check errno */
         XI_BSP_IO_FS_CHECK_CND(
             fop_ret == 0, xi_bsp_io_fs_posix_errno_2_xi_bsp_io_fs_state( errno ), ret );
 
+        *buffer      = read_buffer;
         *buffer_size = fop_ret;
     }
     return XI_BSP_IO_FS_STATE_OK;
@@ -238,10 +231,6 @@ xi_bsp_io_fs_read( const xi_bsp_io_fs_resource_handle_t resource_handle,
 err_handling:
     *buffer      = NULL;
     *buffer_size = 0;
-    if ( NULL != *buffer )
-    {
-        xi_bsp_mem_free( ( uint8_t* )*buffer );
-    }
 
     return ret;
 }
@@ -285,16 +274,18 @@ err_handling:
 
 xi_bsp_io_fs_state_t xi_bsp_io_fs_remove( const char* const resource_name )
 {
-    int ret = -1;
-    if ( !xi_bsp_fwu_is_this_firmware( resource_name ) )
+    char filepath[XI_ESP32_MAX_FILENAME_LEN] = {0};
+    int ret                                  = -1;
+
+    if ( xi_bsp_fwu_is_this_firmware( resource_name ) )
     {
         xi_bsp_debug_logger( "FS Remove not implemented for FW images" );
         return XI_BSP_IO_FS_NOT_IMPLEMENTED;
     }
     else
     {
-        char filepath[64] = "";
-        snprintf( filepath, 64, "%s/%s", ESP32_FS_BASE_PATH, resource_name );
+        snprintf( filepath, XI_ESP32_MAX_FILENAME_LEN, "%s/%s", ESP32_FS_BASE_PATH,
+                  resource_name );
 
         ret = remove( filepath );
         XI_BSP_IO_FS_CHECK_CND(

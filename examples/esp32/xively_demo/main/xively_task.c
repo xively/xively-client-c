@@ -293,11 +293,17 @@ int8_t xt_connect( void )
 static int8_t xt_configure_fw_updates( void )
 {
     const char** updateable_files = ( const char* [] ){"firmware.bin"};
+    const uint16_t files_num      = 1;
+
     xi_state_t retv = XI_STATE_OK;
 
-    printf( "\n[XT] Registering updateable files list" );
+    printf( "\n[XT] Registering updateable files list:" );
+    for ( uint16_t i = 0; i < files_num; i++ )
+    {
+        printf( "\n[XT] \t* %s", updateable_files[i] );
+    }
 
-    retv = xi_set_updateable_files( xt_context_handle, updateable_files, 1 );
+    retv = xi_set_updateable_files( xt_context_handle, updateable_files, files_num );
     if ( XI_STATE_OK != retv )
     {
         printf( "\n[XT] Error [%d] configuring FW updates", retv );
