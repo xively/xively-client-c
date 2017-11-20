@@ -16,6 +16,8 @@
 #include "esp_err.h"
 #include "esp_vfs_fat.h"
 
+#include "xi_esp32_sft_notifications.h"
+
 #include "xively_task.h"
 #include "gpio_if.h"
 #include "provisioning.h"
@@ -58,6 +60,11 @@ static int8_t app_init_filesystem( void );
 static int8_t app_wifi_station_init( user_data_t* credentials );
 static int8_t app_fetch_user_config( user_data_t* dst );
 static void app_main_logic_task( void* param );
+
+static void app_set_xi_sft_progress_notification_callbacks( void );
+static void esp32_xibsp_notify_update_started( const char* filename, size_t file_size );
+static void esp32_xibsp_notify_chunk_written( size_t chunk_size, size_t offset );
+static void esp32_xibsp_notify_update_applied( void );
 
 /**
  * Initialize GPIO and NVS, fetch WiFi and Xively credentials from flash or
@@ -109,6 +116,8 @@ void app_main( void )
     /* Wait until we're connected to the WiFi network */
     xEventGroupWaitBits( app_wifi_event_group, WIFI_CONNECTED_FLAG, false, true,
             portMAX_DELAY );
+
+    app_set_xi_sft_progress_notification_callbacks();
 
     /* Configure Xively Settings */
     if ( 0 > xt_init( user_config.xi_account_id, user_config.xi_device_id,
@@ -350,17 +359,23 @@ void xt_recv_mqtt_msg_callback( const xi_sub_call_params_t* const params )
 }
 
 /******************************************************************************
- *        OTA Firmware Update notifications from the Xively Client's BSP
+ *       OTA Firmware Update notifications from the Xively Client's BSP
  *
  * Note:
- * These functions are declared as extern in the ESP32's BSP:
- *     xively-client-c/src/bsp/platform/esp32/xi_bsp_io_fs_esp32.c
- * It's a custom solution to showcase how the application can be made aware of the
- * download status. Useful to act on peripherals, display download progress, etc.
+ * This is a custom extension of the Xively Client's BSP, used to report the
+ * status of ongoing firmware downloads to the application layer.
  *
- * If you decide to remove these functions for your app, you'll also have to
- * remove their calls and declarations in xi_bsp_io_fs_esp32.c
+ * Relevant files:
+ *    - xi_bsp_sft_notifications_esp32.c
+ *    - xi_esp32_sft_notifications.h
  ******************************************************************************/
+static void app_set_xi_sft_progress_notification_callbacks( void )
+{
+    xi_bsp_progress_callbacks.update_started = esp32_xibsp_notify_update_started;
+    xi_bsp_progress_callbacks.chunk_written  = esp32_xibsp_notify_chunk_written;
+    xi_bsp_progress_callbacks.update_applied = esp32_xibsp_notify_update_applied;
+}
+
 void esp32_xibsp_notify_update_started( const char* filename, size_t file_size )
 {
     printf( "\nDownload of file [%s] started. Size: [%d]", filename, file_size );
@@ -388,6 +403,5 @@ void esp32_xibsp_notify_chunk_written( size_t chunk_size, size_t offset )
 
 void esp32_xibsp_notify_update_applied()
 {
-    printf( "\nFirmware package download complete - Proceeding with reboot" );
-    /* xi_bsp_fwu_on_package_download_finished called from the fwu BSP */
+    printf( "\nFirmware package download complete - Device will reboot" );
 }

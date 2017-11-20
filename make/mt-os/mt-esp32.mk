@@ -139,6 +139,7 @@ XI_COMPILER_FLAGS += -I$(XI_ESP_IDF_SDK_PATH)/components/freertos/include
 
 XI_COMPILER_FLAGS += -I$(LIBXIVELY)/build/include
 XI_COMPILER_FLAGS += -I$(LIBXIVELY)/src/bsp/platform/esp32
+XI_COMPILER_FLAGS += -I$(LIBXIVELY)/src/bsp/platform/esp32/include
 
 ####################
 # Code configuration
@@ -158,6 +159,7 @@ XI_COMPILER_FLAGS += -Os
 XI_COMPILER_FLAGS += -DNDEBUG
 XI_COMPILER_FLAGS += -std=gnu99
 XI_COMPILER_FLAGS += -Wno-old-style-declaration
+XI_COMPILER_FLAGS += -Wno-unused-but-set-variable
 
 XI_ARFLAGS += -rs -c $(XI)
 

@@ -9,11 +9,10 @@
 #include <xi_bsp_fwu.h>
 #include <xively_error.h>
 #include <xi_bsp_debug.h>
+#include "xi_esp32_sft_notifications.h"
 
 #include "esp_system.h"
 #include "esp_ota_ops.h"
-
-extern void esp32_xibsp_notify_update_applied();
 
 uint8_t xi_bsp_fwu_is_this_firmware( const char* const resource_name )
 {
@@ -26,7 +25,6 @@ xi_bsp_fwu_state_t xi_bsp_fwu_on_new_firmware_ok()
        installed images yet */
     xi_bsp_debug_logger( "New firmware image OK. No commit action implemented" );
     return XI_BSP_FWU_ACTUAL_COMMIT_HAPPENED;
-    // return XI_BSP_FWU_STATE_OK;
 }
 
 void xi_bsp_fwu_on_new_firmware_failure()
@@ -56,7 +54,10 @@ void xi_bsp_fwu_on_package_download_finished( const char* const firmware_resourc
         return;
     }
 
-    esp32_xibsp_notify_update_applied();
+    if ( NULL != xi_bsp_progress_callbacks.update_applied )
+    {
+        ( xi_bsp_progress_callbacks.update_applied )();
+    }
 
     /* reboot the device */
     esp_restart();

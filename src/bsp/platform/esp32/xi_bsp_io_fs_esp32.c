@@ -14,6 +14,7 @@
 #include <xi_bsp_io_fs.h>
 #include <xi_bsp_fwu.h>
 #include <xi_bsp_mem.h>
+#include "xi_esp32_sft_notifications.h"
 
 #include "esp_vfs.h"
 #include "esp_vfs_fat.h"
@@ -32,9 +33,6 @@
         goto err_handling;                                                               \
     }
 
-/* These functions are implemented in the application layer to report status */
-extern void esp32_xibsp_notify_update_started( const char* filename, size_t file_size );
-extern void esp32_xibsp_notify_chunk_written( size_t chunk_size, size_t offset );
 /* ESP32 Over The Air FW updates API handle */
 static esp_ota_handle_t open_firmware_bin_handle = 0;
 
@@ -107,7 +105,10 @@ xi_bsp_io_fs_open( const char* const resource_name,
             return XI_BSP_IO_FS_OPEN_ERROR;
         }
 
-        esp32_xibsp_notify_update_started( resource_name, size );
+        if ( NULL != xi_bsp_progress_callbacks.update_started )
+        {
+            (xi_bsp_progress_callbacks.update_started)( resource_name, size );
+        }
         open_firmware_bin_handle = *resource_handle_out;
     }
     else
@@ -152,7 +153,10 @@ xi_bsp_io_fs_write( const xi_bsp_io_fs_resource_handle_t resource_handle,
         }
 
         *bytes_written = buffer_size;
-        esp32_xibsp_notify_chunk_written( buffer_size, offset );
+        if ( NULL != xi_bsp_progress_callbacks.chunk_written )
+        {
+            (xi_bsp_progress_callbacks.chunk_written)( buffer_size, offset );
+        }
     }
     else
     {

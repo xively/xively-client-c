@@ -14,7 +14,6 @@
 #include "xively_task.h"
 
 #include "gpio_if.h"
-#define INTERRUPT_POLLING_PERIOD 1
 
 /******************************************************************************
  *                          Xively Task Macros
@@ -26,6 +25,8 @@
 
 #define XT_CONNECT_TIMEOUT_S   5
 #define XT_KEEPALIVE_TIMEOUT_S 30
+
+#define INTERRUPT_POLLING_PERIOD 1
 /******************************************************************************
  *                     Xively Task Structs and Enums
  ******************************************************************************/

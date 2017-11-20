@@ -142,12 +142,6 @@ else ifeq ($(PRESET), ESP32)
     XI_BSP_PLATFORM = esp32
     XI_TARGET_PLATFORM = esp32
 
-else ifeq ($(PRESET), ESP32_DEV)
-    CONFIG = $(CONFIG_ESP32)
-    TARGET = $(TARGET_STATIC_DEV)
-    XI_BSP_PLATFORM = esp32
-    XI_TARGET_PLATFORM = esp32
-
 # -------------------------------------------------------
 # Fuzz Tests
 else ifeq ($(PRESET), FUZZ_TESTS)
