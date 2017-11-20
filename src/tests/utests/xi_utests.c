@@ -68,6 +68,7 @@ XI_TT_TESTCASE_PREDECLARATION( utest_cbor_codec_ct_decode );
 #ifdef XI_SECURE_FILE_TRANSFER_ENABLED
 XI_TT_TESTCASE_PREDECLARATION( utest_control_message_sft );
 XI_TT_TESTCASE_PREDECLARATION( utest_sft_logic );
+XI_TT_TESTCASE_PREDECLARATION( utest_sft_logic_internal_methods );
 #endif
 
 #ifdef XI_CONTROL_TOPIC_ENABLED
@@ -261,6 +262,7 @@ struct testgroup_t groups[] = {
     {"utest_cbor_codec_ct_decode - ", utest_cbor_codec_ct_decode},
     {"utest_control_message_sft - ", utest_control_message_sft},
     {"utest_sft_logic - ", utest_sft_logic},
+    {"utest_sft_logic_internal_methods - ", utest_sft_logic_internal_methods},
 #endif
 
     END_OF_GROUPS};

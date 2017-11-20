@@ -86,15 +86,23 @@ void xi_utest_cbor_ASSERT_control_messages_match( const xi_control_message_t* cm
                                 ==,
                                 cm2->file_update_available.list[id_file].size_in_bytes );
 
-                tt_want_int_op(
-                    cm1->file_update_available.list[id_file].fingerprint_len, ==,
-                    cm2->file_update_available.list[id_file].fingerprint_len );
+                tt_int_op( cm1->file_update_available.list[id_file].fingerprint_len, ==,
+                           cm2->file_update_available.list[id_file].fingerprint_len );
 
                 tt_want_int_op(
                     0, ==,
                     memcmp( cm1->file_update_available.list[id_file].fingerprint,
                             cm2->file_update_available.list[id_file].fingerprint,
                             cm1->file_update_available.list[id_file].fingerprint_len ) );
+
+                xi_utest_cbor_ASSERT_control_message_string(
+                    cm1->file_update_available.list[id_file].download_link,
+                    cm2->file_update_available.list[id_file].download_link );
+
+                tt_int_op( cm1->file_update_available.list[id_file]
+                               .flag_mqtt_download_also_supported,
+                           ==, cm2->file_update_available.list[id_file]
+                                   .flag_mqtt_download_also_supported );
             }
 
             break;
@@ -179,7 +187,58 @@ XI_TT_TESTCASE_WITH_SETUP(
              .file_operation  = 0,
              .size_in_bytes   = 109489,
              .fingerprint     = ( uint8_t* )"first_SFT_test_artificial_checksum.cfg",
-             .fingerprint_len = 39}};
+             .fingerprint_len = 39,
+             .download_link   = "hello I am the download link",
+             .flag_mqtt_download_also_supported = 0}};
+
+        const xi_control_message_t file_update_available_in = {
+            .file_update_available = {
+                .common = {.msgtype = XI_CONTROL_MESSAGE_SC__SFT_FILE_UPDATE_AVAILABLE,
+                           .msgver  = 1},
+                .list_len = 1,
+                .list     = single_file_list}};
+
+        uint8_t* encoded     = NULL;
+        uint32_t encoded_len = 0;
+
+        xi_cbor_codec_ct_server_encode( &file_update_available_in, &encoded,
+                                        &encoded_len );
+
+        // xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 0 );
+        // xi_utest_cbor_bin_to_stdout( encoded, encoded_len, 1 );
+
+        // ACT
+        xi_control_message_t* file_update_available_out =
+            xi_cbor_codec_ct_decode( encoded, encoded_len );
+
+        // xi_debug_control_message_dump( &file_update_available_in, "in" );
+        // xi_debug_control_message_dump( file_update_available_out, "out" );
+
+        // ASSERT
+        xi_utest_cbor_ASSERT_control_messages_match( &file_update_available_in,
+                                                     file_update_available_out );
+
+        XI_SAFE_FREE( encoded );
+        xi_control_message_free( &file_update_available_out );
+
+    } )
+
+XI_TT_TESTCASE_WITH_SETUP(
+    xi_utest_cbor_codec_ct_decode__file_update_available_with_download_link__single_file,
+    xi_utest_setup_basic,
+    xi_utest_teardown_basic,
+    NULL,
+    {
+        // ARRANGE
+        xi_control_message_file_desc_ext_t single_file_list[1] = {
+            {.name            = "first_SFT_test.cfg",
+             .revision        = "1",
+             .file_operation  = 0,
+             .size_in_bytes   = 109489,
+             .fingerprint     = ( uint8_t* )"first_SFT_test_artificial_checksum.cfg",
+             .fingerprint_len = 39,
+             .download_link   = "hello I am the download link",
+             .flag_mqtt_download_also_supported = 1}};
 
         const xi_control_message_t file_update_available_in = {
             .file_update_available = {

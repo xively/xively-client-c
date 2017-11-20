@@ -112,6 +112,40 @@ void xi_cbor_codec_ct_server_encode( const xi_control_message_t* control_message
                             &err ),
                         &err );
 
+                    if ( NULL !=
+                         control_message->file_update_available.list[id_file]
+                             .download_link )
+                    {
+                        cn_cbor_map_put(
+                            file, cn_cbor_string_create(
+                                      XI_CBOR_CODEC_CT_STRING_FILE_DOWNLOADLINK
+                                          CBOR_CONTEXT_PARAM,
+                                      &err ),
+                            cn_cbor_string_create(
+                                control_message->file_update_available.list[id_file]
+                                    .download_link CBOR_CONTEXT_PARAM,
+                                &err ),
+                            &err );
+
+                        cn_cbor* cn_cbor_bool = CN_CALLOC_CONTEXT();
+                        if ( NULL != cn_cbor_bool )
+                        {
+                            cn_cbor_bool->type =
+                                ( 0 !=
+                                  control_message->file_update_available.list[id_file]
+                                      .flag_mqtt_download_also_supported )
+                                    ? CN_CBOR_TRUE
+                                    : CN_CBOR_FALSE;
+
+                            cn_cbor_map_put(
+                                file, cn_cbor_string_create(
+                                          XI_CBOR_CODEC_CT_STRING_FILE_MQTT_DL_SUPPORTED
+                                              CBOR_CONTEXT_PARAM,
+                                          &err ),
+                                cn_cbor_bool, &err );
+                        }
+                    }
+
                     cn_cbor_array_append( files, file, &err );
                 }
 
@@ -248,6 +282,10 @@ xi_cbor_codec_ct_server_decode( const uint8_t* data, const uint32_t len )
                     }
                 }
             }
+
+            xi_cbor_codec_ct_decode_getvalue(
+                cb_map, XI_CBOR_CODEC_CT_STRING_FILE_DOWNLOADLINK,
+                &control_message_out->file_info.flag_accept_download_link, NULL );
         }
 
         break;
