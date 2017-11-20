@@ -82,8 +82,6 @@ static xi_state_t _xi_sft_revision_read_string_from_file( const char* const reso
 
     memcpy( *string_read_out, buffer, buffer_size );
 
-    xi_bsp_io_fs_close( resource_handle );
-
 err_handling:
 
     xi_bsp_io_fs_close( resource_handle );
