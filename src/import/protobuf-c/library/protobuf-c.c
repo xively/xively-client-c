@@ -25,9 +25,6 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * -----
- * 1 line added by Xively to fix a build warning
  */
 
 /*! \file
@@ -49,7 +46,7 @@
  */
 
 #include <stdlib.h>	/* for malloc, free */
-#include <string.h>	/* for strcmp, strlen, memcpy, memmove, memset */
+#include <string.h>     /* for strcmp, strlen, memcpy, memmove, memset */
 #include <stdio.h>
 
 #include "protobuf-c/protobuf-c.h"
@@ -1866,7 +1863,6 @@ repeated_field_pack_to_buffer(const ProtobufCFieldDescriptor *field,
 		rv += uint32_pack(payload_len, scratch + rv);
 		buffer->append(buffer, rv, scratch);
 		tmp = pack_buffer_packed_payload(field, count, array, buffer);
-		(void) tmp; /* Warning fix by Xively */
 		assert(tmp == payload_len);
 		return rv + payload_len;
 	} else {

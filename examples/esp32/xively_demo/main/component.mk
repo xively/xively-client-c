@@ -12,5 +12,6 @@ XI_CLIENT_C_PATH = $(realpath $(PROJECT_PATH)/../../..)
 COMPONENT_EXTRA_INCLUDES += $(XI_CLIENT_C_PATH)/src/import/tls/wolfssl
 COMPONENT_ADD_LDFLAGS    += $(XI_CLIENT_C_PATH)/bin/esp32/libwolfssl.a
 
+COMPONENT_EXTRA_INCLUDES += $(XI_CLIENT_C_PATH)/src/bsp/platform/esp32/include
 COMPONENT_EXTRA_INCLUDES += $(XI_CLIENT_C_PATH)/include
 COMPONENT_ADD_LDFLAGS    += $(XI_CLIENT_C_PATH)/bin/esp32/libxively.a
