@@ -130,6 +130,7 @@ typedef union xi_sub_call_params_u {
         }                                                                                \
     }
 
+
 /**
  * @name  xi_user_subscription_callback_t
  * @brief subscription callback used to notify user about changes in topic subscription
