@@ -433,7 +433,7 @@ err_handling:
 
 extern uint8_t xi_is_context_connected( xi_context_handle_t xih )
 {
-    if ( XI_INVALID_CONTEXT_HANDLE == xih ) 
+    if ( XI_INVALID_CONTEXT_HANDLE == xih )
     {
         return 0;
     }
@@ -441,14 +441,15 @@ extern uint8_t xi_is_context_connected( xi_context_handle_t xih )
     xi_context_t* xi =
         ( xi_context_t* )xi_object_for_handle( xi_globals.context_handles_vector, xih );
 
-    
-    if( NULL == xi ||  NULL == xi->context_data.connection_data )
+
+    if ( NULL == xi || NULL == xi->context_data.connection_data )
     {
         return 0;
     }
-    
-    return XI_CONNECTION_STATE_OPENED  == xi->context_data.connection_data->connection_state
-            && XI_SHUTDOWN_UNINITIALISED == xi->context_data.shutdown_state;
+
+    return XI_CONNECTION_STATE_OPENED ==
+               xi->context_data.connection_data->connection_state &&
+           XI_SHUTDOWN_UNINITIALISED == xi->context_data.shutdown_state;
 }
 
 void xi_events_stop()
@@ -473,8 +474,10 @@ xi_state_t xi_events_process_tick()
 }
 
 
-xi_state_t
-xi_set_updateable_files( xi_context_handle_t xih, const char** filenames, uint16_t count )
+xi_state_t xi_set_updateable_files( xi_context_handle_t xih,
+                                    const char** filenames,
+                                    uint16_t count,
+                                    xi_sft_url_handler_callback_t* url_handler )
 {
     if ( NULL == filenames || NULL == *filenames || 0 == count )
     {
@@ -497,6 +500,8 @@ xi_set_updateable_files( xi_context_handle_t xih, const char** filenames, uint16
     {
         xi->context_data.updateable_files[id_file] = xi_str_dup( filenames[id_file] );
     }
+
+    xi->context_data.sft_url_handler_callback = url_handler;
 
 err_handling:
     return state;

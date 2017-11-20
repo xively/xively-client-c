@@ -18,8 +18,8 @@
     xi_str_cat( resource_name, ".xirev" )
 
 static xi_state_t
-xi_sft_revision_write_string_to_file( const char* const resource_name,
-                                      const char* const string_to_write )
+_xi_sft_revision_write_string_to_file( const char* const resource_name,
+                                       const char* const string_to_write )
 {
     if ( NULL == resource_name || NULL == string_to_write )
     {
@@ -49,8 +49,8 @@ err_handling:
     return state;
 }
 
-static xi_state_t xi_sft_revision_read_string_from_file( const char* const resource_name,
-                                                         char** string_read_out )
+static xi_state_t _xi_sft_revision_read_string_from_file( const char* const resource_name,
+                                                          char** string_read_out )
 {
     if ( NULL == resource_name || NULL == string_read_out )
     {
@@ -77,14 +77,14 @@ static xi_state_t xi_sft_revision_read_string_from_file( const char* const resou
 
     XI_CHECK_STATE( state );
 
-    xi_bsp_io_fs_close( resource_handle );
-
     /* allocate output buffer then copy revision buffer into output buffer */
     XI_ALLOC_BUFFER_AT( char, *string_read_out, buffer_size + 1, state );
 
     memcpy( *string_read_out, buffer, buffer_size );
 
 err_handling:
+
+    xi_bsp_io_fs_close( resource_handle );
 
     return state;
 }
@@ -95,7 +95,7 @@ xi_sft_revision_set( const char* const resource_name, const char* const revision
     char* resource_name_revision = XI_SFT_REVISION_RESOURCENAME( resource_name );
 
     const xi_state_t state =
-        xi_sft_revision_write_string_to_file( resource_name_revision, revision );
+        _xi_sft_revision_write_string_to_file( resource_name_revision, revision );
 
     XI_SAFE_FREE( resource_name_revision );
 
@@ -107,7 +107,7 @@ xi_state_t xi_sft_revision_get( const char* const resource_name, char** revision
     char* resource_name_revision = XI_SFT_REVISION_RESOURCENAME( resource_name );
 
     const xi_state_t state =
-        xi_sft_revision_read_string_from_file( resource_name_revision, revision_out );
+        _xi_sft_revision_read_string_from_file( resource_name_revision, revision_out );
 
     XI_SAFE_FREE( resource_name_revision );
 
@@ -137,7 +137,7 @@ xi_sft_revision_set_firmware_update( const char* const xi_firmware_resource_name
              xi_firmware_revision );
 
     /* "mailing" firmware update data for the new firmware run after device reboot */
-    state = xi_sft_revision_write_string_to_file(
+    state = _xi_sft_revision_write_string_to_file(
         XI_SFT_REVISION_FIRMWAREUPDATEREVISION_MAILBOX_TO_NEXT_RUN,
         firmware_update_data );
 
@@ -153,7 +153,7 @@ xi_state_t xi_sft_revision_firmware_ok()
     char* firmware_update_data = NULL;
 
     /* reading "mailbox" expected containing currently running (this) firmware data */
-    const xi_state_t state = xi_sft_revision_read_string_from_file(
+    const xi_state_t state = _xi_sft_revision_read_string_from_file(
         XI_SFT_REVISION_FIRMWAREUPDATEREVISION_MAILBOX_TO_NEXT_RUN,
         &firmware_update_data );
 

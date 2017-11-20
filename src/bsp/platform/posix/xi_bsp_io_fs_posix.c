@@ -39,8 +39,7 @@ typedef struct xi_bsp_io_fs_posix_file_handle_container_s
 } xi_bsp_io_fs_posix_file_handle_container_t;
 
 /* local list of open files */
-static xi_bsp_io_fs_posix_file_handle_container_t* 
-    xi_bsp_io_fs_posix_files_container;
+static xi_bsp_io_fs_posix_file_handle_container_t* xi_bsp_io_fs_posix_files_container;
 
 /* translates bsp errno errors to the xi_bsp_io_fs_state_t values */
 xi_bsp_io_fs_state_t xi_bsp_io_fs_posix_errno_2_xi_bsp_io_fs_state( int errno_value )
@@ -74,8 +73,9 @@ xi_bsp_io_fs_state_t xi_bsp_io_fs_posix_errno_2_xi_bsp_io_fs_state( int errno_va
 }
 
 /* helper function that translates posix stat to xi stat */
-static xi_bsp_io_fs_state_t xi_bsp_io_fs_posix_stat_2_xi_bsp_io_fs_stat( const struct stat* const posix_stat,
-                                                                         xi_bsp_io_fs_stat_t* const xi_stat )
+static xi_bsp_io_fs_state_t
+xi_bsp_io_fs_posix_stat_2_xi_bsp_io_fs_stat( const struct stat* const posix_stat,
+                                             xi_bsp_io_fs_stat_t* const xi_stat )
 {
     assert( NULL != posix_stat );
     assert( NULL != xi_stat );
@@ -94,9 +94,8 @@ static xi_bsp_io_fs_state_t xi_bsp_io_fs_posix_stat_2_xi_bsp_io_fs_stat( const s
  * @param fp
  * @return 1 if list element is the one with the matching fp 0 otherwise
  */
-static uint8_t
-xi_bsp_io_fs_posix_file_list_cnd( xi_bsp_io_fs_posix_file_handle_container_t* list_element,
-                                  FILE* fp )
+static uint8_t xi_bsp_io_fs_posix_file_list_cnd(
+    xi_bsp_io_fs_posix_file_handle_container_t* list_element, FILE* fp )
 {
     assert( NULL != list_element );
     assert( NULL != fp );
@@ -121,7 +120,8 @@ xi_bsp_io_fs_stat( const char* const resource_name, xi_bsp_io_fs_stat_t* resourc
 
     /* Verification of the os function result.
      * Jump to err_handling label in case of failure. */
-    XI_BSP_IO_FS_CHECK_CND( 0 != res, xi_bsp_io_fs_posix_errno_2_xi_bsp_io_fs_state( errno ), ret );
+    XI_BSP_IO_FS_CHECK_CND( 0 != res,
+                            xi_bsp_io_fs_posix_errno_2_xi_bsp_io_fs_state( errno ), ret );
 
     /* here we translate stat posix os stat structure to libxively version */
     ret = xi_bsp_io_fs_posix_stat_2_xi_bsp_io_fs_stat( &stat_struct, resource_stat );
@@ -130,10 +130,11 @@ err_handling:
     return ret;
 }
 
-xi_bsp_io_fs_state_t xi_bsp_io_fs_open( const char* const resource_name,
-                                        const size_t size,
-                                        const xi_bsp_io_fs_open_flags_t open_flags,
-                                        xi_bsp_io_fs_resource_handle_t* resource_handle_out )
+xi_bsp_io_fs_state_t
+xi_bsp_io_fs_open( const char* const resource_name,
+                   const size_t size,
+                   const xi_bsp_io_fs_open_flags_t open_flags,
+                   xi_bsp_io_fs_resource_handle_t* resource_handle_out )
 {
     ( void )size;
 
@@ -151,10 +152,12 @@ xi_bsp_io_fs_state_t xi_bsp_io_fs_open( const char* const resource_name,
     xi_bsp_io_fs_posix_file_handle_container_t* new_entry = NULL;
     xi_bsp_io_fs_state_t ret                              = XI_BSP_IO_FS_STATE_OK;
 
-    FILE* fp = fopen( resource_name, ( open_flags & XI_BSP_IO_FS_OPEN_READ ) ? "rb" : "wb" );
+    FILE* fp =
+        fopen( resource_name, ( open_flags & XI_BSP_IO_FS_OPEN_READ ) ? "rb" : "wb" );
 
     /* if error on fopen check the errno value */
-    XI_BSP_IO_FS_CHECK_CND( NULL == fp, xi_bsp_io_fs_posix_errno_2_xi_bsp_io_fs_state( errno ), ret );
+    XI_BSP_IO_FS_CHECK_CND( NULL == fp,
+                            xi_bsp_io_fs_posix_errno_2_xi_bsp_io_fs_state( errno ), ret );
 
     /* allocate memory for the files database element */
     new_entry = xi_bsp_mem_alloc( sizeof( xi_bsp_io_fs_posix_file_handle_container_t ) );
@@ -164,8 +167,8 @@ xi_bsp_io_fs_state_t xi_bsp_io_fs_open( const char* const resource_name,
     new_entry->posix_fp = fp;
 
     /* add the entry to the database */
-    XI_LIST_PUSH_BACK( xi_bsp_io_fs_posix_file_handle_container_t, xi_bsp_io_fs_posix_files_container,
-                       new_entry );
+    XI_LIST_PUSH_BACK( xi_bsp_io_fs_posix_file_handle_container_t,
+                       xi_bsp_io_fs_posix_files_container, new_entry );
 
     /* make sure that the size is as expected. */
     assert( sizeof( fp ) == sizeof( xi_bsp_io_fs_resource_handle_t ) );
@@ -185,10 +188,11 @@ err_handling:
     return ret;
 }
 
-xi_bsp_io_fs_state_t xi_bsp_io_fs_read( const xi_bsp_io_fs_resource_handle_t resource_handle,
-                                        const size_t offset,
-                                        const uint8_t** buffer,
-                                        size_t* const buffer_size )
+xi_bsp_io_fs_state_t
+xi_bsp_io_fs_read( const xi_bsp_io_fs_resource_handle_t resource_handle,
+                   const size_t offset,
+                   const uint8_t** buffer,
+                   size_t* const buffer_size )
 {
     if ( NULL == buffer || NULL != *buffer || NULL == buffer_size ||
          XI_BSP_IO_FS_INVALID_RESOURCE_HANDLE == resource_handle )
@@ -197,12 +201,13 @@ xi_bsp_io_fs_state_t xi_bsp_io_fs_read( const xi_bsp_io_fs_resource_handle_t res
     }
 
     xi_bsp_io_fs_state_t ret = XI_BSP_IO_FS_STATE_OK;
-    FILE* fp       = ( FILE* )resource_handle;
-    int fop_ret    = 0;
+    FILE* fp                 = ( FILE* )resource_handle;
+    int fop_ret              = 0;
 
     xi_bsp_io_fs_posix_file_handle_container_t* elem = NULL;
-    XI_LIST_FIND( xi_bsp_io_fs_posix_file_handle_container_t, xi_bsp_io_fs_posix_files_container,
-                  xi_bsp_io_fs_posix_file_list_cnd, fp, elem );
+    XI_LIST_FIND( xi_bsp_io_fs_posix_file_handle_container_t,
+                  xi_bsp_io_fs_posix_files_container, xi_bsp_io_fs_posix_file_list_cnd,
+                  fp, elem );
 
     XI_BSP_IO_FS_CHECK_CND( NULL == elem, XI_BSP_IO_FS_RESOURCE_NOT_AVAILABLE, ret );
 
@@ -217,13 +222,15 @@ xi_bsp_io_fs_state_t xi_bsp_io_fs_read( const xi_bsp_io_fs_resource_handle_t res
     fop_ret = fseek( fp, offset, SEEK_SET );
 
     /* if error on fseek check errno */
-    XI_BSP_IO_FS_CHECK_CND( fop_ret != 0, xi_bsp_io_fs_posix_errno_2_xi_bsp_io_fs_state( errno ), ret );
+    XI_BSP_IO_FS_CHECK_CND( fop_ret != 0,
+                            xi_bsp_io_fs_posix_errno_2_xi_bsp_io_fs_state( errno ), ret );
 
     /* use the fread to read the file chunk */
     fop_ret = fread( elem->memory_buffer, ( size_t )1, xi_bsp_io_fs_buffer_size, fp );
 
     /* if error on fread check errno */
-    XI_BSP_IO_FS_CHECK_CND( fop_ret == 0, xi_bsp_io_fs_posix_errno_2_xi_bsp_io_fs_state( errno ), ret );
+    XI_BSP_IO_FS_CHECK_CND( fop_ret == 0,
+                            xi_bsp_io_fs_posix_errno_2_xi_bsp_io_fs_state( errno ), ret );
 
     /* return buffer, buffer_size */
     *buffer      = elem->memory_buffer;
@@ -236,15 +243,17 @@ err_handling:
     *buffer      = NULL;
     *buffer_size = 0;
     xi_bsp_mem_free( elem->memory_buffer );
+    elem->memory_buffer = NULL;
 
     return ret;
 }
 
-xi_bsp_io_fs_state_t xi_bsp_io_fs_write( const xi_bsp_io_fs_resource_handle_t resource_handle,
-                                         const uint8_t* const buffer,
-                                         const size_t buffer_size,
-                                         const size_t offset,
-                                         size_t* const bytes_written )
+xi_bsp_io_fs_state_t
+xi_bsp_io_fs_write( const xi_bsp_io_fs_resource_handle_t resource_handle,
+                    const uint8_t* const buffer,
+                    const size_t buffer_size,
+                    const size_t offset,
+                    size_t* const bytes_written )
 {
     if ( NULL == buffer || 0 == buffer_size ||
          XI_BSP_IO_FS_INVALID_RESOURCE_HANDLE == resource_handle )
@@ -256,8 +265,9 @@ xi_bsp_io_fs_state_t xi_bsp_io_fs_write( const xi_bsp_io_fs_resource_handle_t re
     FILE* fp                 = ( FILE* )resource_handle;
 
     xi_bsp_io_fs_posix_file_handle_container_t* elem = NULL;
-    XI_LIST_FIND( xi_bsp_io_fs_posix_file_handle_container_t, xi_bsp_io_fs_posix_files_container,
-                  xi_bsp_io_fs_posix_file_list_cnd, fp, elem );
+    XI_LIST_FIND( xi_bsp_io_fs_posix_file_handle_container_t,
+                  xi_bsp_io_fs_posix_files_container, xi_bsp_io_fs_posix_file_list_cnd,
+                  fp, elem );
 
     XI_BSP_IO_FS_CHECK_CND( NULL == elem, XI_BSP_IO_FS_RESOURCE_NOT_AVAILABLE, ret );
 
@@ -265,20 +275,23 @@ xi_bsp_io_fs_state_t xi_bsp_io_fs_write( const xi_bsp_io_fs_resource_handle_t re
     const int fop_ret = fseek( fp, offset, SEEK_SET );
 
     /* if error on fseek check errno */
-    XI_BSP_IO_FS_CHECK_CND( fop_ret != 0, xi_bsp_io_fs_posix_errno_2_xi_bsp_io_fs_state( errno ), ret );
+    XI_BSP_IO_FS_CHECK_CND( fop_ret != 0,
+                            xi_bsp_io_fs_posix_errno_2_xi_bsp_io_fs_state( errno ), ret );
 
     *bytes_written = fwrite( buffer, ( size_t )1, buffer_size, fp );
 
     /* if error on fwrite check errno */
     XI_BSP_IO_FS_CHECK_CND( buffer_size != *bytes_written,
-        xi_bsp_io_fs_posix_errno_2_xi_bsp_io_fs_state( ferror( fp ) ), ret );
+                            xi_bsp_io_fs_posix_errno_2_xi_bsp_io_fs_state( ferror( fp ) ),
+                            ret );
 
 err_handling:
 
     return ret;
 }
 
-xi_bsp_io_fs_state_t xi_bsp_io_fs_close( const xi_bsp_io_fs_resource_handle_t resource_handle )
+xi_bsp_io_fs_state_t
+xi_bsp_io_fs_close( const xi_bsp_io_fs_resource_handle_t resource_handle )
 {
     if ( XI_BSP_IO_FS_INVALID_RESOURCE_HANDLE == resource_handle )
     {
@@ -290,21 +303,21 @@ xi_bsp_io_fs_state_t xi_bsp_io_fs_close( const xi_bsp_io_fs_resource_handle_t re
     xi_bsp_io_fs_posix_file_handle_container_t* elem = NULL;
     int fop_ret                                      = 0;
 
-    XI_LIST_FIND( xi_bsp_io_fs_posix_file_handle_container_t, 
-                  xi_bsp_io_fs_posix_files_container,
-                  xi_bsp_io_fs_posix_file_list_cnd, fp, elem );
+    XI_LIST_FIND( xi_bsp_io_fs_posix_file_handle_container_t,
+                  xi_bsp_io_fs_posix_files_container, xi_bsp_io_fs_posix_file_list_cnd,
+                  fp, elem );
 
     /* if element not on the list return resource not available error */
     XI_BSP_IO_FS_CHECK_CND( NULL == elem, XI_BSP_IO_FS_RESOURCE_NOT_AVAILABLE, ret );
 
     /* remove element from the list */
-    XI_LIST_DROP( xi_bsp_io_fs_posix_file_handle_container_t, 
+    XI_LIST_DROP( xi_bsp_io_fs_posix_file_handle_container_t,
                   xi_bsp_io_fs_posix_files_container, elem );
 
     fop_ret = fclose( fp );
 
     /* if error on fclose check errno */
-    XI_BSP_IO_FS_CHECK_CND( 0 != fop_ret, 
+    XI_BSP_IO_FS_CHECK_CND( 0 != fop_ret,
                             xi_bsp_io_fs_posix_errno_2_xi_bsp_io_fs_state( errno ), ret );
 
     xi_bsp_mem_free( elem->memory_buffer );

@@ -13,7 +13,9 @@
 #include <xi_sft_revision.h>
 
 xi_control_message_t*
-xi_control_message_create_file_info( const char** filenames, uint16_t count )
+xi_control_message_create_file_info( const char** filenames,
+                                     uint16_t count,
+                                     uint8_t flag_accept_download_link )
 {
     if ( NULL == filenames || NULL == *filenames || 0 == count )
     {
@@ -26,6 +28,7 @@ xi_control_message_create_file_info( const char** filenames, uint16_t count )
 
     sft_message->common.msgtype = XI_CONTROL_MESSAGE_CS__SFT_FILE_INFO;
     sft_message->common.msgver  = 1;
+    sft_message->file_info.flag_accept_download_link = flag_accept_download_link;
 
     XI_ALLOC_BUFFER_AT( xi_control_message_file_desc_t, sft_message->file_info.list,
                         sizeof( xi_control_message_file_desc_t ) * count, state );

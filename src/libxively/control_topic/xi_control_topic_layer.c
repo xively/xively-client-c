@@ -321,7 +321,9 @@ xi_control_topic_layer_init( void* context, void* data, xi_state_t in_out_state 
         xi_sft_make_context( &layer_data->sft_context,
                              ( const char** )XI_CONTEXT_DATA( context )->updateable_files,
                              XI_CONTEXT_DATA( context )->updateable_files_count,
-                             &xi_control_topic_publish_on_topic, context );
+                             &xi_control_topic_publish_on_topic,
+                             XI_CONTEXT_DATA( context )->sft_url_handler_callback,
+                             context );
 #endif
     }
 

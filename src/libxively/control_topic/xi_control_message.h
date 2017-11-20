@@ -20,21 +20,25 @@ typedef enum xi_control_message_type_e {
 } xi_control_message_type_t;
 
 typedef enum xi_control_message__sft_file_status_phase_e {
-    /* 0-2 - Reserved, set by Xively Broker itself, ignored when received from clients
-       (Unreported, Reported, Downloading) */
-    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADED = 3,
-    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_PROCESSING = 4,
-    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_FINISHED   = 5
+    /* 0-1 - Reserved, set by Xively Broker itself, ignored when received from clients
+       (Unreported, Reported) */
+    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADING = 2, /* HTTP reports this */
+    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADED  = 3,
+    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_PROCESSING  = 4,
+    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_FINISHED    = 5
 } xi_control_message__sft_file_status_phase_t;
 
 typedef enum xi_control_message__sft_file_status_code_e {
-    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__ADD_MORE_ERRORS_HERE   = -100,
-    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__FILE_CHECKSUM_MISMATCH = -5,
-    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__FILE_CLOSE             = -4,
-    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__FILE_WRITE             = -3,
-    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__FILE_OPEN              = -2,
-    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__UNEXPECTED_FILE_CHUNK  = -1,
-    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS                       = 0,
+    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__ADD_MORE_ERRORS_HERE       = -100,
+    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__URLDL_UNEXPECTED_FILE_NAME = -8,
+    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__URLDL_FAILED               = -7,
+    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__URLDL_REJECTED             = -6,
+    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__FILE_CHECKSUM_MISMATCH     = -5,
+    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__FILE_CLOSE                 = -4,
+    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__FILE_WRITE                 = -3,
+    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__FILE_OPEN                  = -2,
+    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__UNEXPECTED_FILE_CHUNK      = -1,
+    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS                           = 0,
 
 } xi_control_message__sft_file_status_code_t;
 
@@ -55,6 +59,9 @@ typedef struct xi_control_message_file_desc_ext_s
     uint8_t* fingerprint;
     uint16_t fingerprint_len;
 
+    char* download_link;
+    uint8_t flag_mqtt_download_also_supported;
+
 } xi_control_message_file_desc_ext_t;
 
 
@@ -73,6 +80,7 @@ typedef union xi_control_message_u {
         uint16_t list_len;
         xi_control_message_file_desc_t* list;
 
+        uint8_t flag_accept_download_link;
     } file_info;
 
     struct file_update_available_s
@@ -129,7 +137,7 @@ void xi_control_message_free( xi_control_message_t** control_message );
 
 #if XI_DEBUG_OUTPUT
 void xi_debug_control_message_dump( const xi_control_message_t* control_message,
-                                    const char* custom_label );
+                                    const char* debug_custom_label );
 #else
 #define xi_debug_control_message_dump( ... )
 #endif
