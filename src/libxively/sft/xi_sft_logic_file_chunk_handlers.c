@@ -30,11 +30,6 @@ xi_sft_on_message_file_chunk_process_file_chunk( xi_sft_context_t* context,
             return XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__FILE_OPEN;
         }
 
-        if ( 1 == xi_bsp_fwu_is_this_firmware( sft_message_in->file_chunk.name ) )
-        {
-            context->update_firmware = context->update_current_file;
-        }
-
         xi_bsp_fwu_checksum_init( &context->checksum_context );
     }
 

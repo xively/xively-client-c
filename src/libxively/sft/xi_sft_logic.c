@@ -17,11 +17,13 @@
 #include <xi_bsp_fwu.h>
 
 #include <xi_fs_bsp_to_xi_mapping.h>
+#include <xi_sft_logic_internal_methods.h>
 
 xi_state_t xi_sft_make_context( xi_sft_context_t** context,
                                 const char** updateable_files,
                                 uint16_t updateable_files_count,
-                                fn_send_control_message fn_send_message,
+                                fn_send_control_message_t fn_send_message,
+                                xi_sft_url_handler_callback_t* sft_url_handler_callback,
                                 void* user_data )
 {
     if ( NULL == context )
@@ -38,25 +40,22 @@ xi_state_t xi_sft_make_context( xi_sft_context_t** context,
 
     XI_ALLOC_AT( xi_sft_context_t, *context, state );
 
-    ( *context )->fn_send_message        = fn_send_message;
-    ( *context )->send_message_user_data = user_data;
-    ( *context )->updateable_files       = updateable_files;
-    ( *context )->updateable_files_count = updateable_files_count;
-    ( *context )->update_message_fua     = NULL;
-    ( *context )->update_current_file    = NULL;
-    ( *context )->update_firmware        = NULL;
-    ( *context )->update_file_handle     = 0;
-    ( *context )->checksum_context       = NULL;
+    ( *context )->fn_send_message          = fn_send_message;
+    ( *context )->send_message_user_data   = user_data;
+    ( *context )->updateable_files         = updateable_files;
+    ( *context )->updateable_files_count   = updateable_files_count;
+    ( *context )->update_message_fua       = NULL;
+    ( *context )->update_current_file      = NULL;
+    ( *context )->update_firmware          = NULL;
+    ( *context )->update_file_handle       = XI_BSP_IO_FS_INVALID_RESOURCE_HANDLE;
+    ( *context )->sft_url_handler_callback = sft_url_handler_callback;
+    ( *context )->checksum_context         = NULL;
 
     return state;
 
 err_handling:
-    if ( NULL != *context )
-    {
-        XI_SAFE_FREE( ( *context )->updateable_files_download_order );
-    }
+    xi_sft_free_context( context );
 
-    XI_SAFE_FREE( *context );
     return state;
 }
 
@@ -78,9 +77,6 @@ xi_state_t xi_sft_free_context( xi_sft_context_t** context )
 
 xi_state_t xi_sft_on_connected( xi_sft_context_t* context )
 {
-    /* todo_atigyi: commit after a self check, also find a places where new FW can be
-     * denied */
-
     xi_state_t state = XI_STATE_OK;
 
     /* emit a Firmware OK notification towards the BSP module, and depending
@@ -99,7 +95,8 @@ xi_state_t xi_sft_on_connected( xi_sft_context_t* context )
     if ( NULL != context->fn_send_message )
     {
         xi_control_message_t* message_file_info = xi_control_message_create_file_info(
-            context->updateable_files, context->updateable_files_count );
+            context->updateable_files, context->updateable_files_count,
+            ( NULL == context->sft_url_handler_callback ) ? 0 : 1 );
 
         ( *context->fn_send_message )( context->send_message_user_data,
                                        message_file_info );
@@ -117,76 +114,7 @@ xi_state_t xi_sft_on_connection_failed( xi_sft_context_t* context )
     return XI_STATE_OK;
 }
 
-static void
-xi_sft_send_file_get_chunk( xi_sft_context_t* context, uint32_t offset, uint32_t length )
-{
-    if ( NULL != context->fn_send_message )
-    {
-        xi_control_message_t* message_file_get_chunk =
-            xi_control_message_create_file_get_chunk(
-                context->update_current_file->name,
-                context->update_current_file->revision, offset,
-                XI_MIN( XI_SFT_FILE_CHUNK_SIZE, length ) );
-
-        ( *context->fn_send_message )( context->send_message_user_data,
-                                       message_file_get_chunk );
-    }
-}
-
-static void
-xi_sft_send_file_status( const xi_sft_context_t* context,
-                         const xi_control_message_file_desc_ext_t* file_desc_ext,
-                         xi_control_message__sft_file_status_phase_t phase,
-                         xi_control_message__sft_file_status_code_t code )
-{
-    if ( NULL != context->fn_send_message )
-    {
-        xi_control_message_t* message_file_status = xi_control_message_create_file_status(
-            file_desc_ext ? file_desc_ext->name : context->update_current_file->name,
-            file_desc_ext ? file_desc_ext->revision
-                          : context->update_current_file->revision,
-            phase, code );
-
-        ( *context->fn_send_message )( context->send_message_user_data,
-                                       message_file_status );
-    }
-}
-
-xi_state_t _xi_sft_select_next_resource_to_download( xi_sft_context_t* context )
-{
-    if ( NULL == context )
-    {
-        return XI_INVALID_PARAMETER;
-    }
-
-    if ( NULL == context->updateable_files_download_order )
-    {
-        return XI_INTERNAL_ERROR;
-    }
-
-    int32_t selected_index       = -1;
-    context->update_current_file = NULL;
-    uint16_t i                   = 0;
-    for ( ; i < context->update_message_fua->file_update_available.list_len; ++i )
-    {
-        if ( 0 <= context->updateable_files_download_order[i] )
-        {
-            selected_index = context->updateable_files_download_order[i];
-            context->updateable_files_download_order[i] = -1;
-            break;
-        }
-    }
-
-    if ( -1 != selected_index )
-    {
-        context->update_current_file =
-            &( context->update_message_fua->file_update_available.list[selected_index] );
-    }
-
-    return XI_STATE_OK;
-}
-
-xi_state_t xi_sft_order_resource_downloads( xi_sft_context_t* context )
+static xi_state_t _xi_sft_order_resource_downloads( xi_sft_context_t* context )
 {
     xi_state_t state = XI_STATE_OK;
     uint16_t i       = 0; /* forward declaration to suppress toolchain warnings */
@@ -197,6 +125,7 @@ xi_state_t xi_sft_order_resource_downloads( xi_sft_context_t* context )
     XI_ALLOC_BUFFER( char*, resource_names, sizeof( char* ) * num_incoming_resources,
                      state );
 
+    XI_SAFE_FREE( context->updateable_files_download_order );
     XI_ALLOC_BUFFER_AT( int32_t, context->updateable_files_download_order,
                         sizeof( int32_t ) * num_incoming_resources, state );
 
@@ -260,15 +189,10 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
             if ( 0 < context->update_message_fua->file_update_available.list_len &&
                  NULL != context->update_message_fua->file_update_available.list )
             {
-                XI_SAFE_FREE( context->updateable_files_download_order );
-                state = xi_sft_order_resource_downloads( context );
+                state = _xi_sft_order_resource_downloads( context );
                 XI_CHECK_STATE( state );
 
-                state = _xi_sft_select_next_resource_to_download( context );
-                XI_CHECK_STATE( state );
-
-                xi_sft_send_file_get_chunk( context, 0,
-                                            context->update_current_file->size_in_bytes );
+                _xi_sft_continue_package_download( context );
             }
         }
         break;
@@ -293,7 +217,7 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                     if ( XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS !=
                          chunk_handling_status_code )
                     {
-                        xi_sft_send_file_status(
+                        _xi_sft_send_file_status(
                             context, NULL,
                             XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_PROCESSING,
                             chunk_handling_status_code );
@@ -322,7 +246,7 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                 {
                     /* SFT flow: file is not downloaded yet, continue with this file */
 
-                    xi_sft_send_file_get_chunk(
+                    _xi_sft_send_file_get_chunk(
                         context, all_downloaded_bytes,
                         context->update_current_file->size_in_bytes -
                             all_downloaded_bytes );
@@ -338,7 +262,7 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                             checksum_status_code =
                                 xi_sft_on_message_file_chunk_checksum_final( context );
 
-                        xi_sft_send_file_status(
+                        _xi_sft_send_file_status(
                             context, NULL,
                             XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADED,
                             checksum_status_code );
@@ -347,8 +271,6 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                              checksum_status_code )
                         {
                             xi_bsp_fwu_on_package_download_failure();
-                            /* todo_atigyi: another option beyond exiting the whole update
-                             * process is to retry the broken file download */
                             goto err_handling;
                         }
                     }
@@ -363,71 +285,20 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
 
                         if ( XI_STATE_OK != state )
                         {
-                            xi_sft_send_file_status(
+                            _xi_sft_send_file_status(
                                 context, NULL,
                                 XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_PROCESSING,
                                 XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__FILE_CLOSE );
 
-                            // what to do here?
-                            // downloaded but file close error: abort or continue?
-                            // goto err_handling;
-                        }
-                        else if ( context->update_firmware !=
-                                  context->update_current_file )
-                        {
-                            /* handling non-firmware files */
-                            xi_sft_send_file_status(
-                                context, NULL,
-                                XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_FINISHED,
-                                XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
-
-                            xi_sft_revision_set( context->update_current_file->name,
-                                                 context->update_current_file->revision );
+                            goto err_handling;
                         }
                         else
                         {
-                            /* handling firmware file(s) */
-                            xi_sft_revision_set_firmware_update(
-                                context->update_current_file->name,
-                                context->update_current_file->revision );
+                            _xi_sft_current_file_revision_handling( context );
                         }
                     }
 
-                    /* continue the update package download  */
-                    {
-                        state = _xi_sft_select_next_resource_to_download( context );
-                        XI_CHECK_STATE( state );
-
-                        if ( NULL != context->update_current_file )
-                        {
-                            /* continue download with next file */
-                            xi_sft_send_file_get_chunk(
-                                context, 0, context->update_current_file->size_in_bytes );
-                        }
-                        else
-                        {
-                            /* finished with package download */
-
-                            if ( NULL != context->update_firmware )
-                            {
-                                xi_sft_send_file_status(
-                                    context, context->update_firmware,
-                                    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_PROCESSING,
-                                    XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS );
-                            }
-
-                            /* report the finish of package download to the application,
-                               add firmware name if available */
-                            xi_bsp_fwu_on_package_download_finished(
-                                ( NULL != context->update_firmware )
-                                    ? context->update_firmware->name
-                                    : NULL );
-
-                            /* no further files to download, finished with download
-                             * process */
-                            xi_control_message_free( &context->update_message_fua );
-                        }
-                    }
+                    _xi_sft_continue_package_download( context );
                 }
             }
             else
@@ -435,8 +306,8 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                 /* Something went wrong. Somehow the current file under update
                  * is not in sync with arrived FILE_CHUNK message. */
 
-                xi_sft_send_file_status(
-                    context, NULL, XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_PROCESSING,
+                _xi_sft_send_file_status(
+                    context, NULL, XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_DOWNLOADED,
                     XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_ERROR__UNEXPECTED_FILE_CHUNK );
 
                 xi_debug_format( "ERROR: context->update_current_file is out of sync. "
