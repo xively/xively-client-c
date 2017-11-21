@@ -30,7 +30,7 @@ CONFIG_STM32FX                  =memory_fs-control_topic-tls_bsp-secure_file_tra
 CONFIG_STM32FX_NUCLEO_WIFI      =memory_fs-control_topic-tls_socket-secure_file_transfer
 
 # xtensa configs
-CONFIG_ESP32 =memory_fs-tls_bsp
+CONFIG_ESP32 =memory_fs-tls_bsp-control_topic-secure_file_transfer
 
 # TARGET presets
 TARGET_STATIC_DEV               =-static-debug

@@ -16,10 +16,10 @@
 #define XI_ESP32_GET_TIME_FROM_RTC( t_ptr ) time( t_ptr )
 
 #define DEVELOPMENT_DATETIME ( 1500312469UL )
-#define XI_SNTP_TIMEOUT_MS 100000
+#define XI_SNTP_TIMEOUT_MS 1000000
 
 #ifndef SNTP_MAX_SERVERS
-#error "SNTP_MAX_SERVERS must be set from mt-esp32.mk to be used by sntp.c and this file"
+#error "SNTP_MAX_SERVERS must be set from mt-esp32.mk and sdkcoconfig to be used by sntp.c and this file"
 #else
 #if SNTP_MAX_SERVERS != 4
 #error "SNTP_MAX_SERVERS mismatch between the compiler option and the source code"

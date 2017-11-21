@@ -13,6 +13,8 @@
 
 #include "xively_task.h"
 
+#include "gpio_if.h"
+
 /******************************************************************************
  *                          Xively Task Macros
  ******************************************************************************/
@@ -22,7 +24,9 @@
 #define XT_LED_TOPIC_NAME "LED"
 
 #define XT_CONNECT_TIMEOUT_S   5
-#define XT_KEEPALIVE_TIMEOUT_S 10
+#define XT_KEEPALIVE_TIMEOUT_S 30
+
+#define INTERRUPT_POLLING_PERIOD 1
 /******************************************************************************
  *                     Xively Task Structs and Enums
  ******************************************************************************/
@@ -52,9 +56,11 @@ static inline void xt_await_unpause( void );
 static xt_action_requests_t xt_pop_highest_priority_request( void );
 
 /* Application specific functions */
+static int8_t xt_configure_fw_updates( void );
 static int8_t xt_subscribe( void );
 static int8_t xt_start_timed_tasks( void );
 static void xt_cancel_timed_tasks( void );
+static void xt_pop_gpio_interrupt_queue( void );
 
 /* Callbacks */
 static void xt_on_connected( xi_context_handle_t in_context_handle,
@@ -77,6 +83,7 @@ xt_mqtt_topics_t xt_mqtt_topics;
 
 /* Xively Client Handles */
 static xi_context_handle_t xt_context_handle = -1;
+static xi_timed_task_handle_t xt_gpiohandler_scheduled_task_handle = -1;
 
 /* FreeRTOS Handles */
 static EventGroupHandle_t xt_requests_event_group_handle = NULL;
@@ -133,9 +140,18 @@ void xt_rtos_task( void* param )
         printf( "\n[XT] Failed to create xi context. Retval: %d", xt_context_handle );
         xt_handle_unrecoverable_error();
     }
+    else if ( 0 > xt_configure_fw_updates() )
+    {
+        printf( "\n[XT] Failed to configure OTA firmware updates" );
+    }
     else if ( 0 > xt_clear_request_bits( XT_REQUEST_ALL ) )
     {
         printf( "\n[XT] Failed to clear request bits during initialization" );
+        xt_handle_unrecoverable_error();
+    }
+    else if ( 0 > xt_request_machine_state( XT_REQUEST_CONNECT ) )
+    {
+        printf( "\n[XT] Failed to request first MQTT connection" );
         xt_handle_unrecoverable_error();
     }
 
@@ -275,6 +291,28 @@ int8_t xt_connect( void )
     return 0;
 }
 
+static int8_t xt_configure_fw_updates( void )
+{
+    const char** updateable_files = ( const char* [] ){"firmware.bin"};
+    const uint16_t files_num      = 1;
+
+    xi_state_t ret = XI_STATE_OK;
+
+    printf( "\n[XT] Registering updateable files list:" );
+    for ( uint16_t i = 0; i < files_num; i++ )
+    {
+        printf( "\n[XT] \t* %s", updateable_files[i] );
+    }
+
+    ret = xi_set_updateable_files( xt_context_handle, updateable_files, files_num, NULL );
+    if ( XI_STATE_OK != ret )
+    {
+        printf( "\n[XT] Error [%d] configuring FW updates", ret );
+        return -1;
+    }
+    return 0;
+}
+
 int8_t xt_subscribe( void )
 {
     xi_state_t ret_state = XI_STATE_OK;
@@ -286,6 +324,30 @@ int8_t xt_subscribe( void )
         return -1;
     }
     return 0;
+}
+
+/* This function will pop 1 item from the gpio_if.h's interrupt handler queue,
+ * and publish it */
+void xt_pop_gpio_interrupt_queue( void )
+{
+    static int virtual_switch = 0; /* Switches between 1 and 0 on each button press */
+    char msg_payload[2] = "";
+
+    if ( !xt_is_connected() )
+    {
+        return;
+    }
+
+    if ( io_pop_gpio_interrupt() == 0 )
+    {
+        virtual_switch = !virtual_switch;
+        ( virtual_switch == 1 ) ? ( strcpy( msg_payload, "1" ) )
+                                : ( strcpy( msg_payload, "0" ) );
+        printf( "\n[XT] Button pressed! Virtual switch [%d]", virtual_switch );
+        printf( "\n[XT]\tPublishing MQTT message" );
+        xi_publish( xt_context_handle, xt_mqtt_topics.button_topic, msg_payload,
+                    XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
+    }
 }
 
 void xt_publish_button_state( int button_state )
@@ -330,6 +392,18 @@ void xt_publish_counter( void )
 
 int8_t xt_start_timed_tasks( void )
 {
+    /* Register a timed task to poll the gpio_if's interrupt queue every
+     * $INTERRUPT_POLLING_PERIOD seconds */
+    xt_gpiohandler_scheduled_task_handle = xi_schedule_timed_task(
+        xt_context_handle, ( xi_user_task_callback_t* )xt_pop_gpio_interrupt_queue,
+        INTERRUPT_POLLING_PERIOD, 1, NULL );
+    if ( XI_INVALID_TIMED_TASK_HANDLE == xt_gpiohandler_scheduled_task_handle )
+    {
+        printf( "\n[XT] Error: GPIO interrupt polling scheduled task couldn't be registered" );
+        return -1;
+    }
+    printf( "\n[XT] GPIO interrupt polling scheduled task started" );
+
 #if PUB_INCREASING_COUNTER
     /* Schedule the xt_publish_counter function to publish an increasing counter
      * every $COUNTER_PUBLISH_PERIOD seconds */
@@ -342,13 +416,16 @@ int8_t xt_start_timed_tasks( void )
         return -1;
     }
 #endif /* PUB_INCREASING_COUNTER */
+
     return 0;
 }
 
 void xt_cancel_timed_tasks( void )
 {
-    xt_cancel_timed_tasks();
+    xi_cancel_timed_task( xt_gpiohandler_scheduled_task_handle );
+    xt_gpiohandler_scheduled_task_handle = XI_INVALID_TIMED_TASK_HANDLE;
 #if PUB_INCREASING_COUNTER
+    xi_cancel_timed_task( xt_pubcounter_scheduled_task_handle );
     xt_pubcounter_scheduled_task_handle = XI_INVALID_TIMED_TASK_HANDLE;
 #endif
 }
@@ -444,6 +521,10 @@ void xt_on_connected( xi_context_handle_t in_context_handle,
 
     switch ( conn_data->connection_state )
     {
+        case XI_CONNECTION_STATE_OPENED:
+            xt_successful_connection_callback( conn_data );
+            return;
+
         case XI_CONNECTION_STATE_OPEN_FAILED:
             printf( "\n[XT] Connection to %s:%d has failed reason %d", conn_data->host,
                     conn_data->port, state );
@@ -452,14 +533,13 @@ void xt_on_connected( xi_context_handle_t in_context_handle,
             {
                 printf( "\n[XT] Bad username or password. Review your credentials" );
                 xt_handle_unrecoverable_error();
-                return;
             }
-            /* Re-attempt to connect until we succeed */
-            xt_connect();
-            return;
-
-        case XI_CONNECTION_STATE_OPENED:
-            xt_successful_connection_callback( conn_data );
+            else
+            {
+                /* Re-attempt to connect until we succeed */
+                printf( "\n[XT]\tAttempting to reconnect..." );
+                xt_request_machine_state( XT_REQUEST_CONNECT );
+            }
             return;
 
         case XI_CONNECTION_STATE_CLOSED:
@@ -467,8 +547,13 @@ void xt_on_connected( xi_context_handle_t in_context_handle,
             xt_mqtt_connection_status = XT_MQTT_DISCONNECTED;
             if ( XI_STATE_OK == state )
             {
-                printf( "\n[XT]\tDisconnection requested via xi_shutdown_connection()" );
+                printf( "\n[XT]\tRequested via xi_shutdown_connection(). Pausing task" );
                 xt_request_machine_state( XT_REQUEST_PAUSE );
+            }
+            else
+            {
+                printf( "\n[XT]\tAttempting to reconnect..." );
+                xt_request_machine_state( XT_REQUEST_CONNECT );
             }
             return;
 
