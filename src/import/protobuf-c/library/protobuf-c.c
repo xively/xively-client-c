@@ -46,7 +46,7 @@
  */
 
 #include <stdlib.h>	/* for malloc, free */
-#include <string.h>     /* for strcmp, strlen, memcpy, memmove, memset */
+#include <string.h>	/* for strcmp, strlen, memcpy, memmove, memset */
 #include <stdio.h>
 
 #include "protobuf-c/protobuf-c.h"
