@@ -9,7 +9,7 @@
 #include <xi_bsp_fwu.h>
 #include <xively_error.h>
 #include <xi_bsp_debug.h>
-#include "xi_esp32_sft_notifications.h"
+#include "xi_bsp_fwu_notifications_esp32.h"
 
 #include "esp_system.h"
 #include "esp_ota_ops.h"
@@ -54,9 +54,9 @@ void xi_bsp_fwu_on_package_download_finished( const char* const firmware_resourc
         return;
     }
 
-    if ( NULL != xi_bsp_progress_callbacks.update_applied )
+    if ( NULL != xi_bsp_fwu_notification_callbacks.update_applied )
     {
-        ( xi_bsp_progress_callbacks.update_applied )();
+        ( xi_bsp_fwu_notification_callbacks.update_applied )();
     }
 
     /* reboot the device */

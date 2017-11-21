@@ -14,7 +14,7 @@
 #include <xi_bsp_io_fs.h>
 #include <xi_bsp_fwu.h>
 #include <xi_bsp_mem.h>
-#include "xi_esp32_sft_notifications.h"
+#include "xi_bsp_fwu_notifications_esp32.h"
 
 #include "esp_vfs.h"
 #include "esp_vfs_fat.h"
@@ -105,9 +105,9 @@ xi_bsp_io_fs_open( const char* const resource_name,
             return XI_BSP_IO_FS_OPEN_ERROR;
         }
 
-        if ( NULL != xi_bsp_progress_callbacks.update_started )
+        if ( NULL != xi_bsp_fwu_notification_callbacks.update_started )
         {
-            (xi_bsp_progress_callbacks.update_started)( resource_name, size );
+            ( xi_bsp_fwu_notification_callbacks.update_started )( resource_name, size );
         }
         open_firmware_bin_handle = *resource_handle_out;
     }
@@ -153,9 +153,9 @@ xi_bsp_io_fs_write( const xi_bsp_io_fs_resource_handle_t resource_handle,
         }
 
         *bytes_written = buffer_size;
-        if ( NULL != xi_bsp_progress_callbacks.chunk_written )
+        if ( NULL != xi_bsp_fwu_notification_callbacks.chunk_written )
         {
-            (xi_bsp_progress_callbacks.chunk_written)( buffer_size, offset );
+            ( xi_bsp_fwu_notification_callbacks.chunk_written )( buffer_size, offset );
         }
     }
     else

@@ -16,7 +16,7 @@
 #include "esp_err.h"
 #include "esp_vfs_fat.h"
 
-#include "xi_esp32_sft_notifications.h"
+#include "xi_bsp_fwu_notifications_esp32.h"
 
 #include "xively_task.h"
 #include "gpio_if.h"
@@ -61,7 +61,7 @@ static int8_t app_wifi_station_init( user_data_t* credentials );
 static int8_t app_fetch_user_config( user_data_t* dst );
 static void app_main_logic_task( void* param );
 
-static void app_set_xi_sft_progress_notification_callbacks( void );
+static void app_set_xi_fwu_progress_notification_callbacks( void );
 static void esp32_xibsp_notify_update_started( const char* filename, size_t file_size );
 static void esp32_xibsp_notify_chunk_written( size_t chunk_size, size_t offset );
 static void esp32_xibsp_notify_update_applied( void );
@@ -117,7 +117,7 @@ void app_main( void )
     xEventGroupWaitBits( app_wifi_event_group, WIFI_CONNECTED_FLAG, false, true,
             portMAX_DELAY );
 
-    app_set_xi_sft_progress_notification_callbacks();
+    app_set_xi_fwu_progress_notification_callbacks();
 
     /* Configure Xively Settings */
     if ( 0 > xt_init( user_config.xi_account_id, user_config.xi_device_id,
@@ -366,14 +366,14 @@ void xt_recv_mqtt_msg_callback( const xi_sub_call_params_t* const params )
  * status of ongoing firmware downloads to the application layer.
  *
  * Relevant files:
- *    - xi_bsp_sft_notifications_esp32.c
- *    - xi_esp32_sft_notifications.h
+ *    - xi_bsp_fwu_notifications_esp32.c
+ *    - xi_bsp_fwu_notifications_esp32.h
  ******************************************************************************/
-static void app_set_xi_sft_progress_notification_callbacks( void )
+static void app_set_xi_fwu_progress_notification_callbacks( void )
 {
-    xi_bsp_progress_callbacks.update_started = esp32_xibsp_notify_update_started;
-    xi_bsp_progress_callbacks.chunk_written  = esp32_xibsp_notify_chunk_written;
-    xi_bsp_progress_callbacks.update_applied = esp32_xibsp_notify_update_applied;
+    xi_bsp_fwu_notification_callbacks.update_started = esp32_xibsp_notify_update_started;
+    xi_bsp_fwu_notification_callbacks.chunk_written  = esp32_xibsp_notify_chunk_written;
+    xi_bsp_fwu_notification_callbacks.update_applied = esp32_xibsp_notify_update_applied;
 }
 
 void esp32_xibsp_notify_update_started( const char* filename, size_t file_size )
