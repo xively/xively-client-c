@@ -5,18 +5,22 @@
 
 ### Extensions to Secure File Transfer (SFT) and Firmware Updates (FWU) feature
 
-- Large file download support over HTTP. 8MB+ files are not available
-  through MQTT download from Xively SFT service. Thus the Xively C Client reports files
-  with URL to the Application making it able to download the file. Then the Application
-  reports the download result to Xively C Client which continues the update process.
-  From update flow perspective the actual download mechanism is indifferent.
-- Added the ability for the Applications to order the files
-  downloaded over the Xively Secure File Transfer service. Please see the
-  documentation for `xi_bsp_io_fwu_order_resource_downloads()` in the header
-  `include/bsp/xi_bsp_fwu.h` for more information.
+- SFT now supports Large File Downloads over HTTP.   The SFT Service cannot deliver files
+  larger than 8MB through MQTT.  However, it now transmits URLs for these large files so 
+  that larger devices may download them over the HTTP protocol. The Xively C Client now has an
+  updated Board Support Package (BSP) which reports these URLs to the Application, which
+  must then download the file separately and report the download result to the Xively C Client.
+  The file download status report is propagated back to the Xively SFT service by the 
+  Xively C Client for fleet-wide deployment tracking, and then the Xivley C Client continues 
+  the update process by working through the next file on the download list. From an update flow
+  perspective, nothing has changed, only the protocol that was used to download the file.
+- Added the ability for the Applications to order the files downloaded over the Xively Secure
+  File Transfer service. Please see the documentation for 
+  `xi_bsp_io_fwu_order_resource_downloads()` in the header `include/bsp/xi_bsp_fwu.h` for more
+  information.
 - Auto-test coverage was increased on the new SFT feature.
 
-### ESP32 extensions
+### ESP32 Support Extended
 
 - ESP32 now supports firmware updates over MQTT using Xively's Secure File Transfer
   protocol.
