@@ -1,3 +1,33 @@
+# Xively Client version 1.3.2
+#### Nov 22 2017
+
+## Features
+
+### Extensions to Secure File Transfer (SFT) and Firmware Updates (FWU) feature
+
+- Large file download support over HTTP. 8MB+ files are not available
+  through MQTT download from Xively SFT service. Thus the Xively C Client reports files
+  with URL to the Application making it able to download the file. Then the Application
+  reports the download result to Xively C Client which continues the update process.
+  From update flow perspective the actual download mechanism is indifferent.
+- Added the ability for the Applications to order the files
+  downloaded over the Xively Secure File Transfer service. Please see the
+  documentation for `xi_bsp_io_fwu_order_resource_downloads()` in the header
+  `include/bsp/xi_bsp_fwu.h` for more information.
+- Auto-test coverage was increased on the new SFT feature.
+
+### ESP32 extensions
+
+- ESP32 now supports firmware updates over MQTT using Xively's Secure File Transfer
+  protocol.
+- Travis CI now builds ESP32 target.
+
+### Misc
+
+- API extension: added `xi_is_context_connected( xi_context_handle_t )` to the standard
+  Xively API.
+
+
 # Xively Client version 1.3.1
 #### Oct 10 2017
 
