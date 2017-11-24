@@ -92,6 +92,62 @@ Typedefs</h2></td></tr>
 </div></td></tr>
 <tr class="memitem:a70a24f987bee03d7999b4af38630f2ee"><td class="memItemLeft" align="right" valign="top">typedef void()&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d9b/xively__types_8h.html#a70a24f987bee03d7999b4af38630f2ee">xi_user_task_callback_t</a>(const <a class="el" href="../../d3/d9b/xively__types_8h.html#ac9e563f19e5250af5abcb38f839308ec">xi_context_handle_t</a> context_handle, const <a class="el" href="../../d3/d9b/xively__types_8h.html#a09a3763c718e8e384b549f65bf6a4b39">xi_timed_task_handle_t</a> timed_task_handle, void *user_data)</td></tr>
 <tr class="separator:a70a24f987bee03d7999b4af38630f2ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">xi_user_subscription_callback_t</div></td></tr>
+<tr><td colspan="2"><div class="groupText"><p>subscription callback used to notify user about changes in topic subscription and about messages that has been received on subscribed topics</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">in_context_handle</td><td>- context on which callback has been invoked </td></tr>
+    <tr><td class="paramname">call_type</td><td>- gives user information about which information type is passed in data parameter </td></tr>
+    <tr><td class="paramname">params</td><td>- pointer to a structure that holds the details </td></tr>
+    <tr><td class="paramname">topic</td><td>- name of the topic </td></tr>
+    <tr><td class="paramname">user_data</td><td>- pointer previously registered via user during the subscription callback registration, may be used for identification or carrying some helper data </td></tr>
+  </table>
+  </dd>
+</dl>
+</div></td></tr>
+<tr class="memitem:a7e0df1abd5b51f74740678ccdf604d37"><td class="memItemLeft" align="right" valign="top">typedef void()&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d9b/xively__types_8h.html#a7e0df1abd5b51f74740678ccdf604d37">xi_user_subscription_callback_t</a>(<a class="el" href="../../d3/d9b/xively__types_8h.html#ac9e563f19e5250af5abcb38f839308ec">xi_context_handle_t</a> in_context_handle, <a class="el" href="../../d3/d9b/xively__types_8h.html#ac78a8fcf5a13da0ba93a80e71fbbef63">xi_sub_call_type_t</a> call_type, const <a class="el" href="../../d3/d9b/xively__types_8h.html#a87c9e0d5e3b374e06b09c23c55e11b97">xi_sub_call_params_t</a> *const params, <a class="el" href="../../dd/d4c/xively__error_8h.html#af522c63f06c7a49e54dd49017f31c378">xi_state_t</a> state, void *user_data)</td></tr>
+<tr class="separator:a7e0df1abd5b51f74740678ccdf604d37"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">xi_sft_on_file_downloaded_callback_t</div></td></tr>
+<tr><td colspan="2"><div class="groupText"><p>At a the end of a Secure File Transfer (SFT) HTTP file download the application should report back the result to the Xively C Client through such typed function.</p>
+<p>The application calls this function reporting the result of the SFT file HTTP download. This function is the trigger for continuing the update package download inside the Xively C Client. The application receives this function pointer during a request for HTTP download, in the application callback (<code>xi_sft_url_handler_callback_t</code> see below).</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">callback_data</td><td>the data pointer received as argument <code>callback_data</code> previously in the call of HTTP downloader function <code>xi_sft_url_handler_callback_t</code>. The application should not do anything with this pointer <em>just</em> pass it back. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">filename</td><td>the name of the file that was downloaded and stored on the non-volatile storage of the device </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">flag_download_finished_successfully</td><td>the result of the HTTP download: 1 - if file download finished successfully, 0 - if file download failed. In latter case the Xively C Client will try to fallback to MQTT file download. </td></tr>
+  </table>
+  </dd>
+</dl>
+</div></td></tr>
+<tr class="memitem:a180f29cbebe00b1e0074dd53cb9c23d1"><td class="memItemLeft" align="right" valign="top">typedef void()&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d9b/xively__types_8h.html#a180f29cbebe00b1e0074dd53cb9c23d1">xi_sft_on_file_downloaded_callback_t</a>(void *callback_data, const char *filename, uint8_t flag_download_finished_successfully)</td></tr>
+<tr class="separator:a180f29cbebe00b1e0074dd53cb9c23d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">xi_sft_url_handler_callback_t</div></td></tr>
+<tr><td colspan="2"><div class="groupText"><p>application entry point type for HTTP download of update package files</p>
+<p>The application must define and pass a pointer to a function with this signature only if Secure File Update (SFT) package contains files too large to download over MQTT. This function is called with each and every file in the update package (<em>even for MQTT provided ones!</em>) and responsible to start a file download and then report the result back to Xively C Client. The function may reject the HTTP download, in such case the Xively C Client tries to fallback to MQTT download. This is independently true for each and every file in the update package. The HTTP or MQTT file download way is indifferent from the update process point of view. Please see the POSIX example for SFT with HTTP download in <code>examples/firmware_update/src/firmware_update.c</code></p>
+<p>This function should return immediately and NOT block. The download process should take place on a separate thread spawned by the application. But the callback (<code>fn_on_file_downloaded_callback</code>) to the Xively C Client should be called on the Client's thread and NOT on the download thread. A task might be scheduled to poll download status with API function: <code>xi_schedule_timed_task</code>.</p>
+<p>Or on low resource devices <em>advanced developers</em> can solve the download on the Xively C Client's thread downloading the file in chunks with non-blocking socket and with the help of Xively C Client's scheduled task through the <code>xi_schedule_timed_task</code> *API function. In this case the download task should comply to the cooperative multitasking principle: return in a very short period of time.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">url</td><td>the file can be downloaded from this URL </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">filename</td><td>the the downloaded file must be saved with this filename onto the device's non-volatile storage </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">checksum</td><td>the checksum of the file set in CPM. The application is responsible to validate the checksum. To do this one may use the functions in <code>xi_bsp_fwu.h:xi_bsp_fwu_checksum_*</code>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">checksum_len</td><td>the number of bytes the checksum consists of </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">flag_mqtt_download_available</td><td>1 - if internal MQTT download fallback is available and will happen if this function fails the download 0 - if MQTT download isn't available at all </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">fn_on_file_downloaded_callback</td><td>pointer to a Xively C Client callback. The application has to call this function after download finishes. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">callback_data</td><td>a pointer required to be passed back to the <code>fn_on_file_downloaded_callback</code>. The application shouldn't do anything with this data pointer, just pass back to the callback.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">1</td><td>- if HTTP download is started by the application </td></tr>
+    <tr><td class="paramname">0</td><td>- if HTTP download is rejectedby the application. If <code>flag_mqtt_download_available</code> is <code>1</code> the Xively C Client will fall back to MQTT download through the SFT service. </td></tr>
+  </table>
+  </dd>
+</dl>
+</div></td></tr>
+<tr class="memitem:aff39ca2a6068b56bbb0bb8c627a962a8"><td class="memItemLeft" align="right" valign="top">typedef uint8_t()&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d9b/xively__types_8h.html#aff39ca2a6068b56bbb0bb8c627a962a8">xi_sft_url_handler_callback_t</a>(const char *url, const char *filename, uint8_t *checksum, uint16_t checksum_len, uint8_t flag_mqtt_download_available, <a class="el" href="../../d3/d9b/xively__types_8h.html#a180f29cbebe00b1e0074dd53cb9c23d1">xi_sft_on_file_downloaded_callback_t</a> *fn_on_file_downloaded_callback, void *callback_data)</td></tr>
+<tr class="separator:aff39ca2a6068b56bbb0bb8c627a962a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="member-group"></a>
 xi_user_callback_t</h2></td></tr>
@@ -118,8 +174,6 @@ xi_user_callback_t</h2></td></tr>
 <tr class="separator:ac78a8fcf5a13da0ba93a80e71fbbef63"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a87c9e0d5e3b374e06b09c23c55e11b97"><td class="memItemLeft" align="right" valign="top">typedef union <a class="el" href="../../df/dda/unionxi__sub__call__params__u.html">xi_sub_call_params_u</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d9b/xively__types_8h.html#a87c9e0d5e3b374e06b09c23c55e11b97">xi_sub_call_params_t</a></td></tr>
 <tr class="separator:a87c9e0d5e3b374e06b09c23c55e11b97"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7e0df1abd5b51f74740678ccdf604d37"><td class="memItemLeft" align="right" valign="top">typedef void()&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d9b/xively__types_8h.html#a7e0df1abd5b51f74740678ccdf604d37">xi_user_subscription_callback_t</a>(<a class="el" href="../../d3/d9b/xively__types_8h.html#ac9e563f19e5250af5abcb38f839308ec">xi_context_handle_t</a> in_context_handle, <a class="el" href="../../d3/d9b/xively__types_8h.html#ac78a8fcf5a13da0ba93a80e71fbbef63">xi_sub_call_type_t</a> call_type, const <a class="el" href="../../d3/d9b/xively__types_8h.html#a87c9e0d5e3b374e06b09c23c55e11b97">xi_sub_call_params_t</a> *const params, <a class="el" href="../../dd/d4c/xively__error_8h.html#af522c63f06c7a49e54dd49017f31c378">xi_state_t</a> state, void *user_data)</td></tr>
-<tr class="separator:a7e0df1abd5b51f74740678ccdf604d37"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Macro Definition Documentation</h2>
 <a id="a3b40aaed86f243aad39d936e7e6317b1"></a>
@@ -185,6 +239,38 @@ xi_user_callback_t</h2></td></tr>
 </div><div class="memdoc">
 
 <p class="definition">Definition at line <a class="el" href="../../d3/d9b/xively__types_8h_source.html#l00027">27</a> of file <a class="el" href="../../d3/d9b/xively__types_8h_source.html">xively_types.h</a>.</p>
+
+</div>
+</div>
+<a id="a180f29cbebe00b1e0074dd53cb9c23d1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a180f29cbebe00b1e0074dd53cb9c23d1">&#9670;&nbsp;</a></span>xi_sft_on_file_downloaded_callback_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef void() xi_sft_on_file_downloaded_callback_t(void *callback_data, const char *filename, uint8_t flag_download_finished_successfully)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d3/d9b/xively__types_8h_source.html#l00174">174</a> of file <a class="el" href="../../d3/d9b/xively__types_8h_source.html">xively_types.h</a>.</p>
+
+</div>
+</div>
+<a id="aff39ca2a6068b56bbb0bb8c627a962a8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aff39ca2a6068b56bbb0bb8c627a962a8">&#9670;&nbsp;</a></span>xi_sft_url_handler_callback_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef uint8_t() xi_sft_url_handler_callback_t(const char *url, const char *filename, uint8_t *checksum, uint16_t checksum_len, uint8_t flag_mqtt_download_available, <a class="el" href="../../d3/d9b/xively__types_8h.html#a180f29cbebe00b1e0074dd53cb9c23d1">xi_sft_on_file_downloaded_callback_t</a> *fn_on_file_downloaded_callback, void *callback_data)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d3/d9b/xively__types_8h_source.html#l00233">233</a> of file <a class="el" href="../../d3/d9b/xively__types_8h_source.html">xively_types.h</a>.</p>
 
 </div>
 </div>
@@ -260,19 +346,7 @@ xi_user_callback_t</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>subscription callback used to notify user about changes in topic subscription and about messages that has been received on subscribed topics </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">in_context_handle</td><td>- context on which callback has been invoked </td></tr>
-    <tr><td class="paramname">call_type</td><td>- gives user information about which information type is passed in data parameter </td></tr>
-    <tr><td class="paramname">params</td><td>- pointer to a structure that holds the details </td></tr>
-    <tr><td class="paramname">topic</td><td>- name of the topic </td></tr>
-    <tr><td class="paramname">user_data</td><td>- pointer previously registered via user during the subscription callback registration, may be used for identification or carrying some helper data </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p class="definition">Definition at line <a class="el" href="../../d3/d9b/xively__types_8h_source.html#l00145">145</a> of file <a class="el" href="../../d3/d9b/xively__types_8h_source.html">xively_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d9b/xively__types_8h_source.html#l00146">146</a> of file <a class="el" href="../../d3/d9b/xively__types_8h_source.html">xively_types.h</a>.</p>
 
 </div>
 </div>
