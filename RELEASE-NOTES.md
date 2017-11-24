@@ -1,21 +1,21 @@
 # Xively Client version 1.3.2
-#### Nov 22 2017
+#### Nov 24 2017
 
 ## Features
 
 ### Extensions to Secure File Transfer (SFT) and Firmware Updates (FWU) feature
 
-- SFT now supports Large File Downloads over HTTP.   The SFT Service cannot deliver files
-  larger than 8MB through MQTT.  However, it now transmits URLs for these large files so 
+- SFT now supports Large File Downloads over HTTP. The SFT Service cannot deliver files
+  larger than 8MB through MQTT. However, it now transmits URLs for these large files so
   that larger devices may download them over the HTTP protocol. The Xively C Client now has an
   updated Board Support Package (BSP) which reports these URLs to the Application, which
   must then download the file separately and report the download result to the Xively C Client.
-  The file download status report is propagated back to the Xively SFT service by the 
-  Xively C Client for fleet-wide deployment tracking, and then the Xivley C Client continues 
+  The file download status report is propagated back to the Xively SFT service by the
+  Xively C Client for fleet-wide deployment tracking, and then the Xivley C Client continues
   the update process by working through the next file on the download list. From an update flow
   perspective, nothing has changed, only the protocol that was used to download the file.
 - Added the ability for the Applications to order the files downloaded over the Xively Secure
-  File Transfer service. Please see the documentation for 
+  File Transfer service. Please see the documentation for
   `xi_bsp_io_fwu_order_resource_downloads()` in the header `include/bsp/xi_bsp_fwu.h` for more
   information.
 - Auto-test coverage was increased on the new SFT feature.
