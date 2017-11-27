@@ -22,8 +22,8 @@ CONFIG_CC3200                   =memory_fs-control_topic-tls_bsp-secure_file_tra
 CONFIG_CC3200_TLS_SOCKET        =memory_fs-control_topic-tls_socket-secure_file_transfer
 
 # CONFIG for CC3220
-CONFIG_CC3220SF                 =bsp_cc3220sf-memory_fs-control_topic-tls_bsp_socket-secure_file_transfer
-CONFIG_CC3220SF_TLS_SOCKET      =bsp_cc3220sf-memory_fs-control_topic-tls_socket-secure_file_transfer
+CONFIG_CC3220SF                 =memory_fs-control_topic-tls_bsp-secure_file_transfer
+CONFIG_CC3220SF_TLS_SOCKET      =memory_fs-control_topic-tls_socket-secure_file_transfer
 
 # CONFIG for STM32
 CONFIG_STM32FX                  =memory_fs-control_topic-tls_bsp-secure_file_transfer
