@@ -27,10 +27,10 @@ typedef struct sBootInfo
 
 static xi_bsp_io_fs_state_t _start_ota_watchdog_timer()
 {
-	_i32 file_handle;
+	_i32 file_handle = 0;
 	_u32 token = 0;
 	sBootInfo_t boot_info;
-	_i32 return_val;
+	_i32 return_val = 0;
 	_u32 timeout_in_seconds = 50;
 
 	file_handle = sl_FsOpen( (unsigned char* )"/sys/mcubootinfo.bin",

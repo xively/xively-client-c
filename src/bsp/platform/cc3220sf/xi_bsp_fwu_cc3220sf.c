@@ -12,28 +12,19 @@
 #include "hw_types.h"
 #include "prcm.h"
 
-typedef struct xi_bsp_fwu_cc3220sf_boot_info_t
-{
-  _u8 active_image;
-  _u32 img_status;
-  _u32 start_watchdog_key;
-  _u32 start_watchdog_time;
-}xi_bsp_fwu_cc3220sf_boot_info_t;
-
 static void _reboot_device()
 {
-	_i16 status;
-	
-	xi_bsp_debug_logger(" Rebooting the CC3220!" );	
-    status = sl_Stop(200);
-	
+	xi_bsp_debug_logger(" Rebooting the CC3220!" );
+
+    const _i16 status = sl_Stop(200);
+
 	if ( 0 > status )
 	{
 		xi_bsp_debug_format( "SimpleLink processor failed to stop with error: [ %i ]", status );
-		
+
 		while ( 1 );
 	}
-	
+
 	/* Reset the MCU in order to test the bundle */
     PRCMHibernateCycleTrigger();
 }
@@ -41,11 +32,10 @@ static void _reboot_device()
 static _i16 _ota_get_pending_commit()
 {
 	SlFsControlGetStorageInfoResponse_t fs_control_storage_response;
-    _i16 status;
 
     /* read bundle state and check if is "PENDING COMMIT" */
-    status = ( _i16 )sl_FsCtl( ( SlFsCtl_e)SL_FS_CTL_GET_STORAGE_INFO, 
-	                                0, NULL , NULL , 0, ( uint8_t * )&fs_control_storage_response, 
+    const _i16 status = ( _i16 )sl_FsCtl( ( SlFsCtl_e)SL_FS_CTL_GET_STORAGE_INFO,
+	                                0, NULL , NULL , 0, ( uint8_t * )&fs_control_storage_response,
 									sizeof( SlFsControlGetStorageInfoResponse_t ), NULL );
     if ( 0 > status )
     {
@@ -53,19 +43,16 @@ static _i16 _ota_get_pending_commit()
         return status;
     }
 
-    return ( SL_FS_BUNDLE_STATE_PENDING_COMMIT == 
+    return ( SL_FS_BUNDLE_STATE_PENDING_COMMIT ==
 	       ( SlFsBundleState_e )fs_control_storage_response.FilesUsage.Bundlestate );
 }
 
 static _i16 _ota_commit()
 {
-	 SlFsControl_t fs_control;
-    int16_t status;
+	const SlFsControl_t fs_control = { .IncludeFilters = 0 };
 
-    fs_control.IncludeFilters = 0;
-    status = ( _i16 )sl_FsCtl( SL_FS_CTL_BUNDLE_COMMIT, 0, NULL ,(uint8_t *)&fs_control, 
-	                            sizeof( SlFsControl_t ), NULL, 0 , NULL );
-								
+    const int16_t status = ( _i16 )sl_FsCtl( SL_FS_CTL_BUNDLE_COMMIT, 0, NULL ,(uint8_t *)&fs_control, sizeof( SlFsControl_t ), NULL, 0 , NULL );
+
     if( 0 > status )
     {
         xi_bsp_debug_format( "Error attempting a commit, status: [ %i ]", status );
@@ -75,18 +62,15 @@ static _i16 _ota_commit()
 
 static _i16 _ota_rollback()
 {
-	SlFsControl_t fs_control;
-    _i16 status;
+    const SlFsControl_t fs_control = { .IncludeFilters = 0 };
 
-    fs_control.IncludeFilters = 0;
-    status = ( _i16 )sl_FsCtl( SL_FS_CTL_BUNDLE_ROLLBACK, 0, NULL ,(uint8_t *)&fs_control, 
-	                            sizeof( SlFsControl_t ), NULL, 0 , NULL );
-	
+    const _i16 status = ( _i16 )sl_FsCtl( SL_FS_CTL_BUNDLE_ROLLBACK, 0, NULL ,(uint8_t *)&fs_control, sizeof( SlFsControl_t ), NULL, 0 , NULL );
+
     if( 0 > status )
     {
         xi_bsp_debug_format( "Error attempting a rollback, status: [ %i ]", status );
     }
-    return status;	
+    return status;
 }
 
 
@@ -101,13 +85,13 @@ xi_bsp_fwu_state_t xi_bsp_fwu_on_new_firmware_ok()
     if ( _ota_get_pending_commit() )
     {
 		xi_bsp_debug_logger(" Pending commit, firmware OK." );
-        
+
 		/* What should we do if we get a failure to commit? Reboot? */
 		_ota_commit();
-		
+
 		/* reset the watchdog timer so we don't falsly revert. */
 		PRCMPeripheralReset( 0x0000000B );
-		
+
 		return XI_BSP_FWU_ACTUAL_COMMIT_HAPPENED;
 	}
 
@@ -119,7 +103,7 @@ void xi_bsp_fwu_on_new_firmware_failure()
     if ( _ota_get_pending_commit() )
     {
 		xi_bsp_debug_logger(" Pending commit, firmware BAD." );
-        
+
 		_ota_rollback();
     }
 
