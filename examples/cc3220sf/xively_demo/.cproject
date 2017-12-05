@@ -34,6 +34,7 @@
 							<builder buildPath="${BuildDirectory}" id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.exe.builderDebug.871435470" keepEnvironmentInBuildfile="false" name="GNU Make" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.exe.builderDebug"/>
 							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.exe.compilerDebug.917369009" name="ARM Compiler" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.exe.compilerDebug">
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.INCLUDE_PATH.1521275575" name="Add dir to #include search path (--include_path, -I)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.INCLUDE_PATH" valueType="includePath">
+									<listOptionValue builtIn="false" value="${INHERITED_INCLUDE_PATH}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}}/."/>
 									<listOptionValue builtIn="false" value="${COM_TI_SIMPLELINK_CC32XX_SDK_INSTALL_DIR}/source/ti/devices/cc32xx/driverlib"/>
@@ -41,19 +42,18 @@
 									<listOptionValue builtIn="false" value="${XIVELY_LIBRARY_C_ROOT}/include"/>
 									<listOptionValue builtIn="false" value="${XIVELY_LIBRARY_C_ROOT}/include/bsp"/>
 									<listOptionValue builtIn="false" value="${CG_TOOL_ROOT}/include"/>
-									<listOptionValue builtIn="false" value="${INHERITED_INCLUDE_PATH}"/>
 									<listOptionValue builtIn="false" value="${XDC_INCLUDE_PATH}"/>
-									<listOptionValue builtIn="false" value="&quot;${COM_TI_SIMPLELINK_CC32XX_SDK_INSTALL_DIR}/source&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${COM_TI_SIMPLELINK_CC32XX_SDK_INSTALL_DIR}/source/ti/net/json/source&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${COM_TI_SIMPLELINK_CC32XX_SDK_INSTALL_DIR}/source/ti/net/ota/source&quot;"/>
+									<listOptionValue builtIn="false" value="${COM_TI_SIMPLELINK_CC32XX_SDK_INSTALL_DIR}/source"/>
+									<listOptionValue builtIn="false" value="${COM_TI_SIMPLELINK_CC32XX_SDK_INSTALL_DIR}/source/ti/net/json/source"/>
+									<listOptionValue builtIn="false" value="${COM_TI_SIMPLELINK_CC32XX_SDK_INSTALL_DIR}/source/ti/net/ota/source"/>
 								</option>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.DEFINE.1142881532" name="Pre-define NAME (--define, -D)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.DEFINE" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="${INHERITED_SYMBOLS}"/>
 									<listOptionValue builtIn="false" value="SL_OTA_ARCHIVE_STANDALONE"/>
 									<listOptionValue builtIn="false" value="ENABLE_XIVELY_FIRMWARE_UPDATE_AND_SECURE_FILE_TRANSFER=1"/>
 									<listOptionValue builtIn="false" value="DEBUG_WOLFSSL"/>
 									<listOptionValue builtIn="false" value="CC32XXWARE"/>
 									<listOptionValue builtIn="false" value="CC3220sf"/>
-									<listOptionValue builtIn="false" value="${INHERITED_SYMBOLS}"/>
 									<listOptionValue builtIn="false" value="${XDC_SYMBOLS}"/>
 								</option>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.SILICON_VERSION.1290651574" name="Target processor version (--silicon_version, -mv)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.SILICON_VERSION" value="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.SILICON_VERSION.7M4" valueType="enumerated"/>
@@ -76,22 +76,22 @@
 							</tool>
 							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.exe.linkerDebug.30160044" name="ARM Linker" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.exe.linkerDebug">
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.linkerID.SEARCH_PATH.813645541" name="Add &lt;dir&gt; to library search path (--search_path, -i)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.linkerID.SEARCH_PATH" valueType="libPaths">
+									<listOptionValue builtIn="false" value="${INHERITED_LIBRARY_PATH}"/>
 									<listOptionValue builtIn="false" value="${CG_TOOL_ROOT}/lib"/>
 									<listOptionValue builtIn="false" value="${XIVELY_LIBRARY_C_ROOT}\bin\cc3220"/>
 									<listOptionValue builtIn="false" value="${CG_TOOL_ROOT}/include"/>
-									<listOptionValue builtIn="false" value="${INHERITED_LIBRARY_PATH}"/>
 									<listOptionValue builtIn="false" value="${XDC_LIBRARY_PATH}"/>
 								</option>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.linkerID.LIBRARY.1518757148" name="Include library file or command file as input (--library, -l)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.linkerID.LIBRARY" valueType="libs">
+									<listOptionValue builtIn="false" value="${INHERITED_LIBRARIES}"/>
 									<listOptionValue builtIn="false" value="${COM_TI_SIMPLELINK_CC32XX_SDK_INSTALL_DIR}/source/ti/drivers/net/wifi/ccs/rtos/simplelink.a"/>
 									<listOptionValue builtIn="false" value="${XIVELY_LIBRARY_C_ROOT}/bin/cc3220sf/libxively.a"/>
 									<listOptionValue builtIn="false" value="${COM_TI_SIMPLELINK_CC32XX_SDK_INSTALL_DIR}/source/ti/devices/cc32xx/driverlib/ccs/Release/driverlib.a"/>
 									<listOptionValue builtIn="false" value="libc.a"/>
 									<listOptionValue builtIn="false" value="${COM_TI_SIMPLELINK_CC32XX_SDK_INSTALL_DIR}/source/ti/drivers/lib/drivers_cc32xx.aem4"/>
 									<listOptionValue builtIn="false" value="${COM_TI_SIMPLELINK_CC32XX_SDK_INSTALL_DIR}/kernel/tirtos/packages/ti/dpl/lib/dpl_cc32xx.aem4"/>
-									<listOptionValue builtIn="false" value="${INHERITED_LIBRARIES}"/>
 									<listOptionValue builtIn="false" value="${XDC_LIBRARIES}"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="&quot;${COM_TI_SIMPLELINK_CC32XX_SDK_INSTALL_DIR}/source/ti/net/json/ccs/Release/json.a&quot;"/>
+									<listOptionValue builtIn="false" value="${COM_TI_SIMPLELINK_CC32XX_SDK_INSTALL_DIR}/source/ti/net/json/ccs/Release/json.a"/>
 								</option>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.linkerID.MAP_FILE.1512471927" name="Link information (map) listed into &lt;file&gt; (--map_file, -m)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.linkerID.MAP_FILE" value="&quot;${ProjName}.map&quot;" valueType="string"/>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.linkerID.OUTPUT_FILE.1753588276" name="Specify output file name (--output_file, -o)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.linkerID.OUTPUT_FILE" value="${ProjName}.out" valueType="string"/>
@@ -113,7 +113,7 @@
 				</configuration>
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings">
-				<externalSettings containerId="tirtos_builds_CC3220SF_LAUNCHXL_release_ccs;com.ti.ccstudio.buildDefinitions.TMS470.Release.1142395875" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier"/>
+				<externalSettings containerId="tirtos_builds_CC3220SF_LAUNCHXL_release_ccs;com.ti.ccstudio.buildDefinitions.TMS470.Debug.1788422762" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier"/>
 			</storageModule>
 		</cconfiguration>
 		<cconfiguration id="com.ti.ccstudio.buildDefinitions.TMS470.Release.752049490">
