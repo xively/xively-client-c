@@ -465,6 +465,7 @@ xi_set_updateable_files( xi_context_handle_t xih, const char** filenames, uint16
 
     xi_state_t state = XI_STATE_OK;
     xi_context_t* xi = xi_object_for_handle( xi_globals.context_handles_vector, xih );
+    uint16_t id_file = 0;
 
     XI_CHECK_CND_DBGMESSAGE( NULL == xi, XI_NULL_CONTEXT, state,
                              "ERROR: NULL context provided" );
@@ -474,7 +475,6 @@ xi_set_updateable_files( xi_context_handle_t xih, const char** filenames, uint16
 
     xi->context_data.updateable_files_count = count;
 
-    uint16_t id_file = 0;
     for ( ; id_file < xi->context_data.updateable_files_count; ++id_file )
     {
         xi->context_data.updateable_files[id_file] = xi_str_dup( filenames[id_file] );

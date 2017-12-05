@@ -334,19 +334,21 @@ xi_control_message_t* xi_cbor_codec_ct_decode( const uint8_t* data, const uint32
     xi_control_message_t* control_message_out = NULL;
 
     xi_state_t state = XI_STATE_OK;
+    cn_cbor* msgtype = NULL;
+    cn_cbor* msgver  = NULL;
 
     XI_CHECK_CND_DBGMESSAGE( NULL == cb_map, XI_ELEMENT_NOT_FOUND, state,
                              "ERROR: data is not a CBOR binary" );
 
     XI_ALLOC_AT( xi_control_message_t, control_message_out, state );
 
-    cn_cbor* msgtype = cn_cbor_mapget_string( cb_map, XI_CBOR_CODEC_CT_STRING_MSGTYPE );
+    msgtype = cn_cbor_mapget_string( cb_map, XI_CBOR_CODEC_CT_STRING_MSGTYPE );
     XI_CHECK_CND_DBGMESSAGE( NULL == msgtype, XI_INVALID_PARAMETER, state,
                              "ERROR: no 'msgtype' found" );
     control_message_out->common.msgtype = ( xi_control_message_type_t )msgtype->v.uint;
 
 
-    cn_cbor* msgver = cn_cbor_mapget_string( cb_map, XI_CBOR_CODEC_CT_STRING_MSGVER );
+    msgver = cn_cbor_mapget_string( cb_map, XI_CBOR_CODEC_CT_STRING_MSGVER );
     XI_CHECK_CND_DBGMESSAGE( NULL == msgver, XI_INVALID_PARAMETER, state,
                              "ERROR: no 'msgver' found" );
     control_message_out->common.msgver = msgver->v.uint;
