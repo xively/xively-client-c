@@ -15,8 +15,8 @@
 /*
  *  Copyright (c) 2003-2017, LogMeIn, Inc. All rights reserved.
  *
- * 	This is part of the Xively C Client library,
- * 	it is licensed under the BSD 3-Clause license.
+ *  This is part of the Xively C Client library,
+ *  it is licensed under the BSD 3-Clause license.
  *
  ******************************************************************************/
 
@@ -112,10 +112,10 @@ void send_temperature( const xi_context_handle_t context_handle,
                        const xi_timed_task_handle_t timed_task_handle,
                        void* user_data );
 
-static signed char hexConvertASCIINibble(signed char nibble);
-static signed char hexConvertByteASCII(signed char msb, signed char lsb,
-        signed char *val);
-static signed char FixWEPKey(char *key, unsigned char keyLen);
+static signed char hexConvertASCIINibble( signed char nibble );
+static signed char
+hexConvertByteASCII( signed char msb, signed char lsb, signed char* val );
+static signed char FixWEPKey( char* key, unsigned char keyLen );
 
 /****************************************************************************
                       GLOBAL VARIABLES
@@ -458,8 +458,7 @@ void ConnectToXively()
     }
 #if ENABLE_XIVELY_FIRMWARE_UPDATE_AND_SECURE_FILE_TRANSFER
     /* Pass list of files to be updated by the Xively Services. */
-    const char** files_to_keep_updated =
-        ( const char* [] ){"firmware.tar"};
+    const char** files_to_keep_updated = ( const char* [] ){"firmware.tar"};
 
     xi_set_updateable_files( gXivelyContextHandle, files_to_keep_updated, 1 );
 #endif
@@ -934,18 +933,18 @@ void parseCredentialsFromConfigFile()
                                                    wifi_security_type );
 
         gApplicationControlBlock.desiredWifiSecurityType =
-               mapWifiSecurityTypeStringToInt( ( const char* )wifi_security_type );
+            mapWifiSecurityTypeStringToInt( ( const char* )wifi_security_type );
 
-        if(gApplicationControlBlock.desiredWifiSecurityType == SL_WLAN_SEC_TYPE_WEP)
+        if ( gApplicationControlBlock.desiredWifiSecurityType == SL_WLAN_SEC_TYPE_WEP )
         {
-            len = strlen(wifi_password);
+            len = strlen( wifi_password );
 
-            if ((len == 10) || (len == 26))
+            if ( ( len == 10 ) || ( len == 26 ) )
             {
-                if (FixWEPKey(wifi_password, len) < 0)
+                if ( FixWEPKey( wifi_password, len ) < 0 )
                 {
                     // Error Bad WEP Key
-                    Report("[POST] Bad WEP key hex!\r\n");
+                    Report( "[POST] Bad WEP key hex!\r\n" );
                 }
             }
         }
@@ -1213,64 +1212,62 @@ uint32_t xively_ssl_rand_generate()
 }
 #endif
 
-static signed char hexConvertASCIINibble(signed char nibble)
+static signed char hexConvertASCIINibble( signed char nibble )
 {
     signed char val = -1;
 
-    if ((nibble >= '0') && (nibble <= '9'))
+    if ( ( nibble >= '0' ) && ( nibble <= '9' ) )
     {
-        val = (nibble - '0');
+        val = ( nibble - '0' );
     }
-    else if ((nibble >= 'A') && (nibble <= 'F'))
+    else if ( ( nibble >= 'A' ) && ( nibble <= 'F' ) )
     {
-        val = (nibble - 'A' + 10);
+        val = ( nibble - 'A' + 10 );
     }
-    else if ((nibble >= 'a') && (nibble <= 'f'))
+    else if ( ( nibble >= 'a' ) && ( nibble <= 'f' ) )
     {
-        val = (nibble - 'a' + 10);
+        val = ( nibble - 'a' + 10 );
     }
 
     return val;
 }
 
-static signed char hexConvertByteASCII(signed char msb, signed char lsb,
-        signed char *val)
+static signed char
+hexConvertByteASCII( signed char msb, signed char lsb, signed char* val )
 {
     signed char msn;
     signed char lsn;
 
-    msn = hexConvertASCIINibble(msb);
-    lsn = hexConvertASCIINibble(lsb);
+    msn = hexConvertASCIINibble( msb );
+    lsn = hexConvertASCIINibble( lsb );
 
-    if ((msn < 0) || (lsn < 0))
+    if ( ( msn < 0 ) || ( lsn < 0 ) )
         return -1;
 
-    *val = (msn * 16) + lsn;
+    *val = ( msn * 16 ) + lsn;
 
     return 0;
 }
 
-static signed char FixWEPKey(char *key, unsigned char keyLen)
+static signed char FixWEPKey( char* key, unsigned char keyLen )
 {
     int i = 0;
     signed char msb;
     signed char lsb;
 
-    while (i < (keyLen >> 1))
+    while ( i < ( keyLen >> 1 ) )
     {
-        msb = *(key + (2 * i));
-        lsb = *(key + 1 + (2 * i));
+        msb = *( key + ( 2 * i ) );
+        lsb = *( key + 1 + ( 2 * i ) );
 
-        if (hexConvertByteASCII(msb,
-                lsb,
-                (signed char *) (key + i)) < 0)
+        if ( hexConvertByteASCII( msb, lsb, ( signed char* )( key + i ) ) < 0 )
             return -1;
         i++;
     }
 
-    while (i < keyLen)
+    while ( i < keyLen )
     {
-        *(key + i) = 0;
+        *( key + i ) = 0;
         i++;
     }
 
