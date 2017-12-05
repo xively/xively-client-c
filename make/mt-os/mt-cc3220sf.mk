@@ -10,7 +10,7 @@ CC32XX ?= 0
 ###
 ## COMPILER NAME
 ###
-COMPILER ?= ti-cgt-arm_16.9.3.LTS
+COMPILER ?= ti-cgt-arm_16.9.4.LTS
 
 ###
 ## MAC HOST OS
@@ -18,8 +18,9 @@ COMPILER ?= ti-cgt-arm_16.9.3.LTS
 ifeq ($(XI_HOST_PLATFORM),Darwin)
 	# osx cross-compilation downloads
 
-	XI_CC3220SF_PATH_CCS_TOOLS ?= /Applications/ti/ccsv6/tools
-	XI_CC3220SF_PATH_SDK ?= $(HOME)/ti/tirex-content/CC3220SDK_1.1.0/cc3220-sdk
+	XI_CC3220SF_PATH_CCS_TOOLS ?= /Applications/ti/ccsv7/tools
+	XI_CC3220SF_PATH_SDK ?= /Applications/ti/simplelink_cc32xx_sdk_1_50_00_06
+	XI_CC3220SF_PATH_XDC_SDK ?= /Applications/ti/xdctools_3_50_03_33_core
 
 
 	CC = $(XI_CC3220SF_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armcl

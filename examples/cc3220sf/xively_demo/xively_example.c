@@ -866,7 +866,7 @@ void send_temperature( const xi_context_handle_t context_handle,
 void parseCredentialsFromConfigFile()
 {
     config_entry_t* config_file_context;
-    int len;
+    int len = 0;
     int err = read_config_file( XIVELY_CFG_FILE, &config_file_context );
     if ( SL_ERROR_FS_INVALID_TOKEN_SECURITY_ALERT == err )
     {
