@@ -49,7 +49,7 @@
 /* Example/Board Header files */
 #include "Board.h"
 
-extern void* xivelyExampleThread( void* arg0 );
+extern void* MAIN_StartUpThread( void* arg0 );
 
 /* Stack size in bytes */
 #define THREADSTACKSIZE 4096
@@ -92,7 +92,7 @@ int main( void )
             ;
     }
 
-    retc = pthread_create( &thread, &pAttrs, xivelyExampleThread, NULL );
+    retc = pthread_create( &thread, &pAttrs, MAIN_StartUpThread, NULL );
     if ( retc != 0 )
     {
         /* pthread_create() failed */
