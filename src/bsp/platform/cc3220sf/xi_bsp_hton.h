@@ -1,2 +1,2 @@
 #include <socket.h>
-typedef long int ssize_t;
+#include <arpa/inet.h>

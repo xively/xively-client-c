@@ -9,7 +9,7 @@
  *   Texas Instruments Incorporated or against the terms and conditions
  *   stipulated in the agreement under which this program has been supplied,
  *   and under no circumstances can it be used with non-TI connectivity device.
- *   
+ *
  */
 
 
@@ -188,7 +188,7 @@ static _i32 ConfigureSimpleLinkToDefaultState();
 
 //*****************************************************************************
 //
-//! \brief This function starts the SimpleLink in the configured role. 
+//! \brief This function starts the SimpleLink in the configured role.
 //!		 The device notifies the host asynchronously when the initialization is completed
 //!
 //! \param[in]  role	Device shall be configured in this role
@@ -344,7 +344,7 @@ const s_TblEntry gProvisioningTransitionTable[PrvnState_Max][PrvnEvent_Max] =
         /* Event: PrvnEvent_Error */
         {ReportError       		, PrvnState_Error                    	},
     },
-	
+
     /* PrvnState_Idle */
     {
 		/* Event: PrvnEvent_Triggered */
@@ -681,7 +681,7 @@ static _i32 provisioningAppTask()
         }
 
         /* No more events to handle. Break.! */
-        if(0 == pCtx->pendingEvents) 
+        if(0 == pCtx->pendingEvents)
 	{
 		break;
         }
@@ -729,7 +729,7 @@ ConfigureSimpleLinkToDefaultState()
 		ASSERT_ON_ERROR(mode);
 	}
 
-    /* If the device is not in AP mode, try configuring it in AP mode 
+    /* If the device is not in AP mode, try configuring it in AP mode
      in case device is already started (got SL_RET_CODE_DEV_ALREADY_STARTED error code), then mode would remain -1 and in this case we do not know the role. Move to AP role anyway	*/
     if (ROLE_AP != mode)
     {
@@ -809,14 +809,14 @@ ConfigureSimpleLinkToDefaultState()
 
     ret = sl_Stop(Board_SL_STOP_TIMEOUT);
     ASSERT_ON_ERROR(ret);
-    
+
     return ret;
 }
 
 
 //*****************************************************************************
 //
-//! \brief This function starts the SimpleLink in the configured role. 
+//! \brief This function starts the SimpleLink in the configured role.
 //!		 The device notifies the host asynchronously when the initialization is completed
 //!
 //! \param[in]  role	Device shall be configured in this role
@@ -965,7 +965,7 @@ static _i32 ReportError()
 
     for(eventIdx = 0; eventIdx < PrvnEvent_Max; eventIdx++)
     {
-        if(0 != (pCtx->pendingEvents & (1 << eventIdx))) 
+        if(0 != (pCtx->pendingEvents & (1 << eventIdx)))
 	{
 		break;
         }
@@ -973,7 +973,7 @@ static _i32 ReportError()
 
     UART_PRINT("[Provisioning task] Unexpected SM: State = %d, Event = %d\n\r",\
                                     pCtx->currentState, eventIdx);
-    return -1; 
+    return -1;
 }
 
 //*****************************************************************************
@@ -992,7 +992,7 @@ static _i32 ReportSM()
 
     for(eventIdx = 0; eventIdx < PrvnEvent_Max; eventIdx++)
     {
-        if(0 != (pCtx->pendingEvents & (1 << eventIdx))) 
+        if(0 != (pCtx->pendingEvents & (1 << eventIdx)))
 	{
 		break;
         }
@@ -1070,7 +1070,7 @@ static _i32 WaitForConn()
 			!IS_IP_ACQUIRED(gApplicationControlBlock.status)) ||
 			!IS_CONNECTED(gApplicationControlBlock.status))
 	{
-		clock_gettime(0, &ts);
+		clock_gettime( CLOCK_REALTIME, &ts);
 		ts.tv_sec += PROFILE_ASYNC_EVT_TIMEOUT;
 
 		retVal = sem_timedwait(&Provisioning_ControlBlock.connectionAsyncEvent, &ts);
@@ -1143,9 +1143,9 @@ static _i32 validateLocalLinkConnection(SlWlanMode_e *deviceRole)
 			}
 			else
 			{
-				clock_gettime(0, &ts);
+				clock_gettime( CLOCK_REALTIME, &ts);
        			ts.tv_sec += PROFILE_ASYNC_EVT_TIMEOUT;
-				
+
 				retVal = sem_timedwait(&Provisioning_ControlBlock.connectionAsyncEvent, &ts);
 				if((retVal == 116) || (retVal == -1))	/* freertos return -1 in case of timeout */
 				{
@@ -1191,9 +1191,9 @@ static _i32 validateLocalLinkConnection(SlWlanMode_e *deviceRole)
 			!IS_CONNECTED(gApplicationControlBlock.status))
 	{
 		UART_PRINT(".");
-		clock_gettime(0, &ts);
+		clock_gettime( CLOCK_REALTIME, &ts);
        	ts.tv_sec += PROFILE_ASYNC_EVT_TIMEOUT;
-				
+
 		retVal = sem_timedwait(&Provisioning_ControlBlock.connectionAsyncEvent, &ts);
 		if((retVal == 116) || (retVal == -1))	/* freertos return -1 in case of timeout */
 		{
@@ -1300,7 +1300,7 @@ _i32 StartLedEvtTimer(_u32 timeout)
 
     pCtx->ledToggleTimeout = timeout;
 	Platform_TimerStart(pCtx->ledToggleTimeout, gLedTimer, 1);
-	
+
     return 0;
 }
 
@@ -1348,7 +1348,7 @@ _i32 provisioningStop()
 	SlDeviceVersion_t ver = {0};
 	_u8  configOpt = 0;
 	_u16 configLen = 0;
-	
+
 	/* check if provisioning is running */
 	configOpt = SL_DEVICE_GENERAL_VERSION;
 	configLen = sizeof(ver);
@@ -1397,7 +1397,7 @@ void * provisioningTask(void *pvParameters)
 	_i32			retVal = -1;
 	Provisioning_AppContext 	*const pCtx = &gAppCtx;
 	SlWlanMode_e 	deviceRole;
-	
+
 	/* Check the wakeup source. If first time entry or wakeup from HIB */
 	if(MAP_PRCMSysResetCauseGet() == 0)
 	{
@@ -1416,7 +1416,7 @@ void * provisioningTask(void *pvParameters)
 	pCtx->ledToggleTimeout = LED_TOGGLE_CONFIRMATION_TIMEOUT;
 
 	StartLedEvtTimer(pCtx->ledToggleTimeout);
-	
+
 	/* check whether return-to-default occured */
 	NotifyReturnToFactoryImage();
 
@@ -1435,7 +1435,7 @@ void * provisioningTask(void *pvParameters)
 	/* need to stop provisioning */
 	provisioningStop();
 
-	if (deviceRole == ROLE_STA)		
+	if (deviceRole == ROLE_STA)
 	{
 		/* it means a connection to AP has been established, no need to trigger provisioning */
 		if (retVal == 0)

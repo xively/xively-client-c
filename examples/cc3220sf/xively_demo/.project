@@ -29,7 +29,7 @@
 	<variableList>
 		<variable>
 			<name>XIVELY_LIBRARY_C_ROOT</name>
-			<value>$%7BPARENT-3-PROJECT_LOC%7D</value>
+			<value>file:/Users/atigyi/git/xi/xc/xively-client-c-rhunter</value>
 		</variable>
 	</variableList>
 </projectDescription>
