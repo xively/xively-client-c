@@ -14,4 +14,5 @@
 	<templateProperties value="id=xively_example_CC3220SF_LAUNCHXL_tirtos_ccs.projectspec.xively_example_CC3220SF_LAUNCHXL_tirtos_ccs,products=com.ti.rtsc.MCPICC32XX,buildProfile=release,isHybrid=true,"/>
 	<filesToOpen value=""/>
 	<isTargetManual value="false"/>
+	<origin value="C:/Users/rhunter/Friedrich/WiFi/Workspace.xively.ccs/xively-client-c-master/examples/cc3220sf/xively_demo"/>
 </projectOptions>

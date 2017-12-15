@@ -56,7 +56,6 @@
 									<listOptionValue builtIn="false" value="NO_SHA512"/>
 									<listOptionValue builtIn="false" value="NO_STDIO_FILESYSTEM"/>
 									<listOptionValue builtIn="false" value="NO_WOLFSSL_DIR"/>
-									<listOptionValue builtIn="false" value="NO_WOLFSSL_SERVER"/>
 									<listOptionValue builtIn="false" value="SIZEOF_LONG_LONG=8"/>
 									<listOptionValue builtIn="false" value="SMALL_SESSION_CACHE"/>
 									<listOptionValue builtIn="false" value="WOLFSSL_IAR_ARM"/>
@@ -91,7 +90,7 @@
 								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_17.6.compiler.inputType__ASM2_SRCS.1969642793" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_17.6.compiler.inputType__ASM2_SRCS"/>
 							</tool>
 							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_17.6.library.librarianDebug.1794465251" name="ARM Archiver" superClass="com.ti.ccstudio.buildDefinitions.TMS470_17.6.library.librarianDebug">
-								<option id="com.ti.ccstudio.buildDefinitions.TMS470_17.6.archiverID.OUTPUT_FILE.410364660" name="Output file" superClass="com.ti.ccstudio.buildDefinitions.TMS470_17.6.archiverID.OUTPUT_FILE" value="&quot;${ProjName}.lib&quot;" valueType="string"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_17.6.archiverID.OUTPUT_FILE.410364660" name="Output file" superClass="com.ti.ccstudio.buildDefinitions.TMS470_17.6.archiverID.OUTPUT_FILE" useByScannerDiscovery="false" value="${ProjName}.lib" valueType="string"/>
 							</tool>
 						</toolChain>
 					</folderInfo>
@@ -191,7 +190,7 @@
 								<inputType id="com.ti.ccstudio.buildDefinitions.TMS470_17.6.compiler.inputType__ASM2_SRCS.1024812154" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.TMS470_17.6.compiler.inputType__ASM2_SRCS"/>
 							</tool>
 							<tool id="com.ti.ccstudio.buildDefinitions.TMS470_17.6.library.librarianRelease.1349920663" name="ARM Archiver" superClass="com.ti.ccstudio.buildDefinitions.TMS470_17.6.library.librarianRelease">
-								<option id="com.ti.ccstudio.buildDefinitions.TMS470_17.6.archiverID.OUTPUT_FILE.1474669713" name="Output file" superClass="com.ti.ccstudio.buildDefinitions.TMS470_17.6.archiverID.OUTPUT_FILE" value="&quot;${ProjName}.lib&quot;" valueType="string"/>
+								<option id="com.ti.ccstudio.buildDefinitions.TMS470_17.6.archiverID.OUTPUT_FILE.1474669713" name="Output file" superClass="com.ti.ccstudio.buildDefinitions.TMS470_17.6.archiverID.OUTPUT_FILE" useByScannerDiscovery="false" value="${ProjName}.lib" valueType="string"/>
 							</tool>
 						</toolChain>
 					</folderInfo>
