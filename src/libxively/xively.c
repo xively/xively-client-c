@@ -250,22 +250,22 @@ xi_state_t xi_create_context_with_custom_layers( xi_context_t** context,
 
 xi_context_handle_t xi_create_context()
 {
-    xi_context_t* context;
-    xi_state_t state = XI_STATE_OK;
+    xi_context_t* context = NULL;
+    xi_state_t state      = XI_STATE_OK;
 
     XI_CHECK_STATE( state = xi_create_context_with_custom_layers(
                         &context, xi_layer_types_g, XI_LAYER_CHAIN_DEFAULT,
                         XI_LAYER_CHAIN_DEFAULTSIZE_SUFFIX ) );
 
-    xi_context_handle_t context_handle;
+    xi_context_handle_t context_handle = 0;
     XI_CHECK_STATE( state = xi_find_handle_for_object( xi_globals.context_handles_vector,
                                                        context, &context_handle ) );
 
-    goto end;
-err_handling:
-    return -state;
-end:
     return context_handle;
+
+err_handling:
+
+    return -state;
 }
 
 xi_state_t xi_set_device_unique_id( const char* unique_id )
