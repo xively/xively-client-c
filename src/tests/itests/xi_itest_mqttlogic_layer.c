@@ -11,6 +11,7 @@
 #include "xi_itest_mqttlogic_layer.h"
 #include "xi_memory_checks.h"
 #include "xi_mqtt_logic_layer_data_helpers.h"
+#include <xi_context.h>
 
 #include <time.h>
 

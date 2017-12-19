@@ -9,6 +9,7 @@
 #include "xi_itest_layerchain_tls.h"
 #include "xi_itest_tls_layer.h"
 #include "xi_memory_checks.h"
+#include <xi_context.h>
 
 #include <time.h>
 

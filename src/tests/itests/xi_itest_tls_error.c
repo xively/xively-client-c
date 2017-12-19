@@ -15,6 +15,8 @@
 #include "xi_memory_checks.h"
 #include "xi_bsp_time.h"
 
+#include <xi_context.h>
+
 extern char xi_test_load_level;
 
 xi_context_t* xi_context              = NULL;
