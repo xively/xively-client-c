@@ -20,6 +20,7 @@
 #include "xi_itest_mock_broker_layerchain.h"
 #include "xi_itest_mock_broker_sft_logic.h"
 #include "xi_control_message_sft_generators.h"
+#include <xi_context.h>
 
 #include "xi_bsp_fwu.h"
 

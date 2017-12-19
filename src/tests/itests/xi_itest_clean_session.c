@@ -21,6 +21,8 @@
 #include "xi_memory_checks.h"
 #include "xi_layer_default_functions.h"
 
+#include <xi_context.h>
+
 /*-----------------------------------------------------------------------*/
 #ifndef XI_NO_TLS_LAYER
 #define XI_DEFAULT_LAYER_CHAIN                                                           \

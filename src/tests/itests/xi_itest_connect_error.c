@@ -16,6 +16,8 @@
 #include "xi_itest_layerchain_ct_ml_mc.h"
 #include "xi_itest_mock_broker_layerchain.h"
 
+#include <xi_context.h>
+
 /**
  * @brief These test cases are for testing the wrong usage of connect and disconnect
  * functions.
@@ -428,41 +430,41 @@ void xi_itest_test_valid_flow__call_is_context_connected_on_connecting_context__
     void** fixture_void )
 {
     will_return_always( xi_mock_broker_layer__check_expected__LAYER_LEVEL,
-        CONTROL_SKIP_CHECK_EXPECTED );
+                        CONTROL_SKIP_CHECK_EXPECTED );
     will_return_always( xi_mock_broker_layer__check_expected__MQTT_LEVEL,
-            CONTROL_SKIP_CHECK_EXPECTED );
+                        CONTROL_SKIP_CHECK_EXPECTED );
     will_return_always( xi_mock_layer_tls_prev__check_expected__LAYER_LEVEL,
-            CONTROL_SKIP_CHECK_EXPECTED );
+                        CONTROL_SKIP_CHECK_EXPECTED );
 
     uint8_t evtd_loop_count_between_connect_calls = 0;
     for ( ; evtd_loop_count_between_connect_calls < 10;
-    ++evtd_loop_count_between_connect_calls )
+          ++evtd_loop_count_between_connect_calls )
     {
-    const xi_itest_connect_error__test_fixture_t* const fixture =
-    ( xi_itest_connect_error__test_fixture_t* )*fixture_void;
-    XI_UNUSED( fixture );
-    xi_debug_format( "Number of evtd calls: %d",
-            evtd_loop_count_between_connect_calls );
-    xi_itest_connect_error__trigger_connect( fixture_void, 1 );
-    
-    /* TEST IT */
-    int is_connected_result = xi_is_context_connected( xi_context_handle );
-        
-    xi_itest_connect_error__trigger_event_dispatcher(
-    fixture_void, evtd_loop_count_between_connect_calls );
-    xi_itest_connect_error__trigger_event_dispatcher( fixture_void, 6 );
+        const xi_itest_connect_error__test_fixture_t* const fixture =
+            ( xi_itest_connect_error__test_fixture_t* )*fixture_void;
+        XI_UNUSED( fixture );
+        xi_debug_format( "Number of evtd calls: %d",
+                         evtd_loop_count_between_connect_calls );
+        xi_itest_connect_error__trigger_connect( fixture_void, 1 );
 
-    expect_value( xi_itest_connect_error__trigger_shutdown, local_state,
-        XI_STATE_OK );
-    xi_itest_connect_error__trigger_shutdown( fixture_void );
-    xi_itest_connect_error__trigger_event_dispatcher( fixture_void, 10 );
-    
-    /* artificially reset test case*/
-    xi_itest_connect_error_teardown( fixture_void );
-    xi_itest_connect_error_setup( fixture_void );
+        /* TEST IT */
+        int is_connected_result = xi_is_context_connected( xi_context_handle );
 
-    /* Evaluate result */
-    assert_int_equal( is_connected_result, 0 );
+        xi_itest_connect_error__trigger_event_dispatcher(
+            fixture_void, evtd_loop_count_between_connect_calls );
+        xi_itest_connect_error__trigger_event_dispatcher( fixture_void, 6 );
+
+        expect_value( xi_itest_connect_error__trigger_shutdown, local_state,
+                      XI_STATE_OK );
+        xi_itest_connect_error__trigger_shutdown( fixture_void );
+        xi_itest_connect_error__trigger_event_dispatcher( fixture_void, 10 );
+
+        /* artificially reset test case*/
+        xi_itest_connect_error_teardown( fixture_void );
+        xi_itest_connect_error_setup( fixture_void );
+
+        /* Evaluate result */
+        assert_int_equal( is_connected_result, 0 );
     }
 }
 
@@ -492,7 +494,7 @@ void xi_itest_test_valid_flow__call_is_context_connected_on_connected_context__c
 
         /* TEST IT */
         int is_connected_result = xi_is_context_connected( xi_context_handle );
-                
+
         expect_value( xi_itest_connect_error__trigger_shutdown, local_state,
                       XI_STATE_OK );
         xi_itest_connect_error__trigger_shutdown( fixture_void );
@@ -526,18 +528,18 @@ void xi_itest_test_valid_flow__call_is_context_connected_on_disconnecting_contex
         xi_debug_format( "Number of evtd calls: %d",
                          evtd_loop_count_between_connect_calls );
         xi_itest_connect_error__trigger_connect( fixture_void, 1 );
-        
+
         xi_itest_connect_error__trigger_event_dispatcher(
             fixture_void, evtd_loop_count_between_connect_calls );
         xi_itest_connect_error__trigger_event_dispatcher( fixture_void, 6 );
-           
+
         expect_value( xi_itest_connect_error__trigger_shutdown, local_state,
                       XI_STATE_OK );
         xi_itest_connect_error__trigger_shutdown( fixture_void );
 
         /* TEST IT */
         int is_connected_result = xi_is_context_connected( xi_context_handle );
-        
+
         xi_itest_connect_error__trigger_event_dispatcher( fixture_void, 10 );
 
         /* artificially reset test case*/
@@ -568,19 +570,19 @@ void xi_itest_test_valid_flow__call_is_context_connected_on_disconnected_context
         xi_debug_format( "Number of evtd calls: %d",
                          evtd_loop_count_between_connect_calls );
         xi_itest_connect_error__trigger_connect( fixture_void, 1 );
-        
+
         xi_itest_connect_error__trigger_event_dispatcher(
             fixture_void, evtd_loop_count_between_connect_calls );
         xi_itest_connect_error__trigger_event_dispatcher( fixture_void, 6 );
-           
+
         expect_value( xi_itest_connect_error__trigger_shutdown, local_state,
                       XI_STATE_OK );
-        xi_itest_connect_error__trigger_shutdown( fixture_void );        
+        xi_itest_connect_error__trigger_shutdown( fixture_void );
         xi_itest_connect_error__trigger_event_dispatcher( fixture_void, 10 );
 
         /* TEST IT */
         int is_connected_result = xi_is_context_connected( xi_context_handle );
-                
+
         /* artificially reset test case*/
         xi_itest_connect_error_teardown( fixture_void );
         xi_itest_connect_error_setup( fixture_void );
