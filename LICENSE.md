@@ -1,4 +1,4 @@
-# Copyright © 2003-2016 LogMeIn, Inc.
+# Copyright (c) 2003-2017, LogMeIn, Inc. All rights reserved.
 
 ### This library is licensed under the BSD 3-Clause license.
 ### All rights reserved.
