@@ -3,17 +3,15 @@
 
 #if XI_DEBUG_ASSERT
   #include <assert.h>
-#endif
+#else
+  #define assert(x)
+#endif 
 
 #include "cn-cbor/cn-cbor.h"
 
 cn_cbor* cn_cbor_mapget_int(const cn_cbor* cb, int key) {
   cn_cbor* cp;
-
-#if XI_DEBUG_ASSERT
   assert(cb);
-#endif
-
   for (cp = cb->first_child; cp && cp->next; cp = cp->next->next) {
     switch(cp->type) {
     case CN_CBOR_UINT:
@@ -35,12 +33,8 @@ cn_cbor* cn_cbor_mapget_int(const cn_cbor* cb, int key) {
 cn_cbor* cn_cbor_mapget_string(const cn_cbor* cb, const char* key) {
   cn_cbor *cp;
   int keylen;
-
-#if XI_DEBUG_ASSERT
   assert(cb);
   assert(key);
-#endif
-
   keylen = strlen(key);
   for (cp = cb->first_child; cp && cp->next; cp = cp->next->next) {
     switch(cp->type) {
@@ -62,11 +56,7 @@ cn_cbor* cn_cbor_mapget_string(const cn_cbor* cb, const char* key) {
 cn_cbor* cn_cbor_index(const cn_cbor* cb, unsigned int idx) {
   cn_cbor *cp;
   unsigned int i = 0;
-
-#if XI_DEBUG_ASSERT
   assert(cb);
-#endif
-  
   for (cp = cb->first_child; cp; cp = cp->next) {
     if (i == idx) {
       return cp;

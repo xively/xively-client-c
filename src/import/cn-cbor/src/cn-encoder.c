@@ -12,7 +12,12 @@ extern "C" {
 #include <string.h>
 #include <strings.h>
 #include <stdbool.h>
-#include <assert.h>
+
+#if XI_DEBUG_ASSERT
+  #include <assert.h>
+#else
+  #define assert(x)
+#endif 
 
 #include "cn-cbor/cn-cbor.h"
 #include "cbor.h"
@@ -78,9 +83,7 @@ static inline bool is_indefinite(const cn_cbor *cb)
 
 static void _write_positive(cn_write_state *ws, cn_cbor_type typ, uint64_t val) {
   uint8_t ib;
-
   assert((size_t)typ < sizeof(_xlate));
-
   ib = _xlate[typ];
   if (ib == 0xFF) {
     ws->offset = -1;

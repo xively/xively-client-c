@@ -14,6 +14,8 @@ extern "C" {
 
 #if XI_DEBUG_ASSERT
   #include <assert.h>
+#else
+  #define assert(x)
 #endif 
 
 #include <math.h>
@@ -26,11 +28,7 @@ extern "C" {
 
 void cn_cbor_free(cn_cbor* cb CBOR_CONTEXT) {
   cn_cbor* p = cb;
-
-#if XI_DEBUG_ASSERT
   assert(!p || !p->parent);
-#endif
-
   while (p) {
     cn_cbor* p1;
     while ((p1 = p->first_child)) { /* go down */
