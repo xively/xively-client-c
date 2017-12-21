@@ -16,7 +16,9 @@ extern "C" {
 #if XI_DEBUG_ASSERT
   #include <assert.h>
 #else
-  #define assert(x)
+  #ifndef assert
+    #define assert(x)
+  #endif
 #endif 
 
 #include "cn-cbor/cn-cbor.h"
