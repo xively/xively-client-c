@@ -42,8 +42,13 @@ void xi_bsp_fwu_on_package_download_failure()
 
 void xi_bsp_fwu_on_package_download_finished( const char* const firmware_resource_name )
 {
-    ( void )firmware_resource_name;
-    xi_bsp_debug_logger( "Firmware package download finished. Rebooting" );
+    if ( NULL == firmware_resource_name )
+    {
+        xi_bsp_debug_logger( "SFT package download finished. No need to reboot" );
+        return;
+    }
+
+    xi_bsp_debug_logger( "SFT package download finished. FW updated; rebooting" );
     const esp_partition_t* next_partition = esp_ota_get_next_update_partition( NULL );
     esp_err_t retv                        = ESP_OK;
 

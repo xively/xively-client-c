@@ -76,7 +76,10 @@ void xi_bsp_fwu_order_resource_downloads( const char* const* resource_names,
 
 void xi_bsp_fwu_on_package_download_finished( const char* const firmware_resource_name )
 {
-    ( void )firmware_resource_name;
+    if ( NULL == firmware_resource_name )
+    {
+        return;
+    }
 
     sl_extlib_FlcTest( FLC_TEST_RESET_MCU | FLC_TEST_RESET_MCU_WITH_APP );
 
