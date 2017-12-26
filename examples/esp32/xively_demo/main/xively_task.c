@@ -23,7 +23,7 @@
 #define XT_BUTTON_TOPIC_NAME "Button"
 #define XT_LED_TOPIC_NAME "LED"
 
-#define XT_CONNECT_TIMEOUT_S   5
+#define XT_CONNECT_TIMEOUT_S   10
 #define XT_KEEPALIVE_TIMEOUT_S 30
 
 #define INTERRUPT_POLLING_PERIOD 1
@@ -105,7 +105,6 @@ void __attribute__( ( weak ) ) xt_state_machine_aborted_callback( void )
     printf( "\n[XT] The Xively IF state machine and RTOS task are about to shut" );
     printf( " down due to an unrecoverable error" );
     printf( "\n[XT] You should re-implement this function to handle it gracefully" );
-    printf( "\n[XT] You should re-implement this function to handle it gracefully" );
 }
 
 void xt_handle_unrecoverable_error( void )
@@ -166,6 +165,7 @@ void xt_rtos_task( void* param )
                 break;
             case XT_REQUEST_DISCONNECT:
                 printf( "\n[XT] MQTT Disconnection requested" );
+                /* FSM will be paused from the xt_on_connected callback */
                 xt_request_machine_state( XT_REQUEST_CONTINUE );
                 xt_disconnect();
                 break;
@@ -348,21 +348,6 @@ void xt_pop_gpio_interrupt_queue( void )
         xi_publish( xt_context_handle, xt_mqtt_topics.button_topic, msg_payload,
                     XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
     }
-}
-
-void xt_publish_button_state( int button_state )
-{
-    char msg_payload[2] = "";
-    if ( !xt_is_connected() )
-    {
-        return;
-    }
-
-    ( button_state == 1 ) ? ( strcpy( msg_payload, "1" ) )
-                          : ( strcpy( msg_payload, "0" ) );
-    printf( "\n[XT] Publishing button pressed MQTT message" );
-    xi_publish( xt_context_handle, xt_mqtt_topics.button_topic, msg_payload,
-                XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, NULL, NULL );
 }
 
 #if PUB_INCREASING_COUNTER
