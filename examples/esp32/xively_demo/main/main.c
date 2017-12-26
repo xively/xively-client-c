@@ -192,7 +192,6 @@ esp_err_t app_wifi_event_handler( void* ctx, system_event_t* event )
             {
                 if( xt_request_machine_state( XT_REQUEST_CONNECT ) < 0 )
                 {
-                    printf( "\n\tError requesting MQTT connect from xively task" );
                     xt_handle_unrecoverable_error();
                 }
             }
@@ -203,7 +202,6 @@ esp_err_t app_wifi_event_handler( void* ctx, system_event_t* event )
             {
                 if ( xt_request_machine_state( XT_REQUEST_DISCONNECT ) < 0 )
                 {
-                    printf( "\n\tError requesting MQTT disconnect from xively task" );
                     xt_handle_unrecoverable_error();
                 }
             }

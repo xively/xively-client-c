@@ -66,7 +66,6 @@ static void xt_pop_gpio_interrupt_queue( void );
 static void xt_on_connected( xi_context_handle_t in_context_handle,
                              void* data,
                              xi_state_t state );
-static void xt_successful_connection_callback( xi_connection_data_t* conn_data );
 static void xt_led_topic_callback( xi_context_handle_t in_context_handle,
                                    xi_sub_call_type_t call_type,
                                    const xi_sub_call_params_t* const params,
@@ -113,7 +112,7 @@ void xt_handle_unrecoverable_error( void )
     {
         return; /* Already shut down */
     }
-    xt_state_machine_aborted_callback();
+    xt_state_machine_aborted_callback(); // TODO: Move this to the end of xt_rtos_task
     xt_request_machine_state( XT_REQUEST_SHUTDOWN );
 }
 
@@ -150,7 +149,6 @@ void xt_rtos_task( void* param )
     }
     else if ( 0 > xt_request_machine_state( XT_REQUEST_CONNECT ) )
     {
-        printf( "\n[XT] Failed to request first MQTT connection" );
         xt_handle_unrecoverable_error();
     }
 
@@ -160,18 +158,27 @@ void xt_rtos_task( void* param )
         switch ( xt_pop_highest_priority_request() )
         {
             case XT_REQUEST_CONTINUE:
-                xt_request_machine_state( XT_REQUEST_CONTINUE );
+                if ( 0 > xt_request_machine_state( XT_REQUEST_CONTINUE ) )
+                {
+                    xt_handle_unrecoverable_error();
+                }
                 xi_events_process_tick();
                 break;
             case XT_REQUEST_DISCONNECT:
                 printf( "\n[XT] MQTT Disconnection requested" );
                 /* FSM will be paused from the xt_on_connected callback */
-                xt_request_machine_state( XT_REQUEST_CONTINUE );
+                if ( 0 > xt_request_machine_state( XT_REQUEST_CONTINUE ) )
+                {
+                    xt_handle_unrecoverable_error();
+                }
                 xt_disconnect();
                 break;
             case XT_REQUEST_CONNECT:
                 printf( "\n[XT] MQTT Connection requested" );
-                xt_request_machine_state( XT_REQUEST_CONTINUE );
+                if ( 0 > xt_request_machine_state( XT_REQUEST_CONTINUE ) )
+                {
+                    xt_handle_unrecoverable_error();
+                }
                 if ( 0 > xt_connect() )
                 {
                     xt_handle_unrecoverable_error();
@@ -181,7 +188,10 @@ void xt_rtos_task( void* param )
                 /* Halt this task until we get a XT_REQUEST_CONTINUE request */
                 printf( "\n[XT] Pausing Xively Task..." );
                 xt_await_unpause();
-                xt_request_machine_state( XT_REQUEST_CONTINUE );
+                if ( 0 > xt_request_machine_state( XT_REQUEST_CONTINUE ) )
+                {
+                    xt_handle_unrecoverable_error();
+                }
                 break;
             case XT_REQUEST_SHUTDOWN:
                 /* Free all the memory allocated by xt or the Xively Client, shut
@@ -415,19 +425,6 @@ void xt_cancel_timed_tasks( void )
 #endif
 }
 
-void xt_successful_connection_callback( xi_connection_data_t* conn_data )
-{
-    xt_mqtt_connection_status = XT_MQTT_CONNECTED;
-    printf( "\n[XT] MQTT connected to %s:%d", conn_data->host, conn_data->port );
-    if ( 0 > xt_subscribe() )
-    {
-        xt_handle_unrecoverable_error();
-        return;
-    }
-
-    xt_start_timed_tasks();
-}
-
 /*
  * Full declaration of xi_sub_call_params_t is available in xively_types.h. This
  * function will always be called with the 'message' struct of the union:
@@ -507,7 +504,15 @@ void xt_on_connected( xi_context_handle_t in_context_handle,
     switch ( conn_data->connection_state )
     {
         case XI_CONNECTION_STATE_OPENED:
-            xt_successful_connection_callback( conn_data );
+            xt_mqtt_connection_status = XT_MQTT_CONNECTED;
+            printf( "\n[XT] MQTT connected to %s:%d", conn_data->host, conn_data->port );
+            if ( 0 > xt_subscribe() )
+            {
+                xt_handle_unrecoverable_error();
+                return;
+            }
+
+            xt_start_timed_tasks();
             return;
 
         case XI_CONNECTION_STATE_OPEN_FAILED:
@@ -523,7 +528,10 @@ void xt_on_connected( xi_context_handle_t in_context_handle,
             {
                 /* Re-attempt to connect until we succeed */
                 printf( "\n[XT]\tAttempting to reconnect..." );
-                xt_request_machine_state( XT_REQUEST_CONNECT );
+                if ( 0 > xt_request_machine_state( XT_REQUEST_CONNECT ) )
+                {
+                    xt_handle_unrecoverable_error();
+                }
             }
             return;
 
@@ -533,12 +541,18 @@ void xt_on_connected( xi_context_handle_t in_context_handle,
             if ( XI_STATE_OK == state )
             {
                 printf( "\n[XT]\tRequested via xi_shutdown_connection(). Pausing task" );
-                xt_request_machine_state( XT_REQUEST_PAUSE );
+                if ( 0 > xt_request_machine_state( XT_REQUEST_PAUSE ) )
+                {
+                    xt_handle_unrecoverable_error();
+                }
             }
             else
             {
                 printf( "\n[XT]\tAttempting to reconnect..." );
-                xt_request_machine_state( XT_REQUEST_CONNECT );
+                if ( 0 > xt_request_machine_state( XT_REQUEST_CONNECT ) )
+                {
+                    xt_handle_unrecoverable_error();
+                }
             }
             return;
 
@@ -598,29 +612,18 @@ int8_t xt_set_request_bits( xt_action_requests_t requested_action )
 {
     if ( !xt_ready_for_requests() )
     {
-        printf( "\n[XT] Error: Xively Task not ready for requests. Ignored" );
         return -1;
     }
-    BaseType_t higher_priority_task_woken, evt_group_set_result;
+    EventBits_t bits_after_set = 0x00;
 
-    /* xHigherPriorityTaskWoken must be initialised to pdFALSE. */
-    higher_priority_task_woken = pdFALSE;
-
-    evt_group_set_result = xEventGroupSetBitsFromISR(
-        xt_requests_event_group_handle, requested_action, &higher_priority_task_woken );
+    xEventGroupSetBits( xt_requests_event_group_handle, requested_action );
+    bits_after_set = xEventGroupGetBits( xt_requests_event_group_handle );
 
     /* Was the message posted successfully? */
-    if ( evt_group_set_result == pdFAIL )
+    if ( ( bits_after_set & requested_action ) != requested_action )
     {
+        printf( "\n[XT] Error: Failed to set request bits [0x%02x]", requested_action );
         return -1;
-    }
-    else if ( higher_priority_task_woken == pdTRUE )
-    {
-        /* If xHigherPriorityTaskWoken is now set to pdTRUE then a context
-        switch should be requested.  The macro used is port specific and will
-        be either portYIELD_FROM_ISR() or portEND_SWITCHING_ISR() - refer to
-        the documentation page for the port being used. */
-        portYIELD_FROM_ISR();
     }
     return 0;
 }
@@ -629,14 +632,16 @@ int8_t xt_clear_request_bits( xt_action_requests_t requested_action )
 {
     if ( !xt_ready_for_requests() )
     {
-        printf( "\n[XT] Error: Can't clear request bits. Ignored" );
         return -1;
     }
-    BaseType_t result;
-    result =
-        xEventGroupClearBitsFromISR( xt_requests_event_group_handle, requested_action );
-    if ( pdPASS != result )
+    EventBits_t bits_after_clear = 0x00;
+
+    xEventGroupClearBits( xt_requests_event_group_handle, requested_action );
+    bits_after_clear = xEventGroupGetBits( xt_requests_event_group_handle );
+
+    if ( ( bits_after_clear & requested_action ) != 0x00 )
     {
+        printf( "\n[XT] Error: Failed to clear request bits [0x%02x]", requested_action );
         return -1;
     }
     return 0;
@@ -692,22 +697,22 @@ xt_action_requests_t xt_pop_highest_priority_request( void )
 
     if ( XT_REQUEST_SHUTDOWN & external_request_bitmask )
     {
-        xEventGroupClearBits( xt_requests_event_group_handle, XT_REQUEST_SHUTDOWN );
+        xt_clear_request_bits( XT_REQUEST_SHUTDOWN );
         return XT_REQUEST_SHUTDOWN;
     }
     else if ( XT_REQUEST_PAUSE & external_request_bitmask )
     {
-        xEventGroupClearBits( xt_requests_event_group_handle, XT_REQUEST_PAUSE );
+        xt_clear_request_bits( XT_REQUEST_PAUSE );
         return XT_REQUEST_PAUSE;
     }
     else if ( XT_REQUEST_DISCONNECT & external_request_bitmask )
     {
-        xEventGroupClearBits( xt_requests_event_group_handle, XT_REQUEST_DISCONNECT );
+        xt_clear_request_bits( XT_REQUEST_DISCONNECT );
         return XT_REQUEST_DISCONNECT;
     }
     else if ( XT_REQUEST_CONNECT & external_request_bitmask )
     {
-        xEventGroupClearBits( xt_requests_event_group_handle, XT_REQUEST_CONNECT );
+        xt_clear_request_bits( XT_REQUEST_CONNECT );
         return XT_REQUEST_CONNECT;
     }
 
