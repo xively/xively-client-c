@@ -1,6 +1,13 @@
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
+
+#if XI_DEBUG_ASSERT
+  #include <assert.h>
+#else
+  #ifndef assert
+    #define assert(x)
+  #endif
+#endif 
 
 #include "cn-cbor/cn-cbor.h"
 
