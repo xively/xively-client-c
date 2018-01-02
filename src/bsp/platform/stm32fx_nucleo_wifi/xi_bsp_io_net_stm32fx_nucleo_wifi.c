@@ -55,13 +55,33 @@ static xi_bsp_io_net_state_t xi_bsp_io_net_configure_tls( const char* host )
 {
     WiFi_Status_t status          = WiFi_MODULE_SUCCESS;
     posix_time_t current_datetime = xi_bsp_time_sntp_getseconds_posix();
-    const uint8_t* tls_mode       = ( uint8_t* )"o"; /* ["m"utual || "o"ne-way] */
-    const char* tls_cert          = GLOBALSIGN_ROOT_CERT;
+    //const uint8_t* tls_mode       = ( uint8_t* )"o"; /* ["m"utual || "o"ne-way] */
+    //const char* tls_cert          = GLOBALSIGN_ROOT_CERT;
 
-    xi_bsp_debug_format( "Trusted Root CA Certificate:\r\n%s", tls_cert );
-    status = wifi_socket_client_security( ( uint8_t* )tls_mode, ( uint8_t* )tls_cert,
+    TLS_Certificate stm_cube_tls_certificate;
+    stm_cube_tls_certificate.certificate = ( uint8_t* )GLOBALSIGN_ROOT_CERT;
+    stm_cube_tls_certificate.certificate_size = sizeof(GLOBALSIGN_ROOT_CERT);
+
+    TLS_Certificate stm_cube_empty_certificate;
+    memset( &stm_cube_empty_certificate, 0, sizeof( TLS_Certificate) );
+
+    TLS_Certificate stm_cube_client_domain;
+    stm_cube_client_domain.certificate = ( uint8_t* )host;
+    stm_cube_client_domain.certificate_size = strlen( host );
+    memset( &stm_cube_empty_certificate, 0, sizeof( TLS_Certificate) );
+
+    
+
+    //wifi_socket_client_security(uint8_t* tls_mode, uint8_t* root_ca_server, uint8_t* client_cert, uint8_t* client_key, uint8_t* client_domain, uint32_t tls_epoch_time):
+    /*status = wifi_socket_client_security( ( uint8_t* )tls_mode, ( uint8_t* )tls_cert,
                                           NULL, NULL, ( uint8_t* )host,
-                                          ( uint32_t )current_datetime );
+                                          ( uint32_t )current_datetime );*/
+
+    status = wifi_set_socket_certificates( stm_cube_empty_certificate, /* ca_certificate */
+    									   stm_cube_tls_certificate,   /* tls_certificate */
+										   stm_cube_empty_certificate, /* certficate_key */
+										   stm_cube_client_domain,     /* client_domain */
+										   ( uint32_t )current_datetime );
 
     if ( WiFi_MODULE_SUCCESS != status )
     {
