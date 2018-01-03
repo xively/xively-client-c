@@ -211,8 +211,11 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
                 if ( 0 < recvd_msg->common.common_u.common_bits.qos )
                 {
                     XI_ALLOC( xi_mqtt_message_t, msg_puback, in_out_state );
-                    XI_CHECK_STATE( in_out_state = fill_with_puback_data(
-                                        msg_puback, recvd_msg->publish.message_id ) );
+
+                    in_out_state = fill_with_puback_data( msg_puback,
+                                                          recvd_msg->publish.message_id );
+
+                    XI_CHECK_STATE( in_out_state );
 
                     xi_mqtt_message_free( &recvd_msg );
                     return XI_PROCESS_PUSH_ON_PREV_LAYER( context, msg_puback,

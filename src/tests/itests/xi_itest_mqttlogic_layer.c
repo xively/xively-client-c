@@ -288,7 +288,7 @@ void xi_itest_mqttlogic_layer_act()
 /*********************************************************************************
  * test cases ********************************************************************
  ********************************************************************************/
-void xi_itest_mqttlogic_layer__backoff_class_error_PUSH__layerchain_closure_is_expected(
+void xi_itest_mqtt_logic_layer__backoff_class_error_PUSH__layerchain_closure_is_expected(
     void** state )
 {
     uint8_t id_error = 0;
@@ -332,7 +332,7 @@ void xi_itest_mqttlogic_layer__backoff_class_error_PUSH__layerchain_closure_is_e
     }
 }
 
-void xi_itest_mqttlogic_layer__backoff_class_error_PULL__layerchain_closure_is_expected(
+void xi_itest_mqtt_logic_layer__backoff_class_error_PULL__layerchain_closure_is_expected(
     void** state )
 {
     uint8_t id_error = 0;
