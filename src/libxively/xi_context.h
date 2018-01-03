@@ -13,6 +13,22 @@ xi_state_t xi_delete_context_with_custom_layers( xi_context_t** context,
                                                  xi_layer_type_t layer_config[],
                                                  size_t layer_chain_size );
 
-xi_state_t xi_delete_context( xi_context_handle_t context_handle );
+
+/**
+ * @brief xi_create_context_with_custom_layers
+ *
+ * Function that allows us to initialize context with custom layer setup.
+ */
+extern xi_state_t xi_create_context_with_custom_layers( xi_context_t** context,
+                                                        xi_layer_type_t layer_config[],
+                                                        xi_layer_type_id_t layer_chain[],
+                                                        size_t layer_chain_size );
+
+xi_state_t
+xi_create_context_with_custom_layers_and_evtd( xi_context_t** context,
+                                               xi_layer_type_t layer_config[],
+                                               xi_layer_type_id_t layer_chain[],
+                                               size_t layer_chain_size,
+                                               xi_evtd_instance_t* event_dispatcher );
 
 #endif /* __XI_CONTEXT_H__ */
