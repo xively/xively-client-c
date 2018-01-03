@@ -13,7 +13,12 @@
 #endif
 #include "xi_itest_mqttlogic_layer.h"
 #ifdef XI_CONTROL_TOPIC_ENABLED
+#ifdef XI_SECURE_FILE_TRANSFER_ENABLED
 #include "xi_itest_sft.h"
+#endif
+#endif
+#ifdef XI_GATEWAY_FEATURE_ENABLED
+#include "xi_itest_gateway.h"
 #endif
 #undef XI_MOCK_TEST_PREPROCESSOR_RUN
 
@@ -31,6 +36,9 @@ struct CMGroupTest groups[] = {cmocka_test_group( xi_itests_clean_session ),
 #ifdef XI_SECURE_FILE_TRANSFER_ENABLED
                                cmocka_test_group( xi_itests_sft ),
 #endif
+#endif
+#ifdef XI_GATEWAY_FEATURE_ENABLED
+                               cmocka_test_group( xi_itests_gateway ),
 #endif
                                cmocka_test_group_end};
 

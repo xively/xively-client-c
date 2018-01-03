@@ -232,6 +232,7 @@ ifneq (,$(findstring secure_file_transfer,$(CONFIG)))
 endif
 
 ifneq (,$(findstring gateway,$(CONFIG)))
+	XI_CONFIG_FLAGS += -DXI_GATEWAY_FEATURE_ENABLED
 	XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/gateway
 endif
 
