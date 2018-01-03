@@ -191,7 +191,6 @@ int xi_itest_sft_teardown( void** fixture_void )
 
     xi_shutdown();
 
-    XI_UNUSED( fixture_void );
     xi_itest_sft__test_fixture_t* fixture =
         ( xi_itest_sft__test_fixture_t* )*fixture_void;
 
