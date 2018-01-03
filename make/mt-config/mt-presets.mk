@@ -31,6 +31,7 @@ CONFIG_STM32FX_NUCLEO_WIFI =memory_fs-control_topic-tls_socket-secure_file_trans
 
 # xtensa configs
 CONFIG_ESP32               =memory_fs-control_topic-tls_bsp-secure_file_transfer
+CONFIG_ESP32_DEV           =memory_limiter-memory_fs-control_topic-tls_bsp-secure_file_transfer
 
 # TARGET presets
 TARGET_STATIC_DEV          =-static-debug
@@ -143,7 +144,7 @@ else ifeq ($(PRESET), ESP32)
     XI_TARGET_PLATFORM = esp32
 
 else ifeq ($(PRESET), ESP32_DEV)
-    CONFIG = $(CONFIG_ESP32)
+    CONFIG = $(CONFIG_ESP32_DEV)
     TARGET = $(TARGET_STATIC_DEV)
     XI_BSP_PLATFORM = esp32
     XI_TARGET_PLATFORM = esp32

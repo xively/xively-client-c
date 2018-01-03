@@ -287,7 +287,7 @@ int8_t app_fetch_user_config( user_data_t* dst )
 
     /* Wait for a button press for a few seconds while flashing the LED. If the button is
      * pressed, clear the contents of user_config to force the provisioning process */
-    for ( int i = 40; i > 0; i-- )
+    for ( int i = 39; i >= 0; i-- )
     {
         if ( -1 != io_pop_gpio_interrupt() )
         {
@@ -324,10 +324,27 @@ int8_t app_fetch_user_config( user_data_t* dst )
  */
 void app_main_logic_task( void* param )
 {
+    unsigned int led_toggler = 0;
     while ( 1 )
     {
         printf( "\n((Factory Default Running))" );
         // printf( "\n[[New FW Running]]" );
+        if ( !xt_ready_for_requests() )
+        {
+            /* The Xively Task was shut down for some reason. Reboot the device */
+            esp_restart();
+        }
+        else if ( xt_is_connected() )
+        {
+            /* LED Always off while the device is connected */
+            led_toggler = 0;
+        }
+        else
+        {
+            /* LED blinks slowly while the device is disconnected */
+            ( led_toggler == 1 ) ? ( led_toggler = 0 ) : ( led_toggler = 1 );
+        }
+        io_led_set( led_toggler % 2 );
         vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
 }
@@ -391,7 +408,7 @@ void esp32_xibsp_notify_chunk_written( size_t chunk_size, size_t offset )
             ota_download_progress, chunk_size, offset );
 
     { /* FW update light show */
-        for ( int i = 4; i > 0; i-- )
+        for ( int i = 3; i >= 0; i-- )
         {
             io_led_set( i % 2 );
             vTaskDelay( 50 / portTICK_PERIOD_MS );

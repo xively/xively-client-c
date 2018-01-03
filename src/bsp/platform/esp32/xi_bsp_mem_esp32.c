@@ -20,7 +20,7 @@ void* xi_bsp_mem_alloc( size_t byte_count )
 
     if ( NULL == ptr )
     {
-        printf( "Failed to allocate %d\n", byte_count );
+        printf( "Failed to allocate %lu\n", ( unsigned long )byte_count );
     }
 
     return ptr;

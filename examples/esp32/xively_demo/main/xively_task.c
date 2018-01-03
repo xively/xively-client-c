@@ -619,7 +619,6 @@ int8_t xt_set_request_bits( xt_action_requests_t requested_action )
     xEventGroupSetBits( xt_requests_event_group_handle, requested_action );
     bits_after_set = xEventGroupGetBits( xt_requests_event_group_handle );
 
-    /* Was the message posted successfully? */
     if ( ( bits_after_set & requested_action ) != requested_action )
     {
         printf( "\n[XT] Error: Failed to set request bits [0x%02x]", requested_action );
