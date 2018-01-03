@@ -128,7 +128,7 @@ XI_LAYER_TYPES_ADD( XI_LAYER_TYPE_IO,
 
         i++;
     }
-    printf( "\n----> Done with the inject\n" );
+    // printf( "\n----> Done with the inject\n" );
 }
 
 static xi_context_t* xi_context              = NULL;

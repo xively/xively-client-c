@@ -162,7 +162,7 @@ err_handling:
     {
         xi_free_desc( &layer_data->encoded_protobuf_accumulated );
     }
-    // close layer chaing in case of error: not doing recovery
+    // close layer chain in case of error: not doing recovery
     return XI_PROCESS_CLOSE_ON_THIS_LAYER( context, NULL, XI_SERIALIZATION_ERROR );
 }
 

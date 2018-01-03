@@ -58,7 +58,7 @@ uint8_t xi_bsp_fwu_is_this_firmware( const char* const resource_name )
 
 xi_bsp_fwu_state_t xi_bsp_fwu_on_new_firmware_ok()
 {
-    printf( "--- %s\n", __FUNCTION__ );
+    // printf( "--- %s\n", __FUNCTION__ );
 
     const char* firmware_test_flag_filename = _get_firmware_test_flag_filename( NULL );
 
@@ -71,28 +71,31 @@ xi_bsp_fwu_state_t xi_bsp_fwu_on_new_firmware_ok()
     if ( XI_BSP_IO_FS_STATE_OK == stat_result )
     {
         /* actual firmware update happened */
+
         xi_bsp_io_fs_remove( firmware_test_flag_filename );
 
-        printf( "--- actual firmware update happened\n" );
+        // printf( "--- actual firmware update happened\n" );
 
         return XI_BSP_FWU_ACTUAL_COMMIT_HAPPENED;
     }
     else
     {
-        printf( "--- firmware update didn't happen\n" );
         /* no update happened */
+
+        // printf( "--- firmware update didn't happen\n" );
+
         return XI_BSP_FWU_STATE_OK;
     }
 }
 
 void xi_bsp_fwu_on_new_firmware_failure()
 {
-    printf( "--- %s\n", __FUNCTION__ );
+    // printf( "--- %s\n", __FUNCTION__ );
 }
 
 void xi_bsp_fwu_on_package_download_failure()
 {
-    printf( "--- %s\n", __FUNCTION__ );
+    // printf( "--- %s\n", __FUNCTION__ );
 }
 
 void xi_bsp_fwu_order_resource_downloads( const char* const* resource_names,
@@ -108,7 +111,7 @@ void xi_bsp_fwu_order_resource_downloads( const char* const* resource_names,
 
 void xi_bsp_fwu_on_package_download_finished( const char* const firmware_resource_name )
 {
-    printf( "--- %s, firmware name: %s\n", __FUNCTION__, firmware_resource_name );
+    // printf( "--- %s, firmware name: %s\n", __FUNCTION__, firmware_resource_name );
 
     if ( NULL == firmware_resource_name )
     {
