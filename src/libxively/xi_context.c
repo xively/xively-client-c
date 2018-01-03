@@ -8,11 +8,118 @@
 #include <xi_handle.h>
 #include <xi_globals.h>
 
+#include <xi_backoff_lut_config.h>
 #include <xi_mqtt_logic_layer_data.h>
 #include <xi_backoff_status_api.h>
 #include <xi_thread_threadpool.h>
 #include <xi_layer_macros.h>
 #include <xi_layer_stack.h>
+
+#include <xively.h> /* xi_create_context(), xi_delete_context() function headers */
+
+
+#ifndef XI_MAX_NUM_CONTEXTS
+#define XI_MAX_NUM_CONTEXTS 10
+#endif
+
+xi_state_t xi_create_context_with_custom_layers_and_evtd(
+    xi_context_t** context,
+    xi_layer_type_t layer_config[],
+    xi_layer_type_id_t layer_chain[],
+    size_t layer_chain_size,
+    xi_evtd_instance_t* event_dispatcher ) /* PLEASE NOTE: Event dispatcher's ownership is
+                                            * not taken here! */
+{
+    xi_state_t state = XI_STATE_OK;
+
+    if ( NULL == context )
+    {
+        return XI_INVALID_PARAMETER;
+    }
+
+    if ( NULL == xi_globals.str_account_id || NULL == xi_globals.str_device_unique_id )
+    {
+        return XI_NOT_INITIALIZED;
+    }
+
+    *context = NULL;
+    xi_globals.globals_ref_count += 1;
+
+    if ( 1 == xi_globals.globals_ref_count )
+    {
+        xi_globals.evtd_instance = xi_evtd_create_instance();
+
+        XI_CHECK_STATE( xi_backoff_configure_using_data(
+            ( xi_vector_elem_t* )XI_BACKOFF_LUT, ( xi_vector_elem_t* )XI_DECAY_LUT,
+            XI_ARRAYSIZE( XI_BACKOFF_LUT ), XI_MEMORY_TYPE_UNMANAGED ) );
+
+        XI_CHECK_MEMORY( xi_globals.evtd_instance, state );
+
+        /* note: this is NULL if thread module is disabled */
+        xi_globals.main_threadpool = xi_threadpool_create_instance( 1 );
+
+        xi_globals.context_handles_vector = xi_vector_create();
+        xi_globals.timed_tasks_container  = xi_make_timed_task_container();
+    }
+
+    /* allocate the structure to store new context */
+    XI_ALLOC_AT( xi_context_t, *context, state );
+
+    /* create io timeout vector */
+    ( *context )->context_data.io_timeouts = xi_vector_create();
+
+    XI_CHECK_MEMORY( ( *context )->context_data.io_timeouts, state );
+    /* set the event dispatcher to the global one, if none is provided */
+    ( *context )->context_data.evtd_instance =
+        ( NULL == event_dispatcher ) ? xi_globals.evtd_instance : event_dispatcher;
+
+    /* copy given numeric parameters as is */
+    ( *context )->protocol = XI_MQTT;
+
+    ( *context )->layer_chain = xi_layer_chain_create(
+        layer_chain, layer_chain_size, &( *context )->context_data, layer_config );
+
+    XI_CHECK_STATE( state =
+                        xi_register_handle_for_object( xi_globals.context_handles_vector,
+                                                       XI_MAX_NUM_CONTEXTS, *context ) );
+
+    return XI_STATE_OK;
+
+err_handling:
+    /* @TODO release any allocated buffers (In v2 it was the API KEY) */
+    XI_SAFE_FREE( *context );
+    return state;
+}
+
+xi_state_t xi_create_context_with_custom_layers( xi_context_t** context,
+                                                 xi_layer_type_t layer_config[],
+                                                 xi_layer_type_id_t layer_chain[],
+                                                 size_t layer_chain_size )
+{
+    return xi_create_context_with_custom_layers_and_evtd(
+        context, layer_config, layer_chain, layer_chain_size, NULL );
+}
+
+xi_context_handle_t xi_create_context()
+{
+    xi_context_t* context = NULL;
+    xi_state_t state      = XI_STATE_OK;
+
+    XI_CHECK_STATE( state = xi_create_context_with_custom_layers(
+                        &context, xi_layer_types_g, XI_LAYER_CHAIN_DEFAULT,
+                        XI_LAYER_CHAIN_DEFAULTSIZE_SUFFIX ) );
+
+    xi_context_handle_t context_handle = 0;
+    XI_CHECK_STATE( state = xi_find_handle_for_object( xi_globals.context_handles_vector,
+                                                       context, &context_handle ) );
+
+    return context_handle;
+
+err_handling:
+
+    return -state;
+}
+
 
 /**
  * @brief helper function used to clean and free the protocol specific in-context data
