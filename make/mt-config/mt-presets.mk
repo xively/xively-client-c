@@ -26,8 +26,8 @@ CONFIG_CC3220SF                 =memory_fs-control_topic-tls_bsp-secure_file_tra
 CONFIG_CC3220SF_TLS_SOCKET      =memory_fs-control_topic-tls_socket-secure_file_transfer
 
 # CONFIG for STM32
-CONFIG_STM32FX                  =memory_fs-control_topic-tls_bsp-secure_file_transfer
-CONFIG_STM32FX_NUCLEO_WIFI      =memory_fs-control_topic-tls_socket-secure_file_transfer
+CONFIG_STM32FX                  =memory_fs-control_topic-tls_bsp
+CONFIG_STM32FX_NUCLEO_WIFI      =memory_fs-control_topic-tls_socket
 
 # xtensa configs
 CONFIG_ESP32 =memory_fs-tls_bsp-control_topic-secure_file_transfer
