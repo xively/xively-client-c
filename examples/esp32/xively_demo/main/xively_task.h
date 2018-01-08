@@ -147,15 +147,6 @@ extern void xt_recv_mqtt_msg_callback( const xi_sub_call_params_t* const params 
 int8_t xt_is_connected( void );
 
 /**
- * @brief This callback will be executed shortly before the xt_rtos_task() shuts
- * down
- * @detailed This callback is __weak__ in xively_task.c so you can overwrite it with your
- * own. For this demo, we permanently shut down the Xively Task when we get unrecoverable
- * errors, but you may want to handle that differently
- */
-extern void xt_state_machine_aborted_callback( void );
-
-/**
  * @brief This function gracefully shuts down the xt_rtos_task when an unrecoverable
  * MQTT/Xively Client issue is detected. e.g. Invalid credentials, critical errors, etc.
  * @detailed This callback is __weak__ in xively_task.c so you can overwrite it with your

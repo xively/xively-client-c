@@ -99,20 +99,12 @@ static xi_timed_task_handle_t xt_pubcounter_scheduled_task_handle = -1;
 /******************************************************************************
  *                          Xively Task Implementation
  *****************************************************************************/
-void __attribute__( ( weak ) ) xt_state_machine_aborted_callback( void )
-{
-    printf( "\n[XT] The Xively IF state machine and RTOS task are about to shut" );
-    printf( " down due to an unrecoverable error" );
-    printf( "\n[XT] You should re-implement this function to handle it gracefully" );
-}
-
 void xt_handle_unrecoverable_error( void )
 {
     if ( !xt_ready_for_requests() )
     {
         return; /* Already shut down */
     }
-    xt_state_machine_aborted_callback(); // TODO: Move this to the end of xt_rtos_task
     xt_request_machine_state( XT_REQUEST_SHUTDOWN );
 }
 
