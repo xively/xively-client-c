@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+# Copyright (c) 2003-2017, LogMeIn, Inc. All rights reserved.
 #
 # This is part of the Xively C Client library,
 # it is licensed under the BSD 3-Clause license.
@@ -144,11 +144,10 @@ else ifeq ($(PRESET), ESP32)
     XI_TARGET_PLATFORM = esp32
 
 else ifeq ($(PRESET), ESP32_DEV)
-    CONFIG = $(CONFIG_ESP32_DEV)
+    CONFIG = $(CONFIG_ESP32)
     TARGET = $(TARGET_STATIC_DEV)
     XI_BSP_PLATFORM = esp32
     XI_TARGET_PLATFORM = esp32
-
 # -------------------------------------------------------
 # Fuzz Tests
 else ifeq ($(PRESET), FUZZ_TESTS)
