@@ -14,7 +14,7 @@
 static inline int8_t xi_compare_context_pointers( const union xi_vector_selector_u* e0,
                                                   const union xi_vector_selector_u* e1 )
 {
-    return e0->ptr_value == e1->ptr_value ? 0 : 1;
+    return ( e0->ptr_value == e1->ptr_value ) ? 0 : 1;
 }
 
 /* -----------------------------------------------------------------------
