@@ -13,9 +13,19 @@
 extern "C" {
 #endif
 
-extern xi_context_handle_t xi_create_gateway_context();
+extern xi_context_handle_t
+xi_create_gateway_context( xi_context_handle_t context_handle );
 
 extern xi_state_t xi_delete_gateway_context( xi_context_handle_t gateway_context_handle );
+
+extern xi_state_t xi_gateway_connect();
+
+extern xi_state_t xi_gateway_publish( xi_context_handle_t gateway_context_handle,
+                                      const char* application_device_id,
+                                      const uint8_t* data,
+                                      size_t data_len,
+                                      xi_user_callback_t* callback,
+                                      void* user_data );
 
 #ifdef __cplusplus
 }

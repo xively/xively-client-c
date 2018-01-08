@@ -14,6 +14,7 @@
 #include "xi_itest_mock_broker_layerchain.h"
 #include "xi_handle.h"
 #include <xi_context.h>
+#include <xively_gateway.h>
 
 /*********************************************************************************
  * test fixture ******************************************************************
@@ -23,11 +24,12 @@ typedef struct xi_itest_gateway__test_fixture_s
     uint16_t loop_id__manual_disconnect;
     uint16_t max_loop_count;
 
+    xi_context_handle_t xi_gateway_context_handle;
+
     xi_context_t* xi_context;
     xi_context_handle_t xi_context_handle;
 
     xi_context_t* xi_context_mockbroker;
-
 
 } xi_itest_gateway__test_fixture_t;
 
@@ -66,12 +68,24 @@ int xi_itest_gateway_setup( void** fixture_void )
 
     xi_initialize( "xi_itest_gateway_account_id", "xi_itest_gateway_device_id" );
 
-    XI_CHECK_STATE( xi_create_context_with_custom_layers(
+    xi_state_t state = xi_create_context_with_custom_layers(
         &fixture->xi_context, itest_ct_ml_mc_layer_chain, XI_LAYER_CHAIN_CT_ML_MC,
-        XI_LAYER_CHAIN_SCHEME_LENGTH( XI_LAYER_CHAIN_CT_ML_MC ) ) );
+        XI_LAYER_CHAIN_SCHEME_LENGTH( XI_LAYER_CHAIN_CT_ML_MC ) );
+
+    XI_CHECK_STATE( state );
 
     xi_find_handle_for_object( xi_globals.context_handles_vector, fixture->xi_context,
                                &fixture->xi_context_handle );
+
+    state = xi_create_context_with_custom_layers(
+        &fixture->xi_context_mockbroker, itest_mock_broker_codec_layer_chain,
+        XI_LAYER_CHAIN_MOCK_BROKER_CODEC,
+        XI_LAYER_CHAIN_SCHEME_LENGTH( XI_LAYER_CHAIN_MOCK_BROKER_CODEC ) );
+
+    XI_CHECK_STATE( state );
+
+    fixture->xi_gateway_context_handle =
+        xi_create_gateway_context( fixture->xi_context_handle );
 
     return 0;
 
@@ -94,6 +108,8 @@ int xi_itest_gateway_teardown( void** fixture_void )
         &fixture->xi_context_mockbroker, itest_mock_broker_codec_layer_chain,
         XI_LAYER_CHAIN_SCHEME_LENGTH( XI_LAYER_CHAIN_MOCK_BROKER_CODEC ) );
 
+    xi_delete_gateway_context( fixture->xi_gateway_context_handle );
+
     xi_shutdown();
 
     XI_SAFE_FREE( fixture );
@@ -111,5 +127,10 @@ int xi_itest_gateway_teardown( void** fixture_void )
  ********************************************************************************/
 void xi_itest_gateway__first( void** fixture_void )
 {
-    ( void )fixture_void;
+    xi_itest_gateway__test_fixture_t* fixture =
+        ( xi_itest_gateway__test_fixture_t* )*fixture_void;
+
+
+    xi_gateway_publish( fixture->xi_gateway_context_handle, "application device id",
+                        ( uint8_t* )"*** message payload ***", 23, NULL, NULL );
 }
