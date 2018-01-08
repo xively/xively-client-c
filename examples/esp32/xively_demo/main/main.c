@@ -332,6 +332,13 @@ void app_main_logic_task( void* param )
         if ( !xt_ready_for_requests() )
         {
             /* The Xively Task was shut down for some reason. Reboot the device */
+            /* This demo doesn't shut down the xively task during normal operation,
+               so this serves a simple application-level watchdog */
+            /* You may need to remove/rewrite it for your own logic. */
+            /* You can start the xively task from here, to re-start the task instead
+               of rebooting the device. Rebooting is more drastic, but it solves other
+               potential malfunctions caused by whatever crashed the xively task */
+            printf( "\nXively task stopped running. Rebooting" );
             esp_restart();
         }
         else if ( xt_is_connected() )
