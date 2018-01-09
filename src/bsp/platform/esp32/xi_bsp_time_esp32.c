@@ -52,7 +52,7 @@ void xi_bsp_time_init()
             goto exit;
         }
         vTaskDelay( sntp_timeout_step_ms / portTICK_PERIOD_MS );
-        XI_ESP32_GET_TIME_FROM_RTC( ( time_t* )&sntp_retrieved_time );
+        XI_ESP32_GET_TIME_FROM_RTC( &sntp_retrieved_time );
     }
 
     xi_bsp_debug_format( "RTC updated to current datetime: %ld", sntp_retrieved_time );
@@ -63,8 +63,8 @@ exit:
 xi_time_t xi_bsp_time_getcurrenttime_seconds()
 {
     xi_time_t current_time = 0;
-    XI_ESP32_GET_TIME_FROM_RTC( ( time_t* )&current_time );
-    return ( xi_time_t )current_time;
+    XI_ESP32_GET_TIME_FROM_RTC( &current_time );
+    return current_time;
 }
 
 xi_time_t xi_bsp_time_getcurrenttime_milliseconds()
