@@ -121,6 +121,17 @@ void xi_bsp_fwu_on_package_download_failure()
     /* how  do you toggle LED without a reference on CC3220? */
 }
 
+void xi_bsp_fwu_order_resource_downloads( const char* const* resource_names,
+                                          uint16_t list_len,
+                                          int32_t* download_order )
+{
+    ( void )( resource_names );
+    ( void )( list_len );
+    ( void )( download_order );
+
+    /* just go in default order. */
+}
+
 void xi_bsp_fwu_on_package_download_finished( const char* const firmware_resource_name )
 {
     ( void )firmware_resource_name;

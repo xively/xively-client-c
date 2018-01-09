@@ -460,7 +460,7 @@ void ConnectToXively()
     /* Pass list of files to be updated by the Xively Services. */
     const char** files_to_keep_updated = ( const char* [] ){"firmware.tar"};
 
-    xi_set_updateable_files( gXivelyContextHandle, files_to_keep_updated, 1 );
+    xi_set_updateable_files( gXivelyContextHandle, files_to_keep_updated, 1, NULL );
 #endif
 
     xi_state_t connect_result =
