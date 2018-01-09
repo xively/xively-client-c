@@ -101,7 +101,9 @@ xi_state_t xi_create_context_with_custom_layers_and_evtd(
     *context = NULL;
 
     /* hold a reference on the globals variable */
-    xi_globals_add_reference();
+    state = xi_globals_add_reference();
+
+    XI_CHECK_STATE( state );
 
     /* allocate the structure to store new context */
     XI_ALLOC_AT( xi_context_t, *context, state );
