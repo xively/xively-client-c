@@ -15,12 +15,68 @@
 #include <xi_layer_macros.h>
 #include <xi_layer_stack.h>
 
-#include <xively.h> /* xi_create_context(), xi_delete_context() function headers */
-
+#include <xively.h>
+#include <xi_macros.h>
 
 #ifndef XI_MAX_NUM_CONTEXTS
 #define XI_MAX_NUM_CONTEXTS 10
 #endif
+
+void xi_globals_remove_reference();
+
+xi_state_t xi_globals_add_reference()
+{
+    xi_state_t state = XI_STATE_OK;
+
+    xi_globals.globals_ref_count += 1;
+
+    if ( 1 == xi_globals.globals_ref_count )
+    {
+        xi_globals.evtd_instance = xi_evtd_create_instance();
+
+        XI_CHECK_STATE( state = xi_backoff_configure_using_data(
+                            ( xi_vector_elem_t* )XI_BACKOFF_LUT,
+                            ( xi_vector_elem_t* )XI_DECAY_LUT,
+                            XI_ARRAYSIZE( XI_BACKOFF_LUT ), XI_MEMORY_TYPE_UNMANAGED ) );
+
+        XI_CHECK_MEMORY( xi_globals.evtd_instance, state );
+
+        /* note: this is NULL if thread module is disabled */
+        xi_globals.main_threadpool = xi_threadpool_create_instance( 1 );
+
+        xi_globals.context_handles_vector = xi_vector_create();
+        xi_globals.timed_tasks_container  = xi_make_timed_task_container();
+    }
+
+    return XI_STATE_OK;
+
+err_handling:
+
+    xi_globals_remove_reference();
+
+    return state;
+}
+
+void xi_globals_remove_reference()
+{
+    xi_globals.globals_ref_count =
+        XI_MAX( ( int8_t )0, ( int8_t )( xi_globals.globals_ref_count ) - 1 );
+
+    if ( 0 == xi_globals.globals_ref_count )
+    {
+        xi_cancel_backoff_event();
+        xi_backoff_release();
+        xi_evtd_destroy_instance( xi_globals.evtd_instance );
+        xi_globals.evtd_instance = NULL;
+        xi_threadpool_destroy_instance( &xi_globals.main_threadpool );
+
+        xi_vector_destroy( xi_globals.context_handles_vector );
+        xi_globals.context_handles_vector = NULL;
+
+        xi_destroy_timed_task_container( xi_globals.timed_tasks_container );
+        xi_globals.timed_tasks_container = NULL;
+    }
+}
 
 xi_state_t xi_create_context_with_custom_layers_and_evtd(
     xi_context_t** context,
@@ -43,24 +99,9 @@ xi_state_t xi_create_context_with_custom_layers_and_evtd(
     }
 
     *context = NULL;
-    xi_globals.globals_ref_count += 1;
 
-    if ( 1 == xi_globals.globals_ref_count )
-    {
-        xi_globals.evtd_instance = xi_evtd_create_instance();
-
-        XI_CHECK_STATE( xi_backoff_configure_using_data(
-            ( xi_vector_elem_t* )XI_BACKOFF_LUT, ( xi_vector_elem_t* )XI_DECAY_LUT,
-            XI_ARRAYSIZE( XI_BACKOFF_LUT ), XI_MEMORY_TYPE_UNMANAGED ) );
-
-        XI_CHECK_MEMORY( xi_globals.evtd_instance, state );
-
-        /* note: this is NULL if thread module is disabled */
-        xi_globals.main_threadpool = xi_threadpool_create_instance( 1 );
-
-        xi_globals.context_handles_vector = xi_vector_create();
-        xi_globals.timed_tasks_container  = xi_make_timed_task_container();
-    }
+    /* hold a reference on the globals variable */
+    xi_globals_add_reference();
 
     /* allocate the structure to store new context */
     XI_ALLOC_AT( xi_context_t, *context, state );
@@ -86,8 +127,9 @@ xi_state_t xi_create_context_with_custom_layers_and_evtd(
     return XI_STATE_OK;
 
 err_handling:
-    /* @TODO release any allocated buffers (In v2 it was the API KEY) */
+
     XI_SAFE_FREE( *context );
+
     return state;
 }
 
@@ -196,22 +238,7 @@ xi_state_t xi_delete_context_with_custom_layers( xi_context_t** context,
 
     XI_SAFE_FREE( *context );
 
-    xi_globals.globals_ref_count -= 1;
-
-    if ( 0 == xi_globals.globals_ref_count )
-    {
-        xi_cancel_backoff_event();
-        xi_backoff_release();
-        xi_evtd_destroy_instance( xi_globals.evtd_instance );
-        xi_globals.evtd_instance = NULL;
-        xi_threadpool_destroy_instance( &xi_globals.main_threadpool );
-
-        xi_vector_destroy( xi_globals.context_handles_vector );
-        xi_globals.context_handles_vector = NULL;
-
-        xi_destroy_timed_task_container( xi_globals.timed_tasks_container );
-        xi_globals.timed_tasks_container = NULL;
-    }
+    xi_globals_remove_reference();
 
     return XI_STATE_OK;
 }
