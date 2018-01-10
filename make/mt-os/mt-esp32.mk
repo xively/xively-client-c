@@ -23,7 +23,7 @@ ifeq (,$(wildcard $(IDF_PATH)))
 $(XI_ESP_IDF_SDK_PATH):
 	@-mkdir -p $@
 	git clone --recursive https://github.com/espressif/esp-idf.git $(XI_ESP_IDF_SDK_PATH)
-	@-cd $(XI_ESP_IDF_SDK_PATH) && git checkout -b xively_tested_version af63ca1 && git submodule update
+	@-cd $(XI_ESP_IDF_SDK_PATH) && git checkout -b xively_tested_version e6afe28 && git submodule update
 
 XI_BUILD_PRECONDITIONS += $(XI_ESP_IDF_SDK_PATH)
 
