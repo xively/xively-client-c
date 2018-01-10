@@ -116,7 +116,6 @@ xi_state_t xi_create_context_with_custom_layers_and_evtd(
     ( *context )->context_data.evtd_instance =
         ( NULL == event_dispatcher ) ? xi_globals.evtd_instance : event_dispatcher;
 
-    /* copy given numeric parameters as is */
     ( *context )->protocol = XI_MQTT;
 
     ( *context )->layer_chain = xi_layer_chain_create(
@@ -168,13 +167,12 @@ err_handling:
 /**
  * @brief helper function used to clean and free the protocol specific in-context data
  **/
-static void xi_free_context_data( xi_context_t* context )
+static void xi_free_context_data( xi_context_data_t* context_data )
 {
-    assert( NULL != context );
-
-    xi_context_data_t* context_data = ( xi_context_data_t* )&context->context_data;
-
-    assert( NULL != context_data );
+    if ( NULL == context_data )
+    {
+        return;
+    }
 
     /* destroy timeout */
     xi_vector_destroy( context_data->io_timeouts );
@@ -219,7 +217,7 @@ xi_state_t xi_delete_context_with_custom_layers( xi_context_t** context,
                                                  xi_layer_type_t layer_config[],
                                                  size_t layer_chain_size )
 {
-    if ( NULL == *context )
+    if ( NULL == context || NULL == *context )
     {
         return XI_INVALID_PARAMETER;
     }
@@ -236,7 +234,7 @@ xi_state_t xi_delete_context_with_custom_layers( xi_context_t** context,
     xi_layer_chain_delete( &( ( *context )->layer_chain ), layer_chain_size,
                            layer_config );
 
-    xi_free_context_data( *context );
+    xi_free_context_data( &( *context )->context_data );
 
     XI_SAFE_FREE( *context );
 

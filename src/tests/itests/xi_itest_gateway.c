@@ -100,6 +100,8 @@ int xi_itest_gateway_teardown( void** fixture_void )
     xi_itest_gateway__test_fixture_t* fixture =
         ( xi_itest_gateway__test_fixture_t* )*fixture_void;
 
+    xi_delete_gateway_context( fixture->xi_gateway_context_handle );
+
     xi_delete_context_with_custom_layers(
         &fixture->xi_context, itest_ct_ml_mc_layer_chain,
         XI_LAYER_CHAIN_SCHEME_LENGTH( XI_LAYER_CHAIN_CT_ML_MC ) );
@@ -107,8 +109,6 @@ int xi_itest_gateway_teardown( void** fixture_void )
     xi_delete_context_with_custom_layers(
         &fixture->xi_context_mockbroker, itest_mock_broker_codec_layer_chain,
         XI_LAYER_CHAIN_SCHEME_LENGTH( XI_LAYER_CHAIN_MOCK_BROKER_CODEC ) );
-
-    xi_delete_gateway_context( fixture->xi_gateway_context_handle );
 
     xi_shutdown();
 

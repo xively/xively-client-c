@@ -10,17 +10,19 @@
 #include <xi_handle.h>
 #include <xi_globals.h>
 #include <xi_context.h>
+#include <xi_gateway_context.h>
 
 xi_context_handle_t xi_create_gateway_context( xi_context_handle_t context_handle )
 {
     XI_UNUSED( context_handle );
 
-    xi_context_t* gateway_context = NULL;
-    xi_state_t state              = XI_STATE_OK;
+    xi_state_t state = XI_STATE_OK;
 
-    XI_CHECK_STATE( state = xi_create_context_with_custom_layers(
+    xi_gateway_context_t* gateway_context = NULL;
+
+    XI_CHECK_STATE( state = xi_create_gateway_context_with_custom_layers(
                         &gateway_context, xi_gw_layer_chain, XI_LAYER_CHAIN_GW,
-                        XI_LAYER_CHAIN_GWSIZE_SUFFIX ) );
+                        XI_LAYER_CHAIN_SCHEME_LENGTH( XI_LAYER_CHAIN_GW ) ) );
 
     xi_context_handle_t gateway_context_handle = 0;
     XI_CHECK_STATE( state = xi_find_handle_for_object( xi_globals.context_handles_vector,
@@ -36,11 +38,12 @@ err_handling:
 
 xi_state_t xi_delete_gateway_context( xi_context_handle_t gateway_context_handle )
 {
-    xi_context_t* gateway_context =
+    xi_gateway_context_t* gateway_context =
         xi_object_for_handle( xi_globals.context_handles_vector, gateway_context_handle );
+
     assert( gateway_context != NULL );
 
-    return xi_delete_context_with_custom_layers(
+    return xi_delete_gateway_context_with_custom_layers(
         &gateway_context, xi_gw_layer_chain,
         XI_LAYER_CHAIN_SCHEME_LENGTH( XI_LAYER_CHAIN_GW ) );
 }
