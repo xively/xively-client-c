@@ -13,13 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-/*! \file
- * @brief Interface between the top level application logic and the device's GPIO.
- * Handles initialization, pull-ups/pull-downs, interrupts and pin read/writes
-
- * \copyright 2003-2018, LogMeIn, Inc.  All rights reserved.
- *
- */
 
 #define IO_LED_PIN GPIO_NUM_17
 #define IO_BUTTON_PIN GPIO_NUM_0
