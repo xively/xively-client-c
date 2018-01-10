@@ -1,6 +1,6 @@
 //*****************************************************************************
 // Copyright (C) 2016 Texas Instruments Incorporated
-// 
+//
 // All rights reserved. Property of Texas Instruments Incorporated.
 // Restricted rights to use, duplicate or disclose this code are
 // granted through contract.
@@ -18,7 +18,6 @@
 /* POSIX Header files */
 #include <pthread.h>
 #include <time.h>
-#include <types.h>
 
 #include <ti/drivers/net/wifi/simplelink.h>
 

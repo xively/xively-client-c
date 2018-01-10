@@ -22,9 +22,9 @@
 #include <pthread.h>
 #include <time.h>
 
-#define OCP_REGISTER_INDEX		(0)
-#define OCP_REGISTER_OFFSET		(10)	/* OCP register used to store device role when coming out of hibernate */
-										/* if ocpRegOffset is set -> AP role, otherwise -> STATION role	*/
+#define OCP_REGISTER_INDEX      (0)
+#define OCP_REGISTER_OFFSET     (10)    /* OCP register used to store device role when coming out of hibernate */
+                                        /* if ocpRegOffset is set -> AP role, otherwise -> STATION role */
 
 
 /*!
@@ -32,16 +32,16 @@
  */
 typedef enum
 {
-	PrvnEvent_Triggered,
-	PrvnEvent_Started,
-	PrvnEvent_StartFailed,
-	PrvnEvent_ConfirmationSuccess,
-	PrvnEvent_ConfirmationFailed,
-	PrvnEvent_Stopped,
-	PrvnEvent_WaitForConn,
-	PrvnEvent_Timeout,
-	PrvnEvent_Error,
-	PrvnEvent_Max,
+    PrvnEvent_Triggered,
+    PrvnEvent_Started,
+    PrvnEvent_StartFailed,
+    PrvnEvent_ConfirmationSuccess,
+    PrvnEvent_ConfirmationFailed,
+    PrvnEvent_Stopped,
+    PrvnEvent_WaitForConn,
+    PrvnEvent_Timeout,
+    PrvnEvent_Error,
+    PrvnEvent_Max,
 }PrvnEvent;
 
 /*!
@@ -49,25 +49,25 @@ typedef enum
  */
 typedef enum
 {
-	PrvnState_Init,
-	PrvnState_Idle,
-	PrvnState_WaitForConfirmation,
-	PrvnState_Completed,
-	PrvnState_Error,
-	PrvnState_Max
+    PrvnState_Init,
+    PrvnState_Idle,
+    PrvnState_WaitForConfirmation,
+    PrvnState_Completed,
+    PrvnState_Error,
+    PrvnState_Max
 
 }PrvnState;
 
 typedef struct Provisioning_ControlBlock_t
 {
-	sem_t	connectionAsyncEvent;
-	sem_t 	provisioningDoneSignal;
+    sem_t   connectionAsyncEvent;
+    sem_t   provisioningDoneSignal;
 }Provisioning_CB;
 
 /****************************************************************************
                       GLOBAL VARIABLES
 ****************************************************************************/
-extern Provisioning_CB	Provisioning_ControlBlock;
+extern Provisioning_CB  Provisioning_ControlBlock;
 
 //****************************************************************************
 //                      FUNCTION PROTOTYPES
