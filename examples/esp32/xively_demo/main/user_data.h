@@ -1,4 +1,4 @@
-/* Copyright (c) 2003-2017, LogMeIn, Inc. All rights reserved.
+/* Copyright (c) 2003-2018, LogMeIn, Inc. All rights reserved.
  *
  * This is part of the Xively C Client codebase,
  * it is licensed under the BSD 3-Clause license.
@@ -13,7 +13,7 @@ extern "C" {
  * @brief A datastructure to keep your device's credentials and manipulate them
  * at runtime, and an API to get/set them in Non-Volatile Storage
 
- * \copyright 2003-2017, LogMeIn, Inc.  All rights reserved.
+ * \copyright 2003-2018, LogMeIn, Inc.  All rights reserved.
  *
  */
 

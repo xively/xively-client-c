@@ -1,4 +1,4 @@
-/* Copyright (c) 2003-2017, LogMeIn, Inc. All rights reserved.
+/* Copyright (c) 2003-2018, LogMeIn, Inc. All rights reserved.
  *
  * This is part of the Xively C Client codebase,
  * it is licensed under the BSD 3-Clause license.
@@ -17,7 +17,7 @@ extern "C" {
  * @brief Interface between the top level application logic and the device's GPIO.
  * Handles initialization, pull-ups/pull-downs, interrupts and pin read/writes
 
- * \copyright 2003-2017, LogMeIn, Inc.  All rights reserved.
+ * \copyright 2003-2018, LogMeIn, Inc.  All rights reserved.
  *
  */
 

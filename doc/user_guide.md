@@ -1,6 +1,6 @@
 
 # Xively Client for C User Guide
-##### Copyright © 2003-2017 LogMeIn, Inc.
+##### Copyright (c) 2003-2018, LogMeIn, Inc.
 
 ## Hello
 
