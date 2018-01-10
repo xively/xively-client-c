@@ -287,7 +287,7 @@ int8_t app_fetch_user_config( user_data_t* dst )
 
     /* Wait for a button press for a few seconds while flashing the LED. If the button is
      * pressed, clear the contents of user_config to force the provisioning process */
-    for ( int i = 39; i >= 0; i-- )
+    for ( int blinks_num = 20; ( ( blinks_num * 2 ) - 1 ) >= 0; blinks_num-- )
     {
         if ( -1 != io_pop_gpio_interrupt() )
         {
@@ -295,10 +295,9 @@ int8_t app_fetch_user_config( user_data_t* dst )
             provisioning_bootmode_selected = 1;
             break;
         }
-        io_led_set( i % 2 ); /* Toggle LED */
+        io_led_set( blinks_num % 2 ); /* Toggle LED */
         vTaskDelay( 50 / portTICK_PERIOD_MS );
     }
-    io_led_off();
 
     /* If the data retrieved from NVS is missing any fields, start provisioning */
     if ( provisioning_bootmode_selected || ( 0 > user_data_is_valid( dst ) ) )
@@ -415,9 +414,9 @@ void esp32_xibsp_notify_chunk_written( size_t chunk_size, size_t offset )
             ota_download_progress, chunk_size, offset );
 
     { /* FW update light show */
-        for ( int i = 3; i >= 0; i-- )
+        for ( int blinks_num = 2; ( ( blinks_num * 2 ) - 1 ) >= 0; blinks_num-- )
         {
-            io_led_set( i % 2 );
+            io_led_set( blinks_num % 2 );
             vTaskDelay( 50 / portTICK_PERIOD_MS );
         }
     }
