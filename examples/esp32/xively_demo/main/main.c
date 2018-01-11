@@ -1,4 +1,4 @@
-/* Copyright (c) 2003-2017, LogMeIn, Inc. All rights reserved.
+/* Copyright (c) 2003-2018, LogMeIn, Inc. All rights reserved.
  *
  * This is part of the Xively C Client codebase,
  * it is licensed under the BSD 3-Clause license.
@@ -192,7 +192,6 @@ esp_err_t app_wifi_event_handler( void* ctx, system_event_t* event )
             {
                 if( xt_request_machine_state( XT_REQUEST_CONNECT ) < 0 )
                 {
-                    printf( "\n\tError requesting MQTT connect from xively task" );
                     xt_handle_unrecoverable_error();
                 }
             }
@@ -203,7 +202,6 @@ esp_err_t app_wifi_event_handler( void* ctx, system_event_t* event )
             {
                 if ( xt_request_machine_state( XT_REQUEST_DISCONNECT ) < 0 )
                 {
-                    printf( "\n\tError requesting MQTT disconnect from xively task" );
                     xt_handle_unrecoverable_error();
                 }
             }
@@ -289,7 +287,7 @@ int8_t app_fetch_user_config( user_data_t* dst )
 
     /* Wait for a button press for a few seconds while flashing the LED. If the button is
      * pressed, clear the contents of user_config to force the provisioning process */
-    for ( int i = 40; i > 0; i-- )
+    for ( int blinks_num = 20; ( ( blinks_num * 2 ) - 1 ) >= 0; blinks_num-- )
     {
         if ( -1 != io_pop_gpio_interrupt() )
         {
@@ -297,10 +295,9 @@ int8_t app_fetch_user_config( user_data_t* dst )
             provisioning_bootmode_selected = 1;
             break;
         }
-        io_led_set( i % 2 ); /* Toggle LED */
+        io_led_set( blinks_num % 2 ); /* Toggle LED */
         vTaskDelay( 50 / portTICK_PERIOD_MS );
     }
-    io_led_off();
 
     /* If the data retrieved from NVS is missing any fields, start provisioning */
     if ( provisioning_bootmode_selected || ( 0 > user_data_is_valid( dst ) ) )
@@ -326,10 +323,34 @@ int8_t app_fetch_user_config( user_data_t* dst )
  */
 void app_main_logic_task( void* param )
 {
+    unsigned int led_toggler = 0;
     while ( 1 )
     {
         printf( "\n((Factory Default Running))" );
         // printf( "\n[[New FW Running]]" );
+        if ( !xt_ready_for_requests() )
+        {
+            /* The Xively Task was shut down for some reason. Reboot the device */
+            /* This demo doesn't shut down the xively task during normal operation,
+               so this serves a simple application-level watchdog */
+            /* You may need to remove/rewrite it for your own logic. */
+            /* You can start the xively task from here, to re-start the task instead
+               of rebooting the device. Rebooting is more drastic, but it solves other
+               potential malfunctions caused by whatever crashed the xively task */
+            printf( "\nXively task stopped running. Rebooting" );
+            esp_restart();
+        }
+        else if ( xt_is_connected() )
+        {
+            /* LED Always off while the device is connected */
+            led_toggler = 0;
+        }
+        else
+        {
+            /* LED blinks slowly while the device is disconnected */
+            ( led_toggler == 1 ) ? ( led_toggler = 0 ) : ( led_toggler = 1 );
+        }
+        io_led_set( led_toggler % 2 );
         vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
 }
@@ -393,9 +414,9 @@ void esp32_xibsp_notify_chunk_written( size_t chunk_size, size_t offset )
             ota_download_progress, chunk_size, offset );
 
     { /* FW update light show */
-        for ( int i = 4; i > 0; i-- )
+        for ( int blinks_num = 2; ( ( blinks_num * 2 ) - 1 ) >= 0; blinks_num-- )
         {
-            io_led_set( i % 2 );
+            io_led_set( blinks_num % 2 );
             vTaskDelay( 50 / portTICK_PERIOD_MS );
         }
     }

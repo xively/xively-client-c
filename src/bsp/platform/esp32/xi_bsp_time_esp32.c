@@ -1,4 +1,4 @@
-/* Copyright (c) 2003-2017, LogMeIn, Inc. All rights reserved.
+/* Copyright (c) 2003-2018, LogMeIn, Inc. All rights reserved.
  *
  * This is part of the Xively C Client library,
  * it is licensed under the BSD 3-Clause license.
@@ -15,7 +15,7 @@
 
 #define XI_ESP32_GET_TIME_FROM_RTC( t_ptr ) time( t_ptr )
 
-#define DEVELOPMENT_DATETIME ( 1500312469UL )
+#define DEVELOPMENT_DATETIME ( ( xi_time_t )1500312469UL )
 #define XI_SNTP_TIMEOUT_MS 1000000
 
 #ifndef SNTP_MAX_SERVERS
@@ -32,9 +32,8 @@ char* sntp_servers[SNTP_MAX_SERVERS] = {"pool.ntp.org", "time-a.nist.gov",
 void xi_bsp_time_init()
 {
     const int32_t sntp_timeout_step_ms = 100; /* ms */
-
-    int32_t sntp_task_timeout    = XI_SNTP_TIMEOUT_MS;
-    uint32_t sntp_retrieved_time = 0;
+    int32_t sntp_task_timeout          = XI_SNTP_TIMEOUT_MS;
+    xi_time_t sntp_retrieved_time      = 0;
 
     for ( uint8_t i = 0; i < SNTP_MAX_SERVERS; i++ )
     {
@@ -53,24 +52,26 @@ void xi_bsp_time_init()
             goto exit;
         }
         vTaskDelay( sntp_timeout_step_ms / portTICK_PERIOD_MS );
-        XI_ESP32_GET_TIME_FROM_RTC( ( time_t* )&sntp_retrieved_time );
+        XI_ESP32_GET_TIME_FROM_RTC( &sntp_retrieved_time );
     }
 
-    xi_bsp_debug_format( "RTC updated to current datetime: %d", sntp_retrieved_time );
+    xi_bsp_debug_format( "RTC updated to current datetime: %ld", sntp_retrieved_time );
 exit:
     sntp_stop();
 }
 
 xi_time_t xi_bsp_time_getcurrenttime_seconds()
 {
-    time_t current_time = 0;
+    xi_time_t current_time = 0;
     XI_ESP32_GET_TIME_FROM_RTC( &current_time );
-    return ( xi_time_t )current_time;
+    return current_time;
 }
 
 xi_time_t xi_bsp_time_getcurrenttime_milliseconds()
 {
-    return xi_bsp_time_getcurrenttime_seconds() * 1000;
+    /* note this returns seconds and not milliseconds since milliseconds from EPOCH
+       do not fit into the variable type */
+    return xi_bsp_time_getcurrenttime_seconds();
 }
 
 /**
