@@ -1,4 +1,4 @@
-/* Copyright (c) 2003-2017, LogMeIn, Inc. All rights reserved.
+/* Copyright (c) 2003-2018, LogMeIn, Inc. All rights reserved.
  *
  * This is part of the Xively C Client library,
  * it is licensed under the BSD 3-Clause license.
@@ -42,25 +42,32 @@ void xi_bsp_fwu_on_package_download_failure()
 
 void xi_bsp_fwu_on_package_download_finished( const char* const firmware_resource_name )
 {
-    ( void )firmware_resource_name;
-    xi_bsp_debug_logger( "Firmware package download finished. Rebooting" );
-    const esp_partition_t* next_partition = esp_ota_get_next_update_partition( NULL );
-    esp_err_t retv                        = ESP_OK;
-
-    retv = esp_ota_set_boot_partition( next_partition );
-    if ( ESP_OK != retv )
+    if ( NULL != firmware_resource_name )
     {
-        xi_bsp_debug_format( "esp_ota_set_boot_partition() failed with error %d", retv );
-        return;
-    }
+        /* Firmware image was updated */
+        xi_bsp_debug_logger( "SFT package download finished. FW updated; rebooting" );
+        const esp_partition_t* next_partition = esp_ota_get_next_update_partition( NULL );
+        esp_err_t retv                        = ESP_OK;
 
-    if ( NULL != xi_bsp_fwu_notification_callbacks.update_applied )
-    {
-        ( xi_bsp_fwu_notification_callbacks.update_applied )();
-    }
+        retv = esp_ota_set_boot_partition( next_partition );
+        if ( ESP_OK != retv )
+        {
+            xi_bsp_debug_format( "esp_ota_set_boot_partition() failed with error %d",
+                                 retv );
+            return;
+        }
 
-    /* reboot the device */
-    esp_restart();
+        if ( NULL != xi_bsp_fwu_notification_callbacks.update_applied )
+        {
+            ( xi_bsp_fwu_notification_callbacks.update_applied )();
+        }
+
+        /* reboot the device */
+        esp_restart();
+    }
+    /* Firmware image was not updated */
+    xi_bsp_debug_logger( "SFT package download finished. No need to reboot" );
+    return;
 }
 
 void xi_bsp_fwu_order_resource_downloads( const char* const* resource_names,

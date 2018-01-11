@@ -1,4 +1,4 @@
-/* Copyright (c) 2003-2017, LogMeIn, Inc. All rights reserved.
+/* Copyright (c) 2003-2018, LogMeIn, Inc. All rights reserved.
  *
  * This is part of the Xively C Client library,
  * it is licensed under the BSD 3-Clause license.
@@ -20,7 +20,7 @@ void* xi_bsp_mem_alloc( size_t byte_count )
 
     if ( NULL == ptr )
     {
-        printf( "Failed to allocate %d\n", byte_count );
+        printf( "Failed to allocate %lu\n", ( unsigned long )byte_count );
     }
 
     return ptr;
