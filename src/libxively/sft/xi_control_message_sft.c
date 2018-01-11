@@ -1,4 +1,4 @@
-/* Copyright (c) 2003-2017, LogMeIn, Inc. All rights reserved.
+/* Copyright (c) 2003-2018, LogMeIn, Inc. All rights reserved.
  *
  * This is part of the Xively C Client library,
  * it is licensed under the BSD 3-Clause license.
@@ -23,6 +23,7 @@ xi_control_message_create_file_info( const char** filenames,
     }
 
     xi_state_t state = XI_STATE_OK;
+    uint16_t id_file = 0;
 
     XI_ALLOC( xi_control_message_t, sft_message, state );
 
@@ -35,7 +36,6 @@ xi_control_message_create_file_info( const char** filenames,
 
     sft_message->file_info.list_len = count;
 
-    uint16_t id_file = 0;
     for ( ; id_file < count; ++id_file )
     {
         sft_message->file_info.list[id_file].name = xi_str_dup( *filenames );

@@ -1,4 +1,4 @@
-/* Copyright (c) 2003-2017, LogMeIn, Inc. All rights reserved.
+/* Copyright (c) 2003-2018, LogMeIn, Inc. All rights reserved.
  *
  * This is part of the Xively C Client library,
  * it is licensed under the BSD 3-Clause license.
@@ -30,11 +30,10 @@ _xi_sft_revision_write_string_to_file( const char* const resource_name,
     xi_bsp_io_fs_state_t bsp_io_fs_state =
         xi_bsp_io_fs_open( resource_name, strlen( string_to_write ),
                            XI_BSP_IO_FS_OPEN_WRITE, &resource_handle );
-    xi_state_t state = xi_fs_bsp_io_fs_2_xi_state( bsp_io_fs_state );
+    xi_state_t state     = xi_fs_bsp_io_fs_2_xi_state( bsp_io_fs_state );
+    size_t bytes_written = 0;
 
     XI_CHECK_STATE( state );
-
-    size_t bytes_written = 0;
 
     bsp_io_fs_state =
         xi_bsp_io_fs_write( resource_handle, ( const uint8_t* )string_to_write,
@@ -63,12 +62,11 @@ static xi_state_t _xi_sft_revision_read_string_from_file( const char* const reso
         xi_bsp_io_fs_open( resource_name, 0 /* not used at READ */,
                            XI_BSP_IO_FS_OPEN_READ, &resource_handle );
 
-    xi_state_t state = xi_fs_bsp_io_fs_2_xi_state( bsp_io_fs_state );
-
-    XI_CHECK_STATE( state );
-
     const uint8_t* buffer = NULL;
     size_t buffer_size    = 0;
+    xi_state_t state      = xi_fs_bsp_io_fs_2_xi_state( bsp_io_fs_state );
+
+    XI_CHECK_STATE( state );
 
     /* note: single read call "only" supports revision not longer than file read buffer.
      * At time of writing this it's 1024 bytes. */
@@ -157,10 +155,10 @@ xi_state_t xi_sft_revision_firmware_ok()
         XI_SFT_REVISION_FIRMWAREUPDATEREVISION_MAILBOX_TO_NEXT_RUN,
         &firmware_update_data );
 
-    XI_CHECK_STATE( state );
-
     char* xi_firmware_resource_name = firmware_update_data;
     char* xi_firmware_revision      = firmware_update_data;
+
+    XI_CHECK_STATE( state );
 
     while ( '\n' != *xi_firmware_revision && 0 != *xi_firmware_revision )
     {

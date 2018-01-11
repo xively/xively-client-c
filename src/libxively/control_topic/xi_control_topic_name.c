@@ -1,4 +1,4 @@
-/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+/* Copyright (c) 2003-2018, LogMeIn, Inc. All rights reserved.
  *
  * This is part of the Xively C Client library,
  * it is licensed under the BSD 3-Clause license.
@@ -31,6 +31,7 @@ static xi_state_t xi_control_topic_allocate_and_snprintf( char** topic_name,
                                                           const char* const channel_name )
 {
     xi_state_t local_state = XI_STATE_OK;
+    int result_snprintf    = 0;
 
     int len = 4; /* the length is the sum of the component names and four '/'
                   * separator characters. See control_topic_name_pat */
@@ -44,11 +45,11 @@ static xi_state_t xi_control_topic_allocate_and_snprintf( char** topic_name,
 
     XI_ALLOC_BUFFER_AT( char, *topic_name, len, local_state );
 
-    const int result = snprintf( *topic_name, len, control_topic_name_pat,
-                                 XI_TOPIC_DOMAIN, control_topic_service_id,
-                                 control_topic_version_id, device_id, channel_name );
+    result_snprintf = snprintf( *topic_name, len, control_topic_name_pat, XI_TOPIC_DOMAIN,
+                                control_topic_service_id, control_topic_version_id,
+                                device_id, channel_name );
 
-    if ( result < 0 || result >= len )
+    if ( result_snprintf < 0 || result_snprintf >= len )
     {
         local_state = XI_INTERNAL_ERROR;
     }

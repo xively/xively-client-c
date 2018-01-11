@@ -13,7 +13,7 @@
  ******************************************************************************/
 
 /*
- *  Copyright (c) 2003-2017, LogMeIn, Inc. All rights reserved.
+ *  Copyright (c) 2003-2018, LogMeIn, Inc. All rights reserved.
  *
  * 	This is part of the Xively C Client library,
  * 	it is licensed under the BSD 3-Clause license.
@@ -42,7 +42,11 @@
 
 /* Application Version and Naming*/
 #define APPLICATION_NAME        		"xively cc3220 example"
-#define APPLICATION_VERSION     		"1.00.00.00"
+#ifndef RELEASE_2
+#define APPLICATION_VERSION             "1.00.00.00"
+#else
+#define APPLICATION_VERSION             "1.00.00.01"
+#endif
 
 #define SPAWN_TASK_PRIORITY		(9)
 #define TASK_STACK_SIZE         (2048)
@@ -187,6 +191,6 @@ extern Application_CB	gApplicationControlBlock;
 //****************************************************************************
 void cc3220Reboot(void);
 
-void * xivelyExampleThread( void *pvParameters );
+void * MAIN_StartUpThread( void *pvParameters );
 
 

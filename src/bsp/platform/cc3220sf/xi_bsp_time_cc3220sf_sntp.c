@@ -1,4 +1,4 @@
-/* Copyright (c) 2003-2017, LogMeIn, Inc. All rights reserved.
+/* Copyright (c) 2003-2018, LogMeIn, Inc. All rights reserved.
  *
  * This is part of the Xively C Client library,
  * it is licensed under the BSD 3-Clause license.
@@ -159,6 +159,10 @@ static sntp_status_t sntp_status_entries[] = {SNTP_STATUS_TABLE};
 
 static int ntp_server_index     = 0;
 static char* ntp_server_names[] = NTP_SERVER_NAMES;
+
+#ifdef errno
+#undef errno
+#endif
 static int errno;
 
 static uint32_t start_time_ntp = 0;

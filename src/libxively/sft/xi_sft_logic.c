@@ -1,4 +1,4 @@
-/* Copyright (c) 2003-2017, LogMeIn, Inc. All rights reserved.
+/* Copyright (c) 2003-2018, LogMeIn, Inc. All rights reserved.
  *
  * This is part of the Xively C Client library,
  * it is licensed under the BSD 3-Clause license.
@@ -222,6 +222,7 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                             XI_CONTROL_MESSAGE__SFT_FILE_STATUS_PHASE_PROCESSING,
                             chunk_handling_status_code );
 
+                        xi_debug_logger( "Error: File chunk handling failed" );
                         xi_bsp_fwu_on_package_download_failure();
 
                         goto err_handling;
@@ -270,6 +271,7 @@ xi_sft_on_message( xi_sft_context_t* context, xi_control_message_t* sft_message_
                         if ( XI_CONTROL_MESSAGE__SFT_FILE_STATUS_CODE_SUCCESS !=
                              checksum_status_code )
                         {
+                            xi_debug_logger( "Error: File checksum validation failed" );
                             xi_bsp_fwu_on_package_download_failure();
                             goto err_handling;
                         }

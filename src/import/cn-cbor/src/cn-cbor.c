@@ -11,7 +11,15 @@ extern "C" {
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include <assert.h>
+
+#if XI_DEBUG_ASSERT
+  #include <assert.h>
+#else
+  #ifndef assert
+    #define assert(x)
+  #endif
+#endif 
+
 #include <math.h>
 // #include <arpa/inet.h> // needed for ntohl (e.g.) on Linux
 

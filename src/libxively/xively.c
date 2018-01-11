@@ -1,4 +1,4 @@
-/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+/* Copyright (c) 2003-2018, LogMeIn, Inc. All rights reserved.
  *
  * This is part of the Xively C Client library,
  * it is licensed under the BSD 3-Clause license.
@@ -486,6 +486,7 @@ xi_state_t xi_set_updateable_files( xi_context_handle_t xih,
 
     xi_state_t state = XI_STATE_OK;
     xi_context_t* xi = xi_object_for_handle( xi_globals.context_handles_vector, xih );
+    uint16_t id_file = 0;
 
     XI_CHECK_CND_DBGMESSAGE( NULL == xi, XI_NULL_CONTEXT, state,
                              "ERROR: NULL context provided" );
@@ -495,7 +496,6 @@ xi_state_t xi_set_updateable_files( xi_context_handle_t xih,
 
     xi->context_data.updateable_files_count = count;
 
-    uint16_t id_file = 0;
     for ( ; id_file < xi->context_data.updateable_files_count; ++id_file )
     {
         xi->context_data.updateable_files[id_file] = xi_str_dup( filenames[id_file] );

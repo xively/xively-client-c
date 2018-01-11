@@ -13,10 +13,10 @@
  ******************************************************************************/
 
 /*
- *  Copyright (c) 2003-2017, LogMeIn, Inc. All rights reserved.
+ *  Copyright (c) 2003-2018, LogMeIn, Inc. All rights reserved.
  *
- * 	This is part of the Xively C Client library,
- * 	it is licensed under the BSD 3-Clause license.
+ *  This is part of the Xively C Client library,
+ *  it is licensed under the BSD 3-Clause license.
  *
  ******************************************************************************/
 
@@ -112,6 +112,10 @@ void send_temperature( const xi_context_handle_t context_handle,
                        const xi_timed_task_handle_t timed_task_handle,
                        void* user_data );
 
+static signed char hexConvertASCIINibble( signed char nibble );
+static signed char
+hexConvertByteASCII( signed char msb, signed char lsb, signed char* val );
+static signed char FixWEPKey( char* key, unsigned char keyLen );
 
 /****************************************************************************
                       GLOBAL VARIABLES
@@ -169,9 +173,9 @@ xi_context_handle_t gXivelyContextHandle = -1;
 xi_timed_task_handle_t gTemperatureTaskHandle = -1;
 
 /* Used by onLed handler function to differentiate LED's */
-const static uint32_t gGreenLed  = CC3220SF_LAUNCHXL_LED_D5;
-const static uint32_t gOrangeLed = CC3220SF_LAUNCHXL_LED_D6;
-const static uint32_t gRedLed    = CC3220SF_LAUNCHXL_LED_D7;
+const static uint32_t gGreenLed  = Board_LED2;
+const static uint32_t gOrangeLed = Board_LED1;
+const static uint32_t gRedLed    = Board_LED0;
 
 
 /*****************************************************************************
@@ -229,22 +233,23 @@ static void UpdateLEDProgressIndicators( UArg arg0 )
     switch ( gApplicationControlBlock.initializationState )
     {
         case InitializationState_ReadingCredentials:
-            GPIO_write( CC3220SF_LAUNCHXL_LED_D5, toggle );
+            GPIO_write( Board_LED2, toggle );
             break;
         case InitializationState_ProvisioningWifi:
-            GPIO_write( CC3220SF_LAUNCHXL_LED_D5, Board_LED_ON );
-            GPIO_write( CC3220SF_LAUNCHXL_LED_D6, toggle );
+            GPIO_write( Board_LED2, Board_LED_ON );
+            GPIO_write( Board_LED1, toggle );
             break;
         case InitializationState_ConnectingToXively:
-            GPIO_write( CC3220SF_LAUNCHXL_LED_D5, Board_LED_ON );
-            GPIO_write( CC3220SF_LAUNCHXL_LED_D6, Board_LED_ON );
-            GPIO_write( CC3220SF_LAUNCHXL_LED_D7, toggle );
+            GPIO_write( Board_LED2, Board_LED_ON );
+            GPIO_write( Board_LED1, Board_LED_ON );
+            GPIO_write( Board_LED0, toggle );
             break;
 
         case InitializationState_SubscribingToTopics:
-            GPIO_write( CC3220SF_LAUNCHXL_LED_D5, toggle );
-            GPIO_write( CC3220SF_LAUNCHXL_LED_D6, toggle );
-            GPIO_write( CC3220SF_LAUNCHXL_LED_D7, toggle );
+            GPIO_write( Board_LED2, toggle );
+            GPIO_write( Board_LED1, toggle );
+            GPIO_write( Board_LED0, toggle );
+            break;
 
         case InitializationState_Complete:
             /* LEDs are now controlled by topics */
@@ -272,7 +277,7 @@ static void UpdateLEDProgressIndicators( UArg arg0 )
  * and periodically (every 5 seconds) publishes the temperature read from the device's on
  * board temperature sensor.
  */
-void* xivelyExampleThread( void* arg )
+void* MAIN_StartUpThread( void* arg )
 {
     pthread_attr_t pAttrs;
     pthread_attr_t pAttrs_spawn;
@@ -306,9 +311,9 @@ void* xivelyExampleThread( void* arg )
     Report( "\n\n\n\r" );
 
     /* Switch off all LEDs on board, for a nice clean state */
-    GPIO_write( CC3220SF_LAUNCHXL_LED_D5, Board_LED_OFF );
-    GPIO_write( CC3220SF_LAUNCHXL_LED_D6, Board_LED_OFF );
-    GPIO_write( CC3220SF_LAUNCHXL_LED_D7, Board_LED_OFF );
+    GPIO_write( Board_LED0, Board_LED_OFF );
+    GPIO_write( Board_LED1, Board_LED_OFF );
+    GPIO_write( Board_LED2, Board_LED_OFF );
 
     /* Add Interrupt Callbacks for the board's two side buttons */
     /* the application will use these interrupts to publish events */
@@ -451,6 +456,12 @@ void ConnectToXively()
                     -gXivelyContextHandle );
         return;
     }
+#if ENABLE_XIVELY_FIRMWARE_UPDATE_AND_SECURE_FILE_TRANSFER
+    /* Pass list of files to be updated by the Xively Services. */
+    const char** files_to_keep_updated = ( const char* [] ){"firmware.tar"};
+
+    xi_set_updateable_files( gXivelyContextHandle, files_to_keep_updated, 1 );
+#endif
 
     xi_state_t connect_result =
         xi_connect( gXivelyContextHandle, gApplicationControlBlock.xivelyDeviceId,
@@ -617,9 +628,9 @@ void on_led_topic( xi_context_handle_t in_context_handle,
                  * the LEDs */
                 gApplicationControlBlock.initializationState =
                     InitializationState_Complete;
-                GPIO_write( CC3220SF_LAUNCHXL_LED_D5, Board_LED_OFF );
-                GPIO_write( CC3220SF_LAUNCHXL_LED_D6, Board_LED_OFF );
-                GPIO_write( CC3220SF_LAUNCHXL_LED_D7, Board_LED_OFF );
+                GPIO_write( Board_LED2, Board_LED_OFF );
+                GPIO_write( Board_LED1, Board_LED_OFF );
+                GPIO_write( Board_LED0, Board_LED_OFF );
             }
             return;
         case XI_SUB_CALL_MESSAGE:
@@ -631,11 +642,19 @@ void on_led_topic( xi_context_handle_t in_context_handle,
                     uint32_t led_gpio_index = *( ( uint32_t* )user_data );
                     switch ( params->message.temporary_payload_data[0] )
                     {
-                        case 48:
+                        case '0':
+#ifndef RELEASE_2
                             GPIO_write( led_gpio_index, Board_LED_OFF );
-                            break;
-                        case 49:
+#else
                             GPIO_write( led_gpio_index, Board_LED_ON );
+#endif
+                            break;
+                        case '1':
+#ifndef RELEASE_2
+                            GPIO_write( led_gpio_index, Board_LED_ON );
+#else
+                            GPIO_write( led_gpio_index, Board_LED_OFF );
+#endif
                             break;
                         default:
                             Report( "unexpected value on topic %s \n\r",
@@ -846,6 +865,7 @@ void send_temperature( const xi_context_handle_t context_handle,
 void parseCredentialsFromConfigFile()
 {
     config_entry_t* config_file_context;
+    int len = 0;
     int err = read_config_file( XIVELY_CFG_FILE, &config_file_context );
     if ( SL_ERROR_FS_INVALID_TOKEN_SECURITY_ALERT == err )
     {
@@ -887,7 +907,7 @@ void parseCredentialsFromConfigFile()
     err |=
         parseKeyValue( config_file_context, XIVELY_PWD_KEY, 1, &xively_device_password );
 
-    /* optional - barse xively broker address and port from config file */
+    /* optional - parse xively broker address and port from config file */
     static char *broker_name = NULL, *broker_port_str = NULL;
     if ( 0 != parseKeyValue( config_file_context, XIVELY_HOST_KEY, 0, &broker_name ) )
     {
@@ -912,6 +932,24 @@ void parseCredentialsFromConfigFile()
         err |= validateWifiConfigurationVariables( wifi_ssid, wifi_password,
                                                    wifi_security_type );
 
+        gApplicationControlBlock.desiredWifiSecurityType =
+            mapWifiSecurityTypeStringToInt( ( const char* )wifi_security_type );
+
+        if ( gApplicationControlBlock.desiredWifiSecurityType == SL_WLAN_SEC_TYPE_WEP )
+        {
+            len = strlen( wifi_password );
+
+            if ( ( len == 10 ) || ( len == 26 ) )
+            {
+                if ( FixWEPKey( wifi_password, len ) < 0 )
+                {
+                    // Error Bad WEP Key
+                    Report( "[POST] Bad WEP key hex!\r\n" );
+                }
+            }
+        }
+
+
         err |= validateXivelyCredentialBufferRequirement( XIVELY_ACNT_KEY,
                                                           xively_account_id );
         err |=
@@ -931,8 +969,7 @@ void parseCredentialsFromConfigFile()
     }
 
     /* assign the variables into the Application Control Block. */
-    gApplicationControlBlock.desiredWifiSecurityType =
-        mapWifiSecurityTypeStringToInt( ( const char* )wifi_security_type );
+
     memcpy( gApplicationControlBlock.desiredWifiSSID, wifi_ssid, strlen( wifi_ssid ) );
     memcpy( gApplicationControlBlock.desiredWifiKey, wifi_password,
             strlen( wifi_password ) );
@@ -1174,3 +1211,65 @@ uint32_t xively_ssl_rand_generate()
     return xi_bsp_rng_get();
 }
 #endif
+
+static signed char hexConvertASCIINibble( signed char nibble )
+{
+    signed char val = -1;
+
+    if ( ( nibble >= '0' ) && ( nibble <= '9' ) )
+    {
+        val = ( nibble - '0' );
+    }
+    else if ( ( nibble >= 'A' ) && ( nibble <= 'F' ) )
+    {
+        val = ( nibble - 'A' + 10 );
+    }
+    else if ( ( nibble >= 'a' ) && ( nibble <= 'f' ) )
+    {
+        val = ( nibble - 'a' + 10 );
+    }
+
+    return val;
+}
+
+static signed char
+hexConvertByteASCII( signed char msb, signed char lsb, signed char* val )
+{
+    signed char msn;
+    signed char lsn;
+
+    msn = hexConvertASCIINibble( msb );
+    lsn = hexConvertASCIINibble( lsb );
+
+    if ( ( msn < 0 ) || ( lsn < 0 ) )
+        return -1;
+
+    *val = ( msn * 16 ) + lsn;
+
+    return 0;
+}
+
+static signed char FixWEPKey( char* key, unsigned char keyLen )
+{
+    int i = 0;
+    signed char msb;
+    signed char lsb;
+
+    while ( i < ( keyLen >> 1 ) )
+    {
+        msb = *( key + ( 2 * i ) );
+        lsb = *( key + 1 + ( 2 * i ) );
+
+        if ( hexConvertByteASCII( msb, lsb, ( signed char* )( key + i ) ) < 0 )
+            return -1;
+        i++;
+    }
+
+    while ( i < keyLen )
+    {
+        *( key + i ) = 0;
+        i++;
+    }
+
+    return 0;
+}

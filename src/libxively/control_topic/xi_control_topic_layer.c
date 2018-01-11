@@ -1,4 +1,4 @@
-/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+/* Copyright (c) 2003-2018, LogMeIn, Inc. All rights reserved.
  *
  * This is part of the Xively C Client library,
  * it is licensed under the BSD 3-Clause license.
@@ -90,6 +90,7 @@ xi_control_topic_publish_on_topic( void* context, xi_control_message_t* control_
     }
 
     xi_state_t local_state = XI_STATE_OK;
+    xi_mqtt_logic_task_t* mqtt_logic_task = NULL;
 
     xi_control_topic_layer_data_t* layer_data =
         ( xi_control_topic_layer_data_t* )XI_THIS_LAYER( context )->user_data;
@@ -122,13 +123,13 @@ xi_control_topic_publish_on_topic( void* context, xi_control_message_t* control_
                                  "ERROR: failed to create data_desc from CBOR binary " );
     }
 
-    xi_mqtt_logic_task_t* task = xi_mqtt_logic_make_publish_task(
+    mqtt_logic_task = xi_mqtt_logic_make_publish_task(
         layer_data->publish_topic_name, encoded_message_data_desc,
         XI_MQTT_QOS_AT_MOST_ONCE, XI_MQTT_RETAIN_FALSE, xi_make_empty_handle() );
 
-    XI_CHECK_MEMORY( task, local_state );
+    XI_CHECK_MEMORY( mqtt_logic_task, local_state );
 
-    return XI_PROCESS_PUSH_ON_THIS_LAYER( context, task, XI_STATE_OK );
+    return XI_PROCESS_PUSH_ON_THIS_LAYER( context, mqtt_logic_task, XI_STATE_OK );
 
 err_handling:
     return local_state;
@@ -195,7 +196,6 @@ xi_state_t xi_on_control_message( xi_context_handle_t in_context_handle,
                 xi_sft_on_connected( layer_data->sft_context );
 #endif
             }
-            return state;
         }
         case XI_SUB_CALL_MESSAGE:
         {
@@ -212,12 +212,9 @@ xi_state_t xi_on_control_message( xi_context_handle_t in_context_handle,
 
             xi_sft_on_message( layer_data->sft_context, control_message );
 #endif
-
-            return state;
         }
 
-        default:
-            return state;
+        default:;
     }
 
     return state;

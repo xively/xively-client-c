@@ -1,4 +1,4 @@
-/* Copyright (c) 2003-2017, LogMeIn, Inc. All rights reserved.
+/* Copyright (c) 2003-2018, LogMeIn, Inc. All rights reserved.
  *
  * This is part of the Xively C Client codebase,
  * it is licensed under the BSD 3-Clause license.
@@ -196,7 +196,6 @@ err_out:
  * @param  *src is the datastructure we'd like to save to flash
  * @retval <0: Error, >=0: OK
  */
-/* NOTE: This execution branch should run entirely from volatile RAM if possible */
 int8_t user_data_save_to_flash( user_data_t* src )
 {
     if ( NULL == src )
@@ -245,14 +244,18 @@ int8_t user_data_save_to_flash( user_data_t* src )
     {
         goto err_out;
     }
+    if ( ESP_OK != ( retval = nvs_commit( handle ) ) )
+    {
+        goto err_out;
+    }
 
     /* Close NVS Interface */
-    nvs_close(handle);
+    nvs_close( handle );
     return 0;
 
 err_out:
     printf( "\n\t[ERROR] [0x%04x] writing NVS string. Data storage aborted", retval );
-    nvs_close(handle);
+    nvs_close( handle );
     return -1;
 }
 

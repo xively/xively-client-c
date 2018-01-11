@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2017, LogMeIn, Inc. All rights reserved.
+# Copyright (c) 2003-2018, LogMeIn, Inc. All rights reserved.
 #
 # This is part of the Xively C Client library,
 # it is licensed under the BSD 3-Clause license.
@@ -10,7 +10,7 @@ CC32XX ?= 0
 ###
 ## COMPILER NAME
 ###
-COMPILER ?= ti-cgt-arm_16.9.3.LTS
+COMPILER ?= ti-cgt-arm_16.9.4.LTS
 
 ###
 ## MAC HOST OS
@@ -18,8 +18,9 @@ COMPILER ?= ti-cgt-arm_16.9.3.LTS
 ifeq ($(XI_HOST_PLATFORM),Darwin)
 	# osx cross-compilation downloads
 
-	XI_CC3220SF_PATH_CCS_TOOLS ?= /Applications/ti/ccsv6/tools
-	XI_CC3220SF_PATH_SDK ?= $(HOME)/ti/tirex-content/CC3220SDK_1.1.0/cc3220-sdk
+	XI_CC3220SF_PATH_CCS_TOOLS ?= /Applications/ti/ccsv7/tools
+	XI_CC3220SF_PATH_SDK ?= /Applications/ti/simplelink_cc32xx_sdk_1_50_00_06
+	XI_CC3220SF_PATH_XDC_SDK ?= /Applications/ti/xdctools_3_50_03_33_core
 
 
 	CC = $(XI_CC3220SF_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armcl
@@ -76,6 +77,7 @@ XI_COMPILER_FLAGS += -me
 XI_COMPILER_FLAGS += --define=css
 XI_COMPILER_FLAGS += --define=cc3200
 XI_COMPILER_FLAGS += --define=WOLFSSL_NOOS_XIVELY
+XI_COMPILER_FLAGS += --define=SL_OTA_ARCHIVE_STANDALONE
 XI_COMPILER_FLAGS += --display_error_number
 XI_COMPILER_FLAGS += --diag_warning=225
 XI_COMPILER_FLAGS += --diag_wrap=off
@@ -87,7 +89,7 @@ XI_COMPILER_FLAGS += --preproc_with_compile
 XI_COMPILER_FLAGS += --preproc_dependency=$(@:.o=.d)
 XI_COMPILER_FLAGS += --obj_directory=$(dir $@)
 XI_COMPILER_FLAGS += --asm_directory=$(dir $@)
-XI_COMPILER_FLAGS += --output_file=$@
+XI_COMPILER_OUTPUT += --output_file=$@
 
 ifneq (,$(findstring release,$(TARGET)))
     XI_COMPILER_FLAGS += -O4
@@ -100,6 +102,7 @@ endif
 XI_COMPILER_FLAGS += -DCC32XX_COMPAT=1
 XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/source/ti/devices/cc32xx/driverlib
 XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/source
+XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/source/ti/net/ota/source
 XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/source/ti/drivers
 XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/source/ti/drivers/net/wifi
 XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/source/ti/drivers/net/wifi/bsd

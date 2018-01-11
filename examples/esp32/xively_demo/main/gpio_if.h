@@ -1,4 +1,4 @@
-/* Copyright (c) 2003-2017, LogMeIn, Inc. All rights reserved.
+/* Copyright (c) 2003-2018, LogMeIn, Inc. All rights reserved.
  *
  * This is part of the Xively C Client codebase,
  * it is licensed under the BSD 3-Clause license.
@@ -13,13 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-/*! \file
- * @brief Interface between the top level application logic and the device's GPIO.
- * Handles initialization, pull-ups/pull-downs, interrupts and pin read/writes
-
- * \copyright 2003-2017, LogMeIn, Inc.  All rights reserved.
- *
- */
 
 #define IO_LED_PIN GPIO_NUM_17
 #define IO_BUTTON_PIN GPIO_NUM_0
@@ -35,16 +28,12 @@ int8_t io_init( void );
 
 /**
  * @brief When an interrupt occurs, the pin number is pushed into a task-safe queue.
- * This function will wait until a new item is available in the queue, or the timeout
- * expires. If an interrupt happened before the function was called, it will return
- * 1 immediately
+ * This function returns 0 if there was an interrupt in the queue, -1 if it's empty.
  *
- * @param timeout_ms is the wait timeout in milliseconds
- *
- * @retval -1 Timeout
- * @retval  1 Interrupt detected
+ * @retval -1 Queue is empty
+ * @retval  0 Interrupt detected
  */
-int8_t io_await_gpio_interrupt( uint32_t timeout_ms );
+int8_t io_pop_gpio_interrupt( void );
 
 /**
  * @brief Add the button GPIO pin to the list of ISR handlers 
