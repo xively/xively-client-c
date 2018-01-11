@@ -277,7 +277,7 @@ static void UpdateLEDProgressIndicators( UArg arg0 )
  * and periodically (every 5 seconds) publishes the temperature read from the device's on
  * board temperature sensor.
  */
-void* MAIN_StartUpThread( void* arg )
+void* xivelyExampleThread( void* arg )
 {
     pthread_attr_t pAttrs;
     pthread_attr_t pAttrs_spawn;

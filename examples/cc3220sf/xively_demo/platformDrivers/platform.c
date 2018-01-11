@@ -9,7 +9,7 @@
  *   Texas Instruments Incorporated or against the terms and conditions
  *   stipulated in the agreement under which this program has been supplied,
  *   and under no circumstances can it be used with non-TI connectivity device.
- *   
+ *
  */
 
 
@@ -53,69 +53,68 @@ extern void *InitTerm();
 //****************************************************************************
 void cc3220Reboot(void)
 {
-	/* stop network processor activities before reseting the MCU */
-	sl_Stop(Board_SL_STOP_TIMEOUT);
+    /* stop network processor activities before reseting the MCU */
+    sl_Stop(Board_SL_STOP_TIMEOUT);
 
-	UART_PRINT("[Common] CC3220 MCU reset request\r\n");
+    UART_PRINT("[Common] CC3220 MCU reset request\r\n");
 
-	/* Reset the MCU in order to test the bundle */
-	PRCMHibernateCycleTrigger();
+    /* Reset the MCU in order to test the bundle */
+    PRCMHibernateCycleTrigger();
 }
 
 
 void Platform_TimerInit(void (*timerIntHandler)(sigval val), timer_t *timerId)
 {
-	sigevent sev;
+    sigevent sev;
 
-	/* Create Timer */
-	sev.sigev_notify = SIGEV_SIGNAL;
-	sev.sigev_notify_function = timerIntHandler;
-	timer_create(CLOCK_MONOTONIC, &sev, timerId);
+    /* Create Timer */
+    sev.sigev_notify = SIGEV_SIGNAL;
+    sev.sigev_notify_function = timerIntHandler;
+    timer_create(CLOCK_MONOTONIC, &sev, timerId);
 
 }
 
 void Platform_TimerStart(_u32 asyncEvtTimeoutMsec, timer_t timerId, _u8 periodic)
 {
-	struct itimerspec value;
+    struct itimerspec value;
 
-	/* set the timeout */
-	value.it_value.tv_sec = (asyncEvtTimeoutMsec / 1000);
-	value.it_value.tv_nsec = (asyncEvtTimeoutMsec % 1000) * 1000000;
+    /* set the timeout */
+    value.it_value.tv_sec = (asyncEvtTimeoutMsec / 1000);
+    value.it_value.tv_nsec = (asyncEvtTimeoutMsec % 1000) * 1000000;
 
-	if (periodic)
-	{
-		/* set as periodic timer */
-		value.it_interval.tv_sec = value.it_value.tv_sec;
-		value.it_interval.tv_nsec = value.it_value.tv_nsec;
-	}
-	else
-	{
-		/* set as one shot timer */
-		value.it_interval.tv_sec = 0;
-		value.it_interval.tv_nsec = 0;
-	}
+    if (periodic)
+    {
+        /* set as periodic timer */
+        value.it_interval.tv_sec = value.it_value.tv_sec;
+        value.it_interval.tv_nsec = value.it_value.tv_nsec;
+    }
+    else
+    {
+        /* set as one shot timer */
+        value.it_interval.tv_sec = 0;
+        value.it_interval.tv_nsec = 0;
+    }
 
 
-	/* kick the timer */
-	timer_settime(timerId, 0, &value, NULL);
+    /* kick the timer */
+    timer_settime(timerId, 0, &value, NULL);
 
 }
 
 void Platform_TimerStop(timer_t timerId)
 {
-	struct itimerspec value;
+    struct itimerspec value;
 
-	/* stop timer */
-	value.it_interval.tv_sec = 0;
-	value.it_interval.tv_nsec = 0;
-	value.it_value.tv_sec = 0;
-	value.it_value.tv_nsec = 0;
-	timer_settime(timerId, 0, &value, NULL);
+    /* stop timer */
+    value.it_interval.tv_sec = 0;
+    value.it_interval.tv_nsec = 0;
+    value.it_value.tv_sec = 0;
+    value.it_value.tv_nsec = 0;
+    timer_settime(timerId, 0, &value, NULL);
 
 }
 
 void Platform_TimerInterruptClear()
 {
-	/* Do nothing... */
+    /* Do nothing... */
 }
-
