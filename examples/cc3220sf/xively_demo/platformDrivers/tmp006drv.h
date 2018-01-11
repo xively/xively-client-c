@@ -1,33 +1,15 @@
 /*
- * Copyright (c) 2016, Texas Instruments Incorporated
- * All rights reserved.
+ *   Copyright (C) 2015-2016 Texas Instruments Incorporated
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ *   All rights reserved. Property of Texas Instruments Incorporated.
+ *   Restricted rights to use, duplicate or disclose this code are
+ *   granted through contract.
  *
- * *  Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
+ *   The program may not be used without the written permission of
+ *   Texas Instruments Incorporated or against the terms and conditions
+ *   stipulated in the agreement under which this program has been supplied,
+ *   and under no circumstances can it be used with non-TI connectivity device.
  *
- * *  Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *
- * *  Neither the name of Texas Instruments Incorporated nor the names of
- *    its contributors may be used to endorse or promote products derived
- *    from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
- * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
- * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
- * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #ifndef __TMP006DRV_H__
@@ -80,8 +62,8 @@ extern "C"
 //****************************************************************************
 //
 //! \brief Initialize the temperature sensor
-//!    		1. Get the device manufacturer and version
-//!    		2. Add any initialization here
+//!         1. Get the device manufacturer and version
+//!         2. Add any initialization here
 //!
 //! \param i2cHandle[in] the handle to the openned i2c device
 //!
@@ -93,11 +75,11 @@ int TMP006DrvOpen(I2C_Handle i2cHandle);
 //****************************************************************************
 //
 //! \brief Get the temperature value
-//!    		1. Get the sensor voltage reg and ambient temp reg values
-//!    		2. Compute the temperature from the read values
+//!         1. Get the sensor voltage reg and ambient temp reg values
+//!         2. Compute the temperature from the read values
 //!
-//! \param[in] 	i2cHandle 	the handle to the openned i2c device
-//! \param[out] 	pfCurrTemp 	the pointer to the temperature value store
+//! \param[in]  i2cHandle   the handle to the openned i2c device
+//! \param[out]     pfCurrTemp  the pointer to the temperature value store
 //!
 //! \return 0: Success, < 0: Failure.
 //
