@@ -70,7 +70,7 @@ extern "C"
 //!      Reads the CHIP ID.
 //!
 //! \param[in]  i2cHandle       the handle to the openned i2c device
-//! 
+//!
 //! \return 0: Success, < 0: Failure.
 //
 //****************************************************************************
@@ -85,7 +85,7 @@ int BMA222Open(I2C_Handle i2cHandle);
 //! \param[in]  ucRegAddr   the start offset register address
 //! \param[out]     pucBlkData  the pointer to the data value store
 //! \param[in]  ucBlkDataSz     the size of data to be read
-//! 
+//!
 //! \return 0: Success, < 0: Failure.
 //
 //****************************************************************************
@@ -113,7 +113,7 @@ int BMA222ReadNew(I2C_Handle i2cHandle, signed char *pcAccX, signed char *pcAccY
 //!      Sets the device to standby mode.
 //!
 //! \param None
-//! 
+//!
 //! \return 0: Success
 //
 //****************************************************************************

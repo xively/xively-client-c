@@ -45,7 +45,7 @@
 //! \param[in]  i2cHandle   the handle to the openned i2c device
 //! \param[in]  ucRegAddr   the offset register address
 //! \param[out]     pucRegValue     the pointer to the register value store
-//! 
+//!
 //! \return 0: Success, < 0: Failure.
 //
 //****************************************************************************
@@ -61,7 +61,7 @@ GetRegisterValue(I2C_Handle i2cHandle, unsigned char ucRegAddr, unsigned char *p
 //! \param[in]  ucRegAddr   the start offset register address
 //! \param[out]     pucBlkData  the pointer to the data value store
 //! \param[in]  ucBlkDataSz     the size of data to be read
-//! 
+//!
 //! \return 0: Success, < 0: Failure.
 //
 //****************************************************************************
@@ -81,7 +81,7 @@ BlockRead(I2C_Handle i2cHandle, unsigned char ucRegAddr, unsigned char *pucBlkDa
 //! \param[in]  i2cHandle   the handle to the openned i2c device
 //! \param[in]  ucRegAddr   the offset register address
 //! \param[out]     pucRegValue     the pointer to the register value store
-//! 
+//!
 //! \return 0: Success, < 0: Failure.
 //
 //****************************************************************************
@@ -118,7 +118,7 @@ GetRegisterValue(I2C_Handle i2cHandle, unsigned char ucRegAddr, unsigned char *p
 //! \param[in]  ucRegAddr   the start offset register address
 //! \param[out]     pucBlkData  the pointer to the data value store
 //! \param[in]  ucBlkDataSz     the size of data to be read
-//! 
+//!
 //! \return 0: Success, < 0: Failure.
 //
 //****************************************************************************
@@ -158,7 +158,7 @@ BlockRead(I2C_Handle i2cHandle, unsigned char ucRegAddr, unsigned char *pucBlkDa
 //! \param[in] i2cHandle    the handle to the openned i2c device
 //! \param[in] ucRegAddr    the offset register address
 //! \param[in] ucRegValue   the register value to be set
-//! 
+//!
 //! \return 0: Success, < 0: Failure.
 //
 //****************************************************************************
@@ -197,7 +197,7 @@ SetRegisterValue(I2C_Handle i2cHandle, unsigned char ucRegAddr, unsigned char uc
 //!      Reads the CHIP ID.
 //!
 //! \param[in]  i2cHandle       the handle to the openned i2c device
-//! 
+//!
 //! \return 0: Success, < 0: Failure.
 //
 //****************************************************************************
@@ -224,7 +224,7 @@ BMA222Open(I2C_Handle i2cHandle)
 //!      Sets the device to standby mode.
 //!
 //! \param None
-//! 
+//!
 //! \return 0: Success
 //
 //****************************************************************************
@@ -244,7 +244,7 @@ BMA222Close()
 //! \param[out]     psAccX      pointer to the raw AccX store
 //! \param[out]     psAccY      pointer to the raw AccY store
 //! \param[out]     psAccZ      pointer to the raw AccZ store
-//! 
+//!
 //! \return 0: Success, < 0: Failure.
 //
 //****************************************************************************
