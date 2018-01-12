@@ -38,7 +38,6 @@
 #include "platformDrivers/bma222drv.h"
 #include "platformDrivers/tmp006drv.h"
 #include "platformDrivers/uart_term.h"
-#include "simplelinkWifi/provisioning_task.h"
 
 /* Application Version and Naming*/
 #define APPLICATION_NAME        		"xively cc3220 example"
@@ -81,25 +80,6 @@
                  }\
             }
 
-/* Status keeping MACROS */
-#define SET_STATUS_BIT(status_variable, bit) status_variable |= (1<<(bit))
-
-#define CLR_STATUS_BIT(status_variable, bit) status_variable &= ~(1<<(bit))
-
-#define GET_STATUS_BIT(status_variable, bit)    \
-                                (0 != (status_variable & (1<<(bit))))
-
-#define IS_CONNECTED(status_variable)       \
-                GET_STATUS_BIT(status_variable, AppStatusBits_Connection)
-
-#define IS_IP_ACQUIRED(status_variable)     \
-                GET_STATUS_BIT(status_variable, AppStatusBits_IpAcquired)
-
-#define IS_IPV6L_ACQUIRED(status_variable)  \
-                GET_STATUS_BIT(status_variable, AppStatusBits_Ipv6lAcquired)
-
-#define IS_IPV6G_ACQUIRED(status_variable)  \
-                GET_STATUS_BIT(status_variable, AppStatusBits_Ipv6gAcquired)
 
 /* Tracks initialization state so that we can show progress with the LEDs */
 typedef enum
@@ -161,12 +141,12 @@ typedef struct Application_CB_t
 	uint8_t   button1State;                   /* Tracks Button 1 State */
 
 	/* BEGIN - Values parsed from Xively Config File */
-	int8_t    desiredWifiSecurityType;              /* see SL_WLAN_SEC_TYPE in wlan.h */
- 	char  	  desiredWifiSSID[SSID_LEN_MAX+1];      /* user configured host wifi SSID */
- 	char   	  desiredWifiKey[WIFI_KEY_LEN_MAX+1];   /* user configured wifi password */
- 	char   	  xivelyAccountId[XIVELY_CRED_LEN_MAX];
- 	char      xivelyDeviceId[XIVELY_CRED_LEN_MAX];
- 	char      xivelyDevicePassword[XIVELY_CRED_LEN_MAX];
+	int8_t  desiredWifiSecurityType;              /* see SL_WLAN_SEC_TYPE in wlan.h */
+ 	char  	desiredWifiSSID[SSID_LEN_MAX+1];      /* user configured host wifi SSID */
+ 	char    desiredWifiKey[WIFI_KEY_LEN_MAX+1];   /* user configured wifi password */
+ 	char   	xivelyAccountId[XIVELY_CRED_LEN_MAX];
+ 	char    xivelyDeviceId[XIVELY_CRED_LEN_MAX];
+ 	char    xivelyDevicePassword[XIVELY_CRED_LEN_MAX];
 	/* END */
 } Application_CB;
 

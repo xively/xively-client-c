@@ -43,8 +43,7 @@
 #include <ti/sysbios/BIOS.h>
 #include <ti/sysbios/knl/Clock.h>
 
-#include <mqueue.h>
-#include <simplelinkWifi/provisioning_task.h>
+#include <simplelinkWifi/network_if.h>
 
 #include "xively.h"
 #include "xi_bsp_rng.h"
@@ -279,7 +278,6 @@ static void UpdateLEDProgressIndicators( UArg arg0 )
  */
 void* xivelyExampleThread( void* arg )
 {
-    pthread_attr_t pAttrs;
     pthread_attr_t pAttrs_spawn;
     struct sched_param priParam;
 
@@ -346,7 +344,7 @@ void* xivelyExampleThread( void* arg )
     pthread_attr_init( &pAttrs_spawn );
     priParam.sched_priority = SPAWN_TASK_PRIORITY;
 
-    uint32_t retval;
+    long retval;
     retval = pthread_attr_setschedparam( &pAttrs_spawn, &priParam );
     retval |= pthread_attr_setstacksize( &pAttrs_spawn, TASK_STACK_SIZE );
     retval = pthread_create( &gSimpleLinkThread, &pAttrs_spawn, sl_Task, NULL );
@@ -379,14 +377,14 @@ void* xivelyExampleThread( void* arg )
     retval = Network_IF_InitDriver(simpleLinkMode, ROLE_STA);
     if (retval < 0)
     {
-       UART_PRINT("Failed to start SimpleLink Device\n\r", retval);
+       Report("Failed to start SimpleLink Device\n\r", retval);
        while( 1 )
            ;
     }
 
     /* Initialize AP security params                                          */
     SlWlanSecParams_t securityParams = { 0 };
-    securityParams.Key = gApplicationControlBlock.desiredWifiKey;
+    securityParams.Key = (signed char*)gApplicationControlBlock.desiredWifiKey;
     securityParams.KeyLen = strlen(gApplicationControlBlock.desiredWifiKey);
     securityParams.Type = gApplicationControlBlock.desiredWifiSecurityType;
 
@@ -397,8 +395,10 @@ void* xivelyExampleThread( void* arg )
     retval = Network_IF_ConnectAP(gApplicationControlBlock.desiredWifiSSID, securityParams);
     if (retval < 0)
     {
-       UART_PRINT("Connection to an AP failed\n\r");
-       return -1;
+       Report("Connection to an AP failed\n\r");
+       Report( "Looping forever\n\r" );
+       while ( 1 )
+           ;
     }
 
     gApplicationControlBlock.initializationState = InitializationState_ConnectingToXively;
@@ -438,7 +438,7 @@ void ConnectToXively()
 
     if ( XI_STATE_OK != ret_state )
     {
-        UART_PRINT( "xi failed to initialize\n\r" );
+        Report( "xi failed to initialize\n\r" );
         return;
     }
 
@@ -446,7 +446,7 @@ void ConnectToXively()
 
     if ( XI_INVALID_CONTEXT_HANDLE == gXivelyContextHandle )
     {
-        UART_PRINT( " xi failed to create context, error: %d\n\r",
+        Report( " xi failed to create context, error: %d\n\r",
                     -gXivelyContextHandle );
         return;
     }
@@ -901,23 +901,6 @@ void parseCredentialsFromConfigFile()
     err |=
         parseKeyValue( config_file_context, XIVELY_PWD_KEY, 1, &xively_device_password );
 
-    /* optional - parse xively broker address and port from config file */
-    static char *broker_name = NULL, *broker_port_str = NULL;
-    if ( 0 != parseKeyValue( config_file_context, XIVELY_HOST_KEY, 0, &broker_name ) )
-    {
-        broker_name = XIVELY_DEFAULT_BROKER;
-    }
-
-    static uint16_t broker_port = XIVELY_DEFAULT_PORT;
-    if ( 0 == parseKeyValue( config_file_context, XIVELY_PORT_KEY, 0, &broker_port_str ) )
-    {
-        if ( 0 == ( broker_port = atoi( broker_port_str ) ) )
-        {
-            Report( ". \"%s\" value \"%s\" is an invalid \"port\" value\n",
-                    XIVELY_PORT_KEY, broker_port_str );
-            err = -1;
-        }
-    }
 
     /* if everything is ok so far then do some sanity checks on the string sizes and the
      * parsed values. */
