@@ -9,8 +9,8 @@ env:
     - XI_BSP_TLS=wolfssl
     - XI_MAKETARGET=tests
   matrix:
-    - PRESET=ARM_REL
-    - PRESET=ARM_REL_MIN
+    # - PRESET=ARM_REL
+    # - PRESET=ARM_REL_MIN
 
     # - PRESET=STM32FX
     #   XI_MAKETARGET=""
@@ -24,20 +24,20 @@ env:
     # - PRESET=CC3200_TLS_SOCKET
     #   XI_MAKETARGET=""
 
-    - PRESET=ESP32
-      XI_MAKETARGET=""
+    # - PRESET=ESP32
+    #   XI_MAKETARGET=""
 
-    - PRESET=POSIX_DEV
-    - PRESET=POSIX_DEV_MIN
-    - PRESET=POSIX_REL
-    - PRESET=POSIX_REL_MIN
+    # - PRESET=POSIX_DEV
+    # - PRESET=POSIX_DEV_MIN
+    # - PRESET=POSIX_REL
+    # - PRESET=POSIX_REL_MIN
 
-    - PRESET=POSIX_REL
-      XI_BSP_TLS=mbedtls
+    # - PRESET=POSIX_REL
+    #   XI_BSP_TLS=mbedtls
 
-    - PRESET=POSIX_THREADING_REL
-    - PRESET=POSIX_UNSECURE_REL
-      XI_BSP_TLS=""
+    # - PRESET=POSIX_THREADING_REL
+    # - PRESET=POSIX_UNSECURE_REL
+    #   XI_BSP_TLS=""
 
     - TESTS=fuzztests
       PRESET=FUZZ_TESTS
