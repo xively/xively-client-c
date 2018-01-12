@@ -1,3 +1,4 @@
+#if 0
 /*
  * simplelinke_callbacks.c
  *
@@ -615,3 +616,4 @@ void SimpleLinkNetAppRequestMemFreeEventHandler (uint8_t *buffer)
 {
 	/* Unused in this application */
 }
+#endif

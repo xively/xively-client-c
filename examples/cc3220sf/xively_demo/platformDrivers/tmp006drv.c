@@ -45,7 +45,7 @@
 //!
 //! \param[in]  i2cHandle   the handle to the openned i2c device
 //! \param[in]  ucRegAddr   the offset register address
-//! \param[out]     pucRegValue     the pointer to the register value store
+//! \param[out] pucRegValue the pointer to the register value store
 //! 
 //! \return 0: Success, < 0: Failure.
 //

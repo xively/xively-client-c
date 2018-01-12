@@ -1,3 +1,4 @@
+#if 0
 //*****************************************************************************
 // Copyright (C) 2016 Texas Instruments Incorporated
 //
@@ -151,4 +152,5 @@ _i32 provisioningStop();
 //****************************************************************************
 void * provisioningTask(void *pvParameters);
 
+#endif
 #endif

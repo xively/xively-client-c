@@ -213,8 +213,8 @@ static void InitializeAppVariables()
             sizeof( gApplicationControlBlock.connectionBSSID ) );
 
     /* initializes semaphores used in TI's Wifi IP Address Provisioning */
-    sem_init( &Provisioning_ControlBlock.connectionAsyncEvent, 0, 0 );
-    sem_init( &Provisioning_ControlBlock.provisioningDoneSignal, 0, 0 );
+    //sem_init( &Provisioning_ControlBlock.connectionAsyncEvent, 0, 0 );
+    //sem_init( &Provisioning_ControlBlock.provisioningDoneSignal, 0, 0 );
 }
 
 static void UpdateLEDProgressIndicators( UArg arg0 )
@@ -310,6 +310,8 @@ void* xivelyExampleThread( void* arg )
     Report( "\t\t =================================================\n\r" );
     Report( "\n\n\n\r" );
 
+    Report( "\t\t ====================DDB==========================\n\r" );
+
     /* Switch off all LEDs on board, for a nice clean state */
     GPIO_write( Board_LED0, Board_LED_OFF );
     GPIO_write( Board_LED1, Board_LED_OFF );
@@ -359,17 +361,35 @@ void* xivelyExampleThread( void* arg )
     }
 
     /* start simplelink here so we can use the simplelink file API */
-    retval = sl_Start( NULL, NULL, NULL );
+    //retval = sl_Start( NULL, NULL, NULL );
 
     /* Parse Xively and Wifi Credentials from config file on flash file system */
     /* This data will be stored in the Application Control Block */
     gApplicationControlBlock.initializationState = InitializationState_ReadingCredentials;
 
-    parseCredentialsFromConfigFile();
+    //parseCredentialsFromConfigFile();
+    const char* wifi_ssid = "ddbphone";
+    const char* wifi_password = "t3stt3st";
+
+    gApplicationControlBlock.desiredWifiSecurityType = 2;
+    const char* xively_account_id = "223151b6-7476-4832-b189-e52def8c6a7e";
+    const char* xively_device_id  = "63bd881c-49e1-4d92-b364-c120230af92e";
+    const char* xively_device_password = "O7q3mdhLzZ5SyLHB6LthS3pOh4PNiveGgkirQh0hUDY=";
+
+    memcpy( gApplicationControlBlock.desiredWifiSSID, wifi_ssid, strlen( wifi_ssid ) );
+    memcpy( gApplicationControlBlock.desiredWifiKey, wifi_password,
+               strlen( wifi_password ) );
+    memcpy( gApplicationControlBlock.xivelyAccountId, xively_account_id,
+           strlen( xively_account_id ) );
+    memcpy( gApplicationControlBlock.xivelyDeviceId, xively_device_id,
+           strlen( xively_device_id ) );
+    memcpy( gApplicationControlBlock.xivelyDevicePassword, xively_device_password,
+           strlen( xively_device_password ) );
 
     /* Attempt to connect to the configured WiFi network */
     gApplicationControlBlock.initializationState = InitializationState_ProvisioningWifi;
 
+#if ddb_here
     /* create a thread to grab an IP address from Wifi */
     /* This is called Provisioning on the TI CC3220     */
     pthread_attr_init( &pAttrs );
@@ -406,6 +426,45 @@ void* xivelyExampleThread( void* arg )
         while ( 1 )
             ;
     }
+#else
+    /* Reset The state of the machine                                         */
+       Network_IF_ResetMCUStateMachine();
+
+       /* Start the driver                                                       */
+       retval = Network_IF_InitDriver(ROLE_STA);
+       if (retval < 0)
+       {
+           UART_PRINT("Failed to start SimpleLink Device\n\r", retval);
+           while( 1 )
+               ;
+       }
+
+       /* switch on Green LED to indicate Simplelink is properly up.             */
+       //GPIO_write(Board_LED2, Board_LED_ON);
+
+       /* Start Timer to blink Red LED till AP connection                        */
+       //LedTimerConfigNStart();
+
+       /* Initialize AP security params                                          */
+       SlWlanSecParams_t securityParams = { 0 };
+       securityParams.Key = gApplicationControlBlock.desiredWifiKey;
+       securityParams.KeyLen = strlen(gApplicationControlBlock.desiredWifiKey);
+       securityParams.Type = gApplicationControlBlock.desiredWifiSecurityType;
+
+       Report("securityParams SSID: %s\n", gApplicationControlBlock.desiredWifiSSID);
+       Report("securityParams Key:  %s\n", securityParams.Key);
+       Report("securityParams KeyLen:  %d\n", securityParams.KeyLen);
+       Report("securityParams Type:    %d\n", securityParams.Type);
+
+
+       /* Connect to the Access Point                                            */
+       retval = Network_IF_ConnectAP(gApplicationControlBlock.desiredWifiSSID, securityParams);
+       if (retval < 0)
+       {
+           UART_PRINT("Connection to an AP failed\n\r");
+           return -1;
+       }
+    #endif
 
     gApplicationControlBlock.initializationState = InitializationState_ConnectingToXively;
 

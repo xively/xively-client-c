@@ -1,3 +1,4 @@
+#if 0
 /*
  *   Copyright (C) 2015-2016 Texas Instruments Incorporated
  *
@@ -1487,3 +1488,4 @@ void SimpleLinkNetAppRequestEventHandler(SlNetAppRequest_t *pNetAppRequest, SlNe
 //! @}
 //
 //*****************************************************************************
+#endif
