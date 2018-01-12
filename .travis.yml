@@ -81,9 +81,7 @@ before_script:
   - "if [[ ! $TESTS == 'fuzztests' ]]; then
         if [[ $CC == *'clang'* ]]; then export CC='clang-3.8'; fi;
      else
-        # https://wiki.ubuntu.com/SecurityTeam/Roadmap/KernelHardening#ptrace_Protection;
         echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope;
-
         export CC=clang CXX=clang++;
      fi"
 script:
