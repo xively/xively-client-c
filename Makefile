@@ -133,6 +133,8 @@ $(XI_OBJDIR)/tests/tools/xi_libxively_driver/%.o : $(LIBXIVELY)/src/tests/tools/
 $(XI_OBJDIR)/%.o : $(LIBXIVELY)/src/%.c $(XI_BUILD_PRECONDITIONS)
 	@-mkdir -p $(dir $@)
 	$(info [$(CC)] $@)
+	which $(CC)
+	$(CC) --version
 	$(MD) $(CC) $(XI_CONFIG_FLAGS) $(XI_COMPILER_FLAGS) $(XI_INCLUDE_FLAGS) -c $< $(XI_COMPILER_OUTPUT)
 	$(XI_POST_COMPILE_ACTION)
 
@@ -194,6 +196,8 @@ endif
 $(XI_FUZZ_TESTS_BINDIR)/%: $(XI_FUZZ_TESTS_SOURCE_DIR)/%.cpp
 	@-mkdir -p $(dir $@)
 	$(info [$(CXX)] $@)
+	which $(CXX)
+	$(CXX) --version
 	$(MD) $(CXX) $< $(XI_CONFIG_FLAGS) $(XI_INCLUDE_FLAGS) -L$(XI_BINDIR) -L$(XI_LIBFUZZER_DOWNLOAD_DIR) $(XI_LIB_FLAGS) $(XI_FUZZ_TEST_LIBRARY) $(XI_COMPILER_OUTPUT)
 
 .PHONY: fuzz_tests
