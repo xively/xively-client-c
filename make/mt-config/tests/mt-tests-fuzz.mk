@@ -28,7 +28,7 @@ XI_CLANG_COMPILER := $(XI_CLANG_COMPILER_INSTALL_DIR)/bin/clang
 
 # This is where the compiler path is being overriden
 ifneq (,$(findstring fuzz_test,$(CONFIG)))
-	export PATH := $(XI_CLANG_COMPILER_INSTALL_DIR)/bin:$(PATH)
+	# export PATH := $(XI_CLANG_COMPILER_INSTALL_DIR)/bin:$(PATH)
 endif
 
 
