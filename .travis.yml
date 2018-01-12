@@ -75,13 +75,13 @@ matrix:
       env: PRESET=CC3200_TLS_SOCKET XI_MAKETARGET=""
     - compiler: clang
       env: PRESET=ESP32 XI_MAKETARGET=""
-    - compiler: gcc
+    - compiler: clang
       env: TESTS=fuzztests PRESET=FUZZ_TESTS XI_BSP_TLS="" XI_MAKETARGET="fuzz_tests"
 before_script:
   - "if [[ ! $TESTS == 'fuzztests' ]]; then
         if [[ $CC == *'clang'* ]]; then export CC='clang-3.8'; fi;
      else
-        if [[ $CC == *'clang'* ]]; then export CC=clang CXX=clang++; fi;
+        export CC=clang CXX=clang++;
      fi"
 script:
   - "set -e"
