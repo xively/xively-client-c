@@ -41,11 +41,7 @@
 
 /* Application Version and Naming*/
 #define APPLICATION_NAME        		"xively cc3220 example"
-#ifndef RELEASE_2
-#define APPLICATION_VERSION             "1.00.00.00"
-#else
-#define APPLICATION_VERSION             "1.00.00.01"
-#endif
+#define APPLICATION_VERSION             "1.1"
 
 #define SPAWN_TASK_PRIORITY		(9)
 #define TASK_STACK_SIZE         (2048)

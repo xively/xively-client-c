@@ -210,10 +210,6 @@ static void InitializeAppVariables()
             sizeof( gApplicationControlBlock.connectionSSID ) );
     memset( gApplicationControlBlock.connectionBSSID, 0,
             sizeof( gApplicationControlBlock.connectionBSSID ) );
-
-    /* initializes semaphores used in TI's Wifi IP Address Provisioning */
-    //sem_init( &Provisioning_ControlBlock.connectionAsyncEvent, 0, 0 );
-    //sem_init( &Provisioning_ControlBlock.provisioningDoneSignal, 0, 0 );
 }
 
 static void UpdateLEDProgressIndicators( UArg arg0 )
@@ -307,8 +303,6 @@ void* xivelyExampleThread( void* arg )
     Report( "\t\t      %s Ver. %s      \n\r", APPLICATION_NAME, APPLICATION_VERSION );
     Report( "\t\t =================================================\n\r" );
     Report( "\n\n\n\r" );
-
-    Report( "\t\t ====================DDB==========================\n\r" );
 
     /* Switch off all LEDs on board, for a nice clean state */
     GPIO_write( Board_LED0, Board_LED_OFF );
