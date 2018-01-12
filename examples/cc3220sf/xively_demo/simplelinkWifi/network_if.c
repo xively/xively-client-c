@@ -392,29 +392,20 @@ void InitializeAppVariables(void)
 //! \return 0 : success, -ve : failure
 //
 //*****************************************************************************
-long Network_IF_InitDriver(uint32_t uiMode)
+long Network_IF_InitDriver(uint32_t uiCurrentMode, uint32_t uiDesiredMode)
 {
     long lRetVal = -1;
 
     /* Reset CC3220 Network State Machine                                     */
     InitializeAppVariables();
 
-#if 1
     /* Following function configure the device to default state by cleaning   */
     /* the persistent settings stored in NVMEM (viz. connection profiles      */
     /* & policies, power policy etc) Applications may choose to skip this     */
     /* step if the developer is sure that the device is in its default state  */
     /* at start of application. Note that all profiles and persistent         */
     /* settings that were done on the device will be lost.                    */
-    lRetVal = sl_Start(NULL, NULL, NULL);
-
-    if (lRetVal < 0)
-    {
-        UART_PRINT("Failed to start the device \n\r");
-        LOOP_FOREVER();
-    }
-
-    switch (lRetVal)
+    switch (uiCurrentMode)
     {
         case ROLE_STA:
             UART_PRINT("Device came up in Station mode\n\r");
@@ -430,20 +421,19 @@ long Network_IF_InitDriver(uint32_t uiMode)
             break;
     }
 
-
-    if (uiMode != lRetVal)
+    if (uiCurrentMode != uiDesiredMode)
     {
         UART_PRINT("Switching Networking mode on application request\n\r");
 
         /* Switch to AP role and restart                                      */
-        lRetVal = sl_WlanSetMode(uiMode);
+        lRetVal = sl_WlanSetMode(uiDesiredMode);
         ASSERT_ON_ERROR(lRetVal);
 
         lRetVal = sl_Stop(SL_STOP_TIMEOUT);
         lRetVal = sl_Start(0, 0, 0);
         ASSERT_ON_ERROR(lRetVal);
 
-        if (lRetVal == uiMode)
+        if (lRetVal == uiDesiredMode)
         {
             switch (lRetVal)
             {
@@ -483,10 +473,8 @@ long Network_IF_InitDriver(uint32_t uiMode)
             }
         }
     }
-#endif
     return 0;
 }
-
 //*****************************************************************************
 //
 //! The function de-initializes a CC3220 device

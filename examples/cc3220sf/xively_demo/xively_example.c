@@ -361,20 +361,21 @@ void* xivelyExampleThread( void* arg )
     }
 
     /* start simplelink here so we can use the simplelink file API */
-    //retval = sl_Start( NULL, NULL, NULL );
+    uint32_t simpleLinkMode = sl_Start( NULL, NULL, NULL );
 
     /* Parse Xively and Wifi Credentials from config file on flash file system */
     /* This data will be stored in the Application Control Block */
     gApplicationControlBlock.initializationState = InitializationState_ReadingCredentials;
 
     //parseCredentialsFromConfigFile();
-    const char* wifi_ssid = "ddbphone";
-    const char* wifi_password = "t3stt3st";
 
-    gApplicationControlBlock.desiredWifiSecurityType = 2;
+#if 1
     const char* xively_account_id = "223151b6-7476-4832-b189-e52def8c6a7e";
     const char* xively_device_id  = "63bd881c-49e1-4d92-b364-c120230af92e";
     const char* xively_device_password = "O7q3mdhLzZ5SyLHB6LthS3pOh4PNiveGgkirQh0hUDY=";
+
+    const char* wifi_ssid = "ddbphone";
+    const char* wifi_password = "t3stt3st";
 
     memcpy( gApplicationControlBlock.desiredWifiSSID, wifi_ssid, strlen( wifi_ssid ) );
     memcpy( gApplicationControlBlock.desiredWifiKey, wifi_password,
@@ -386,85 +387,50 @@ void* xivelyExampleThread( void* arg )
     memcpy( gApplicationControlBlock.xivelyDevicePassword, xively_device_password,
            strlen( xively_device_password ) );
 
+    gApplicationControlBlock.desiredWifiSecurityType = 2;
+#endif
+
     /* Attempt to connect to the configured WiFi network */
     gApplicationControlBlock.initializationState = InitializationState_ProvisioningWifi;
 
-#if ddb_here
-    /* create a thread to grab an IP address from Wifi */
-    /* This is called Provisioning on the TI CC3220     */
-    pthread_attr_init( &pAttrs );
-    priParam.sched_priority = 1;
-    retval                  = pthread_attr_setschedparam( &pAttrs, &priParam );
-    retval |= pthread_attr_setstacksize( &pAttrs, TASK_STACK_SIZE );
 
-    if ( retval )
-    {
-        Report( "Provisioning Task Creation pthread config returned an error: %d. ",
-                retval );
-        Report( "Looping forever\n\r" );
-        while ( 1 )
-            ;
-    }
-
-    retval = pthread_create( &gProvisioningThread, &pAttrs, provisioningTask, NULL );
-
-    if ( retval )
-    {
-        Report( "Provisioning Task Creation pthread create returned an error: %d. ",
-                retval );
-        Report( "Looping forever\n\r" );
-        while ( 1 )
-            ;
-    }
-
-    /* Wait for the Provisioning task to say that we have an IP address */
-    retval = sem_wait( &Provisioning_ControlBlock.provisioningDoneSignal );
-    if ( retval )
-    {
-        Report( "Semaphore returned error when waiting for Wifi Provisioning Task.\n\r" );
-        Report( "Looping forever\n\r" );
-        while ( 1 )
-            ;
-    }
-#else
     /* Reset The state of the machine                                         */
-       Network_IF_ResetMCUStateMachine();
+    Network_IF_ResetMCUStateMachine();
 
-       /* Start the driver                                                       */
-       retval = Network_IF_InitDriver(ROLE_STA);
-       if (retval < 0)
-       {
-           UART_PRINT("Failed to start SimpleLink Device\n\r", retval);
-           while( 1 )
-               ;
-       }
+    /* Start the driver                                                       */
+    retval = Network_IF_InitDriver(simpleLinkMode, ROLE_STA);
+    if (retval < 0)
+    {
+       UART_PRINT("Failed to start SimpleLink Device\n\r", retval);
+       while( 1 )
+           ;
+    }
 
-       /* switch on Green LED to indicate Simplelink is properly up.             */
-       //GPIO_write(Board_LED2, Board_LED_ON);
+    /* switch on Green LED to indicate Simplelink is properly up.             */
+    //GPIO_write(Board_LED2, Board_LED_ON);
 
-       /* Start Timer to blink Red LED till AP connection                        */
-       //LedTimerConfigNStart();
+    /* Start Timer to blink Red LED till AP connection                        */
+    //LedTimerConfigNStart();
 
-       /* Initialize AP security params                                          */
-       SlWlanSecParams_t securityParams = { 0 };
-       securityParams.Key = gApplicationControlBlock.desiredWifiKey;
-       securityParams.KeyLen = strlen(gApplicationControlBlock.desiredWifiKey);
-       securityParams.Type = gApplicationControlBlock.desiredWifiSecurityType;
+    /* Initialize AP security params                                          */
+    SlWlanSecParams_t securityParams = { 0 };
+    securityParams.Key = gApplicationControlBlock.desiredWifiKey;
+    securityParams.KeyLen = strlen(gApplicationControlBlock.desiredWifiKey);
+    securityParams.Type = gApplicationControlBlock.desiredWifiSecurityType;
 
-       Report("securityParams SSID: %s\n", gApplicationControlBlock.desiredWifiSSID);
-       Report("securityParams Key:  %s\n", securityParams.Key);
-       Report("securityParams KeyLen:  %d\n", securityParams.KeyLen);
-       Report("securityParams Type:    %d\n", securityParams.Type);
+    Report("Attemtping to connect to WiFi SSID: %s\n", gApplicationControlBlock.desiredWifiSSID);
+    Report("securityParams Key:  %s\n", securityParams.Key);
+    Report("securityParams KeyLen:  %d\n", securityParams.KeyLen);
+    Report("securityParams Type:    %d\n", securityParams.Type);
 
 
-       /* Connect to the Access Point                                            */
-       retval = Network_IF_ConnectAP(gApplicationControlBlock.desiredWifiSSID, securityParams);
-       if (retval < 0)
-       {
-           UART_PRINT("Connection to an AP failed\n\r");
-           return -1;
-       }
-    #endif
+    /* Connect to the Access Point                                            */
+    retval = Network_IF_ConnectAP(gApplicationControlBlock.desiredWifiSSID, securityParams);
+    if (retval < 0)
+    {
+       UART_PRINT("Connection to an AP failed\n\r");
+       return -1;
+    }
 
     gApplicationControlBlock.initializationState = InitializationState_ConnectingToXively;
 

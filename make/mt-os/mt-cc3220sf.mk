@@ -36,7 +36,8 @@ else ifneq (,$(findstring Windows,$(XI_HOST_PLATFORM)))
 
     XI_CC3220SF_PATH_CCS_TOOLS ?= C:/ti/ccsv7/tools
 
-	XI_CC3220SF_PATH_SDK ?= C:/ti/simplelink_cc32xx_sdk_1_60_00_04
+	# XI_CC3220SF_PATH_SDK ?= C:/ti/simplelink_cc32xx_sdk_1_60_00_04
+	XI_CC3220SF_PATH_SDK ?= C:/ti/simplelink_cc32xx_sdk_1_50_00_06
 	XI_CC3220SF_PATH_XDC_SDK ?= C:/ti/xdctools_3_50_03_33_core
 
 	CC = $(XI_CC3220SF_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armcl

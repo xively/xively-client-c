@@ -58,17 +58,6 @@ extern "C"
 /* properties SimpleLink device will connect to following AP when application */
 /* is executed.                                                               */
 
-/* AP SSID                                                                    */
-#define SSID_NAME               "ddbphone"
-/* Security type (OPEN or WEP or WPA)                                         */
-#define SECURITY_TYPE           SL_WLAN_SEC_TYPE_WPA_WPA2
-/* Password of the secured AP                                                 */
-#define SECURITY_KEY            "t3stt3st"
-
-#define SSID_AP_MODE            "<ap-ssid>"
-#define SEC_TYPE_AP_MODE        SL_WLAN_SEC_TYPE_OPEN
-#define PASSWORD_AP_MODE        ""
-
 /* Loop forever, user can change it as per application's requirement          */
 #define LOOP_FOREVER() \
             {\
@@ -145,7 +134,7 @@ typedef enum{
 //*****************************************************************************
 // APIs
 //*****************************************************************************
-long Network_IF_InitDriver(uint32_t uiMode);
+long Network_IF_InitDriver(uint32_t uiCurrentMode, uint32_t uiDesiredMode);
 long Network_IF_DeInitDriver(void);
 long Network_IF_ConnectAP(char * pcSsid, SlWlanSecParams_t SecurityParams);
 long Network_IF_DisconnectFromAP();
