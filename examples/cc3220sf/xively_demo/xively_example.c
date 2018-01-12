@@ -367,32 +367,10 @@ void* xivelyExampleThread( void* arg )
     /* This data will be stored in the Application Control Block */
     gApplicationControlBlock.initializationState = InitializationState_ReadingCredentials;
 
-    //parseCredentialsFromConfigFile();
-
-#if 1
-    const char* xively_account_id = "223151b6-7476-4832-b189-e52def8c6a7e";
-    const char* xively_device_id  = "63bd881c-49e1-4d92-b364-c120230af92e";
-    const char* xively_device_password = "O7q3mdhLzZ5SyLHB6LthS3pOh4PNiveGgkirQh0hUDY=";
-
-    const char* wifi_ssid = "ddbphone";
-    const char* wifi_password = "t3stt3st";
-
-    memcpy( gApplicationControlBlock.desiredWifiSSID, wifi_ssid, strlen( wifi_ssid ) );
-    memcpy( gApplicationControlBlock.desiredWifiKey, wifi_password,
-               strlen( wifi_password ) );
-    memcpy( gApplicationControlBlock.xivelyAccountId, xively_account_id,
-           strlen( xively_account_id ) );
-    memcpy( gApplicationControlBlock.xivelyDeviceId, xively_device_id,
-           strlen( xively_device_id ) );
-    memcpy( gApplicationControlBlock.xivelyDevicePassword, xively_device_password,
-           strlen( xively_device_password ) );
-
-    gApplicationControlBlock.desiredWifiSecurityType = 2;
-#endif
+    parseCredentialsFromConfigFile();
 
     /* Attempt to connect to the configured WiFi network */
     gApplicationControlBlock.initializationState = InitializationState_ProvisioningWifi;
-
 
     /* Reset The state of the machine                                         */
     Network_IF_ResetMCUStateMachine();
@@ -406,23 +384,14 @@ void* xivelyExampleThread( void* arg )
            ;
     }
 
-    /* switch on Green LED to indicate Simplelink is properly up.             */
-    //GPIO_write(Board_LED2, Board_LED_ON);
-
-    /* Start Timer to blink Red LED till AP connection                        */
-    //LedTimerConfigNStart();
-
     /* Initialize AP security params                                          */
     SlWlanSecParams_t securityParams = { 0 };
     securityParams.Key = gApplicationControlBlock.desiredWifiKey;
     securityParams.KeyLen = strlen(gApplicationControlBlock.desiredWifiKey);
     securityParams.Type = gApplicationControlBlock.desiredWifiSecurityType;
 
-    Report("Attemtping to connect to WiFi SSID: %s\n", gApplicationControlBlock.desiredWifiSSID);
-    Report("securityParams Key:  %s\n", securityParams.Key);
-    Report("securityParams KeyLen:  %d\n", securityParams.KeyLen);
-    Report("securityParams Type:    %d\n", securityParams.Type);
-
+    Report("Attempting to connect to WiFi SSID: %s\n", gApplicationControlBlock.desiredWifiSSID);
+    Report("securityParams WiFi Type:    %d\n", securityParams.Type);
 
     /* Connect to the Access Point                                            */
     retval = Network_IF_ConnectAP(gApplicationControlBlock.desiredWifiSSID, securityParams);
