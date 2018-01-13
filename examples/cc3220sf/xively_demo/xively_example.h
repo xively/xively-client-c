@@ -33,6 +33,7 @@
 /* POSIX Header files */
 #include <pthread.h>
 #include <unistd.h>
+#include <semaphore.h>
 
 /* Headers from this Example */
 #include "platformDrivers/bma222drv.h"
@@ -81,10 +82,12 @@
 typedef enum
 {
 	InitializationState_ReadingCredentials = 0,
-	InitializationState_ProvisioningWifi,
+	InitializationState_ConnectingToWifi,
 	InitializationState_ConnectingToXively,
 	InitializationState_SubscribingToTopics,
-	InitializationState_Complete
+	InitializationState_Connected,
+	InitializationState_ShuttingDownConnection,
+	InitializationState_Restarting
 } InitializationState;
 
 /* Application specific status/error codes */
@@ -143,6 +146,8 @@ typedef struct Application_CB_t
  	char   	xivelyAccountId[XIVELY_CRED_LEN_MAX];
  	char    xivelyDeviceId[XIVELY_CRED_LEN_MAX];
  	char    xivelyDevicePassword[XIVELY_CRED_LEN_MAX];
+
+ 	sem_t   wifiConnectedSem;
 	/* END */
 } Application_CB;
 
@@ -168,5 +173,10 @@ extern Application_CB	gApplicationControlBlock;
 void cc3220Reboot(void);
 
 void * MAIN_StartUpThread( void *pvParameters );
+
+typedef void (connection_callback_t )( void );
+
+void Callback_ConnectedToWiFi();
+void Callback_LostWiFiConnection();
 
 

@@ -215,7 +215,7 @@ extern xi_state_t xi_events_process_tick();
 /**
  * @brief     Causes the Xively Client event loop to exit.
  * @detailed  Pending scehduled events will not be invoked again until the
- * event loop is inovked again via xi_events_process.
+ * event loop is invoked again via xi_events_process.
  *
  * Stop is often called by the client application when shuttdown
  * its connectivity to the Xively Service.  The Xively Client

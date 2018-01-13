@@ -91,6 +91,10 @@ volatile unsigned long g_ulStatus = 0;
 /* Connection time delay index                                                */
 volatile unsigned short g_usConnectIndex;
 
+/* Callback functions for when WiFi is provisioned and/or lost */
+static network_if_connection_callback_t* g_uConnectionCallback = NULL;
+static network_if_connection_callback_t* g_uDisconnectionCallback = NULL;
+
 //*****************************************************************************
 // SimpleLink Asynchronous Event Handlers -- Start
 //*****************************************************************************
@@ -134,6 +138,8 @@ void SimpleLinkWlanEventHandler(SlWlanEvent_t *pSlWlanEvent)
             UART_PRINT("[WLAN EVENT] STA Connected to the AP: %s , BSSID: "
                     "%x:%x:%x:%x:%x:%x\n\r", g_ucConnectionSSID, g_ucConnectionBSSID[0], g_ucConnectionBSSID[1], g_ucConnectionBSSID[2], g_ucConnectionBSSID[3], g_ucConnectionBSSID[4],
                     g_ucConnectionBSSID[5]);
+            UART_PRINT("Invoking connection callback\n\r");
+            (g_uConnectionCallback)();
             break;
 
         case SL_WLAN_EVENT_DISCONNECT:
@@ -153,6 +159,8 @@ void SimpleLinkWlanEventHandler(SlWlanEvent_t *pSlWlanEvent)
             {
                 UART_PRINT("Device disconnected from the AP on an ERROR..!! \n\r");
             }
+            UART_PRINT("Invoking disconnection callback\n\r");
+            (g_uDisconnectionCallback)();
             break;
 
         case SL_WLAN_EVENT_STA_ADDED:
@@ -379,6 +387,9 @@ void InitializeAppVariables(void)
     g_ulStaIp = 0;
     g_ulGatewayIP = 0;
 
+    g_uConnectionCallback   = NULL;
+    g_uDisconnectionCallback = NULL;
+
     memset(g_ucConnectionSSID, 0, sizeof(g_ucConnectionSSID));
     memset(g_ucConnectionBSSID, 0, sizeof(g_ucConnectionBSSID));
 }
@@ -392,12 +403,18 @@ void InitializeAppVariables(void)
 //! \return 0 : success, -ve : failure
 //
 //*****************************************************************************
-long Network_IF_InitDriver(uint32_t uiCurrentMode, uint32_t uiDesiredMode)
+long Network_IF_InitDriver(uint32_t uiCurrentMode, uint32_t uiDesiredMode,
+                           network_if_connection_callback_t* connectionCallback,
+                           network_if_connection_callback_t* disconnectionCallback )
 {
     long lRetVal = -1;
 
     /* Reset CC3220 Network State Machine                                     */
     InitializeAppVariables();
+
+    g_uConnectionCallback = connectionCallback;
+    g_uDisconnectionCallback = disconnectionCallback;
+
 
     /* Following function configure the device to default state by cleaning   */
     /* the persistent settings stored in NVMEM (viz. connection profiles      */
@@ -566,6 +583,7 @@ long Network_IF_ConnectAP(char *pcSsid, SlWlanSecParams_t SecurityParams)
         CLR_STATUS_BIT(g_ulStatus, STATUS_BIT_IP_ACQUIRED);
         UART_PRINT("Device could not connect to %s\n\r", pcSsid);
 
+#if 0
         do
         {
             ucRecvdAPDetails = 0;
@@ -596,6 +614,7 @@ long Network_IF_ConnectAP(char *pcSsid, SlWlanSecParams_t SecurityParams)
         SecurityParams.Key = (signed char *) "";
         SecurityParams.KeyLen = 0;
         SecurityParams.Type = SL_WLAN_SEC_TYPE_OPEN;
+#endif
 
         UART_PRINT("\n\rTrying to connect to AP: %s ...\n\r", pcSsid);
 

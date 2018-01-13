@@ -119,6 +119,8 @@ typedef enum{
     STATUS_BIT_RESET_REQUIRED,
 }e_StatusBits;
 
+typedef void ( network_if_connection_callback_t )( void );
+
 #define CLR_STATUS_BIT_ALL(status_variable)  (status_variable = 0)
 #define SET_STATUS_BIT(status_variable, bit) (status_variable |= (1<<(bit)))
 #define CLR_STATUS_BIT(status_variable, bit) (status_variable &= ~(1<<(bit)))
@@ -134,7 +136,9 @@ typedef enum{
 //*****************************************************************************
 // APIs
 //*****************************************************************************
-long Network_IF_InitDriver(uint32_t uiCurrentMode, uint32_t uiDesiredMode);
+long Network_IF_InitDriver(uint32_t uiCurrentMode, uint32_t uiDesiredMode,
+                           network_if_connection_callback_t* connection_callback,
+                           network_if_connection_callback_t* disconnection_callback );
 long Network_IF_DeInitDriver(void);
 long Network_IF_ConnectAP(char * pcSsid, SlWlanSecParams_t SecurityParams);
 long Network_IF_DisconnectFromAP();
