@@ -84,6 +84,7 @@ before_script:
         if [[ $CC == *'clang'* ]]; then export CC='clang-3.8'; fi;
      else
         echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope;
+        export CXX=clang++;
      fi"
 script:
   - "set -e"
