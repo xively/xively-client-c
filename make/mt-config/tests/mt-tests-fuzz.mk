@@ -57,13 +57,9 @@ $(XI_LIBFUZZER_DOWNLOAD_DIR):
 	@-mkdir -p $(XI_LIBFUZZER_DOWNLOAD_DIR)
 	svn checkout $(XI_LIBFUZZER_URL) $(XI_LIBFUZZER_DOWNLOAD_DIR)
 
-$(XI_LIBFUZZER): $(XI_CLANG_COMPILER) $(XI_LIBFUZZER_DOWNLOAD_DIR)
+# $(XI_LIBFUZZER): $(XI_CLANG_COMPILER) $(XI_LIBFUZZER_DOWNLOAD_DIR)
+$(XI_LIBFUZZER): $(XI_LIBFUZZER_DOWNLOAD_DIR)
 	(cd $(XI_LIBFUZZER_DOWNLOAD_DIR) && clang++ -c -g -O2 -lstdc++ -std=c++11 *.cpp -IFuzzer && ar ruv libFuzzer.a Fuzzer*.o)
 
 $(XI_FUZZ_TESTS_CORPUS_DIRS):
 	@-mkdir -p $@
-
-#### =========================================================
-
-
-build_libfuzzer: $(XI_LIBFUZZER)
