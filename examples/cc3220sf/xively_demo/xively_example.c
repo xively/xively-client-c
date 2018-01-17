@@ -440,6 +440,7 @@ void Callback_ConnectedToWiFi()
 
 void Callback_LostWiFiConnection()
 {
+    gApplicationControlBlock.initializationState = InitializationState_ShuttingDownConnection;
     Report( "Lost WiFi Connection.  Restarting Application!\n\r" );
     xi_shutdown_connection( gXivelyContextHandle );
 }
@@ -450,6 +451,7 @@ void Callback_LostWiFiConnection()
  */
 void ConnectToXively()
 {
+    Report(" Connecting to Xively: \n");
     Report( "\t- Xively Account ID: %s\n", gApplicationControlBlock.xivelyAccountId );
     Report( "\t- Xively Device ID: %s\n", gApplicationControlBlock.xivelyDeviceId );
     Report( "\t- Xively Device Password: <secret>\n" );
@@ -477,12 +479,21 @@ void ConnectToXively()
     xi_set_updateable_files( gXivelyContextHandle, files_to_keep_updated, 1, NULL );
 #endif
 
-    Report(" Application calling xi_connect\n\r");
-
     xi_state_t connect_result =
         xi_connect( gXivelyContextHandle, gApplicationControlBlock.xivelyDeviceId,
                     gApplicationControlBlock.xivelyDevicePassword, 10, 0,
                     XI_SESSION_CLEAN, &on_connected );
+}
+
+/* Used by the on_connected callback to cancel tasks and stop the event loop, clean
+ * up tasks, etc.
+ */
+void exit_xi_and_cleanup()
+{
+    xi_cancel_timed_task( gTemperatureTaskHandle );
+    gTemperatureTaskHandle = XI_INVALID_TIMED_TASK_HANDLE;
+    xi_events_stop();
+    gApplicationControlBlock.initializationState = InitializationState_Restarting;
 }
 
 /* @brief Connection callback.  See xively.h for full signature information
@@ -505,6 +516,13 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
         case XI_CONNECTION_STATE_OPEN_FAILED:
             Report( "connection to %s:%d has failed reason %d\n\r", conn_data->host,
                     conn_data->port, state );
+
+            if( gApplicationControlBlock.initializationState = InitializationState_ShuttingDownConnection )
+            {
+                Report( "on_connected callback noticed that the WiFi signal has been lost.  Shutting down.\n" );
+                exit_xi_and_cleanup();
+                return;
+            }
 
             gApplicationControlBlock.initializationState =
                 InitializationState_ConnectingToXively;
@@ -555,14 +573,7 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
 
             /* shut down the periodic temperature sensor reading
              * when we lose our connection */
-            xi_cancel_timed_task( gTemperatureTaskHandle );
-            gTemperatureTaskHandle = XI_INVALID_TIMED_TASK_HANDLE;
-
-            gApplicationControlBlock.initializationState =
-                    InitializationState_Restarting;
-
-            /* Exit the blocking loop in the main task */
-            xi_events_stop();
+            exit_xi_and_cleanup();
             return;
         default:
             Report( "invalid parameter %d\n\r", conn_data->connection_state );

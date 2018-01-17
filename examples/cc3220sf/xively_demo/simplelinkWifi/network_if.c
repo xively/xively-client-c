@@ -62,6 +62,8 @@
 //                          LOCAL DEFINES
 //*****************************************************************************
 
+#define MAX_CONNECT_RETRIES_BEFORE_REBOOT 5
+
 /* Network App specific status/error codes which are                          */
 /* used only in this file.                                                    */
 typedef enum
@@ -138,7 +140,7 @@ void SimpleLinkWlanEventHandler(SlWlanEvent_t *pSlWlanEvent)
             UART_PRINT("[WLAN EVENT] STA Connected to the AP: %s , BSSID: "
                     "%x:%x:%x:%x:%x:%x\n\r", g_ucConnectionSSID, g_ucConnectionBSSID[0], g_ucConnectionBSSID[1], g_ucConnectionBSSID[2], g_ucConnectionBSSID[3], g_ucConnectionBSSID[4],
                     g_ucConnectionBSSID[5]);
-            UART_PRINT("Invoking connection callback\n\r");
+            /* Invoke Connection Callback */
             (g_uConnectionCallback)();
             break;
 
@@ -159,7 +161,7 @@ void SimpleLinkWlanEventHandler(SlWlanEvent_t *pSlWlanEvent)
             {
                 UART_PRINT("Device disconnected from the AP on an ERROR..!! \n\r");
             }
-            UART_PRINT("Invoking disconnection callback\n\r");
+            /* Invoke Disconnection Callback */
             (g_uDisconnectionCallback)();
             break;
 
@@ -573,50 +575,25 @@ long Network_IF_ConnectAP(char *pcSsid, SlWlanSecParams_t SecurityParams)
         return -1;
     }
 
+    static uint16_t reconnectCount = 0;
+
     /* Check and loop until AP connection successful, else ask new AP SSID    */
     while (!(IS_CONNECTED(g_ulStatus)) || !(IS_IP_ACQUIRED(g_ulStatus)))
     {
+        if( ++reconnectCount > MAX_CONNECT_RETRIES_BEFORE_REBOOT ) {
+            UART_PRINT("Could not connect to WiFi Access Point.\n\r");
+            UART_PRINT("Rebooting device in case of SimpleLink Internal Problem\n\r");
+            cc3220Reboot();
+        }
+
         /* Disconnect the previous attempt                                    */
         Network_IF_DisconnectFromAP();
 
         CLR_STATUS_BIT(g_ulStatus, STATUS_BIT_CONNECTION);
         CLR_STATUS_BIT(g_ulStatus, STATUS_BIT_IP_ACQUIRED);
-        UART_PRINT("Device could not connect to %s\n\r", pcSsid);
 
-#if 0
-        do
-        {
-            ucRecvdAPDetails = 0;
-
-            UART_PRINT("\n\r\n\rPlease enter the AP(open) SSID name # ");
-            
-            /* Get the AP name to connect over the UART                       */
-            lRetVal = GetCmd(acCmdStore, sizeof(acCmdStore));
-            if (lRetVal > 0)
-            {
-                /* remove start/end spaces if any                             */
-                lRetVal = TrimSpace(acCmdStore);
-
-                if (lRetVal)
-                {
-                    /* Parse the AP name                                          */
-                    strncpy(pcSsid, acCmdStore, lRetVal);
-                    if (pcSsid != NULL)
-                    {
-                        ucRecvdAPDetails = 1;
-                        pcSsid[lRetVal] = '\0';
-                    }
-                }
-            }
-        } while (ucRecvdAPDetails == 0);
-
-        /* Set Security Parameters to OPEN security type.                     */
-        SecurityParams.Key = (signed char *) "";
-        SecurityParams.KeyLen = 0;
-        SecurityParams.Type = SL_WLAN_SEC_TYPE_OPEN;
-#endif
-
-        UART_PRINT("\n\rTrying to connect to AP: %s ...\n\r", pcSsid);
+        UART_PRINT("Retrying (%d of %d) to connect to WiFi Access Point: %s ...\n\r",
+                   reconnectCount, MAX_CONNECT_RETRIES_BEFORE_REBOOT, pcSsid);
 
         /* Get the current timer tick and setup the timeout accordingly.      */
         usConnTimeout = g_usConnectIndex + 15;
@@ -639,6 +616,8 @@ long Network_IF_ConnectAP(char *pcSsid, SlWlanSecParams_t SecurityParams)
         }
     }
 
+    reconnectCount = 0;
+
     /* Put message on UART                                                    */
     UART_PRINT("\n\rDevice has connected to %s\n\r", pcSsid);
 
@@ -647,7 +626,7 @@ long Network_IF_ConnectAP(char *pcSsid, SlWlanSecParams_t SecurityParams)
     ASSERT_ON_ERROR(lRetVal);
 
     /* Send the information                                                   */
-    UART_PRINT("Device IP Address is %d.%d.%d.%d \n\r\n\r", SL_IPV4_BYTE(ulIP, 3), SL_IPV4_BYTE(ulIP, 2), SL_IPV4_BYTE(ulIP, 1), SL_IPV4_BYTE(ulIP, 0));
+    UART_PRINT("Device IP Address is %d.%d.%d.%d \n\r", SL_IPV4_BYTE(ulIP, 3), SL_IPV4_BYTE(ulIP, 2), SL_IPV4_BYTE(ulIP, 1), SL_IPV4_BYTE(ulIP, 0));
     return 0;
 }
 
