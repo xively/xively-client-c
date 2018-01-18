@@ -1,4 +1,4 @@
-/* Copyright (c) 2003-2017, LogMeIn, Inc. All rights reserved.
+/* Copyright (c) 2003-2018, LogMeIn, Inc. All rights reserved.
  *
  * This is part of the Xively C Client codebase,
  * it is licensed under the BSD 3-Clause license.
@@ -22,7 +22,7 @@ extern "C" {
  * but in a production environment you'd use different methods- Ideally, flashing
  * the credentials in the factory
 
- * \copyright 2003-2017, LogMeIn, Inc.  All rights reserved.
+ * \copyright 2003-2018, LogMeIn, Inc.  All rights reserved.
  *
  */
 

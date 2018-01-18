@@ -43,6 +43,8 @@ env:
       PRESET=FUZZ_TESTS
       XI_BSP_TLS=""
       XI_MAKETARGET="fuzz_tests"
+      CXX=clang++
+
 cache:
     apt
 addons:
@@ -76,12 +78,13 @@ matrix:
     - compiler: clang
       env: PRESET=ESP32 XI_MAKETARGET=""
     - compiler: gcc
-      env: TESTS=fuzztests PRESET=FUZZ_TESTS XI_BSP_TLS="" XI_MAKETARGET="fuzz_tests"
+      env: TESTS=fuzztests PRESET=FUZZ_TESTS XI_BSP_TLS="" XI_MAKETARGET="fuzz_tests" CXX=clang++
 before_script:
+  # https://wiki.ubuntu.com/SecurityTeam/Roadmap/KernelHardening#ptrace_Protection
   - "if [[ ! $TESTS == 'fuzztests' ]]; then
         if [[ $CC == *'clang'* ]]; then export CC='clang-3.8'; fi;
      else
-        if [[ $CC == *'clang'* ]]; then export CC=clang CXX=clang++; fi;
+        echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope;
      fi"
 script:
   - "set -e"
