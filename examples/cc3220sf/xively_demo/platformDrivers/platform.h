@@ -37,6 +37,8 @@ void Platform_TimerStop(timer_t timerId);
 
 void Platform_TimerInterruptClear();
 
+void cc3220Reboot(void);
+
 
 #ifdef __cplusplus
 }
