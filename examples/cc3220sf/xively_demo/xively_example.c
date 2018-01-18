@@ -427,8 +427,6 @@ void* xivelyExampleThread( void* arg )
         /* shutdown the xively library */
         xi_shutdown();
     }
-
-    return ( 0 );
 }
 
 void Callback_ConnectedToWiFi()
@@ -517,7 +515,7 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
             Report( "connection to %s:%d has failed reason %d\n\r", conn_data->host,
                     conn_data->port, state );
 
-            if( gApplicationControlBlock.initializationState = InitializationState_ShuttingDownConnection )
+            if( InitializationState_ShuttingDownConnection == gApplicationControlBlock.initializationState )
             {
                 Report( "on_connected callback noticed that the WiFi signal has been lost.  Shutting down.\n" );
                 exit_xi_and_cleanup();
