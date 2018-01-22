@@ -38,7 +38,6 @@
 
 /* POSIX Header files */
 #include <pthread.h>
-#include <_pthread.h>
 
 /* RTOS header files */
 #include <ti/sysbios/BIOS.h>
@@ -49,7 +48,7 @@
 /* Example/Board Header files */
 #include "Board.h"
 
-extern void* MAIN_StartUpThread( void* arg0 );
+extern void* xivelyExampleThread( void* arg0 );
 
 /* Stack size in bytes */
 #define THREADSTACKSIZE 4096
@@ -92,7 +91,7 @@ int main( void )
             ;
     }
 
-    retc = pthread_create( &thread, &pAttrs, MAIN_StartUpThread, NULL );
+    retc = pthread_create( &thread, &pAttrs, xivelyExampleThread, NULL );
     if ( retc != 0 )
     {
         /* pthread_create() failed */

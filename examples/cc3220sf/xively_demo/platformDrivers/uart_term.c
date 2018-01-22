@@ -1,5 +1,5 @@
 /*
- * 	Terminal
+ *  Terminal
  */
 
 // Standard includes
@@ -36,7 +36,7 @@ static UART_Handle      uartHandle;
 UART_Handle InitTerm(void)
 {
 
-    UART_Params   		uartParams;
+    UART_Params         uartParams;
 
     UART_init();
     UART_Params_init(&uartParams);

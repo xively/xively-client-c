@@ -9,7 +9,7 @@
  *   Texas Instruments Incorporated or against the terms and conditions
  *   stipulated in the agreement under which this program has been supplied,
  *   and under no circumstances can it be used with non-TI connectivity device.
- *   
+ *
  */
 
 
@@ -44,11 +44,11 @@ extern "C"
 // BMA222 Acc Data Register related macros
 //*****************************************************************************
 #define BMA222_ACC_DATA_X_NEW   (0x2)
-#define BMA222_ACC_DATA_X   	(0x3)
-#define BMA222_ACC_DATA_Y_NEW  	(0x4)
-#define BMA222_ACC_DATA_Y   	(0x5)
-#define BMA222_ACC_DATA_Z_NEW  	(0x6)
-#define BMA222_ACC_DATA_Z   	(0x7)
+#define BMA222_ACC_DATA_X       (0x3)
+#define BMA222_ACC_DATA_Y_NEW   (0x4)
+#define BMA222_ACC_DATA_Y       (0x5)
+#define BMA222_ACC_DATA_Z_NEW   (0x6)
+#define BMA222_ACC_DATA_Z       (0x7)
 
 
 
@@ -67,10 +67,10 @@ extern "C"
 //****************************************************************************
 //
 //! \brief Initialize the BMA222 accelerometer device with defaults
-//!		 Reads the CHIP ID.
+//!      Reads the CHIP ID.
 //!
-//! \param[in]	i2cHandle		the handle to the openned i2c device
-//! 
+//! \param[in]  i2cHandle       the handle to the openned i2c device
+//!
 //! \return 0: Success, < 0: Failure.
 //
 //****************************************************************************
@@ -79,13 +79,13 @@ int BMA222Open(I2C_Handle i2cHandle);
 //****************************************************************************
 //
 //! \brief Reads a block of continuous data
-//!		 Returns the data values in the specified store
+//!      Returns the data values in the specified store
 //!
-//! \param[in] 	i2cHandle 	the handle to the openned i2c device
-//! \param[in] 	ucRegAddr 	the start offset register address
-//! \param[out] 	pucBlkData 	the pointer to the data value store
-//! \param[in] 	ucBlkDataSz 	the size of data to be read
-//! 
+//! \param[in]  i2cHandle   the handle to the openned i2c device
+//! \param[in]  ucRegAddr   the start offset register address
+//! \param[out]     pucBlkData  the pointer to the data value store
+//! \param[in]  ucBlkDataSz     the size of data to be read
+//!
 //! \return 0: Success, < 0: Failure.
 //
 //****************************************************************************
@@ -94,13 +94,13 @@ int BMA222Read(I2C_Handle i2cHandle, signed char *pcAccX, signed char *pcAccY, s
 //****************************************************************************
 //
 //! \brief Get the raw accelerometer data register readings
-//!    		1. Reads the data registers over I2C.
-//!    		2. Returns the accelerometer readings
+//!         1. Reads the data registers over I2C.
+//!         2. Returns the accelerometer readings
 //!
-//! \param[in] 	i2cHandle 	is the handle to the openned i2c device
-//! \param[out] 	psAccX 		pointer to the raw AccX store
-//! \param[out] 	psAccY 		pointer to the raw AccY store
-//! \param[out] 	psAccZ 		pointer to the raw AccZ store
+//! \param[in]  i2cHandle   is the handle to the openned i2c device
+//! \param[out]     psAccX      pointer to the raw AccX store
+//! \param[out]     psAccY      pointer to the raw AccY store
+//! \param[out]     psAccZ      pointer to the raw AccZ store
 //!
 //! \return 0: Success, < 0: Failure.
 //
@@ -110,10 +110,10 @@ int BMA222ReadNew(I2C_Handle i2cHandle, signed char *pcAccX, signed char *pcAccY
 //****************************************************************************
 //
 //! \brief Place the BMA222 accelerometer device to standby
-//!    	 Sets the device to standby mode.
+//!      Sets the device to standby mode.
 //!
 //! \param None
-//! 
+//!
 //! \return 0: Success
 //
 //****************************************************************************
