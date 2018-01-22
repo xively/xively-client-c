@@ -10,7 +10,7 @@
 
 ## Bugfix
 - [ESP32] Fix integer overflow in time BSP.
-- [ESP32/CC3200] Fix FWU Board Support Packages for SFT when running an SFT migration that does not include new firmware binaries. Previously the device rebooted upon all SFT deliveries, now it's only rebooted if a new firmware image was downloaded.
+- [ESP32/CC3200] Fix FWU Board Support Packages for SFT when running an SFT migration that does not include new firmware binaries. Previously the device rebooted at switched boot partitions upon all SFT deliveries, now this nly occurs if a new firmware image is downloaded.
 - [WolfSSL] `src\import\tls\wolfssl.conf` configuration script errantly defined --enable-debug twice.
 
 ### Misc
