@@ -1,6 +1,6 @@
 //*****************************************************************************
 // Copyright (C) 2016 Texas Instruments Incorporated
-// 
+//
 // All rights reserved. Property of Texas Instruments Incorporated.
 // Restricted rights to use, duplicate or disclose this code are
 // granted through contract.
@@ -18,7 +18,6 @@
 /* POSIX Header files */
 #include <pthread.h>
 #include <time.h>
-#include <types.h>
 
 #include <ti/drivers/net/wifi/simplelink.h>
 
@@ -37,6 +36,8 @@ void Platform_TimerStart(_u32 asyncEvtTimeoutMsec, timer_t timerId, _u8 periodic
 void Platform_TimerStop(timer_t timerId);
 
 void Platform_TimerInterruptClear();
+
+void cc3220Reboot(void);
 
 
 #ifdef __cplusplus
