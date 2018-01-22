@@ -4,15 +4,13 @@
 ## Features
 - [CC3220SF] Updated example application support to TI SimpleLink SDK 1.6, XDC Tools version 3.50.04.43.
 - [CC3220SF] Example application now detects WiFi disconnections and cleanly reconnects when WiFi AP returns.
-
 - [ESP32] Updated the Xively C Client build to work with IDF SDK: Master commit af63ca1
-- [ESP32] Improve LED signaling in demo application.
-
-- [Secure File Transfer] CBOR library assertions are no suppressed.  They can be enabled by defining `XI_DEBUG_ASSERT=1` on the make command line when building the library. 
+- [ESP32] Improved LED signaling in demo application.
+- [Secure File Transfer] CBOR library assertions are now suppressed.  They can be enabled by defining `XI_DEBUG_ASSERT=1` on the make command line when building the Xively C Client library. 
 
 ## Bugfix
-- [ESP32] Fix int overflow in time BSP.
-- [ESP32/CC3200] Fix FWU BSPs for SFT packages without firmware binaries. Only commit/reboot if a new firmware image was downloaded.
+- [ESP32] Fix integer overflow in time BSP.
+- [ESP32/CC3200] Fix FWU Board Support Packages for SFT when running an SFT migration that does not include new firmware binaries. Previously the device rebooted upon all SFT deliveries, now it's only rebooted if a new firmware image was downloaded.
 - [WolfSSL] `src\import\tls\wolfssl.conf` configuration script errantly defined --enable-debug twice.
 
 ### Misc
