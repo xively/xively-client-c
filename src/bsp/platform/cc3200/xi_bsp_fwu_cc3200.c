@@ -1,4 +1,4 @@
-/* Copyright (c) 2003-2017, LogMeIn, Inc. All rights reserved.
+/* Copyright (c) 2003-2018, LogMeIn, Inc. All rights reserved.
  *
  * This is part of the Xively C Client library,
  * it is licensed under the BSD 3-Clause license.
@@ -76,10 +76,14 @@ void xi_bsp_fwu_order_resource_downloads( const char* const* resource_names,
 
 void xi_bsp_fwu_on_package_download_finished( const char* const firmware_resource_name )
 {
-    ( void )firmware_resource_name;
+    if ( NULL != firmware_resource_name )
+    {
+        /* Firmware image was updated */
+        sl_extlib_FlcTest( FLC_TEST_RESET_MCU | FLC_TEST_RESET_MCU_WITH_APP );
 
-    sl_extlib_FlcTest( FLC_TEST_RESET_MCU | FLC_TEST_RESET_MCU_WITH_APP );
-
-    /* reboot the device */
-    _reboot_device();
+        /* reboot the device */
+        _reboot_device();
+    }
+    /* Firmware image was not updated */
+    return;
 }

@@ -1,5 +1,5 @@
 # Porting Guide for Xively C Client
-##### Copyright © 2003-2017 LogMeIn, Inc.
+##### Copyright (c) 2003-2018, LogMeIn, Inc.
 
 ## Table of Contents
 1. [Target Audience](#target-audience)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+# Copyright (c) 2003-2018, LogMeIn, Inc. All rights reserved.
 #
 # This is part of the Xively C Client library,
 # it is licensed under the BSD 3-Clause license.
@@ -18,7 +18,7 @@ PER_LINE    = 16
 def tabs_2_spaces( s ):
    return s.replace( "\t", "    " )
 
-h_pro       = tabs_2_spaces( "// Copyright (c) 2003-2015, LogMeIn, Inc. All rights reserved.\n// This is part of Xively C library." )
+h_pro       = tabs_2_spaces( "// Copyright (c) 2003-2018, LogMeIn, Inc. All rights reserved.\n// This is part of Xively C library." )
 h_guard_beg = tabs_2_spaces( "#ifndef __%(name)s_H__\n#define __%(name)s_H__" )
 h_guard_end = tabs_2_spaces( "#endif // __%s_H__" )
 cpp_beg     = tabs_2_spaces( "#ifdef __cplusplus\nextern \"C\" {\n#endif" )

@@ -4,7 +4,6 @@
 	<comment></comment>
 	<projects>
 		<project>tirtos_builds_CC3220SF_LAUNCHXL_release_ccs</project>
-		<project>wolfssl_ccs</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
@@ -29,7 +28,7 @@
 	<variableList>
 		<variable>
 			<name>XIVELY_LIBRARY_C_ROOT</name>
-			<value>file:/Users/atigyi/git/xi/xc/xively-client-c-rhunter</value>
+			<value>file:/E:/dev/xively/xively-client-c</value>
 		</variable>
 	</variableList>
 </projectDescription>

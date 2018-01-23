@@ -1,4 +1,4 @@
-/* Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+/* Copyright (c) 2003-2018, LogMeIn, Inc. All rights reserved.
  *
  * This is part of the Xively C Client library,
  * it is licensed under the BSD 3-Clause license.
@@ -65,7 +65,7 @@ extern "C" {
  * <li> Xively Client Porting Guide (<code>/doc/porting_guide.md</code>)</il>
 
  * </ul>
- * \copyright 2003-2016, LogMeIn, Inc.  All rights reserved.
+ * \copyright 2003-2018, LogMeIn, Inc.  All rights reserved.
  *
  */
 
@@ -215,7 +215,7 @@ extern xi_state_t xi_events_process_tick();
 /**
  * @brief     Causes the Xively Client event loop to exit.
  * @detailed  Pending scehduled events will not be invoked again until the
- * event loop is inovked again via xi_events_process.
+ * event loop is invoked again via xi_events_process.
  *
  * Stop is often called by the client application when shuttdown
  * its connectivity to the Xively Service.  The Xively Client

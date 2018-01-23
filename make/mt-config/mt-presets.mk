@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+# Copyright (c) 2003-2018, LogMeIn, Inc. All rights reserved.
 #
 # This is part of the Xively C Client library,
 # it is licensed under the BSD 3-Clause license.
@@ -6,35 +6,36 @@
 include make/mt-config/mt-target-platform.mk
 
 # CONFIG for POSIX presets
-CONFIG_POSIX_MAX                =posix_fs-posix_platform-tls_bsp-senml-control_topic-memory_limiter-secure_file_transfer
-CONFIG_POSIX_MAX_THREADING      =posix_fs-posix_platform-tls_bsp-senml-control_topic-threading-memory_limiter-secure_file_transfer
-CONFIG_POSIX_MID                =posix_fs-posix_platform-tls_bsp-senml-control_topic-secure_file_transfer
-CONFIG_POSIX_MID_UNSECURE       =posix_fs-posix_platform-senml-control_topic-secure_file_transfer
-CONFIG_POSIX_MIN                =posix_fs-posix_platform-tls_bsp
-CONFIG_POSIX_MIN_UNSECURE       =posix_fs-posix_platform
+CONFIG_POSIX_MAX           =posix_fs-posix_platform-tls_bsp-senml-control_topic-memory_limiter-secure_file_transfer
+CONFIG_POSIX_MAX_THREADING =posix_fs-posix_platform-tls_bsp-senml-control_topic-threading-memory_limiter-secure_file_transfer
+CONFIG_POSIX_MID           =posix_fs-posix_platform-tls_bsp-senml-control_topic-secure_file_transfer
+CONFIG_POSIX_MID_UNSECURE  =posix_fs-posix_platform-senml-control_topic-secure_file_transfer
+CONFIG_POSIX_MIN           =posix_fs-posix_platform-tls_bsp
+CONFIG_POSIX_MIN_UNSECURE  =posix_fs-posix_platform
 
 # CONFIG for ARM
-CONFIG_DUMMY_MAX                =memory_fs-memory_limiter-control_topic-senml-secure_file_transfer
-CONFIG_DUMMY_MIN                =memory_fs
+CONFIG_DUMMY_MAX           =memory_fs-memory_limiter-control_topic-senml-secure_file_transfer
+CONFIG_DUMMY_MIN           =memory_fs
 
 # CONFIG for CC3200
-CONFIG_CC3200                   =memory_fs-control_topic-tls_bsp-secure_file_transfer
-CONFIG_CC3200_TLS_SOCKET        =memory_fs-control_topic-tls_socket-secure_file_transfer
+CONFIG_CC3200              =memory_fs-control_topic-tls_bsp-secure_file_transfer
+CONFIG_CC3200_TLS_SOCKET   =memory_fs-control_topic-tls_socket-secure_file_transfer
 
 # CONFIG for CC3220
-CONFIG_CC3220SF                 =memory_fs-control_topic-tls_bsp-secure_file_transfer
-CONFIG_CC3220SF_TLS_SOCKET      =memory_fs-control_topic-tls_socket-secure_file_transfer
+CONFIG_CC3220SF            =memory_fs-control_topic-tls_bsp-secure_file_transfer
+CONFIG_CC3220SF_TLS_SOCKET =memory_fs-control_topic-tls_socket-secure_file_transfer
 
 # CONFIG for STM32
 CONFIG_STM32FX                  =memory_fs-control_topic-tls_bsp
 CONFIG_STM32FX_NUCLEO_WIFI      =memory_fs-control_topic-tls_socket
 
 # xtensa configs
-CONFIG_ESP32 =memory_fs-tls_bsp-control_topic-secure_file_transfer
+CONFIG_ESP32               =memory_fs-control_topic-tls_bsp-secure_file_transfer
+CONFIG_ESP32_DEV           =memory_fs-control_topic-tls_bsp-secure_file_transfer
 
 # TARGET presets
-TARGET_STATIC_DEV               =-static-debug
-TARGET_STATIC_REL               =-static-release
+TARGET_STATIC_DEV          =-static-debug
+TARGET_STATIC_REL          =-static-release
 
 PRESET ?= POSIX_REL
 
@@ -142,12 +143,14 @@ else ifeq ($(PRESET), ESP32)
     XI_BSP_PLATFORM = esp32
     XI_TARGET_PLATFORM = esp32
 
+else ifeq ($(PRESET), ESP32_DEV)
+    CONFIG = $(CONFIG_ESP32)
+    TARGET = $(TARGET_STATIC_DEV)
+    XI_BSP_PLATFORM = esp32
+    XI_TARGET_PLATFORM = esp32
 # -------------------------------------------------------
 # Fuzz Tests
 else ifeq ($(PRESET), FUZZ_TESTS)
-	ifeq ($(XI_HOST_PLATFORM),Darwin)
-$(error Fuzz testing won\'t work on OSX)
-	endif
 	CONFIG = $(CONFIG_POSIX_MIN_UNSECURE)_fuzz_test
 	TARGET = $(TARGET_STATIC_REL)
 	XI_BSP_PLATFORM = posix

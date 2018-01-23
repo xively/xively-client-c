@@ -13,7 +13,7 @@
  ******************************************************************************/
 
 /*
- *  Copyright (c) 2003-2017, LogMeIn, Inc. All rights reserved.
+ *  Copyright (c) 2003-2018, LogMeIn, Inc. All rights reserved.
  *
  * 	This is part of the Xively C Client library,
  * 	it is licensed under the BSD 3-Clause license.
@@ -33,20 +33,16 @@
 /* POSIX Header files */
 #include <pthread.h>
 #include <unistd.h>
+#include <semaphore.h>
 
 /* Headers from this Example */
 #include "platformDrivers/bma222drv.h"
 #include "platformDrivers/tmp006drv.h"
 #include "platformDrivers/uart_term.h"
-#include "simplelinkWifi/provisioning_task.h"
 
 /* Application Version and Naming*/
 #define APPLICATION_NAME        		"xively cc3220 example"
-#ifndef RELEASE_2
-#define APPLICATION_VERSION             "1.00.00.00"
-#else
-#define APPLICATION_VERSION             "1.00.00.01"
-#endif
+#define APPLICATION_VERSION             "1.1"
 
 #define SPAWN_TASK_PRIORITY		(9)
 #define TASK_STACK_SIZE         (2048)
@@ -81,34 +77,17 @@
                  }\
             }
 
-/* Status keeping MACROS */
-#define SET_STATUS_BIT(status_variable, bit) status_variable |= (1<<(bit))
-
-#define CLR_STATUS_BIT(status_variable, bit) status_variable &= ~(1<<(bit))
-
-#define GET_STATUS_BIT(status_variable, bit)    \
-                                (0 != (status_variable & (1<<(bit))))
-
-#define IS_CONNECTED(status_variable)       \
-                GET_STATUS_BIT(status_variable, AppStatusBits_Connection)
-
-#define IS_IP_ACQUIRED(status_variable)     \
-                GET_STATUS_BIT(status_variable, AppStatusBits_IpAcquired)
-
-#define IS_IPV6L_ACQUIRED(status_variable)  \
-                GET_STATUS_BIT(status_variable, AppStatusBits_Ipv6lAcquired)
-
-#define IS_IPV6G_ACQUIRED(status_variable)  \
-                GET_STATUS_BIT(status_variable, AppStatusBits_Ipv6gAcquired)
 
 /* Tracks initialization state so that we can show progress with the LEDs */
 typedef enum
 {
 	InitializationState_ReadingCredentials = 0,
-	InitializationState_ProvisioningWifi,
+	InitializationState_ConnectingToWifi,
 	InitializationState_ConnectingToXively,
 	InitializationState_SubscribingToTopics,
-	InitializationState_Complete
+	InitializationState_Connected,
+	InitializationState_ShuttingDownConnection,
+	InitializationState_Restarting
 } InitializationState;
 
 /* Application specific status/error codes */
@@ -161,12 +140,14 @@ typedef struct Application_CB_t
 	uint8_t   button1State;                   /* Tracks Button 1 State */
 
 	/* BEGIN - Values parsed from Xively Config File */
-	int8_t    desiredWifiSecurityType;              /* see SL_WLAN_SEC_TYPE in wlan.h */
- 	char  	  desiredWifiSSID[SSID_LEN_MAX+1];      /* user configured host wifi SSID */
- 	char   	  desiredWifiKey[WIFI_KEY_LEN_MAX+1];   /* user configured wifi password */
- 	char   	  xivelyAccountId[XIVELY_CRED_LEN_MAX];
- 	char      xivelyDeviceId[XIVELY_CRED_LEN_MAX];
- 	char      xivelyDevicePassword[XIVELY_CRED_LEN_MAX];
+	int8_t  desiredWifiSecurityType;              /* see SL_WLAN_SEC_TYPE in wlan.h */
+ 	char  	desiredWifiSSID[SSID_LEN_MAX+1];      /* user configured host wifi SSID */
+ 	char    desiredWifiKey[WIFI_KEY_LEN_MAX+1];   /* user configured wifi password */
+ 	char   	xivelyAccountId[XIVELY_CRED_LEN_MAX];
+ 	char    xivelyDeviceId[XIVELY_CRED_LEN_MAX];
+ 	char    xivelyDevicePassword[XIVELY_CRED_LEN_MAX];
+
+ 	sem_t   wifiConnectedSem;
 	/* END */
 } Application_CB;
 
@@ -192,5 +173,10 @@ extern Application_CB	gApplicationControlBlock;
 void cc3220Reboot(void);
 
 void * MAIN_StartUpThread( void *pvParameters );
+
+typedef void (connection_callback_t )( void );
+
+void Callback_ConnectedToWiFi();
+void Callback_LostWiFiConnection();
 
 
