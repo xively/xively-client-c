@@ -151,10 +151,10 @@ int xi_itest_mqttlogic_layer_setup( void** state )
     assert_int_equal( XI_STATE_OK, xi_initialize( "xi_itest_tls_error_account_id",
                                                   "xi_itest_tls_error_device_id" ) );
 
-    XI_CHECK_STATE( xi_create_context_with_custom_layers(
+    XI_CHECK_STATE( xi_create_context_with_custom_layers_and_evtd(
         &xi_context__itest_mqttlogic_layer, xi_itest_layer_chain_mqttlogic,
         XI_LAYER_CHAIN_MQTTLOGIC,
-        XI_LAYER_CHAIN_SCHEME_LENGTH( XI_LAYER_CHAIN_MQTTLOGIC ) ) );
+        XI_LAYER_CHAIN_SCHEME_LENGTH( XI_LAYER_CHAIN_MQTTLOGIC ), NULL, 1 ) );
 
     return 0;
 

@@ -197,6 +197,7 @@ xi_vector_index_type_t xi_vector_find( xi_vector_t* vector,
 {
     /* PRECONDITIONS */
     assert( NULL != vector );
+    assert( NULL != fun_cmp );
 
     xi_vector_index_type_t i = 0;
 

@@ -30,7 +30,7 @@ xi_libxively_driver_t* xi_libxively_driver_create_instance()
         &driver->context, xi_driver_control_channel_layerchain,
         XI_LAYER_CHAIN_DRIVER_CONTROL_CHANNEL,
         XI_LAYER_CHAIN_SCHEME_LENGTH( XI_LAYER_CHAIN_DRIVER_CONTROL_CHANNEL ),
-        driver->evtd_instance ) );
+        driver->evtd_instance, 0 ) );
 
     XI_CHECK_CND_DBGMESSAGE( driver->context == NULL, XI_OUT_OF_MEMORY, state,
                              "could not instantiate context for libxively driver" );
