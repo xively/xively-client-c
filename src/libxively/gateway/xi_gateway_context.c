@@ -48,14 +48,7 @@ xi_state_t xi_delete_gateway_context_with_custom_layers( xi_gateway_context_t** 
         return XI_INVALID_PARAMETER;
     }
 
-    xi_state_t state = XI_STATE_OK;
-
-    state = xi_delete_handle_for_object( xi_globals.context_handles_vector, *context );
-
-    if ( XI_STATE_OK != state )
-    {
-        return XI_ELEMENT_NOT_FOUND;
-    }
+    xi_delete_handle_for_object( xi_globals.context_handles_vector, *context );
 
     xi_layer_chain_delete( &( ( *context )->layer_chain ), layer_chain_size,
                            layer_config );

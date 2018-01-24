@@ -46,6 +46,8 @@ xi_state_t xi_globals_add_reference()
 
         xi_globals.context_handles_vector = xi_vector_create();
         xi_globals.timed_tasks_container  = xi_make_timed_task_container();
+
+        xi_globals.context_handles_vector_edge_devices = xi_vector_create();
     }
 
     return XI_STATE_OK;
@@ -75,6 +77,8 @@ void xi_globals_remove_reference()
 
         xi_destroy_timed_task_container( xi_globals.timed_tasks_container );
         xi_globals.timed_tasks_container = NULL;
+
+        xi_vector_destroy( xi_globals.context_handles_vector_edge_devices );
     }
 }
 
@@ -83,8 +87,9 @@ xi_state_t xi_create_context_with_custom_layers_and_evtd(
     xi_layer_type_t layer_config[],
     xi_layer_type_id_t layer_chain[],
     size_t layer_chain_size,
-    xi_evtd_instance_t* event_dispatcher ) /* PLEASE NOTE: Event dispatcher's ownership is
-                                            * not taken here! */
+    xi_evtd_instance_t* event_dispatcher,
+    uint8_t handle_support ) /* PLEASE NOTE: Event dispatcher's ownership is not taken
+                                here! */
 {
     xi_state_t state = XI_STATE_OK;
 
@@ -121,9 +126,12 @@ xi_state_t xi_create_context_with_custom_layers_and_evtd(
     ( *context )->layer_chain = xi_layer_chain_create(
         layer_chain, layer_chain_size, &( *context )->context_data, layer_config );
 
-    XI_CHECK_STATE( state =
-                        xi_register_handle_for_object( xi_globals.context_handles_vector,
-                                                       XI_MAX_NUM_CONTEXTS, *context ) );
+    if ( 0 != handle_support )
+    {
+        XI_CHECK_STATE(
+            state = xi_register_handle_for_object( xi_globals.context_handles_vector,
+                                                   XI_MAX_NUM_CONTEXTS, *context ) );
+    }
 
     return XI_STATE_OK;
 
@@ -134,23 +142,14 @@ err_handling:
     return state;
 }
 
-xi_state_t xi_create_context_with_custom_layers( xi_context_t** context,
-                                                 xi_layer_type_t layer_config[],
-                                                 xi_layer_type_id_t layer_chain[],
-                                                 size_t layer_chain_size )
-{
-    return xi_create_context_with_custom_layers_and_evtd(
-        context, layer_config, layer_chain, layer_chain_size, NULL );
-}
-
 xi_context_handle_t xi_create_context()
 {
     xi_context_t* context = NULL;
     xi_state_t state      = XI_STATE_OK;
 
-    XI_CHECK_STATE( state = xi_create_context_with_custom_layers(
+    XI_CHECK_STATE( state = xi_create_context_with_custom_layers_and_evtd(
                         &context, xi_layer_types_g, XI_LAYER_CHAIN_DEFAULT,
-                        XI_LAYER_CHAIN_DEFAULTSIZE_SUFFIX ) );
+                        XI_LAYER_CHAIN_DEFAULTSIZE_SUFFIX, NULL, 1 ) );
 
     xi_context_handle_t context_handle = 0;
     XI_CHECK_STATE( state = xi_find_handle_for_object( xi_globals.context_handles_vector,
@@ -222,14 +221,7 @@ xi_state_t xi_delete_context_with_custom_layers( xi_context_t** context,
         return XI_INVALID_PARAMETER;
     }
 
-    xi_state_t state = XI_STATE_OK;
-
-    state = xi_delete_handle_for_object( xi_globals.context_handles_vector, *context );
-
-    if ( XI_STATE_OK != state )
-    {
-        return XI_ELEMENT_NOT_FOUND;
-    }
+    xi_delete_handle_for_object( xi_globals.context_handles_vector, *context );
 
     xi_layer_chain_delete( &( ( *context )->layer_chain ), layer_chain_size,
                            layer_config );

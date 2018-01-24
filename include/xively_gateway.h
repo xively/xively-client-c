@@ -18,8 +18,11 @@ xi_create_gateway_context( xi_context_handle_t context_handle );
 
 extern xi_state_t xi_delete_gateway_context( xi_context_handle_t gateway_context_handle );
 
-extern xi_state_t xi_gateway_connect( xi_context_handle_t gateway_context_handle,
-                                      const char* application_device_id );
+extern xi_state_t
+xi_connect_ed( xi_context_handle_t xih, const char* application_device_id );
+
+extern xi_state_t
+xi_disconnect_ed( xi_context_handle_t xih, const char* application_device_id );
 
 extern xi_state_t xi_gateway_publish( xi_context_handle_t gateway_context_handle,
                                       const char* application_device_id,
@@ -28,8 +31,6 @@ extern xi_state_t xi_gateway_publish( xi_context_handle_t gateway_context_handle
                                       xi_user_callback_t* callback,
                                       void* user_data );
 
-extern xi_state_t xi_gateway_disconnect( xi_context_handle_t gateway_context_handle,
-                                         const char* application_device_id );
 
 #ifdef __cplusplus
 }
