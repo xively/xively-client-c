@@ -54,8 +54,6 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - clang-3.8
-      - gcc-6
-      - g++-6
       - qemu-system
       - libc6:i386
       - expect
