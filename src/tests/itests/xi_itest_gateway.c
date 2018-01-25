@@ -128,4 +128,6 @@ void xi_itest_gateway__first( void** fixture_void )
     state = xi_connect_ed( fixture->xi_context_handle, "edge application device id" );
 
     state = xi_disconnect_ed( fixture->xi_context_handle, "edge application device id" );
+
+    XI_UNUSED( state );
 }
