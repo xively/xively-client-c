@@ -82,6 +82,7 @@ xi_state_t xi_connect_ed( xi_context_handle_t xih, const char* edge_device_id )
          * todo_atigyi:
          * - error handling
          * - get corresponding credentials to application device id
+         * - call init on top layer
          */
     }
     else
