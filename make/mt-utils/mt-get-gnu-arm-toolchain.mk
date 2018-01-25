@@ -27,8 +27,14 @@ else ifeq ($(XI_HOST_PLATFORM),Darwin)
 	XI_BUILD_PRECONDITIONS := $(CC)
 
 else ifeq ($(XI_HOST_PLATFORM),Windows_NT)
-	CC = arm-none-eabi-gcc
-	AR = arm-none-eabi-ar
+	# assume the toolchain is already on the path if the XI_GCC_ARM_NONE_EABI_PATH variable is not defined.
+	ifndef XI_GCC_ARM_NONE_EABI_PATH
+		CC = arm-none-eabi-gcc
+		AR = arm-none-eabi-ar
+	else
+		CC = $(XI_GCC_ARM_NONE_EABI_PATH)/arm-none-eabi-gcc
+		AR = $(XI_GCC_ARM_NONE_EABI_PATH)/arm-none-eabi-ar
+	endif
 endif
 
 $(XI_GCC_ARM_NONE_EABI_DOWNLOAD_FILE):
