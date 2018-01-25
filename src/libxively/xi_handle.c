@@ -67,6 +67,7 @@ xi_state_t xi_register_handle_for_object( xi_vector_t* vector,
     xi_vector_index_type_t handler_index =
         xi_vector_find( vector, XI_VEC_CONST_VALUE_PARAM( XI_VEC_VALUE_PTR( NULL ) ),
                         xi_compare_context_pointers );
+
     if ( handler_index < 0 )
     {
         if ( vector->elem_no >= max_object_cnt )

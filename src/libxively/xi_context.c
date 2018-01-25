@@ -117,6 +117,7 @@ xi_state_t xi_create_context_with_custom_layers_and_evtd(
     ( *context )->context_data.io_timeouts = xi_vector_create();
 
     XI_CHECK_MEMORY( ( *context )->context_data.io_timeouts, state );
+
     /* set the event dispatcher to the global one, if none is provided */
     ( *context )->context_data.evtd_instance =
         ( NULL == event_dispatcher ) ? xi_globals.evtd_instance : event_dispatcher;
