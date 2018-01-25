@@ -55,7 +55,14 @@ typedef struct xi_fs_memory_database_s
 } xi_fs_memory_database_t;
 
 xi_fs_memory_database_t XI_FS_MEMORY_DATABASE[] = {
-#ifndef XI_NO_TLS_LAYER
+#ifdef XI_NO_TLS_LAYER
+    {.file_name             = "",
+     .stat_handler_function = NULL,
+     .open_handler_function = NULL,
+     .resource_state        = XI_FS_MEMORY_RESOURCE_STATE_CLOSED,
+     .open_counter          = 0,
+     .memory_ptr            = NULL}
+#else
     {.file_name             = XI_GLOBAL_CERTIFICATE_FILE_NAME_DEF,
      .stat_handler_function = &xi_fs_memory_stat_builtin_cert,
      .open_handler_function = &xi_fs_memory_open_builtin_cert,
