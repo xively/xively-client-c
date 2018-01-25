@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2017, LogMeIn, Inc. All rights reserved.
+# Copyright (c) 2003-2018, LogMeIn, Inc. All rights reserved.
 #
 # This is part of the Xively C Client library,
 # it is licensed under the BSD 3-Clause license.
@@ -10,7 +10,7 @@ CC32XX ?= 0
 ###
 ## COMPILER NAME
 ###
-COMPILER ?= ti-cgt-arm_16.9.4.LTS
+COMPILER ?= ti-cgt-arm_16.9.6.LTS
 
 ###
 ## MAC HOST OS
@@ -34,10 +34,10 @@ ifeq ($(XI_HOST_PLATFORM),Darwin)
 else ifneq (,$(findstring Windows,$(XI_HOST_PLATFORM)))
 	 # windows cross-compilation
 
-    XI_CC3220SF_PATH_CCS_TOOLS ?= C:/ti/ccsv6/tools
+    XI_CC3220SF_PATH_CCS_TOOLS ?= C:/ti/ccsv7/tools
 
-	XI_CC3220SF_PATH_SDK ?= C:/ti/simplelink_cc3220_sdk_1_01_01_00
-	XI_CC3220SF_PATH_XDC_SDK ?= C:/ti/xdctools_3_32_01_22_core
+	XI_CC3220SF_PATH_SDK ?= C:/ti/simplelink_cc32xx_sdk_1_60_00_04
+	XI_CC3220SF_PATH_XDC_SDK ?= C:/ti/xdctools_3_50_03_33_core
 
 	CC = $(XI_CC3220SF_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armcl
 	AR = $(XI_CC3220SF_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armar

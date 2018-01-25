@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+# Copyright (c) 2003-2018, LogMeIn, Inc. All rights reserved.
 #
 # This is part of the Xively C Client library,
 # it is licensed under the BSD 3-Clause license.
@@ -63,7 +63,7 @@ ifneq (,$(findstring fuzz_test,$(CONFIG)))
     XI_CONFIG_FLAGS += -fsanitize=address -fomit-frame-pointer -fsanitize-coverage=trace-pc-guard -g
 endif
 
-XI_COMPILER_FLAGS += -Wall -Werror
+XI_COMPILER_FLAGS += -Wall
 
 # TEMPORARILY disable warnings until the code gets changed
 # For all compilers:

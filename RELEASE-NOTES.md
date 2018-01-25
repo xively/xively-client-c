@@ -1,3 +1,24 @@
+# Xively Client version 1.3.3
+#### Jan 22 2018
+
+## Features
+- [CC3220SF] Updated example application support to TI SimpleLink SDK 1.6, XDC Tools version 3.50.04.43.
+- [CC3220SF] Example application now detects WiFi disconnections and cleanly reconnects when WiFi AP returns.
+- [ESP32] Updated the Xively C Client build to work with IDF SDK: Master commit af63ca1
+- [ESP32] Improved LED signaling in demo application.
+- [Secure File Transfer] CBOR library assertions are now suppressed.  They can be enabled by defining `XI_DEBUG_ASSERT=1` on the make command line when building the Xively C Client library. 
+
+## Bugfix
+- [ESP32] Fix integer overflow in time BSP.
+- [ESP32/CC3200] Fix FWU Board Support Packages for SFT when running an SFT migration that does not include new firmware binaries. Previously the device rebooted at switched boot partitions upon all SFT deliveries, now this only occurs if a new firmware image is downloaded.
+- [WolfSSL] `src\import\tls\wolfssl.conf` configuration script errantly defined --enable-debug twice.
+
+### Misc
+- Removed legacy `Licenses` directory.  All licenses are now in `LICENSE.md` of the base directory of the repository.
+- Updated Copyright Header to 2018.
+- Travis CI configuration changes to FuzzTest Environment.
+- Moved the `cc3200\xively_firmware_updates` to `src\experimental\cc3200\xively_sft_external_client`. This external client application is not our standard Secure File Transfer client, but instead serves as a reference for those who would like to implement SFT on another MQTT client or in another language.  Specifically it demonstrates how to use the CBOR encoder to handle SFT Service Requests and Responses over MQTT. This implementation was moved from our examples directory as it was being confused with our CC3200 SFT implementation via our Board Support Packages (FWU and FS BSPs).  This experimental application will not be kept up to date.  Further development using the Xively C Client SFT feature should be done inside the BSPs of the respective platforms, such as in `src\bsp\platform\cc3200\xi_bsp_fw_cc3200.c` and `src\bsp\platform\cc3200\xi_bsp_io_fs_cc3200.c`.
+
 # Xively Client version 1.3.2
 #### Nov 24 2017
 

@@ -2,7 +2,7 @@ ifeq ($(XI_HOST_PLATFORM),Linux)
 	# linux cross-compilation assumes tools downloaded and are on PATH
 
 	XI_GCC_ARM_NONE_EABI_DOWNLOAD_FILE = ~/Downloads/gcc-arm-none-eabi-5_4-2016q2-20160622-linux.tar.bz2
-	XI_GCC_ARM_NONE_EABI_PATH = ~/Downloads/gcc-arm-none-eabi-5_4-2016q2
+	XI_GCC_ARM_NONE_EABI_PATH ?= ~/Downloads/gcc-arm-none-eabi-5_4-2016q2
 
 	CC = $(XI_GCC_ARM_NONE_EABI_PATH)/bin/arm-none-eabi-gcc
 	AR = $(XI_GCC_ARM_NONE_EABI_PATH)/bin/arm-none-eabi-ar
@@ -17,7 +17,7 @@ else ifeq ($(XI_HOST_PLATFORM),Darwin)
 	# osx cross-compilation downloads arm-gcc
 
 	XI_GCC_ARM_NONE_EABI_DOWNLOAD_FILE = ~/Downloads/gcc-arm-none-eabi-5_4-2016q2-20160622-mac.tar.bz2
-	XI_GCC_ARM_NONE_EABI_PATH = ~/Downloads/gcc-arm-none-eabi-5_4-2016q2
+	XI_GCC_ARM_NONE_EABI_PATH ?= ~/Downloads/gcc-arm-none-eabi-5_4-2016q2
 
 	CC = $(XI_GCC_ARM_NONE_EABI_PATH)/bin/arm-none-eabi-gcc
 	AR = $(XI_GCC_ARM_NONE_EABI_PATH)/bin/arm-none-eabi-ar

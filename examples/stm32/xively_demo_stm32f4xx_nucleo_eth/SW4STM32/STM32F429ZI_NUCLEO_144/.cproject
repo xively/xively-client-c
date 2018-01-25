@@ -4,9 +4,9 @@
 		<cconfiguration id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.667843212">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.667843212" moduleId="org.eclipse.cdt.core.settings" name="IKS01A2_Debug">
 				<macros>
-					<stringMacro name="XI_STMCUBE_PATH" type="VALUE_PATH_DIR" value="/Users/ddellabitta/dev/st/STM32Cube_FW_F4_V1.16.0"/>
+					<stringMacro name="XI_STMCUBE_PATH" type="VALUE_PATH_DIR" value="/Users/ddellabitta/Downloads/stm/jan2018/STM32Cube_FW_F4_V1.18.0"/>
 					<stringMacro name="XI_CLIENT_PATH" type="VALUE_PATH_DIR" value="../../../../../.."/>
-					<stringMacro name="XI_MEMS_STMCUBE_PATH" type="VALUE_PATH_DIR" value="/Users/ddellabitta/dev/st/STM32CubeExpansion_MEMS1_V4.0.0"/>
+					<stringMacro name="XI_MEMS_STMCUBE_PATH" type="VALUE_PATH_DIR" value="/Users/ddellabitta/Downloads/stm/jan2018/STM32CubeExpansion_MEMS1_V4.2.0"/>
 				</macros>
 				<externalSettings/>
 				<extensions>
@@ -118,9 +118,9 @@
 		<cconfiguration id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.667843212.1209297823">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.667843212.1209297823" moduleId="org.eclipse.cdt.core.settings" name="IKS01A1_Debug">
 				<macros>
-					<stringMacro name="XI_STMCUBE_PATH" type="VALUE_PATH_DIR" value="/Users/ddellabitta/dev/st/STM32Cube_FW_F4_V1.16.0"/>
+					<stringMacro name="XI_STMCUBE_PATH" type="VALUE_PATH_DIR" value="/Users/ddellabitta/Downloads/stm/jan2018/STM32Cube_FW_F4_V1.18.0"/>
 					<stringMacro name="XI_CLIENT_PATH" type="VALUE_PATH_DIR" value="../../../../../.."/>
-					<stringMacro name="XI_MEMS_STMCUBE_PATH" type="VALUE_PATH_DIR" value="/Users/ddellabitta/dev/st/STM32CubeExpansion_MEMS1_V4.0.0"/>
+					<stringMacro name="XI_MEMS_STMCUBE_PATH" type="VALUE_PATH_DIR" value="/Users/ddellabitta/Downloads/stm/jan2018/STM32CubeExpansion_MEMS1_V4.2.0"/>
 				</macros>
 				<externalSettings/>
 				<extensions>

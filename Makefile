@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+# Copyright (c) 2003-2018, LogMeIn, Inc. All rights reserved.
 #
 # This is part of the Xively C Client library,
 # it is licensed under the BSD 3-Clause license.
@@ -196,12 +196,11 @@ $(XI_FUZZ_TESTS_BINDIR)/%: $(XI_FUZZ_TESTS_SOURCE_DIR)/%.cpp
 	$(info [$(CXX)] $@)
 	$(MD) $(CXX) $< $(XI_CONFIG_FLAGS) $(XI_INCLUDE_FLAGS) -L$(XI_BINDIR) -L$(XI_LIBFUZZER_DOWNLOAD_DIR) $(XI_LIB_FLAGS) $(XI_FUZZ_TEST_LIBRARY) $(XI_COMPILER_OUTPUT)
 
-.PHONY: fuzz_tests
-
-fuzz_tests: $(XI_LIBFUZZER) $(XI_FUZZ_TESTS) $(XI_FUZZ_TESTS_CORPUS_DIRS) $(XI)
-	$(foreach fuzztest, $(XI_FUZZ_TESTS), $(call XI_RUN_FUZZ_TEST,$(fuzztest)))
-
 $(XI_FUZZ_TESTS): $(XI)
+
+.PHONY: fuzz_tests
+fuzz_tests: $(XI_LIBFUZZER) $(XI_FUZZ_TESTS) $(XI_FUZZ_TESTS_CORPUS_DIRS)
+	$(foreach fuzztest, $(XI_FUZZ_TESTS), $(call XI_RUN_FUZZ_TEST,$(fuzztest)))
 
 .PHONY: static_analysis
 static_analysis:  $(XI_SOURCES:.c=.sa)

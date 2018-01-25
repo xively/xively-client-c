@@ -11,7 +11,7 @@
 /**
  * @attention
  *
- * Copyright (c) 2003-2017, LogMeIn, Inc. All rights reserved.
+ * Copyright (c) 2003-2018, LogMeIn, Inc. All rights reserved.
  *
  * This is part of the Xively C Client library,
  * it is licensed under the BSD 3-Clause license.
@@ -806,21 +806,25 @@ ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
 #endif
 
 /******** Wi-Fi Indication User Callback *********/
-
 void ind_wifi_socket_data_received( int8_t server_id,
                                     int8_t socket_id,
                                     uint8_t* data_ptr,
                                     uint32_t message_size,
-                                    uint32_t chunk_size )
+                                    uint32_t chunk_size,
+                                    WiFi_Socket_t socket_type )
 {
-    ( void )server_id; /* Unused */
+    ( void )server_id;   /* Unused */
+    ( void )socket_type; /* Unused */
+
     /* Xively */
     xi_bsp_io_net_socket_data_received_proxy( ( uint8_t )socket_id, data_ptr,
                                               message_size, chunk_size );
 }
 
-void ind_wifi_socket_client_remote_server_closed( uint8_t* socket_closed_id )
+void ind_wifi_socket_client_remote_server_closed( uint8_t* socket_closed_id, WiFi_Socket_t socket_type )
 {
+	( void )socket_type; /* Unused */
+
     /* Xively */
     xi_bsp_io_net_socket_client_remote_server_closed_proxy( socket_closed_id );
 }

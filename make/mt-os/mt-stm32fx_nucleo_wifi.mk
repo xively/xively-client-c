@@ -1,4 +1,4 @@
-# Copyright (c) 2003-2016, LogMeIn, Inc. All rights reserved.
+# Copyright (c) 2003-2018, LogMeIn, Inc. All rights reserved.
 #
 # This is part of the Xively C Client library,
 # it is licensed under the BSD 3-Clause license.
@@ -7,6 +7,10 @@ include make/mt-os/mt-os-common.mk
 include make/mt-utils/mt-get-gnu-arm-toolchain.mk
 
 XI_STM32_PATH_SDK = $(HOME)/Downloads/xively-client-artifactory/st/STM32CubeExpansion_WIFI1_V3.0.2
+
+$(info .    CC:                  [$(CC)] )
+$(info .    AR:                  [$(AR)] )
+$(info .    XI_STM32_PATH_SDK:   [$(XI_STM32_PATH_SDK)] )
 
 # This BSP folder MUST be included before the SDK's X-NUCLEO-IDW0xx1/.
 # More info available in src/bsp/platform/stm32fx_nucleo_wifi/stm32_spwf_wifi.h

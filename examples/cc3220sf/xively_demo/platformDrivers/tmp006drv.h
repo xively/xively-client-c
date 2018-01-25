@@ -9,7 +9,7 @@
  *   Texas Instruments Incorporated or against the terms and conditions
  *   stipulated in the agreement under which this program has been supplied,
  *   and under no circumstances can it be used with non-TI connectivity device.
- *   
+ *
  */
 
 #ifndef __TMP006DRV_H__
@@ -62,8 +62,8 @@ extern "C"
 //****************************************************************************
 //
 //! \brief Initialize the temperature sensor
-//!    		1. Get the device manufacturer and version
-//!    		2. Add any initialization here
+//!         1. Get the device manufacturer and version
+//!         2. Add any initialization here
 //!
 //! \param i2cHandle[in] the handle to the openned i2c device
 //!
@@ -75,11 +75,11 @@ int TMP006DrvOpen(I2C_Handle i2cHandle);
 //****************************************************************************
 //
 //! \brief Get the temperature value
-//!    		1. Get the sensor voltage reg and ambient temp reg values
-//!    		2. Compute the temperature from the read values
+//!         1. Get the sensor voltage reg and ambient temp reg values
+//!         2. Compute the temperature from the read values
 //!
-//! \param[in] 	i2cHandle 	the handle to the openned i2c device
-//! \param[out] 	pfCurrTemp 	the pointer to the temperature value store
+//! \param[in]  i2cHandle   the handle to the openned i2c device
+//! \param[out]     pfCurrTemp  the pointer to the temperature value store
 //!
 //! \return 0: Success, < 0: Failure.
 //
