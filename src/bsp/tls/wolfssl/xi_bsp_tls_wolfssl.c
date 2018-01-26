@@ -77,6 +77,10 @@ xi_bsp_tls_state_t xi_bsp_tls_init( xi_bsp_tls_context_t** tls_context,
     xi_bsp_tls_state_t result                  = XI_BSP_TLS_STATE_OK;
     wolfssl_tls_context_t* wolfssl_tls_context = NULL;
 
+#if WOLFSSL_DEBUG_LOG
+    wolfSSL_Debugging_ON();
+#endif
+
 #ifdef XI_TLS_OCSP_STAPLING
     const int nonce_options = 0;
 #endif
