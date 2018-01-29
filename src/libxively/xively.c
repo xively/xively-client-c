@@ -294,7 +294,7 @@ err_handling:
 }
 
 
-xi_state_t xi_connect_with_lastwill_to_impl( xi_context_handle_t xih,
+xi_state_t xi_connect_with_lastwill_to_impl( xi_context_t* xi,
                                              const char* host,
                                              uint16_t port,
                                              const char* username,
@@ -309,7 +309,6 @@ xi_state_t xi_connect_with_lastwill_to_impl( xi_context_handle_t xih,
                                              xi_user_callback_t* client_callback )
 {
     xi_state_t state               = XI_STATE_OK;
-    xi_context_t* xi               = NULL;
     xi_event_handle_t event_handle = xi_make_empty_event_handle();
     xi_layer_t* input_layer        = NULL;
     uint32_t new_backoff           = 0;
@@ -317,16 +316,10 @@ xi_state_t xi_connect_with_lastwill_to_impl( xi_context_handle_t xih,
     XI_CHECK_CND_DBGMESSAGE( NULL == host, XI_NULL_HOST, state,
                              "ERROR: NULL host provided" );
 
-    XI_CHECK_CND_DBGMESSAGE( XI_INVALID_CONTEXT_HANDLE >= xih, XI_NULL_CONTEXT, state,
-                             "ERROR: invalid context handle provided" );
-
-    xi = xi_object_for_handle( xi_globals.context_handles_vector, xih );
-
     XI_CHECK_CND_DBGMESSAGE( NULL == xi, XI_NULL_CONTEXT, state,
                              "ERROR: NULL context provided" );
 
     assert( NULL != client_callback );
-
 
     event_handle =
         xi_make_threaded_handle( XI_THREADID_THREAD_0, &xi_user_callback_wrapper, xi,
@@ -419,8 +412,10 @@ xi_state_t xi_connect( xi_context_handle_t xih,
                        xi_session_type_t session_type,
                        xi_user_callback_t* client_callback )
 {
+    xi_context_t* xi = xi_object_for_handle( xi_globals.context_handles_vector, xih );
+
     return xi_connect_with_lastwill_to_impl(
-        xih, XI_MQTT_HOST_ACCESSOR.name, XI_MQTT_HOST_ACCESSOR.port, username, password,
+        xi, XI_MQTT_HOST_ACCESSOR.name, XI_MQTT_HOST_ACCESSOR.port, username, password,
         connection_timeout, keepalive_timeout, session_type, NULL, /* will_topic */
         NULL,                                                      /* will_message */
         ( xi_mqtt_qos_t )0,                                        /* will_qos */
@@ -438,7 +433,9 @@ xi_state_t xi_connect_to( xi_context_handle_t xih,
                           xi_session_type_t session_type,
                           xi_user_callback_t* client_callback )
 {
-    return xi_connect_with_lastwill_to_impl( xih, host, port, username, password,
+    xi_context_t* xi = xi_object_for_handle( xi_globals.context_handles_vector, xih );
+
+    return xi_connect_with_lastwill_to_impl( xi, host, port, username, password,
                                              connection_timeout, keepalive_timeout,
                                              session_type, NULL,    /* will_topic */
                                              NULL,                  /* will_message */
@@ -471,8 +468,10 @@ xi_state_t xi_connect_with_lastwill( xi_context_handle_t xih,
         return XI_NULL_WILL_MESSAGE;
     }
 
+    xi_context_t* xi = xi_object_for_handle( xi_globals.context_handles_vector, xih );
+
     return xi_connect_with_lastwill_to_impl(
-        xih, XI_MQTT_HOST_ACCESSOR.name, XI_MQTT_HOST_ACCESSOR.port, username, password,
+        xi, XI_MQTT_HOST_ACCESSOR.name, XI_MQTT_HOST_ACCESSOR.port, username, password,
         connection_timeout, keepalive_timeout, session_type, will_topic, will_message,
         will_qos, will_retain, client_callback );
 }
@@ -503,8 +502,10 @@ xi_state_t xi_connect_with_lastwill_to( xi_context_handle_t xih,
         return XI_NULL_WILL_MESSAGE;
     }
 
+    xi_context_t* xi = xi_object_for_handle( xi_globals.context_handles_vector, xih );
+
     return xi_connect_with_lastwill_to_impl(
-        xih, host, port, username, password, connection_timeout, keepalive_timeout,
+        xi, host, port, username, password, connection_timeout, keepalive_timeout,
         session_type, will_topic, will_message, will_qos, will_retain, client_callback );
 }
 
@@ -870,10 +871,8 @@ err_handling:
     return state;
 }
 
-xi_state_t xi_shutdown_connection( xi_context_handle_t xih )
+xi_state_t xi_shutdown_connection_impl( xi_context_t* xi )
 {
-    assert( XI_INVALID_CONTEXT_HANDLE < xih );
-    xi_context_t* xi = xi_object_for_handle( xi_globals.context_handles_vector, xih );
     assert( NULL != xi );
 
     xi_state_t state           = XI_STATE_OK;
@@ -927,6 +926,15 @@ err_handling:
         xi_mqtt_logic_free_task( &task );
     }
     return state;
+}
+
+xi_state_t xi_shutdown_connection( xi_context_handle_t xih )
+{
+    assert( XI_INVALID_CONTEXT_HANDLE < xih );
+
+    xi_context_t* xi = xi_object_for_handle( xi_globals.context_handles_vector, xih );
+
+    return xi_shutdown_connection_impl( xi );
 }
 
 xi_timed_task_handle_t xi_schedule_timed_task( xi_context_handle_t xih,

@@ -5,58 +5,71 @@
  */
 
 #include <xi_gw_glue_layer.h>
+#include <xi_layer_api.h>
 
-xi_state_t xi_gw_glue_layer_push( void* context, void* data, xi_state_t state )
+xi_state_t xi_gw_glue_layer_init( void* context, void* data, xi_state_t in_out_state )
 {
+    XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
+
     ( void )context;
     ( void )data;
-    ( void )state;
+    ( void )in_out_state;
 
-    return state;
+    return in_out_state;
 }
 
-xi_state_t xi_gw_glue_layer_pull( void* context, void* data, xi_state_t state )
+xi_state_t xi_gw_glue_layer_connect( void* context, void* data, xi_state_t in_out_state )
 {
+    XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
+
     ( void )context;
     ( void )data;
-    ( void )state;
+    ( void )in_out_state;
 
-    return state;
+    return in_out_state;
 }
 
-xi_state_t xi_gw_glue_layer_init( void* context, void* data, xi_state_t state )
+xi_state_t xi_gw_glue_layer_push( void* context, void* data, xi_state_t in_out_state )
 {
+    XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
+
     ( void )context;
     ( void )data;
-    ( void )state;
+    ( void )in_out_state;
 
-    return state;
+    return in_out_state;
 }
 
-xi_state_t xi_gw_glue_layer_connect( void* context, void* data, xi_state_t state )
+xi_state_t xi_gw_glue_layer_pull( void* context, void* data, xi_state_t in_out_state )
 {
+    XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
+
     ( void )context;
     ( void )data;
-    ( void )state;
+    ( void )in_out_state;
 
-    return state;
+    return in_out_state;
 }
 
-xi_state_t xi_gw_glue_layer_close( void* context, void* data, xi_state_t state )
+xi_state_t xi_gw_glue_layer_close( void* context, void* data, xi_state_t in_out_state )
 {
+    XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
+
     ( void )context;
     ( void )data;
-    ( void )state;
+    ( void )in_out_state;
 
-    return state;
+    return in_out_state;
 }
 
 xi_state_t
-xi_gw_glue_layer_close_externally( void* context, void* data, xi_state_t state )
+xi_gw_glue_layer_close_externally( void* context, void* data, xi_state_t in_out_state )
 {
+    XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
+
     ( void )context;
     ( void )data;
-    ( void )state;
+    ( void )in_out_state;
 
-    return state;
+    return in_out_state;
 }

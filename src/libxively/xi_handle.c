@@ -23,7 +23,6 @@ static inline int8_t xi_compare_context_pointers( const union xi_vector_selector
 
 void* xi_object_for_handle( xi_vector_t* vector, xi_handle_t handle )
 {
-    assert( vector != NULL );
     return xi_vector_get( vector, handle );
 }
 
