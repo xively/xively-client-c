@@ -14,18 +14,17 @@
 extern "C" {
 #endif
 
-xi_state_t xi_gw_gateway_layer_push( void* context, void* data, xi_state_t );
-
-xi_state_t xi_gw_gateway_layer_pull( void* context, void* data, xi_state_t );
-
 xi_state_t xi_gw_gateway_layer_init( void* context, void* data, xi_state_t );
 
 xi_state_t xi_gw_gateway_layer_connect( void* context, void* data, xi_state_t );
 
-xi_state_t xi_gw_gateway_layer_close( void* context, void* data, xi_state_t state );
+xi_state_t xi_gw_gateway_layer_push( void* context, void* data, xi_state_t );
 
-xi_state_t
-xi_gw_gateway_layer_close_externally( void* context, void* data, xi_state_t state );
+xi_state_t xi_gw_gateway_layer_pull( void* context, void* data, xi_state_t );
+
+xi_state_t xi_gw_gateway_layer_close( void* context, void* data, xi_state_t );
+
+xi_state_t xi_gw_gateway_layer_close_externally( void* context, void* data, xi_state_t );
 
 #ifdef __cplusplus
 }

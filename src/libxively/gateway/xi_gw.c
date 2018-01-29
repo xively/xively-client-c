@@ -42,7 +42,9 @@ static int8_t _xi_ed_find_context_2_id( const union xi_vector_selector_u* e0,
     return strcmp( pair0->edge_device_id, pair1->edge_device_id );
 }
 
-xi_state_t xi_connect_ed( xi_context_handle_t xih, const char* edge_device_id )
+xi_state_t xi_connect_ed( xi_context_handle_t xih,
+                          const char* edge_device_id,
+                          xi_user_callback_t* client_callback )
 {
     ( void )xih;
 
@@ -78,6 +80,21 @@ xi_state_t xi_connect_ed( xi_context_handle_t xih, const char* edge_device_id )
             goto err_handling;
         }
 
+        /* todo_atigyi: these parameters probably should come as function parameters */
+        uint16_t connection_timeout    = 10;
+        uint16_t keepalive_timeout     = 20;
+        xi_session_type_t session_type = XI_SESSION_CLEAN;
+        const char* will_topic         = NULL;
+        const char* will_message       = NULL;
+        xi_mqtt_qos_t will_qos         = 0;
+        xi_mqtt_retain_t will_retain   = 0;
+
+        xi_connect_with_lastwill_to_impl(
+            ed_id_context->edge_device_context, "gateway no host", 0,
+            "edge device username", "edge device password", connection_timeout,
+            keepalive_timeout, session_type, will_topic, will_message, will_qos,
+            will_retain, client_callback );
+
         /*
          * todo_atigyi:
          * - error handling
@@ -102,6 +119,33 @@ err_handling:
 
 xi_state_t xi_disconnect_ed( xi_context_handle_t xih, const char* edge_device_id )
 {
+    printf( "%s\n", __FUNCTION__ );
+    XI_UNUSED( xih );
+
+    xi_state_t state = XI_STATE_OK;
+
+    xi_ed_id_ed_context_pair_t search_key = {.edge_device_id = ( char* )edge_device_id,
+                                             .edge_device_context = NULL};
+
+    const xi_vector_index_type_t found_index = xi_vector_find(
+        xi_globals.context_handles_vector_edge_devices,
+        XI_VEC_CONST_VALUE_PARAM( ( void* )&search_key ), _xi_ed_find_context_2_id );
+
+    if ( 0 <= found_index )
+    {
+        xi_ed_id_ed_context_pair_t* ed_id_context =
+            ( xi_ed_id_ed_context_pair_t* )xi_vector_get(
+                xi_globals.context_handles_vector_edge_devices, found_index );
+
+        state = xi_shutdown_connection_impl( ed_id_context->edge_device_context );
+    }
+
+    return state;
+}
+
+extern xi_state_t xi_remove_ed( xi_context_handle_t xih, const char* edge_device_id )
+{
+    printf( "%s\n", __FUNCTION__ );
     XI_UNUSED( xih );
 
     xi_ed_id_ed_context_pair_t search_key = {.edge_device_id = ( char* )edge_device_id,

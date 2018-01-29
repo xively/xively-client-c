@@ -14,13 +14,13 @@
 extern "C" {
 #endif
 
-xi_state_t xi_gw_glue_layer_push( void* context, void* data, xi_state_t );
-
-xi_state_t xi_gw_glue_layer_pull( void* context, void* data, xi_state_t );
-
 xi_state_t xi_gw_glue_layer_init( void* context, void* data, xi_state_t );
 
 xi_state_t xi_gw_glue_layer_connect( void* context, void* data, xi_state_t );
+
+xi_state_t xi_gw_glue_layer_push( void* context, void* data, xi_state_t );
+
+xi_state_t xi_gw_glue_layer_pull( void* context, void* data, xi_state_t );
 
 xi_state_t xi_gw_glue_layer_close( void* context, void* data, xi_state_t state );
 

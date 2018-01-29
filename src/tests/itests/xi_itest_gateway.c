@@ -21,6 +21,7 @@
  ********************************************************************************/
 typedef struct xi_itest_gateway__test_fixture_s
 {
+    uint16_t loop_id__manual_disconnect_ed;
     uint16_t loop_id__manual_disconnect;
     uint16_t max_loop_count;
 
@@ -28,7 +29,6 @@ typedef struct xi_itest_gateway__test_fixture_s
     xi_context_handle_t xi_context_handle;
 
     xi_context_t* xi_context_mockbroker;
-
 } xi_itest_gateway__test_fixture_t;
 
 
@@ -39,8 +39,9 @@ static xi_itest_gateway__test_fixture_t* _xi_itest_gateway__generate_fixture()
     XI_ALLOC( xi_itest_gateway__test_fixture_t, fixture, state );
 
 
-    fixture->loop_id__manual_disconnect = 0xFFFF - 5;
-    fixture->max_loop_count             = 0xFFFF;
+    fixture->loop_id__manual_disconnect_ed = 0xFFFF - 115;
+    fixture->loop_id__manual_disconnect    = 0xFFFF - 5;
+    fixture->max_loop_count                = 0xFFFF;
 
     return fixture;
 
@@ -110,24 +111,72 @@ int xi_itest_gateway_teardown( void** fixture_void )
     return !xi_memory_limiter_teardown();
 }
 
+/*********************************************************************************
+ * callbacks *********************************************************************
+ ********************************************************************************/
+static void _xi_ed_connect_callback( xi_context_handle_t in_context_handle,
+                                     void* data,
+                                     xi_state_t state )
+{
+    XI_UNUSED( in_context_handle );
+    XI_UNUSED( data );
+    XI_UNUSED( state );
+
+    printf( "--- %s ---\n", __FUNCTION__ );
+}
 
 /*********************************************************************************
  * act ***************************************************************************
  ********************************************************************************/
+static void _xi_itest_gateway__act( void** fixture_void )
+{
+    xi_state_t state = XI_STATE_OK;
+
+    xi_itest_gateway__test_fixture_t* fixture =
+        ( xi_itest_gateway__test_fixture_t* )*fixture_void;
+
+
+    xi_connect_ed( fixture->xi_context_handle, "edge application device id",
+                   _xi_ed_connect_callback );
+
+    // const uint16_t connection_timeout = fixture->max_loop_count;
+    const uint16_t keepalive_timeout = fixture->max_loop_count;
+
+    uint16_t loop_counter = 0;
+    while ( xi_evtd_dispatcher_continue( xi_globals.evtd_instance ) == 1 &&
+            loop_counter < keepalive_timeout )
+    {
+        xi_evtd_step( xi_globals.evtd_instance,
+                      xi_bsp_time_getcurrenttime_seconds() + loop_counter );
+        ++loop_counter;
+
+        ( 0 == loop_counter % 10 ) ? printf( "." ) : printf( "" );
+        fflush( stdout );
+
+        if ( loop_counter == fixture->loop_id__manual_disconnect_ed )
+        {
+            state = xi_disconnect_ed( fixture->xi_context_handle,
+                                      "edge application device id" );
+
+            printf( "--- xi_disconnect_ed, state: %d\n", state );
+        }
+
+        if ( loop_counter == fixture->loop_id__manual_disconnect )
+        {
+            xi_shutdown_connection( fixture->xi_context_handle );
+        }
+    }
+
+    xi_remove_ed( fixture->xi_context_handle, "edge application device id" );
+}
 
 /*********************************************************************************
  * test cases ********************************************************************
  ********************************************************************************/
 void xi_itest_gateway__first( void** fixture_void )
 {
-    xi_itest_gateway__test_fixture_t* fixture =
-        ( xi_itest_gateway__test_fixture_t* )*fixture_void;
+    /*xi_itest_gateway__test_fixture_t* fixture =
+        ( xi_itest_gateway__test_fixture_t* )*fixture_void;*/
 
-    xi_state_t state = XI_STATE_OK;
-
-    state = xi_connect_ed( fixture->xi_context_handle, "edge application device id" );
-
-    state = xi_disconnect_ed( fixture->xi_context_handle, "edge application device id" );
-
-    XI_UNUSED( state );
+    _xi_itest_gateway__act( fixture_void );
 }
