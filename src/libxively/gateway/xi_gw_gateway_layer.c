@@ -38,7 +38,7 @@ xi_state_t xi_gw_gateway_layer_push( void* context, void* data, xi_state_t in_ou
     ( void )data;
     ( void )in_out_state;
 
-    return in_out_state;
+    return XI_PROCESS_PUSH_ON_NEXT_LAYER( context, data, in_out_state );
 }
 
 xi_state_t xi_gw_gateway_layer_pull( void* context, void* data, xi_state_t in_out_state )
@@ -48,6 +48,10 @@ xi_state_t xi_gw_gateway_layer_pull( void* context, void* data, xi_state_t in_ou
     ( void )context;
     ( void )data;
     ( void )in_out_state;
+
+    /* call the application callback, parameters should include target edge device id and
+     * the message body
+    */
 
     return in_out_state;
 }
@@ -60,7 +64,7 @@ xi_state_t xi_gw_gateway_layer_close( void* context, void* data, xi_state_t in_o
     ( void )data;
     ( void )in_out_state;
 
-    return in_out_state;
+    return XI_PROCESS_CLOSE_ON_PREV_LAYER( context, data, in_out_state );
 }
 
 xi_state_t

@@ -19,8 +19,8 @@
 extern "C" {
 #endif
 
-extern xi_context_t* xi_context;            // Xivley Client context
-extern xi_context_t* xi_context_mockbroker; // test mock broker context
+xi_context_t* xi_context            = NULL; // Xivley Client context
+xi_context_t* xi_context_mockbroker = NULL; // test mock broker context
 
 /************************************************************************************
  * mock broker primary layer ********************************************************
@@ -67,6 +67,7 @@ xi_state_t xi_mock_broker_layer_push( void* context, void* data, xi_state_t in_o
 
         return XI_PROCESS_PUSH_ON_NEXT_LAYER( context, 0, in_out_state );
     }
+
 
     if ( in_out_state == XI_STATE_OK )
     {
@@ -156,6 +157,8 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
         {
             case XI_MQTT_TYPE_CONNECT:
             {
+                printf( "--- %s --- CONNECT\n", __FUNCTION__ );
+
                 XI_ALLOC( xi_mqtt_message_t, msg_connack, in_out_state );
                 XI_CHECK_STATE( in_out_state = fill_with_connack_data(
                                     msg_connack, XI_CONNACK_ACCEPTED ) );
@@ -168,6 +171,8 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
 
             case XI_MQTT_TYPE_SUBSCRIBE:
             {
+                printf( "--- %s --- SUBSCRIBE\n", __FUNCTION__ );
+
                 const char* subscribe_topic_name =
                     ( const char* )recvd_msg->subscribe.topics->name->data_ptr;
 
@@ -201,6 +206,8 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
                 const char* publish_topic_name =
                     ( const char* )recvd_msg->publish.topic_name->data_ptr;
 
+                printf( "--- %s --- PUBLISH (%s)\n", __FUNCTION__, publish_topic_name );
+
                 xi_debug_format( "publish arrived on topic `%s`, msgid: %d",
                                  publish_topic_name, recvd_msg->publish.message_id );
 
@@ -218,6 +225,7 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
                     XI_CHECK_STATE( in_out_state );
 
                     xi_mqtt_message_free( &recvd_msg );
+
                     return XI_PROCESS_PUSH_ON_PREV_LAYER( context, msg_puback,
                                                           in_out_state );
                 }
@@ -254,10 +262,26 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
                             context, mqtt_publish_sft_reply, in_out_state );
                     }
                 }
+                else if ( 0 == strncmp( publish_topic_name, "$Tunnel/", 8 ) )
+                {
+                    printf( "--- %s --- tunneled message received\n", __FUNCTION__ );
+
+                    /* tunneled messages are MQTT over MQTT. They are MQTT encoded twice.
+                     * An MQTT message sits inside a PUBLISH body. So we have to MQTT
+                     * decode it again. So here feeding back the body of the PUBLISH to
+                     * MQTT codec layer again.
+                     */
+                    XI_PROCESS_PULL_ON_PREV_LAYER( context, recvd_msg->publish.content,
+                                                   in_out_state );
+
+                    /* release content since it is forwarded to MQTT codec layer */
+                    recvd_msg->publish.content = NULL;
+                }
             }
             break;
 
             case XI_MQTT_TYPE_DISCONNECT:
+                printf( "--- %s --- DISCONNECT\n", __FUNCTION__ );
                 // do nothing
                 xi_debug_printf(
                     "================= DISCONNECT arrived at mock broker\n" );
@@ -349,10 +373,10 @@ xi_mock_broker_layer_connect( void* context, void* data, xi_state_t in_out_state
 xi_state_t
 xi_mock_broker_secondary_layer_push( void* context, void* data, xi_state_t in_out_state )
 {
-    XI_UNUSED( itest_mock_broker_codec_layer_chain );
-    XI_UNUSED( XI_LAYER_CHAIN_MOCK_BROKER_CODECSIZE_SUFFIX );
-    XI_UNUSED( itest_ct_ml_mc_layer_chain );
-    XI_UNUSED( XI_LAYER_CHAIN_CT_ML_MCSIZE_SUFFIX );
+    // XI_UNUSED( itest_mock_broker_codec_layer_chain );
+    // XI_UNUSED( XI_LAYER_CHAIN_MOCK_BROKER_CODECSIZE_SUFFIX );
+    // XI_UNUSED( itest_ct_ml_mc_layer_chain );
+    // XI_UNUSED( XI_LAYER_CHAIN_CT_ML_MCSIZE_SUFFIX );
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
 
     XI_MOCK_BROKER_CONDITIONAL__CHECK_EXPECTED( in_out_state, LAYER_LEVEL );

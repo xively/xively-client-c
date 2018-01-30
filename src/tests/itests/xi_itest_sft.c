@@ -266,6 +266,7 @@ static void xi_itest_sft__act( void** fixture_void,
 
     const uint16_t connection_timeout = fixture->max_loop_count;
     const uint16_t keepalive_timeout  = fixture->max_loop_count;
+
     xi_connect( xi_context_handle, "itest_username", "itest_password", connection_timeout,
                 keepalive_timeout, XI_SESSION_CLEAN,
                 &_xi_itest_sft__on_connection_state_changed );
