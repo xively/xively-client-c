@@ -37,6 +37,9 @@
 #define XT_TASK_STACK_SIZE ( 1024 * 36 )
 #define APP_MAIN_LOGIC_STACK_SIZE ( 1024 * 2 )
 
+#define XIVELY_TASK_PRIORITY 6
+#define APP_TASK_PRIORITY 1
+
 #define WIFI_CONNECTED_FLAG BIT0
 
 /**
@@ -129,9 +132,9 @@ void app_main( void )
     }
 
     /* Start Xively task */
-    if ( pdPASS != xTaskCreatePinnedToCore( &xt_rtos_task, "xively_task",
-                                            XT_TASK_STACK_SIZE, NULL, 4, NULL,
-                                            XT_TASK_ESP_CORE ) )
+    if ( pdPASS !=
+         xTaskCreatePinnedToCore( &xt_rtos_task, "xively_task", XT_TASK_STACK_SIZE, NULL,
+                                  XIVELY_TASK_PRIORITY, NULL, XT_TASK_ESP_CORE ) )
     {
         printf( "\n[ERROR] creating Xively Task" );
         while ( 1 )
@@ -141,7 +144,8 @@ void app_main( void )
     /* Start a new task for the post-initialization logic. In this demo, it
     simply rints a string over and over again */
     if ( pdPASS != xTaskCreate( &app_main_logic_task, "app_main_logic",
-                                APP_MAIN_LOGIC_STACK_SIZE, NULL, 1, NULL ) )
+                                APP_MAIN_LOGIC_STACK_SIZE, NULL, APP_TASK_PRIORITY,
+                                NULL ) )
     {
         printf( "\n[ERROR] creating GPIO interrupt handler RTOS task" );
         printf( "\n\tInterrupts will be ignored" );
@@ -221,22 +225,12 @@ int8_t app_wifi_station_init( user_data_t* credentials )
     printf( "\n|               Initializing WiFi as Station             |" );
     printf( "\n|********************************************************|\n" );
 
-#if USE_HARDCODED_CREDENTIALS
-    wifi_config_t wifi_config =
-    {
-        .sta =
-        {
-            .ssid = USER_CONFIG_WIFI_SSID, .password = USER_CONFIG_WIFI_PWD
-        }
-    };
-#else
     wifi_config_t wifi_config = {.sta = {.ssid = "", .password = ""}};
 
     strncpy( ( char* )wifi_config.sta.ssid, credentials->wifi_client_ssid,
              ESP_WIFI_SSID_STR_SIZE );
     strncpy( ( char* )wifi_config.sta.password, credentials->wifi_client_password,
              ESP_WIFI_PASSWORD_STR_SIZE );
-#endif
 
     /* Initialize the TCP/IP stack, app_wifi_event_group and WiFi interface */
     app_wifi_event_group = xEventGroupCreate();
@@ -342,8 +336,8 @@ void app_main_logic_task( void* param )
         }
         else if ( xt_is_connected() )
         {
-            /* LED Always off while the device is connected */
-            led_toggler = 0;
+            /* LED can be controlled over MQTT when the device is connected */
+            continue;
         }
         else
         {
