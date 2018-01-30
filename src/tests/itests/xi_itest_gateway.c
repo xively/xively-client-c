@@ -16,11 +16,15 @@
 #include <xi_context.h>
 #include <xively_gateway.h>
 
+extern xi_context_t* xi_context;
+extern xi_context_t* xi_context_mockbroker;
+
 /*********************************************************************************
  * test fixture ******************************************************************
  ********************************************************************************/
 typedef struct xi_itest_gateway__test_fixture_s
 {
+    uint16_t loop_id__manual_connect_ed;
     uint16_t loop_id__manual_disconnect_ed;
     uint16_t loop_id__manual_disconnect;
     uint16_t max_loop_count;
@@ -39,6 +43,7 @@ static xi_itest_gateway__test_fixture_t* _xi_itest_gateway__generate_fixture()
     XI_ALLOC( xi_itest_gateway__test_fixture_t, fixture, state );
 
 
+    fixture->loop_id__manual_connect_ed    = 20;
     fixture->loop_id__manual_disconnect_ed = 0xFFFF - 115;
     fixture->loop_id__manual_disconnect    = 0xFFFF - 5;
     fixture->max_loop_count                = 0xFFFF;
@@ -71,6 +76,8 @@ int xi_itest_gateway_setup( void** fixture_void )
         &fixture->xi_context, itest_ct_ml_mc_layer_chain, XI_LAYER_CHAIN_CT_ML_MC,
         XI_LAYER_CHAIN_SCHEME_LENGTH( XI_LAYER_CHAIN_CT_ML_MC ), NULL, 1 );
 
+    xi_context = fixture->xi_context;
+
     XI_CHECK_STATE( state );
 
     xi_find_handle_for_object( xi_globals.context_handles_vector, fixture->xi_context,
@@ -80,6 +87,8 @@ int xi_itest_gateway_setup( void** fixture_void )
         &fixture->xi_context_mockbroker, itest_mock_broker_codec_layer_chain,
         XI_LAYER_CHAIN_MOCK_BROKER_CODEC,
         XI_LAYER_CHAIN_SCHEME_LENGTH( XI_LAYER_CHAIN_MOCK_BROKER_CODEC ), NULL, 0 );
+
+    xi_context_mockbroker = fixture->xi_context_mockbroker;
 
     XI_CHECK_STATE( state );
 
@@ -114,15 +123,27 @@ int xi_itest_gateway_teardown( void** fixture_void )
 /*********************************************************************************
  * callbacks *********************************************************************
  ********************************************************************************/
+static void
+_xi_itest_gateway__on_connection_state_changed( xi_context_handle_t in_context_handle,
+                                                void* data,
+                                                xi_state_t state )
+{
+    printf( "--- %s ---\n", __FUNCTION__ );
+
+    XI_UNUSED( in_context_handle );
+    XI_UNUSED( data );
+    XI_UNUSED( state );
+}
+
 static void _xi_ed_connect_callback( xi_context_handle_t in_context_handle,
                                      void* data,
                                      xi_state_t state )
 {
+    printf( "--- %s ---\n", __FUNCTION__ );
+
     XI_UNUSED( in_context_handle );
     XI_UNUSED( data );
     XI_UNUSED( state );
-
-    printf( "--- %s ---\n", __FUNCTION__ );
 }
 
 /*********************************************************************************
@@ -130,17 +151,37 @@ static void _xi_ed_connect_callback( xi_context_handle_t in_context_handle,
  ********************************************************************************/
 static void _xi_itest_gateway__act( void** fixture_void )
 {
+    {
+        /* turn off LAYER and MQTT LEVEL expectation checks to concentrate only on SFT
+         * protocol messages */
+        will_return_always( xi_mock_broker_layer__check_expected__LAYER_LEVEL,
+                            CONTROL_SKIP_CHECK_EXPECTED );
+
+        will_return_always( xi_mock_broker_layer__check_expected__MQTT_LEVEL,
+                            CONTROL_SKIP_CHECK_EXPECTED );
+
+        will_return_always( xi_mock_layer_tls_prev__check_expected__LAYER_LEVEL,
+                            CONTROL_SKIP_CHECK_EXPECTED );
+    }
+
     xi_state_t state = XI_STATE_OK;
 
     xi_itest_gateway__test_fixture_t* fixture =
         ( xi_itest_gateway__test_fixture_t* )*fixture_void;
 
+    XI_PROCESS_INIT_ON_THIS_LAYER(
+        &fixture->xi_context_mockbroker->layer_chain.top->layer_connection, NULL,
+        XI_STATE_OK );
 
-    xi_connect_ed( fixture->xi_context_handle, "edge application device id",
-                   _xi_ed_connect_callback );
+    xi_evtd_step( xi_globals.evtd_instance, xi_bsp_time_getcurrenttime_seconds() );
 
-    // const uint16_t connection_timeout = fixture->max_loop_count;
-    const uint16_t keepalive_timeout = fixture->max_loop_count;
+    const uint16_t connection_timeout = fixture->max_loop_count;
+    const uint16_t keepalive_timeout  = fixture->max_loop_count;
+
+    xi_connect( fixture->xi_context_handle, "itest_username", "itest_password",
+                connection_timeout, keepalive_timeout, XI_SESSION_CLEAN,
+                _xi_itest_gateway__on_connection_state_changed );
+
 
     uint16_t loop_counter = 0;
     while ( xi_evtd_dispatcher_continue( xi_globals.evtd_instance ) == 1 &&
@@ -152,6 +193,12 @@ static void _xi_itest_gateway__act( void** fixture_void )
 
         ( 0 == loop_counter % 10 ) ? printf( "." ) : printf( "" );
         fflush( stdout );
+
+        if ( loop_counter == fixture->loop_id__manual_connect_ed )
+        {
+            xi_connect_ed( fixture->xi_context_handle, "edge application device id",
+                           _xi_ed_connect_callback );
+        }
 
         if ( loop_counter == fixture->loop_id__manual_disconnect_ed )
         {

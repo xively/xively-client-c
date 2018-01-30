@@ -25,7 +25,6 @@ typedef struct
     uint32_t network_timeout;
     uint8_t globals_ref_count;
     xi_evtd_instance_t* evtd_instance;
-    xi_context_t* default_context;
     xi_context_handle_t default_context_handle;
     xi_vector_t* context_handles_vector;
     xi_timed_task_container_t* timed_tasks_container;

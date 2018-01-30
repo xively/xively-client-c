@@ -46,8 +46,6 @@ xi_state_t xi_connect_ed( xi_context_handle_t xih,
                           const char* edge_device_id,
                           xi_user_callback_t* client_callback )
 {
-    ( void )xih;
-
     xi_state_t state                          = XI_STATE_OK;
     xi_ed_id_ed_context_pair_t* ed_id_context = NULL;
 
@@ -88,6 +86,8 @@ xi_state_t xi_connect_ed( xi_context_handle_t xih,
         const char* will_message       = NULL;
         xi_mqtt_qos_t will_qos         = 0;
         xi_mqtt_retain_t will_retain   = 0;
+
+        ed_id_context->edge_device_context->context_data.main_context_handle = xih;
 
         xi_connect_with_lastwill_to_impl(
             ed_id_context->edge_device_context, "gateway no host", 0,

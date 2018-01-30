@@ -19,9 +19,9 @@
 
 extern char xi_test_load_level;
 
-xi_context_t* xi_context              = NULL;
+extern xi_context_t* xi_context;
 xi_context_handle_t xi_context_handle = XI_INVALID_CONTEXT_HANDLE;
-xi_context_t* xi_context_mockbroker   = NULL;
+extern xi_context_t* xi_context_mockbroker;
 
 /**
  * xi_itest_tls_error test suit description
