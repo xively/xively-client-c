@@ -322,6 +322,7 @@ void app_main_logic_task( void* param )
     {
         printf( "\n((Factory Default Running))" );
         // printf( "\n[[New FW Running]]" );
+
         if ( !xt_ready_for_requests() )
         {
             /* The Xively Task was shut down for some reason. Reboot the device */
@@ -336,15 +337,19 @@ void app_main_logic_task( void* param )
         }
         else if ( xt_is_connected() )
         {
-            /* LED can be controlled over MQTT when the device is connected */
-            continue;
+            /* LED OFF by default when the device is connected, controllable over MQTT */
+            if ( led_toggler == 1 )
+            {
+                led_toggler = 0;
+                io_led_set( led_toggler );
+            }
         }
         else
         {
             /* LED blinks slowly while the device is disconnected */
             ( led_toggler == 1 ) ? ( led_toggler = 0 ) : ( led_toggler = 1 );
+            io_led_set( led_toggler % 2 );
         }
-        io_led_set( led_toggler % 2 );
         vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
 }
@@ -416,7 +421,8 @@ void esp32_xibsp_notify_chunk_written( size_t chunk_size, size_t offset )
     }
 }
 
-void esp32_xibsp_notify_update_applied()
+void esp32_xibsp_notify_update_applied( void )
 {
-    printf( "\nFirmware package download complete - Device will reboot" );
+    printf( "\nFirmware package download complete - Device will reboot if a new app was "
+            "downloaded" );
 }
