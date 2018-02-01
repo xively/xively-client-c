@@ -146,7 +146,6 @@ XI_COMPILER_FLAGS += -I$(LIBXIVELY)/src/bsp/platform/esp32/include
 # Code configuration
 ####################
 XI_COMPILER_FLAGS += -DXI_PROVIDE_WOLFSSL_SEED_GENERATOR
-XI_COMPILER_FLAGS += -DSNTP_MAX_SERVERS=4 #if modified, update your app's component.mk and xi_bsp_time_esp32_sntp.c too
 
 ################################
 # xtensa-esp32 toolchain options
