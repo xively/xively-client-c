@@ -43,7 +43,7 @@ void xi_bsp_time_init()
     sntp_setoperatingmode( SNTP_OPMODE_POLL );
     sntp_init();
 
-    xi_bsp_debug_format( "Awaiting SNTP response for %ld ms", sntp_task_timeout );
+    xi_bsp_debug_format( "Awaiting SNTP response for %d ms", sntp_task_timeout );
     while ( sntp_retrieved_time < DEVELOPMENT_DATETIME )
     {
         if ( 0 > ( sntp_task_timeout -= sntp_timeout_step_ms ) )
@@ -55,7 +55,8 @@ void xi_bsp_time_init()
         XI_ESP32_GET_TIME_FROM_RTC( &sntp_retrieved_time );
     }
 
-    xi_bsp_debug_format( "RTC updated to current datetime: %ld", sntp_retrieved_time );
+    xi_bsp_debug_format( "RTC updated to current datetime: %d",
+                         ( int32_t )sntp_retrieved_time );
 exit:
     sntp_stop();
 }

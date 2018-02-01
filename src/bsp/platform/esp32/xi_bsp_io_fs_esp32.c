@@ -17,7 +17,6 @@
 #include "xi_bsp_fwu_notifications_esp32.h"
 
 #include "esp_vfs.h"
-#include "esp_vfs_fat.h"
 #include "esp_ota_ops.h"
 
 #define XI_ESP32_MAX_FILENAME_LEN 128
