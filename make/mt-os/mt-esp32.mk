@@ -23,7 +23,7 @@ ifeq (,$(wildcard $(IDF_PATH)))
 $(XI_ESP_IDF_SDK_PATH):
 	@-mkdir -p $@
 	git clone --recursive https://github.com/espressif/esp-idf.git $(XI_ESP_IDF_SDK_PATH)
-	@-cd $(XI_ESP_IDF_SDK_PATH) && git checkout -b xively_tested_version e6afe28 && git submodule update
+	@-cd $(XI_ESP_IDF_SDK_PATH) && git checkout -b xively_tested_version f482e9e5 && git submodule update
 
 XI_BUILD_PRECONDITIONS += $(XI_ESP_IDF_SDK_PATH)
 
@@ -96,11 +96,17 @@ XI_ESP32_POST_BUILD_ACTION_TOOLCHAIN:
 # XI_ESP32_AVAILABILITY_CHECK_CC
 endif
 
+ifeq ($(XI_BSP_TLS),wolfssl)
 # Hint for custom TLS library build: for wolfSSL the XI_BSP_TLS is equal to 'wolfssl'.
 # You can find the corresponding file in directory make/mt-config. To build custom TLS
 # library as part of the libxively build create your own config file there, e.g.:
 # mt-tls-mbedtls-esp32.mk. Or delete the line below to turn off TLS lib cross compilation.
 include make/mt-config/mt-tls-$(XI_BSP_TLS)-esp32.mk
+
+# WolfSSL TLS BSP configuration
+XI_COMPILER_FLAGS += -DXI_PROVIDE_WOLFSSL_SEED_GENERATOR
+XI_COMPILER_FLAGS += -DXI_PROVIDE_WOLFSSL_XTIME_XGMTIME
+endif
 
 ##################
 # Libxively Config
@@ -142,11 +148,6 @@ XI_COMPILER_FLAGS += -I$(LIBXIVELY)/build/include
 XI_COMPILER_FLAGS += -I$(LIBXIVELY)/src/bsp/platform/esp32
 XI_COMPILER_FLAGS += -I$(LIBXIVELY)/src/bsp/platform/esp32/include
 
-####################
-# Code configuration
-####################
-XI_COMPILER_FLAGS += -DXI_PROVIDE_WOLFSSL_SEED_GENERATOR
-
 ################################
 # xtensa-esp32 toolchain options
 ################################
@@ -163,20 +164,6 @@ XI_COMPILER_FLAGS += -Wno-old-style-declaration
 XI_COMPILER_FLAGS += -Wno-unused-but-set-variable
 
 XI_ARFLAGS += -rs -c $(XI)
-
-
-#ifdef XI_TRAVIS_BUILD
-#### TOOLCHAIN AUTODOWNLOAD SECTION --- BEGIN
-#
-#	XI_BUILD_PRECONDITIONS += ESP32_SDK
-#.PHONY : ESP32_SDK
-#ESP32_SDK:
-#	git clone -b esp32 git@github.com:xively/xively-client-artifactory.git $(HOME)/Downloads/xively-client-artifactory
-#
-#### TOOLCHAIN AUTODOWNLOAD SECTION --- END
-#endif
-
-#endif
 
 XI_POST_BUILD_ACTION := XI_ESP32_POST_BUILD_ACTION
 

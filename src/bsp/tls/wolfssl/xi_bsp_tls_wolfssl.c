@@ -432,3 +432,23 @@ int xi_bsp_rng_generate_wolfssl_seed( byte* output, word32 sz )
     return 0;
 }
 #endif /* XI_PROVIDE_WOLFSSL_SEED_GENERATOR */
+
+#ifdef XI_PROVIDE_WOLFSSL_XTIME_XGMTIME
+#include <time.h> /* For the gmtime() function */
+#include "xi_bsp_time.h"
+time_t XTIME( time_t* timer )
+{
+    time_t current_time = xi_bsp_time_getcurrenttime_seconds();
+    if ( timer )
+    {
+        *timer = current_time;
+    }
+    return current_time;
+}
+
+struct tm* XGMTIME( const time_t* timer, struct tm* tmp )
+{
+    ( void )tmp;
+    return gmtime( timer );
+}
+#endif /* XI_PROVIDE_WOLFSSL_XTIME_XGMTIME */

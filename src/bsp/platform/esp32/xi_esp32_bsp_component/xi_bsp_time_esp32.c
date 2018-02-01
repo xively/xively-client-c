@@ -4,7 +4,6 @@
  * it is licensed under the BSD 3-Clause license.
  */
 #include <stdint.h>
-#include <time.h> /* For the gmtime() function */
 
 #include "xi_bsp_time.h"
 #include "xi_bsp_debug.h"
@@ -72,26 +71,4 @@ xi_time_t xi_bsp_time_getcurrenttime_milliseconds()
     /* note this returns seconds and not milliseconds since milliseconds from EPOCH
        do not fit into the variable type */
     return xi_bsp_time_getcurrenttime_seconds();
-}
-
-/**
- * Function required by WolfSSL to track the current time.
- */
-time_t XTIME( time_t* timer )
-{
-    time_t current_time = xi_bsp_time_getcurrenttime_seconds();
-    if ( timer )
-    {
-        *timer = current_time;
-    }
-    return current_time;
-}
-
-/**
- * Function required by WolfSSL to track the current time.
- */
-struct tm* XGMTIME( const time_t* timer, struct tm* tmp )
-{
-    ( void )tmp;
-    return gmtime( timer );
 }
