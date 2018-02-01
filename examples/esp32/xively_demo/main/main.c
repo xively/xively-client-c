@@ -15,6 +15,7 @@
 #include "esp_log.h"
 #include "esp_err.h"
 #include "esp_vfs_fat.h"
+#include "esp_ota_ops.h"
 
 #include "xi_bsp_fwu_notifications_esp32.h"
 
@@ -67,7 +68,7 @@ static void app_main_logic_task( void* param );
 static void app_set_xi_fwu_progress_notification_callbacks( void );
 static void esp32_xibsp_notify_update_started( const char* filename, size_t file_size );
 static void esp32_xibsp_notify_chunk_written( size_t chunk_size, size_t offset );
-static void esp32_xibsp_notify_update_applied( void );
+static void esp32_xibsp_notify_update_applied( uint8_t app_updated );
 
 /**
  * Initialize GPIO and NVS, fetch WiFi and Xively credentials from flash or
@@ -421,8 +422,26 @@ void esp32_xibsp_notify_chunk_written( size_t chunk_size, size_t offset )
     }
 }
 
-void esp32_xibsp_notify_update_applied( void )
+void esp32_xibsp_notify_update_applied( uint8_t app_updated )
 {
-    printf( "\nFirmware package download complete - Device will reboot if a new app was "
-            "downloaded" );
+    if ( 1 == app_updated )
+    {
+        /* Firmware image was updated */
+        printf( "SFT package download finished. FW updated; rebooting" );
+        const esp_partition_t* next_partition = esp_ota_get_next_update_partition( NULL );
+        esp_err_t retv                        = ESP_OK;
+
+        retv = esp_ota_set_boot_partition( next_partition );
+        if ( ESP_OK != retv )
+        {
+            printf( "esp_ota_set_boot_partition() failed with error %d", retv );
+            return;
+        }
+
+        /* reboot the device */
+        esp_restart();
+    }
+    /* Firmware image was not updated */
+    printf( "SFT package download finished. No need to reboot" );
+    return;
 }
