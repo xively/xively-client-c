@@ -9,8 +9,11 @@
 
 XI_CLIENT_C_PATH = $(realpath $(PROJECT_PATH)/../../..)
 
+XI_BSP_TLS ?= wolfssl
+ifeq ($(XI_BSP_TLS),wolfssl)
 COMPONENT_EXTRA_INCLUDES += $(XI_CLIENT_C_PATH)/src/import/tls/wolfssl
 COMPONENT_ADD_LDFLAGS    += $(XI_CLIENT_C_PATH)/bin/esp32/libwolfssl.a
+endif
 
 COMPONENT_EXTRA_INCLUDES += $(XI_CLIENT_C_PATH)/src/bsp/platform/esp32/xi_esp32_bsp_component/include
 COMPONENT_EXTRA_INCLUDES += $(XI_CLIENT_C_PATH)/include

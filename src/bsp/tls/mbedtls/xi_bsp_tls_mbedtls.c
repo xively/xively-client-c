@@ -11,7 +11,6 @@
 #include <xi_bsp_tls.h>
 #include <xi_bsp_debug.h>
 
-#define MBEDTLS_PLATFORM_MEMORY
 #define MBEDTLS_DEBUG_LOG 1
 
 #include <mbedtls/ctr_drbg.h>
@@ -134,8 +133,10 @@ xi_bsp_tls_state_t xi_bsp_tls_init( xi_bsp_tls_context_t** tls_context,
     /* RNG related string */
     const char personalization[] = "xi_bsp_mbedtls_more_entropy_pls";
 
+#ifdef MBEDTLS_PLATFORM_MEMORY
     mbedtls_platform_set_calloc_free( init_params->fp_xively_calloc,
                                       init_params->fp_xively_free );
+#endif
 
     mbedtls_tls_context_t* mbedtls_tls_context =
         ( mbedtls_tls_context_t* )mbedtls_calloc( sizeof( mbedtls_tls_context_t ), 1 );
