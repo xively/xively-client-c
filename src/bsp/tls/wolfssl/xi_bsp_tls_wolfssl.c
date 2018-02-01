@@ -415,3 +415,20 @@ int xi_bsp_tls_pending( xi_bsp_tls_context_t* tls_context )
 
     return CyaSSL_pending( wolfssl_tls_context->obj );
 }
+
+#ifdef XI_PROVIDE_WOLFSSL_SEED_GENERATOR
+#include "xi_bsp_rng.h"
+/* WolfSSL API. This function is set via CUSTOM_RAND_GENERATE_SEED in the makefile */
+int xi_bsp_rng_generate_wolfssl_seed( byte* output, word32 sz )
+{
+    /* TODO: We can use more bytes per random number to accelerate this loop and
+    lower the number of queries to the hardware RNGs the BSP may be using */
+    word32 i;
+    for (i = 0; i < sz; i++ )
+    {
+        output[i] = ( byte )xi_bsp_rng_get();
+    }
+
+    return 0;
+}
+#endif /* XI_PROVIDE_WOLFSSL_SEED_GENERATOR */
