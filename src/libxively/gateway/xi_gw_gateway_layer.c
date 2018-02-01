@@ -38,7 +38,7 @@ xi_state_t xi_gw_gateway_layer_push( void* context, void* data, xi_state_t in_ou
     ( void )data;
     ( void )in_out_state;
 
-    return XI_PROCESS_PUSH_ON_NEXT_LAYER( context, data, in_out_state );
+    return XI_PROCESS_PUSH_ON_PREV_LAYER( context, data, in_out_state );
 }
 
 xi_state_t xi_gw_gateway_layer_pull( void* context, void* data, xi_state_t in_out_state )

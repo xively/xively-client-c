@@ -111,8 +111,6 @@ typedef struct xi_itest_sft__test_fixture_s
     const char* control_topic_name_client_in;
     const char* control_topic_name_client_out;
 
-    xi_mock_broker_data_t* broker_data;
-
     uint16_t loop_id__manual_disconnect;
 
     uint16_t max_loop_count;
@@ -254,6 +252,8 @@ static void xi_itest_sft__act( void** fixture_void,
     XI_ALLOC( xi_mock_broker_data_t, broker_data, state );
     broker_data->control_topic_name_broker_in  = fixture->control_topic_name_client_out;
     broker_data->control_topic_name_broker_out = fixture->control_topic_name_client_in;
+    broker_data->layer_output_target =
+        xi_itest_find_layer( xi_context, XI_LAYER_TYPE_MQTT_CODEC_SUT );
 
     XI_PROCESS_INIT_ON_THIS_LAYER(
         &xi_context_mockbroker->layer_chain.top->layer_connection, broker_data,

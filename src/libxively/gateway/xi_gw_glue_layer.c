@@ -10,10 +10,52 @@
 #include <xively.h>
 #include <xi_types.h>
 
+static void
+_xi_message_arrived_on_tunnel_callback( xi_context_handle_t in_context_handle,
+                                        xi_sub_call_type_t call_type,
+                                        const xi_sub_call_params_t* const params,
+                                        xi_state_t state,
+                                        void* user_data )
+{
+    printf( "--- %s ---, state: %d, user_data: %p\n", __FUNCTION__, state, user_data );
+
+    XI_UNUSED( in_context_handle );
+    XI_UNUSED( call_type );
+
+    if ( XI_MQTT_SUBSCRIPTION_SUCCESSFULL == state )
+    {
+        /* suback */
+    }
+    else if ( XI_STATE_OK == state )
+    {
+        /* PUBLISH arrived on tunnel */
+        xi_data_desc_t* data = xi_make_desc_from_buffer_copy(
+            params->message.temporary_payload_data,
+            params->message.temporary_payload_data_length );
+
+        XI_PROCESS_PULL_ON_THIS_LAYER( user_data, data, state );
+    }
+}
+
+void _xi_publish_result_callback( xi_context_handle_t in_context_handle,
+                                  void* user_data,
+                                  xi_state_t state )
+{
+    printf( "--- --- --- %s ---, state: %d, user_data: %p\n", __FUNCTION__, state,
+            user_data );
+    XI_UNUSED( in_context_handle );
+
+    XI_PROCESS_PUSH_ON_THIS_LAYER( user_data, NULL,
+                                   ( XI_STATE_OK == state ) ? XI_STATE_WRITTEN : state );
+}
+
 xi_state_t xi_gw_glue_layer_init( void* context, void* data, xi_state_t in_out_state )
 {
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
 
+    xi_subscribe( XI_CONTEXT_DATA( context )->main_context_handle,
+                  "$Tunnel/tunnel-id-guid", XI_MQTT_QOS_AT_MOST_ONCE,
+                  _xi_message_arrived_on_tunnel_callback, context );
     /*
      - subscribe main client to incoming channel with a callback which feeds back incoming
      message to function xi_gw_glue_layer_pull
@@ -39,15 +81,23 @@ xi_state_t xi_gw_glue_layer_push( void* context, void* data, xi_state_t in_out_s
 {
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
 
-    xi_data_desc_t* mqtt_message_to_tunnel = ( xi_data_desc_t* )data;
+    if ( XI_STATE_OK == in_out_state && NULL != data )
+    {
+        xi_data_desc_t* mqtt_message_to_tunnel = ( xi_data_desc_t* )data;
 
-    xi_mqtt_qos_t shell_message_qos       = 0;
-    xi_mqtt_retain_t shell_message_retain = 0;
+        xi_mqtt_qos_t shell_message_qos       = 0;
+        xi_mqtt_retain_t shell_message_retain = 0;
 
-    in_out_state = xi_publish_data(
-        XI_CONTEXT_DATA( context )->main_context_handle, "$Tunnel/tunnel-id-guid",
-        mqtt_message_to_tunnel->data_ptr, mqtt_message_to_tunnel->length,
-        shell_message_qos, shell_message_retain, NULL, NULL );
+        in_out_state =
+            xi_publish_data( XI_CONTEXT_DATA( context )->main_context_handle,
+                             "$Tunnel/tunnel-id-guid", mqtt_message_to_tunnel->data_ptr,
+                             mqtt_message_to_tunnel->length, shell_message_qos,
+                             shell_message_retain, _xi_publish_result_callback, context );
+    }
+    else if ( XI_STATE_WRITTEN == in_out_state )
+    {
+        return XI_PROCESS_PUSH_ON_NEXT_LAYER( context, NULL, in_out_state );
+    }
 
     return in_out_state;
 }
@@ -56,12 +106,7 @@ xi_state_t xi_gw_glue_layer_pull( void* context, void* data, xi_state_t in_out_s
 {
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
 
-    xi_data_desc_t* buffer_desc = NULL;
-
-    ( void )data;
-    ( void )in_out_state;
-
-    return XI_PROCESS_PULL_ON_NEXT_LAYER( context, ( void* )buffer_desc, XI_STATE_OK );
+    return XI_PROCESS_PULL_ON_NEXT_LAYER( context, data, in_out_state );
 }
 
 xi_state_t xi_gw_glue_layer_close( void* context, void* data, xi_state_t in_out_state )
