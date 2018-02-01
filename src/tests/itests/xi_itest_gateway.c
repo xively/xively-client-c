@@ -29,10 +29,11 @@ typedef struct xi_itest_gateway__test_fixture_s
     uint16_t loop_id__manual_disconnect;
     uint16_t max_loop_count;
 
-    xi_context_t* xi_context;
+    xi_context_t* xi_context_sut;
     xi_context_handle_t xi_context_handle;
 
     xi_context_t* xi_context_mockbroker;
+    xi_context_t* xi_context_mockbroker_edge_device_broker;
 } xi_itest_gateway__test_fixture_t;
 
 
@@ -73,14 +74,14 @@ int xi_itest_gateway_setup( void** fixture_void )
     xi_initialize( "xi_itest_gateway_account_id", "xi_itest_gateway_device_id" );
 
     xi_state_t state = xi_create_context_with_custom_layers_and_evtd(
-        &fixture->xi_context, itest_ct_ml_mc_layer_chain, XI_LAYER_CHAIN_CT_ML_MC,
+        &fixture->xi_context_sut, itest_ct_ml_mc_layer_chain, XI_LAYER_CHAIN_CT_ML_MC,
         XI_LAYER_CHAIN_SCHEME_LENGTH( XI_LAYER_CHAIN_CT_ML_MC ), NULL, 1 );
 
-    xi_context = fixture->xi_context;
+    xi_context = fixture->xi_context_sut;
 
     XI_CHECK_STATE( state );
 
-    xi_find_handle_for_object( xi_globals.context_handles_vector, fixture->xi_context,
+    xi_find_handle_for_object( xi_globals.context_handles_vector, fixture->xi_context_sut,
                                &fixture->xi_context_handle );
 
     state = xi_create_context_with_custom_layers_and_evtd(
@@ -89,6 +90,13 @@ int xi_itest_gateway_setup( void** fixture_void )
         XI_LAYER_CHAIN_SCHEME_LENGTH( XI_LAYER_CHAIN_MOCK_BROKER_CODEC ), NULL, 0 );
 
     xi_context_mockbroker = fixture->xi_context_mockbroker;
+
+    XI_CHECK_STATE( state );
+
+    state = xi_create_context_with_custom_layers_and_evtd(
+        &fixture->xi_context_mockbroker_edge_device_broker,
+        itest_mock_broker_codec_layer_chain, XI_LAYER_CHAIN_MOCK_BROKER_CODEC,
+        XI_LAYER_CHAIN_SCHEME_LENGTH( XI_LAYER_CHAIN_MOCK_BROKER_CODEC ), NULL, 0 );
 
     XI_CHECK_STATE( state );
 
@@ -106,11 +114,16 @@ int xi_itest_gateway_teardown( void** fixture_void )
         ( xi_itest_gateway__test_fixture_t* )*fixture_void;
 
     xi_delete_context_with_custom_layers(
-        &fixture->xi_context, itest_ct_ml_mc_layer_chain,
+        &fixture->xi_context_sut, itest_ct_ml_mc_layer_chain,
         XI_LAYER_CHAIN_SCHEME_LENGTH( XI_LAYER_CHAIN_CT_ML_MC ) );
 
     xi_delete_context_with_custom_layers(
         &fixture->xi_context_mockbroker, itest_mock_broker_codec_layer_chain,
+        XI_LAYER_CHAIN_SCHEME_LENGTH( XI_LAYER_CHAIN_MOCK_BROKER_CODEC ) );
+
+    xi_delete_context_with_custom_layers(
+        &fixture->xi_context_mockbroker_edge_device_broker,
+        itest_mock_broker_codec_layer_chain,
         XI_LAYER_CHAIN_SCHEME_LENGTH( XI_LAYER_CHAIN_MOCK_BROKER_CODEC ) );
 
     xi_shutdown();
@@ -164,16 +177,35 @@ static void _xi_itest_gateway__act( void** fixture_void )
                             CONTROL_SKIP_CHECK_EXPECTED );
     }
 
-    xi_state_t state = XI_STATE_OK;
+    xi_state_t state                   = XI_STATE_OK;
+    xi_mock_broker_data_t* broker_data = NULL;
 
     xi_itest_gateway__test_fixture_t* fixture =
         ( xi_itest_gateway__test_fixture_t* )*fixture_void;
 
-    XI_PROCESS_INIT_ON_THIS_LAYER(
-        &fixture->xi_context_mockbroker->layer_chain.top->layer_connection, NULL,
-        XI_STATE_OK );
+    {
+        /* initialize mock broker layer chains */
+        XI_ALLOC( xi_mock_broker_data_t, broker_data, state );
+        broker_data->layer_tunneled_message_target =
+            xi_itest_find_layer( fixture->xi_context_mockbroker_edge_device_broker,
+                                 XI_LAYER_TYPE_MOCKBROKER_BOTTOM );
+        broker_data->layer_output_target =
+            xi_itest_find_layer( fixture->xi_context_sut, XI_LAYER_TYPE_MQTT_CODEC_SUT );
 
-    xi_evtd_step( xi_globals.evtd_instance, xi_bsp_time_getcurrenttime_seconds() );
+        XI_PROCESS_INIT_ON_THIS_LAYER(
+            &fixture->xi_context_mockbroker->layer_chain.top->layer_connection,
+            broker_data, XI_STATE_OK );
+
+        XI_ALLOC_AT( xi_mock_broker_data_t, broker_data, state );
+        broker_data->layer_output_target = xi_itest_find_layer(
+            fixture->xi_context_mockbroker, XI_LAYER_TYPE_MOCKBROKER_MQTT_CODEC );
+
+        XI_PROCESS_INIT_ON_THIS_LAYER( &fixture->xi_context_mockbroker_edge_device_broker
+                                            ->layer_chain.top->layer_connection,
+                                       broker_data, XI_STATE_OK );
+
+        xi_evtd_step( xi_globals.evtd_instance, xi_bsp_time_getcurrenttime_seconds() );
+    }
 
     const uint16_t connection_timeout = fixture->max_loop_count;
     const uint16_t keepalive_timeout  = fixture->max_loop_count;
@@ -215,6 +247,10 @@ static void _xi_itest_gateway__act( void** fixture_void )
     }
 
     xi_remove_ed( fixture->xi_context_handle, "edge application device id" );
+
+err_handling:
+
+    XI_SAFE_FREE( broker_data );
 }
 
 /*********************************************************************************

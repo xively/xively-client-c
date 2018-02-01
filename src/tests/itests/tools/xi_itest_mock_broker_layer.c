@@ -23,7 +23,7 @@ xi_context_t* xi_context            = NULL; // Xivley Client context
 xi_context_t* xi_context_mockbroker = NULL; // test mock broker context
 
 /************************************************************************************
- * mock broker primary layer ********************************************************
+ * helper functions *****************************************************************
 ************************************************************************************/
 xi_state_t xi_mock_broker_layer_push__ERROR_CHANNEL()
 {
@@ -50,6 +50,9 @@ xi_mock_broker_control_t xi_mock_broker_layer__check_expected__MQTT_LEVEL()
 /* next layer is not null only for the SUT layerchain */
 #define IS_MOCK_BROKER_LAYER_CHAIN ( NULL == XI_NEXT_LAYER( context ) )
 
+/************************************************************************************
+ * mock broker primary layer ********************************************************
+************************************************************************************/
 xi_state_t xi_mock_broker_layer_push( void* context, void* data, xi_state_t in_out_state )
 {
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
@@ -169,6 +172,12 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
             }
             break;
 
+            case XI_MQTT_TYPE_CONNACK:
+            {
+                printf( "--- %s --- CONNACK\n", __FUNCTION__ );
+            }
+            break;
+
             case XI_MQTT_TYPE_SUBSCRIBE:
             {
                 printf( "--- %s --- SUBSCRIBE\n", __FUNCTION__ );
@@ -232,6 +241,7 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
 
                 /* handling CONTROL TOPIC messages */
                 if ( NULL != layer_data &&
+                     NULL != layer_data->control_topic_name_broker_in &&
                      0 == strcmp( publish_topic_name,
                                   layer_data->control_topic_name_broker_in ) )
                 {
@@ -266,16 +276,22 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
                 {
                     printf( "--- %s --- tunneled message received\n", __FUNCTION__ );
 
-                    /* tunneled messages are MQTT over MQTT. They are MQTT encoded twice.
-                     * An MQTT message sits inside a PUBLISH body. So we have to MQTT
-                     * decode it again. So here feeding back the body of the PUBLISH to
-                     * MQTT codec layer again.
-                     */
-                    XI_PROCESS_PULL_ON_PREV_LAYER( context, recvd_msg->publish.content,
-                                                   in_out_state );
+                    if ( NULL != layer_data &&
+                         NULL != layer_data->layer_tunneled_message_target )
+                    {
+                        /* tunneled messages are MQTT over MQTT. They are MQTT encoded
+                         * twice.
+                         * An MQTT message sits inside a PUBLISH body. So we have to MQTT
+                         * decode it again. So here feeding the body of the PUBLISH to
+                         * MQTT codec layer again on the edge device broker context.
+                         */
+                        XI_PROCESS_PULL_ON_THIS_LAYER(
+                            &layer_data->layer_tunneled_message_target->layer_connection,
+                            recvd_msg, in_out_state );
 
-                    /* release content since it is forwarded to MQTT codec layer */
-                    recvd_msg->publish.content = NULL;
+                        /* release message since it is forwarded edge device broker */
+                        recvd_msg = NULL;
+                    }
                 }
             }
             break;
@@ -308,11 +324,6 @@ xi_mock_broker_layer_close( void* context, void* data, xi_state_t in_out_state )
 
     XI_MOCK_BROKER_CONDITIONAL__CHECK_EXPECTED( in_out_state, LAYER_LEVEL );
 
-    xi_layer_t* layer                 = ( xi_layer_t* )XI_THIS_LAYER( context );
-    xi_mock_broker_data_t* layer_data = ( xi_mock_broker_data_t* )layer->user_data;
-
-    XI_SAFE_FREE( layer_data );
-
     return XI_PROCESS_CLOSE_ON_PREV_LAYER( context, data, in_out_state );
 }
 
@@ -322,8 +333,12 @@ xi_state_t xi_mock_broker_layer_close_externally( void* context,
 {
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
 
-    XI_UNUSED( context );
-    XI_UNUSED( data );
+    if ( IS_MOCK_BROKER_LAYER_CHAIN )
+    {
+        xi_layer_t* layer = ( xi_layer_t* )XI_THIS_LAYER( context );
+
+        XI_SAFE_FREE( layer->user_data );
+    }
 
     return XI_PROCESS_CLOSE_EXTERNALLY_ON_NEXT_LAYER( context, data, in_out_state );
 }
@@ -373,62 +388,82 @@ xi_mock_broker_layer_connect( void* context, void* data, xi_state_t in_out_state
 xi_state_t
 xi_mock_broker_secondary_layer_push( void* context, void* data, xi_state_t in_out_state )
 {
-    // XI_UNUSED( itest_mock_broker_codec_layer_chain );
-    // XI_UNUSED( XI_LAYER_CHAIN_MOCK_BROKER_CODECSIZE_SUFFIX );
-    // XI_UNUSED( itest_ct_ml_mc_layer_chain );
-    // XI_UNUSED( XI_LAYER_CHAIN_CT_ML_MCSIZE_SUFFIX );
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
 
     XI_MOCK_BROKER_CONDITIONAL__CHECK_EXPECTED( in_out_state, LAYER_LEVEL );
 
-    const xi_mock_broker_control_t control = mock_type( xi_mock_broker_control_t );
+    xi_layer_t* layer                 = ( xi_layer_t* )XI_THIS_LAYER( context );
+    xi_mock_broker_data_t* layer_data = ( xi_mock_broker_data_t* )layer->user_data;
 
-    if ( control == CONTROL_ERROR )
+    /* heuristic to figure out this data is to be tunneled */
+    if ( NULL != layer_data->last_tunneled_recvd_msg )
     {
-        xi_data_desc_t* buffer = ( xi_data_desc_t* )data;
-        xi_free_desc( &buffer );
+        XI_ALLOC( xi_mqtt_message_t, mqtt_publish_tunnel, in_out_state );
 
-        in_out_state = mock_type( xi_state_t );
+        in_out_state = fill_with_publish_data(
+            mqtt_publish_tunnel,
+            ( const char* )
+                layer_data->last_tunneled_recvd_msg->publish.topic_name->data_ptr,
+            data, layer_data->last_tunneled_recvd_msg->common.common_u.common_bits.qos,
+            layer_data->last_tunneled_recvd_msg->common.common_u.common_bits.retain,
+            layer_data->last_tunneled_recvd_msg->common.common_u.common_bits.dup,
+            layer_data->last_tunneled_recvd_msg->publish.message_id );
 
-        xi_evtd_execute_in(
-            xi_globals.evtd_instance,
-            xi_make_handle(
-                xi_itest_find_layer( xi_context, XI_LAYER_TYPE_MQTT_CODEC_SUT )
-                    ->layer_funcs->pull,
-                &xi_itest_find_layer( xi_context, XI_LAYER_TYPE_MQTT_CODEC_SUT )
-                     ->layer_connection,
-                NULL, in_out_state ),
-            1, NULL );
+        layer_data->last_tunneled_recvd_msg->publish.topic_name = NULL;
+        xi_mqtt_message_free( &layer_data->last_tunneled_recvd_msg );
 
-        return XI_PROCESS_PUSH_ON_NEXT_LAYER( context, NULL, XI_STATE_WRITTEN );
+        return XI_PROCESS_PUSH_ON_THIS_LAYER(
+            &layer_data->layer_output_target->layer_connection, mqtt_publish_tunnel,
+            in_out_state );
+    }
+    else
+    {
+        const xi_mock_broker_control_t control = mock_type( xi_mock_broker_control_t );
+
+        if ( control == CONTROL_ERROR )
+        {
+            xi_data_desc_t* buffer = ( xi_data_desc_t* )data;
+            xi_free_desc( &buffer );
+
+            in_out_state = mock_type( xi_state_t );
+
+            xi_evtd_execute_in(
+                xi_globals.evtd_instance,
+                xi_make_handle( layer_data->layer_output_target->layer_funcs->pull,
+                                &layer_data->layer_output_target->layer_connection, NULL,
+                                in_out_state ),
+                1, NULL );
+
+            return XI_PROCESS_PUSH_ON_NEXT_LAYER( context, NULL, XI_STATE_WRITTEN );
+        }
+
+        if ( in_out_state == XI_STATE_OK )
+        {
+            /* duplicate the data before forwarding it to SUT layer since this is done by
+             * the
+             * network as well. This is required for PUBLISH payloads which are not copied
+             * between layers */
+            xi_data_desc_t* orig = ( xi_data_desc_t* )data;
+            xi_data_desc_t* copy =
+                xi_make_desc_from_buffer_copy( orig->data_ptr, orig->length );
+
+            /* data_desc deallocation is done by the real IO layer too */
+            xi_free_desc( &orig );
+
+            /* jump to SUT libxively's codec layer pull function, mimicing incoming
+             * encoded message */
+            xi_evtd_execute_in(
+                xi_globals.evtd_instance,
+                xi_make_handle( layer_data->layer_output_target->layer_funcs->pull,
+                                &layer_data->layer_output_target->layer_connection, copy,
+                                in_out_state ),
+                1, NULL );
+
+            return XI_PROCESS_PUSH_ON_NEXT_LAYER( context, NULL, XI_STATE_WRITTEN );
+        }
     }
 
-    if ( in_out_state == XI_STATE_OK )
-    {
-        /* duplicate the data before forwarding it to SUT layer since this is done by the
-         * network as well. This is required for PUBLISH payloads which are not copied
-         * between layers */
-        xi_data_desc_t* orig = ( xi_data_desc_t* )data;
-        xi_data_desc_t* copy =
-            xi_make_desc_from_buffer_copy( orig->data_ptr, orig->length );
-
-        /* data_desc deallocation is done by the real IO layer too */
-        xi_free_desc( &orig );
-
-        /* jump to SUT libxively's codec layer pull function, mimicing incoming
-         * encoded message */
-        xi_evtd_execute_in(
-            xi_globals.evtd_instance,
-            xi_make_handle(
-                xi_itest_find_layer( xi_context, XI_LAYER_TYPE_MQTT_CODEC_SUT )
-                    ->layer_funcs->pull,
-                &xi_itest_find_layer( xi_context, XI_LAYER_TYPE_MQTT_CODEC_SUT )
-                     ->layer_connection,
-                copy, in_out_state ),
-            1, NULL );
-
-        return XI_PROCESS_PUSH_ON_NEXT_LAYER( context, NULL, XI_STATE_WRITTEN );
-    }
+err_handling:
 
     return XI_PROCESS_PUSH_ON_NEXT_LAYER( context, NULL, in_out_state );
 }
@@ -438,13 +473,46 @@ xi_mock_broker_secondary_layer_pull( void* context, void* data, xi_state_t in_ou
 {
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
 
-    XI_UNUSED( context );
-    XI_UNUSED( data );
-    XI_UNUSED( in_out_state );
+    xi_layer_t* layer                 = ( xi_layer_t* )XI_THIS_LAYER( context );
+    xi_mock_broker_data_t* layer_data = ( xi_mock_broker_data_t* )layer->user_data;
 
-    /* release the payload */
-    xi_data_desc_t* desc = ( xi_data_desc_t* )data;
-    xi_free_desc( &desc );
+    xi_mqtt_message_t* recvd_msg = ( xi_mqtt_message_t* )data;
+
+    if ( in_out_state == XI_STATE_OK )
+    {
+        // const uint16_t msg_id = xi_mqtt_get_message_id( recvd_msg );
+        const xi_mqtt_type_t recvd_msg_type = recvd_msg->common.common_u.common_bits.type;
+
+        xi_debug_format( "mock broker received message with type %d ", recvd_msg_type );
+
+        switch ( recvd_msg_type )
+        {
+            case XI_MQTT_TYPE_PUBLISH:
+            {
+                layer_data->last_tunneled_recvd_msg = recvd_msg;
+
+                const char* publish_topic_name =
+                    ( const char* )recvd_msg->publish.topic_name->data_ptr;
+
+                printf( "--- %s --- PUBLISH (%s)\n", __FUNCTION__, publish_topic_name );
+
+                XI_PROCESS_PULL_ON_NEXT_LAYER( context, recvd_msg->publish.content,
+                                               in_out_state );
+
+                recvd_msg->publish.content = NULL;
+
+                /* do not deallocate recvd_msg, since it will be used later */
+                return in_out_state;
+            }
+            break;
+            default:
+                xi_debug_printf( "*** *** unhandled message arrived\n" );
+                in_out_state = XI_MQTT_UNKNOWN_MESSAGE_ID;
+                break;
+        }
+    }
+
+    xi_mqtt_message_free( &recvd_msg );
 
     return XI_STATE_OK;
 }
@@ -453,10 +521,6 @@ xi_state_t
 xi_mock_broker_secondary_layer_close( void* context, void* data, xi_state_t in_out_state )
 {
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
-
-    XI_UNUSED( context );
-    XI_UNUSED( data );
-    XI_UNUSED( in_out_state );
 
     return XI_PROCESS_CLOSE_EXTERNALLY_ON_THIS_LAYER( context, data, in_out_state );
 }
@@ -467,10 +531,6 @@ xi_state_t xi_mock_broker_secondary_layer_close_externally( void* context,
 {
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
 
-    XI_UNUSED( context );
-    XI_UNUSED( data );
-    XI_UNUSED( in_out_state );
-
     return XI_PROCESS_CLOSE_EXTERNALLY_ON_NEXT_LAYER( context, data, in_out_state );
 }
 
@@ -478,6 +538,9 @@ xi_state_t
 xi_mock_broker_secondary_layer_init( void* context, void* data, xi_state_t in_out_state )
 {
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
+
+    xi_layer_t* layer = ( xi_layer_t* )XI_THIS_LAYER( context );
+    layer->user_data  = data;
 
     return XI_PROCESS_CONNECT_ON_THIS_LAYER( context, data, in_out_state );
 }

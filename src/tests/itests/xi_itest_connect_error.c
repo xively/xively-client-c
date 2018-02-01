@@ -174,10 +174,18 @@ static void xi_itest_connect_error__call_connect( void** fixture_void )
 static void
 xi_itest_connect_error__trigger_connect( void** fixture_void, uint8_t init_mock_broker )
 {
+    xi_mock_broker_data_t* broker_data = NULL;
+
     if ( 1 == init_mock_broker )
     {
+        xi_state_t state = XI_STATE_OK;
+
+        XI_ALLOC_AT( xi_mock_broker_data_t, broker_data, state );
+        broker_data->layer_output_target =
+            xi_itest_find_layer( xi_context, XI_LAYER_TYPE_MQTT_CODEC_SUT );
+
         XI_PROCESS_INIT_ON_THIS_LAYER(
-            &xi_context_mockbroker->layer_chain.top->layer_connection, NULL,
+            &xi_context_mockbroker->layer_chain.top->layer_connection, broker_data,
             XI_STATE_OK );
 
         xi_evtd_step( xi_globals.evtd_instance, xi_bsp_time_getcurrenttime_seconds() );
@@ -186,6 +194,12 @@ xi_itest_connect_error__trigger_connect( void** fixture_void, uint8_t init_mock_
     /* here we expect to connect succesfully */
     expect_value( xi_itest_connect_error__call_connect, local_state, XI_STATE_OK );
     xi_itest_connect_error__call_connect( fixture_void );
+
+    return;
+
+err_handling:
+
+    XI_SAFE_FREE( broker_data );
 }
 
 static void
