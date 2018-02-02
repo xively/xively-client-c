@@ -124,8 +124,8 @@ static xi_itest_sft__test_fixture_t* _xi_itest_sft__generate_fixture()
 
     XI_ALLOC( xi_itest_sft__test_fixture_t, fixture, state );
 
-    fixture->control_topic_name_client_in  = ( "xi/ctrl/v1/xi_itest_sft_device_id/cln" );
-    fixture->control_topic_name_client_out = ( "xi/ctrl/v1/xi_itest_sft_device_id/svc" );
+    fixture->control_topic_name_client_in  = ( "xi/ctrl/v1/itest_username/cln" );
+    fixture->control_topic_name_client_out = ( "xi/ctrl/v1/itest_username/svc" );
 
     fixture->loop_id__manual_disconnect = 0xFFFF - 5;
     fixture->max_loop_count             = 0xFFFF;
