@@ -6,7 +6,6 @@
 
 #include "xi_globals.h"
 #include "xi_itest_helpers.h"
-#include "xi_itest_layerchain_ct_ml_mc.h"
 #include "xi_itest_mock_broker_layer.h"
 #include "xi_itest_mock_broker_sft_logic.h"
 #include "xi_itest_mock_broker_layerchain.h"
