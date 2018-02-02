@@ -50,10 +50,6 @@
 #include "xi_bsp_time.h"
 #include "config_file.h"
 
-#ifdef DEBUG_WOLFSSL
-extern void wolfSSL_Debugging_ON();
-#endif /* DEBUG_WOLFSSL */
-
 /****************************************************************************
                       LOCAL FUNCTION PROTOTYPES
                        (In order of appearance)
@@ -290,11 +286,6 @@ void* xivelyExampleThread( void* arg )
 
     /* init Terminal */
     InitTerm();
-
-/* Enable WolfSSL Debugging */
-#ifdef DEBUB_WOLFSSL
-    wolfSSL_Debugging_ON();
-#endif /* DEBUG_WOLFSSL */
 
     /* Init Variables and Control Blocks */
     InitializeAppVariables();
