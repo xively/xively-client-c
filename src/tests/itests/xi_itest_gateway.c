@@ -27,6 +27,7 @@ typedef struct xi_itest_gateway__test_fixture_s
     uint16_t loop_id__manual_connect_ed;
     uint16_t loop_id__manual_disconnect_ed;
     uint16_t loop_id__manual_disconnect;
+    uint16_t loop_id__manual_disconnect_mockbroker;
     uint16_t max_loop_count;
 
     xi_context_t* xi_context_sut;
@@ -44,10 +45,11 @@ static xi_itest_gateway__test_fixture_t* _xi_itest_gateway__generate_fixture()
     XI_ALLOC( xi_itest_gateway__test_fixture_t, fixture, state );
 
 
-    fixture->loop_id__manual_connect_ed    = 20;
-    fixture->loop_id__manual_disconnect_ed = 0xFFFF - 115;
-    fixture->loop_id__manual_disconnect    = 0xFFFF - 5;
-    fixture->max_loop_count                = 0xFFFF;
+    fixture->loop_id__manual_connect_ed            = 10;
+    fixture->loop_id__manual_disconnect_ed         = 50;
+    fixture->loop_id__manual_disconnect            = 60;
+    fixture->loop_id__manual_disconnect_mockbroker = 70;
+    fixture->max_loop_count                        = 80;
 
     return fixture;
 
@@ -223,7 +225,8 @@ static void _xi_itest_gateway__act( void** fixture_void )
                       xi_bsp_time_getcurrenttime_seconds() + loop_counter );
         ++loop_counter;
 
-        ( 0 == loop_counter % 10 ) ? printf( "." ) : printf( "" );
+
+        ( 0 == loop_counter % 1 ) ? printf( "." ) : printf( "" );
         fflush( stdout );
 
         if ( loop_counter == fixture->loop_id__manual_connect_ed )
@@ -234,6 +237,7 @@ static void _xi_itest_gateway__act( void** fixture_void )
 
         if ( loop_counter == fixture->loop_id__manual_disconnect_ed )
         {
+            /* tunneled edge device disconnect */
             state = xi_disconnect_ed( fixture->xi_context_handle,
                                       "edge application device id" );
 
@@ -242,10 +246,28 @@ static void _xi_itest_gateway__act( void** fixture_void )
 
         if ( loop_counter == fixture->loop_id__manual_disconnect )
         {
+            /* main client disconnect */
             xi_shutdown_connection( fixture->xi_context_handle );
+        }
+
+        if ( loop_counter == fixture->loop_id__manual_disconnect_mockbroker )
+        {
+#if 1
+            XI_PROCESS_CLOSE_ON_THIS_LAYER(
+                &fixture->xi_context_mockbroker_edge_device_broker->layer_chain.top
+                     ->layer_connection,
+                NULL, XI_STATE_OK );
+#endif
+
+#if 0
+            XI_PROCESS_CLOSE_ON_THIS_LAYER(
+                &fixture->xi_context_mockbroker->layer_chain.top->layer_connection, NULL,
+                XI_STATE_OK );
+#endif
         }
     }
 
+    /* edge device context deletion */
     xi_remove_ed( fixture->xi_context_handle, "edge application device id" );
 
 err_handling:

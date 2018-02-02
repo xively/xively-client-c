@@ -53,15 +53,10 @@ xi_state_t xi_gw_glue_layer_init( void* context, void* data, xi_state_t in_out_s
 {
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
 
+    /* subscribing main Xively Client to edge device specific tunnel topic */
     xi_subscribe( XI_CONTEXT_DATA( context )->main_context_handle,
                   "$Tunnel/tunnel-id-guid", XI_MQTT_QOS_AT_MOST_ONCE,
                   _xi_message_arrived_on_tunnel_callback, context );
-    /*
-     - subscribe main client to incoming channel with a callback which feeds back incoming
-     message to function xi_gw_glue_layer_pull
-     - call API xi_subscribe to do this
-     */
-
 
     return XI_PROCESS_CONNECT_ON_THIS_LAYER( context, data, in_out_state );
 }
@@ -88,11 +83,14 @@ xi_state_t xi_gw_glue_layer_push( void* context, void* data, xi_state_t in_out_s
         xi_mqtt_qos_t shell_message_qos       = 0;
         xi_mqtt_retain_t shell_message_retain = 0;
 
+        /* MQTT over MQTT, tunneling happens here. Publishing an MQTT encoded message. */
         in_out_state =
             xi_publish_data( XI_CONTEXT_DATA( context )->main_context_handle,
                              "$Tunnel/tunnel-id-guid", mqtt_message_to_tunnel->data_ptr,
                              mqtt_message_to_tunnel->length, shell_message_qos,
                              shell_message_retain, _xi_publish_result_callback, context );
+
+        xi_free_desc( &mqtt_message_to_tunnel );
     }
     else if ( XI_STATE_WRITTEN == in_out_state )
     {
