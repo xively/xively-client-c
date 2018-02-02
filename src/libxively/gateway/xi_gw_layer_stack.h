@@ -14,18 +14,21 @@
 #include <xi_gw_glue_layer.h>
 #include <xi_mqtt_codec_layer.h>
 #include <xi_mqtt_logic_layer.h>
+#include <xi_control_topic_layer.h>
 #include <xi_gw_gateway_layer.h>
 
 enum xi_gw_layer_stack_order_e
 {
     XI_LAYER_TYPE_GW_GATEWAY = 0,
+    XI_LAYER_TYPE_GW_CONTROL_TOPIC,
     XI_LAYER_TYPE_GW_MQTT_LOGIC,
     XI_LAYER_TYPE_GW_MQTT_CODEC,
     XI_LAYER_TYPE_GW_TUNNEL
 };
 
 #define XI_GW_LAYER_CHAIN                                                                \
-    XI_LAYER_TYPE_GW_GATEWAY, XI_LAYER_TYPE_GW_MQTT_LOGIC, XI_LAYER_TYPE_GW_MQTT_CODEC,  \
+    XI_LAYER_TYPE_GW_GATEWAY, XI_LAYER_TYPE_GW_CONTROL_TOPIC,                            \
+        XI_LAYER_TYPE_GW_MQTT_LOGIC, XI_LAYER_TYPE_GW_MQTT_CODEC,                        \
         XI_LAYER_TYPE_GW_TUNNEL
 
 XI_DECLARE_LAYER_CHAIN_SCHEME( XI_LAYER_CHAIN_GW, XI_GW_LAYER_CHAIN );
@@ -55,6 +58,14 @@ XI_LAYER_TYPES_ADD( XI_LAYER_TYPE_GW_TUNNEL,
                         xi_mqtt_logic_layer_init,
                         xi_mqtt_logic_layer_connect,
                         xi_mqtt_logic_layer_post_connect ),
+    XI_LAYER_TYPES_ADD( XI_LAYER_TYPE_GW_CONTROL_TOPIC,
+                        xi_control_topic_layer_push,
+                        xi_control_topic_layer_pull,
+                        xi_control_topic_layer_close,
+                        xi_control_topic_layer_close_externally,
+                        xi_control_topic_layer_init,
+                        xi_control_topic_layer_connect,
+                        xi_layer_default_post_connect ),
     XI_LAYER_TYPES_ADD( XI_LAYER_TYPE_GW_GATEWAY,
                         xi_gw_gateway_layer_push,
                         xi_gw_gateway_layer_pull,

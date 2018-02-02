@@ -71,7 +71,6 @@ xi_state_t xi_mock_broker_layer_push( void* context, void* data, xi_state_t in_o
         return XI_PROCESS_PUSH_ON_NEXT_LAYER( context, 0, in_out_state );
     }
 
-
     if ( in_out_state == XI_STATE_OK )
     {
         /* duplicate the received data since it will forwarded into two directions */
@@ -113,6 +112,10 @@ xi_state_t xi_mock_broker_layer_push( void* context, void* data, xi_state_t in_o
             if ( NULL != layer_data )
             {
                 xi_free_desc( &layer_data->outgoing_publish_content );
+
+                /* todo_atigyi: not that nice to free this up here, try to solve it more
+                 * elegantly */
+                xi_free_desc( &layer_data->outgoing_publish_content_secondary_layer );
             }
 
             xi_mqtt_written_data_t* written_data = ( xi_mqtt_written_data_t* )data;
@@ -172,18 +175,13 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
             }
             break;
 
-            case XI_MQTT_TYPE_CONNACK:
-            {
-                printf( "--- %s --- CONNACK\n", __FUNCTION__ );
-            }
-            break;
-
             case XI_MQTT_TYPE_SUBSCRIBE:
             {
-                printf( "--- %s --- SUBSCRIBE\n", __FUNCTION__ );
-
                 const char* subscribe_topic_name =
                     ( const char* )recvd_msg->subscribe.topics->name->data_ptr;
+
+                printf( "--- %s --- SUBSCRIBE [%s]\n", __FUNCTION__,
+                        subscribe_topic_name );
 
                 xi_debug_format( "subscribe arrived on topic `%s`",
                                  subscribe_topic_name );
@@ -296,11 +294,27 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
             }
             break;
 
+            case XI_MQTT_TYPE_PINGREQ:
+            {
+                XI_ALLOC( xi_mqtt_message_t, mqtt_pingresp, in_out_state );
+
+                mqtt_pingresp->common                           = recvd_msg->common;
+                mqtt_pingresp->common.common_u.common_bits.type = XI_MQTT_TYPE_PINGRESP;
+
+                XI_PROCESS_PUSH_ON_PREV_LAYER( context, mqtt_pingresp, in_out_state );
+            }
+            break;
+
             case XI_MQTT_TYPE_DISCONNECT:
                 printf( "--- %s --- DISCONNECT\n", __FUNCTION__ );
                 // do nothing
                 xi_debug_printf(
                     "================= DISCONNECT arrived at mock broker\n" );
+
+                /* todo_atigyi: messages with no response from broker side should be
+                 * removed. btw, storing the return topic name such way isn't bullet
+                 * proof*/
+                xi_mqtt_message_free( &layer_data->last_tunneled_recvd_msg );
                 break;
 
             default:
@@ -398,23 +412,36 @@ xi_mock_broker_secondary_layer_push( void* context, void* data, xi_state_t in_ou
     /* heuristic to figure out this data is to be tunneled */
     if ( NULL != layer_data->last_tunneled_recvd_msg )
     {
-        XI_ALLOC( xi_mqtt_message_t, mqtt_publish_tunnel, in_out_state );
+        if ( XI_STATE_WRITTEN == in_out_state && NULL == data )
+        {
+            xi_mqtt_message_free( &layer_data->last_tunneled_recvd_msg );
 
-        in_out_state = fill_with_publish_data(
-            mqtt_publish_tunnel,
-            ( const char* )
-                layer_data->last_tunneled_recvd_msg->publish.topic_name->data_ptr,
-            data, layer_data->last_tunneled_recvd_msg->common.common_u.common_bits.qos,
-            layer_data->last_tunneled_recvd_msg->common.common_u.common_bits.retain,
-            layer_data->last_tunneled_recvd_msg->common.common_u.common_bits.dup,
-            layer_data->last_tunneled_recvd_msg->publish.message_id );
+            return XI_PROCESS_PUSH_ON_NEXT_LAYER( context, data, in_out_state );
+        }
+        else
+        {
+            XI_ALLOC( xi_mqtt_message_t, mqtt_publish_tunnel, in_out_state );
 
-        layer_data->last_tunneled_recvd_msg->publish.topic_name = NULL;
-        xi_mqtt_message_free( &layer_data->last_tunneled_recvd_msg );
+            /* MQTT over MQTT, the MQTT tunneling happens here, packing MQTT encoded
+             * 'data' into a PUBLISH message */
+            in_out_state = fill_with_publish_data(
+                mqtt_publish_tunnel,
+                ( const char* )
+                    layer_data->last_tunneled_recvd_msg->publish.topic_name->data_ptr,
+                data,
+                layer_data->last_tunneled_recvd_msg->common.common_u.common_bits.qos,
+                layer_data->last_tunneled_recvd_msg->common.common_u.common_bits.retain,
+                layer_data->last_tunneled_recvd_msg->common.common_u.common_bits.dup,
+                layer_data->last_tunneled_recvd_msg->publish.message_id );
 
-        return XI_PROCESS_PUSH_ON_THIS_LAYER(
-            &layer_data->layer_output_target->layer_connection, mqtt_publish_tunnel,
-            in_out_state );
+            layer_data->outgoing_publish_content_secondary_layer = data;
+
+            XI_PROCESS_PUSH_ON_THIS_LAYER(
+                &layer_data->layer_output_target->layer_connection, mqtt_publish_tunnel,
+                in_out_state );
+
+            return XI_PROCESS_PUSH_ON_THIS_LAYER( context, NULL, XI_STATE_WRITTEN );
+        }
     }
     else
     {
@@ -489,6 +516,11 @@ xi_mock_broker_secondary_layer_pull( void* context, void* data, xi_state_t in_ou
         {
             case XI_MQTT_TYPE_PUBLISH:
             {
+                /* todo_atigyi: overwriting incoming tunneled messages already happened
+                 * with a single edge device. Tunneled can come so close after each other
+                 mock broker cannot answer before next arrives. Queueing, identifying must
+                 be solved... somehow :) */
+                xi_mqtt_message_free( &layer_data->last_tunneled_recvd_msg );
                 layer_data->last_tunneled_recvd_msg = recvd_msg;
 
                 const char* publish_topic_name =

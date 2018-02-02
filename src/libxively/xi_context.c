@@ -114,7 +114,8 @@ xi_state_t xi_create_context_with_custom_layers_and_evtd(
     XI_ALLOC_AT( xi_context_t, *context, state );
 
     /* create io timeout vector */
-    ( *context )->context_data.io_timeouts = xi_vector_create();
+    ( *context )->context_data.io_timeouts         = xi_vector_create();
+    ( *context )->context_data.main_context_handle = XI_INVALID_CONTEXT_HANDLE;
 
     XI_CHECK_MEMORY( ( *context )->context_data.io_timeouts, state );
 
