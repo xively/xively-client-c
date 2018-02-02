@@ -23,7 +23,7 @@ ifeq (,$(wildcard $(IDF_PATH)))
 $(XI_ESP_IDF_SDK_PATH):
 	@-mkdir -p $@
 	git clone --recursive https://github.com/espressif/esp-idf.git $(XI_ESP_IDF_SDK_PATH)
-	@-cd $(XI_ESP_IDF_SDK_PATH) && git checkout -b xively_tested_version f482e9e5 && git submodule update
+	@-cd $(XI_ESP_IDF_SDK_PATH) && git checkout -b xively_tested_version 475ffe78 && git submodule update
 
 XI_BUILD_PRECONDITIONS += $(XI_ESP_IDF_SDK_PATH)
 
@@ -104,8 +104,8 @@ ifeq ($(XI_BSP_TLS),wolfssl)
 include make/mt-config/mt-tls-$(XI_BSP_TLS)-esp32.mk
 
 # WolfSSL TLS BSP configuration
-XI_COMPILER_FLAGS += -DXI_PROVIDE_WOLFSSL_SEED_GENERATOR
-XI_COMPILER_FLAGS += -DXI_PROVIDE_WOLFSSL_XTIME_XGMTIME
+XI_CONFIG_FLAGS += -DXI_PROVIDE_WOLFSSL_SEED_GENERATOR
+XI_CONFIG_FLAGS += -DXI_PROVIDE_WOLFSSL_XTIME_XGMTIME
 endif
 
 ##################
@@ -113,6 +113,11 @@ endif
 ##################
 XI_CONFIG_FLAGS += -DXI_CROSS_TARGET
 XI_CONFIG_FLAGS += -DXI_EMBEDDED_TESTS
+
+################
+# ESP-IDF Config
+################
+XI_COMPILER_FLAGS += -DESP_PLATFORM
 
 #########################
 # ESP System Include Dirs
