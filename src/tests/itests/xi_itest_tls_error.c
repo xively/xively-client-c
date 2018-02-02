@@ -88,8 +88,8 @@ xi_itest_tls_error__test_fixture_t* xi_itest_tls_error__generate_fixture()
 
     fixture->test_topic_name      = ( "test/topic/name" );
     fixture->test_full_topic_name = ( "xi/blue/v1/xi_itest_tls_error_account_id/d/"
-                                      "xi_itest_tls_error_device_id/test/topic/name" );
-    fixture->control_topic_name = ( "xi/ctrl/v1/xi_itest_tls_error_device_id/cln" );
+                                      "itest_username/test/topic/name" );
+    fixture->control_topic_name = ( "xi/ctrl/v1/itest_username/cln" );
 
 /* control_topic_auto_subscribe is 2 because control topic subscription happens in the 3rd
  * loop, this is precise timed simulation, some test cases are sensitive for timing*/
