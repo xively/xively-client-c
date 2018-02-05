@@ -6,7 +6,7 @@
 include make/mt-os/mt-os-common.mk
 include make/mt-utils/mt-get-gnu-arm-toolchain.mk
 
-XI_STM32_PATH_SDK = $(HOME)/Downloads/xively-client-artifactory/st/STM32CubeExpansion_WIFI1_V3.0.2
+XI_STM32_PATH_SDK ?= $(HOME)/Downloads/xively-client-artifactory/st/STM32CubeExpansion_WIFI1_V3.0.2
 
 $(info .    CC:                  [$(CC)] )
 $(info .    AR:                  [$(AR)] )
