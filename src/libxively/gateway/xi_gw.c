@@ -21,8 +21,8 @@ typedef struct xi_ed_id_ed_context_pair_s
     xi_context_t* edge_device_context;
 } xi_ed_id_ed_context_pair_t;
 
-static int8_t _xi_ed_find_context_2_id( const union xi_vector_selector_u* e0,
-                                        const union xi_vector_selector_u* e1 )
+static int8_t _xi_cmp_ed_context_ed_ids( const union xi_vector_selector_u* e0,
+                                         const union xi_vector_selector_u* e1 )
 {
     if ( NULL == e0 || NULL == e1 )
     {
@@ -54,11 +54,11 @@ xi_state_t xi_connect_ed( xi_context_handle_t xih,
 
     const xi_vector_index_type_t found_index = xi_vector_find(
         xi_globals.context_handles_vector_edge_devices,
-        XI_VEC_CONST_VALUE_PARAM( ( void* )&search_key ), _xi_ed_find_context_2_id );
+        XI_VEC_CONST_VALUE_PARAM( ( void* )&search_key ), _xi_cmp_ed_context_ed_ids );
 
     if ( -1 == found_index )
     {
-        /* context not found to this application device id, create a new context */
+        /* context not found for this application device id, create a new context */
 
         XI_ALLOC_AT( xi_ed_id_ed_context_pair_t, ed_id_context, state );
 
@@ -129,7 +129,7 @@ xi_state_t xi_disconnect_ed( xi_context_handle_t xih, const char* edge_device_id
 
     const xi_vector_index_type_t found_index = xi_vector_find(
         xi_globals.context_handles_vector_edge_devices,
-        XI_VEC_CONST_VALUE_PARAM( ( void* )&search_key ), _xi_ed_find_context_2_id );
+        XI_VEC_CONST_VALUE_PARAM( ( void* )&search_key ), _xi_cmp_ed_context_ed_ids );
 
     if ( 0 <= found_index )
     {
@@ -153,7 +153,7 @@ extern xi_state_t xi_remove_ed( xi_context_handle_t xih, const char* edge_device
 
     const xi_vector_index_type_t found_index = xi_vector_find(
         xi_globals.context_handles_vector_edge_devices,
-        XI_VEC_CONST_VALUE_PARAM( ( void* )&search_key ), _xi_ed_find_context_2_id );
+        XI_VEC_CONST_VALUE_PARAM( ( void* )&search_key ), _xi_cmp_ed_context_ed_ids );
 
     if ( 0 <= found_index )
     {
