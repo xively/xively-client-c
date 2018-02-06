@@ -12,8 +12,7 @@
  *
  * With one of these IDs can one create event with a target thread.
  */
-enum
-{
+typedef enum xi_thread_id_e {
     /* specific thread IDs must start with 0, they specify position of thread
      * in main threadpool */
     XI_THREADID_THREAD_0 = 0,
@@ -22,6 +21,6 @@ enum
 
     XI_THREADID_ANYTHREAD = 250,
     XI_THREADID_MAINTHREAD
-};
+} xi_thread_id_t;
 
 #endif /* __XI_THREAD_IDS_H__ */

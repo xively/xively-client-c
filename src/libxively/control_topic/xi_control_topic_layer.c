@@ -279,8 +279,6 @@ xi_control_topic_layer_push( void* context, void* data, xi_state_t in_out_state 
 {
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
 
-    XI_UNUSED( data );
-
     return XI_PROCESS_PUSH_ON_PREV_LAYER( context, data, in_out_state );
 }
 
