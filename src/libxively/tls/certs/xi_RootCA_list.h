@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 #ifndef XI_ROOTCA_LIST_BYTE_LENGTH
-#define XI_ROOTCA_LIST_BYTE_LENGTH 4673
+#define XI_ROOTCA_LIST_BYTE_LENGTH 5942
 #endif /* XI_ROOTCA_LIST_BYTE_LENGTH */
 
 extern const unsigned char xi_RootCA_list[ XI_ROOTCA_LIST_BYTE_LENGTH ];
