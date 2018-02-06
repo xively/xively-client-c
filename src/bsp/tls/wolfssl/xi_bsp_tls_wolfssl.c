@@ -21,6 +21,19 @@ typedef struct wolfssl_tls_context_s
     CYASSL* obj;
 } wolfssl_tls_context_t;
 
+/**
+ * @brief WolfSSL doesn't expect a null terminator in the root certificate buffer.
+ *        If the buffer contains a null terminator, the buffer size *cert_buffer_len
+ *        will be decreased by 1, to ignore the final character
+ */
+static void
+wolfssl_prepare_certificate_buffer( uint8_t* cert_buffer, size_t* cert_buffer_len )
+{
+    if ( '\0' == cert_buffer[*cert_buffer_len - 1] )
+    {
+        *cert_buffer_len -= 1;
+    }
+}
 
 int xi_wolfssl_recv( CYASSL* ssl, char* buf, int sz, void* context )
 {
@@ -210,6 +223,9 @@ xi_bsp_tls_state_t xi_bsp_tls_init( xi_bsp_tls_context_t** tls_context,
     /* POST/PRE-CONDITIONS */
     assert( NULL != init_params->ca_cert_pem_buf );
     assert( 0 < init_params->ca_cert_pem_buf_length );
+
+    wolfssl_prepare_certificate_buffer( init_params->ca_cert_pem_buf,
+                                        &init_params->ca_cert_pem_buf_length );
 
     /* loading the certificate */
     ret = CyaSSL_CTX_load_verify_buffer(
