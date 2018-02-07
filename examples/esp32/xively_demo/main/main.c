@@ -351,7 +351,7 @@ void app_main_logic_task( void* param )
             ( led_toggler == 1 ) ? ( led_toggler = 0 ) : ( led_toggler = 1 );
             io_led_set( led_toggler % 2 );
         }
-        vTaskDelay( 1000 / portTICK_PERIOD_MS );
+        vTaskDelay( 5000 / portTICK_PERIOD_MS );
     }
 }
 
