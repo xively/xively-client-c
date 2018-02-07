@@ -142,12 +142,14 @@ else ifeq ($(PRESET), ESP32)
     TARGET = $(TARGET_STATIC_REL)
     XI_BSP_PLATFORM = esp32
     XI_TARGET_PLATFORM = esp32
+    XI_USE_EXTERNAL_TLS_LIB = 1
 
 else ifeq ($(PRESET), ESP32_DEV)
     CONFIG = $(CONFIG_ESP32)
     TARGET = $(TARGET_STATIC_DEV)
     XI_BSP_PLATFORM = esp32
     XI_TARGET_PLATFORM = esp32
+    XI_USE_EXTERNAL_TLS_LIB = 1
 # -------------------------------------------------------
 # Fuzz Tests
 else ifeq ($(PRESET), FUZZ_TESTS)
