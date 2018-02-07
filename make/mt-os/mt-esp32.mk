@@ -106,6 +106,8 @@ include make/mt-config/mt-tls-$(XI_BSP_TLS)-esp32.mk
 # WolfSSL TLS BSP configuration
 XI_CONFIG_FLAGS += -DXI_PROVIDE_WOLFSSL_SEED_GENERATOR
 XI_CONFIG_FLAGS += -DXI_PROVIDE_WOLFSSL_XTIME_XGMTIME
+else ifeq ($(XI_BSP_TLS),mbedtls)
+XI_TLS_LIB_INC_DIR = $(IDF_PATH)/components/mbedtls/include
 endif
 
 ##################
