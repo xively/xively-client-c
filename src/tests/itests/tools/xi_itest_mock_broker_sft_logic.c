@@ -241,8 +241,6 @@ xi_mock_broker_sft_logic_on_message( const xi_data_desc_t* control_message_encod
         {
             cbor_reply_message_data_desc = xi_make_desc_from_buffer_share(
                 cbor_reply_message, cbor_reply_message_len );
-            // todo_atigyi: make more elegant ownership passing
-            cbor_reply_message_data_desc->memory_type = XI_MEMORY_TYPE_MANAGED;
         }
         else
         {

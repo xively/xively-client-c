@@ -103,20 +103,6 @@ xi_state_t xi_mock_broker_layer_push( void* context, void* data, xi_state_t in_o
                   XI_STATE_FAILED_WRITING == in_out_state )
         {
             /* this is the mockbroker layerchain behaviour */
-
-            xi_layer_t* layer = ( xi_layer_t* )XI_THIS_LAYER( context );
-            xi_mock_broker_data_t* layer_data =
-                ( xi_mock_broker_data_t* )layer->user_data;
-
-            if ( NULL != layer_data )
-            {
-                xi_free_desc( &layer_data->outgoing_publish_content );
-
-                /* todo_atigyi: not that nice to free this up here, try to solve it more
-                 * elegantly */
-                xi_free_desc( &layer_data->outgoing_publish_content_secondary_layer );
-            }
-
             xi_mqtt_written_data_t* written_data = ( xi_mqtt_written_data_t* )data;
             XI_SAFE_FREE_TUPLE( written_data );
         }
@@ -261,7 +247,7 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
                             recvd_msg->common.common_u.common_bits.dup,
                             recvd_msg->publish.message_id );
 
-                        layer_data->outgoing_publish_content = reply_sft_cbor_encoded;
+                        xi_free_desc( &reply_sft_cbor_encoded );
 
                         xi_mqtt_message_free( &recvd_msg );
 
@@ -403,6 +389,8 @@ xi_mock_broker_secondary_layer_push( void* context, void* data, xi_state_t in_ou
 {
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
 
+    xi_data_desc_t* encoded_message = data;
+
     XI_MOCK_BROKER_CONDITIONAL__CHECK_EXPECTED( in_out_state, LAYER_LEVEL );
 
     xi_layer_t* layer                 = ( xi_layer_t* )XI_THIS_LAYER( context );
@@ -411,35 +399,48 @@ xi_mock_broker_secondary_layer_push( void* context, void* data, xi_state_t in_ou
     /* heuristic to figure out this data is to be tunneled */
     if ( NULL != layer_data->last_tunneled_recvd_msg )
     {
-        if ( XI_STATE_WRITTEN == in_out_state && NULL == data )
+        if ( XI_STATE_WRITTEN == in_out_state && NULL == encoded_message )
         {
-            xi_mqtt_message_free( &layer_data->last_tunneled_recvd_msg );
-
-            return XI_PROCESS_PUSH_ON_NEXT_LAYER( context, data, in_out_state );
+            return XI_PROCESS_PUSH_ON_NEXT_LAYER( context, encoded_message,
+                                                  in_out_state );
         }
         else
         {
             XI_ALLOC( xi_mqtt_message_t, mqtt_publish_tunnel, in_out_state );
 
             /* MQTT over MQTT, the MQTT tunneling happens here, packing MQTT encoded
-             * 'data' into a PUBLISH message */
+             * 'encoded_message' into a PUBLISH message */
             in_out_state = fill_with_publish_data(
                 mqtt_publish_tunnel,
                 ( const char* )
                     layer_data->last_tunneled_recvd_msg->publish.topic_name->data_ptr,
-                data,
+                encoded_message,
                 layer_data->last_tunneled_recvd_msg->common.common_u.common_bits.qos,
                 layer_data->last_tunneled_recvd_msg->common.common_u.common_bits.retain,
                 layer_data->last_tunneled_recvd_msg->common.common_u.common_bits.dup,
                 layer_data->last_tunneled_recvd_msg->publish.message_id );
 
-            layer_data->outgoing_publish_content_secondary_layer = data;
+            /* relese data since it'll be part of the PUBLISH message, shared, but later
+             * forced MANAGED and deallocated */
+            encoded_message->data_ptr = NULL;
+            xi_free_desc( &encoded_message );
+
+            {
+                /* pass ownership of topic_name string */
+                layer_data->last_tunneled_recvd_msg->publish.topic_name->data_ptr = NULL;
+
+                mqtt_publish_tunnel->publish.topic_name->memory_type =
+                    XI_MEMORY_TYPE_MANAGED;
+
+                xi_mqtt_message_free( &layer_data->last_tunneled_recvd_msg );
+            }
+
 
             XI_PROCESS_PUSH_ON_THIS_LAYER(
                 &layer_data->layer_output_target->layer_connection, mqtt_publish_tunnel,
                 in_out_state );
 
-            return XI_PROCESS_PUSH_ON_THIS_LAYER( context, NULL, XI_STATE_WRITTEN );
+            return XI_PROCESS_PUSH_ON_NEXT_LAYER( context, NULL, XI_STATE_WRITTEN );
         }
     }
     else
@@ -448,8 +449,8 @@ xi_mock_broker_secondary_layer_push( void* context, void* data, xi_state_t in_ou
 
         if ( control == CONTROL_ERROR )
         {
-            xi_data_desc_t* buffer = ( xi_data_desc_t* )data;
-            xi_free_desc( &buffer );
+            encoded_message->memory_type = XI_MEMORY_TYPE_MANAGED;
+            xi_free_desc( &encoded_message );
 
             in_out_state = mock_type( xi_state_t );
 
@@ -465,24 +466,17 @@ xi_mock_broker_secondary_layer_push( void* context, void* data, xi_state_t in_ou
 
         if ( in_out_state == XI_STATE_OK )
         {
-            /* duplicate the data before forwarding it to SUT layer since this is done by
-             * the
-             * network as well. This is required for PUBLISH payloads which are not copied
-             * between layers */
-            xi_data_desc_t* orig = ( xi_data_desc_t* )data;
-            xi_data_desc_t* copy =
-                xi_make_desc_from_buffer_copy( orig->data_ptr, orig->length );
-
-            /* data_desc deallocation is done by the real IO layer too */
-            xi_free_desc( &orig );
+            /* force owning the memory block since PUBLISH content is wrapped as shared
+             * data_desc in CODEC layer PUSH */
+            encoded_message->memory_type = XI_MEMORY_TYPE_MANAGED;
 
             /* jump to SUT libxively's codec layer pull function, mimicing incoming
              * encoded message */
             xi_evtd_execute_in(
                 xi_globals.evtd_instance,
                 xi_make_handle( layer_data->layer_output_target->layer_funcs->pull,
-                                &layer_data->layer_output_target->layer_connection, copy,
-                                in_out_state ),
+                                &layer_data->layer_output_target->layer_connection,
+                                encoded_message, in_out_state ),
                 1, NULL );
 
             return XI_PROCESS_PUSH_ON_NEXT_LAYER( context, NULL, XI_STATE_WRITTEN );
