@@ -638,7 +638,7 @@ void xi_itest_tls_error__tls_push_infinite_SUBSCRIBE_errors__reSUBSCRIBE_occurs_
              * that's why we have to increase this value by 2.*/
             const uint8_t expected_number_of_PUSHES =
                 fixture->loop_id__manual_disconnect -
-                fixture->loop_id__control_topic_auto_subscribe + 2;
+                fixture->loop_id__control_topic_auto_subscribe + 3;
 
             /* expecting only a certain number of message sends*/
             expect_value_count( xi_mock_broker_layer_push, in_out_state, XI_STATE_OK,

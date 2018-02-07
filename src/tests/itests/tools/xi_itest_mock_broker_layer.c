@@ -8,7 +8,6 @@
 #include "xi_itest_helpers.h"
 #include "xi_itest_mock_broker_layer.h"
 #include "xi_itest_mock_broker_sft_logic.h"
-#include "xi_itest_mock_broker_layerchain.h"
 #include "xi_layer_macros.h"
 #include "xi_mqtt_logic_layer_data_helpers.h"
 #include "xi_tuples.h"
@@ -66,8 +65,7 @@ xi_state_t xi_mock_broker_layer_push( void* context, void* data, xi_state_t in_o
         xi_free_desc( &buffer );
 
         in_out_state = xi_mock_broker_layer_push__ERROR_CHANNEL();
-
-        return XI_PROCESS_PUSH_ON_NEXT_LAYER( context, 0, in_out_state );
+        return XI_PROCESS_PUSH_ON_NEXT_LAYER( context, NULL, in_out_state );
     }
 
     if ( in_out_state == XI_STATE_OK )
@@ -78,16 +76,9 @@ xi_state_t xi_mock_broker_layer_push( void* context, void* data, xi_state_t in_o
             xi_make_desc_from_buffer_copy( orig->data_ptr, orig->length );
 
         /* forward to mockbroker layerchain, note the PUSH to PULL conversion */
-        xi_evtd_execute_in(
-            xi_globals.evtd_instance,
-            xi_make_handle( xi_itest_find_layer( xi_context_mockbroker,
-                                                 XI_LAYER_TYPE_MOCKBROKER_MQTT_CODEC )
-                                ->layer_funcs->pull,
-                            &xi_itest_find_layer( xi_context_mockbroker,
-                                                  XI_LAYER_TYPE_MOCKBROKER_MQTT_CODEC )
-                                 ->layer_connection,
-                            copy, XI_STATE_OK ),
-            1, NULL );
+        XI_PROCESS_PULL_ON_PREV_LAYER(
+            &xi_context_mockbroker->layer_chain.top->layer_connection, copy,
+            XI_STATE_OK );
 
         /* forward to prev layer, this is the default libxively behavior */
         return XI_PROCESS_PUSH_ON_PREV_LAYER( context, data, in_out_state );
@@ -198,7 +189,8 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
                 const char* publish_topic_name =
                     ( const char* )recvd_msg->publish.topic_name->data_ptr;
 
-                printf( "--- %s --- PUBLISH (%s)\n", __FUNCTION__, publish_topic_name );
+                // printf( "--- %s --- PUBLISH (%s)\n", __FUNCTION__, publish_topic_name
+                // );
 
                 xi_debug_format( "publish arrived on topic `%s`, msgid: %d",
                                  publish_topic_name, recvd_msg->publish.message_id );
