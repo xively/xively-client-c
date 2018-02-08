@@ -99,8 +99,6 @@ int main( int argc, char* argv[] )
     xi_connect( xi_context, xi_username, xi_password, connection_timeout,
                 keepalive_timeout, XI_SESSION_CLEAN, &on_connection_state_changed );
 
-    xi_context_handle_t xi_gateway_context = xi_create_gateway_context();
-
     /* The Xively Client was designed for single threaded devices. As such
         it does not have its own event loop thread. Instead you must regularly call
         the function xi_events_process_blocking() to process connection requeusts, and to
@@ -110,9 +108,6 @@ int main( int argc, char* argv[] )
         the on_connection_state_changed() handler by calling xi_events_stop();
     */
     xi_events_process_blocking();
-
-    /* Cleanup the gateway context, releasing its memory */
-    xi_delete_gateway_context( xi_gateway_context );
 
     /* Cleanup the default context, releasing its memory */
     xi_delete_context( xi_context );
