@@ -143,7 +143,7 @@ else ifeq ($(PRESET), ESP32)
     XI_BSP_PLATFORM = esp32
     XI_TARGET_PLATFORM = esp32
     ifeq ($(XI_BSP_TLS),mbedtls)
-        XI_USE_EXTERNAL_TLS_LIB = 1
+        XI_USE_EXTERNAL_TLS_LIB ?= 1
     endif
 
 else ifeq ($(PRESET), ESP32_DEV)
@@ -152,7 +152,7 @@ else ifeq ($(PRESET), ESP32_DEV)
     XI_BSP_PLATFORM = esp32
     XI_TARGET_PLATFORM = esp32
     ifeq ($(XI_BSP_TLS),mbedtls)
-        XI_USE_EXTERNAL_TLS_LIB = 1
+        XI_USE_EXTERNAL_TLS_LIB ?= 1
     endif
 # -------------------------------------------------------
 # Fuzz Tests
