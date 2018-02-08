@@ -21,15 +21,16 @@
 #include <mbedtls/ssl.h>
 
 /**
- * @brief Function makes the Xivelys certificate buffer to work against mbedtls
- * requirements
+ * @brief If the Xively certificate buffer's last character is '\n' (common after
+ * file reading, and replicated in xi_RootCA_list for consistency), replace it with
+ * a NULL terminator
  */
 static void
 mbedtls_prepare_certificate_buffer( uint8_t* cert_buffer, size_t cert_buffer_len )
 {
     uint8_t* const c = &cert_buffer[cert_buffer_len - 1];
 
-    if ( *c != '\0' && *c == '\n' )
+    if ( '\n' == *c )
     {
         *c = '\0';
     }

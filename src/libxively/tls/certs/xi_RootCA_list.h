@@ -4,6 +4,7 @@
  * it is licensed under the BSD 3-Clause license.
  */
 
+
 #ifndef __XI_ROOTCA_LIST_H__
 #define __XI_ROOTCA_LIST_H__
 
@@ -12,10 +13,10 @@ extern "C" {
 #endif
 
 #ifndef XI_ROOTCA_LIST_BYTE_LENGTH
-#define XI_ROOTCA_LIST_BYTE_LENGTH 5941
-#endif
+#define XI_ROOTCA_LIST_BYTE_LENGTH 5942
+#endif /* XI_ROOTCA_LIST_BYTE_LENGTH */
 
-extern const unsigned char xi_RootCA_list[XI_ROOTCA_LIST_BYTE_LENGTH];
+extern unsigned char xi_RootCA_list[ XI_ROOTCA_LIST_BYTE_LENGTH ];
 
 #ifdef __cplusplus
 }

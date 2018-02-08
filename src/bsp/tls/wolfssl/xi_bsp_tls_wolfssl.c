@@ -21,7 +21,6 @@ typedef struct wolfssl_tls_context_s
     CYASSL* obj;
 } wolfssl_tls_context_t;
 
-
 int xi_wolfssl_recv( CYASSL* ssl, char* buf, int sz, void* context )
 {
     xi_bsp_debug_format( "[ %s ]", __FUNCTION__ );
