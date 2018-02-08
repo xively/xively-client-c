@@ -237,8 +237,9 @@ static void xi_itest_tls_error__act( void** fixture_void,
         if ( loop_counter == fixture->loop_id__control_topic_auto_subscribe )
         {
             xi_update_backoff_penalty( XI_STATE_OK );
-            state = xi_subscribe( xi_context_handle, fixture->control_topic_name,
-                                  XI_MQTT_QOS_AT_LEAST_ONCE, on_publish_received, NULL );
+
+            xi_subscribe( xi_context_handle, fixture->control_topic_name,
+                          XI_MQTT_QOS_AT_LEAST_ONCE, on_publish_received, NULL );
         }
 #endif
 

@@ -189,8 +189,7 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
                 const char* publish_topic_name =
                     ( const char* )recvd_msg->publish.topic_name->data_ptr;
 
-                // printf( "--- %s --- PUBLISH (%s)\n", __FUNCTION__, publish_topic_name
-                // );
+                printf( "--- %s --- PUBLISH (%s)\n", __FUNCTION__, publish_topic_name );
 
                 xi_debug_format( "publish arrived on topic `%s`, msgid: %d",
                                  publish_topic_name, recvd_msg->publish.message_id );
