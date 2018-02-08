@@ -98,7 +98,7 @@ xi_state_t xi_create_context_with_custom_layers_and_evtd(
         return XI_INVALID_PARAMETER;
     }
 
-    if ( NULL == xi_globals.str_account_id || NULL == xi_globals.str_device_unique_id )
+    if ( NULL == xi_globals.str_account_id )
     {
         return XI_NOT_INITIALIZED;
     }

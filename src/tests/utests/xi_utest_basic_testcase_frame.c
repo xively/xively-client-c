@@ -17,7 +17,7 @@ void* xi_utest_setup_basic( const struct testcase_t* testcase )
 
     xi_memory_limiter_tearup();
 
-    xi_initialize( "utest-account-id", "utest-device-id" );
+    xi_initialize( "utest-account-id" );
 
     return ( intptr_t* )1;
 }
