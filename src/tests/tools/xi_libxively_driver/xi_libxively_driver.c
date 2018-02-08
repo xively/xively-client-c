@@ -135,7 +135,7 @@ int main( int argc, char const* argv[] )
     /*************************************
      * libxively initialization **********
      *************************************/
-    xi_initialize( "unique account id", "unique device id" );
+    xi_initialize( "unique account id" );
 
     xi_context_handle_t xi_app_context_handle = xi_create_context();
     if ( XI_INVALID_CONTEXT_HANDLE >= xi_app_context_handle )

@@ -75,25 +75,17 @@ extern "C" {
 
 /**
  * @brief     Required before use of the xively library.
- * @detailed  This should be the first function that you call on a new runtime.  It
- * requires a string parameter that should be unique for the device the library is
- * running on ( serial number, etc. )  This is very important as otherwise messages
- * delivered by this device could be confused with other devices of the same unique
- * identifier.
+ * @detailed  This should be the first function that you call on a new runtime.
  *
- * Additionaly messages meant for other devices might be delivered to this
- * device if the device_unique_id is used across mulitple devices.
- *
- * @param [in] account_id A string that identifies the user's account in BluePrint.
- * @param [in] device_unique_id A string that represents this specific device.
+ * @param [in] account_id A string that identifies the user's account in Xively.
  *
  * @retval XI_STATE_OK              Status OK
  * @retval XI_FAILED_INITIALIZATION An urecoverable error occured
  * @retval XI_ALREADY_INITIALIZED   The runtime has previously invoked this
  * function succesfully.
- * @retval XI_INVALID_PARAMETER     If device_unique_id is null.
+ * @retval XI_INVALID_PARAMETER     If account_id is null.
  */
-extern xi_state_t xi_initialize( const char* account_id, const char* device_unique_id );
+extern xi_state_t xi_initialize( const char* account_id );
 
 /**
  * @brief     Signals the xively library to cleanup any internal memory
@@ -114,15 +106,6 @@ extern xi_state_t xi_initialize( const char* account_id, const char* device_uniq
  * @retval XI_FAILED_INITIALIZATION An urecoverable error occured
  */
 extern xi_state_t xi_shutdown();
-
-/**
- * @brief     Returns the device unique string that was passed to the xively
- * library during initialization.
- *
- * @retval NULL  If the system has not been succesfully initialized. Otherwise a
- * pointer to the device_unique_id.
- */
-extern const char* xi_get_device_unique_id();
 
 /**
  * @brief     Creates a connection context for subscriptions and publications

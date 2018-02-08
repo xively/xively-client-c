@@ -605,12 +605,12 @@ int main( void )
     }
 
 #if USE_HARDCODED_CREDENTIALS
-    user_data_set_wifi_ssid( (&user_config), USER_CONFIG_WIFI_SSID );
-    user_data_set_wifi_password( (&user_config), USER_CONFIG_WIFI_PWD );
-    user_data_set_wifi_encryption( (&user_config), USER_CONFIG_WIFI_ENCR );
-    user_data_set_xi_account_id( (&user_config), USER_CONFIG_XI_ACCOUNT_ID );
-    user_data_set_xi_device_id( (&user_config), USER_CONFIG_XI_DEVICE_ID );
-    user_data_set_xi_device_password( (&user_config), USER_CONFIG_XI_DEVICE_PWD );
+    user_data_set_wifi_ssid( ( &user_config ), USER_CONFIG_WIFI_SSID );
+    user_data_set_wifi_password( ( &user_config ), USER_CONFIG_WIFI_PWD );
+    user_data_set_wifi_encryption( ( &user_config ), USER_CONFIG_WIFI_ENCR );
+    user_data_set_xi_account_id( ( &user_config ), USER_CONFIG_XI_ACCOUNT_ID );
+    user_data_set_xi_device_id( ( &user_config ), USER_CONFIG_XI_DEVICE_ID );
+    user_data_set_xi_device_password( ( &user_config ), USER_CONFIG_XI_DEVICE_PWD );
 #else
     /* Read user data from flash */
     if ( user_data_copy_from_flash( &user_config ) < 0 )
@@ -700,13 +700,13 @@ int main( void )
                 printf( "\r\n\t* Account ID:  [%s]", user_config.xi_account_id );
                 printf( "\r\n\t* Device ID:   [%s]", user_config.xi_device_id );
                 printf( "\r\n\t* Device Pass: ( REDACTED )\n" );
-                // printf( "\r\n\t* Device Pass: [%s]\n", user_config.xi_device_password );
+                // printf( "\r\n\t* Device Pass: [%s]\n", user_config.xi_device_password
+                // );
 
                 if ( socket_open == 0 )
                 {
                     /* Read Write Socket data */
-                    xi_state_t ret_state = xi_initialize( user_config.xi_account_id,
-                                                          user_config.xi_device_id );
+                    xi_state_t ret_state = xi_initialize( user_config.xi_account_id );
                     if ( XI_STATE_OK != ret_state )
                     {
                         printf( "\r\n xi failed to initialise\n" );

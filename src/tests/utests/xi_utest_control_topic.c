@@ -98,8 +98,7 @@ XI_TT_TESTCASE(
 
             if ( topic_names[i].device_id != NULL )
             {
-                tt_int_op( xi_initialize( "", topic_names[i].device_id ), ==,
-                           XI_STATE_OK );
+                tt_int_op( xi_initialize( "" ), ==, XI_STATE_OK );
             }
 
             xi_state_t state = xi_control_topic_create_topic_name(

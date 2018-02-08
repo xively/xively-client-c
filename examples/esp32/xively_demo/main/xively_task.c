@@ -23,7 +23,7 @@
 #define XT_BUTTON_TOPIC_NAME "Button"
 #define XT_LED_TOPIC_NAME "LED"
 
-#define XT_CONNECT_TIMEOUT_S   10
+#define XT_CONNECT_TIMEOUT_S 10
 #define XT_KEEPALIVE_TIMEOUT_S 30
 
 #define INTERRUPT_POLLING_PERIOD 1
@@ -37,10 +37,7 @@ typedef struct
     char* xi_device_pwd;
 } xt_device_info_t;
 
-typedef enum {
-    XT_MQTT_DISCONNECTED = 0,
-    XT_MQTT_CONNECTED
-} xt_mqtt_connection_states_t;
+typedef enum { XT_MQTT_DISCONNECTED = 0, XT_MQTT_CONNECTED } xt_mqtt_connection_states_t;
 
 /******************************************************************************
  *                   Xively Task Function Declarations
@@ -63,9 +60,8 @@ static void xt_cancel_timed_tasks( void );
 static void xt_pop_gpio_interrupt_queue( void );
 
 /* Callbacks */
-static void xt_on_connected( xi_context_handle_t in_context_handle,
-                             void* data,
-                             xi_state_t state );
+static void
+xt_on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t state );
 static void xt_led_topic_callback( xi_context_handle_t in_context_handle,
                                    xi_sub_call_type_t call_type,
                                    const xi_sub_call_params_t* const params,
@@ -81,7 +77,7 @@ static xt_device_info_t xt_mqtt_device_info;
 xt_mqtt_topics_t xt_mqtt_topics;
 
 /* Xively Client Handles */
-static xi_context_handle_t xt_context_handle = -1;
+static xi_context_handle_t xt_context_handle                       = -1;
 static xi_timed_task_handle_t xt_gpiohandler_scheduled_task_handle = -1;
 
 /* FreeRTOS Handles */
@@ -119,8 +115,7 @@ void xt_rtos_task( void* param )
     assert( NULL != xt_mqtt_device_info.xi_device_id );
     assert( NULL != xt_mqtt_device_info.xi_device_pwd );
 
-    if ( XI_STATE_OK != xi_initialize( xt_mqtt_device_info.xi_account_id,
-                                       xt_mqtt_device_info.xi_device_id ) )
+    if ( XI_STATE_OK != xi_initialize( xt_mqtt_device_info.xi_account_id ) )
     {
         printf( "\n[XT] Failed to initialize MQTT library" );
         xt_handle_unrecoverable_error();
@@ -219,14 +214,14 @@ int8_t xt_build_xively_topic( char* topic_name, char* dst, uint32_t dst_len )
 {
     int retval = 0;
 
-    printf("\n[xt_build_xively_topic][topic_name: %s]", topic_name);
+    printf( "\n[xt_build_xively_topic][topic_name: %s]", topic_name );
     assert( NULL != topic_name );
     assert( NULL != dst );
 
     retval = snprintf( dst, dst_len, "xi/blue/v1/%.64s/d/%.64s/%.64s",
                        xt_mqtt_device_info.xi_account_id,
                        xt_mqtt_device_info.xi_device_id, topic_name );
-    printf("\n[xt_build_xively_topic][topic: %s]", dst);
+    printf( "\n[xt_build_xively_topic][topic: %s]", dst );
 
     if ( ( retval >= dst_len ) || ( retval < 0 ) )
     {
@@ -239,7 +234,7 @@ int8_t xt_init( char* xi_acc_id, char* xi_dev_id, char* xi_dev_pwd )
 {
     printf( "\n[XT] Initializing Xively Task variables" );
 
-    printf("\nsetting device variables");
+    printf( "\nsetting device variables" );
     xt_mqtt_device_info.xi_account_id = xi_acc_id;
     xt_mqtt_device_info.xi_device_id  = xi_dev_id;
     xt_mqtt_device_info.xi_device_pwd = xi_dev_pwd;
@@ -333,7 +328,7 @@ int8_t xt_subscribe( void )
 void xt_pop_gpio_interrupt_queue( void )
 {
     static int virtual_switch = 0; /* Switches between 1 and 0 on each button press */
-    char msg_payload[2] = "";
+    char msg_payload[2]       = "";
 
     if ( !xt_is_connected() )
     {
@@ -386,7 +381,8 @@ int8_t xt_start_timed_tasks( void )
         INTERRUPT_POLLING_PERIOD, 1, NULL );
     if ( XI_INVALID_TIMED_TASK_HANDLE == xt_gpiohandler_scheduled_task_handle )
     {
-        printf( "\n[XT] Error: GPIO interrupt polling scheduled task couldn't be registered" );
+        printf( "\n[XT] Error: GPIO interrupt polling scheduled task couldn't be "
+                "registered" );
         return -1;
     }
     printf( "\n[XT] GPIO interrupt polling scheduled task started" );
@@ -713,7 +709,7 @@ xt_action_requests_t xt_pop_highest_priority_request( void )
 inline void xt_await_unpause( void )
 {
     const TickType_t wait_timeout = portMAX_DELAY;
-    EventBits_t evt_group_bits = 0x00;
+    EventBits_t evt_group_bits    = 0x00;
     do /* Wait (forever) until either _CONTINUE or _SHUTDOWN are requested */
     {
         evt_group_bits = xEventGroupWaitBits( xt_requests_event_group_handle,

@@ -73,7 +73,7 @@ int xi_itest_gateway_setup( void** fixture_void )
     xi_globals.backoff_status.backoff_lut_i = 0;
     xi_cancel_backoff_event();
 
-    xi_initialize( "xi_itest_gateway_account_id", "xi_itest_gateway_device_id" );
+    xi_initialize( "xi_itest_gateway_account_id" );
 
     xi_state_t state = xi_create_context_with_custom_layers_and_evtd(
         &fixture->xi_context_sut, itest_ct_ml_mc_layer_chain, XI_LAYER_CHAIN_CT_ML_MC,
