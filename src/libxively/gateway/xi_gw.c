@@ -157,6 +157,8 @@ xi_gw_edge_device_remove( xi_context_handle_t xih, const char* edge_device_id )
         xi_globals.context_handles_vector_edge_devices,
         XI_VEC_CONST_VALUE_PARAM( ( void* )&search_key ), _xi_cmp_ed_context_ed_ids );
 
+    /* todo_atigyi: check if edge device is still connected, throw error if it is */
+
     if ( 0 <= found_index )
     {
         xi_ed_id_ed_context_pair_t* ed_id_context =
