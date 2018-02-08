@@ -25,7 +25,11 @@ _xi_message_arrived_on_tunnel_callback( xi_context_handle_t in_context_handle,
 
     if ( XI_MQTT_SUBSCRIPTION_SUCCESSFULL == state )
     {
-        /* suback */
+    }
+    else if ( XI_MQTT_SUBSCRIPTION_FAILED == state )
+    {
+        /* todo_atigyi: probably we should return connection error here since, the
+           main client wasn't able to subscribe to the edge device's tunnel topic. */
     }
     else if ( XI_STATE_OK == state )
     {
@@ -54,7 +58,7 @@ xi_state_t xi_gw_glue_layer_init( void* context, void* data, xi_state_t in_out_s
 {
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
 
-    /* subscribing main Xively Client to edge device specific tunnel topic */
+    /* subscribing to edge device's tunnel topic */
     xi_subscribe_impl( XI_CONTEXT_DATA( context )->main_context_handle,
                        "$Tunnel/tunnel-id-guid", XI_MQTT_QOS_AT_MOST_ONCE,
                        _xi_message_arrived_on_tunnel_callback, context,
