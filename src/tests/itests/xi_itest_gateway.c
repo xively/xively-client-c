@@ -231,15 +231,16 @@ static void _xi_itest_gateway__act( void** fixture_void )
 
         if ( loop_counter == fixture->loop_id__manual_connect_ed )
         {
-            xi_connect_ed( fixture->xi_context_handle, "edge application device id",
-                           _xi_ed_connect_callback );
+            xi_gw_edge_device_connect( fixture->xi_context_handle,
+                                       "edge application device id",
+                                       _xi_ed_connect_callback );
         }
 
         if ( loop_counter == fixture->loop_id__manual_disconnect_ed )
         {
             /* tunneled edge device disconnect */
-            state = xi_disconnect_ed( fixture->xi_context_handle,
-                                      "edge application device id" );
+            state = xi_gw_edge_device_disconnect( fixture->xi_context_handle,
+                                                  "edge application device id" );
 
             printf( "--- xi_disconnect_ed, state: %d\n", state );
         }
@@ -268,7 +269,7 @@ static void _xi_itest_gateway__act( void** fixture_void )
     }
 
     /* edge device context deletion */
-    xi_remove_ed( fixture->xi_context_handle, "edge application device id" );
+    xi_gw_edge_device_remove( fixture->xi_context_handle, "edge application device id" );
 
 err_handling:
 

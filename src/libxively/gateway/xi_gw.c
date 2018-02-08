@@ -21,8 +21,8 @@ typedef struct xi_ed_id_ed_context_pair_s
     xi_context_t* edge_device_context;
 } xi_ed_id_ed_context_pair_t;
 
-static int8_t _xi_ed_find_context_2_id( const union xi_vector_selector_u* e0,
-                                        const union xi_vector_selector_u* e1 )
+static int8_t _xi_cmp_ed_context_ed_ids( const union xi_vector_selector_u* e0,
+                                         const union xi_vector_selector_u* e1 )
 {
     if ( NULL == e0 || NULL == e1 )
     {
@@ -42,9 +42,9 @@ static int8_t _xi_ed_find_context_2_id( const union xi_vector_selector_u* e0,
     return strcmp( pair0->edge_device_id, pair1->edge_device_id );
 }
 
-xi_state_t xi_connect_ed( xi_context_handle_t xih,
-                          const char* edge_device_id,
-                          xi_user_callback_t* client_callback )
+xi_state_t xi_gw_edge_device_connect( xi_context_handle_t xih,
+                                      const char* edge_device_id,
+                                      xi_user_callback_t* client_callback )
 {
     xi_state_t state                          = XI_STATE_OK;
     xi_ed_id_ed_context_pair_t* ed_id_context = NULL;
@@ -54,11 +54,11 @@ xi_state_t xi_connect_ed( xi_context_handle_t xih,
 
     const xi_vector_index_type_t found_index = xi_vector_find(
         xi_globals.context_handles_vector_edge_devices,
-        XI_VEC_CONST_VALUE_PARAM( ( void* )&search_key ), _xi_ed_find_context_2_id );
+        XI_VEC_CONST_VALUE_PARAM( ( void* )&search_key ), _xi_cmp_ed_context_ed_ids );
 
     if ( -1 == found_index )
     {
-        /* context not found to this application device id, create a new context */
+        /* context not found for this application device id, create a new context */
 
         XI_ALLOC_AT( xi_ed_id_ed_context_pair_t, ed_id_context, state );
 
@@ -117,7 +117,8 @@ err_handling:
     return state;
 }
 
-xi_state_t xi_disconnect_ed( xi_context_handle_t xih, const char* edge_device_id )
+xi_state_t
+xi_gw_edge_device_disconnect( xi_context_handle_t xih, const char* edge_device_id )
 {
     printf( "%s\n", __FUNCTION__ );
     XI_UNUSED( xih );
@@ -129,7 +130,7 @@ xi_state_t xi_disconnect_ed( xi_context_handle_t xih, const char* edge_device_id
 
     const xi_vector_index_type_t found_index = xi_vector_find(
         xi_globals.context_handles_vector_edge_devices,
-        XI_VEC_CONST_VALUE_PARAM( ( void* )&search_key ), _xi_ed_find_context_2_id );
+        XI_VEC_CONST_VALUE_PARAM( ( void* )&search_key ), _xi_cmp_ed_context_ed_ids );
 
     if ( 0 <= found_index )
     {
@@ -143,7 +144,8 @@ xi_state_t xi_disconnect_ed( xi_context_handle_t xih, const char* edge_device_id
     return state;
 }
 
-extern xi_state_t xi_remove_ed( xi_context_handle_t xih, const char* edge_device_id )
+extern xi_state_t
+xi_gw_edge_device_remove( xi_context_handle_t xih, const char* edge_device_id )
 {
     printf( "%s\n", __FUNCTION__ );
     XI_UNUSED( xih );
@@ -153,7 +155,9 @@ extern xi_state_t xi_remove_ed( xi_context_handle_t xih, const char* edge_device
 
     const xi_vector_index_type_t found_index = xi_vector_find(
         xi_globals.context_handles_vector_edge_devices,
-        XI_VEC_CONST_VALUE_PARAM( ( void* )&search_key ), _xi_ed_find_context_2_id );
+        XI_VEC_CONST_VALUE_PARAM( ( void* )&search_key ), _xi_cmp_ed_context_ed_ids );
+
+    /* todo_atigyi: check if edge device is still connected, throw error if it is */
 
     if ( 0 <= found_index )
     {
@@ -174,48 +178,12 @@ extern xi_state_t xi_remove_ed( xi_context_handle_t xih, const char* edge_device
     return XI_STATE_OK;
 }
 
-xi_context_handle_t xi_create_gateway_context( xi_context_handle_t context_handle )
-{
-    XI_UNUSED( context_handle );
-
-    xi_state_t state = XI_STATE_OK;
-
-    xi_gateway_context_t* gateway_context = NULL;
-
-    XI_CHECK_STATE( state = xi_create_gateway_context_with_custom_layers(
-                        &gateway_context, xi_gw_layer_chain, XI_LAYER_CHAIN_GW,
-                        XI_LAYER_CHAIN_SCHEME_LENGTH( XI_LAYER_CHAIN_GW ) ) );
-
-    xi_context_handle_t gateway_context_handle = 0;
-    XI_CHECK_STATE( state = xi_find_handle_for_object( xi_globals.context_handles_vector,
-                                                       gateway_context,
-                                                       &gateway_context_handle ) );
-
-    return gateway_context_handle;
-
-err_handling:
-
-    return -state;
-}
-
-xi_state_t xi_delete_gateway_context( xi_context_handle_t gateway_context_handle )
-{
-    xi_gateway_context_t* gateway_context =
-        xi_object_for_handle( xi_globals.context_handles_vector, gateway_context_handle );
-
-    assert( gateway_context != NULL );
-
-    return xi_delete_gateway_context_with_custom_layers(
-        &gateway_context, xi_gw_layer_chain,
-        XI_LAYER_CHAIN_SCHEME_LENGTH( XI_LAYER_CHAIN_GW ) );
-}
-
-xi_state_t xi_gateway_publish( xi_context_handle_t gateway_context_handle,
-                               const char* edge_device_id,
-                               const uint8_t* data,
-                               size_t data_len,
-                               xi_user_callback_t* callback,
-                               void* user_data )
+xi_state_t xi_gw_edge_device_publish( xi_context_handle_t gateway_context_handle,
+                                      const char* edge_device_id,
+                                      const uint8_t* data,
+                                      size_t data_len,
+                                      xi_user_callback_t* callback,
+                                      void* user_data )
 {
     XI_UNUSED( gateway_context_handle );
     XI_UNUSED( edge_device_id );
