@@ -12,7 +12,7 @@
 #include "xi_bsp_fwu_notifications_esp32.h"
 
 #include "esp_system.h"
-#include "esp_ota_ops.h"
+//#include "esp_ota_ops.h"
 
 uint8_t xi_bsp_fwu_is_this_firmware( const char* const resource_name )
 {
@@ -42,31 +42,9 @@ void xi_bsp_fwu_on_package_download_failure()
 
 void xi_bsp_fwu_on_package_download_finished( const char* const firmware_resource_name )
 {
-    if ( NULL != firmware_resource_name )
-    {
-        /* Firmware image was updated */
-        xi_bsp_debug_logger( "SFT package download finished. FW updated; rebooting" );
-        const esp_partition_t* next_partition = esp_ota_get_next_update_partition( NULL );
-        esp_err_t retv                        = ESP_OK;
-
-        retv = esp_ota_set_boot_partition( next_partition );
-        if ( ESP_OK != retv )
-        {
-            xi_bsp_debug_format( "esp_ota_set_boot_partition() failed with error %d",
-                                 retv );
-            return;
-        }
-
-        if ( NULL != xi_bsp_fwu_notification_callbacks.update_applied )
-        {
-            ( xi_bsp_fwu_notification_callbacks.update_applied )();
-        }
-
-        /* reboot the device */
-        esp_restart();
-    }
-    /* Firmware image was not updated */
-    xi_bsp_debug_logger( "SFT package download finished. No need to reboot" );
+    assert( NULL != xi_bsp_fwu_notification_callbacks.update_applied );
+    const uint8_t app_binary_updated = ( NULL != firmware_resource_name );
+    ( xi_bsp_fwu_notification_callbacks.update_applied )( app_binary_updated );
     return;
 }
 

@@ -8,3 +8,4 @@ XI_TLS_LIB_BIN_DIR ?= ./src/import/tls/mbedtls/library/
 XI_TLS_LIB_NAME ?= mbedtls mbedx509 mbedcrypto
 
 XI_CONFIG_FLAGS += -DXI_TLS_LIB_MBEDTLS
+XI_CONFIG_FLAGS += -DMBEDTLS_PLATFORM_MEMORY
