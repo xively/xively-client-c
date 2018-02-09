@@ -90,6 +90,7 @@ xi_state_t xi_gw_glue_layer_push( void* context, void* data, xi_state_t in_out_s
         xi_mqtt_retain_t shell_message_retain = 0;
 
         /* MQTT over MQTT, tunneling happens here. Publishing an MQTT encoded message. */
+        /* todo_atigyi: use appropriate topic name here for every different edge device */
         in_out_state = xi_publish_data_impl(
             XI_CONTEXT_DATA( context )->main_context_handle, "$Tunnel/tunnel-id-guid",
             mqtt_message_to_tunnel, shell_message_qos, shell_message_retain,
