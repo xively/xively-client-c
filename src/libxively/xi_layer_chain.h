@@ -56,7 +56,7 @@ xi_layer_chain_create( const xi_layer_type_id_t layers_ids[],
     size_t i = 0;
     for ( ; i < length; ++i )
     {
-        void* init_to_null = 0;
+        void* init_to_null = NULL;
         layers[i] =
             xi_layer_create( layers_ids[i], init_to_null, context_data, layer_types );
     }

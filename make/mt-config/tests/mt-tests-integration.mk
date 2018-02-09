@@ -60,6 +60,10 @@ ifeq (,$(findstring tls_bsp,$(CONFIG)))
     XI_ITESTS_SOURCES := $(filter-out $(XI_ITESTS_SOURCE_DIR)/xi_itest_tls_layer.c, $(XI_ITESTS_SOURCES))
 endif
 
+ifndef XI_GATEWAY_FEATURE_ENABLED
+    XI_ITESTS_SOURCES := $(filter-out $(XI_ITESTS_SOURCE_DIR)/xi_itest_gateway.c, $(XI_ITESTS_SOURCES))
+endif
+
 XI_ITEST_OBJS := $(filter-out $(XI_ITESTS_SOURCES), $(XI_ITESTS_SOURCES:.c=.o))
 XI_ITEST_OBJS := $(subst $(XI_ITESTS_SOURCE_DIR), $(XI_ITESTS_OBJDIR), $(XI_ITEST_OBJS))
 XI_ITEST_OBJS := $(subst $(LIBXIVELY)/src, $(XI_OBJDIR), $(XI_ITEST_OBJS))

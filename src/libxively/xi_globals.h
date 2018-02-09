@@ -25,7 +25,6 @@ typedef struct
     uint32_t network_timeout;
     uint8_t globals_ref_count;
     xi_evtd_instance_t* evtd_instance;
-    xi_context_t* default_context;
     xi_context_handle_t default_context_handle;
     xi_vector_t* context_handles_vector;
     xi_timed_task_container_t* timed_tasks_container;
@@ -33,6 +32,8 @@ typedef struct
     char* str_account_id;
     char* str_device_unique_id;
     xi_backoff_status_t backoff_status;
+
+    xi_vector_t* context_handles_vector_edge_devices;
 } xi_globals_t;
 
 extern xi_globals_t xi_globals;

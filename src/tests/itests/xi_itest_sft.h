@@ -7,24 +7,24 @@
 #ifndef __XI_ITEST_SFT_H__
 #define __XI_ITEST_SFT_H__
 
-extern int xi_itest_sft_setup( void** state );
-extern int xi_itest_sft_teardown( void** state );
+extern int xi_itest_sft_setup( void** fixture_void );
+extern int xi_itest_sft_teardown( void** fixture_void );
 
 extern void
-xi_itest_sft__client_doesnt_start_SFT_if_no_update_file_is_set( void** state );
+xi_itest_sft__client_doesnt_start_SFT_if_no_update_file_is_set( void** fixture_void );
 extern void
-xi_itest_sft__basic_flow__SFT_with_happy_broker__protocol_intact( void** state );
+xi_itest_sft__basic_flow__SFT_with_happy_broker__protocol_intact( void** fixture_void );
 extern void
 xi_itest_sft__broker_replies_FILE_INFO_on_FILE_GET_CHUNK__client_does_not_crash_or_leak(
-    void** state );
+    void** fixture_void );
 extern void xi_itest_sft__broker_replies_FUA_on_FILE_GET_CHUNK__client_processes_2nd_FUA(
-    void** state );
-extern void xi_itest_sft__manymany_updateable_files( void** state );
+    void** fixture_void );
+extern void xi_itest_sft__manymany_updateable_files( void** fixture_void );
+extern void xi_itest_sft__firmware_bin_received__firmware_test_commit_triggered(
+    void** fixture_void );
 extern void
-xi_itest_sft__firmware_bin_received__firmware_test_commit_triggered( void** state );
-extern void
-xi_itest_sft__revision_non_volatile_storage__proper_value_stored( void** state );
-extern void xi_itest_sft__checksum_mismatch__update_process_exits( void** state );
+xi_itest_sft__revision_non_volatile_storage__proper_value_stored( void** fixture_void );
+extern void xi_itest_sft__checksum_mismatch__update_process_exits( void** fixture_void );
 
 extern void xi_itest_sft__custom_URL_download__single_file( void** fixture_void );
 extern void

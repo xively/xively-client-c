@@ -197,6 +197,7 @@ xi_vector_index_type_t xi_vector_find( xi_vector_t* vector,
 {
     /* PRECONDITIONS */
     assert( NULL != vector );
+    assert( NULL != fun_cmp );
 
     xi_vector_index_type_t i = 0;
 
@@ -230,10 +231,11 @@ void xi_vector_for_each( xi_vector_t* vector,
 
 void* xi_vector_get( xi_vector_t* vector, xi_vector_index_type_t index )
 {
-    if ( vector->elem_no <= index || index < 0 )
+    if ( NULL == vector || vector->elem_no <= index || index < 0 )
     {
         return NULL;
     }
+
     return vector->array[index].selector_t.ptr_value;
 }
 

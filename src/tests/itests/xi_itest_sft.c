@@ -20,6 +20,7 @@
 #include "xi_itest_mock_broker_layerchain.h"
 #include "xi_itest_mock_broker_sft_logic.h"
 #include "xi_control_message_sft_generators.h"
+#include <xi_context.h>
 
 #include "xi_bsp_fwu.h"
 
@@ -110,8 +111,6 @@ typedef struct xi_itest_sft__test_fixture_s
     const char* control_topic_name_client_in;
     const char* control_topic_name_client_out;
 
-    xi_mock_broker_data_t* broker_data;
-
     uint16_t loop_id__manual_disconnect;
 
     uint16_t max_loop_count;
@@ -125,8 +124,8 @@ static xi_itest_sft__test_fixture_t* _xi_itest_sft__generate_fixture()
 
     XI_ALLOC( xi_itest_sft__test_fixture_t, fixture, state );
 
-    fixture->control_topic_name_client_in  = ( "xi/ctrl/v1/xi_itest_sft_device_id/cln" );
-    fixture->control_topic_name_client_out = ( "xi/ctrl/v1/xi_itest_sft_device_id/svc" );
+    fixture->control_topic_name_client_in  = ( "xi/ctrl/v1/itest_username/cln" );
+    fixture->control_topic_name_client_out = ( "xi/ctrl/v1/itest_username/svc" );
 
     fixture->loop_id__manual_disconnect = 0xFFFF - 5;
     fixture->max_loop_count             = 0xFFFF;
@@ -158,17 +157,17 @@ int xi_itest_sft_setup( void** fixture_void )
 
     xi_initialize( "xi_itest_sft_account_id", "xi_itest_sft_device_id" );
 
-    XI_CHECK_STATE( xi_create_context_with_custom_layers(
+    XI_CHECK_STATE( xi_create_context_with_custom_layers_and_evtd(
         &xi_context, itest_ct_ml_mc_layer_chain, XI_LAYER_CHAIN_CT_ML_MC,
-        XI_LAYER_CHAIN_SCHEME_LENGTH( XI_LAYER_CHAIN_CT_ML_MC ) ) );
+        XI_LAYER_CHAIN_SCHEME_LENGTH( XI_LAYER_CHAIN_CT_ML_MC ), NULL, 1 ) );
 
     xi_find_handle_for_object( xi_globals.context_handles_vector, xi_context,
                                &xi_context_handle );
 
-    XI_CHECK_STATE( xi_create_context_with_custom_layers(
+    XI_CHECK_STATE( xi_create_context_with_custom_layers_and_evtd(
         &xi_context_mockbroker, itest_mock_broker_codec_layer_chain,
         XI_LAYER_CHAIN_MOCK_BROKER_CODEC,
-        XI_LAYER_CHAIN_SCHEME_LENGTH( XI_LAYER_CHAIN_MOCK_BROKER_CODEC ) ) );
+        XI_LAYER_CHAIN_SCHEME_LENGTH( XI_LAYER_CHAIN_MOCK_BROKER_CODEC ), NULL, 0 ) );
 
     return 0;
 
@@ -190,7 +189,6 @@ int xi_itest_sft_teardown( void** fixture_void )
 
     xi_shutdown();
 
-    XI_UNUSED( fixture_void );
     xi_itest_sft__test_fixture_t* fixture =
         ( xi_itest_sft__test_fixture_t* )*fixture_void;
 
@@ -254,6 +252,8 @@ static void xi_itest_sft__act( void** fixture_void,
     XI_ALLOC( xi_mock_broker_data_t, broker_data, state );
     broker_data->control_topic_name_broker_in  = fixture->control_topic_name_client_out;
     broker_data->control_topic_name_broker_out = fixture->control_topic_name_client_in;
+    broker_data->layer_output_target =
+        xi_itest_find_layer( xi_context, XI_LAYER_TYPE_MQTT_CODEC_SUT );
 
     XI_PROCESS_INIT_ON_THIS_LAYER(
         &xi_context_mockbroker->layer_chain.top->layer_connection, broker_data,
@@ -266,6 +266,7 @@ static void xi_itest_sft__act( void** fixture_void,
 
     const uint16_t connection_timeout = fixture->max_loop_count;
     const uint16_t keepalive_timeout  = fixture->max_loop_count;
+
     xi_connect( xi_context_handle, "itest_username", "itest_password", connection_timeout,
                 keepalive_timeout, XI_SESSION_CLEAN,
                 &_xi_itest_sft__on_connection_state_changed );

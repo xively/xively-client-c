@@ -64,7 +64,8 @@ err_handling:
     return local_state;
 }
 
-xi_state_t xi_control_topic_create_topic_name( char** subscribe_topic_name,
+xi_state_t xi_control_topic_create_topic_name( const char* device_id,
+                                               char** subscribe_topic_name,
                                                char** publish_topic_name )
 {
     if ( subscribe_topic_name == NULL || *subscribe_topic_name != NULL ||
@@ -76,17 +77,13 @@ xi_state_t xi_control_topic_create_topic_name( char** subscribe_topic_name,
     xi_state_t local_state = XI_STATE_OK;
 
     local_state = xi_control_topic_allocate_and_snprintf(
-        subscribe_topic_name,
-        xi_globals.str_device_unique_id == NULL ? device_id_is_missing
-                                                : xi_globals.str_device_unique_id,
+        subscribe_topic_name, ( device_id == NULL ) ? device_id_is_missing : device_id,
         channel_name_subscribe );
 
     XI_CHECK_STATE( local_state );
 
     local_state = xi_control_topic_allocate_and_snprintf(
-        publish_topic_name,
-        xi_globals.str_device_unique_id == NULL ? device_id_is_missing
-                                                : xi_globals.str_device_unique_id,
+        publish_topic_name, ( device_id == NULL ) ? device_id_is_missing : device_id,
         channel_name_publish );
 
     XI_CHECK_STATE( local_state );

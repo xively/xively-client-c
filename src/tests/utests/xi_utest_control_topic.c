@@ -102,8 +102,8 @@ XI_TT_TESTCASE(
                            XI_STATE_OK );
             }
 
-            xi_state_t state =
-                xi_control_topic_create_topic_name( &sub_topic_name, &pub_topic_name );
+            xi_state_t state = xi_control_topic_create_topic_name(
+                topic_names[i].device_id, &sub_topic_name, &pub_topic_name );
 
             tt_int_op( state, ==, XI_STATE_OK );
 
@@ -131,8 +131,8 @@ XI_TT_TESTCASE(
         char* sub_topic_name = "NULL";
         char* pub_topic_name = NULL;
 
-        xi_state_t state =
-            xi_control_topic_create_topic_name( &sub_topic_name, &pub_topic_name );
+        xi_state_t state = xi_control_topic_create_topic_name(
+            "utest_device_id", &sub_topic_name, &pub_topic_name );
 
         tt_want_int_op( state, ==, XI_INVALID_PARAMETER );
         tt_int_op( xi_is_whole_memory_deallocated(), >, 0 );
@@ -145,8 +145,8 @@ XI_TT_TESTCASE(
         char* sub_topic_name = NULL;
         char* pub_topic_name = "NULL";
 
-        xi_state_t state =
-            xi_control_topic_create_topic_name( &sub_topic_name, &pub_topic_name );
+        xi_state_t state = xi_control_topic_create_topic_name(
+            "utest_device_id", &sub_topic_name, &pub_topic_name );
 
         tt_want_int_op( state, ==, XI_INVALID_PARAMETER );
         tt_int_op( xi_is_whole_memory_deallocated(), >, 0 );
@@ -158,7 +158,8 @@ XI_TT_TESTCASE(
     {
         char* pub_topic_name = NULL;
 
-        xi_state_t state = xi_control_topic_create_topic_name( NULL, &pub_topic_name );
+        xi_state_t state = xi_control_topic_create_topic_name( "utest_device_id", NULL,
+                                                               &pub_topic_name );
 
         tt_want_int_op( state, ==, XI_INVALID_PARAMETER );
         tt_int_op( xi_is_whole_memory_deallocated(), >, 0 );
@@ -170,7 +171,8 @@ XI_TT_TESTCASE(
     {
         char* sub_topic_name = NULL;
 
-        xi_state_t state = xi_control_topic_create_topic_name( &sub_topic_name, NULL );
+        xi_state_t state = xi_control_topic_create_topic_name( "utest_device_id",
+                                                               &sub_topic_name, NULL );
 
         tt_want_int_op( state, ==, XI_INVALID_PARAMETER );
         tt_int_op( xi_is_whole_memory_deallocated(), >, 0 );

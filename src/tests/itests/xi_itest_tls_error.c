@@ -15,11 +15,13 @@
 #include "xi_memory_checks.h"
 #include "xi_bsp_time.h"
 
+#include <xi_context.h>
+
 extern char xi_test_load_level;
 
-xi_context_t* xi_context              = NULL;
+extern xi_context_t* xi_context;
 xi_context_handle_t xi_context_handle = XI_INVALID_CONTEXT_HANDLE;
-xi_context_t* xi_context_mockbroker   = NULL;
+extern xi_context_t* xi_context_mockbroker;
 
 /**
  * xi_itest_tls_error test suit description
@@ -86,8 +88,8 @@ xi_itest_tls_error__test_fixture_t* xi_itest_tls_error__generate_fixture()
 
     fixture->test_topic_name      = ( "test/topic/name" );
     fixture->test_full_topic_name = ( "xi/blue/v1/xi_itest_tls_error_account_id/d/"
-                                      "xi_itest_tls_error_device_id/test/topic/name" );
-    fixture->control_topic_name = ( "xi/ctrl/v1/xi_itest_tls_error_device_id/cln" );
+                                      "itest_username/test/topic/name" );
+    fixture->control_topic_name = ( "xi/ctrl/v1/itest_username/cln" );
 
 /* control_topic_auto_subscribe is 2 because control topic subscription happens in the 3rd
  * loop, this is precise timed simulation, some test cases are sensitive for timing*/
@@ -125,17 +127,17 @@ int xi_itest_tls_error_setup( void** fixture_void )
 
     xi_initialize( "xi_itest_tls_error_account_id", "xi_itest_tls_error_device_id" );
 
-    XI_CHECK_STATE( xi_create_context_with_custom_layers(
+    XI_CHECK_STATE( xi_create_context_with_custom_layers_and_evtd(
         &xi_context, itest_ct_ml_mc_layer_chain, XI_LAYER_CHAIN_CT_ML_MC,
-        XI_LAYER_CHAIN_SCHEME_LENGTH( XI_LAYER_CHAIN_CT_ML_MC ) ) );
+        XI_LAYER_CHAIN_SCHEME_LENGTH( XI_LAYER_CHAIN_CT_ML_MC ), NULL, 1 ) );
 
     xi_find_handle_for_object( xi_globals.context_handles_vector, xi_context,
                                &xi_context_handle );
 
-    XI_CHECK_STATE( xi_create_context_with_custom_layers(
+    XI_CHECK_STATE( xi_create_context_with_custom_layers_and_evtd(
         &xi_context_mockbroker, itest_mock_broker_codec_layer_chain,
         XI_LAYER_CHAIN_MOCK_BROKER_CODEC,
-        XI_LAYER_CHAIN_SCHEME_LENGTH( XI_LAYER_CHAIN_MOCK_BROKER_CODEC ) ) );
+        XI_LAYER_CHAIN_SCHEME_LENGTH( XI_LAYER_CHAIN_MOCK_BROKER_CODEC ), NULL, 0 ) );
 
     return 0;
 
@@ -205,8 +207,15 @@ static void xi_itest_tls_error__act( void** fixture_void,
                                      char do_publish_flag,
                                      char do_disconnect_flag )
 {
+    xi_state_t state = XI_STATE_OK;
+
+    XI_ALLOC( xi_mock_broker_data_t, broker_data, state );
+    broker_data->layer_output_target =
+        xi_itest_find_layer( xi_context, XI_LAYER_TYPE_MQTT_CODEC_SUT );
+
     XI_PROCESS_INIT_ON_THIS_LAYER(
-        &xi_context_mockbroker->layer_chain.top->layer_connection, NULL, XI_STATE_OK );
+        &xi_context_mockbroker->layer_chain.top->layer_connection, broker_data,
+        XI_STATE_OK );
 
     xi_evtd_step( xi_globals.evtd_instance, xi_bsp_time_getcurrenttime_seconds() );
 
@@ -246,6 +255,12 @@ static void xi_itest_tls_error__act( void** fixture_void,
             xi_shutdown_connection( xi_context_handle );
         }
     }
+
+    return;
+
+err_handling:
+
+    XI_SAFE_FREE( broker_data );
 }
 
 uint8_t xi_itest_tls_error__load_level_filter_PUSH( uint8_t xi_state_error_code )

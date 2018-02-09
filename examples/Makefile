@@ -51,6 +51,7 @@ XI_EXAMPLES_ALL += senml_serializer
 XI_EXAMPLES_ALL += mqtt_last_will
 XI_EXAMPLES_ALL += mqtt_logic_example_two_contexts
 XI_EXAMPLES_ALL += firmware_update
+XI_EXAMPLES_ALL += gateway
 
 all: $(XI_EXAMPLES_ALL)
 

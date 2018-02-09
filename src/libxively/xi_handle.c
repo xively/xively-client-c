@@ -14,7 +14,7 @@
 static inline int8_t xi_compare_context_pointers( const union xi_vector_selector_u* e0,
                                                   const union xi_vector_selector_u* e1 )
 {
-    return e0->ptr_value == e1->ptr_value ? 0 : 1;
+    return ( e0->ptr_value == e1->ptr_value ) ? 0 : 1;
 }
 
 /* -----------------------------------------------------------------------
@@ -23,7 +23,6 @@ static inline int8_t xi_compare_context_pointers( const union xi_vector_selector
 
 void* xi_object_for_handle( xi_vector_t* vector, xi_handle_t handle )
 {
-    assert( vector != NULL );
     return xi_vector_get( vector, handle );
 }
 
@@ -63,9 +62,11 @@ xi_state_t xi_register_handle_for_object( xi_vector_t* vector,
                                           const void* object )
 {
     assert( vector != NULL );
+
     xi_vector_index_type_t handler_index =
         xi_vector_find( vector, XI_VEC_CONST_VALUE_PARAM( XI_VEC_VALUE_PTR( NULL ) ),
                         xi_compare_context_pointers );
+
     if ( handler_index < 0 )
     {
         if ( vector->elem_no >= max_object_cnt )

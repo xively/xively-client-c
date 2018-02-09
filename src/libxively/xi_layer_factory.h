@@ -79,7 +79,8 @@ static inline xi_layer_t* xi_layer_create( const xi_layer_type_id_t layer_type_i
     return xi_layer_place( ret, user_data, context_data );
 
 err_handling:
-    return 0;
+
+    return NULL;
 }
 
 static inline void xi_layer_delete( xi_layer_t* layer, xi_layer_type_t layer_types[] )

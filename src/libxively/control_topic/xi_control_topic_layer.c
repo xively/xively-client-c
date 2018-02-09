@@ -89,7 +89,7 @@ xi_control_topic_publish_on_topic( void* context, xi_control_message_t* control_
         return XI_INVALID_PARAMETER;
     }
 
-    xi_state_t local_state = XI_STATE_OK;
+    xi_state_t local_state                = XI_STATE_OK;
     xi_mqtt_logic_task_t* mqtt_logic_task = NULL;
 
     xi_control_topic_layer_data_t* layer_data =
@@ -359,6 +359,7 @@ xi_control_topic_layer_connect( void* context, void* data, xi_state_t in_out_sta
     {
         /* let's create the topic name */
         in_out_state = xi_control_topic_create_topic_name(
+            XI_CONTEXT_DATA( context )->connection_data->username,
             &subscribe_control_topic_name, &layer_data->publish_topic_name );
 
         XI_CHECK_STATE( in_out_state );

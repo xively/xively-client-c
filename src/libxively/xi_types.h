@@ -65,6 +65,8 @@ typedef struct xi_context_data_s
     char** updateable_files;
     uint16_t updateable_files_count;
     xi_sft_url_handler_callback_t* sft_url_handler_callback;
+
+    xi_context_handle_t main_context_handle;
 } xi_context_data_t;
 
 typedef struct xi_context_s

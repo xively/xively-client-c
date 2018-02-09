@@ -25,6 +25,16 @@ typedef struct xi_mock_broker_data_s
     const char* control_topic_name_broker_out;
 
     xi_data_desc_t* outgoing_publish_content;
+    xi_data_desc_t* outgoing_publish_content_secondary_layer;
+
+    /* two mock broker contexts (mock broker and the mock broker edge device handler)
+     * alternate the execution between each other. This solves the MQTT over MQTT codec
+     * (double MQTT encoding / decoding) */
+
+    xi_layer_t* layer_tunneled_message_target;
+    xi_layer_t* layer_output_target;
+
+    xi_mqtt_message_t* last_tunneled_recvd_msg;
 } xi_mock_broker_data_t;
 
 /**

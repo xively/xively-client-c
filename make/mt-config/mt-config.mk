@@ -231,6 +231,13 @@ ifneq (,$(findstring secure_file_transfer,$(CONFIG)))
 	XI_SECURE_FILE_TRANSFER_ENABLED := 1
 endif
 
+ifneq (,$(findstring gateway,$(CONFIG)))
+	XI_CONFIG_FLAGS += -DXI_GATEWAY_FEATURE_ENABLED
+	XI_SRCDIRS += $(LIBXIVELY_SOURCE_DIR)/gateway
+
+	XI_GATEWAY_FEATURE_ENABLED := 1
+endif
+
 # MODULES SRCDIRS
 XI_SRCDIRS += $(foreach platformdep,$(XI_PLATFORM_MODULES_ENABLED) \
 			,$(LIBXIVELY_SOURCE_DIR)/platform/$(XI_PLATFORM_BASE)/$(platformdep))

@@ -11,6 +11,7 @@
 #include "xi_itest_mqttlogic_layer.h"
 #include "xi_memory_checks.h"
 #include "xi_mqtt_logic_layer_data_helpers.h"
+#include <xi_context.h>
 
 #include <time.h>
 
@@ -150,10 +151,10 @@ int xi_itest_mqttlogic_layer_setup( void** state )
     assert_int_equal( XI_STATE_OK, xi_initialize( "xi_itest_tls_error_account_id",
                                                   "xi_itest_tls_error_device_id" ) );
 
-    XI_CHECK_STATE( xi_create_context_with_custom_layers(
+    XI_CHECK_STATE( xi_create_context_with_custom_layers_and_evtd(
         &xi_context__itest_mqttlogic_layer, xi_itest_layer_chain_mqttlogic,
         XI_LAYER_CHAIN_MQTTLOGIC,
-        XI_LAYER_CHAIN_SCHEME_LENGTH( XI_LAYER_CHAIN_MQTTLOGIC ) ) );
+        XI_LAYER_CHAIN_SCHEME_LENGTH( XI_LAYER_CHAIN_MQTTLOGIC ), NULL, 1 ) );
 
     return 0;
 
@@ -287,7 +288,7 @@ void xi_itest_mqttlogic_layer_act()
 /*********************************************************************************
  * test cases ********************************************************************
  ********************************************************************************/
-void xi_itest_mqttlogic_layer__backoff_class_error_PUSH__layerchain_closure_is_expected(
+void xi_itest_mqtt_logic_layer__backoff_class_error_PUSH__layerchain_closure_is_expected(
     void** state )
 {
     uint8_t id_error = 0;
@@ -331,7 +332,7 @@ void xi_itest_mqttlogic_layer__backoff_class_error_PUSH__layerchain_closure_is_e
     }
 }
 
-void xi_itest_mqttlogic_layer__backoff_class_error_PULL__layerchain_closure_is_expected(
+void xi_itest_mqtt_logic_layer__backoff_class_error_PULL__layerchain_closure_is_expected(
     void** state )
 {
     uint8_t id_error = 0;

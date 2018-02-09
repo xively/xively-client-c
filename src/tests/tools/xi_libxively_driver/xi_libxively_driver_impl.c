@@ -7,20 +7,9 @@
 #include "xi_driver_control_channel_layerchain.h"
 #include "xi_control_channel_protocol.pb-c.h"
 #include "xi_globals.h"
+#include <xi_context.h>
 
 xi_libxively_driver_t* libxively_driver = NULL;
-
-// todo: move this function predeclaration to an internal header
-xi_state_t
-xi_create_context_with_custom_layers_and_evtd( xi_context_t** context,
-                                               xi_layer_type_t layer_config[],
-                                               xi_layer_type_id_t layer_chain[],
-                                               size_t layer_chain_size,
-                                               xi_evtd_instance_t* event_dispatcher );
-
-xi_state_t xi_delete_context_with_custom_layers( xi_context_t** context,
-                                                 xi_layer_type_t layer_config[],
-                                                 size_t layer_chain_size );
 
 xi_state_t
 xi_driver_free_protobuf_callback( struct _XiClientFtestFw__XiClientCallback* callback );
@@ -41,7 +30,7 @@ xi_libxively_driver_t* xi_libxively_driver_create_instance()
         &driver->context, xi_driver_control_channel_layerchain,
         XI_LAYER_CHAIN_DRIVER_CONTROL_CHANNEL,
         XI_LAYER_CHAIN_SCHEME_LENGTH( XI_LAYER_CHAIN_DRIVER_CONTROL_CHANNEL ),
-        driver->evtd_instance ) );
+        driver->evtd_instance, 0 ) );
 
     XI_CHECK_CND_DBGMESSAGE( driver->context == NULL, XI_OUT_OF_MEMORY, state,
                              "could not instantiate context for libxively driver" );

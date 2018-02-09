@@ -129,7 +129,7 @@ xi_state_t xi_mqtt_codec_layer_push( void* context, void* data, xi_state_t in_ou
 
     /* if it's publish then the payload is sent separately
      * for more details check serialiser implementation and this function
-     * at line 169 */
+     * at line 173 */
     rc = xi_mqtt_serialiser_write( &serializer, msg, data_desc, msg_contents_size,
                                    remaining_len );
 
@@ -163,7 +163,7 @@ xi_state_t xi_mqtt_codec_layer_push( void* context, void* data, xi_state_t in_ou
     /* PRE-CONTINUE-CONDITIONS */
     assert( NULL != msg );
 
-    /* if header failed no need to */
+    /* if header failed no need to send the PUBLISH payload */
     if ( XI_STATE_WRITTEN != in_out_state )
     {
         goto finalise;
@@ -271,7 +271,7 @@ xi_state_t xi_mqtt_codec_layer_pull( void* context, void* data, xi_state_t in_ou
 
     XI_CR_START( layer_data->pull_cs );
 
-    assert( layer_data->msg == 0 );
+    assert( NULL == layer_data->msg );
 
     XI_ALLOC_AT( xi_mqtt_message_t, layer_data->msg, in_out_state );
 

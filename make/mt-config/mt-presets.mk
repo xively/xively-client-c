@@ -6,8 +6,8 @@
 include make/mt-config/mt-target-platform.mk
 
 # CONFIG for POSIX presets
-CONFIG_POSIX_MAX           =posix_fs-posix_platform-tls_bsp-senml-control_topic-memory_limiter-secure_file_transfer
-CONFIG_POSIX_MAX_THREADING =posix_fs-posix_platform-tls_bsp-senml-control_topic-threading-memory_limiter-secure_file_transfer
+CONFIG_POSIX_MAX           =posix_fs-posix_platform-tls_bsp-senml-control_topic-memory_limiter-secure_file_transfer-gateway
+CONFIG_POSIX_MAX_THREADING =posix_fs-posix_platform-tls_bsp-senml-control_topic-memory_limiter-secure_file_transfer-gateway-threading
 CONFIG_POSIX_MID           =posix_fs-posix_platform-tls_bsp-senml-control_topic-secure_file_transfer
 CONFIG_POSIX_MID_UNSECURE  =posix_fs-posix_platform-senml-control_topic-secure_file_transfer
 CONFIG_POSIX_MIN           =posix_fs-posix_platform-tls_bsp

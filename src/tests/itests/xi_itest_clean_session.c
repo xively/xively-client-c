@@ -21,6 +21,8 @@
 #include "xi_memory_checks.h"
 #include "xi_layer_default_functions.h"
 
+#include <xi_context.h>
+
 /*-----------------------------------------------------------------------*/
 #ifndef XI_NO_TLS_LAYER
 #define XI_DEFAULT_LAYER_CHAIN                                                           \
@@ -126,7 +128,7 @@ XI_LAYER_TYPES_ADD( XI_LAYER_TYPE_IO,
 
         i++;
     }
-    printf( "\n----> Done with the inject\n" );
+    // printf( "\n----> Done with the inject\n" );
 }
 
 static xi_context_t* xi_context              = NULL;
@@ -140,9 +142,9 @@ int xi_itest_clean_session_setup( void** state )
 
     assert_int_equal( XI_STATE_OK, xi_initialize( "itest-acc-id", "itest-dev-id" ) );
 
-    XI_CHECK_STATE( xi_create_context_with_custom_layers(
+    XI_CHECK_STATE( xi_create_context_with_custom_layers_and_evtd(
         &xi_context, itest_cyassl_context, XI_LAYER_CHAIN_DEFAULT,
-        XI_LAYER_CHAIN_DEFAULTSIZE_SUFFIX ) );
+        XI_LAYER_CHAIN_DEFAULTSIZE_SUFFIX, NULL, 1 ) );
 
     xi_find_handle_for_object( xi_globals.context_handles_vector, xi_context,
                                &xi_context_handle );

@@ -132,37 +132,6 @@ extern void xi_itest_inject_wraps( xi_context_t* xi_context,
                                    xi_layer_func_t* connect );
 
 /**
- * @brief xi_create_context_with_custom_layers
- *
- * hidden API function that allows us to initialize context with custom
- * layer setup
- *
- * @param context
- * @param layer_config
- * @param layer_chain
- * @param layer_chain_size
- * @return
- */
-extern xi_state_t xi_create_context_with_custom_layers( xi_context_t** context,
-                                                        xi_layer_type_t layer_config[],
-                                                        xi_layer_type_id_t layer_chain[],
-                                                        size_t layer_chain_size );
-
-/**
- * @brief xi_delete_context_with_custom_layers
- *
- * hidden API function that allows us to delete context with custom
- * layer setup
- *
- * @param context
- * @param layer_config
- * @return
- */
-extern xi_state_t xi_delete_context_with_custom_layers( xi_context_t** context,
-                                                        xi_layer_type_t layer_config[],
-                                                        size_t layer_chain_size );
-
-/**
  * macros for extracting next, and prev layer user data - this will be replaced
  * by the lookup function
  */

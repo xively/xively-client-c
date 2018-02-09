@@ -11,10 +11,10 @@ extern int xi_itest_mqttlogic_layer_setup( void** state );
 extern int xi_itest_mqttlogic_layer_teardown( void** state );
 
 extern void
-xi_itest_mqttlogic_layer__backoff_class_error_PUSH__layerchain_closure_is_expected(
+xi_itest_mqtt_logic_layer__backoff_class_error_PUSH__layerchain_closure_is_expected(
     void** state );
 extern void
-xi_itest_mqttlogic_layer__backoff_class_error_PULL__layerchain_closure_is_expected(
+xi_itest_mqtt_logic_layer__backoff_class_error_PULL__layerchain_closure_is_expected(
     void** state );
 extern void
 xi_itest_mqtt_logic_layer__subscribe_success__success_suback_callback_invocation(
@@ -38,11 +38,11 @@ xi_itest_mqtt_logic_layer__persistant_session__success_unacked_messages_are_rese
 #ifdef XI_MOCK_TEST_PREPROCESSOR_RUN
 struct CMUnitTest xi_itests_mqttlogic_layer[] = {
     cmocka_unit_test_setup_teardown(
-        xi_itest_mqttlogic_layer__backoff_class_error_PUSH__layerchain_closure_is_expected,
+        xi_itest_mqtt_logic_layer__backoff_class_error_PUSH__layerchain_closure_is_expected,
         xi_itest_mqttlogic_layer_setup,
         xi_itest_mqttlogic_layer_teardown ),
     cmocka_unit_test_setup_teardown(
-        xi_itest_mqttlogic_layer__backoff_class_error_PULL__layerchain_closure_is_expected,
+        xi_itest_mqtt_logic_layer__backoff_class_error_PULL__layerchain_closure_is_expected,
         xi_itest_mqttlogic_layer_setup,
         xi_itest_mqttlogic_layer_teardown ),
     cmocka_unit_test_setup_teardown(
