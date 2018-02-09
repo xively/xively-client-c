@@ -10,6 +10,11 @@
  * This is a custom extension of the Xively Client's BSP, used to report the
  * status of ongoing firmware downloads to the application layer.
  *
+ * The only required pointer is update_applied. The switch to the updated app
+ * requires headers that depend on sdkconfig.h. In order to maintain the
+ * libxively.a binary application-agnostic, that logic needs to be handled from
+ * the application layer. Other hardware platforms won't have that requirement
+ *
  * Relevant:
  *    - xi_bsp_fwu_esp32.h
  *    - xi_bsp_io_fs_esp32.h

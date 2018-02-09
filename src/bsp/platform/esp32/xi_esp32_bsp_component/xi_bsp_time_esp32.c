@@ -4,7 +4,6 @@
  * it is licensed under the BSD 3-Clause license.
  */
 #include <stdint.h>
-#include <time.h> /* For the gmtime() function */
 
 #include "xi_bsp_time.h"
 #include "xi_bsp_debug.h"
@@ -19,11 +18,10 @@
 #define XI_SNTP_TIMEOUT_MS 1000000
 
 #ifndef SNTP_MAX_SERVERS
-#error "SNTP_MAX_SERVERS must be set from mt-esp32.mk and sdkcoconfig to be used by sntp.c and this file"
-#else
-#if SNTP_MAX_SERVERS != 4
-#error "SNTP_MAX_SERVERS mismatch between the compiler option and the source code"
+#error "SNTP_MAX_SERVERS must be set from sdkconfig"
 #endif
+#if SNTP_MAX_SERVERS != 4
+#error "SNTP_MAX_SERVERS mismatch between the compiler option and the xi BSP"
 #endif
 
 char* sntp_servers[SNTP_MAX_SERVERS] = {"pool.ntp.org", "time-a.nist.gov",
@@ -43,7 +41,7 @@ void xi_bsp_time_init()
     sntp_setoperatingmode( SNTP_OPMODE_POLL );
     sntp_init();
 
-    xi_bsp_debug_format( "Awaiting SNTP response for %ld ms", sntp_task_timeout );
+    xi_bsp_debug_format( "Awaiting SNTP response for %d ms", sntp_task_timeout );
     while ( sntp_retrieved_time < DEVELOPMENT_DATETIME )
     {
         if ( 0 > ( sntp_task_timeout -= sntp_timeout_step_ms ) )
@@ -55,7 +53,8 @@ void xi_bsp_time_init()
         XI_ESP32_GET_TIME_FROM_RTC( &sntp_retrieved_time );
     }
 
-    xi_bsp_debug_format( "RTC updated to current datetime: %ld", sntp_retrieved_time );
+    xi_bsp_debug_format( "RTC updated to current datetime: %d",
+                         ( int32_t )sntp_retrieved_time );
 exit:
     sntp_stop();
 }
@@ -72,26 +71,4 @@ xi_time_t xi_bsp_time_getcurrenttime_milliseconds()
     /* note this returns seconds and not milliseconds since milliseconds from EPOCH
        do not fit into the variable type */
     return xi_bsp_time_getcurrenttime_seconds();
-}
-
-/**
- * Function required by WolfSSL to track the current time.
- */
-time_t XTIME( time_t* timer )
-{
-    time_t current_time = xi_bsp_time_getcurrenttime_seconds();
-    if ( timer )
-    {
-        *timer = current_time;
-    }
-    return current_time;
-}
-
-/**
- * Function required by WolfSSL to track the current time.
- */
-struct tm* XGMTIME( const time_t* timer, struct tm* tmp )
-{
-    ( void )tmp;
-    return gmtime( timer );
 }
