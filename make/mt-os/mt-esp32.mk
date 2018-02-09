@@ -103,11 +103,13 @@ endif
 include make/mt-config/mt-tls-$(XI_BSP_TLS)-esp32.mk
 
 ifeq ($(XI_BSP_TLS),wolfssl)
-# WolfSSL TLS BSP configuration
-XI_CONFIG_FLAGS += -DXI_PROVIDE_WOLFSSL_SEED_GENERATOR
-XI_CONFIG_FLAGS += -DXI_PROVIDE_WOLFSSL_XTIME_XGMTIME
+    # WolfSSL TLS BSP configuration
+    XI_CONFIG_FLAGS += -DXI_PROVIDE_WOLFSSL_SEED_GENERATOR
+    XI_CONFIG_FLAGS += -DXI_PROVIDE_WOLFSSL_XTIME_XGMTIME
 else ifeq ($(XI_BSP_TLS),mbedtls)
-XI_TLS_LIB_INC_DIR = $(IDF_PATH)/components/mbedtls/include
+    ifeq ($(XI_USE_EXTERNAL_TLS_LIB),1)
+        XI_TLS_LIB_INC_DIR = $(IDF_PATH)/components/mbedtls/include
+    endif
 endif
 
 ##################
