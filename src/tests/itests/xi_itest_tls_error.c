@@ -91,13 +91,10 @@ xi_itest_tls_error__test_fixture_t* xi_itest_tls_error__generate_fixture()
                                       "itest_username/test/topic/name" );
     fixture->control_topic_name = ( "xi/ctrl/v1/itest_username/cln" );
 
-/* control_topic_auto_subscribe is 2 because control topic subscription happens in the 3rd
- * loop, this is precise timed simulation, some test cases are sensitive for timing*/
-#ifdef XI_CONTROL_TOPIC_ENABLED
-    fixture->loop_id__control_topic_auto_subscribe = 2;
-#else
-    fixture->loop_id__control_topic_auto_subscribe = 3;
-#endif
+    /* control_topic_auto_subscribe is 1 because control topic subscription happens in the
+     * 2nd loop, this is precise timed simulation, some test cases are sensitive for
+     * timing */
+    fixture->loop_id__control_topic_auto_subscribe = 1;
 
     fixture->loop_id__manual_publish    = 6;
     fixture->loop_id__manual_disconnect = 15;
@@ -239,6 +236,8 @@ static void xi_itest_tls_error__act( void** fixture_void,
 #ifndef XI_CONTROL_TOPIC_ENABLED
         if ( loop_counter == fixture->loop_id__control_topic_auto_subscribe )
         {
+            xi_update_backoff_penalty( XI_STATE_OK );
+
             xi_subscribe( xi_context_handle, fixture->control_topic_name,
                           XI_MQTT_QOS_AT_LEAST_ONCE, on_publish_received, NULL );
         }

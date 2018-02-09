@@ -9,6 +9,7 @@
 #include <xively_mqtt.h>
 #include <xively.h>
 #include <xi_types.h>
+#include <xively_api_impls.h>
 
 static void
 _xi_message_arrived_on_tunnel_callback( xi_context_handle_t in_context_handle,
@@ -58,9 +59,10 @@ xi_state_t xi_gw_glue_layer_init( void* context, void* data, xi_state_t in_out_s
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
 
     /* subscribing to edge device's tunnel topic */
-    xi_subscribe( XI_CONTEXT_DATA( context )->main_context_handle,
-                  "$Tunnel/tunnel-id-guid", XI_MQTT_QOS_AT_MOST_ONCE,
-                  _xi_message_arrived_on_tunnel_callback, context );
+    xi_subscribe_impl( XI_CONTEXT_DATA( context )->main_context_handle,
+                       "$Tunnel/tunnel-id-guid", XI_MQTT_QOS_AT_MOST_ONCE,
+                       _xi_message_arrived_on_tunnel_callback, context,
+                       XI_THREADID_MAINTHREAD );
 
     return XI_PROCESS_CONNECT_ON_THIS_LAYER( context, data, in_out_state );
 }
@@ -89,13 +91,10 @@ xi_state_t xi_gw_glue_layer_push( void* context, void* data, xi_state_t in_out_s
 
         /* MQTT over MQTT, tunneling happens here. Publishing an MQTT encoded message. */
         /* todo_atigyi: use appropriate topic name here for every different edge device */
-        in_out_state =
-            xi_publish_data( XI_CONTEXT_DATA( context )->main_context_handle,
-                             "$Tunnel/tunnel-id-guid", mqtt_message_to_tunnel->data_ptr,
-                             mqtt_message_to_tunnel->length, shell_message_qos,
-                             shell_message_retain, _xi_publish_result_callback, context );
-
-        xi_free_desc( &mqtt_message_to_tunnel );
+        in_out_state = xi_publish_data_impl(
+            XI_CONTEXT_DATA( context )->main_context_handle, "$Tunnel/tunnel-id-guid",
+            mqtt_message_to_tunnel, shell_message_qos, shell_message_retain,
+            _xi_publish_result_callback, context, XI_THREADID_MAINTHREAD );
     }
     else if ( XI_STATE_WRITTEN == in_out_state )
     {

@@ -515,7 +515,8 @@ xi_state_t xi_publish_data_impl( xi_context_handle_t xih,
                                  const xi_mqtt_qos_t qos,
                                  const xi_mqtt_retain_t retain,
                                  xi_user_callback_t* callback,
-                                 void* user_data )
+                                 void* user_data,
+                                 xi_thread_id_t callback_target_thread_id )
 {
     /* PRE-CONDITIONS */
     assert( XI_INVALID_CONTEXT_HANDLE < xih );
@@ -530,7 +531,7 @@ xi_state_t xi_publish_data_impl( xi_context_handle_t xih,
     }
 
     xi_event_handle_t event_handle =
-        xi_make_threaded_handle( XI_THREADID_THREAD_0, &xi_user_callback_wrapper, xi,
+        xi_make_threaded_handle( callback_target_thread_id, &xi_user_callback_wrapper, xi,
                                  user_data, XI_STATE_OK, ( void* )callback );
 
     assert( XI_EVENT_HANDLE_ARGC4 == event_handle.handle_type ||
@@ -588,8 +589,8 @@ xi_state_t xi_publish( xi_context_handle_t xih,
 
     XI_CHECK_MEMORY( data_desc, state );
 
-    return xi_publish_data_impl( xih, topic, data_desc, qos, retain, callback,
-                                 user_data );
+    return xi_publish_data_impl( xih, topic, data_desc, qos, retain, callback, user_data,
+                                 XI_THREADID_THREAD_0 );
 
 err_handling:
     return state;
@@ -611,7 +612,7 @@ xi_state_t xi_publish_timeseries( xi_context_handle_t xih,
     XI_CHECK_MEMORY( data_desc, state );
 
     return xi_publish_data_impl( xih, topic, data_desc, qos, XI_MQTT_RETAIN_FALSE,
-                                 callback, user_data );
+                                 callback, user_data, XI_THREADID_THREAD_0 );
 
 err_handling:
     return state;
@@ -767,7 +768,7 @@ xi_state_t xi_publish_formatted_timeseries( xi_context_handle_t xih,
     XI_CHECK_MEMORY( data_desc, state );
 
     state = xi_publish_data_impl( xih, topic, data_desc, qos, XI_MQTT_RETAIN_FALSE,
-                                  callback, user_data );
+                                  callback, user_data, XI_THREADID_THREAD_0 );
 
 err_handling:
 
@@ -798,18 +799,19 @@ xi_state_t xi_publish_data( xi_context_handle_t xih,
 
     XI_CHECK_MEMORY( data_desc, state );
 
-    return xi_publish_data_impl( xih, topic, data_desc, qos, retain, callback,
-                                 user_data );
+    return xi_publish_data_impl( xih, topic, data_desc, qos, retain, callback, user_data,
+                                 XI_THREADID_THREAD_0 );
 
 err_handling:
     return state;
 }
 
-xi_state_t xi_subscribe( xi_context_handle_t xih,
-                         const char* topic,
-                         const xi_mqtt_qos_t qos,
-                         xi_user_subscription_callback_t* callback,
-                         void* user_data )
+xi_state_t xi_subscribe_impl( xi_context_handle_t xih,
+                              const char* topic,
+                              const xi_mqtt_qos_t qos,
+                              xi_user_subscription_callback_t* callback,
+                              void* user_data,
+                              xi_thread_id_t callback_target_thread_id )
 {
     if ( ( XI_INVALID_CONTEXT_HANDLE == xih ) || ( NULL == topic ) ||
          ( NULL == callback ) )
@@ -829,7 +831,7 @@ xi_state_t xi_subscribe( xi_context_handle_t xih,
     XI_CHECK_MEMORY( xi, state );
 
     event_handle = xi_make_threaded_handle(
-        XI_THREADID_THREAD_0, &xi_user_sub_call_wrapper, xi, NULL, XI_STATE_OK,
+        callback_target_thread_id, &xi_user_sub_call_wrapper, xi, NULL, XI_STATE_OK,
         ( void* )callback, ( void* )user_data, ( void* )NULL );
 
     if ( XI_BACKOFF_CLASS_NONE != xi_globals.backoff_status.backoff_class )
@@ -869,6 +871,16 @@ err_handling:
     XI_SAFE_FREE( internal_topic );
 
     return state;
+}
+
+xi_state_t xi_subscribe( xi_context_handle_t xih,
+                         const char* topic,
+                         const xi_mqtt_qos_t qos,
+                         xi_user_subscription_callback_t* callback,
+                         void* user_data )
+{
+    return xi_subscribe_impl( xih, topic, qos, callback, user_data,
+                              XI_THREADID_THREAD_0 );
 }
 
 xi_state_t xi_shutdown_connection_impl( xi_context_t* xi )
