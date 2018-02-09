@@ -15,6 +15,5 @@ xi_globals_t xi_globals = {
     .timed_tasks_container  = NULL,
     .main_threadpool        = NULL,
     .str_account_id         = NULL,
-    .str_device_unique_id   = NULL,
     .backoff_status = {xi_make_empty_time_event_handle(), 0, 0, XI_BACKOFF_CLASS_NONE, 0},
     .context_handles_vector_edge_devices = NULL};

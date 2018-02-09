@@ -444,7 +444,7 @@ void ConnectToXively()
     /* Disable the interrupt for now */
     Button_IF_DisableInterrupt( SW2 | SW3 );
 
-    xi_state_t ret_state = xi_initialize( XIVELY_ACCOUNT_ID, XIVELY_DEVICE_ID );
+    xi_state_t ret_state = xi_initialize( XIVELY_ACCOUNT_ID );
 
     if ( XI_STATE_OK != ret_state )
     {

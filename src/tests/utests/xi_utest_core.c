@@ -111,10 +111,10 @@ extern void xi_default_client_callback( xi_context_handle_t in_context_handle,
 XI_TT_TESTGROUP_BEGIN( utest_core )
 
 XI_TT_TESTCASE( test_initialize_shutdown_free_up_all_memory, {
-    xi_initialize( "test-acc", "test-dev" );
+    xi_initialize( "test-acc" );
     xi_shutdown();
 
-    xi_initialize( "test-acc", "test-dev" );
+    xi_initialize( "test-acc" );
     xi_shutdown();
 
     tt_want_int_op( xi_is_whole_memory_deallocated(), >, 0 );

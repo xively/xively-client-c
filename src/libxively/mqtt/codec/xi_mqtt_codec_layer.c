@@ -250,9 +250,6 @@ xi_state_t xi_mqtt_codec_layer_pull( void* context, void* data, xi_state_t in_ou
 {
     XI_LAYER_FUNCTION_PRINT_FUNCTION_DIGEST();
 
-    XI_UNUSED( data );
-    XI_UNUSED( in_out_state );
-
     xi_mqtt_codec_layer_data_t* layer_data =
         ( xi_mqtt_codec_layer_data_t* )XI_THIS_LAYER( context )->user_data;
 

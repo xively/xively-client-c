@@ -148,8 +148,7 @@ int xi_itest_mqttlogic_layer_setup( void** state )
 
     xi_memory_limiter_tearup();
 
-    assert_int_equal( XI_STATE_OK, xi_initialize( "xi_itest_tls_error_account_id",
-                                                  "xi_itest_tls_error_device_id" ) );
+    assert_int_equal( XI_STATE_OK, xi_initialize( "xi_itest_tls_error_account_id" ) );
 
     XI_CHECK_STATE( xi_create_context_with_custom_layers_and_evtd(
         &xi_context__itest_mqttlogic_layer, xi_itest_layer_chain_mqttlogic,
