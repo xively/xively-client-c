@@ -96,18 +96,22 @@ XI_ESP32_POST_BUILD_ACTION_TOOLCHAIN:
 # XI_ESP32_AVAILABILITY_CHECK_CC
 endif
 
-ifeq ($(XI_BSP_TLS),wolfssl)
-# Hint for custom TLS library build: for wolfSSL the XI_BSP_TLS is equal to 'wolfssl'.
-# You can find the corresponding file in directory make/mt-config. To build custom TLS
-# library as part of the libxively build create your own config file there, e.g.:
-# mt-tls-mbedtls-esp32.mk. Or delete the line below to turn off TLS lib cross compilation.
-include make/mt-config/mt-tls-$(XI_BSP_TLS)-esp32.mk
+ifneq ($(XI_USE_EXTERNAL_TLS_LIB),1)
+    # Hint for custom TLS library build: for wolfSSL the XI_BSP_TLS is equal to 'wolfssl'.
+    # You can find the corresponding file in directory make/mt-config. To build custom TLS
+    # library as part of the libxively build create your own config file there, e.g.:
+    # mt-tls-mbedtls-esp32.mk. Or delete the line below to turn off TLS lib cross compilation.
+    include make/mt-config/mt-tls-$(XI_BSP_TLS)-esp32.mk
+endif
 
-# WolfSSL TLS BSP configuration
-XI_CONFIG_FLAGS += -DXI_PROVIDE_WOLFSSL_SEED_GENERATOR
-XI_CONFIG_FLAGS += -DXI_PROVIDE_WOLFSSL_XTIME_XGMTIME
+ifeq ($(XI_BSP_TLS),wolfssl)
+    # WolfSSL TLS BSP configuration
+    XI_CONFIG_FLAGS += -DXI_PROVIDE_WOLFSSL_SEED_GENERATOR
+    XI_CONFIG_FLAGS += -DXI_PROVIDE_WOLFSSL_XTIME_XGMTIME
 else ifeq ($(XI_BSP_TLS),mbedtls)
-XI_TLS_LIB_INC_DIR = $(IDF_PATH)/components/mbedtls/include
+    ifeq ($(XI_USE_EXTERNAL_TLS_LIB),1)
+        XI_TLS_LIB_INC_DIR = $(IDF_PATH)/components/mbedtls/include
+    endif
 endif
 
 ##################
