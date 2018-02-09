@@ -125,24 +125,23 @@ xi_state_t check_csv_entry( const char* in_string, int* out_num_chars )
 /*
  * MAIN LIBRARY FUNCTIONS
  */
-xi_state_t xi_initialize( const char* account_id, const char* device_unique_id )
+xi_state_t xi_initialize( const char* account_id )
 {
     xi_bsp_time_init();
     xi_bsp_rng_init();
 
-    if ( NULL != xi_globals.str_account_id || NULL != xi_globals.str_device_unique_id )
+    if ( NULL != xi_globals.str_account_id )
     {
         return XI_ALREADY_INITIALIZED;
     }
-    else if ( NULL == account_id || NULL == device_unique_id )
+    else if ( NULL == account_id )
     {
         return XI_INVALID_PARAMETER;
     }
 
-    xi_globals.str_account_id       = xi_str_dup( account_id );
-    xi_globals.str_device_unique_id = xi_str_dup( device_unique_id );
+    xi_globals.str_account_id = xi_str_dup( account_id );
 
-    if ( NULL == xi_globals.str_device_unique_id || NULL == xi_globals.str_account_id )
+    if ( NULL == xi_globals.str_account_id )
     {
         return XI_FAILED_INITIALIZATION;
     }
@@ -153,40 +152,10 @@ xi_state_t xi_initialize( const char* account_id, const char* device_unique_id )
 xi_state_t xi_shutdown()
 {
     XI_SAFE_FREE( xi_globals.str_account_id );
-    XI_SAFE_FREE( xi_globals.str_device_unique_id );
 
     xi_bsp_rng_shutdown();
 
     return XI_STATE_OK;
-}
-
-xi_state_t xi_set_device_unique_id( const char* unique_id )
-{
-    if ( NULL == unique_id )
-    {
-        return XI_INVALID_PARAMETER;
-    }
-    else if ( NULL != xi_globals.str_device_unique_id )
-    {
-        return XI_ALREADY_INITIALIZED;
-    }
-
-    int len                         = strlen( unique_id );
-    xi_globals.str_device_unique_id = xi_alloc( len );
-
-    if ( NULL == xi_globals.str_device_unique_id )
-    {
-        return XI_OUT_OF_MEMORY;
-    }
-
-    strcpy( xi_globals.str_device_unique_id, unique_id );
-
-    return XI_STATE_OK;
-}
-
-const char* xi_get_device_id()
-{
-    return xi_globals.str_device_unique_id;
 }
 
 void xi_default_client_callback( xi_context_handle_t in_context_handle,

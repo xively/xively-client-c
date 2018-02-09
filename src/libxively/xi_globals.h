@@ -30,7 +30,6 @@ typedef struct
     xi_timed_task_container_t* timed_tasks_container;
     struct xi_threadpool_s* main_threadpool;
     char* str_account_id;
-    char* str_device_unique_id;
     xi_backoff_status_t backoff_status;
 
     xi_vector_t* context_handles_vector_edge_devices;
