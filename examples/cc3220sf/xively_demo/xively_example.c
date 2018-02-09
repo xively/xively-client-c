@@ -426,6 +426,9 @@ void* xivelyExampleThread( void* arg )
 
         /* shutdown the xively library */
         xi_shutdown();
+
+        sl_Stop(5);
+        simpleLinkMode = sl_Start( NULL, NULL, NULL );
     }
 }
 
