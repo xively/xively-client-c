@@ -1,3 +1,16 @@
+# Xively Client version 1.3.4
+#### Feb 9 2018
+
+## Features
+- [CC3220SF] Further support for WiFi disconnection events.  SimpleLink is now restarted upon loss of WiFi AP.  Previously attempting to build socket connections after reconnecting WiFi would sometimes cause the underlying network system to fail in building TCP/IP connections. Restarting SimpleLink seems to solve all of these edge cases.
+
+- [make] Support linking and inclusion of TLS libraries outside the xively-client-c directory. This is part of the effort to get the ESP32 running its SDK's version of mbedTLS, as opposed of downloading and building our own.
+
+## Bugfix
+- [mbedTLS] Fix BSP certificate buffer parsing. mbedTLS expects a NULL-terminated string but our certificate array was non NULL-terminated in order to support WolfSSL.  The WolfSSL BSP has been updated to ignore the NULL terminator if present.
+
+
+
 # Xively Client version 1.3.3
 #### Jan 22 2018
 
@@ -13,7 +26,7 @@
 - [ESP32/CC3200] Fix FWU Board Support Packages for SFT when running an SFT migration that does not include new firmware binaries. Previously the device rebooted at switched boot partitions upon all SFT deliveries, now this only occurs if a new firmware image is downloaded.
 - [WolfSSL] `src\import\tls\wolfssl.conf` configuration script errantly defined --enable-debug twice.
 
-### Misc
+## Misc
 - Removed legacy `Licenses` directory.  All licenses are now in `LICENSE.md` of the base directory of the repository.
 - Updated Copyright Header to 2018.
 - Travis CI configuration changes to FuzzTest Environment.

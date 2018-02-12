@@ -11,7 +11,6 @@
 #include <xi_bsp_tls.h>
 #include <xi_bsp_debug.h>
 
-#define MBEDTLS_PLATFORM_MEMORY
 #define MBEDTLS_DEBUG_LOG 1
 
 #include <mbedtls/ctr_drbg.h>
@@ -21,15 +20,16 @@
 #include <mbedtls/ssl.h>
 
 /**
- * @brief Function makes the Xivelys certificate buffer to work against mbedtls
- * requirements
+ * @brief If the Xively certificate buffer's last character is '\n' (common after
+ * file reading, and replicated in xi_RootCA_list for consistency), replace it with
+ * a NULL terminator
  */
 static void
 mbedtls_prepare_certificate_buffer( uint8_t* cert_buffer, size_t cert_buffer_len )
 {
     uint8_t* const c = &cert_buffer[cert_buffer_len - 1];
 
-    if ( *c != '\0' && *c == '\n' )
+    if ( '\n' == *c )
     {
         *c = '\0';
     }
@@ -134,8 +134,10 @@ xi_bsp_tls_state_t xi_bsp_tls_init( xi_bsp_tls_context_t** tls_context,
     /* RNG related string */
     const char personalization[] = "xi_bsp_mbedtls_more_entropy_pls";
 
+#ifdef MBEDTLS_PLATFORM_MEMORY
     mbedtls_platform_set_calloc_free( init_params->fp_xively_calloc,
                                       init_params->fp_xively_free );
+#endif
 
     mbedtls_tls_context_t* mbedtls_tls_context =
         ( mbedtls_tls_context_t* )mbedtls_calloc( sizeof( mbedtls_tls_context_t ), 1 );

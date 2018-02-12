@@ -479,7 +479,8 @@ connect_cb( const xi_context_handle_t ctx, void* data, xi_state_t state )
         default:
         {
             printf( "[%ld] Xively: Connection invalid, error %d\n",
-                    xi_bsp_time_getcurrenttime_seconds(), conn_data->connection_state );
+                    xi_bsp_time_getcurrenttime_seconds(),
+                    conn_data->connection_state );
             rval = XI_INVALID_PARAMETER;
             break;
         }
@@ -553,13 +554,13 @@ static int xc_main( void )
     int rval;
     xi_state_t xi_rc;
 
-/*
- * Set identity values
- */
+    /*
+     * Set identity values
+     */
 #if USE_HARDCODED_CREDENTIALS
-    user_data_set_xi_account_id( ( &user_config ), USER_CONFIG_XI_ACCOUNT_ID );
-    user_data_set_xi_device_id( ( &user_config ), USER_CONFIG_XI_DEVICE_ID );
-    user_data_set_xi_device_password( ( &user_config ), USER_CONFIG_XI_DEVICE_PWD );
+    user_data_set_xi_account_id( (&user_config), USER_CONFIG_XI_ACCOUNT_ID );
+    user_data_set_xi_device_id( (&user_config), USER_CONFIG_XI_DEVICE_ID );
+    user_data_set_xi_device_password( (&user_config), USER_CONFIG_XI_DEVICE_PWD );
 #else
     if ( user_data_flash_init() < 0 )
     {

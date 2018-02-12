@@ -21,7 +21,6 @@ typedef struct wolfssl_tls_context_s
     CYASSL* obj;
 } wolfssl_tls_context_t;
 
-
 int xi_wolfssl_recv( CYASSL* ssl, char* buf, int sz, void* context )
 {
     xi_bsp_debug_format( "[ %s ]", __FUNCTION__ );
@@ -76,6 +75,10 @@ xi_bsp_tls_state_t xi_bsp_tls_init( xi_bsp_tls_context_t** tls_context,
     int ret                                    = 0;
     xi_bsp_tls_state_t result                  = XI_BSP_TLS_STATE_OK;
     wolfssl_tls_context_t* wolfssl_tls_context = NULL;
+
+#if WOLFSSL_DEBUG_LOG
+    wolfSSL_Debugging_ON();
+#endif
 
 #ifdef XI_TLS_OCSP_STAPLING
     const int nonce_options = 0;
@@ -411,3 +414,40 @@ int xi_bsp_tls_pending( xi_bsp_tls_context_t* tls_context )
 
     return CyaSSL_pending( wolfssl_tls_context->obj );
 }
+
+#ifdef XI_PROVIDE_WOLFSSL_SEED_GENERATOR
+#include "xi_bsp_rng.h"
+/* WolfSSL API. This function is set via CUSTOM_RAND_GENERATE_SEED in the makefile */
+int xi_bsp_rng_generate_wolfssl_seed( byte* output, word32 sz )
+{
+    /* TODO: We can use more bytes per random number to accelerate this loop and
+    lower the number of queries to the hardware RNGs the BSP may be using */
+    word32 i;
+    for (i = 0; i < sz; i++ )
+    {
+        output[i] = ( byte )xi_bsp_rng_get();
+    }
+
+    return 0;
+}
+#endif /* XI_PROVIDE_WOLFSSL_SEED_GENERATOR */
+
+#ifdef XI_PROVIDE_WOLFSSL_XTIME_XGMTIME
+#include <time.h> /* For the gmtime() function */
+#include "xi_bsp_time.h"
+time_t XTIME( time_t* timer )
+{
+    time_t current_time = xi_bsp_time_getcurrenttime_seconds();
+    if ( timer )
+    {
+        *timer = current_time;
+    }
+    return current_time;
+}
+
+struct tm* XGMTIME( const time_t* timer, struct tm* tmp )
+{
+    ( void )tmp;
+    return gmtime( timer );
+}
+#endif /* XI_PROVIDE_WOLFSSL_XTIME_XGMTIME */

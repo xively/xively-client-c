@@ -4,11 +4,19 @@
  * it is licensed under the BSD 3-Clause license.
  */
 
-#ifndef __XI_VERSION_H__
-#define __XI_VERSION_H__
+#include "esp_system.h"
 
-#define XI_MAJOR 1
-#define XI_MINOR 3
-#define XI_REVISION 4
+void xi_bsp_rng_init()
+{
+    return;
+}
 
-#endif /* __XI_VERSION_H__ */
+uint32_t xi_bsp_rng_get()
+{
+    return esp_random();
+}
+
+void xi_bsp_rng_shutdown()
+{
+    return;
+}

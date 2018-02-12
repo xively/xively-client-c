@@ -42,46 +42,55 @@ WOLFSSL_SOURCES =                               \
 WOLFSSL_INCDIRS = \
     -I${WOLFSSL_BASE_DIR}
 
-LWIP_INCDIRS =                                    \
+LWIP_INCDIRS =                                            \
     -I$(XI_ESP_IDF_SDK_PATH)/components/lwip/system       \
     -I$(XI_ESP_IDF_SDK_PATH)/components/lwip/include/lwip \
     -I$(XI_ESP_IDF_SDK_PATH)/components/lwip/include/lwip/port
 
-FREERTOS_INCDIRS =                               \
+FREERTOS_INCDIRS =                                       \
     -I$(XI_ESP_IDF_SDK_PATH)/components/freertos/include \
     -I$(XI_ESP_IDF_SDK_PATH)/components/freertos/include/freertos
 
-#Build settings
-WOLFSSL_SETTINGS =        \
-    -DSIZEOF_LONG_LONG=8  \
-    -DSMALL_SESSION_CACHE \
-    -DHAVE_OCSP           \
-    -DHAVE_SNI            \
-    -DHAVE_TLS_EXTENSIONS \
-    -DTIME_OVERRIDES      \
-    -DNO_DES              \
-    -DNO_DES3             \
-    -DNO_DSA              \
-    -DNO_ERROR_STRINGS    \
-    -DNO_HC128            \
-    -DNO_MD4              \
-    -DNO_OLD_TLS          \
-    -DNO_PSK              \
-    -DNO_PWDBASED         \
-    -DNO_RC4              \
-    -DNO_RABBIT           \
-    -DNO_SHA512           \
-    -DNO_STDIO_FILESYSTEM \
-    -DNO_WOLFSSL_DIR      \
-    -DNO_DH               \
-    -DWOLFSSL_STATIC_RSA  \
-    -DWOLFSSL_IAR_ARM     \
-    -DNDEBUG              \
-    -DHAVE_CERTIFICATE_STATUS_REQUEST
-    #-DCUSTOM_RAND_GENERATE_SEED=your_random_seeding_function
-    # Already defined in wolfssl/wolfssl/wolfcrypt/settings.h:
+WOLFSSL_SETTINGS =                    \
+    -DSIZEOF_LONG_LONG=8              \
+    -DSMALL_SESSION_CACHE             \
+    -DTIME_OVERRIDES                  \
+    -DNO_DES                          \
+    -DNO_DES3                         \
+    -DNO_DSA                          \
+    -DNO_ERROR_STRINGS                \
+    -DNO_HC128                        \
+    -DNO_MD4                          \
+    -DNO_OLD_TLS                      \
+    -DNO_PSK                          \
+    -DNO_PWDBASED                     \
+    -DNO_RC4                          \
+    -DNO_RABBIT                       \
+    -DNO_SHA512                       \
+    -DNO_STDIO_FILESYSTEM             \
+    -DNO_WOLFSSL_DIR                  \
+    -DNO_DH                           \
+    -DWOLFSSL_STATIC_RSA              \
+    -DHAVE_TLS_EXTENSIONS             \
+    -DHAVE_OCSP                       \
+    -DHAVE_SNI                        \
+    -DHAVE_CERTIFICATE_STATUS_REQUEST \
+    -DCUSTOM_RAND_GENERATE_SEED=xi_bsp_rng_generate_wolfssl_seed
+    #Already defined in wolfssl/wolfssl/wolfcrypt/settings.h for this platform:
     #-DSINGLE_THREADED
     #-DNO_WRITEV
+
+#Wolf's settings.h BSP configuration:
+WOLFSSL_SETTINGS +=    \
+    -DHAVE_LWIP_NATIVE \
+    #-DFREERTOS        \
+    #-DWOLFSSL_IAR_ARM
+
+#Enable the option of Wolf debug logs - Needs to be enabled in the Wolf BSP too
+ifeq ($(XI_DEBUG_OUTPUT),1)
+WOLFSSL_SETTINGS += \
+    -DDEBUG_WOLFSSL
+endif
 
 #CC flags as extracted from the SDK
 CC_FLAGS =                      \

@@ -50,10 +50,6 @@
 #include "xi_bsp_time.h"
 #include "config_file.h"
 
-#ifdef DEBUG_WOLFSSL
-extern void wolfSSL_Debugging_ON();
-#endif /* DEBUG_WOLFSSL */
-
 /****************************************************************************
                       LOCAL FUNCTION PROTOTYPES
                        (In order of appearance)
@@ -291,11 +287,6 @@ void* xivelyExampleThread( void* arg )
     /* init Terminal */
     InitTerm();
 
-/* Enable WolfSSL Debugging */
-#ifdef DEBUB_WOLFSSL
-    wolfSSL_Debugging_ON();
-#endif /* DEBUG_WOLFSSL */
-
     /* Init Variables and Control Blocks */
     InitializeAppVariables();
 
@@ -365,46 +356,42 @@ void* xivelyExampleThread( void* arg )
     while ( 1 == 1 )
     {
         /* Attempt to connect to the configured WiFi network */
-        gApplicationControlBlock.initializationState =
-            InitializationState_ConnectingToWifi;
+        gApplicationControlBlock.initializationState = InitializationState_ConnectingToWifi;
 
         /* Reset The state of the machine                                         */
         Network_IF_ResetMCUStateMachine();
 
         /* Start the driver                                                       */
-        retval =
-            Network_IF_InitDriver( simpleLinkMode, ROLE_STA, Callback_ConnectedToWiFi,
-                                   Callback_LostWiFiConnection );
-        if ( retval < 0 )
+        retval = Network_IF_InitDriver(simpleLinkMode, ROLE_STA,
+                                       Callback_ConnectedToWiFi,
+                                       Callback_LostWiFiConnection );
+        if (retval < 0)
         {
-            Report( "Failed to start SimpleLink Device\n\r", retval );
-            while ( 1 )
-                ;
+           Report("Failed to start SimpleLink Device\n\r", retval);
+           while( 1 )
+               ;
         }
 
         /* Initialize AP security params                                          */
-        SlWlanSecParams_t securityParams = {0};
-        securityParams.Key    = ( signed char* )gApplicationControlBlock.desiredWifiKey;
-        securityParams.KeyLen = strlen( gApplicationControlBlock.desiredWifiKey );
-        securityParams.Type   = gApplicationControlBlock.desiredWifiSecurityType;
+        SlWlanSecParams_t securityParams = { 0 };
+        securityParams.Key = (signed char*)gApplicationControlBlock.desiredWifiKey;
+        securityParams.KeyLen = strlen(gApplicationControlBlock.desiredWifiKey);
+        securityParams.Type = gApplicationControlBlock.desiredWifiSecurityType;
 
-        Report( "Attempting to connect to WiFi SSID: %s\n",
-                gApplicationControlBlock.desiredWifiSSID );
-        Report( "securityParams WiFi Type:    %d\n", securityParams.Type );
+        Report("Attempting to connect to WiFi SSID: %s\n", gApplicationControlBlock.desiredWifiSSID);
+        Report("securityParams WiFi Type:    %d\n", securityParams.Type);
 
         /* Connect to the Access Point                                            */
-        retval = Network_IF_ConnectAP( gApplicationControlBlock.desiredWifiSSID,
-                                       securityParams );
-        if ( retval < 0 )
+        retval = Network_IF_ConnectAP(gApplicationControlBlock.desiredWifiSSID, securityParams);
+        if (retval < 0)
         {
-            Report( "Connection to an AP failed\n\r" );
-            Report( "Looping forever\n\r" );
-            while ( 1 )
-                ;
+           Report("Connection to an AP failed\n\r");
+           Report( "Looping forever\n\r" );
+           while ( 1 )
+               ;
         }
 
-        gApplicationControlBlock.initializationState =
-            InitializationState_ConnectingToXively;
+        gApplicationControlBlock.initializationState = InitializationState_ConnectingToXively;
 
         /* At this point the device has a wifi address. */
         /* Let's kick off our connection to Xively! */
@@ -412,8 +399,7 @@ void* xivelyExampleThread( void* arg )
         /* Wait for the Provisioning task to say that we have an IP address */
         if ( 0 > sem_wait( &gApplicationControlBlock.wifiConnectedSem ) )
         {
-            Report(
-                "Semaphore returned error when waiting for Wifi Provisioning Task.\n\r" );
+            Report( "Semaphore returned error when waiting for Wifi Provisioning Task.\n\r" );
             Report( "Looping forever\n\r" );
             while ( 1 )
                 ;
@@ -431,6 +417,9 @@ void* xivelyExampleThread( void* arg )
 
         /* shutdown the xively library */
         xi_shutdown();
+
+        sl_Stop(5);
+        simpleLinkMode = sl_Start( NULL, NULL, NULL );
     }
 }
 
@@ -443,8 +432,7 @@ void Callback_ConnectedToWiFi()
 
 void Callback_LostWiFiConnection()
 {
-    gApplicationControlBlock.initializationState =
-        InitializationState_ShuttingDownConnection;
+    gApplicationControlBlock.initializationState = InitializationState_ShuttingDownConnection;
     Report( "Lost WiFi Connection.  Restarting Application!\n\r" );
     xi_shutdown_connection( gXivelyContextHandle );
 }
@@ -455,7 +443,7 @@ void Callback_LostWiFiConnection()
  */
 void ConnectToXively()
 {
-    Report( " Connecting to Xively: \n" );
+    Report(" Connecting to Xively: \n");
     Report( "\t- Xively Account ID: %s\n", gApplicationControlBlock.xivelyAccountId );
     Report( "\t- Xively Device ID: %s\n", gApplicationControlBlock.xivelyDeviceId );
     Report( "\t- Xively Device Password: <secret>\n" );
@@ -471,7 +459,8 @@ void ConnectToXively()
 
     if ( XI_INVALID_CONTEXT_HANDLE == gXivelyContextHandle )
     {
-        Report( " xi failed to create context, error: %d\n\r", -gXivelyContextHandle );
+        Report( " xi failed to create context, error: %d\n\r",
+                    -gXivelyContextHandle );
         return;
     }
 #if ENABLE_XIVELY_FIRMWARE_UPDATE_AND_SECURE_FILE_TRANSFER
@@ -511,7 +500,7 @@ void exit_xi_and_cleanup()
  * */
 void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t state )
 {
-    xi_connection_data_t* conn_data                 = ( xi_connection_data_t* )data;
+    xi_connection_data_t* conn_data = ( xi_connection_data_t* )data;
     gApplicationControlBlock.xivelyConnectionStatus = conn_data->connection_state;
     switch ( conn_data->connection_state )
     {
@@ -519,11 +508,9 @@ void on_connected( xi_context_handle_t in_context_handle, void* data, xi_state_t
             Report( "connection to %s:%d has failed reason %d\n\r", conn_data->host,
                     conn_data->port, state );
 
-            if ( InitializationState_ShuttingDownConnection ==
-                 gApplicationControlBlock.initializationState )
+            if( InitializationState_ShuttingDownConnection == gApplicationControlBlock.initializationState )
             {
-                Report( "on_connected callback noticed that the WiFi signal has been "
-                        "lost.  Shutting down.\n" );
+                Report( "on_connected callback noticed that the WiFi signal has been lost.  Shutting down.\n" );
                 exit_xi_and_cleanup();
                 return;
             }
