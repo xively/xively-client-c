@@ -4,7 +4,7 @@
  * it is licensed under the BSD 3-Clause license.
  */
 
-#include <assert.h>
+#include <xi_debug.h> /* For assert() */
 #include <stddef.h>
 #include <string.h>
 #include <xi_allocator.h>

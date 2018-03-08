@@ -4,7 +4,7 @@
  * it is licensed under the BSD 3-Clause license.
  */
 
-#include <assert.h>
+#include <xi_debug.h> /* For assert() */
 #include <cyassl/ctaocrypt/memory.h>
 #include <cyassl/ssl.h>
 #include <wolfssl/error-ssl.h>
