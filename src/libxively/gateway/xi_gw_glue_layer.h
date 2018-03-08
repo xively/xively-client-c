@@ -10,10 +10,6 @@
 #include <xi_layer.h>
 #include <xi_common.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 xi_state_t xi_gw_glue_layer_init( void* context, void* data, xi_state_t );
 
 xi_state_t xi_gw_glue_layer_connect( void* context, void* data, xi_state_t );
@@ -26,9 +22,5 @@ xi_state_t xi_gw_glue_layer_close( void* context, void* data, xi_state_t state )
 
 xi_state_t
 xi_gw_glue_layer_close_externally( void* context, void* data, xi_state_t state );
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* __XI_GW_GLUE_LAYER_H__ */

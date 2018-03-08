@@ -12,9 +12,13 @@
 
 static xi_context_handle_t xi_context;
 
-void on_connection_state_changed( xi_context_handle_t in_context_handle,
-                                  void* data,
-                                  xi_state_t state );
+static void _on_connection_state_changed( xi_context_handle_t in_context_handle,
+                                          void* data,
+                                          xi_state_t state );
+
+static void _ed_on_connect_callback( xi_context_handle_t in_context_handle,
+                                     void* data,
+                                     xi_state_t state );
 
 int main( int argc, char* argv[] )
 {
@@ -89,7 +93,7 @@ int main( int argc, char* argv[] )
     /*  Create a connection request with the credentials.
         The topic name will be used for publication requests
         only after the connecton has been established.
-        The 'on_connection_state_changed' parameter is the name of the callback
+        The '_on_connection_state_changed' parameter is the name of the callback
         function after the connection request completes, and its
         implementation should handle both succesfull connections
         and unsuccesfull connections as well as disconnections. */
@@ -97,7 +101,7 @@ int main( int argc, char* argv[] )
     const uint16_t keepalive_timeout  = 20;
 
     xi_connect( xi_context, xi_username, xi_password, connection_timeout,
-                keepalive_timeout, XI_SESSION_CLEAN, &on_connection_state_changed );
+                keepalive_timeout, XI_SESSION_CLEAN, &_on_connection_state_changed );
 
     /* The Xively Client was designed for single threaded devices. As such
         it does not have its own event loop thread. Instead you must regularly call
@@ -105,7 +109,7 @@ int main( int argc, char* argv[] )
         regularly check the sockets for incoming data.
         This implemetnation has the loop operate endlessly. The loop will stop after
         closing the connection, using xi_shutdown_connection(). And from
-        the on_connection_state_changed() handler by calling xi_events_stop();
+        the _on_connection_state_changed() handler by calling xi_events_stop();
     */
     xi_events_process_blocking();
 
@@ -118,9 +122,9 @@ int main( int argc, char* argv[] )
     return 0;
 }
 
-void on_connection_state_changed( xi_context_handle_t in_context_handle,
-                                  void* data,
-                                  xi_state_t state )
+void _on_connection_state_changed( xi_context_handle_t in_context_handle,
+                                   void* data,
+                                   xi_state_t state )
 {
     xi_connection_data_t* conn_data = ( xi_connection_data_t* )data;
 
@@ -130,6 +134,10 @@ void on_connection_state_changed( xi_context_handle_t in_context_handle,
            established and the Xively Client is ready to send/recv messages */
         case XI_CONNECTION_STATE_OPENED:
             printf( "connected!\n" );
+
+            xi_gw_edge_device_connect( in_context_handle, "edge application device id",
+                                       _ed_on_connect_callback );
+
             break;
         /* XI_CONNECTION_STATE_OPEN_FAILED is set when there was a problem
            with establishing the connection to the server and the reason why
@@ -143,7 +151,7 @@ void on_connection_state_changed( xi_context_handle_t in_context_handle,
                with previously set configuration */
             xi_connect( in_context_handle, conn_data->username, conn_data->password,
                         conn_data->connection_timeout, conn_data->keepalive_timeout,
-                        conn_data->session_type, &on_connection_state_changed );
+                        conn_data->session_type, &_on_connection_state_changed );
 
             /* return because we don't want to call any api function at this stage */
             break;
@@ -177,7 +185,7 @@ void on_connection_state_changed( xi_context_handle_t in_context_handle,
                     with previously set configuration */
                 xi_connect( in_context_handle, conn_data->username, conn_data->password,
                             conn_data->connection_timeout, conn_data->keepalive_timeout,
-                            conn_data->session_type, &on_connection_state_changed );
+                            conn_data->session_type, &_on_connection_state_changed );
             }
 
             break;
@@ -185,4 +193,15 @@ void on_connection_state_changed( xi_context_handle_t in_context_handle,
             printf( "wrong value\n" );
             break;
     }
+}
+
+void _ed_on_connect_callback( xi_context_handle_t in_context_handle,
+                              void* data,
+                              xi_state_t state )
+{
+    printf( "--- %s ---\n", __FUNCTION__ );
+
+    ( void )in_context_handle;
+    ( void )data;
+    ( void )state;
 }
