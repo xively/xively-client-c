@@ -33,7 +33,8 @@ xi_state_t xi_connect_with_lastwill_to_impl( xi_context_t* xi,
                                              const char* will_message,
                                              xi_mqtt_qos_t will_qos,
                                              xi_mqtt_retain_t will_retain,
-                                             xi_user_callback_t* client_callback );
+                                             xi_user_callback_t* client_callback,
+                                             xi_context_t* callback_context );
 
 xi_state_t xi_shutdown_connection_impl( xi_context_t* xi );
 

@@ -89,11 +89,14 @@ xi_state_t xi_gw_edge_device_connect( xi_context_handle_t xih,
 
         ed_id_context->edge_device_context->context_data.main_context_handle = xih;
 
+        xi_context_t* main_context =
+            xi_object_for_handle( xi_globals.context_handles_vector, xih );
+
         xi_connect_with_lastwill_to_impl(
-            ed_id_context->edge_device_context, "gateway no host", 0,
+            ed_id_context->edge_device_context, "" /* no host is necessary */, 0,
             "edge device username", "edge device password", connection_timeout,
             keepalive_timeout, session_type, will_topic, will_message, will_qos,
-            will_retain, client_callback );
+            will_retain, client_callback, main_context );
 
         /*
          * todo_atigyi:

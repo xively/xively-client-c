@@ -143,22 +143,24 @@ _xi_itest_gateway__on_connection_state_changed( xi_context_handle_t in_context_h
                                                 void* data,
                                                 xi_state_t state )
 {
-    printf( "--- %s ---\n", __FUNCTION__ );
-
     XI_UNUSED( in_context_handle );
-    XI_UNUSED( data );
-    XI_UNUSED( state );
+
+    xi_connection_data_t* conn_data = ( xi_connection_data_t* )data;
+
+    printf( "--- %s ---, data: %p, state: %d, connection state: %d\n", __FUNCTION__, data,
+            state, conn_data->connection_state );
 }
 
 static void _xi_ed_connect_callback( xi_context_handle_t in_context_handle,
                                      void* data,
                                      xi_state_t state )
 {
-    printf( "--- %s ---\n", __FUNCTION__ );
-
     XI_UNUSED( in_context_handle );
-    XI_UNUSED( data );
-    XI_UNUSED( state );
+
+    xi_connection_data_t* conn_data = ( xi_connection_data_t* )data;
+
+    printf( "--- %s ---, data: %p, state: %d, connection state: %d\n", __FUNCTION__, data,
+            state, conn_data->connection_state );
 }
 
 /*********************************************************************************

@@ -183,6 +183,7 @@ xi_state_t xi_user_callback_wrapper( void* context,
     ( ( xi_user_callback_t* )( client_callback ) )( context_handle, data, in_state );
 
 err_handling:
+
     return state;
 }
 
@@ -275,7 +276,8 @@ xi_state_t xi_connect_with_lastwill_to_impl( xi_context_t* xi,
                                              const char* will_message,
                                              xi_mqtt_qos_t will_qos,
                                              xi_mqtt_retain_t will_retain,
-                                             xi_user_callback_t* client_callback )
+                                             xi_user_callback_t* client_callback,
+                                             xi_context_t* callback_context )
 {
     xi_state_t state               = XI_STATE_OK;
     xi_event_handle_t event_handle = xi_make_empty_event_handle();
@@ -290,9 +292,9 @@ xi_state_t xi_connect_with_lastwill_to_impl( xi_context_t* xi,
 
     assert( NULL != client_callback );
 
-    event_handle =
-        xi_make_threaded_handle( XI_THREADID_THREAD_0, &xi_user_callback_wrapper, xi,
-                                 NULL, XI_STATE_OK, ( void* )client_callback );
+    event_handle = xi_make_threaded_handle( XI_THREADID_THREAD_0,
+                                            &xi_user_callback_wrapper, callback_context,
+                                            NULL, XI_STATE_OK, ( void* )client_callback );
 
     /* guard against adding two connection requests */
     if ( NULL != xi->context_data.connect_handler.ptr_to_position )
@@ -389,7 +391,7 @@ xi_state_t xi_connect( xi_context_handle_t xih,
         NULL,                                                      /* will_message */
         ( xi_mqtt_qos_t )0,                                        /* will_qos */
         ( xi_mqtt_retain_t )0,                                     /* will_retain */
-        client_callback );
+        client_callback, xi );
 }
 
 xi_state_t xi_connect_to( xi_context_handle_t xih,
@@ -410,7 +412,7 @@ xi_state_t xi_connect_to( xi_context_handle_t xih,
                                              NULL,                  /* will_message */
                                              ( xi_mqtt_qos_t )0,    /* will_qos */
                                              ( xi_mqtt_retain_t )0, /* will_retain */
-                                             client_callback );
+                                             client_callback, xi );
 }
 
 xi_state_t xi_connect_with_lastwill( xi_context_handle_t xih,
@@ -442,7 +444,7 @@ xi_state_t xi_connect_with_lastwill( xi_context_handle_t xih,
     return xi_connect_with_lastwill_to_impl(
         xi, XI_MQTT_HOST_ACCESSOR.name, XI_MQTT_HOST_ACCESSOR.port, username, password,
         connection_timeout, keepalive_timeout, session_type, will_topic, will_message,
-        will_qos, will_retain, client_callback );
+        will_qos, will_retain, client_callback, xi );
 }
 
 xi_state_t xi_connect_with_lastwill_to( xi_context_handle_t xih,
@@ -473,9 +475,10 @@ xi_state_t xi_connect_with_lastwill_to( xi_context_handle_t xih,
 
     xi_context_t* xi = xi_object_for_handle( xi_globals.context_handles_vector, xih );
 
-    return xi_connect_with_lastwill_to_impl(
-        xi, host, port, username, password, connection_timeout, keepalive_timeout,
-        session_type, will_topic, will_message, will_qos, will_retain, client_callback );
+    return xi_connect_with_lastwill_to_impl( xi, host, port, username, password,
+                                             connection_timeout, keepalive_timeout,
+                                             session_type, will_topic, will_message,
+                                             will_qos, will_retain, client_callback, xi );
 }
 
 xi_state_t xi_publish_data_impl( xi_context_handle_t xih,
