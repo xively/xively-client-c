@@ -44,6 +44,9 @@ static int8_t _xi_cmp_ed_context_ed_ids( const union xi_vector_selector_u* e0,
 
 xi_state_t xi_gw_edge_device_connect( xi_context_handle_t xih,
                                       const char* edge_device_id,
+                                      uint16_t connection_timeout,
+                                      uint16_t keepalive_timeout,
+                                      xi_session_type_t session_type,
                                       xi_user_callback_t* client_callback )
 {
     xi_state_t state                          = XI_STATE_OK;
@@ -78,14 +81,13 @@ xi_state_t xi_gw_edge_device_connect( xi_context_handle_t xih,
             goto err_handling;
         }
 
-        /* todo_atigyi: these parameters probably should come as function parameters */
-        uint16_t connection_timeout    = 10;
-        uint16_t keepalive_timeout     = 20;
-        xi_session_type_t session_type = XI_SESSION_CLEAN;
-        const char* will_topic         = NULL;
-        const char* will_message       = NULL;
-        xi_mqtt_qos_t will_qos         = 0;
-        xi_mqtt_retain_t will_retain   = 0;
+        /* Default parameters for last will functionality. If the last will
+           feature will be a requirement for edge devices then wire these parameters
+           out the the API. Otherwise these default values are used for API simplicity. */
+        const char* will_topic       = NULL;
+        const char* will_message     = NULL;
+        xi_mqtt_qos_t will_qos       = 0;
+        xi_mqtt_retain_t will_retain = 0;
 
         ed_id_context->edge_device_context->context_data.main_context_handle = xih;
 

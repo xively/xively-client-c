@@ -8,6 +8,7 @@
 #define __XIVELY_GATEWAY_H__
 
 #include <xively_types.h>
+#include <xively_connection_data.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -15,6 +16,9 @@ extern "C" {
 
 extern xi_state_t xi_gw_edge_device_connect( xi_context_handle_t xih,
                                              const char* edge_device_id,
+                                             uint16_t connection_timeout,
+                                             uint16_t keepalive_timeout,
+                                             xi_session_type_t session_type,
                                              xi_user_callback_t* client_callback );
 
 extern xi_state_t

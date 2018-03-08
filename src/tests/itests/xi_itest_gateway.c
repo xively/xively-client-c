@@ -234,8 +234,8 @@ static void _xi_itest_gateway__act( void** fixture_void )
         if ( loop_counter == fixture->loop_id__manual_connect_ed )
         {
             xi_gw_edge_device_connect( fixture->xi_context_handle,
-                                       "edge application device id",
-                                       _xi_ed_connect_callback );
+                                       "edge application device id", 10, 20,
+                                       XI_SESSION_CLEAN, _xi_ed_connect_callback );
         }
 
         if ( loop_counter == fixture->loop_id__manual_disconnect_ed )

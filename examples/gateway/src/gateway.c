@@ -135,8 +135,12 @@ void _on_connection_state_changed( xi_context_handle_t in_context_handle,
         case XI_CONNECTION_STATE_OPENED:
             printf( "connected!\n" );
 
+            const uint16_t connection_timeout = 10;
+            const uint16_t keepalive_timeout  = 20;
+
             xi_gw_edge_device_connect( in_context_handle, "edge application device id",
-                                       _ed_on_connect_callback );
+                                       connection_timeout, keepalive_timeout,
+                                       XI_SESSION_CLEAN, _ed_on_connect_callback );
 
             break;
         /* XI_CONNECTION_STATE_OPEN_FAILED is set when there was a problem
@@ -199,9 +203,10 @@ void _ed_on_connect_callback( xi_context_handle_t in_context_handle,
                               void* data,
                               xi_state_t state )
 {
-    printf( "--- %s ---\n", __FUNCTION__ );
-
     ( void )in_context_handle;
-    ( void )data;
-    ( void )state;
+
+    xi_connection_data_t* conn_data = ( xi_connection_data_t* )data;
+
+    printf( "--- %s ---, data: %p, state: %d, connection state: %d\n", __FUNCTION__, data,
+            state, conn_data->connection_state );
 }
