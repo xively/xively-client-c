@@ -13,12 +13,11 @@
 #include <xi_gw_glue_layer_data.h>
 #include <xi_helpers.h>
 
-static void
-_xi_message_arrived_on_tunnel_callback( xi_context_handle_t in_context_handle,
-                                        xi_sub_call_type_t call_type,
-                                        const xi_sub_call_params_t* const params,
-                                        xi_state_t state,
-                                        void* user_data );
+static void _xi_tunnel_subscription_callback( xi_context_handle_t in_context_handle,
+                                              xi_sub_call_type_t call_type,
+                                              const xi_sub_call_params_t* const params,
+                                              xi_state_t state,
+                                              void* user_data );
 
 static void _xi_publish_result_callback( xi_context_handle_t in_context_handle,
                                          void* user_data,
@@ -48,16 +47,20 @@ xi_state_t xi_gw_glue_layer_init( void* context, void* data, xi_state_t in_out_s
     layer_data->tunnel_topic_name = xi_str_cat( "$Tunnel/", connection_data->username );
 
     /* subscribing to edge device's tunnel topic */
-    xi_subscribe_impl( XI_CONTEXT_DATA( context )->main_context_handle,
-                       layer_data->tunnel_topic_name, XI_MQTT_QOS_AT_MOST_ONCE,
-                       _xi_message_arrived_on_tunnel_callback, context,
-                       XI_THREADID_MAINTHREAD );
+    in_out_state = xi_subscribe_impl(
+        XI_CONTEXT_DATA( context )->main_context_handle, layer_data->tunnel_topic_name,
+        XI_MQTT_QOS_AT_MOST_ONCE, _xi_tunnel_subscription_callback, context,
+        XI_THREADID_MAINTHREAD );
 
-    return XI_PROCESS_CONNECT_ON_THIS_LAYER( context, data, in_out_state );
+    // return XI_PROCESS_CONNECT_ON_THIS_LAYER( context, data, in_out_state );
+
+    /* initialization process will be continued from the subscription callback, depending
+     * on the result of the subscription. */
+    return in_out_state;
 
 err_handling:
 
-    return XI_PROCESS_CLOSE_ON_THIS_LAYER( context, NULL, in_out_state );
+    return XI_PROCESS_CLOSE_EXTERNALLY_ON_THIS_LAYER( context, NULL, in_out_state );
 }
 
 xi_state_t xi_gw_glue_layer_connect( void* context, void* data, xi_state_t in_out_state )
@@ -141,11 +144,11 @@ xi_gw_glue_layer_close_externally( void* context, void* data, xi_state_t in_out_
     return XI_PROCESS_CLOSE_EXTERNALLY_ON_NEXT_LAYER( context, data, in_out_state );
 }
 
-void _xi_message_arrived_on_tunnel_callback( xi_context_handle_t in_context_handle,
-                                             xi_sub_call_type_t call_type,
-                                             const xi_sub_call_params_t* const params,
-                                             xi_state_t state,
-                                             void* user_data )
+void _xi_tunnel_subscription_callback( xi_context_handle_t in_context_handle,
+                                       xi_sub_call_type_t call_type,
+                                       const xi_sub_call_params_t* const params,
+                                       xi_state_t state,
+                                       void* user_data )
 {
     printf( "--- %s ---, state: %d, user_data: %p\n", __FUNCTION__, state, user_data );
 
@@ -154,11 +157,13 @@ void _xi_message_arrived_on_tunnel_callback( xi_context_handle_t in_context_hand
 
     if ( XI_MQTT_SUBSCRIPTION_SUCCESSFULL == state )
     {
+        /* continue layer chain initialization with CONNECT */
+        XI_PROCESS_CONNECT_ON_THIS_LAYER( user_data, NULL, XI_STATE_OK );
     }
     else if ( XI_MQTT_SUBSCRIPTION_FAILED == state )
     {
-        /* todo_atigyi: probably we should return connection error here since, the
-           main client wasn't able to subscribe to the edge device's tunnel topic. */
+        /* report failure with layer chain initialization flow */
+        XI_PROCESS_CONNECT_ON_THIS_LAYER( user_data, NULL, state );
     }
     else if ( XI_STATE_OK == state )
     {
