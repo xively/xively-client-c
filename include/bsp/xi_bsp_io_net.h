@@ -276,7 +276,8 @@ xi_bsp_io_net_connection_check( xi_bsp_socket_t xi_socket_nonblocking,
  * perform any other actions.
  *
  * @param [in] xi_socket_nonblocking data is sent on this socket
- * @param [out] out_written_count upon return this should contain the number of sent bytes
+ * @param [out] out_written_count upon return this should contain the number of sent
+ *                                bytes. Negative value may cause connection close.
  * @param [in] buf the data to send
  * @param [in] count number of bytes to send from the buffer. This is the size of
  *                   the buffer.
