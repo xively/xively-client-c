@@ -165,7 +165,7 @@ xi_state_t xi_io_net_layer_push( void* context, void* data, xi_state_t in_out_st
                                              buffer->capacity - buffer->curr_pos );
 
             /* verify the state if it's an error or a need to wait */
-            if ( XI_BSP_IO_NET_STATE_OK != bsp_state )
+            if ( XI_BSP_IO_NET_STATE_OK != bsp_state || len < 0 )
             {
                 if ( XI_BSP_IO_NET_STATE_BUSY ==
                      bsp_state ) /* that can happen in asynch environments */
@@ -199,8 +199,8 @@ xi_state_t xi_io_net_layer_push( void* context, void* data, xi_state_t in_out_st
                 else
                 {
                     /* any other issue */
-                    xi_debug_format( "error writing: BSP error code = %d\n",
-                                     ( int )bsp_state );
+                    xi_debug_format( "error writing: BSP error code = %d, len = %d\n",
+                                     ( int )bsp_state, len );
                     xi_free_desc( &buffer );
                     return XI_PROCESS_CLOSE_EXTERNALLY_ON_THIS_LAYER(
                         context, data, XI_SOCKET_WRITE_ERROR );
