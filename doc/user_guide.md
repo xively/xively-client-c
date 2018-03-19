@@ -1,6 +1,6 @@
 
 # Xively Client for C User Guide
-##### Copyright (c) 2003-2018, LogMeIn, Inc.
+##### Copyright (c) 2003-2018, Xively
 
 ## Hello
 
@@ -88,7 +88,7 @@ Without an accurate clock these certificate activation & validation tests will b
 
 Remote Updates is a desired feature for many reasons, but when it comes to security it's extraordinarily important. Cryptographic algorithms can be exploited over time (making their use risky), protocol implementations could be found to be faulty, and Root CA Certificates (which are stored on the device might) will expire and need to be updated. Without the ability to update the device remotely there is a high risk that the Server and Client will be running different security mechanisms, causing TLS Handshaking to Fail.
 
-The Xively Team (Xively-Sales@logmein.com) can work with you to develop a firmware update strategy for your platform.  We currently have a reference implementation for embedded devices in-house and will make this public by mid 2017. 
+The Xively Team can work with you to develop a firmware update strategy for your platform.  We currently have a reference implementation for embedded devices in-house and will make this public by mid 2017. 
 
 # TLS Implementation Requirements
 

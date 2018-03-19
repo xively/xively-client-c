@@ -1,4 +1,4 @@
-/* Copyright (c) 2003-2018, LogMeIn, Inc. All rights reserved.
+/* Copyright (c) 2003-2018, Xively All rights reserved.
  *
  * This is part of the Xively C Client codebase,
  * it is licensed under the BSD 3-Clause license.
@@ -35,7 +35,7 @@ extern "C" {
  * adding a new _PUBSUB request and machine state that only publishes the next
  * item in a queue when ready, and rejects messages when the queue is full.
 
- * \copyright 2003-2018, LogMeIn, Inc.  All rights reserved.
+ * \copyright 2003-2018, Xively  All rights reserved.
  *
  */
 

@@ -1,6 +1,6 @@
 # Secure File Transfer Demo Applications
 
-***Copyright (c) 2003-2018, LogMeIn, Inc. All rights reserved.***
+***Copyright (c) 2003-2018, Xively All rights reserved.***
 
 ## Overview
 
