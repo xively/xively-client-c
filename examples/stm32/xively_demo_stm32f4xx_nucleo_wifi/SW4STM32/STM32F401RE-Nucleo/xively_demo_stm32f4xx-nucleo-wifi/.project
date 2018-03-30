@@ -191,11 +191,6 @@
 			<locationURI>PARENT-3-PROJECT_LOC/Src/console.c</locationURI>
 		</link>
 		<link>
-			<name>Example/User/demo_bsp.c</name>
-			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Src/demo_bsp.c</locationURI>
-		</link>
-		<link>
 			<name>Example/User/demo_io.c</name>
 			<type>1</type>
 			<locationURI>PARENT-3-PROJECT_LOC/Src/demo_io.c</locationURI>
@@ -823,11 +818,11 @@
 	<variableList>
 		<variable>
 			<name>XI_STMCUBE_MEMS_PATH</name>
-			<value>file:/Users/ddellabitta/Downloads/stm/jan2018/STM32CubeExpansion_MEMS1_V4.2.0</value>
+			<value>file:/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_MEMS1_V4.2.0</value>
 		</variable>
 		<variable>
 			<name>XI_STMCUBE_PATH</name>
-			<value>file:/Users/ddellabitta/Downloads/stm/jan2018/STM32CubeExpansion_WIFI1_V3.1.1</value>
+			<value>file:/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_WIFI1_V3.1.1</value>
 		</variable>
 	</variableList>
 </projectDescription>

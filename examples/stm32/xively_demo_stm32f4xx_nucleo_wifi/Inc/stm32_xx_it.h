@@ -3,7 +3,7 @@
  * @file    stm32_xx_it.h
  * @author  System LAB
   * @version V1.0.0
- * @date    17-May-2015
+ * @date    17-May-2016
  * @brief   This file contains the headers of the interrupt handlers
   ******************************************************************************
   * @attention

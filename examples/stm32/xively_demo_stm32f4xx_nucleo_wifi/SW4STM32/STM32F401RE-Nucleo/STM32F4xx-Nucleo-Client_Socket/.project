@@ -46,11 +46,6 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>Doc/readme.txt</name>
-			<type>1</type>
-			<locationURI>$%7BPARENT-3-PROJECT_LOC%7D/readme.txt</locationURI>
-		</link>
-		<link>
 			<name>Drivers/BSP</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>

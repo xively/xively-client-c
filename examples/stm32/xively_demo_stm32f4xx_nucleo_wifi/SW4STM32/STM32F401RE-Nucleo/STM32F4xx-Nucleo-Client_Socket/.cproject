@@ -114,7 +114,6 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
-					<fileInfo id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.1474710539.2062604818.Doc/readme.txt" name="readme.txt" rcbsApplicability="disable" resourcePath="Doc/readme.txt" toolsToInvoke=""/>
 					<fileInfo id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.1474710539.2062604818.LinkerScript.ld" name="LinkerScript.ld" rcbsApplicability="disable" resourcePath="LinkerScript.ld" toolsToInvoke=""/>
 					<sourceEntries>
 						<entry excluding="Drivers/BSP/X_NUCLEO_IKS01A1" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
@@ -210,7 +209,6 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
-					<fileInfo id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.1474710539.1832290716.Doc/readme.txt" name="readme.txt" rcbsApplicability="disable" resourcePath="Doc/readme.txt" toolsToInvoke=""/>
 					<fileInfo id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.1474710539.1832290716.LinkerScript.ld" name="LinkerScript.ld" rcbsApplicability="disable" resourcePath="LinkerScript.ld" toolsToInvoke=""/>
 					<sourceEntries>
 						<entry excluding="Drivers/BSP/X_NUCLEO_IKS01A1" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
@@ -305,7 +303,6 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
-					<fileInfo id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.1474710539.1305271209.Doc/readme.txt" name="readme.txt" rcbsApplicability="disable" resourcePath="Doc/readme.txt" toolsToInvoke=""/>
 					<fileInfo id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.1474710539.1305271209.LinkerScript.ld" name="LinkerScript.ld" rcbsApplicability="disable" resourcePath="LinkerScript.ld" toolsToInvoke=""/>
 					<sourceEntries>
 						<entry excluding="Drivers/BSP/X_NUCLEO_IKS01A1" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>

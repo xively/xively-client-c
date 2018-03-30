@@ -4,9 +4,9 @@
 		<cconfiguration id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.1474710539">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.1474710539" moduleId="org.eclipse.cdt.core.settings" name="IKS01A1_Debug">
 				<macros>
-					<stringMacro name="XI_STMCUBE_PATH" type="VALUE_PATH_DIR" value="/Users/ddellabitta/Downloads/stm/jan2018/STM32CubeExpansion_WIFI1_V3.1.1"/>
+					<stringMacro name="XI_STMCUBE_PATH" type="VALUE_PATH_DIR" value="/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_WIFI1_V3.1.1"/>
 					<stringMacro name="XI_CLIENT_PATH" type="VALUE_PATH_DIR" value="../../../../../../.."/>
-					<stringMacro name="XI_MEMS_STMCUBE_PATH" type="VALUE_PATH_DIR" value="/Users/ddellabitta/Downloads/stm/jan2018/STM32CubeExpansion_MEMS1_V4.2.0"/>
+					<stringMacro name="XI_MEMS_STMCUBE_PATH" type="VALUE_PATH_DIR" value="/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_MEMS1_V4.2.0"/>
 				</macros>
 				<externalSettings>
 					<externalSetting/>
@@ -61,10 +61,12 @@
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.675701715" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="USE_HAL_DRIVER"/>
-									<listOptionValue builtIn="false" value="IKS01A1_SENSOR_BOARD"/>
 									<listOptionValue builtIn="false" value="USART_PRINT_MSG"/>
 									<listOptionValue builtIn="false" value="STM32F401xE"/>
 									<listOptionValue builtIn="false" value="USE_STM32F4XX_NUCLEO"/>
+									<listOptionValue builtIn="false" value="CONSOLE_UART_ENABLED"/>
+									<listOptionValue builtIn="false" value="SPWF01"/>
+									<listOptionValue builtIn="false" value="IKS01A1_SENSOR_BOARD"/>
 								</option>
 								<option id="gnu.c.compiler.option.dialect.std.1837571964" name="Language standard" superClass="gnu.c.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.c.compiler.dialect.default" valueType="enumerated"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1263814425" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
@@ -122,9 +124,9 @@
 		<cconfiguration id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.1474710539.895893754">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.1474710539.895893754" moduleId="org.eclipse.cdt.core.settings" name="IKS01A2_Debug">
 				<macros>
-					<stringMacro name="XI_STMCUBE_PATH" type="VALUE_PATH_DIR" value="/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_WIFI1_V3.0.1"/>
+					<stringMacro name="XI_STMCUBE_PATH" type="VALUE_PATH_DIR" value="/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_WIFI1_V3.1.1"/>
 					<stringMacro name="XI_CLIENT_PATH" type="VALUE_PATH_DIR" value="../../../../../../.."/>
-					<stringMacro name="XI_MEMS_STMCUBE_PATH" type="VALUE_PATH_DIR" value="/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_MEMS1_V4.0.0"/>
+					<stringMacro name="XI_MEMS_STMCUBE_PATH" type="VALUE_PATH_DIR" value="/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_MEMS1_V4.2.0"/>
 				</macros>
 				<externalSettings>
 					<externalSetting/>
@@ -179,10 +181,12 @@
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1427000292" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="USE_HAL_DRIVER"/>
-									<listOptionValue builtIn="false" value="IKS01A2_SENSOR_BOARD"/>
 									<listOptionValue builtIn="false" value="USART_PRINT_MSG"/>
 									<listOptionValue builtIn="false" value="STM32F401xE"/>
 									<listOptionValue builtIn="false" value="USE_STM32F4XX_NUCLEO"/>
+									<listOptionValue builtIn="false" value="CONSOLE_UART_ENABLED"/>
+									<listOptionValue builtIn="false" value="SPWF01"/>
+									<listOptionValue builtIn="false" value="IKS01A2_SENSOR_BOARD"/>
 								</option>
 								<option id="gnu.c.compiler.option.dialect.std.844300220" name="Language standard" superClass="gnu.c.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.c.compiler.dialect.default" valueType="enumerated"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1862317120" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>

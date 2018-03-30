@@ -26,6 +26,7 @@
 #include "demo_bsp.h"
 #include "demo_io.h"
 #include "sensor.h"
+#include "stm32f4xx_nucleo.h"
 
 static void
 split_float_to_ints( float in, int32_t* out_int, int32_t* out_dec, int32_t dec_prec );

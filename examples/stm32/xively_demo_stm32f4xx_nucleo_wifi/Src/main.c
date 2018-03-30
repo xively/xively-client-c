@@ -1,56 +1,49 @@
 /**
- ******************************************************************************
- * @file    main.c
- * @author  Xively
- * @version V1.0.0
- * @date    03-March-2017
- * @brief   Main program body of Xively Client Example for STM32F4 Nucleo Wifi
- ******************************************************************************
- */
-
-/**
- * @attention
- *
- * Copyright (c) 2003-2018, LogMeIn, Inc. All rights reserved.
- *
- * This is part of the Xively C Client library,
- * it is licensed under the BSD 3-Clause license.
- *
- * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
- *   1. Redistributions of source code must retain the above copyright notice,
- *      this list of conditions and the following disclaimer.
- *   2. Redistributions in binary form must reproduce the above copyright notice,
- *      this list of conditions and the following disclaimer in the documentation
- *      and/or other materials provided with the distribution.
- *   3. Neither the name of STMicroelectronics nor the names of its contributors
- *      may be used to endorse or promote products derived from this software
- *      without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- ******************************************************************************
- */
+******************************************************************************
+* @file    main.c
+* @author  Central LAB
+* @version V2.1.0
+* @date    17-May-2016
+* @brief   Main program body
+******************************************************************************
+* @attention
+*
+* <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+*
+* Redistribution and use in source and binary forms, with or without modification,
+* are permitted provided that the following conditions are met:
+*   1. Redistributions of source code must retain the above copyright notice,
+*      this list of conditions and the following disclaimer.
+*   2. Redistributions in binary form must reproduce the above copyright notice,
+*      this list of conditions and the following disclaimer in the documentation
+*      and/or other materials provided with the distribution.
+*   3. Neither the name of STMicroelectronics nor the names of its contributors
+*      may be used to endorse or promote products derived from this software
+*      without specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+* OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*
+******************************************************************************
+*/
 /* Includes ------------------------------------------------------------------*/
 #include <assert.h>
+#include "main.h"
 #include "stdio.h"
 #include "string.h"
-
-#include "main.h"
+#include "wifi_module.h"
+#include "wifi_globals.h"
 #include "wifi_interface.h"
+
 #include "user_data.h"
-#include "demo_bsp.h"
 #include "demo_io.h"
 #include "provisioning.h"
 
@@ -63,10 +56,9 @@
  * @mainpage Documentation for X-CUBE-WIFI Software for STM32, Expansion for STM32Cube
  * <b>Introduction</b> <br>
  * X-CUBE-WIFI1 is an expansion software package for STM32Cube.
- * The software runs on STM32 and it can be used for building Wi-Fi applications using
- * the SPWF01Sx device.
- * It is built on top of STM32Cube software technology that eases portability across
- * different STM32 microcontrollers.
+ * The software runs on STM32 and it can be used for building Wi-Fi applications using the
+ * SPWF01Sx device. It is built on top of STM32Cube software technology that eases
+ * portability across different STM32 microcontrollers.
  *
  *
  * \htmlinclude extra.html
@@ -82,6 +74,7 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+/* Private macro -------------------------------------------------------------*/
 #define DEBUG_UART_BAUDRATE 115200
 #define WIFI_BOARD_UART_BAUDRATE 115200
 #define WIFI_SCAN_BUFFER_LIST 25
@@ -100,7 +93,21 @@
 #define USER_CONFIG_XI_DEVICE_PWD "Xively Device Password"
 #endif /* USE_HARDCODED_CREDENTIALS */
 
-/* Private macro -------------------------------------------------------------*/
+/* the interval for the time function */
+#define XI_PUBLISH_INTERVAL_SEC 5
+
+/* combines name with the account and device id */
+#define XI_TOPIC_MAX_LEN 256
+
+/* Xively channel names - These weill be used to build the MQTT topic addresses */
+#define ACCELEROMETER_CHANNEL_NAME "Accelerometer"
+#define GYROSCOPE_CHANNEL_NAME "Gyroscope"
+#define MAGNETOMETER_CHANNEL_NAME "Magnetometer"
+#define BAROMETER_CHANNEL_NAME "Barometer"
+#define HUMIDITY_CHANNEL_NAME "Humidity"
+#define TEMPERATURE_CHANNEL_NAME "Temperature"
+#define BUTTON_CHANNEL_NAME "Button"
+#define LED_CHANNEL_NAME "LED"
 
 /* Private variables ---------------------------------------------------------*/
 
@@ -117,22 +124,14 @@ xi_context_handle_t gXivelyContextHandle      = XI_INVALID_CONTEXT_HANDLE;
 xi_timed_task_handle_t gXivelyTimedTaskHandle = XI_INVALID_TIMED_TASK_HANDLE;
 
 /* Private function prototypes -----------------------------------------------*/
+void SystemClock_Config( void );
+void UART_Msg_Gpio_Init( void );
+WiFi_Status_t wifi_get_AP_settings( void );
+void USART_PRINT_MSG_Configuration( UART_HandleTypeDef* UART_MsgHandle,
+                                    uint32_t baud_rate );
 
-/* the interval for the time function */
-#define XI_PUBLISH_INTERVAL_SEC 5
 
-/* combines name with the account and device id */
-#define XI_TOPIC_MAX_LEN 256
-
-/* Xively channel names - These weill be used to build the MQTT topic addresses */
-#define ACCELEROMETER_CHANNEL_NAME "Accelerometer"
-#define GYROSCOPE_CHANNEL_NAME "Gyroscope"
-#define MAGNETOMETER_CHANNEL_NAME "Magnetometer"
-#define BAROMETER_CHANNEL_NAME "Barometer"
-#define HUMIDITY_CHANNEL_NAME "Humidity"
-#define TEMPERATURE_CHANNEL_NAME "Temperature"
-#define BUTTON_CHANNEL_NAME "Button"
-#define LED_CHANNEL_NAME "LED"
+/* Private Declarartion ------------------------------------------------------*/
 
 /* RAM can be saved by building each of these when needed and free()ing them after use */
 typedef struct mqtt_topics_s
@@ -164,11 +163,30 @@ static void on_led_msg( xi_context_handle_t in_context_handle,
                         xi_state_t state,
                         void* user_data );
 
+
 /* topic's initialisation function */
 static xi_state_t init_xively_topics( xi_context_handle_t in_context_handle );
 static int8_t update_all_mqtt_topics( char* xi_account_id, char* xi_device_id );
 static int8_t build_xively_topic(
     char* topic_name, char* account_id, char* device_id, char* dst, uint32_t dst_len );
+
+wifi_config config;
+wifi_state_t wifi_state;
+UART_HandleTypeDef UART_MsgHandle;
+
+wifi_scan net_scan[WIFI_SCAN_BUFFER_LIST];
+
+char* ssid          = "STM";
+char* seckey        = "STMdemoPWD";
+WiFi_Priv_Mode mode = WPA_Personal;
+char* hostname      = "192.168.0.101"; //"time-d.nist.gov";//"4.ifcfg.me"
+char* gcfg_key1     = "ip_ipaddr";
+char* gcfg_key2     = "nv_model";
+uint8_t socket_id;
+char echo[512] = "hello";
+char wifi_ip_addr[20];
+uint16_t len;
+uint32_t baud_rate = 115200;
 
 /**
  * @brief This function receives a pointer to a pre-allocated buffer to be filled in.
@@ -523,6 +541,7 @@ static xi_state_t init_xively_topics( xi_context_handle_t in_context_handle )
     return ret;
 }
 
+
 static inline int8_t system_init( void )
 {
     __GPIOA_CLK_ENABLE();
@@ -535,53 +554,29 @@ static inline int8_t system_init( void )
     /* configure the timers  */
     Timer_Config();
 
-    UART_Configuration( WIFI_BOARD_UART_BAUDRATE ); /* From stm32_spwf_wifi.c */
 #ifdef USART_PRINT_MSG
     UART_Msg_Gpio_Init();
-    if ( 0 > USART_PRINT_MSG_Configuration( DEBUG_UART_BAUDRATE ) )
-    {
-        return -1;
-    }
-#endif /* USART_PRINT_MSG */
+    USART_PRINT_MSG_Configuration( &UART_MsgHandle, 115200 );
+    Set_UartMsgHandle( &UART_MsgHandle );
+#endif
 
-#if !USE_HARDCODED_CREDENTIALS
-    if ( user_data_flash_init() < 0 )
-    {
-        printf( "\r\n>> User data flash initialization [ERROR]" );
-        return -1;
-    }
-#endif /* !USE_HARDCODED_CREDENTIALS */
+    config.power         = wifi_active;
+    config.power_level   = high;
+    config.dhcp          = on; // use DHCP IP address
+    config.web_server    = WIFI_TRUE;
+    config.mcu_baud_rate = baud_rate;
+    wifi_state           = wifi_state_idle;
 
-    /* Init the sensor board */
-    printf( "\r\n>> Initializing the sensor extension board" );
-    if ( 0 > io_nucleoboard_init() )
-    {
-        printf( "\r\n>> Nucleo Board peripheral initialization  [ERROR]" );
-        return -1;
-    }
-    if ( 0 > io_sensorboard_init() )
-    {
-        printf( "\r\n>> Sensor Board initializtion [ERROR]" );
-        return -1;
-    }
-    io_sensorboard_enable();
+    UART_Configuration( baud_rate );
+
+    printf( "\r\n\nInitializing the wifi module..." );
 
     /* Init the wi-fi module */
-    printf( "\r\n>> Initializing the WiFi extension board" );
-    fflush( stdout );
-    wifi_module_config.power       = wifi_sleep;
-    wifi_module_config.power_level = high;
-    wifi_module_config.dhcp        = on; /* use DHCP IP address */
-    // wifi_module_config.web_server  = WIFI_TRUE;
-
-    wifi_state = wifi_state_idle;
-
-    if ( WiFi_MODULE_SUCCESS != wifi_init( &wifi_module_config ) )
+    if ( WiFi_MODULE_SUCCESS != wifi_init( &config ) )
     {
-        printf( "\r\n>> WiFi board initialization [ERROR]" );
-        return -1;
+        printf( "Error in Config" );
+        return 0;
     }
-    return 0;
 }
 
 /**
@@ -589,14 +584,21 @@ static inline int8_t system_init( void )
  * @param  None
  * @retval None
  */
+
 int main( void )
 {
-    uint8_t i            = 0;
-    uint8_t socket_open  = 0;
+    uint8_t i           = 0;
+    uint8_t socket_open = 0;
     wifi_bool SSID_found = WIFI_FALSE;
     WiFi_Status_t status = WiFi_MODULE_SUCCESS;
+#if 0
+    uint32_t portnumber = 32000; // 23 for 4.ifcfg.me;//37 for nist.gov
+    uint16_t len;         /*Take care to change the length of the text we are sending*/
+    char* protocol = "t"; // t -> tcp , s-> secure tcp
+    char* data     = "Hello World!\r\n";
+    len = strlen( data );
+#endif
 
-    /* Initialize uC and peripherals */
     if ( 0 > system_init() )
     {
         printf( "\r\n>> System initialization [ERROR] - System boot aborted" );
@@ -640,10 +642,8 @@ int main( void )
     }
 #endif /* USE_HARDCODED_CREDENTIALS */
 
-    /* Application state machine */
     while ( 1 )
     {
-        xi_events_process_tick();
         switch ( wifi_state )
         {
             case wifi_state_reset:
@@ -652,13 +652,16 @@ int main( void )
             case wifi_state_ready:
                 printf( "\r\n>> Scanning WiFi networks to find SSID [%s]",
                         user_config.wifi_client_ssid );
+
+                wifi_bool SSID_found;
                 status = wifi_network_scan( net_scan, WIFI_SCAN_BUFFER_LIST );
+
                 if ( status == WiFi_MODULE_SUCCESS )
                 {
                     for ( i = 0; i < WIFI_SCAN_BUFFER_LIST; i++ )
                     {
-                        // printf(net_scan[i].ssid);
-                        // printf("\r\n");
+                        // printf( net_scan[i].ssid );
+                        // printf( "\r\n" );
                         if ( NULL != ( char* )strstr(
                                          ( const char* )net_scan[i].ssid,
                                          ( const char* )user_config.wifi_client_ssid ) )
@@ -672,23 +675,27 @@ int main( void )
                             break;
                         }
                     }
+                    if ( !SSID_found )
+                    {
+                        printf( "\r\nGiven SSID not found!\r\n" );
+                    }
                     memset( net_scan, 0x00, sizeof( net_scan ) );
                 }
-                if ( SSID_found )
-                {
-                    wifi_state = wifi_state_idle;
-                }
-                else
-                {
-                    printf( "\r\n>> WiFi scan [ERROR] Network not found!" );
-                }
+
+                wifi_state = wifi_state_idle;
+
                 break;
 
             case wifi_state_connected:
+
                 printf( "\r\n>> Connection to WiFi access point [OK]\r\n\t" );
-                wifi_state = wifi_state_idle;
-                HAL_Delay( 2000 ); /* Let module go to sleep - IMPORTANT - TODO: Why? */
-                wifi_wakeup( WIFI_TRUE ); /*wakeup from sleep if module went to sleep*/
+
+                wifi_state = wifi_state_socket; // wifi_state_idle;
+
+                // HAL_Delay(2000);//Let module go to sleep
+
+                // wifi_wakeup(WIFI_TRUE);/*wakeup from sleep if module went to sleep*/
+
                 break;
 
             case wifi_state_disconnected:
@@ -696,6 +703,7 @@ int main( void )
                 break;
 
             case wifi_state_socket:
+#if 1
                 printf( "\r\n>> Connecting to Xively's MQTT broker using credentials:" );
                 printf( "\r\n\t* Account ID:  [%s]", user_config.xi_account_id );
                 printf( "\r\n\t* Device ID:   [%s]", user_config.xi_device_id );
@@ -732,11 +740,67 @@ int main( void )
 
                 wifi_state = wifi_state_idle;
                 break;
+#else
+                status = wifi_get_IP_address( ( uint8_t* )wifi_ip_addr );
+                printf( "\r\n>>IP address is %s\r\n", wifi_ip_addr );
+
+                memset( wifi_ip_addr, 0x00, 20 );
+
+                status = GET_Configuration_Value( gcfg_key2, ( uint32_t* )wifi_ip_addr );
+                printf( "\r\n>>model no is %s\r\n", wifi_ip_addr );
+
+                printf( "\r\n >>Connecting to socket\r\n" );
+
+                if ( socket_open == 0 )
+                {
+                    /* Read Write Socket data */
+                    WiFi_Status_t status = WiFi_MODULE_SUCCESS;
+                    status =
+                        wifi_socket_client_open( ( uint8_t* )console_host, portnumber,
+                                                 ( uint8_t* )protocol, &socket_id );
+
+                    if ( status == WiFi_MODULE_SUCCESS )
+                    {
+                        printf( "\r\n >>Socket Open OK\r\n" );
+                        printf( "\r\n >>Socket ID: %d\r\n", socket_id );
+                        socket_open = 1;
+                    }
+                    else
+                    {
+                        printf( "Socket connection Error" );
+                    }
+                }
+                else
+                {
+                    printf( "Socket already opened!" );
+                }
+
+                wifi_state = wifi_state_socket_write;
+                break;
+#endif
+            case wifi_state_socket_write:
+                HAL_Delay( 500 );
+
+                printf( "\r\n >>Writing data to client\r\n" );
+
+                memset( echo, 0x00, 512 );
+                snprintf( echo, 6, "hello" );
+                len = strlen( echo );
+                /* Read Write Socket data */
+                status = wifi_socket_client_write( socket_id, len, echo );
+
+                if ( status == WiFi_MODULE_SUCCESS )
+                {
+                    printf( "\r\n >>Client Socket Write OK \r\n" );
+                }
+                wifi_state = wifi_state_idle;
+
+                break;
 
             case wifi_state_idle:
                 printf( "." );
                 fflush( stdout );
-                HAL_Delay( 100 );
+                HAL_Delay( 500 );
 
                 if ( is_burst_mode &&
                      ( ( int )XI_CONNECTION_STATE_OPENED == ( int )xi_connection_state ) )
@@ -754,37 +818,194 @@ int main( void )
 }
 
 /**
- * @brief  This function Is called when there's an EXTernal Interrupt caused
- *         by a GPIO pin. It must be kickstarted by each interrupt from the
- *         pin-specific handlers at stm32_xx_it.c
- * @param  Pin number of the GPIO generating the EXTI IRQ
+ * @brief  System Clock Configuration
+ *         The system Clock is configured as follow :
+ *            System Clock source            = PLL (HSI)
+ *            SYSCLK(Hz)                     = 64000000
+ *            HCLK(Hz)                       = 64000000
+ *            AHB Prescaler                  = 1
+ *            APB1 Prescaler                 = 2
+ *            APB2 Prescaler                 = 1
+ *            PLLMUL                         = 16
+ *            Flash Latency(WS)              = 2
+ * @param  None
  * @retval None
  */
-void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin )
+
+#ifdef USE_STM32F1xx_NUCLEO
+
+void SystemClock_Config( void )
 {
-    if ( GPIO_Pin == IO_NUCLEO_BUTTON_PIN )
+    RCC_ClkInitTypeDef clkinitstruct = {0};
+    RCC_OscInitTypeDef oscinitstruct = {0};
+
+    /* Configure PLL ------------------------------------------------------*/
+    /* PLL configuration: PLLCLK = (HSI / 2) * PLLMUL = (8 / 2) * 16 = 64 MHz */
+    /* PREDIV1 configuration: PREDIV1CLK = PLLCLK / HSEPredivValue = 64 / 1 = 64 MHz */
+    /* Enable HSI and activate PLL with HSi_DIV2 as source */
+    oscinitstruct.OscillatorType      = RCC_OSCILLATORTYPE_HSE;
+    oscinitstruct.HSEState            = RCC_HSE_ON;
+    oscinitstruct.LSEState            = RCC_LSE_OFF;
+    oscinitstruct.HSIState            = RCC_HSI_OFF;
+    oscinitstruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+    oscinitstruct.HSEPredivValue      = RCC_HSE_PREDIV_DIV1;
+    oscinitstruct.PLL.PLLState        = RCC_PLL_ON;
+    oscinitstruct.PLL.PLLSource       = RCC_PLLSOURCE_HSE;
+    oscinitstruct.PLL.PLLMUL          = RCC_PLL_MUL9;
+    if ( HAL_RCC_OscConfig( &oscinitstruct ) != HAL_OK )
     {
-        if ( io_button_exti_debouncer( GPIO_Pin ) <= 0 )
-        {
-            return;
-        }
+        /* Initialization Error */
+        while ( 1 )
+            ;
+    }
 
-        virtual_switch_state = !( virtual_switch_state );
-        if ( virtual_switch_state )
-        {
-            printf( "\r\n>> Entering Burst Mode! Motion data publish rate increased" );
-        }
-        else
-        {
-            printf( "\r\n>> Entering Standard Mode!" );
-        }
-
-        printf( "\r\n>> Nucleo board button [PRESSED]" );
-        pub_button_interrupt();
+    /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2
+       clocks dividers */
+    clkinitstruct.ClockType      = ( RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK |
+                                RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2 );
+    clkinitstruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
+    clkinitstruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
+    clkinitstruct.APB2CLKDivider = RCC_HCLK_DIV1;
+    clkinitstruct.APB1CLKDivider = RCC_HCLK_DIV2;
+    if ( HAL_RCC_ClockConfig( &clkinitstruct, FLASH_LATENCY_2 ) != HAL_OK )
+    {
+        /* Initialization Error */
+        while ( 1 )
+            ;
     }
 }
+#endif
+
+#ifdef USE_STM32F4XX_NUCLEO
+
+void SystemClock_Config( void )
+{
+    RCC_ClkInitTypeDef RCC_ClkInitStruct;
+    RCC_OscInitTypeDef RCC_OscInitStruct;
+
+    /* Enable Power Control clock */
+    __PWR_CLK_ENABLE();
+
+    /* The voltage scaling allows optimizing the power consumption when the device is
+       clocked below the maximum system frequency, to update the voltage scaling value
+       regarding system frequency refer to product datasheet.  */
+    __HAL_PWR_VOLTAGESCALING_CONFIG( PWR_REGULATOR_VOLTAGE_SCALE2 );
+
+    /* Enable HSI Oscillator and activate PLL with HSI as source */
+    RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI;
+    RCC_OscInitStruct.HSIState            = RCC_HSI_ON;
+    RCC_OscInitStruct.HSICalibrationValue = 0x10;
+    RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
+    RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_HSI;
+    RCC_OscInitStruct.PLL.PLLM            = 16;
+    RCC_OscInitStruct.PLL.PLLN            = 336;
+    RCC_OscInitStruct.PLL.PLLP            = RCC_PLLP_DIV4;
+    RCC_OscInitStruct.PLL.PLLQ            = 7;
+    HAL_RCC_OscConfig( &RCC_OscInitStruct );
+
+    /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2
+       clocks dividers */
+    RCC_ClkInitStruct.ClockType      = ( RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK |
+                                    RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2 );
+    RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
+    RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
+    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
+    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+    HAL_RCC_ClockConfig( &RCC_ClkInitStruct, FLASH_LATENCY_2 );
+}
+#endif
+
+#ifdef USE_STM32L0XX_NUCLEO
+
+/**
+ * @brief  System Clock Configuration
+ * @param  None
+ * @retval None
+ */
+void SystemClock_Config( void )
+{
+    RCC_ClkInitTypeDef RCC_ClkInitStruct;
+    RCC_OscInitTypeDef RCC_OscInitStruct;
+
+    __PWR_CLK_ENABLE();
+
+    __HAL_PWR_VOLTAGESCALING_CONFIG( PWR_REGULATOR_VOLTAGE_SCALE1 );
+
+    RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI;
+    RCC_OscInitStruct.HSIState            = RCC_HSI_ON;
+    RCC_OscInitStruct.HSICalibrationValue = 0x10;
+    RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
+    RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_HSI;
+    RCC_OscInitStruct.PLL.PLLMUL          = RCC_PLLMUL_4;
+    RCC_OscInitStruct.PLL.PLLDIV          = RCC_PLLDIV_2;
+    HAL_RCC_OscConfig( &RCC_OscInitStruct );
+
+    RCC_ClkInitStruct.ClockType =
+        ( RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 |
+          RCC_CLOCKTYPE_PCLK2 );                           // RCC_CLOCKTYPE_SYSCLK;
+    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI; // RCC_SYSCLKSOURCE_PLLCLK;
+    RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
+    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
+    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+    HAL_RCC_ClockConfig( &RCC_ClkInitStruct, FLASH_LATENCY_1 );
+
+    __SYSCFG_CLK_ENABLE();
+}
+#endif
+
+#ifdef USE_STM32L4XX_NUCLEO
+/**
+ * @brief  System Clock Configuration
+ *         The system Clock is configured as follow :
+ *            System Clock source            = PLL (MSI)
+ *            SYSCLK(Hz)                     = 80000000
+ *            HCLK(Hz)                       = 80000000
+ *            AHB Prescaler                  = 1
+ *            APB1 Prescaler                 = 1
+ *            APB2 Prescaler                 = 1
+ *            MSI Frequency(Hz)              = 4000000
+ *            PLL_M                          = 1
+ *            PLL_N                          = 40
+ *            PLL_R                          = 2
+ *            PLL_P                          = 7
+ *            PLL_Q                          = 4
+ *            Flash Latency(WS)              = 4
+ * @param  None
+ * @retval None
+ */
+void SystemClock_Config( void )
+{
+    RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+    RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+
+    /* MSI is enabled after System reset, activate PLL with MSI as source */
+    RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_MSI;
+    RCC_OscInitStruct.MSIState            = RCC_MSI_ON;
+    RCC_OscInitStruct.MSIClockRange       = RCC_MSIRANGE_6;
+    RCC_OscInitStruct.MSICalibrationValue = RCC_MSICALIBRATION_DEFAULT;
+    RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
+    RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_MSI;
+    RCC_OscInitStruct.PLL.PLLM            = 1;
+    RCC_OscInitStruct.PLL.PLLN            = 40;
+    RCC_OscInitStruct.PLL.PLLR            = 2;
+    RCC_OscInitStruct.PLL.PLLP            = 7;
+    RCC_OscInitStruct.PLL.PLLQ            = 4;
+    HAL_RCC_OscConfig( &RCC_OscInitStruct );
+
+    /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2
+       clocks dividers */
+    RCC_ClkInitStruct.ClockType      = ( RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK |
+                                    RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2 );
+    RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
+    RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
+    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+    HAL_RCC_ClockConfig( &RCC_ClkInitStruct, FLASH_LATENCY_4 );
+}
+#endif
 
 #ifdef USE_FULL_ASSERT
+
 /**
  * @brief  Reports the name of the source file and the source line number
  *         where the assert_param error has occurred.
@@ -795,8 +1016,7 @@ void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin )
 void assert_failed( uint8_t* file, uint32_t line )
 {
     /* User can add his own implementation to report the file name and line number,
-ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-    printf( "\r\n>> Fatal system [ERROR] - Assert() failed, execution halted" );
+       ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
 
     /* Infinite loop */
     while ( 1 )
@@ -805,7 +1025,78 @@ ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
 }
 #endif
 
+
+#ifdef USART_PRINT_MSG
+void USART_PRINT_MSG_Configuration( UART_HandleTypeDef* UART_MsgHandle,
+                                    uint32_t baud_rate )
+{
+    UART_MsgHandle->Instance        = WIFI_UART_MSG;
+    UART_MsgHandle->Init.BaudRate   = baud_rate;
+    UART_MsgHandle->Init.WordLength = UART_WORDLENGTH_8B;
+    UART_MsgHandle->Init.StopBits   = UART_STOPBITS_1;
+    UART_MsgHandle->Init.Parity     = UART_PARITY_NONE;
+    UART_MsgHandle->Init.HwFlowCtl =
+        UART_HWCONTROL_NONE; // USART_HardwareFlowControl_RTS_CTS;
+    UART_MsgHandle->Init.Mode = UART_MODE_TX_RX;
+
+    if ( HAL_UART_DeInit( UART_MsgHandle ) != HAL_OK )
+    {
+        Error_Handler();
+    }
+    if ( HAL_UART_Init( UART_MsgHandle ) != HAL_OK )
+    {
+        Error_Handler();
+    }
+}
+
+void UART_Msg_Gpio_Init()
+{
+    GPIO_InitTypeDef GPIO_InitStruct;
+
+    /*##-1- Enable peripherals and GPIO Clocks #################################*/
+    /* Enable GPIO TX/RX clock */
+    USARTx_PRINT_TX_GPIO_CLK_ENABLE();
+    USARTx_PRINT_RX_GPIO_CLK_ENABLE();
+
+
+    /* Enable USARTx clock */
+    USARTx_PRINT_CLK_ENABLE();
+    __SYSCFG_CLK_ENABLE();
+    /*##-2- Configure peripheral GPIO ##########################################*/
+    /* UART TX GPIO pin configuration  */
+    GPIO_InitStruct.Pin   = WiFi_USART_PRINT_TX_PIN;
+    GPIO_InitStruct.Mode  = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull  = GPIO_PULLUP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
+#if defined( USE_STM32L0XX_NUCLEO ) || defined( USE_STM32F4XX_NUCLEO ) ||                \
+    defined( USE_STM32L4XX_NUCLEO )
+    GPIO_InitStruct.Alternate = PRINTMSG_USARTx_TX_AF;
+#endif
+    HAL_GPIO_Init( WiFi_USART_PRINT_TX_GPIO_PORT, &GPIO_InitStruct );
+
+    /* UART RX GPIO pin configuration  */
+    GPIO_InitStruct.Pin  = WiFi_USART_PRINT_RX_PIN;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+#if defined( USE_STM32L0XX_NUCLEO ) || defined( USE_STM32F4XX_NUCLEO ) ||                \
+    defined( USE_STM32L4XX_NUCLEO )
+    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Alternate = PRINTMSG_USARTx_RX_AF;
+#endif
+
+    HAL_GPIO_Init( WiFi_USART_PRINT_RX_GPIO_PORT, &GPIO_InitStruct );
+
+#ifdef WIFI_USE_VCOM
+    /*##-3- Configure the NVIC for UART ########################################*/
+    /* NVIC for USART */
+    HAL_NVIC_SetPriority( USARTx_PRINT_IRQn, 0, 1 );
+    HAL_NVIC_EnableIRQ( USARTx_PRINT_IRQn );
+#endif
+}
+#endif // end of USART_PRINT_MSG
+
+
 /******** Wi-Fi Indication User Callback *********/
+
 void ind_wifi_socket_data_received( int8_t server_id,
                                     int8_t socket_id,
                                     uint8_t* data_ptr,
@@ -813,25 +1104,45 @@ void ind_wifi_socket_data_received( int8_t server_id,
                                     uint32_t chunk_size,
                                     WiFi_Socket_t socket_type )
 {
+#if 1
     ( void )server_id;   /* Unused */
     ( void )socket_type; /* Unused */
 
     /* Xively */
     xi_bsp_io_net_socket_data_received_proxy( ( uint8_t )socket_id, data_ptr,
                                               message_size, chunk_size );
+#else
+    printf( "\r\nData Receive Callback...\r\n" );
+    memcpy( echo, data_ptr, 50 );
+    printf( ( const char* )echo );
+    printf( "\r\nsocket ID: %d\r\n", socket_id );
+    printf( "msg size: %lu\r\n", ( unsigned long )message_size );
+    printf( "chunk size: %lu\r\n", ( unsigned long )chunk_size );
+    fflush( stdout );
+    // wifi_state = wifi_state_socket_write;
+#endif
 }
 
-void ind_wifi_socket_client_remote_server_closed( uint8_t* socket_closed_id, WiFi_Socket_t socket_type )
+void ind_wifi_socket_client_remote_server_closed( uint8_t* socket_closed_id,
+                                                  WiFi_Socket_t socket_type )
 {
+#if 1
 	( void )socket_type; /* Unused */
 
     /* Xively */
     xi_bsp_io_net_socket_client_remote_server_closed_proxy( socket_closed_id );
+#else
+    uint8_t id = *socketID;
+    printf( "\r\n>>User Callback>>remote server socket closed\r\n" );
+    printf( "Socket ID closed: %d",
+            id ); // this will actually print the character/string, not the number
+    fflush( stdout );
+#endif
 }
 
 void ind_wifi_on()
 {
-    printf( "\r\n>> WiFi initialization [OK]" );
+    printf( "\r\nWiFi Initialised and Ready..\r\n" );
     wifi_state = wifi_state_ready;
 }
 
@@ -842,11 +1153,25 @@ void ind_wifi_connected()
 
 void ind_wifi_resuming()
 {
-    printf( "\r\n>> WiFi module woke up from sleep" );
+    printf( "\r\nwifi resuming from sleep user callback... \r\n" );
     // Change the state to connect to socket if not connected
     wifi_state = wifi_state_socket;
 }
 
+void ind_wifi_inputssi_callback( void )
+{
+    wifi_state = wifi_state_input_buffer;
+}
+
+void ind_wifi_error( WiFi_Status_t error_code )
+{
+    if ( error_code == WiFi_AT_CMD_RESP_ERROR )
+    {
+        wifi_state = wifi_state_idle;
+        printf( "\r\n WiFi Command Failed. \r\n User should now press the RESET "
+                "Button(B2). \r\n" );
+    }
+}
 /**
  * @}
  */
