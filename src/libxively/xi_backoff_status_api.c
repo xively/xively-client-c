@@ -95,8 +95,6 @@ void xi_cancel_backoff_event()
 void xi_reset_backoff_penalty()
 {
     xi_globals.backoff_status.backoff_lut_i = 0;
-    xi_globals.backoff_status.decay_lut_i   = 0;
-
     xi_cancel_backoff_event();
 }
 #endif
