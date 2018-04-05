@@ -196,7 +196,6 @@ xi_state_t xi_on_control_message( xi_context_handle_t in_context_handle,
                 xi_sft_on_connected( layer_data->sft_context );
 #endif
             }
-            break;
         }
         case XI_SUB_CALL_MESSAGE:
         {
@@ -213,7 +212,6 @@ xi_state_t xi_on_control_message( xi_context_handle_t in_context_handle,
 
             xi_sft_on_message( layer_data->sft_context, control_message );
 #endif
-            break;
         }
 
         default:;

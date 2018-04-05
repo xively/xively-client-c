@@ -20,7 +20,6 @@ cn_cbor* cn_cbor_mapget_int(const cn_cbor* cb, int key) {
       if (cp->v.uint == (unsigned long)key) {
         return cp->next;
       }
-      break;
     case CN_CBOR_INT:
       if (cp->v.sint == (long)key) {
         return cp->next;
