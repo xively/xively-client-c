@@ -54,7 +54,7 @@ then
 fi
 git clone https://github.com/wolfSSL/wolfssl
 cd wolfssl
-git checkout tags/v3.10.2-stable
+git checkout tags/v3.13.0-stable
 (autoreconf --install && ./configure `cat ../wolfssl.conf` && make )
 echo "WolfSSL Build Complete."
 
