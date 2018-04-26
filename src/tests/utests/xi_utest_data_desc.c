@@ -244,6 +244,263 @@ XI_TT_TESTCASE_WITH_SETUP(
         tt_fail();
     } )
 
+#ifndef XI_MEMORY_LIMITER_ENABLED
+#define XI_MEMORY_LIMITER_ENABLED 1
+#endif 
+
+#ifdef XI_MEMORY_LIMITER_ENABLED
+XI_TT_TESTCASE(
+    utest__xi_make_desc_from_string_copy__valid_data__not_enough_memory_for_buffer,
+    {
+        /* size values */
+        size_t num_characters     = 700;
+        xi_state_t ret_state      = XI_STATE_OK;
+        char* origin_string       = NULL;
+        xi_data_desc_t* data_desc = NULL;
+        
+        const size_t allocation_space   = num_characters * sizeof( char ) +
+                                          sizeof( xi_data_desc_t ) +
+                                          sizeof( xi_data_desc_t ) +
+                                          2*sizeof( xi_memory_limiter_entry_t );
+        const size_t allocation_footprint = num_characters* sizeof( char ) +
+                                            sizeof( xi_memory_limiter_entry_t );
+        const size_t memory_limit_size = XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT +
+                                            allocation_space;
+
+        /* assumptions */
+        tt_assert( XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT > allocation_footprint );
+
+        xi_state_t memory_set_result = xi_set_maximum_heap_usage( memory_limit_size );
+        tt_assert( memory_set_result == XI_STATE_OK );
+
+        XI_ALLOC_BUFFER_AT( char, origin_string, num_characters, ret_state );
+        size_t i = 0;
+        for ( ; i < num_characters - 1; ++i )
+        {
+            origin_string[i] = 'a';
+        }
+        origin_string[num_characters-1] = '\0';
+        tt_int_op( strlen( origin_string ), ==, num_characters - 1 );
+
+        /* test behavior */
+        data_desc = xi_make_desc_from_string_copy( origin_string );
+        tt_ptr_op( data_desc, ==, NULL );
+        
+        goto end;
+
+    err_handling:
+        tt_fail();
+    end:
+        if( data_desc != NULL )
+        {
+            xi_free_desc( &data_desc );
+        }
+        XI_SAFE_FREE( origin_string );
+        xi_memory_limiter_set_limit( XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT +
+                                     XI_MEMORY_LIMITER_APPLICATION_MEMORY_LIMIT );
+
+    } )
+
+    XI_TT_TESTCASE(
+    utest__xi_make_desc_from_string_copy__valid_data__not_enough_memory_for_descriptor,
+    {
+        /* size values */
+        size_t num_characters     = 700;
+        xi_state_t ret_state      = XI_STATE_OK;
+        char* origin_string       = NULL;
+        xi_data_desc_t* data_desc = NULL;
+        
+        const size_t allocation_space   = num_characters * sizeof( char ) +
+                                          sizeof( xi_data_desc_t ) +
+                                          sizeof( xi_memory_limiter_entry_t );
+        const size_t allocation_footprint = num_characters* sizeof( char ) +
+                                            sizeof( xi_memory_limiter_entry_t );
+        const size_t memory_limit_size = XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT +
+                                            allocation_space;
+
+        /* assumptions */
+        tt_assert( XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT > allocation_footprint );
+
+        xi_state_t memory_set_result = xi_set_maximum_heap_usage( memory_limit_size );
+        tt_assert( memory_set_result == XI_STATE_OK );
+
+        XI_ALLOC_BUFFER_AT( char, origin_string, num_characters, ret_state );
+        size_t i = 0;
+        for ( ; i < num_characters - 1; ++i )
+        {
+            origin_string[i] = 'a';
+        }
+        origin_string[num_characters-1] = '\0';
+        tt_int_op( strlen( origin_string ), ==, num_characters - 1 );
+
+        /* test behavior */
+        data_desc = xi_make_desc_from_string_copy( origin_string );
+        tt_ptr_op( data_desc, ==, NULL );
+        goto end;
+
+    err_handling:
+        tt_fail();
+    end:
+        if( data_desc != NULL )
+        {
+            xi_free_desc( &data_desc );
+        }
+        XI_SAFE_FREE( origin_string );
+        xi_memory_limiter_set_limit( XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT +
+                                     XI_MEMORY_LIMITER_APPLICATION_MEMORY_LIMIT );
+
+    } )
+
+    XI_TT_TESTCASE(
+    utest__xi_make_desc_from_buffer_copy__valid_data__not_enough_memory_for_buffer,
+    {
+        /* size values */
+        size_t num_buffer_elements   = 700;
+        xi_state_t ret_state         = XI_STATE_OK;
+        unsigned char* origin_buffer = NULL;
+        xi_data_desc_t* data_desc    = NULL;
+        
+        const size_t buffer_size_in_bytes = num_buffer_elements * sizeof( unsigned char );
+        const size_t allocation_space   = buffer_size_in_bytes +
+                                          sizeof( xi_data_desc_t ) +
+                                          sizeof( xi_memory_limiter_entry_t );
+        const size_t allocation_footprint = buffer_size_in_bytes +
+                                            sizeof( xi_memory_limiter_entry_t );
+        const size_t memory_limit_size = XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT +
+                                         allocation_space;
+
+        /* assumptions */
+        tt_assert( XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT > allocation_footprint );
+
+        xi_state_t memory_set_result = xi_set_maximum_heap_usage( memory_limit_size );
+        tt_assert( memory_set_result == XI_STATE_OK );
+
+        XI_ALLOC_BUFFER_AT( unsigned char, origin_buffer, num_buffer_elements, ret_state );
+
+        /* test behavior */
+        data_desc = xi_make_desc_from_buffer_copy( origin_buffer, num_buffer_elements );
+        tt_ptr_op( data_desc, ==, NULL );
+        
+        goto end;
+
+    err_handling:
+        tt_fail();
+    end:
+        if( data_desc != NULL )
+        {
+            xi_free_desc( &data_desc );
+        }
+        XI_SAFE_FREE( origin_buffer );
+        xi_memory_limiter_set_limit( XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT +
+                                     XI_MEMORY_LIMITER_APPLICATION_MEMORY_LIMIT );
+
+    } )
+
+
+    XI_TT_TESTCASE(
+    utest__xi_make_desc_from_buffer_copy__valid_data__not_enough_memory_for_descriptor,
+    {
+        /* size values */
+        size_t num_buffer_elements   = 700;
+        xi_state_t ret_state         = XI_STATE_OK;
+        unsigned char* origin_buffer = NULL;
+        xi_data_desc_t* data_desc    = NULL;
+        
+        const size_t buffer_size_in_bytes = num_buffer_elements * sizeof( unsigned char );
+        const size_t allocation_space   = buffer_size_in_bytes +
+                                          sizeof( xi_data_desc_t ) +
+                                          sizeof( xi_data_desc_t ) +
+                                          2*sizeof( xi_memory_limiter_entry_t );
+        const size_t allocation_footprint = buffer_size_in_bytes +
+                                            sizeof( xi_memory_limiter_entry_t );
+        const size_t memory_limit_size = XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT +
+                                         allocation_space;
+
+        /* assumptions */
+        tt_assert( XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT > allocation_footprint );
+
+        xi_state_t memory_set_result = xi_set_maximum_heap_usage( memory_limit_size );
+        tt_assert( memory_set_result == XI_STATE_OK );
+
+        XI_ALLOC_BUFFER_AT( unsigned char, origin_buffer, num_buffer_elements, ret_state );
+
+        /* test behavior */
+        data_desc = xi_make_desc_from_buffer_copy( origin_buffer, num_buffer_elements );
+        tt_ptr_op( data_desc, ==, NULL );
+        
+        goto end;
+
+    err_handling:
+        tt_fail();
+    end:
+        if( data_desc != NULL )
+        {
+            xi_free_desc( &data_desc );
+        }
+        XI_SAFE_FREE( origin_buffer );
+        xi_memory_limiter_set_limit( XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT +
+                                     XI_MEMORY_LIMITER_APPLICATION_MEMORY_LIMIT );
+
+    } )
+
+    XI_TT_TESTCASE(
+    utest__xi_make_empty_desc_alloc__valid_data__not_enough_memory_for_descriptor,
+    {
+        /* size values */
+        size_t num_buffer_elements = 700;
+        xi_data_desc_t* data_desc  = NULL;
+        
+        const size_t allocation_space   = 1;
+        const size_t memory_limit_size = XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT +
+                                         allocation_space;
+
+        xi_state_t memory_set_result = xi_set_maximum_heap_usage( memory_limit_size );
+        tt_assert( memory_set_result == XI_STATE_OK );
+        
+        /* test behavior */ 
+        data_desc = xi_make_empty_desc_alloc( num_buffer_elements );
+        tt_ptr_op( data_desc, ==, NULL );
+
+    end:   
+        if( data_desc != NULL )
+        {
+            xi_free_desc( &data_desc );
+        }
+        xi_memory_limiter_set_limit( XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT +
+                                     XI_MEMORY_LIMITER_APPLICATION_MEMORY_LIMIT );
+
+    } )
+
+    XI_TT_TESTCASE(
+    utest__xi_make_empty_desc_alloc__valid_data__not_enough_memory_for_buffer,
+    {
+        /* size values */
+        size_t num_buffer_elements = 700;
+        xi_data_desc_t* data_desc  = NULL;
+        
+        const size_t memory_limit_size = XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT +
+                                         + sizeof( xi_data_desc_t) + sizeof( xi_memory_limiter_entry_t );
+
+
+        xi_state_t memory_set_result = xi_set_maximum_heap_usage( memory_limit_size );
+        tt_assert( memory_set_result == XI_STATE_OK );
+        
+        /* test behavior */
+        data_desc = xi_make_empty_desc_alloc( num_buffer_elements );
+        tt_ptr_op( data_desc, ==, NULL );
+
+    end:   
+        if( data_desc != NULL )
+        {
+            xi_free_desc( &data_desc );
+        }
+        xi_memory_limiter_set_limit( XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT +
+                                     XI_MEMORY_LIMITER_APPLICATION_MEMORY_LIMIT );
+
+    } )
+#endif // XI_MEMORY_LIMITER_ENABLED
+
+
 XI_TT_TESTCASE( utest__xi_make_desc_from_string_copy__null_data__null_returned, {
     char* origin_string       = NULL;
     xi_data_desc_t* data_desc = NULL;

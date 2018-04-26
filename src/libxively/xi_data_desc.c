@@ -16,18 +16,16 @@ xi_data_desc_t* xi_make_empty_desc_alloc( size_t capacity )
     xi_state_t state = XI_STATE_OK;
 
     XI_ALLOC( xi_data_desc_t, data_desc, state );
-
-    XI_ALLOC_BUFFER_AT( unsigned char, data_desc->data_ptr, capacity, state );
-
+    data_desc->memory_type = XI_MEMORY_TYPE_MANAGED;
+    
+    XI_ALLOC_BUFFER_AT( unsigned char, data_desc->data_ptr, capacity, state );    
     data_desc->length      = 0;
     data_desc->capacity    = capacity;
-    data_desc->memory_type = XI_MEMORY_TYPE_MANAGED;
-
     return data_desc;
 
 err_handling:
     xi_free_desc( &data_desc );
-    return 0;
+    return NULL;
 }
 
 xi_data_desc_t* xi_make_desc_from_buffer_copy( unsigned const char* buffer, size_t len )
@@ -37,19 +35,17 @@ xi_data_desc_t* xi_make_desc_from_buffer_copy( unsigned const char* buffer, size
     xi_state_t state = XI_STATE_OK;
 
     XI_ALLOC( xi_data_desc_t, data_desc, state );
-    XI_ALLOC_BUFFER_AT( unsigned char, data_desc->data_ptr, len, state );
-
-    memcpy( data_desc->data_ptr, buffer, len );
-
-    data_desc->capacity    = len;
-    data_desc->length      = data_desc->capacity;
     data_desc->memory_type = XI_MEMORY_TYPE_MANAGED;
 
+    XI_ALLOC_BUFFER_AT( unsigned char, data_desc->data_ptr, len, state );
+    memcpy( data_desc->data_ptr, buffer, len );
+    data_desc->capacity    = len;
+    data_desc->length      = data_desc->capacity;
     return data_desc;
 
 err_handling:
     xi_free_desc( &data_desc );
-    return 0;
+    return NULL;
 }
 
 xi_data_desc_t* xi_make_desc_from_buffer_share( unsigned char* buffer, size_t len )
@@ -69,7 +65,7 @@ xi_data_desc_t* xi_make_desc_from_buffer_share( unsigned char* buffer, size_t le
 
 err_handling:
     xi_free_desc( &data_desc );
-    return 0;
+    return NULL;
 }
 
 xi_data_desc_t* xi_make_desc_from_string_copy( const char* str )
@@ -83,19 +79,17 @@ xi_data_desc_t* xi_make_desc_from_string_copy( const char* str )
     const size_t len = strlen( str );
 
     XI_ALLOC( xi_data_desc_t, data_desc, state );
+    data_desc->memory_type = XI_MEMORY_TYPE_MANAGED;
 
     XI_ALLOC_BUFFER_AT( unsigned char, data_desc->data_ptr, len, state );
     memcpy( data_desc->data_ptr, str, len );
-
     data_desc->capacity    = len;
     data_desc->length      = data_desc->capacity;
-    data_desc->memory_type = XI_MEMORY_TYPE_MANAGED;
-
     return data_desc;
 
 err_handling:
     xi_free_desc( &data_desc );
-    return 0;
+    return NULL;
 }
 
 xi_data_desc_t* xi_make_desc_from_string_share( const char* str )
@@ -120,7 +114,7 @@ xi_data_desc_t* xi_make_desc_from_string_share( const char* str )
 
 err_handling:
     xi_free_desc( &data_desc );
-    return 0;
+    return NULL;
 }
 
 xi_data_desc_t* xi_make_desc_from_float_copy( const float value )
@@ -148,7 +142,7 @@ xi_data_desc_t* xi_make_desc_from_float_copy( const float value )
 
 err_handling:
     xi_free_desc( &data_desc );
-    return 0;
+    return NULL;
 }
 
 void xi_free_desc( xi_data_desc_t** desc )
