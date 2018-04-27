@@ -244,10 +244,6 @@ XI_TT_TESTCASE_WITH_SETUP(
         tt_fail();
     } )
 
-#ifndef XI_MEMORY_LIMITER_ENABLED
-#define XI_MEMORY_LIMITER_ENABLED 1
-#endif 
-
 #ifdef XI_MEMORY_LIMITER_ENABLED
 XI_TT_TESTCASE(
     utest__xi_make_desc_from_string_copy__valid_data__not_enough_memory_for_buffer,
