@@ -427,7 +427,7 @@ XI_TT_TESTCASE(
                                      XI_MEMORY_LIMITER_APPLICATION_MEMORY_LIMIT );
 
     } )
-#endif // XI_MEMORY_LIMITER_ENABLED
+#endif /* XI_MEMORY_LIMITER_ENABLED */
 
 
 XI_TT_TESTCASE( utest__xi_make_desc_from_string_copy__null_data__null_returned, {
