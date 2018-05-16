@@ -248,50 +248,28 @@ XI_TT_TESTCASE_WITH_SETUP(
 XI_TT_TESTCASE(
     utest__xi_make_desc_from_string_copy__valid_data__not_enough_memory_for_buffer,
     {
-        /* size values */
-        size_t num_characters     = 700;
-        xi_state_t ret_state      = XI_STATE_OK;
-        char* origin_string       = NULL;
+        const char source_string[] = "The quick brown fox jumps over the lazy dog";
         xi_data_desc_t* data_desc = NULL;
         
-        const size_t allocation_space   = num_characters * sizeof( char ) +
-                                          sizeof( xi_data_desc_t ) +
-                                          sizeof( xi_data_desc_t ) +
-                                          2*sizeof( xi_memory_limiter_entry_t );
-        const size_t allocation_footprint = num_characters* sizeof( char ) +
-                                            sizeof( xi_memory_limiter_entry_t );
-        const size_t memory_limit_size = XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT +
-                                            allocation_space;
+        /* Limited memory space.  It does not include enough space
+           to allocate the buffer to copy the source_string into,
+           but enough to allocate the tracking data descriptor for the buffer. */
+        const size_t dest_footprint_allowance = sizeof( xi_data_desc_t ) +
+                                                sizeof( xi_memory_limiter_entry_t );
 
-        /* assumptions */
-        tt_assert( XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT > allocation_footprint );
+        /* Set the maximum heap size.  Must include the System memory limit, too */
+        const size_t memory_limit_size = XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT +
+                                            dest_footprint_allowance;
 
         xi_state_t memory_set_result = xi_set_maximum_heap_usage( memory_limit_size );
         tt_assert( memory_set_result == XI_STATE_OK );
 
-        XI_ALLOC_BUFFER_AT( char, origin_string, num_characters, ret_state );
-        size_t i = 0;
-        for ( ; i < num_characters - 1; ++i )
-        {
-            origin_string[i] = 'a';
-        }
-        origin_string[num_characters-1] = '\0';
-        tt_int_op( strlen( origin_string ), ==, num_characters - 1 );
-
         /* test behavior */
-        data_desc = xi_make_desc_from_string_copy( origin_string );
-        tt_ptr_op( data_desc, ==, NULL );
-        
-        goto end;
-
-    err_handling:
-        tt_fail();
+        data_desc = xi_make_desc_from_string_copy( source_string );
+        tt_ptr_op( data_desc, ==, NULL );        
+    
     end:
-        if( data_desc != NULL )
-        {
-            xi_free_desc( &data_desc );
-        }
-        XI_SAFE_FREE( origin_string );
+        xi_free_desc( &data_desc );
         xi_memory_limiter_set_limit( XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT +
                                      XI_MEMORY_LIMITER_APPLICATION_MEMORY_LIMIT );
 
@@ -300,48 +278,27 @@ XI_TT_TESTCASE(
     XI_TT_TESTCASE(
     utest__xi_make_desc_from_string_copy__valid_data__not_enough_memory_for_descriptor,
     {
-        /* size values */
-        size_t num_characters     = 700;
-        xi_state_t ret_state      = XI_STATE_OK;
-        char* origin_string       = NULL;
+        const char source_string[] = "The quick brown fox jumps over the lazy dog";
         xi_data_desc_t* data_desc = NULL;
         
-        const size_t allocation_space   = num_characters * sizeof( char ) +
-                                          sizeof( xi_data_desc_t ) +
-                                          sizeof( xi_memory_limiter_entry_t );
-        const size_t allocation_footprint = num_characters* sizeof( char ) +
-                                            sizeof( xi_memory_limiter_entry_t );
-        const size_t memory_limit_size = XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT +
-                                            allocation_space;
+        /* Limited memory space.  It does not include enough space
+           to allocate the buffer to copy the source_string into,
+           nor the descriptor to track the allocation. */
+        const size_t dest_footprint_allowance = sizeof( xi_memory_limiter_entry_t );
 
-        /* assumptions */
-        tt_assert( XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT > allocation_footprint );
+        /* Set the maximum heap size.  Must include the System memory limit, too */
+        const size_t memory_limit_size = XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT +
+                                            dest_footprint_allowance;
 
         xi_state_t memory_set_result = xi_set_maximum_heap_usage( memory_limit_size );
         tt_assert( memory_set_result == XI_STATE_OK );
 
-        XI_ALLOC_BUFFER_AT( char, origin_string, num_characters, ret_state );
-        size_t i = 0;
-        for ( ; i < num_characters - 1; ++i )
-        {
-            origin_string[i] = 'a';
-        }
-        origin_string[num_characters-1] = '\0';
-        tt_int_op( strlen( origin_string ), ==, num_characters - 1 );
-
         /* test behavior */
-        data_desc = xi_make_desc_from_string_copy( origin_string );
-        tt_ptr_op( data_desc, ==, NULL );
-        goto end;
-
-    err_handling:
-        tt_fail();
+        data_desc = xi_make_desc_from_string_copy( source_string );
+        tt_ptr_op( data_desc, ==, NULL );        
+    
     end:
-        if( data_desc != NULL )
-        {
-            xi_free_desc( &data_desc );
-        }
-        XI_SAFE_FREE( origin_string );
+        xi_free_desc( &data_desc );
         xi_memory_limiter_set_limit( XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT +
                                      XI_MEMORY_LIMITER_APPLICATION_MEMORY_LIMIT );
 
@@ -350,90 +307,59 @@ XI_TT_TESTCASE(
     XI_TT_TESTCASE(
     utest__xi_make_desc_from_buffer_copy__valid_data__not_enough_memory_for_buffer,
     {
-        /* size values */
-        size_t num_buffer_elements   = 700;
-        xi_state_t ret_state         = XI_STATE_OK;
-        unsigned char* origin_buffer = NULL;
-        xi_data_desc_t* data_desc    = NULL;
+        const unsigned char source_buffer[] = "The quick brown fox jumps over the lazy dog";
+        const size_t buffer_size_in_bytes = sizeof( source_buffer );
+        xi_data_desc_t* data_desc = NULL;
         
-        const size_t buffer_size_in_bytes = num_buffer_elements * sizeof( unsigned char );
-        const size_t allocation_space   = buffer_size_in_bytes +
-                                          sizeof( xi_data_desc_t ) +
-                                          sizeof( xi_memory_limiter_entry_t );
-        const size_t allocation_footprint = buffer_size_in_bytes +
-                                            sizeof( xi_memory_limiter_entry_t );
-        const size_t memory_limit_size = XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT +
-                                         allocation_space;
+        /* Limited memory space.  It does not include enough space
+           to allocate a buffer to copy the source_buffer into,
+           but enough to allocate the tracking data descriptor for that buffer. */
+        const size_t dest_footprint_allowance = sizeof( xi_data_desc_t ) +
+                                                sizeof( xi_memory_limiter_entry_t );
 
-        /* assumptions */
-        tt_assert( XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT > allocation_footprint );
+        /* Set the maximum heap size.  Must include the System memory limit, too */
+        const size_t memory_limit_size = XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT +
+                                            dest_footprint_allowance;
 
         xi_state_t memory_set_result = xi_set_maximum_heap_usage( memory_limit_size );
         tt_assert( memory_set_result == XI_STATE_OK );
 
-        XI_ALLOC_BUFFER_AT( unsigned char, origin_buffer, num_buffer_elements, ret_state );
-
         /* test behavior */
-        data_desc = xi_make_desc_from_buffer_copy( origin_buffer, num_buffer_elements );
-        tt_ptr_op( data_desc, ==, NULL );
-        
-        goto end;
-
-    err_handling:
-        tt_fail();
+        data_desc = xi_make_desc_from_buffer_copy( source_buffer, buffer_size_in_bytes );
+        tt_ptr_op( data_desc, ==, NULL );        
+    
     end:
-        if( data_desc != NULL )
-        {
-            xi_free_desc( &data_desc );
-        }
-        XI_SAFE_FREE( origin_buffer );
+        xi_free_desc( &data_desc );
         xi_memory_limiter_set_limit( XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT +
                                      XI_MEMORY_LIMITER_APPLICATION_MEMORY_LIMIT );
-
     } )
 
 
     XI_TT_TESTCASE(
     utest__xi_make_desc_from_buffer_copy__valid_data__not_enough_memory_for_descriptor,
     {
-        /* size values */
-        size_t num_buffer_elements   = 700;
-        xi_state_t ret_state         = XI_STATE_OK;
-        unsigned char* origin_buffer = NULL;
-        xi_data_desc_t* data_desc    = NULL;
+        const unsigned char source_buffer[] = "The quick brown fox jumps over the lazy dog";
+        const size_t buffer_size_in_bytes = sizeof( source_buffer );
+        xi_data_desc_t* data_desc = NULL;
         
-        const size_t buffer_size_in_bytes = num_buffer_elements * sizeof( unsigned char );
-        const size_t allocation_space   = buffer_size_in_bytes +
-                                          sizeof( xi_data_desc_t ) +
-                                          sizeof( xi_data_desc_t ) +
-                                          2*sizeof( xi_memory_limiter_entry_t );
-        const size_t allocation_footprint = buffer_size_in_bytes +
-                                            sizeof( xi_memory_limiter_entry_t );
-        const size_t memory_limit_size = XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT +
-                                         allocation_space;
+        /* Limited memory space.  It does not include enough space
+           to allocate a buffer to copy the source_buffer into,
+           nor enough space to allocate the tracking data descriptorfor that buffer.*/
+        const size_t dest_footprint_allowance = sizeof( xi_memory_limiter_entry_t );
 
-        /* assumptions */
-        tt_assert( XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT > allocation_footprint );
+        /* Set the maximum heap size.  Must include the System memory limit, too */
+        const size_t memory_limit_size = XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT +
+                                            dest_footprint_allowance;
 
         xi_state_t memory_set_result = xi_set_maximum_heap_usage( memory_limit_size );
         tt_assert( memory_set_result == XI_STATE_OK );
 
-        XI_ALLOC_BUFFER_AT( unsigned char, origin_buffer, num_buffer_elements, ret_state );
-
         /* test behavior */
-        data_desc = xi_make_desc_from_buffer_copy( origin_buffer, num_buffer_elements );
-        tt_ptr_op( data_desc, ==, NULL );
-        
-        goto end;
-
-    err_handling:
-        tt_fail();
+        data_desc = xi_make_desc_from_buffer_copy( source_buffer, buffer_size_in_bytes );
+        tt_ptr_op( data_desc, ==, NULL );        
+    
     end:
-        if( data_desc != NULL )
-        {
-            xi_free_desc( &data_desc );
-        }
-        XI_SAFE_FREE( origin_buffer );
+        xi_free_desc( &data_desc );
         xi_memory_limiter_set_limit( XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT +
                                      XI_MEMORY_LIMITER_APPLICATION_MEMORY_LIMIT );
 
@@ -443,53 +369,60 @@ XI_TT_TESTCASE(
     utest__xi_make_empty_desc_alloc__valid_data__not_enough_memory_for_descriptor,
     {
         /* size values */
-        size_t num_buffer_elements = 700;
+        size_t buffer_size = 700;
         xi_data_desc_t* data_desc  = NULL;
         
-        const size_t allocation_space   = 1;
+        /* Limited memory space.  It does not include enough space
+           to allocate a buffer of the requested size (buffer_size)
+           nor enough space to allocate the tracking data descriptor for
+           that buffer.*/
+        const size_t dest_footprint_allowance = sizeof( xi_memory_limiter_entry_t );
+
+        /* Set the maximum heap size.  Must include the System memory limit, too */
         const size_t memory_limit_size = XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT +
-                                         allocation_space;
+                                         dest_footprint_allowance;
 
         xi_state_t memory_set_result = xi_set_maximum_heap_usage( memory_limit_size );
         tt_assert( memory_set_result == XI_STATE_OK );
         
         /* test behavior */ 
-        data_desc = xi_make_empty_desc_alloc( num_buffer_elements );
+        data_desc = xi_make_empty_desc_alloc( buffer_size );
         tt_ptr_op( data_desc, ==, NULL );
 
     end:   
-        if( data_desc != NULL )
-        {
-            xi_free_desc( &data_desc );
-        }
+        xi_free_desc( &data_desc );
         xi_memory_limiter_set_limit( XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT +
                                      XI_MEMORY_LIMITER_APPLICATION_MEMORY_LIMIT );
-
     } )
+
 
     XI_TT_TESTCASE(
     utest__xi_make_empty_desc_alloc__valid_data__not_enough_memory_for_buffer,
     {
         /* size values */
-        size_t num_buffer_elements = 700;
+        size_t buffer_size = 700;
         xi_data_desc_t* data_desc  = NULL;
         
-        const size_t memory_limit_size = XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT +
-                                         + sizeof( xi_data_desc_t) + sizeof( xi_memory_limiter_entry_t );
+        /* Limited memory space.  It does not include enough space
+           to allocate a buffer of the requested size (buffer_size)
+           bu enough space to allocate the tracking data descriptor for
+           that buffer.*/
+        const size_t dest_footprint_allowance   = sizeof( xi_data_desc_t ) +
+                                                  sizeof( xi_memory_limiter_entry_t );
 
+        /* Set the maximum heap size.  Must include the System memory limit, too */
+        const size_t memory_limit_size = XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT +
+                                         dest_footprint_allowance;
 
         xi_state_t memory_set_result = xi_set_maximum_heap_usage( memory_limit_size );
         tt_assert( memory_set_result == XI_STATE_OK );
         
-        /* test behavior */
-        data_desc = xi_make_empty_desc_alloc( num_buffer_elements );
+        /* test behavior */ 
+        data_desc = xi_make_empty_desc_alloc( buffer_size );
         tt_ptr_op( data_desc, ==, NULL );
 
     end:   
-        if( data_desc != NULL )
-        {
-            xi_free_desc( &data_desc );
-        }
+        xi_free_desc( &data_desc );
         xi_memory_limiter_set_limit( XI_MEMORY_LIMITER_SYSTEM_MEMORY_LIMIT +
                                      XI_MEMORY_LIMITER_APPLICATION_MEMORY_LIMIT );
 
