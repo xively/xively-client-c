@@ -133,8 +133,6 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
         XI_CONNACK_REFUSED_NOT_AUTHORIZED        = 5
     };
 
-    printf("helloka\n");
-
     XI_MOCK_BROKER_CONDITIONAL__CHECK_EXPECTED( in_out_state, LAYER_LEVEL );
 
     xi_layer_t* layer                 = ( xi_layer_t* )XI_THIS_LAYER( context );
@@ -150,7 +148,7 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
         // const uint16_t msg_id = xi_mqtt_get_message_id( recvd_msg );
         const xi_mqtt_type_t recvd_msg_type = recvd_msg->common.common_u.common_bits.type;
 
-        xi_debug_format( "mock broker received message with type %d\n", recvd_msg_type );
+        xi_debug_format( "mock broker received message with type %d", recvd_msg_type );
 
         XI_MOCK_BROKER_CONDITIONAL__CHECK_EXPECTED( recvd_msg_type, MQTT_LEVEL );
 
