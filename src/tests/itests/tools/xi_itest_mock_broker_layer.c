@@ -70,7 +70,7 @@ xi_state_t xi_mock_broker_layer_push( void* context, void* data, xi_state_t in_o
 
     if ( in_out_state == XI_STATE_OK )
     {
-        /* duplicate the received data since it will forwarded into two directions */
+        /* duplicate the received data since it will be forwarded into two directions */
         xi_data_desc_t* orig = ( xi_data_desc_t* )data;
         xi_data_desc_t* copy =
             xi_make_desc_from_buffer_copy( orig->data_ptr, orig->length );
@@ -133,6 +133,8 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
         XI_CONNACK_REFUSED_NOT_AUTHORIZED        = 5
     };
 
+    printf("helloka\n");
+
     XI_MOCK_BROKER_CONDITIONAL__CHECK_EXPECTED( in_out_state, LAYER_LEVEL );
 
     xi_layer_t* layer                 = ( xi_layer_t* )XI_THIS_LAYER( context );
@@ -148,7 +150,7 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
         // const uint16_t msg_id = xi_mqtt_get_message_id( recvd_msg );
         const xi_mqtt_type_t recvd_msg_type = recvd_msg->common.common_u.common_bits.type;
 
-        xi_debug_format( "mock broker received message with type %d ", recvd_msg_type );
+        xi_debug_format( "mock broker received message with type %d\n", recvd_msg_type );
 
         XI_MOCK_BROKER_CONDITIONAL__CHECK_EXPECTED( recvd_msg_type, MQTT_LEVEL );
 
@@ -252,6 +254,18 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
                     }
                 }
             }
+            break;
+
+            case XI_MQTT_TYPE_PINGREQ:
+                {
+                    XI_ALLOC( xi_mqtt_message_t, mqtt_pingresp, in_out_state );
+                    memcpy( mqtt_pingresp, recvd_msg, sizeof( xi_mqtt_message_t ) );
+
+                    mqtt_pingresp->common.common_u.common_bits.type = XI_MQTT_TYPE_PINGRESP;
+
+                    in_out_state = XI_PROCESS_PUSH_ON_PREV_LAYER(
+                                          context, mqtt_pingresp, in_out_state );
+                }
             break;
 
             case XI_MQTT_TYPE_DISCONNECT:

@@ -485,6 +485,11 @@ xi_state_t xi_mqtt_parser_execute( xi_mqtt_parser_t* parser,
 
         XI_CR_EXIT( parser->cs, XI_STATE_OK );
     }
+    else if ( message->common.common_u.common_bits.type == XI_MQTT_TYPE_PINGREQ )
+    {
+        /* nothing to parse */
+        XI_CR_EXIT( parser->cs, XI_STATE_OK );
+    }
     else if ( message->common.common_u.common_bits.type == XI_MQTT_TYPE_PINGRESP )
     {
         /* nothing to parse */

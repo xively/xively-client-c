@@ -8,6 +8,7 @@
 #define __XI_ITEST_MOCK_BROKER_LAYER_H__
 
 #include "xi_layer_interface.h"
+#include "xi_data_desc.h"
 
 #ifdef __cplusplus
 extern "C" {
