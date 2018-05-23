@@ -158,11 +158,8 @@ xi_state_t xi_mqtt_serialiser_size( size_t* msg_len,
         *msg_len += 2; /* size of the msg id */
         *msg_len += 1; /* qos */
     }
-    else if ( message->common.common_u.common_bits.type == XI_MQTT_TYPE_PINGREQ )
-    {
-        /* just a fixed header */
-    }
-    else if ( message->common.common_u.common_bits.type == XI_MQTT_TYPE_PINGRESP )
+    else if ( message->common.common_u.common_bits.type == XI_MQTT_TYPE_PINGREQ ||
+              message->common.common_u.common_bits.type == XI_MQTT_TYPE_PINGRESP )
     {
         /* just a fixed header */
     }
