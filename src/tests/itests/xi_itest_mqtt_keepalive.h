@@ -16,6 +16,9 @@ xi_itest_mqtt_keepalive__PINGREQ_failed_to_send__client_disconnects_after_keepal
 extern void
 xi_itest_mqtt_keepalive__PINGREQ_failed_to_send__broker_disconnects_first(
     void** state );
+extern void
+xi_itest_mqtt_keepalive__2nd_PINGREQ_failed_to_send__broker_disconnects_first(
+    void** state );
 
 #ifdef XI_MOCK_TEST_PREPROCESSOR_RUN
 struct CMUnitTest xi_itests_mqtt_keepalive[] = {
@@ -25,6 +28,10 @@ struct CMUnitTest xi_itests_mqtt_keepalive[] = {
         xi_itest_mqtt_keepalive_teardown ),
     cmocka_unit_test_setup_teardown(
         xi_itest_mqtt_keepalive__PINGREQ_failed_to_send__broker_disconnects_first,
+        xi_itest_mqtt_keepalive_setup,
+        xi_itest_mqtt_keepalive_teardown ),
+    cmocka_unit_test_setup_teardown(
+        xi_itest_mqtt_keepalive__2nd_PINGREQ_failed_to_send__broker_disconnects_first,
         xi_itest_mqtt_keepalive_setup,
         xi_itest_mqtt_keepalive_teardown ),
 };

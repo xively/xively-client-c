@@ -21,7 +21,6 @@
 #include "xi_test_utils.h"
 #include "xi_lamp_communication.h"
 
-#if 0
 struct CMGroupTest groups[] = {cmocka_test_group( xi_itests_clean_session ),
                                cmocka_test_group( xi_itests_tls_error ),
 #ifndef XI_NO_TLS_LAYER
@@ -36,9 +35,6 @@ struct CMGroupTest groups[] = {cmocka_test_group( xi_itests_clean_session ),
 #endif
                                cmocka_test_group( xi_itests_mqtt_keepalive ),
                                cmocka_test_group_end};
-#else
-struct CMGroupTest groups[] = { cmocka_test_group( xi_itests_mqtt_keepalive ), cmocka_test_group_end };
-#endif
 
 int8_t xi_cm_strict_mock = 0;
 
