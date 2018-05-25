@@ -256,13 +256,18 @@ xi_state_t xi_mock_broker_layer_pull( void* context, void* data, xi_state_t in_o
 
             case XI_MQTT_TYPE_PINGREQ:
                 {
-                    XI_ALLOC( xi_mqtt_message_t, mqtt_pingresp, in_out_state );
-                    memcpy( mqtt_pingresp, recvd_msg, sizeof( xi_mqtt_message_t ) );
+                    const xi_mock_broker_control_t control = mock_type( xi_mock_broker_control_t );
 
-                    mqtt_pingresp->common.common_u.common_bits.type = XI_MQTT_TYPE_PINGRESP;
+                    if ( CONTROL_PULL_PINGREQ_SUPPRESS_RESPONSE != control )
+                    {
+                        XI_ALLOC( xi_mqtt_message_t, mqtt_pingresp, in_out_state );
+                        memcpy( mqtt_pingresp, recvd_msg, sizeof( xi_mqtt_message_t ) );
 
-                    in_out_state = XI_PROCESS_PUSH_ON_PREV_LAYER(
-                                          context, mqtt_pingresp, in_out_state );
+                        mqtt_pingresp->common.common_u.common_bits.type = XI_MQTT_TYPE_PINGRESP;
+
+                        in_out_state = XI_PROCESS_PUSH_ON_PREV_LAYER(
+                                              context, mqtt_pingresp, in_out_state );
+                    }
                 }
             break;
 

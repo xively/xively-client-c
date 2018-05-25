@@ -605,6 +605,11 @@ xi_mqtt_logic_layer_close_externally( void* context, void* data, xi_state_t in_o
     /* let's stop the current task */
     if ( layer_data->current_q0_task != 0 )
     {
+        if ( NULL != layer_data->current_q0_task->timeout.ptr_to_position )
+        {
+            xi_evtd_cancel( event_dispatcher, &layer_data->current_q0_task->timeout );
+        }
+
         layer_data->current_q0_task->logic.handlers.h4.a3 = XI_STATE_TIMEOUT;
         xi_evtd_execute_handle( &layer_data->current_q0_task->logic );
         xi_mqtt_logic_free_task( &layer_data->current_q0_task );

@@ -17,7 +17,8 @@ extern "C" {
 typedef enum xi_mock_broker_control_init_e {
     CONTROL_CONTINUE,
     CONTROL_ERROR,
-    CONTROL_SKIP_CHECK_EXPECTED
+    CONTROL_SKIP_CHECK_EXPECTED,
+    CONTROL_PULL_PINGREQ_SUPPRESS_RESPONSE
 } xi_mock_broker_control_t;
 
 typedef struct xi_mock_broker_data_s

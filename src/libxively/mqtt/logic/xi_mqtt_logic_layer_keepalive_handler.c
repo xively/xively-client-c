@@ -82,7 +82,6 @@ do_mqtt_keepalive_task( void* ctx, void* data, xi_state_t state, void* msg_data 
     else
     {
         xi_debug_format( "pingreq message has not been sent... %d", ( int )state );
-        XI_CHECK_STATE( state );
     }
 
     // wait for an interval of keepalive

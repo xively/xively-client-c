@@ -85,12 +85,14 @@ void _xi_itest_mqtt_keepalive__on_connection_state_changed( xi_context_handle_t 
     XI_UNUSED( in_context_handle );
     XI_UNUSED( data );
     XI_UNUSED( state );
+    printf( "%s: state: %d\n", __FUNCTION__, state );
 }
 
 /*********************************************************************************
  * act ***************************************************************************
  ********************************************************************************/
-static void xi_itest_mqtt_keepalive__act( void** fixture_void )
+static void xi_itest_mqtt_keepalive__act( void** fixture_void,
+                                          const uint16_t loop_id_reset_by_peer )
 {
     {
         /* turn off LAYER and MQTT LEVEL expectation checks to concentrate only on SFT
@@ -120,8 +122,8 @@ static void xi_itest_mqtt_keepalive__act( void** fixture_void )
                 keepalive_timeout, XI_SESSION_CLEAN,
                 &_xi_itest_mqtt_keepalive__on_connection_state_changed );
 
-    const uint16_t loop_counter_max = 43;
-    uint16_t loop_counter = 0;
+    const uint16_t loop_counter_max = 23;
+    uint16_t loop_counter = 1;
     while ( xi_evtd_dispatcher_continue( xi_globals.evtd_instance ) == 1 &&
             loop_counter < loop_counter_max )
     {
@@ -131,16 +133,54 @@ static void xi_itest_mqtt_keepalive__act( void** fixture_void )
                       xi_bsp_time_getcurrenttime_seconds() + loop_counter );
         ++loop_counter;
 
+        if ( loop_id_reset_by_peer == loop_counter )
+        {
+            XI_PROCESS_CLOSE_ON_THIS_LAYER(
+                &xi_context->layer_chain.bottom->layer_connection, NULL, XI_CONNECTION_RESET_BY_PEER_ERROR );
+        }
+
         if ( loop_counter_max - 5  == loop_counter )
         {
-          xi_shutdown_connection( xi_context_handle );
+            xi_shutdown_connection( xi_context_handle );
         }
     }
 }
 
 
-void xi_itest_mqtt_keepalive_first( void** state )
+void xi_itest_mqtt_keepalive__PINGREQ_failed_to_send__client_disconnects_after_keepalive_seconds( void** state )
 {
-  XI_UNUSED( state );
-  xi_itest_mqtt_keepalive__act( state );
+    //expect_value( xi_mock_broker_layer_pull, recvd_msg_type, XI_MQTT_TYPE_CONNECT );
+    //expect_value( xi_mock_broker_layer_pull, recvd_msg_type, XI_MQTT_TYPE_SUBSCRIBE );
+
+    /* let CONNECT and SUBSCRIBE writes succeed */
+    will_return_count( xi_mock_layer_tls_prev_push, CONTROL_TLS_PREV_CONTINUE, 2 );
+    /* make first PINGREQ fail to write on the socket */
+    will_return( xi_mock_layer_tls_prev_push, CONTROL_TLS_PREV_PUSH__WRITE_ERROR );
+    /* set the specific error to be returned by the mock IO layer (here tls_prev) */
+    will_return( xi_mock_layer_tls_prev_push, XI_STATE_FAILED_WRITING );
+
+    /* make mock broker not to reply on PINGREQ, this is necessary since the
+     * mock broker catches the message before IO layer */
+    will_return( xi_mock_broker_layer_pull, CONTROL_PULL_PINGREQ_SUPPRESS_RESPONSE );
+
+    xi_itest_mqtt_keepalive__act( state, 0 );
+}
+
+void xi_itest_mqtt_keepalive__PINGREQ_failed_to_send__broker_disconnects_first( void** state )
+{
+    //expect_value( xi_mock_broker_layer_pull, recvd_msg_type, XI_MQTT_TYPE_CONNECT );
+    //expect_value( xi_mock_broker_layer_pull, recvd_msg_type, XI_MQTT_TYPE_SUBSCRIBE );
+
+    /* let CONNECT and SUBSCRIBE writes succeed */
+    will_return_count( xi_mock_layer_tls_prev_push, CONTROL_TLS_PREV_CONTINUE, 2 );
+    /* make first PINGREQ fail to write on the socket */
+    will_return( xi_mock_layer_tls_prev_push, CONTROL_TLS_PREV_PUSH__WRITE_ERROR );
+    /* set the specific error to be returned by the mock IO layer (here tls_prev) */
+    will_return( xi_mock_layer_tls_prev_push, XI_STATE_FAILED_WRITING );
+
+    /* make mock broker not to reply on PINGREQ, this is necessary since the
+     * mock broker catches the message before IO layer */
+    will_return( xi_mock_broker_layer_pull, CONTROL_PULL_PINGREQ_SUPPRESS_RESPONSE );
+
+    xi_itest_mqtt_keepalive__act( state, 13 );
 }
