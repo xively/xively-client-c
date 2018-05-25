@@ -126,8 +126,10 @@ xi_bsp_io_net_state_t xi_bsp_io_net_write( xi_bsp_socket_t xi_socket,
 
     *out_written_count = write( xi_socket, buf, count );
 
-    if ( 0 > *out_written_count )
+    if ( *out_written_count < 0 )
     {
+        *out_written_count = 0;
+
         errval = errno;
         errno  = 0;
 
@@ -140,6 +142,8 @@ xi_bsp_io_net_state_t xi_bsp_io_net_write( xi_bsp_socket_t xi_socket,
         {
             return XI_BSP_IO_NET_STATE_CONNECTION_RESET;
         }
+
+        return XI_BSP_IO_NET_STATE_ERROR;
     }
 
     return XI_BSP_IO_NET_STATE_OK;
@@ -158,8 +162,10 @@ xi_bsp_io_net_state_t xi_bsp_io_net_read( xi_bsp_socket_t xi_socket,
     int errval      = 0;
     *out_read_count = read( xi_socket, buf, count );
 
-    if ( 0 > *out_read_count )
+    if ( *out_read_count < 0 )
     {
+        *out_read_count = 0;
+
         errval = errno;
         errno  = 0;
 
@@ -172,6 +178,8 @@ xi_bsp_io_net_state_t xi_bsp_io_net_read( xi_bsp_socket_t xi_socket,
         {
             return XI_BSP_IO_NET_STATE_CONNECTION_RESET;
         }
+
+        return XI_BSP_IO_NET_STATE_ERROR;
     }
 
     if ( 0 == *out_read_count )
