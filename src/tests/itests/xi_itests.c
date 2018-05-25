@@ -12,6 +12,7 @@
 #include "xi_itest_tls_layer.h"
 #endif
 #include "xi_itest_mqttlogic_layer.h"
+#include "xi_itest_mqtt_keepalive.h"
 #ifdef XI_CONTROL_TOPIC_ENABLED
 #include "xi_itest_sft.h"
 #endif
@@ -32,6 +33,7 @@ struct CMGroupTest groups[] = {cmocka_test_group( xi_itests_clean_session ),
                                cmocka_test_group( xi_itests_sft ),
 #endif
 #endif
+                               cmocka_test_group( xi_itests_mqtt_keepalive ),
                                cmocka_test_group_end};
 
 int8_t xi_cm_strict_mock = 0;

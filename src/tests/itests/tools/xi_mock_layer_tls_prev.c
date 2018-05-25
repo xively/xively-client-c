@@ -61,7 +61,14 @@ xi_mock_layer_tls_prev_push( void* context, void* data, xi_state_t in_out_state 
                                                XI_STATE_OK );
             }
         }
-        break;
+            break;
+        case CONTROL_TLS_PREV_PUSH__WRITE_ERROR:
+            {
+                xi_state_t state_to_return = mock_type( xi_state_t );
+
+                return XI_PROCESS_PUSH_ON_NEXT_LAYER( context, NULL, state_to_return );
+            }
+            break;
         case CONTROL_TLS_PREV_CLOSE:
             return XI_PROCESS_CLOSE_ON_THIS_LAYER( context, NULL,
                                                    mock_type( xi_state_t ) );

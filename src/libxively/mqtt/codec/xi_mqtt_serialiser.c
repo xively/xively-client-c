@@ -158,7 +158,8 @@ xi_state_t xi_mqtt_serialiser_size( size_t* msg_len,
         *msg_len += 2; /* size of the msg id */
         *msg_len += 1; /* qos */
     }
-    else if ( message->common.common_u.common_bits.type == XI_MQTT_TYPE_PINGREQ )
+    else if ( message->common.common_u.common_bits.type == XI_MQTT_TYPE_PINGREQ ||
+              message->common.common_u.common_bits.type == XI_MQTT_TYPE_PINGRESP )
     {
         /* just a fixed header */
     }
@@ -300,6 +301,7 @@ xi_mqtt_serialiser_rc_t xi_mqtt_serialiser_write( xi_mqtt_serialiser_t* serialis
         }
 
         case XI_MQTT_TYPE_PINGREQ:
+        case XI_MQTT_TYPE_PINGRESP:
         {
             /* empty */
             break;

@@ -8,6 +8,7 @@
 #define __XI_ITEST_MOCK_BROKER_LAYER_H__
 
 #include "xi_layer_interface.h"
+#include "xi_data_desc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,7 +17,8 @@ extern "C" {
 typedef enum xi_mock_broker_control_init_e {
     CONTROL_CONTINUE,
     CONTROL_ERROR,
-    CONTROL_SKIP_CHECK_EXPECTED
+    CONTROL_SKIP_CHECK_EXPECTED,
+    CONTROL_PULL_PINGREQ_SUPPRESS_RESPONSE
 } xi_mock_broker_control_t;
 
 typedef struct xi_mock_broker_data_s

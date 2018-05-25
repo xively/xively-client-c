@@ -16,6 +16,7 @@ extern "C" {
 typedef enum xi_mock_layer_tls_prev_control_e {
     CONTROL_TLS_PREV_CONTINUE,
     CONTROL_TLS_PREV_PUSH__RETURN_MESSAGE,
+    CONTROL_TLS_PREV_PUSH__WRITE_ERROR,
     CONTROL_TLS_PREV_CLOSE
 } xi_mock_layer_tls_prev_control_t;
 
