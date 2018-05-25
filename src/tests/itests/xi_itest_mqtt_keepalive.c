@@ -20,19 +20,12 @@ extern xi_context_handle_t xi_context_handle;
 extern xi_context_t* xi_context_mockbroker;
 /* end of dependency */
 
-typedef struct xi_itest_mqtt_keepalive__test_fixture_s
-{
-
-} xi_itest_mqtt_keepalive__test_fixture_t;
-
 
 int xi_itest_mqtt_keepalive_setup( void** fixture_void )
 {
     XI_UNUSED( fixture_void );
 
     xi_memory_limiter_tearup();
-
-    //*fixture_void = xi_itest_mqtt_keepalive__generate_fixture();
 
     xi_globals.backoff_status.backoff_lut_i = 0;
     xi_cancel_backoff_event();
@@ -70,11 +63,6 @@ int xi_itest_mqtt_keepalive_teardown( void** fixture_void )
 
     xi_shutdown();
 
-    xi_itest_mqtt_keepalive__test_fixture_t* fixture =
-        ( xi_itest_mqtt_keepalive__test_fixture_t* )*fixture_void;
-
-    XI_SAFE_FREE( fixture );
-
     return !xi_memory_limiter_teardown();
 }
 
@@ -95,6 +83,7 @@ void _xi_itest_mqtt_keepalive__on_connection_state_changed( xi_context_handle_t 
 static void xi_itest_mqtt_keepalive__act( void** fixture_void,
                                           const uint16_t loop_id_reset_by_peer )
 {
+    XI_UNUSED( fixture_void );
     {
         /* turn off LAYER and MQTT LEVEL expectation checks to concentrate only on SFT
          * protocol messages */
@@ -107,10 +96,6 @@ static void xi_itest_mqtt_keepalive__act( void** fixture_void,
         will_return_always( xi_mock_layer_tls_prev__check_expected__LAYER_LEVEL,
                             CONTROL_SKIP_CHECK_EXPECTED );
     }
-
-    const xi_itest_mqtt_keepalive__test_fixture_t* const fixture =
-        ( xi_itest_mqtt_keepalive__test_fixture_t* )*fixture_void;
-    XI_UNUSED( fixture );
 
     XI_PROCESS_INIT_ON_THIS_LAYER(
         &xi_context_mockbroker->layer_chain.top->layer_connection, NULL, XI_STATE_OK );
@@ -143,7 +128,7 @@ static void xi_itest_mqtt_keepalive__act( void** fixture_void,
                 XI_CONNECTION_RESET_BY_PEER_ERROR );
         }
 
-        if ( loop_counter_disconnect  == loop_counter )
+        if ( loop_counter_disconnect == loop_counter )
         {
             xi_shutdown_connection( xi_context_handle );
         }
