@@ -74,7 +74,9 @@ void _xi_itest_mqtt_keepalive__on_connection_state_changed( xi_context_handle_t 
     XI_UNUSED( data );
     XI_UNUSED( state );
 
+#ifndef XI_MODULE_THREAD_ENABLED
     check_expected( state );
+#endif
 }
 
 /*********************************************************************************
