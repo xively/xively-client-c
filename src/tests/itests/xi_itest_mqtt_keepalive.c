@@ -139,7 +139,11 @@ static void xi_itest_mqtt_keepalive__act( void** fixture_void,
 void xi_itest_mqtt_keepalive__PINGREQ_failed_to_send__client_disconnects_after_keepalive_seconds( void** state )
 {
     /* let CONNECT and SUBSCRIBE writes succeed */
+#ifdef XI_CONTROL_TOPIC_ENABLED
     will_return_count( xi_mock_layer_tls_prev_push, CONTROL_TLS_PREV_CONTINUE, 2 );
+#else
+    will_return_count( xi_mock_layer_tls_prev_push, CONTROL_TLS_PREV_CONTINUE, 1 );
+#endif
 
     /* make first PINGREQ fail to write on the socket */
     will_return( xi_mock_layer_tls_prev_push, CONTROL_TLS_PREV_PUSH__WRITE_ERROR );
@@ -159,7 +163,11 @@ void xi_itest_mqtt_keepalive__PINGREQ_failed_to_send__client_disconnects_after_k
 void xi_itest_mqtt_keepalive__PINGREQ_failed_to_send__broker_disconnects_first( void** state )
 {
     /* let CONNECT and SUBSCRIBE writes succeed */
+#ifdef XI_CONTROL_TOPIC_ENABLED
     will_return_count( xi_mock_layer_tls_prev_push, CONTROL_TLS_PREV_CONTINUE, 2 );
+#else
+    will_return_count( xi_mock_layer_tls_prev_push, CONTROL_TLS_PREV_CONTINUE, 1 );
+#endif
 
     /* make first PINGREQ fail to write on the socket */
     will_return( xi_mock_layer_tls_prev_push, CONTROL_TLS_PREV_PUSH__WRITE_ERROR );
@@ -181,7 +189,11 @@ void xi_itest_mqtt_keepalive__PINGREQ_failed_to_send__broker_disconnects_first( 
 void xi_itest_mqtt_keepalive__2nd_PINGREQ_failed_to_send__broker_disconnects_first( void** state )
 {
     /* let CONNECT and SUBSCRIBE writes succeed */
+#ifdef XI_CONTROL_TOPIC_ENABLED
     will_return_count( xi_mock_layer_tls_prev_push, CONTROL_TLS_PREV_CONTINUE, 3 );
+#else
+    will_return_count( xi_mock_layer_tls_prev_push, CONTROL_TLS_PREV_CONTINUE, 2 );
+#endif
 
     /* make first PINGREQ fail to write on the socket */
     will_return( xi_mock_layer_tls_prev_push, CONTROL_TLS_PREV_PUSH__WRITE_ERROR );
