@@ -154,8 +154,10 @@ void xi_itest_mqtt_keepalive__PINGREQ_failed_to_send__client_disconnects_after_k
      * mock broker catches the message before IO layer */
     will_return( xi_mock_broker_layer_pull, CONTROL_PULL_PINGREQ_SUPPRESS_RESPONSE );
 
+#ifndef XI_MODULE_THREAD_ENABLED
     expect_value( _xi_itest_mqtt_keepalive__on_connection_state_changed, state, XI_STATE_OK );
     expect_value( _xi_itest_mqtt_keepalive__on_connection_state_changed, state, XI_STATE_TIMEOUT );
+#endif
 
     xi_itest_mqtt_keepalive__act( state, 0 );
 }
@@ -178,10 +180,12 @@ void xi_itest_mqtt_keepalive__PINGREQ_failed_to_send__broker_disconnects_first( 
      * mock broker catches the message before IO layer */
     will_return( xi_mock_broker_layer_pull, CONTROL_PULL_PINGREQ_SUPPRESS_RESPONSE );
 
+#ifndef XI_MODULE_THREAD_ENABLED
     expect_value( _xi_itest_mqtt_keepalive__on_connection_state_changed, state, XI_STATE_OK );
     expect_value( _xi_itest_mqtt_keepalive__on_connection_state_changed, state,
                   XI_CONNECTION_RESET_BY_PEER_ERROR );
     expect_value( _xi_itest_mqtt_keepalive__on_connection_state_changed, state, XI_STATE_TIMEOUT );
+#endif
 
     xi_itest_mqtt_keepalive__act( state, 11 );
 }
@@ -206,10 +210,12 @@ void xi_itest_mqtt_keepalive__2nd_PINGREQ_failed_to_send__broker_disconnects_fir
      * mock broker catches the message before IO layer */
     will_return( xi_mock_broker_layer_pull, CONTROL_PULL_PINGREQ_SUPPRESS_RESPONSE );
 
+#ifndef XI_MODULE_THREAD_ENABLED
     expect_value( _xi_itest_mqtt_keepalive__on_connection_state_changed, state, XI_STATE_OK );
     expect_value( _xi_itest_mqtt_keepalive__on_connection_state_changed, state,
                   XI_CONNECTION_RESET_BY_PEER_ERROR );
     expect_value( _xi_itest_mqtt_keepalive__on_connection_state_changed, state, XI_STATE_TIMEOUT );
+#endif
 
     xi_itest_mqtt_keepalive__act( state, 18 );
 }
