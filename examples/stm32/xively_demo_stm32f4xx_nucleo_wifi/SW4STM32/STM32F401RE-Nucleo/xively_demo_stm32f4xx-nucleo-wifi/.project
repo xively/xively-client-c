@@ -823,11 +823,11 @@
 	<variableList>
 		<variable>
 			<name>XI_STMCUBE_MEMS_PATH</name>
-			<value>file:/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_MEMS1_V4.0.0</value>
+			<value>file:/Users/ddellabitta/Downloads/stm/jan2018/STM32CubeExpansion_MEMS1_V4.2.0</value>
 		</variable>
 		<variable>
 			<name>XI_STMCUBE_PATH</name>
-			<value>file:/Users/palantir/Work/Xively/stm32f4xx/STM32CubeExpansion_WIFI1_V3.0.1</value>
+			<value>file:/Users/ddellabitta/Downloads/stm/jan2018/STM32CubeExpansion_WIFI1_V3.1.1</value>
 		</variable>
 	</variableList>
 </projectDescription>

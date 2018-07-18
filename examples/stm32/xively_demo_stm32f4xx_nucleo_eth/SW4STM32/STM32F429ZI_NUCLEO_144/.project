@@ -930,11 +930,11 @@
 	<variableList>
 		<variable>
 			<name>XI_STMCUBE_MEMS_PATH</name>
-			<value>file:/Users/ddellabitta/dev/st/STM32CubeExpansion_MEMS1_V4.0.0</value>
+			<value>file:/Users/ddellabitta/Downloads/stm/jan2018/STM32CubeExpansion_MEMS1_V4.2.0</value>
 		</variable>
 		<variable>
 			<name>XI_STMCUBE_PATH</name>
-			<value>file:/Users/ddellabitta/dev/st/STM32Cube_FW_F4_V1.16.0</value>
+			<value>file:/Users/ddellabitta/Downloads/stm/jan2018/STM32Cube_FW_F4_V1.18.0</value>
 		</variable>
 	</variableList>
 </projectDescription>

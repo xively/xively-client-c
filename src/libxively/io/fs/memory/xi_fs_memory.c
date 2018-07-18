@@ -210,6 +210,12 @@ xi_state_t xi_fs_read( const void* context,
 {
     XI_UNUSED( context );
 
+#ifdef XI_NO_TLS_LAYER
+    /* DDB Jan 23, 2018:
+       NO TLS LAYER, the resources array is empty. Attempting to resolve an element init
+       XI_FS_MEMORY_DATABASE below was causing an issue on STM32's GCC toolchain. */
+    return XI_INVALID_PARAMETER;
+#else
     const size_t database_size = XI_ARRAYSIZE( XI_FS_MEMORY_DATABASE );
 
     if ( XI_FS_INVALID_RESOURCE_HANDLE == resource_handle ||
@@ -238,7 +244,7 @@ xi_state_t xi_fs_read( const void* context,
 
     const xi_fs_memory_database_t* const entry = &XI_FS_MEMORY_DATABASE[resource_handle];
 
-    // PRE-CONDITION
+    /* PRE-CONDITION */
     assert( NULL != entry->stat_handler_function );
 
     xi_state_t res = entry->stat_handler_function( resource_handle, &resource_stat );
@@ -259,6 +265,7 @@ xi_state_t xi_fs_read( const void* context,
     }
 
     return res;
+#endif /* ifndef XI_NO_TLS_LAYER */
 }
 
 xi_state_t xi_fs_write( const void* context,

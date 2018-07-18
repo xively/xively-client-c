@@ -63,7 +63,7 @@ ifneq (,$(findstring fuzz_test,$(CONFIG)))
     XI_CONFIG_FLAGS += -fsanitize=address -fomit-frame-pointer -fsanitize-coverage=trace-pc-guard -g
 endif
 
-XI_COMPILER_FLAGS += -Wall -Werror
+XI_COMPILER_FLAGS += -Wall
 
 # TEMPORARILY disable warnings until the code gets changed
 # For all compilers:
